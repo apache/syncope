@@ -501,6 +501,7 @@ under the License.
     <docker.postgresql.version>16</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
+    <docker.neo4j.version>5.16.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
@@ -672,6 +673,18 @@ under the License.
           <exclusion>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-neo4j</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
         </exclusions>
       </dependency>

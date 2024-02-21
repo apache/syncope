@@ -47,7 +47,7 @@ import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIUserTemplate;
-import org.apache.syncope.core.persistence.jpa.validation.entity.OIDCC4UIProviderCheck;
+import org.apache.syncope.core.persistence.api.validation.OIDCC4UIProviderCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.util.CollectionUtils;
 

@@ -25,7 +25,6 @@ import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.JPAFIQLQuery;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +49,7 @@ public class FIQLQueryTest extends AbstractTest {
 
         entityManager.flush();
 
-        JPAFIQLQuery fiqlQuery = new JPAFIQLQuery();
+        FIQLQuery fiqlQuery = entityFactory.newEntity(FIQLQuery.class);
         fiqlQuery.setOwner(userDAO.findByUsername("rossini").orElseThrow());
 
         assertEquals(

@@ -22,10 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -51,12 +49,10 @@ public class XMLContentExporterTest extends AbstractTest {
 
         exporter.export(SyncopeConstants.MASTER_DOMAIN, 100, baos);
 
-        String exported = baos.toString(Charset.defaultCharset());
+        String exported = baos.toString(StandardCharsets.UTF_8);
         assertTrue(StringUtils.isNotBlank(exported));
 
-        List<String> realms = IOUtils.readLines(
-                IOUtils.toInputStream(exported, StandardCharsets.UTF_8), StandardCharsets.UTF_8.name()).stream().
-                filter(row -> row.trim().startsWith("<Realm")).toList();
+        List<String> realms = exported.lines().filter(row -> row.trim().startsWith("<Realm")).toList();
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("name=\"/\""));
         assertTrue(realms.get(1).contains("name=\"even\""));

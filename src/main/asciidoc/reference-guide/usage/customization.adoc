@@ -376,7 +376,7 @@ Add the following dependencies to `core/pom.xml`:
 </dependency>
 <dependency>
   <groupId>org.apache.syncope.ext.elasticsearch</groupId>
-  <artifactId>syncope-ext-elasticsearch-persistence-jpa</artifactId>
+  <artifactId>syncope-ext-elasticsearch-persistence</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----
@@ -434,7 +434,7 @@ Add the following dependencies to `core/pom.xml`:
 </dependency>
 <dependency>
   <groupId>org.apache.syncope.ext.opensearch</groupId>
-  <artifactId>syncope-ext-opensearch-persistence-jpa</artifactId>
+  <artifactId>syncope-ext-opensearch-persistence</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----

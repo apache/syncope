@@ -43,7 +43,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -70,7 +70,8 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.common.dao.AbstractAnySearchDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -86,6 +87,21 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             + "lastLoginDate,mustChangePassword,suspended,username";
 
     private static final Map<String, Boolean> IS_ORACLE = new ConcurrentHashMap<>();
+
+    protected static int setParameter(final List<Object> parameters, final Object parameter) {
+        parameters.add(parameter);
+        return parameters.size();
+    }
+
+    protected static void fillWithParameters(final Query query, final List<Object> parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i) instanceof Boolean aBoolean) {
+                query.setParameter(i + 1, aBoolean ? 1 : 0);
+            } else {
+                query.setParameter(i + 1, parameters.get(i));
+            }
+        }
+    }
 
     protected final EntityManagerFactory entityManagerFactory;
 
@@ -192,7 +208,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected int doCount(
+    protected long doCount(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
@@ -223,7 +239,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Query countQuery = entityManager.createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return ((Number) countQuery.getSingleResult()).longValue();
     }
 
     @Override
@@ -236,11 +252,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final Pageable pageable,
             final AnyTypeKind kind) {
 
+        List<Object> parameters = new ArrayList<>();
+        SearchSupport svs = buildSearchSupport(kind);
         try {
-            List<Object> parameters = new ArrayList<>();
-
-            SearchSupport svs = buildSearchSupport(kind);
-
             Triple<String, Set<String>, Set<String>> filter =
                     getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
@@ -287,21 +301,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         return List.of();
-    }
-
-    protected int setParameter(final List<Object> parameters, final Object parameter) {
-        parameters.add(parameter);
-        return parameters.size();
-    }
-
-    protected void fillWithParameters(final Query query, final List<Object> parameters) {
-        for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i) instanceof Boolean aBoolean) {
-                query.setParameter(i + 1, aBoolean ? 1 : 0);
-            } else {
-                query.setParameter(i + 1, parameters.get(i));
-            }
-        }
     }
 
     protected StringBuilder buildSelect(final OrderBySupport obs) {
@@ -397,36 +396,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return orderBy;
     }
 
-    protected String key(final AttrSchemaType schemaType) {
-        String key;
-        switch (schemaType) {
-            case Boolean:
-                key = "booleanValue";
-                break;
-
-            case Date:
-                key = "dateValue";
-                break;
-
-            case Double:
-                key = "doubleValue";
-                break;
-
-            case Long:
-                key = "longValue";
-                break;
-
-            case Binary:
-                key = "binaryValue";
-                break;
-
-            default:
-                key = "stringValue";
-        }
-
-        return key;
-    }
-
     protected void parseOrderByForPlainSchema(
             final SearchSupport svs,
             final OrderBySupport obs,
@@ -498,7 +467,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             parseOrderByForCustom(svs, clause, item, obs);
 
             if (item.isEmpty()) {
-                if (anyUtils.getField(clause.getProperty()) == null) {
+                if (anyUtils.getField(clause.getProperty()).isPresent()) {
+                    // Manage difference among external key attribute and internal JPA @Id
+                    String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
+
+                    // Adjust field name to column name
+                    if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
+                        fieldName += "_id";
+                    }
+
+                    obs.views.add(svs.field());
+
+                    parseOrderByForField(svs, item, fieldName, clause);
+                } else {
                     Optional<? extends PlainSchema> schema = plainSchemaDAO.findById(clause.getProperty());
                     if (schema.isPresent()) {
                         if (schema.get().isUniqueConstraint()) {
@@ -516,18 +497,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         }
                         parseOrderByForPlainSchema(svs, obs, item, clause, schema.get(), clause.getProperty());
                     }
-                } else {
-                    // Manage difference among external key attribute and internal JPA @Id
-                    String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
-
-                    // Adjust field name to column name
-                    if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {
-                        fieldName += "_id";
-                    }
-
-                    obs.views.add(svs.field());
-
-                    parseOrderByForField(svs, item, fieldName, clause);
                 }
             }
 
@@ -557,11 +526,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final Pair<StringBuilder, Set<String>> leftInfo,
             final Pair<StringBuilder, Set<String>> rightInfo) {
 
-        String subQuery = leftInfo.getKey().toString();
+        String subQuery = leftInfo.getLeft().toString();
         // Add extra parentheses
         subQuery = subQuery.replaceFirst("WHERE ", "WHERE (");
         query.append(subQuery).
-                append(' ').append(op).append(" any_id IN ( ").append(rightInfo.getKey()).append("))");
+                append(' ').append(op).append(" any_id IN ( ").append(rightInfo.getLeft()).append("))");
     }
 
     protected Pair<StringBuilder, Set<String>> getQuery(
@@ -573,8 +542,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         Set<String> involvedPlainAttrs = new HashSet<>();
 
         switch (cond.getType()) {
-            case LEAF:
-            case NOT_LEAF:
+            case LEAF, NOT_LEAF -> {
                 cond.getLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
@@ -613,25 +581,21 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
 
                 cond.getLeaf(AnyCond.class).ifPresentOrElse(
-                        anyCond -> {
-                            query.append(getQuery(anyCond, not, parameters, svs));
-                        },
-                        () -> {
-                            cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
-                                query.append(getQuery(leaf, not, parameters, svs));
-                                try {
-                                    involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
-                                } catch (IllegalArgumentException e) {
-                                    // ignore
-                                }
-                            });
-                        });
+                        anyCond -> query.append(getQuery(anyCond, not, parameters, svs)),
+                        () -> cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
+                            query.append(getQuery(leaf, not, parameters, svs));
+                            try {
+                                involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
+                            } catch (IllegalArgumentException e) {
+                                // ignore
+                            }
+                        }));
 
                 // allow for additional search conditions
                 getQueryForCustomConds(cond, parameters, svs, not, query);
-                break;
+            }
 
-            case AND:
+            case AND -> {
                 Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeft(), parameters, svs);
                 involvedPlainAttrs.addAll(leftAndInfo.getRight());
 
@@ -639,9 +603,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 involvedPlainAttrs.addAll(rigthAndInfo.getRight());
 
                 queryOp(query, "AND", leftAndInfo, rigthAndInfo);
-                break;
+            }
 
-            case OR:
+            case OR -> {
                 Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeft(), parameters, svs);
                 involvedPlainAttrs.addAll(leftOrInfo.getRight());
 
@@ -649,9 +613,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 involvedPlainAttrs.addAll(rigthOrInfo.getRight());
 
                 queryOp(query, "OR", leftOrInfo, rigthOrInfo);
-                break;
+            }
 
-            default:
+            default -> {
+            }
         }
 
         return Pair.of(query, involvedPlainAttrs);

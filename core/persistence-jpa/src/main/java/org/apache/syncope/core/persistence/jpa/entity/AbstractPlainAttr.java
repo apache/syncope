@@ -25,14 +25,14 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
+import org.apache.syncope.core.persistence.common.validation.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck

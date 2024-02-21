@@ -25,7 +25,6 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -35,9 +34,9 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
@@ -114,8 +113,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
         connInstance.setConf(connInstanceTO.getConf());
         if (connInstanceTO.getPoolConf() != null) {
-            connInstance.setPoolConf(
-                    ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
+            connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf()));
         }
 
         // Throw exception if there is at least one element set
@@ -177,8 +175,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         if (connInstanceTO.getPoolConf() == null) {
             connInstance.setPoolConf(null);
         } else {
-            connInstance.setPoolConf(
-                    ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
+            connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf()));
         }
 
         return connInstance;
@@ -251,22 +248,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         Collections.sort(connInstanceTO.getConf());
 
-        // pool configuration
-        if (connInstance.getPoolConf() != null
-                && (connInstance.getPoolConf().getMaxIdle() != null
-                || connInstance.getPoolConf().getMaxObjects() != null
-                || connInstance.getPoolConf().getMaxWait() != null
-                || connInstance.getPoolConf().getMinEvictableIdleTimeMillis() != null
-                || connInstance.getPoolConf().getMinIdle() != null)) {
-
-            ConnPoolConfTO poolConf = new ConnPoolConfTO();
-            poolConf.setMaxIdle(connInstance.getPoolConf().getMaxIdle());
-            poolConf.setMaxObjects(connInstance.getPoolConf().getMaxObjects());
-            poolConf.setMaxWait(connInstance.getPoolConf().getMaxWait());
-            poolConf.setMinEvictableIdleTimeMillis(connInstance.getPoolConf().getMinEvictableIdleTimeMillis());
-            poolConf.setMinIdle(connInstance.getPoolConf().getMinIdle());
-            connInstanceTO.setPoolConf(poolConf);
-        }
+        connInstanceTO.setPoolConf(connInstance.getPoolConf());
 
         return connInstanceTO;
     }

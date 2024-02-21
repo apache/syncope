@@ -27,7 +27,7 @@ public interface ContentExporter extends ContentDealer {
 
     void export(
             String domain,
-            int tableThreshold,
+            int threshold,
             OutputStream output)
             throws SAXException, TransformerConfigurationException;
 }

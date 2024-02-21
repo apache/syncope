@@ -40,7 +40,7 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
     protected final DomainOps domainOps;
 
-    protected final DomainHolder domainHolder;
+    protected final DomainHolder<?> domainHolder;
 
     protected final PersistenceProperties persistenceProperties;
 
@@ -50,7 +50,7 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
     public StartupDomainLoader(
             final DomainOps domainOps,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
             final DomainRegistry domainRegistry) {

@@ -25,13 +25,11 @@ import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
@@ -70,25 +68,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         this.searchCondVisitor = searchCondVisitor;
     }
 
-    protected void setDynMembership(final Role role, final String dynMembershipFIQL) {
-        SearchCond dynMembershipCond = SearchCondConverter.convert(searchCondVisitor, dynMembershipFIQL);
-        if (!dynMembershipCond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
-            sce.getElements().add(dynMembershipFIQL);
-            throw sce;
-        }
-
-        DynRoleMembership dynMembership;
-        if (role.getDynMembership() == null) {
-            dynMembership = entityFactory.newEntity(DynRoleMembership.class);
-            dynMembership.setRole(role);
-            role.setDynMembership(dynMembership);
-        } else {
-            dynMembership = role.getDynMembership();
-        }
-        dynMembership.setFIQLCond(dynMembershipFIQL);
-    }
-
     @Override
     public Role create(final RoleTO roleTO) {
         return update(entityFactory.newEntity(Role.class), roleTO);
@@ -118,25 +97,26 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role = roleDAO.save(role);
 
-        // dynamic membership
-        roleDAO.clearDynMembers(role);
-        if (role.getKey() == null && roleTO.getDynMembershipCond() != null) {
-            setDynMembership(role, roleTO.getDynMembershipCond());
-        } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() == null) {
-            role.setDynMembership(null);
-        } else if (role.getDynMembership() == null && roleTO.getDynMembershipCond() != null) {
-            setDynMembership(role, roleTO.getDynMembershipCond());
-        } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
-                && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
-
-            setDynMembership(role, roleTO.getDynMembershipCond());
-        }
-
+        // privileges
         role.getPrivileges().clear();
         for (String key : roleTO.getPrivileges()) {
             applicationDAO.findPrivilege(key).ifPresentOrElse(
                     role::add,
                     () -> LOG.debug("Invalid privilege {}, ignoring", key));
+        }
+
+        // dynamic membership
+        roleDAO.clearDynMembers(role);
+        if (roleTO.getDynMembershipCond() == null) {
+            role.setDynMembershipCond(null);
+        } else {
+            if (!SearchCondConverter.convert(searchCondVisitor, roleTO.getDynMembershipCond()).isValid()) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
+                sce.getElements().add(roleTO.getDynMembershipCond());
+                throw sce;
+            }
+
+            role.setDynMembershipCond(roleTO.getDynMembershipCond());
         }
 
         return roleDAO.saveAndRefreshDynMemberships(role);
@@ -149,18 +129,13 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.setKey(role.getKey());
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
-        roleTO.getRealms().addAll(role.getRealms().stream().
-                map(Realm::getFullPath).toList());
+        roleTO.getRealms().addAll(role.getRealms().stream().map(Realm::getFullPath).toList());
 
-        roleTO.getDynRealms().addAll(role.getDynRealms().stream().
-                map(DynRealm::getKey).toList());
+        roleTO.getDynRealms().addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
 
-        if (role.getDynMembership() != null) {
-            roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());
-        }
+        roleTO.setDynMembershipCond(role.getDynMembershipCond());
 
-        roleTO.getPrivileges().addAll(role.getPrivileges().stream().
-                map(Privilege::getKey).toList());
+        roleTO.getPrivileges().addAll(role.getPrivileges().stream().map(Privilege::getKey).toList());
 
         return roleTO;
     }

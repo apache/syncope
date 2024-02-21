@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -33,7 +34,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Date;
 import java.util.UUID;
-import org.apache.commons.io.IOUtils;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -98,7 +99,8 @@ public class SAML2SPEntityTest extends AbstractTest {
     private SAML2SPEntity create(final String owner) throws Exception {
         SAML2SPEntity entity = entityFactory.newEntity(SAML2SPEntity.class);
         entity.setKey(owner);
-        entity.setMetadata(IOUtils.toByteArray(new ClassPathResource("sp-metadata.xml").getInputStream()));
+        entity.setMetadata(IOUtils.toString(
+                new ClassPathResource("sp-metadata.xml").getInputStream()).getBytes(StandardCharsets.UTF_8));
 
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         char[] pwdArray = "password".toCharArray();

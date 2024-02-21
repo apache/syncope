@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.ArrayList;
 import java.util.List;
+import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -85,7 +86,7 @@ public class PersistenceTestContext {
     @Bean
     public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
-            final DomainHolder domainHolder,
+            final DomainHolder<DataSource> domainHolder,
             final ContentLoader contentLoader,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {

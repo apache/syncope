@@ -54,10 +54,10 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +78,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
-
-    public static final String GROUP_OWNER_ROLE = "GROUP_OWNER";
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
@@ -341,7 +339,7 @@ public class AuthDataAccessor {
         // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
         // either statically and dynamically
         userDAO.findAllRoles(user).stream().
-                filter(role -> !GROUP_OWNER_ROLE.equals(role.getKey())).
+                filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
@@ -356,7 +354,8 @@ public class AuthDataAccessor {
         }));
 
         // Give group entitlements for owned groups
-        groupDAO.findOwnedByUser(user.getKey()).forEach(group -> roleDAO.findById(GROUP_OWNER_ROLE).ifPresentOrElse(
+        groupDAO.findOwnedByUser(user.getKey()).
+                forEach(group -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
                 groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                         HashSet<String> r = new HashSet<>();
@@ -366,7 +365,7 @@ public class AuthDataAccessor {
 
                     realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                 }),
-                () -> LOG.warn("Role {} was not found", GROUP_OWNER_ROLE)));
+                () -> LOG.warn("Role {} was not found", RoleDAO.GROUP_OWNER_ROLE)));
 
         return buildAuthorities(entForRealms);
     }
@@ -374,7 +373,7 @@ public class AuthDataAccessor {
     protected Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
         Map<String, Set<String>> entForRealms = new HashMap<>();
 
-        delegation.getRoles().stream().filter(role -> !GROUP_OWNER_ROLE.equals(role.getKey())).
+        delegation.getRoles().stream().filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 HashSet<String> r = new HashSet<>();

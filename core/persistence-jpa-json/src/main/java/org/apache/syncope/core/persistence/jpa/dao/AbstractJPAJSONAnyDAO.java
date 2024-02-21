@@ -57,6 +57,29 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JPAJSONAnyDAO.class);
 
+    /**
+     * Split an attribute value recurring on provided literals/tokens.
+     *
+     * @param attrValue value to be split
+     * @param literals literals/tokens
+     * @return split value
+     */
+    protected static List<String> split(final String attrValue, final List<String> literals) {
+        List<String> attrValues = new ArrayList<>();
+
+        if (literals.isEmpty()) {
+            attrValues.add(attrValue);
+        } else {
+            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
+                if (!token.isEmpty()) {
+                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
+                }
+            }
+        }
+
+        return attrValues;
+    }
+
     protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final EntityManager entityManager;
@@ -177,29 +200,6 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
         return result.isEmpty()
                 ? Optional.empty()
                 : Optional.of(result.get(0));
-    }
-
-    /**
-     * Split an attribute value recurring on provided literals/tokens.
-     *
-     * @param attrValue value to be split
-     * @param literals literals/tokens
-     * @return split value
-     */
-    protected List<String> split(final String attrValue, final List<String> literals) {
-        List<String> attrValues = new ArrayList<>();
-
-        if (literals.isEmpty()) {
-            attrValues.add(attrValue);
-        } else {
-            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
-                if (!token.isEmpty()) {
-                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
-                }
-            }
-        }
-
-        return attrValues;
     }
 
     @SuppressWarnings("unchecked")

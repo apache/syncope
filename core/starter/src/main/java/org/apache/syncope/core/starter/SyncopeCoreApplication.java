@@ -111,13 +111,13 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public SyncopeCoreStart keymasterStart(final DomainHolder domainHolder) {
+    public SyncopeCoreStart keymasterStart(final DomainHolder<?> domainHolder) {
         return new SyncopeCoreStart(domainHolder);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public KeymasterStop keymasterStop(final DomainHolder domainHolder) {
+    public KeymasterStop keymasterStop(final DomainHolder<?> domainHolder) {
         return new SyncopeCoreStop(domainHolder);
     }
 
@@ -162,7 +162,7 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainsHealthIndicator domainsHealthIndicator(final DomainHolder domainHolder) {
+    public DomainsHealthIndicator domainsHealthIndicator(final DomainHolder<?> domainHolder) {
         return new DomainsHealthIndicator(domainHolder);
     }
 

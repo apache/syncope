@@ -88,5 +88,4 @@ public class JPADerSchema extends AbstractSchema implements DerSchema {
     public boolean isReadonly() {
         return Boolean.FALSE;
     }
-
 }

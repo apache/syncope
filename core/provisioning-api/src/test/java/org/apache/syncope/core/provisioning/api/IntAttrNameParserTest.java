@@ -30,6 +30,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.springframework.util.ReflectionUtils;
 
 public class IntAttrNameParserTest extends AbstractTest {
 
@@ -86,10 +86,14 @@ public class IntAttrNameParserTest extends AbstractTest {
             return anyUtils;
         });
         lenient().when(anyUtils.getField(anyString())).thenAnswer(ic -> {
-            String field = ic.getArgument(0);
-            return FIELDS.get(anyUtils.anyTypeKind()).contains(field)
-                    ? ReflectionUtils.findField(getClass(), "anyUtils")
-                    : null;
+            String fieldName = ic.getArgument(0);
+            if (FIELDS.get(anyUtils.anyTypeKind()).contains(fieldName)) {
+                Field field = mock(Field.class);
+                when(field.getName()).thenReturn(fieldName);
+                when(field.getType()).thenAnswer(ic2 -> String.class);
+                return Optional.of(field);
+            }
+            return Optional.empty();
         });
         lenient().when(plainSchemaDAO.findById(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);

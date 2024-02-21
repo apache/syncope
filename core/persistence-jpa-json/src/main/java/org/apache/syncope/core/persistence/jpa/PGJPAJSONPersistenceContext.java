@@ -20,9 +20,10 @@ package org.apache.syncope.core.persistence.jpa;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -34,8 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtPGJSONImpl;
+import org.apache.syncope.core.persistence.jpa.dao.PGJPAJSONAuditEntryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtPGJSONImpl;
 import org.apache.syncope.core.persistence.jpa.entity.PGJPAJSONEntityFactory;
@@ -88,10 +88,9 @@ public class PGJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
                 entityManager);
     }
 
-    @ConditionalOnMissingBean(name = "pgJPAJSONAuditConfRepoExt")
-    @Bean
-    public AuditConfRepoExt auditConfRepoExt(final EntityManager entityManager) {
-        return new AuditConfRepoExtPGJSONImpl(entityManager);
+    @ConditionalOnMissingBean(name = "pgJPAJSONAuditEntryDAO")
+    public AuditEntryDAO auditEntryDAO(final EntityManager entityManager) {
+        return new PGJPAJSONAuditEntryDAO(entityManager);
     }
 
     @ConditionalOnMissingBean(name = "pgJPAJSONPlainSchemaRepoExt")

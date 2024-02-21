@@ -22,7 +22,7 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.jpa.validation.entity.RelationshipTypeCheck;
+import org.apache.syncope.core.persistence.common.validation.RelationshipTypeCheck;
 
 @Entity
 @Table(name = JPARelationshipType.TABLE)

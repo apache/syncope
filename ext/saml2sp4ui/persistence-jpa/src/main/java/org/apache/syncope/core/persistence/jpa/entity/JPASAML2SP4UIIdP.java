@@ -48,7 +48,7 @@ import org.apache.syncope.common.lib.types.SAML2SP4UIImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIIdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2SP4UIUserTemplate;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SAML2SP4UIIdPCheck;
+import org.apache.syncope.core.persistence.api.validation.SAML2SP4UIIdPCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity

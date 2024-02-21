@@ -1,0 +1,95 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.persistence.neo4j;
+
+import java.io.IOException;
+import java.io.InputStream;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.neo4j.core.Neo4jClient;
+import org.springframework.data.neo4j.core.transaction.Neo4jBookmarkManager;
+import org.springframework.data.neo4j.core.transaction.Neo4jTransactionManager;
+
+@EnableConfigurationProperties(PersistenceProperties.class)
+@Configuration(proxyBeanMethods = false)
+public class MasterDomain {
+
+    @ConditionalOnMissingBean(name = "MasterDriver")
+    @Bean(name = "MasterDriver")
+    public Driver masterDriver(final PersistenceProperties props) {
+        return GraphDatabase.driver(
+                props.getDomain().get(0).getUri(),
+                AuthTokens.basic(props.getDomain().get(0).getUsername(), props.getDomain().get(0).getPassword()),
+                Config.builder().
+                        withMaxConnectionPoolSize(props.getDomain().get(0).getMaxConnectionPoolSize()).
+                        withDriverMetrics().
+                        withLogging(Logging.slf4j()).build());
+    }
+
+    @ConditionalOnMissingBean(name = "MasterNeo4jClient")
+    @Bean(name = "MasterNeo4jClient")
+    public Neo4jClient masterNeo4jClient(
+            @Qualifier("MasterDriver")
+            final Driver driver,
+            final Neo4jBookmarkManager bookmarkManager) {
+
+        return Neo4jClient.
+                with(driver).
+                withNeo4jBookmarkManager(bookmarkManager).
+                build();
+    }
+
+    @ConditionalOnMissingBean(name = "MasterNeo4jTransactionManager")
+    @Bean(name = "MasterNeo4jTransactionManager")
+    public Neo4jTransactionManager masterNeo4jTransactionManager(
+            @Qualifier("MasterDriver")
+            final Driver driver,
+            final Neo4jBookmarkManager bookmarkManager) {
+
+        return Neo4jTransactionManager.
+                with(driver).
+                withBookmarkManager(bookmarkManager).
+                build();
+    }
+
+    @Bean(name = "MasterContentXML")
+    public InputStream masterContentXML(
+            final ResourceLoader resourceLoader,
+            final PersistenceProperties props) throws IOException {
+
+        return resourceLoader.getResource(props.getDomain().get(0).getContent()).getInputStream();
+    }
+
+    @Bean(name = "MasterKeymasterConfParamsJSON")
+    public InputStream masterKeymasterConfParamsJSON(
+            final ResourceLoader resouceLoader,
+            final PersistenceProperties props) throws IOException {
+
+        return resouceLoader.getResource(props.getDomain().get(0).getKeymasterConfParams()).getInputStream();
+    }
+}

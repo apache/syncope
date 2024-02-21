@@ -27,7 +27,6 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -54,11 +53,10 @@ public class WorkflowTestContext {
     @Bean
     public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
-            final DomainHolder domainHolder,
             final ContentLoader contentLoader,
             final ConfigurableApplicationContext ctx) {
 
-        return new TestInitializer(domainLoader, domainHolder, contentLoader, ctx);
+        return new TestInitializer(domainLoader, contentLoader, ctx);
     }
 
     @Bean

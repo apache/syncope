@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
@@ -44,9 +45,7 @@ public abstract class JPAJSONEntityListener<A extends Any<?>> {
                     ((LAPlainAttr) attr).setAccount(linkedAccount);
                 }
                 attr.getValues().forEach(value -> value.setAttr(attr));
-                if (attr.getUniqueValue() != null) {
-                    attr.getUniqueValue().setAttr(attr);
-                }
+                Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
                 return attr;
             }).forEach(entity::add);
         }

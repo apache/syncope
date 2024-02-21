@@ -67,12 +67,7 @@ public class VirSchemaRepoExtImpl extends AbstractSchemaRepoExt implements VirSc
 
     @Override
     public void deleteById(final String key) {
-        VirSchema schema = entityManager.find(JPAVirSchema.class, key);
-        if (schema == null) {
-            return;
-        }
-
-        delete(schema);
+        Optional.ofNullable(entityManager.find(JPAVirSchema.class, key)).ifPresent(this::delete);
     }
 
     @Override

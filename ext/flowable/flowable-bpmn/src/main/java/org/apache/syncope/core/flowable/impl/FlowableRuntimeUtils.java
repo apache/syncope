@@ -27,8 +27,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -210,12 +210,12 @@ public final class FlowableRuntimeUtils {
     public static void throwException(final FlowableException e, final String defaultMessage) {
         if (e.getCause() == null) {
             throw new WorkflowException(defaultMessage, e);
-        } else if (e.getCause() instanceof SyncopeClientException) {
-            throw (SyncopeClientException) e.getCause();
-        } else if (e.getCause() instanceof ParsingValidationException) {
-            throw (ParsingValidationException) e.getCause();
-        } else if (e.getCause() instanceof InvalidEntityException) {
-            throw (InvalidEntityException) e.getCause();
+        } else if (e.getCause() instanceof SyncopeClientException syncopeClientException) {
+            throw syncopeClientException;
+        } else if (e.getCause() instanceof ParsingValidationException parsingValidationException) {
+            throw parsingValidationException;
+        } else if (e.getCause() instanceof InvalidEntityException invalidEntityException) {
+            throw invalidEntityException;
         } else if (e.getCause().getClass().getName().contains("persistence")) {
             throw (RuntimeException) e.getCause();
         }

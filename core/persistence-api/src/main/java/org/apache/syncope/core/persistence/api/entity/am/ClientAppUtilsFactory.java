@@ -18,16 +18,49 @@
  */
 package org.apache.syncope.core.persistence.api.entity.am;
 
+import org.apache.syncope.common.lib.to.CASSPClientAppTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
+import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 
-public interface ClientAppUtilsFactory {
+public class ClientAppUtilsFactory {
 
-    ClientAppUtils getInstance(ClientAppType type);
+    public ClientAppUtils getInstance(final ClientAppType type) {
+        return new ClientAppUtils(type);
+    }
 
-    ClientAppUtils getInstance(ClientApp clientApp);
+    public ClientAppUtils getInstance(final ClientApp clientApp) {
+        ClientAppType type;
+        if (clientApp instanceof SAML2SPClientApp) {
+            type = ClientAppType.SAML2SP;
+        } else if (clientApp instanceof CASSPClientApp) {
+            type = ClientAppType.CASSP;
+        } else if (clientApp instanceof OIDCRPClientApp) {
+            type = ClientAppType.OIDCRP;
+        } else {
+            throw new IllegalArgumentException("Invalid client app: " + clientApp);
+        }
 
-    ClientAppUtils getInstance(Class<? extends ClientAppTO> clientAppClass);
+        return getInstance(type);
+    }
 
-    ClientAppUtils getInstance(ClientAppTO clientAppTO);
+    public ClientAppUtils getInstance(final Class<? extends ClientAppTO> clientAppClass) {
+        ClientAppType type;
+        if (clientAppClass == SAML2SPClientAppTO.class) {
+            type = ClientAppType.SAML2SP;
+        } else if (clientAppClass == CASSPClientAppTO.class) {
+            type = ClientAppType.CASSP;
+        } else if (clientAppClass == OIDCRPClientAppTO.class) {
+            type = ClientAppType.OIDCRP;
+        } else {
+            throw new IllegalArgumentException("Invalid ClientAppTO app: " + clientAppClass.getName());
+        }
+
+        return getInstance(type);
+    }
+
+    public ClientAppUtils getInstance(final ClientAppTO clientAppTO) {
+        return getInstance(clientAppTO.getClass());
+    }
 }

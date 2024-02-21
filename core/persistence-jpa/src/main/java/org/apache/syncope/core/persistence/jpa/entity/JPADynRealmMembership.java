@@ -75,5 +75,4 @@ public class JPADynRealmMembership extends AbstractGeneratedKeyEntity implements
     public void setFIQLCond(final String fiql) {
         this.fiql = fiql;
     }
-
 }

@@ -32,8 +32,8 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.common.validation.RemediationCheck;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
-import org.apache.syncope.core.persistence.jpa.validation.entity.RemediationCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity

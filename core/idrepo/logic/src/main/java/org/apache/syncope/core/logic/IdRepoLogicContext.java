@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
+import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -44,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -106,6 +108,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.Bean;
@@ -116,6 +120,8 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @EnableAspectJAutoProxy(proxyTargetClass = false)
 @Configuration(proxyBeanMethods = false)
 public class IdRepoLogicContext {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(IdRepoLogicContext.class);
 
     @ConditionalOnMissingBean
     @Bean
@@ -149,19 +155,23 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean(name = "defaultAuditAppenders")
     @Bean
-    public List<AuditAppender> defaultAuditAppenders(final DomainHolder domainHolder) {
+    public List<AuditAppender> defaultAuditAppenders(final DomainHolder<?> domainHolder) {
         List<AuditAppender> auditAppenders = new ArrayList<>();
 
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
-        domainHolder.getDomains().forEach((domain, dataSource) -> {
-            AuditAppender appender = new JdbcAuditAppender(domain, dataSource);
+        domainHolder.getDomains().forEach((domain, v) -> {
+            if (v instanceof DataSource dataSource) {
+                AuditAppender appender = new JdbcAuditAppender(domain, dataSource);
 
-            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
-            logConf.addAppender(appender.getTargetAppender(), Level.DEBUG, null);
-            logConf.setLevel(Level.DEBUG);
-            logCtx.getConfiguration().addLogger(logConf.getName(), logConf);
+                LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
+                logConf.addAppender(appender.getTargetAppender(), Level.DEBUG, null);
+                logConf.setLevel(Level.DEBUG);
+                logCtx.getConfiguration().addLogger(logConf.getName(), logConf);
 
-            auditAppenders.add(appender);
+                auditAppenders.add(appender);
+            } else {
+                LOG.warn("Unsupported persistence source: " + v.getClass().getName());
+            }
         });
 
         return auditAppenders;
@@ -248,6 +258,7 @@ public class IdRepoLogicContext {
     @Bean
     public AuditLogic auditLogic(
             final AuditConfDAO auditConfDAO,
+            final AuditEntryDAO auditEntryDAO,
             final ExternalResourceDAO externalResourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
@@ -257,6 +268,7 @@ public class IdRepoLogicContext {
 
         return new AuditLogic(
                 auditConfDAO,
+                auditEntryDAO,
                 externalResourceDAO,
                 entityFactory,
                 binder,

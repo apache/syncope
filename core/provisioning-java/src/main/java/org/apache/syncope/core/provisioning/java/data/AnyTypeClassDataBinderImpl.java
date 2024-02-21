@@ -75,8 +75,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
-                forEach(schema -> schema.setAnyTypeClass(null));
+        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getPlainSchemas().clear();
         anyTypeClassTO.getPlainSchemas().forEach(key -> {
@@ -85,11 +84,11 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 LOG.debug("Invalid or already in use: {} {}, ignoring...", PlainSchema.class.getSimpleName(), key);
             } else {
                 anyTypeClass.add(schema);
+                schema.setAnyTypeClass(anyTypeClass);
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
-                forEach((schema) -> schema.setAnyTypeClass(null));
+        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getDerSchemas().clear();
         anyTypeClassTO.getDerSchemas().forEach(key -> {
@@ -98,11 +97,11 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 LOG.debug("Invalid or already in use: {} {}, ignoring...", DerSchema.class.getSimpleName(), key);
             } else {
                 anyTypeClass.add(schema);
+                schema.setAnyTypeClass(anyTypeClass);
             }
         });
 
-        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).
-                forEach(schema -> schema.setAnyTypeClass(null));
+        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
 
         anyTypeClass.getVirSchemas().clear();
         anyTypeClassTO.getVirSchemas().forEach(key -> {
@@ -111,6 +110,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 LOG.debug("Invalid or already in use: {} {}, ignoring...", VirSchema.class.getSimpleName(), key);
             } else {
                 anyTypeClass.add(schema);
+                schema.setAnyTypeClass(anyTypeClass);
             }
         });
     }

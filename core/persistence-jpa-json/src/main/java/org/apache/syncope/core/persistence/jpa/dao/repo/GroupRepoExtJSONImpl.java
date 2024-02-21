@@ -78,8 +78,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByPlainAttrValue(
-                JPAGroup.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
+        return anyDAO.findByPlainAttrValue(JPAGroup.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -88,8 +87,7 @@ public class GroupRepoExtJSONImpl extends GroupRepoExtImpl {
             final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByPlainAttrUniqueValue(
-                JPAGroup.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
+        return anyDAO.findByPlainAttrUniqueValue(JPAGroup.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override

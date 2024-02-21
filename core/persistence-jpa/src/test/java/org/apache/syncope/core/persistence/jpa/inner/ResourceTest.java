@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -309,8 +309,7 @@ public class ResourceTest extends AbstractTest {
         entityManager.flush();
         assertNotNull(actual);
 
-        assertEquals(3, actual.getProvisionByAnyType(AnyTypeKind.USER.name()).
-                get().getMapping().getItems().size());
+        assertEquals(3, actual.getProvisionByAnyType(AnyTypeKind.USER.name()).get().getMapping().getItems().size());
     }
 
     @Test

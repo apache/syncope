@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
@@ -54,11 +53,6 @@ public interface AnyRepoExt<A extends Any<?>> {
      * @return list of any objects
      */
     List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
-
-    /**
-     * @return the search condition to match all entities
-     */
-    SearchCond getAllMatchingCond();
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 

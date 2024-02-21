@@ -25,8 +25,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
 
-    <T extends PlainAttr<?>> List<T> findAttrs(PlainSchema schema, Class<T> reference);
-
     <T extends PlainAttr<?>> boolean hasAttrs(PlainSchema schema, Class<T> reference);
 
     List<PlainSchema> findByValidator(Implementation validator);

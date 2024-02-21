@@ -97,9 +97,6 @@ public class JPAUser
     @Valid
     protected List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
 
-    @Column(nullable = true)
-    protected String status;
-
     @Lob
     protected String token;
 
@@ -265,16 +262,6 @@ public class JPAUser
     @Override
     protected List<? extends UPlainAttr> internalGetPlainAttrs() {
         return plainAttrs;
-    }
-
-    @Override
-    public String getStatus() {
-        return status;
-    }
-
-    @Override
-    public void setStatus(final String status) {
-        this.status = status;
     }
 
     @Override

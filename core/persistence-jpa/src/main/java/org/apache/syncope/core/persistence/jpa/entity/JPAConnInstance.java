@@ -41,12 +41,12 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.jpa.validation.entity.ConnInstanceCheck;
+import org.apache.syncope.core.persistence.common.validation.ConnInstanceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
@@ -126,7 +126,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
      */
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
-    private JPAConnPoolConf poolConf;
+    private String poolConf;
 
     @Override
     public Realm getAdminRealm() {
@@ -235,13 +235,12 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     @Override
     public ConnPoolConf getPoolConf() {
-        return poolConf;
+        return Optional.ofNullable(poolConf).map(pc -> POJOHelper.deserialize(pc, ConnPoolConf.class)).orElse(null);
     }
 
     @Override
     public void setPoolConf(final ConnPoolConf poolConf) {
-        checkType(poolConf, JPAConnPoolConf.class);
-        this.poolConf = (JPAConnPoolConf) poolConf;
+        this.poolConf = Optional.ofNullable(poolConf).map(POJOHelper::serialize).orElse(null);
     }
 
     protected void json2list(final boolean clearFirst) {

@@ -125,7 +125,7 @@ under the License.
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
   <SyncopeSchema id="userId"/>
   <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
-                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+                  body="org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator"/>
   <PlainSchema id="userId" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
                validator_id="EmailAddressValidator"/>
@@ -176,7 +176,7 @@ under the License.
                mimeType="image/jpeg"/>
   
   <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
-                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+                  body="org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator"/>
 
   <SyncopeSchema id="csvuserid"/>
   <DerSchema id="csvuserid" expression="firstname + ',' + surname" anyTypeClass_id="csv"/>
@@ -344,7 +344,7 @@ under the License.
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
-                plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;niceIcon&quot;}],&quot;schema&quot;:&quot;icon&quot;},{&quot;values&quot;:[{&quot;booleanValue&quot;:true}],&quot;schema&quot;:&quot;show&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;sx&quot;}],&quot;schema&quot;:&quot;rderived_sx&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;dx&quot;}],&quot;schema&quot;:&quot;rderived_dx&quot;}]"/>
+                plainAttrs='[{"values":[{"stringValue":"niceIcon"}],"schema":"icon"},{"uniqueValue":{"booleanValue":true},"schema":"show"},{"values":[{"stringValue":"sx"}],"schema":"rderived_sx"},{"values":[{"stringValue":"dx"}],"schema":"rderived_dx"}]'/>
   <SyncopeGroup id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" name="child"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin" 

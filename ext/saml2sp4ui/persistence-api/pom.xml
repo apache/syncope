@@ -40,7 +40,7 @@ under the License.
   <dependencies>
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-api</artifactId>
+      <artifactId>syncope-core-persistence-common</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

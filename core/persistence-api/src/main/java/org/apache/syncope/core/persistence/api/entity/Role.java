@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 
 public interface Role extends ProvidedKeyEntity {
 
@@ -34,9 +33,9 @@ public interface Role extends ProvidedKeyEntity {
 
     List<? extends DynRealm> getDynRealms();
 
-    DynRoleMembership getDynMembership();
+    String getDynMembershipCond();
 
-    void setDynMembership(DynRoleMembership dynMembership);
+    void setDynMembershipCond(String dynMembershipCond);
 
     String getAnyLayout();
 

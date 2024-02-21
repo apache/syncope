@@ -21,17 +21,14 @@ package org.apache.syncope.core.persistence.jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.ValidationMode;
-import jakarta.validation.Validator;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -41,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
@@ -79,19 +77,17 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.apache.syncope.core.persistence.jpa.attrvalue.validation.DefaultPlainAttrValidationManager;
-import org.apache.syncope.core.persistence.jpa.content.KeymasterConfParamLoader;
+import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
+import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAAuditEntryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
@@ -99,6 +95,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPARealmDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
@@ -118,8 +115,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.AuditConfRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AuthModuleRepoExtImpl;
@@ -159,9 +154,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExtIm
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.RealmRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepoExtImpl;
@@ -191,11 +183,7 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtils;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAEntityFactory;
-import org.apache.syncope.core.persistence.jpa.entity.am.JPAClientAppUtilsFactory;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPolicyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
@@ -211,6 +199,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
@@ -221,9 +210,9 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.SharedEntityManagerCreator;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
+@Import(CommonPersistenceContext.class)
 @Configuration(proxyBeanMethods = false)
 public class PersistenceContext {
 
@@ -296,30 +285,14 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SearchCondVisitor searchCondVisitor() {
-        return new SearchCondVisitor();
-    }
-
-    @Bean
-    public Validator localValidatorFactoryBean() {
-        return new LocalValidatorFactoryBean();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public PlainAttrValidationManager plainAttrValidationManager() {
-        return new DefaultPlainAttrValidationManager();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public XMLContentLoader xmlContentLoader(
+            final DomainHolder<DataSource> domainHolder,
             final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
             final Environment env) {
 
         return new XMLContentLoader(
-                persistenceProperties,
+                domainHolder,
                 resourceLoader.getResource(persistenceProperties.getViewsXML()),
                 resourceLoader.getResource(persistenceProperties.getIndexesXML()),
                 env);
@@ -328,7 +301,7 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public XMLContentExporter xmlContentExporter(
-            final DomainHolder domainHolder,
+            final DomainHolder<DataSource> domainHolder,
             final RealmDAO realmDAO,
             final EntityManagerFactory entityManagerFactory) {
 
@@ -337,25 +310,19 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public KeymasterConfParamLoader keymasterConfParamLoader(final ConfParamOps confParamOps) {
-        return new KeymasterConfParamLoader(confParamOps);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public DomainRegistry domainRegistry(final ConfigurableApplicationContext ctx) {
-        return new DomainConfFactory(ctx);
+        return new JPADomainRegistry(ctx);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public RuntimeDomainLoader runtimeDomainLoader(
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final DomainRegistry domainRegistry,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
-        return new RuntimeDomainLoader(domainHolder, domainRegistry, entityManagerFactory, ctx);
+        return new JPARuntimeDomainLoader(domainHolder, domainRegistry, entityManagerFactory, ctx);
     }
 
     @ConditionalOnMissingBean
@@ -364,7 +331,7 @@ public class PersistenceContext {
             final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
             final DomainOps domainOps,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final DomainRegistry domainRegistry) {
 
         return new StartupDomainLoader(domainOps, domainHolder, persistenceProperties, resourceLoader, domainRegistry);
@@ -374,73 +341,6 @@ public class PersistenceContext {
     @Bean
     public EntityFactory entityFactory() {
         return new JPAEntityFactory();
-    }
-
-    @Bean(name = "userAnyUtils")
-    public AnyUtils userAnyUtils(
-            final @Lazy UserDAO userDAO,
-            final @Lazy GroupDAO groupDAO,
-            final @Lazy AnyObjectDAO anyObjectDAO,
-            final @Lazy EntityFactory entityFactory) {
-
-        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, false);
-    }
-
-    @Bean(name = "linkedAccountAnyUtils")
-    public AnyUtils linkedAccountAnyUtils(
-            final @Lazy UserDAO userDAO,
-            final @Lazy GroupDAO groupDAO,
-            final @Lazy AnyObjectDAO anyObjectDAO,
-            final @Lazy EntityFactory entityFactory) {
-
-        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, true);
-    }
-
-    @Bean(name = "groupAnyUtils")
-    public AnyUtils groupAnyUtils(
-            final @Lazy UserDAO userDAO,
-            final @Lazy GroupDAO groupDAO,
-            final @Lazy AnyObjectDAO anyObjectDAO,
-            final @Lazy EntityFactory entityFactory) {
-
-        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.GROUP, false);
-    }
-
-    @Bean(name = "anyObjectAnyUtils")
-    public AnyUtils anyObjectAnyUtils(
-            final @Lazy UserDAO userDAO,
-            final @Lazy GroupDAO groupDAO,
-            final @Lazy AnyObjectDAO anyObjectDAO,
-            final @Lazy EntityFactory entityFactory) {
-
-        return new JPAAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.ANY_OBJECT, false);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyUtilsFactory anyUtilsFactory(
-            @Qualifier("userAnyUtils")
-            final AnyUtils userAnyUtils,
-            @Qualifier("linkedAccountAnyUtils")
-            final AnyUtils linkedAccountAnyUtils,
-            @Qualifier("groupAnyUtils")
-            final AnyUtils groupAnyUtils,
-            @Qualifier("anyObjectAnyUtils")
-            final AnyUtils anyObjectAnyUtils) {
-
-        return new JPAAnyUtilsFactory(userAnyUtils, linkedAccountAnyUtils, groupAnyUtils, anyObjectAnyUtils);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ClientAppUtilsFactory clientAppUtilsFactory() {
-        return new JPAClientAppUtilsFactory();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public PolicyUtilsFactory policyUtilsFactory() {
-        return new JPAPolicyUtilsFactory();
     }
 
     @ConditionalOnMissingBean
@@ -482,7 +382,8 @@ public class PersistenceContext {
             final RealmDAO realmDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainAttrValidationManager validator) {
+            final PlainAttrValidationManager validator,
+            final EntityFactory entityFactory) {
 
         return new JPAAnyMatchDAO(
                 userDAO,
@@ -491,7 +392,8 @@ public class PersistenceContext {
                 realmDAO,
                 plainSchemaDAO,
                 anyUtilsFactory,
-                validator);
+                validator,
+                entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -619,17 +521,14 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditConfRepoExt auditConfRepoExt(final EntityManager entityManager) {
-        return new AuditConfRepoExtImpl(entityManager);
+    public AuditConfDAO auditConfDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(AuditConfRepo.class);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditConfDAO auditConfDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AuditConfRepoExt auditConfRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AuditConfRepo.class, auditConfRepoExt);
+    public AuditEntryDAO auditEntryDAO(final EntityManager entityManager) {
+        return new JPAAuditEntryDAO(entityManager);
     }
 
     @ConditionalOnMissingBean
@@ -738,7 +637,7 @@ public class PersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
-            final AnySearchDAO searchDAO,
+            final AnySearchDAO anySearchDAO,
             final AnyMatchDAO anyMatchDAO,
             final SearchCondVisitor searchCondVisitor,
             final EntityManager entityManager) {
@@ -748,7 +647,7 @@ public class PersistenceContext {
                 userDAO,
                 groupDAO,
                 anyObjectDAO,
-                searchDAO,
+                anySearchDAO,
                 anyMatchDAO,
                 searchCondVisitor,
                 entityManager);
@@ -944,23 +843,14 @@ public class PersistenceContext {
                 entityManager);
     }
 
-    @ConditionalOnMissingBean
-    @Bean
-    public RealmRepoExt realmRepoExt(
+    @ConditionalOnMissingBean(name = { "realmDAO", "delegateRealmDAO" })
+    @Bean(name = { "realmDAO", "delegateRealmDAO" })
+    public RealmDAO realmDAO(
             final @Lazy RoleDAO roleDAO,
             final ApplicationEventPublisher publisher,
             final EntityManager entityManager) {
 
-        return new RealmRepoExtImpl(roleDAO, publisher, entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public RealmDAO realmDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final RealmRepoExt realmRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(RealmRepo.class, realmRepoExt);
+        return new JPARealmDAO(roleDAO, publisher, entityManager);
     }
 
     @ConditionalOnMissingBean

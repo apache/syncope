@@ -29,7 +29,7 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.AbstractConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 
 public class JdbcAuditAppender extends DefaultAuditAppender {
@@ -48,7 +48,7 @@ public class JdbcAuditAppender extends DefaultAuditAppender {
             setConfiguration(logCtx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
             ColumnMapping.newBuilder().
             setConfiguration(logCtx.getConfiguration()).
-            setName(AuditConfDAO.AUDIT_ENTRY_MESSAGE_COLUMN).setPattern("%message").build(),
+            setName(AuditEntryDAO.MESSAGE_COLUMN).setPattern("%message").build(),
             ColumnMapping.newBuilder().
             setConfiguration(logCtx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
@@ -60,7 +60,7 @@ public class JdbcAuditAppender extends DefaultAuditAppender {
                             setIgnoreExceptions(false).
                             setConnectionSource(new DataSourceConnectionSource(domain, domainDataSource)).
                             setBufferSize(0).
-                            setTableName(AuditConfDAO.AUDIT_ENTRY_TABLE).
+                            setTableName(AuditEntryDAO.TABLE).
                             setColumnMappings(columnMappings).
                             build();
                     a.start();

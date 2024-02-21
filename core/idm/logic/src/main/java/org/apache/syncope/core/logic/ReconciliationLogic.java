@@ -71,6 +71,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
@@ -81,7 +82,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecut
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPushExecutor;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.pushpull.SinglePullJobDelegate;
@@ -630,13 +630,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         List<String> columns = new ArrayList<>();
-        spec.getFields().forEach(item -> {
-            if (anyUtils.getField(item) == null) {
-                LOG.warn("Ignoring invalid field {}", item);
-            } else {
-                columns.add(item);
-            }
-        });
+        spec.getFields().forEach(item -> anyUtils.getField(item).ifPresentOrElse(
+                field -> columns.add(item),
+                () -> LOG.warn("Ignoring invalid field {}", item)));
         spec.getPlainAttrs().forEach(item -> {
             if (plainSchemaDAO.existsById(item)) {
                 columns.add(item);

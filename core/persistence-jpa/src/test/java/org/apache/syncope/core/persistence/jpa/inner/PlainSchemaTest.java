@@ -30,14 +30,13 @@ import java.util.Locale;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,7 +57,7 @@ public class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void search() {
+    public void findByIdLike() {
         List<? extends PlainSchema> schemas = plainSchemaDAO.findByIdLike("fullna%");
         assertEquals(1, schemas.size());
         assertEquals(0, schemas.get(0).getLabels().size());
@@ -71,22 +70,6 @@ public class PlainSchemaTest extends AbstractTest {
         assertEquals(3, schema.getLabels().size());
         assertTrue(schema.getLabel(Locale.ITALIAN).isPresent());
         assertFalse(schema.getLabel(Locale.KOREAN).isPresent());
-    }
-
-    @Tag("plainAttrTable")
-    @Test
-    public void findAttrs() {
-        PlainSchema schema = plainSchemaDAO.findById("icon").orElseThrow();
-
-        List<GPlainAttr> gattrs = plainSchemaDAO.findAttrs(schema, GPlainAttr.class);
-        assertNotNull(gattrs);
-        assertFalse(gattrs.isEmpty());
-
-        schema = plainSchemaDAO.findById("aLong").orElseThrow();
-
-        List<UPlainAttr> uattrs = plainSchemaDAO.findAttrs(schema, UPlainAttr.class);
-        assertNotNull(uattrs);
-        assertTrue(uattrs.isEmpty());
     }
 
     @Test

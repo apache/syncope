@@ -200,11 +200,11 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
         SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
-        int users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
-        int groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
-        int anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
-        int macroTasks = taskDAO.findByRealm(realm).size();
-        int clientApps = casSPClientAppDAO.findAllByRealm(realm).size()
+        long users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
+        long groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
+        long anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
+        long macroTasks = taskDAO.findByRealm(realm).size();
+        long clientApps = casSPClientAppDAO.findAllByRealm(realm).size()
                 + saml2SPClientAppDAO.findAllByRealm(realm).size()
                 + oidcRPClientAppDAO.findAllByRealm(realm).size();
 

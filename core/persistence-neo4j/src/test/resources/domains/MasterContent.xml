@@ -1,0 +1,1105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<dataset>
+  <!-- sample policies -->
+  <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" name="a password policy"
+                  historyLength="1" allowNullPassword="1"/>
+  <Implementation id="DefaultPasswordRuleConf1" type="PASSWORD_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
+  <PasswordPolicy_Implementation left="ce93fcda-dc3a-4369-a7b0-a6108c261c85" right="DefaultPasswordRuleConf1"/>
+  <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
+                  name="sample password policy" historyLength="0" allowNullPassword="1"/> 
+  <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"digit":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
+  <PasswordPolicy_Implementation left="986d1236-3ac5-4a19-810c-5ab21d79cba1" right="DefaultPasswordRuleConf2"/>
+  <AccountPolicy id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" name="an account policy"
+                 propagateSuspension="0" maxAuthenticationAttempts="0"/>
+  <Implementation id="DefaultAccountRuleConf1" type="ACCOUNT_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+  <AccountPolicy_Implementation left="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" right="DefaultAccountRuleConf1"/>
+  <AccountPolicy id="06e2ed52-6966-44aa-a177-a0ca7434201f" name="sample account policy"
+                 propagateSuspension="0" maxAuthenticationAttempts="3"/>
+  <Implementation id="DefaultAccountRuleConf2" type="ACCOUNT_RULE"  engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <AccountPolicy_Implementation left="06e2ed52-6966-44aa-a177-a0ca7434201f" right="DefaultAccountRuleConf2"/>
+  <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" name="sample password policy" historyLength="0" allowNullPassword="0"/> 
+  <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"special":1,"specialChars":["@","!"],"digit":1,"lowercase":1,"uppercase":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
+  <PasswordPolicy_Implementation left="55e5de0b-c79c-4e66-adda-251b6fb8579a" right="DefaultPasswordRuleConf3"/>
+  <PropagationPolicy id="89d322db-9878-420c-b49c-67be13df9a12" name="sample propagation policy"
+                     fetchAroundProvisioning="1" updateDelta="0" maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
+
+  <!-- Authentication policies -->
+  <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf"
+              jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
+  <AuthPolicy id="b912a0d4-a890-416f-9ab8-84ab077eb028" name="DefaultAuthPolicy"
+              jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf","authModules":["LdapAuthenticationTest"]}'/>
+
+  <!-- Access policies -->
+  <AccessPolicy name="DefaultAccessPolicy" id="419935c7-deb3-40b3-8a9a-683037e523a2"
+                jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf","order":0,"ssoEnabled":true,"caseInsensitive":true,"enabled":true,"requireAllAttributes":true}'/>
+
+  <!-- Attr Release Policies -->
+  <AttrReleasePolicy arporder="0" name="DenyAttrReleasePolicy" id="219935c7-deb3-40b3-8a9a-683037e523a2"
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":{},"allowedAttrs":[],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
+  <AttrReleasePolicy arporder="0" name="AllowedAttrReleasePolicy" id="319935c7-deb3-40b3-8a9a-683037e523a2"
+                     jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":{},"allowedAttrs":["cn","givenName","uid"],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
+      
+  <!-- Authentication modules -->
+  <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"
+              description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","principalAttributeId":"cn","bindDn": "${testds.bindDn}", "bindCredential":"${testds.password}","ldapUrl":"ldap://localhost:${testds.port}","searchFilter":"cn={user}","baseDn":"ou=People,${testds.rootDn}","subtreeSearch":true}'
+              items='[{"intAttrName":"mail","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"givenName","extAttrName":"given_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"sn","extAttrName":"family_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"cn","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}]'/>
+  <AuthModule id="DefaultJDBCAuthModule" authModuleState="ACTIVE"
+              description="JDBC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JDBCAuthModuleConf","sql":"SELECT * FROM users_table WHERE name=?", "fieldPassword": "password"}'/>
+  <AuthModule id="DefaultGoogleMfaAuthModule" authModuleState="ACTIVE"
+              description="Google Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf","codeDigits":6,"issuer":"SyncopeTest", "label":"SyncopeTest", "timeStepSize":30, "windowSize":3}'/>
+  <AuthModule id="DefaultSimpleMfaAuthModule" authModuleState="ACTIVE"
+              description="Simple Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf","tokenLength":6, "timeToKillInSeconds":30}'/>
+  <AuthModule id="DefaultDuoMfaAuthModule" authModuleState="ACTIVE"
+              description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "apiHost":"theapi.duosecurity.com"}'/>
+  <AuthModule id="DefaultOIDCAuthModule" authModuleState="ACTIVE"
+              description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "clientId":"client-id", "clientSecret": "client-secret" }'/>
+  <AuthModule id="DefaultSAML2IdPAuthModule" authModuleState="ACTIVE"
+              description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"https://localhost:9443/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
+  <AuthModule id="DefaultJaasAuthModule" authModuleState="ACTIVE"
+              description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>
+  <AuthModule id="DefaultStaticAuthModule" authModuleState="ACTIVE"
+              description="Static auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.StaticAuthModuleConf","users":{"syncope1": "$cynop3"}}'/>
+  <AuthModule id="DefaultSyncopeAuthModule" authModuleState="ACTIVE"
+              description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","domain":"Master"}'
+              items='[{"intAttrName":"syncopeUserAttr_surname","extAttrName":"family_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_fullname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_firstname","extAttrName":"given_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"memberships","extAttrName":"groups","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}]'/>
+  <AuthModule id="DefaultOAuth20AuthModule" description="OAuth20 auth module" authModuleOrder="0" 
+              jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf","clientName":"oauth20","clientId":"OAUTH20","clientSecret":"secret","enabled":true,"customParams":{},"tokenUrl":"https://localhost/oauth2/token","responseType":"code","scope":"oauth test","userIdAttribute":"username","authUrl":"https://localhost/oauth2/auth","profileUrl":"https://localhost/oauth2/profile","withState":false,"profileVerb":"POST"}' authModuleState="ACTIVE"/>
+
+  <!-- Attribute repositories -->
+  <AttrRepo id="DefaultLDAPAttrRepo" attrRepoState="ACTIVE"
+            description="LDAP attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.LDAPAttrRepoConf","searchFilter":"cn={user}","subtreeSearch":true,"ldapUrl":"ldap://localhost:${testds.port}","bindDn":"${testds.bindDn}","bindCredential":"${testds.password}","baseDn":"ou=People,${testds.rootDn}","useAllQueryAttributes":true,"queryAttributes":{}}'/>
+  <AttrRepo id="DefaultJDBCAttrRepo" attrRepoState="ACTIVE"
+            description="JDBC attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.JDBCAttrRepoConf","sql":"SELECT * FROM table WHERE name=?","dialect":"org.hibernate.dialect.H2Dialect","driverClass":"org.h2.Driver","url":"jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1","user":"username","password":"password","singleRow":true,"requireAllAttributes":true,"caseCanonicalization":"NONE","queryType":"AND","columnMappings":{},"username":[],"caseInsensitiveQueryAttributes":[],"queryAttributes":{}}'/>
+  <AttrRepo id="DefaultStubAttrRepo" attrRepoState="ACTIVE"
+            description="Stub attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.StubAttrRepoConf","attributes":{"attr1":"value1"}}'
+            items='[{"intAttrName":"attr1","extAttrName":"identifier","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}]'/>
+  <AttrRepo id="DefaultSyncopeAttrRepo" attrRepoState="ACTIVE"
+            description="Syncope attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf","domain":"Master","searchFilter":"username=={user}","basicAuthUsername":"admin","basicAuthPassword":"password","headers":{}}'/>
+
+  <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
+  <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
+  
+  <AnyTypeClass id="generic membership"/>
+
+  <AnyType id="USER" kind="USER"/>
+  <AnyTypeClass id="minimal user"/>
+  <AnyType_AnyTypeClass left="USER" right="minimal user"/>
+  <AnyTypeClass id="other"/>
+  <AnyType_AnyTypeClass left="USER" right="other"/>
+
+  <AnyType id="GROUP" kind="GROUP"/>
+  <AnyTypeClass id="minimal group"/>
+  <AnyType_AnyTypeClass left="GROUP" right="minimal group"/>
+  
+  <AnyType id="PRINTER" kind="ANY_OBJECT"/>
+  <AnyTypeClass id="minimal printer"/>
+  <AnyType_AnyTypeClass left="PRINTER" right="minimal printer"/>
+      
+  <AnyTypeClass id="csv"/>
+
+  <PlainSchema id="fullname" type="String" mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="fullname" right="minimal user"/>
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator"/>
+  <PlainSchema id="userId" type="String" mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="userId" right="minimal user"/>
+  <PlainSchema_Implementation left="userId" right="EmailAddressValidator"/>
+  <PlainSchema id="loginDate" type="Date" mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd"/>
+  <PlainSchema_AnyTypeClass left="loginDate" right="other"/>
+  <PlainSchema id="firstname" type="String" labels='{"en":"Firstname","it":"Nome","pt_BR":"Nome"}'
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="firstname" right="minimal user"/>
+  <PlainSchema id="surname" type="String" labels='{"en":"Surname","it":"Cognome"}'
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="surname" right="minimal user"/>
+  <PlainSchema id="ctype" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="ctype" right="other"/>
+  <PlainSchema id="email" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="email" right="minimal user"/>
+  <PlainSchema_Implementation left="email" right="EmailAddressValidator"/>
+  <PlainSchema id="activationDate" type="Date" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <PlainSchema_AnyTypeClass left="activationDate" right="other"/>
+  <PlainSchema id="uselessReadonly" type="String"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="1"/>
+  <PlainSchema_AnyTypeClass left="uselessReadonly" right="other"/>
+  <PlainSchema id="cool" type="Boolean" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="cool" right="other"/>
+  <PlainSchema id="gender" type="Enum" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               enumerationValues="M;F"/>
+  <PlainSchema_AnyTypeClass left="gender" right="other"/>
+  <PlainSchema id="aLong" type="Long" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="aLong" right="other"/>
+  <PlainSchema id="makeItDouble" type="Long" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="makeItDouble" right="other"/>
+  <PlainSchema id="obscure" type="Encrypted" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               secretKey="7abcdefghilmnopqrstuvz9#" cipherAlgorithm="SHA"/>
+  <PlainSchema_AnyTypeClass left="obscure" right="other"/>
+  <PlainSchema id="photo" type="Binary" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               mimeType="image/jpeg"/>
+  <PlainSchema_AnyTypeClass left="photo" right="other"/>
+  
+  <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator"/>
+
+  <DerSchema id="csvuserid" expression="firstname + ',' + surname"/>
+  <DerSchema_AnyTypeClass left="csvuserid" right="csv"/>
+  <DerSchema id="cn" expression="surname + ', ' + firstname"/>
+  <DerSchema_AnyTypeClass left="cn" right="minimal user"/>
+  <DerSchema id="noschema" expression="surname + ', ' + notfound"/>
+  <DerSchema_AnyTypeClass left="csvuserid" right="other"/>
+  <DerSchema id="info" expression="username + ' - ' + creationDate + '[' + failedLogins + ']'"/>
+  <DerSchema_AnyTypeClass left="info" right="minimal user"/>
+
+  <PlainSchema id="icon" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>                
+  <PlainSchema_AnyTypeClass left="icon" right="minimal group"/>
+  <PlainSchema id="show" type="Boolean" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="show" right="minimal group"/>
+  <PlainSchema id="rderived_sx" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="rderived_sx" right="minimal group"/>
+  <PlainSchema id="rderived_dx" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>           
+  <PlainSchema_AnyTypeClass left="rderived_dx" right="minimal group"/>
+  <PlainSchema id="title" type="String" mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="title" right="minimal group"/>
+  <PlainSchema id="originalName" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="1" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="originalName" right="minimal group"/>
+
+  <DerSchema id="rderiveddata" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema_AnyTypeClass left="rderiveddata" right="minimal group"/>
+  <DerSchema id="displayProperty" expression="icon + ': ' + show"/>
+  <DerSchema_AnyTypeClass left="displayProperty" right="minimal group"/>
+  <DerSchema id="rderToBePropagated" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema_AnyTypeClass left="rderToBePropagated" right="minimal group"/>
+
+  <DerSchema id="rderivedschema" expression="rderived_sx + '-' + rderived_dx"/>
+  <DerSchema_AnyTypeClass left="rderivedschema" right="minimal group"/>
+
+  <PlainSchema id="subscriptionDate" type="Date"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+  <PlainSchema_AnyTypeClass left="subscriptionDate" right="generic membership"/>
+  <PlainSchema id="mderived_sx" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="mderived_sx" right="generic membership"/>
+  <PlainSchema id="mderived_dx" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>          
+  <PlainSchema_AnyTypeClass left="mderived_dx" right="generic membership"/>
+  <PlainSchema id="postalAddress" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="postalAddress" right="generic membership"/>
+
+  <DerSchema id="mderiveddata" expression="mderived_sx + '-' + mderived_dx"/>
+  <DerSchema id="mderToBePropagated" expression="mderived_sx + '-' + mderived_dx"/>
+  <DerSchema_AnyTypeClass left="mderToBePropagated" right="eneric membership"/>
+         
+  <PlainSchema id="model" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="model" right="minimal printer"/>
+  <PlainSchema id="location" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="location" right="minimal printer"/>
+
+  <Realm id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" name="/"  fullPath="/"/>
+  <Realm_PasswordPolicy left="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" right="986d1236-3ac5-4a19-810c-5ab21d79cba1"/>
+  <Realm id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" name="odd" fullPath="/odd"/>
+  <Realm_Realm left="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <Realm_AccountPolicy left="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" right="06e2ed52-6966-44aa-a177-a0ca7434201f"/>
+  <Realm id="c5b75db1-fce7-470f-b780-3b9934d82a9d" name="even" fullPath="/even"/>
+  <Realm_Realm left="c5b75db1-fce7-470f-b780-3b9934d82a9d" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <Realm id="0679e069-7355-4b20-bd11-a5a0a5453c7c" name="two" fullPath="/even/two"/>
+  <Realm_Realm left="0679e069-7355-4b20-bd11-a5a0a5453c7c" right="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
+  <Realm_AccountPolicy left="0679e069-7355-4b20-bd11-a5a0a5453c7c" right="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"/>
+  <Realm_PasswordPolicy left="0679e069-7355-4b20-bd11-a5a0a5453c7c" right="ce93fcda-dc3a-4369-a7b0-a6108c261c85"/>
+  
+  <AnyObject id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" name="HP LJ 1300n"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+             plainAttrs.model='{"values":[{"stringValue":"Canon MFC8030"}]}'
+             plainAttrs.location='{"values":[{"stringValue":"1st floor"}]}'/>
+  <AnyObject_Realm left="fc6dbc3a-6c07-4965-8781-921e7401a4a5" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>           
+  <AnyObject_AnyType left="fc6dbc3a-6c07-4965-8781-921e7401a4a5" right="PRINTER"/>           
+  <AnyObject id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" name="Canon MF 8030cn"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+             plainAttrs.model='{"values":[{"stringValue":"HP Laserjet 1300n"}]}'
+             plainAttrs.location='{"values":[{"stringValue":"2nd floor"}]}'/>
+  <AnyObject_Realm left="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>           
+  <AnyObject_AnyType left="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" right="PRINTER"/>           
+  <AnyObject id="9e1d130c-d6a3-48b1-98b3-182477ed0688" name="Epson Stylus Color"
+             creator="admin" lastModifier="admin" 
+             creationDate="2021-04-15 12:45:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <AnyObject_Realm left="9e1d130c-d6a3-48b1-98b3-182477ed0688" right="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>           
+  <AnyObject_AnyType left="9e1d130c-d6a3-48b1-98b3-182477ed0688" right="PRINTER"/>           
+
+  <ARelationship id="11a0ec66-b59b-428a-af3d-f856950ff1c5"/>
+  <ARelationship_RelationshipType left="11a0ec66-b59b-428a-af3d-f856950ff1c5" right="neighborhood"/>
+  <ARelationship_AnyObject type="ARELATIONSHIP_SOURCE" left="11a0ec66-b59b-428a-af3d-f856950ff1c5" right="fc6dbc3a-6c07-4965-8781-921e7401a4a5"/>
+  <ARelationship_AnyObject type="ARELATIONSHIP_DEST" left="11a0ec66-b59b-428a-af3d-f856950ff1c5" right="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
+  
+  <Application id="mightyApp" description="A cool application"/>
+  <Privilege id="postMighty" description="Ability to POST"
+             spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"/>
+  <Privilege_Application left="postMighty" right="mightyApp"/>
+  <Privilege id="getMighty" description="Ability to GET"
+             spec="{ &quot;method&quot;: &quot;GET&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"/>
+  <Privilege_Application left="getMighty" right="mightyApp"/>
+
+  <SyncopeRole id="User reviewer" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ"]'/>
+  <SyncopeRole_Realm left="User reviewer" right="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
+  <SyncopeRole_Realm left="User reviewer" right="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
+  
+  <SyncopeRole id="User manager" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ","USER_REQUEST_FORM_LIST","USER_REQUEST_FORM_CLAIM","USER_REQUEST_FORM_SUBMIT"]'/>
+  <SyncopeRole_Realm left="User manager" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <SyncopeRole id="Other" entitlements='["SCHEMA_READ","GROUP_READ","USER_REQUEST_FORM_CLAIM"]'/>
+  <SyncopeRole_Realm left="Other" right="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
+  <SyncopeRole_Privilege left="Other" right="postMighty"/>
+  
+  <SyncopeRole id="Search for realm evenTwo" entitlements='["USER_READ","USER_SEARCH"]'/>
+  <SyncopeRole_Realm left="Search for realm evenTwo" right="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
+
+  <SyncopeRole id="Connector and Resource for realm evenTwo" entitlements='["CONNECTOR_READ","CONNECTOR_UPDATE","CONNECTOR_DELETE","CONNECTOR_LIST","RESOURCE_READ","RESOURCE_UPDATE","RESOURCE_DELETE","RESOURCE_LIST"]'/>
+  <SyncopeRole_Realm left="Connector and Resource for realm evenTwo" right="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
+
+  <SyncopeUser mustChangePassword="0" id="1417acbe-cbf6-4277-9372-e75e04f97000" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="rossini" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs.ctype='{"values":[{"stringValue":"G"}]}'
+               plainAttrs.firstname='{"values":[{"stringValue":"Gioacchino"}]}'
+               plainAttrs.surname='{"values":[{"stringValue":"Rossini"}]}'
+               plainAttrs.loginDate='{"values":[{"dateValue":"2009-05-26T00:00:00+02:00"},{"dateValue":"2010-05-26T00:00:00+02:00"}]}'
+               plainAttrs.fullname='{"uniqueValue":{"stringValue":"Gioacchino Rossini"}}'
+               plainAttrs.userId='{"uniqueValue":{"stringValue":"rossini@apache.org"}}'/>
+  <SyncopeUser_Realm left="1417acbe-cbf6-4277-9372-e75e04f97000" right="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
+  <SyncopeUser_SyncopeRole left="1417acbe-cbf6-4277-9372-e75e04f97000" right="Other"/>
+  <SyncopeUser mustChangePassword="0" id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="verdi" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs.firstname='{"values":[{"stringValue":"Giuseppe"}]}'
+               plainAttrs.surname='{"values":[{"stringValue":"Verdi"}]}'
+               plainAttrs.email='{"values":[{"stringValue":"verdi@syncope.org"}]}'
+               plainAttrs.fullname='{"uniqueValue":{"stringValue":"Giuseppe Verdi"}}'
+               plainAttrs.userId='{"uniqueValue":{"stringValue":"verdi@apache.org"}}'/>
+  <SyncopeUser_Realm left="74cd8ece-715a-44a4-a736-e17b46c4e7e6" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeUser mustChangePassword="0" id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="vivaldi" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs.firstname='{"values":[{"stringValue":"Antonio"}]}'
+               plainAttrs.surname='{"values":[{"stringValue":"Vivaldi"}]}'
+               plainAttrs.email='{"values":[{"stringValue":"vivaldi@syncope.org"}]}'
+               plainAttrs.ctype='{"values":[{"stringValue":"F"}]}'
+               plainAttrs.fullname='{"uniqueValue":{"stringValue":"Antonio Vivaldi"}}'
+               plainAttrs.userId='{"uniqueValue":{"stringValue":"vivaldi@apache.org"}}'/>
+  <SyncopeUser_Realm left="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeUser mustChangePassword="0" id="c9b2dec2-00a7-4855-97c0-d854842b4b24" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="bellini" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs.firstname='{"values":[{"stringValue":"Vincenzo"}]}'
+               plainAttrs.surname='{"values":[{"stringValue":"Bellini"}]}'
+               plainAttrs.loginDate='{"values":[{"dateValue":"2009-06-24T00:00:00+02:00"}]}'
+               plainAttrs.cool='{"values":[{"booleanValue":true}]}'
+               plainAttrs.gender='{"values":[{"stringValue":"M"}]}'
+               plainAttrs.fullname='{"uniqueValue":{"stringValue":"Vincenzo Bellini"}}'
+               plainAttrs.userId='{"uniqueValue":{"stringValue":"bellini@apache.org"}}'/>
+  <SyncopeUser_Realm left="c9b2dec2-00a7-4855-97c0-d854842b4b24" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeUser_SyncopeRole left="c9b2dec2-00a7-4855-97c0-d854842b4b24" right="User reviewer"/>
+  <SyncopeUser_SyncopeRole left="c9b2dec2-00a7-4855-97c0-d854842b4b24" right="User manager"/>
+  <SyncopeUser mustChangePassword="0" id="823074dc-d280-436d-a7dd-07399fae48ec" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               username="puccini" creator="admin" lastModifier="admin" 
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs.firstname='{"values":[{"stringValue":"Giacomo"}]}'
+               plainAttrs.surname='{"values":[{"stringValue":"Puccini"}]}'
+               plainAttrs.fullname='{"uniqueValue":{"stringValue":"Giacomo Puccini"}}'
+               plainAttrs.userId='{"uniqueValue":{"stringValue":"puccini@apache.org"}}'/>
+  <SyncopeUser_Realm left="823074dc-d280-436d-a7dd-07399fae48ec" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeUser_SyncopeRole left="823074dc-d280-436d-a7dd-07399fae48ec" right="Search for realm evenTwo"/>
+  <SyncopeUser_SyncopeRole left="823074dc-d280-436d-a7dd-07399fae48ec" right="Connector and Resource for realm evenTwo"/>
+
+  <SyncopeGroup id="37d15e4c-cdc1-460b-a591-8505c8133806" name="root"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs.icon='{"values":[{"stringValue":"niceIcon"}]}'
+                plainAttrs.show='{"values":[{"booleanValue":true}]}'
+                plainAttrs.rderived_sx='{"values":[{"stringValue":"sx"}]}'
+                plainAttrs.rderived_dx='{"values":[{"stringValue":"dx"}]}'/>
+  <SyncopeGroup_Realm left="37d15e4c-cdc1-460b-a591-8505c8133806" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" name="child"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs.icon='{"values":[{"stringValue":"badIcon"}]}'/>
+  <SyncopeGroup_Realm left="b1f7c12d-ec83-441f-a50e-1691daaedf3b" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="29f96485-729e-4d31-88a1-6fc60e4677f3" name="citizen"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="29f96485-729e-4d31-88a1-6fc60e4677f3" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="8fb2d51e-c605-4e80-a72b-13ffecf1aa9a" name="employee"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs.icon='{"values":[{"stringValue":"icon4"}]}'/>
+  <SyncopeGroup_Realm left="8fb2d51e-c605-4e80-a72b-13ffecf1aa9a" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="a3c1a693-a6be-483f-a2b3-5cfec146f4bf" name="secretary"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="a3c1a693-a6be-483f-a2b3-5cfec146f4bf" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="ebf97068-aa4b-4a85-9f01-680e8c4cf227" name="director"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs.icon='{"values":[{"stringValue":"icon6"}]}'/>
+  <SyncopeGroup_Realm left="ebf97068-aa4b-4a85-9f01-680e8c4cf227" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup_SyncopeUser left="ebf97068-aa4b-4a85-9f01-680e8c4cf227" right="823074dc-d280-436d-a7dd-07399fae48ec"/>
+  <SyncopeGroup id="bf825fe1-7320-4a54-bd64-143b5c18ab97" name="managingDirector"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="bf825fe1-7320-4a54-bd64-143b5c18ab97" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" name="otherchild"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="f779c0d4-633b-4be5-8f57-32eb478a3ca5" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="0cbcabd2-4410-4b6b-8f05-a052b451d18f" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="b8d38784-57e7-4595-859a-076222644b55" name="managingConsultant"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="b8d38784-57e7-4595-859a-076222644b55" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="268fed79-f440-4390-9435-b273768eb5d6" name="groupForWorkflowOptIn"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="268fed79-f440-4390-9435-b273768eb5d6" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="0626100b-a4ba-4e00-9971-86fad52a6216" name="aGroupForPropagation"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs.title='{"values":[{"stringValue":"r12"}]}'/>
+  <SyncopeGroup_Realm left="0626100b-a4ba-4e00-9971-86fad52a6216" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup_AnyTypeClass left="0626100b-a4ba-4e00-9971-86fad52a6216" right="csv"/>  
+  <SyncopeGroup id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" name="bGroupForPropagation"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs.title='{"values":[{"stringValue":"r13"}]}'/>
+  <SyncopeGroup_Realm left="ba9ed509-b1f5-48ab-a334-c8530a6422dc" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup_AnyTypeClass left="ba9ed509-b1f5-48ab-a334-c8530a6422dc" right="csv"/>  
+  <SyncopeGroup id="ece66293-8f31-4a84-8e8d-23da36e70846" name="artDirector"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>  
+  <SyncopeGroup_Realm left="ece66293-8f31-4a84-8e8d-23da36e70846" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <SyncopeGroup id="034740a9-fa10-453b-af37-dc7897e98fb1" name="additional"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="034740a9-fa10-453b-af37-dc7897e98fb1" right="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
+  <TypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"/>
+  <TypeExtension_SyncopeGroup left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="034740a9-fa10-453b-af37-dc7897e98fb1"/>
+  <TypeExtension_AnyType left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="USER"/>
+  <TypeExtension_AnyTypeClass left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="csv"/>
+  <TypeExtension_AnyTypeClass left="84c1490c-a1d9-4b91-859c-fafbb0113a85" right="other"/>
+  <SyncopeGroup id="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" name="fake"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup_Realm left="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" right="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
+
+  <URelationship id="ca20ffca-1305-442f-be9a-3723a0cd88ca"/>
+  <URelationship_RelationshipType left="ca20ffca-1305-442f-be9a-3723a0cd88ca" right="neighborhood"/>
+  <URelationship_SyncopeUser left="ca20ffca-1305-442f-be9a-3723a0cd88ca" right="c9b2dec2-00a7-4855-97c0-d854842b4b24"/>
+  <URelationship_AnyObject left="ca20ffca-1305-442f-be9a-3723a0cd88ca" right="fc6dbc3a-6c07-4965-8781-921e7401a4a5"/>
+
+  <UMembership id="3d5e91f6-305e-45f9-ad30-4897d3d43bd9"/>
+  <UMembership_SyncopeUser left="3d5e91f6-305e-45f9-ad30-4897d3d43bd9" right="1417acbe-cbf6-4277-9372-e75e04f97000"/>
+  <UMembership_SyncopeGroup left="3d5e91f6-305e-45f9-ad30-4897d3d43bd9" right="37d15e4c-cdc1-460b-a591-8505c8133806"/>
+  <UMembership id="d53f7657-2b22-4e10-a2cd-c3379a4d1a31"/>
+  <UMembership_SyncopeUser left="d53f7657-2b22-4e10-a2cd-c3379a4d1a31" right="74cd8ece-715a-44a4-a736-e17b46c4e7e6"/>
+  <UMembership_SyncopeGroup left="d53f7657-2b22-4e10-a2cd-c3379a4d1a31" right="37d15e4c-cdc1-460b-a591-8505c8133806"/>
+  <UMembership id="8e42a132-55ae-4860-bebd-2ca00ba5e959"/>
+  <UMembership_SyncopeUser left="8e42a132-55ae-4860-bebd-2ca00ba5e959" right="74cd8ece-715a-44a4-a736-e17b46c4e7e6"/>
+  <UMembership_SyncopeGroup left="8e42a132-55ae-4860-bebd-2ca00ba5e959" right="b1f7c12d-ec83-441f-a50e-1691daaedf3b"/>
+  <UMembership id="40e409a4-d870-4792-b820-30668f1269b9"/>
+  <UMembership_SyncopeUser left="40e409a4-d870-4792-b820-30668f1269b9" right="c9b2dec2-00a7-4855-97c0-d854842b4b24"/>
+  <UMembership_SyncopeGroup left="40e409a4-d870-4792-b820-30668f1269b9" right="bf825fe1-7320-4a54-bd64-143b5c18ab97"/>
+  <UMembership id="6d8a7dc0-d4bc-4b7e-b058-abcd3df28f28"/>
+  <UMembership_SyncopeUser left="6d8a7dc0-d4bc-4b7e-b058-abcd3df28f28" right="1417acbe-cbf6-4277-9372-e75e04f97000"/>
+  <UMembership_SyncopeGroup left="6d8a7dc0-d4bc-4b7e-b058-abcd3df28f28" right="f779c0d4-633b-4be5-8f57-32eb478a3ca5"/>
+  <UMembership id="34f2d776-58b1-4640-8e64-e979b4242a18"/>
+  <UMembership_SyncopeUser left="34f2d776-58b1-4640-8e64-e979b4242a18" right="74cd8ece-715a-44a4-a736-e17b46c4e7e6"/>
+  <UMembership_SyncopeGroup left="34f2d776-58b1-4640-8e64-e979b4242a18" right="29f96485-729e-4d31-88a1-6fc60e4677f3"/>
+  <UMembership id="8cfb78fc-d0e7-4f08-a0ae-d7abf3223b6f"/>
+  <UMembership_SyncopeUser left="8cfb78fc-d0e7-4f08-a0ae-d7abf3223b6f" right="823074dc-d280-436d-a7dd-07399fae48ec"/>
+  <UMembership_SyncopeGroup left="8cfb78fc-d0e7-4f08-a0ae-d7abf3223b6f" right="ece66293-8f31-4a84-8e8d-23da36e70846"/>
+    
+  <!-- pull policies -->
+  <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" name="a pull policy" conflictResolutionAction="IGNORE"/>
+  <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" name="another pull policy" conflictResolutionAction="ALL"/>
+  <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
+  <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1"/>
+  <PullCorrelationRuleEntity_PullPolicy left="10e3d196-7486-4c88-aefd-59e40d93a0c1" right="880f8553-069b-4aed-9930-2cd53873f544"/>
+  <PullCorrelationRuleEntity_AnyType left="10e3d196-7486-4c88-aefd-59e40d93a0c1" right="USER"/>
+  <PullCorrelationRuleEntity_Implementation left="10e3d196-7486-4c88-aefd-59e40d93a0c1" right="TestPullCorrelationRule"/>
+  <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" name="pull policy 1" conflictResolutionAction="IGNORE"/>
+  <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" name="pull policy for java rule" conflictResolutionAction="IGNORE"/>
+
+  <!-- push policies -->
+  <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" name="a push policy" conflictResolutionAction="IGNORE"/>
+  <Implementation id="TestPushCorrelationRule" type="PUSH_CORRELATION_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["surname"]}'/>
+  <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e"/>
+  <PushCorrelationRuleEntity_PushPolicy left="24463935-32a0-4272-bc78-04d6d0adc69e" right="fb6530e5-892d-4f47-a46b-180c5b6c5c83"/>
+  <PushCorrelationRuleEntity_AnyType left="24463935-32a0-4272-bc78-04d6d0adc69e" right="USER"/>
+  <PushCorrelationRuleEntity_Implementation left="24463935-32a0-4272-bc78-04d6d0adc69e" right="TestPushCorrelationRule"/>
+
+  <ConnInstance id="413bf072-678a-41d3-9d20-8c453b3a39d1" displayName="Errored"
+                location="${syncope.connid.location}"
+                bundleName="net.tirasa.connid.bundles.missing"
+                connectorName="net.tirasa.connid.bundles.missing.MissingConnector"
+                version="none"
+                jsonConf='[]'/>
+  <ConnInstance_Realm left="413bf072-678a-41d3-9d20-8c453b3a39d1" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <ConnInstance id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" displayName="ConnInstance100"
+                location="${syncope.connid.location}"
+                bundleName="net.tirasa.connid.bundles.soap"
+                connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/cxf/soap/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'
+                capabilities='["CREATE","UPDATE","DELETE","SEARCH"]'/>
+  <ConnInstance_Realm left="88a7a819-dab5-46b4-9b90-0b9769eabdb8" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <ConnInstance id="5aa5b8be-7521-481a-9651-c557aea078c1" displayName="H2"
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                bundleName="net.tirasa.connid.bundles.db"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
+                version="${connid.db.version}"
+                jsonConf='[{"schema":{"name":"disabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"keyColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"retrievePassword","displayName":null,"helpMessage":null,"type":"boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"cipherAlgorithm","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["SHA1"]},{"schema":{"name":"enabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"passwordColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"jdbcDriver","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"defaultStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"table","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test"]},{"schema":{"name":"password","displayName":null,"helpMessage":null,"type":"org.identityconnectors.common.security.GuardedString","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"statusColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"jdbcUrlTemplate","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]}]'
+                capabilities='["AUTHENTICATE","CREATE","UPDATE","DELETE","SEARCH","SYNC"]'/>
+  <ConnInstance_Realm left="5aa5b8be-7521-481a-9651-c557aea078c1" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <ConnInstance id="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08" displayName="ConnInstance102"
+                location="${syncope.connid.location}"
+                bundleName="net.tirasa.connid.bundles.soap"
+                connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                connRequestTimeout="10"
+                jsonConf='[{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]},{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/cxf/soap/provisioning"]}]'
+                capabilities='["CREATE","UPDATE","DELETE","SEARCH"]'/>
+  <ConnInstance_Realm left="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <ConnInstance id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" displayName="ConnInstance103"
+                location="${syncope.connid.location}"
+                bundleName="net.tirasa.connid.bundles.soap"
+                connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
+                version="${connid.soap.version}"
+                jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/cxf/soap/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
+  <ConnInstance_Realm left="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <ConnInstance id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" displayName="CSVDir"
+                location="${syncope.connid.location}"
+                bundleName="net.tirasa.connid.bundles.csvdir"
+                connectorName="net.tirasa.connid.bundles.csvdir.CSVDirConnector"
+                version="${connid.csvdir.version}"
+                jsonConf='[{"schema":{"name":"fields","displayName":"fields","helpMessage":"Column names separated by comma","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id","name","surname","email","password","theirgroup","membership","status","deleted"]},{"schema":{"name":"keyColumnNames","displayName":"Key column name","helpMessage":"Name of the column used to identify user uniquely","type":"[Ljava.lang.String;","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["name","surname"]},{"schema":{"name":"deleteColumnName","displayName":"Delete column name","helpMessage":"Name of the column used to specify users to be deleted","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["deleted"]},{"schema":{"name":"passwordColumnName","displayName":"Password column name","helpMessage":"Name of the column used to specify user password","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"keyseparator","displayName":"Key separator","helpMessage":"Character used to separate keys in a multi-key scenario","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"ignoreHeader","displayName":"Ignore header","helpMessage":"Specify it first line file must be ignored","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"fieldDelimiter","displayName":"fieldDelimiter","helpMessage":"fieldDelimiter","type":"char","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[","]},{"schema":{"name":"quotationRequired","displayName":"Value quotation required","helpMessage":"Specify if value quotation is required","type":"java.lang.Boolean","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":[false]},{"schema":{"name":"statusColumn","displayName":"statusColumn","helpMessage":"Status column","type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"sourcePath","displayName":"Source path","helpMessage":"Absolute path of a directory where are located CSV files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${test.csvdir.path}"]},{"schema":{"name":"fileMask","displayName":"File mask","helpMessage":"Regular expression describing files to be processed","type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test.csv"]}]'
+                capabilities='["CREATE","UPDATE","DELETE","SEARCH","SYNC"]'/>
+  <ConnInstance_Realm left="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+    
+  <ConnInstance id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
+                bundleName="net.tirasa.connid.bundles.ldap" displayName="TestLDAP"
+                location="${syncope.connid.location}"
+                connectorName="net.tirasa.connid.bundles.ldap.LdapConnector"
+                version="${connid.ldap.version}" 
+                jsonConf='[{"schema":{"name":"host","type":"java.lang.String","required":true,"order":1,"confidential":false,"defaultValues":[]},"values":["localhost"],"overridable":false},{"schema":{"name":"port","type":"int","required":false,"order":2,"confidential":false,"defaultValues":[389]},"values":[${testds.port}],"overridable":false},{"schema":{"name":"ssl","type":"boolean","required":false,"order":3,"confidential":false,"defaultValues":[false]},"values":["false"],"overridable":false},{"schema":{"name":"failover","type":"[Ljava.lang.String;","required":false,"order":4,"confidential":false,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"principal","type":"java.lang.String","required":false,"order":5,"confidential":false,"defaultValues":[]},"values":["${testds.bindDn}"],"overridable":false},{"schema":{"name":"credentials","type":"org.identityconnectors.common.security.GuardedString","required":false,"order":6,"confidential":true,"defaultValues":[]},"values":["${testds.password}"],"overridable":false},{"schema":{"name":"baseContexts","type":"[Ljava.lang.String;","required":true,"order":7,"confidential":false,"defaultValues":[]},"values":["ou=people,${testds.rootDn}","ou=groups,${testds.rootDn}"],"overridable":true},{"schema":{"name":"passwordAttribute","type":"java.lang.String","required":false,"order":8,"confidential":false,"defaultValues":["userPassword"]},"values":["userpassword"],"overridable":false},{"schema":{"name":"accountObjectClasses","type":"[Ljava.lang.String;","required":false,"order":9,"confidential":false,"defaultValues":["top","person","organizationalPerson","inetOrgPerson"]},"values":["inetOrgPerson"],"overridable":false},{"schema":{"name":"accountUserNameAttributes","type":"[Ljava.lang.String;","required":false,"order":10,"confidential":false,"defaultValues":["uid","cn"]},"values":["uid"],"overridable":false},{"schema":{"name":"accountSearchFilter","type":"java.lang.String","required":false,"order":11,"confidential":false,"defaultValues":[]},"values":["uid=*"],"overridable":false},{"schema":{"name":"groupObjectClasses","type":"[Ljava.lang.String;","required":false,"order":12,"confidential":false,"defaultValues":["top","groupOfUniqueNames"]},"values":[],"overridable":false},{"schema":{"name":"groupNameAttributes","type":"[Ljava.lang.String;","required":false,"order":13,"confidential":false,"defaultValues":["cn"]},"values":["cn"],"overridable":false},{"schema":{"name":"groupMemberAttribute","type":"java.lang.String","required":false,"order":14,"confidential":false,"defaultValues":["uniqueMember"]},"values":[],"overridable":false},{"schema":{"name":"maintainLdapGroupMembership","type":"boolean","required":false,"order":15,"confidential":false,"defaultValues":[false]},"values":["true"],"overridable":false},{"schema":{"name":"maintainPosixGroupMembership","type":"boolean","required":false,"order":16,"confidential":false,"defaultValues":[false]},"values":["false"],"overridable":false},{"schema":{"name":"addPrincipalToNewGroups","type":"boolean","required":false,"order":17,"confidential":false,"defaultValues":[false]},"values":["true"],"overridable":false},{"schema":{"name":"passwordHashAlgorithm","type":"java.lang.String","required":false,"order":18,"confidential":false,"defaultValues":[]},"values":["SHA"],"overridable":false},{"schema":{"name":"respectResourcePasswordPolicyChangeAfterReset","type":"boolean","required":false,"order":19,"confidential":false,"defaultValues":[false]},"values":["false"],"overridable":false},{"schema":{"name":"useVlvControls","type":"boolean","required":false,"order":20,"confidential":false,"defaultValues":[false]},"values":[],"overridable":false},{"schema":{"name":"vlvSortAttribute","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":["uid"]},"values":[],"overridable":false},{"schema":{"name":"uidAttribute","type":"java.lang.String","required":false,"order":22,"confidential":false,"defaultValues":["entryUUID"]},"values":["cn"],"overridable":true},{"schema":{"name":"gidAttribute","type":"java.lang.String","required":false,"order":23,"confidential":false,"defaultValues":["entryUUID"]},"values":["cn"],"overridable":true},{"schema":{"name":"readSchema","type":"boolean","required":false,"order":23,"confidential":false,"defaultValues":[true]},"values":["true"],"overridable":false},{"schema":{"name":"baseContextsToSynchronize","type":"[Ljava.lang.String;","required":false,"order":24,"confidential":false,"defaultValues":[]},"values":["ou=people,${testds.rootDn}","ou=groups,${testds.rootDn}"],"overridable":false},{"schema":{"name":"objectClassesToSynchronize","type":"[Ljava.lang.String;","required":false,"order":25,"confidential":false,"defaultValues":["inetOrgPerson"]},"values":["inetOrgPerson","groupOfUniqueNames"],"overridable":false},{"schema":{"name":"attributesToSynchronize","type":"[Ljava.lang.String;","required":false,"order":26,"confidential":false,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"modifiersNamesToFilterOut","type":"[Ljava.lang.String;","required":false,"order":27,"confidential":false,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"accountSynchronizationFilter","type":"java.lang.String","required":false,"order":28,"confidential":false,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"changeLogBlockSize","type":"int","required":false,"order":29,"confidential":false,"defaultValues":[100]},"values":[100],"overridable":false},{"schema":{"name":"changeNumberAttribute","type":"java.lang.String","required":false,"order":30,"confidential":false,"defaultValues":["changeNumber"]},"values":["changeNumber"],"overridable":false},{"schema":{"name":"filterWithOrInsteadOfAnd","type":"boolean","required":false,"order":31,"confidential":false,"defaultValues":[false]},"values":["false"],"overridable":false},{"schema":{"name":"removeLogEntryObjectClassFromFilter","type":"boolean","required":false,"order":32,"confidential":false,"defaultValues":[true]},"values":["false"],"overridable":false},{"schema":{"name":"synchronizePasswords","type":"boolean","required":false,"order":33,"confidential":false,"defaultValues":[false]},"values":["false"],"overridable":false},{"schema":{"name":"passwordAttributeToSynchronize","type":"java.lang.String","required":false,"order":34,"confidential":false,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"passwordDecryptionKey","type":"org.identityconnectors.common.security.GuardedByteArray","required":false,"order":35,"confidential":true,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"passwordDecryptionInitializationVector","type":"org.identityconnectors.common.security.GuardedByteArray","required":false,"order":36,"confidential":true,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"statusManagementClass","type":"java.lang.String","required":false,"order":37,"confidential":false,"defaultValues":[]},"values":["net.tirasa.connid.bundles.ldap.commons.AttributeStatusManagement"],"overridable":false},{"schema":{"name":"retrievePasswordsWithSearch","type":"boolean","required":false,"order":38,"confidential":false,"defaultValues":[false]},"values":[],"overridable":false},{"schema":{"name":"dnAttribute","type":"java.lang.String","required":false,"order":39,"confidential":false,"defaultValues":["entryDN"]},"values":[],"overridable":false},{"schema":{"name":"groupSearchFilter","type":"java.lang.String","required":false,"order":40,"confidential":false,"defaultValues":[]},"values":[],"overridable":false},{"schema":{"name":"readTimeout","type":"long","required":false,"order":41,"confidential":false,"defaultValues":[0]},"values":[],"overridable":false},{"schema":{"name":"connectTimeout","type":"long","required":false,"order":42,"confidential":false,"defaultValues":[0]},"values":[],"overridable":false}]'
+                capabilities='["CREATE","UPDATE","UPDATE_DELTA","DELETE","SEARCH"]'/>
+  <ConnInstance_Realm left="74141a3b-0762-4720-a4aa-fc3e374ef3ef" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  
+  <ConnInstance id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" displayName="H2-test2"
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                bundleName="net.tirasa.connid.bundles.db"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
+                version="${connid.db.version}"
+                jsonConf='[{"schema":{"name":"disabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"keyColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"cipherAlgorithm","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["SHA1"]},{"schema":{"name":"enabledStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"passwordColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["password"]},{"schema":{"name":"jdbcDriver","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"retrievePassword","displayName":null,"helpMessage":null,"type":"java.lang.Boolean","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"defaultStatusValue","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["true"]},{"schema":{"name":"password","displayName":null,"helpMessage":null,"type":"org.identityconnectors.common.security.GuardedString","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"statusColumn","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["status"]},{"schema":{"name":"jdbcUrlTemplate","displayName":null,"helpMessage":null,"type":"java.lang.String","required":false,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]},{"schema":{"name":"table","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["test2"]}]'
+                capabilities='["CREATE","UPDATE","SYNC","SEARCH"]'/>
+  <ConnInstance_Realm left="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  
+  <ConnInstance id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" bundleName="net.tirasa.connid.bundles.db" 
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector" 
+                displayName="H2-testpull" version="${connid.db.version}"
+                jsonConf='[{"schema":{"name":"changeLogColumn","displayName":"Change Log Column (Sync)","helpMessage":"=&lt;b&gt;Change Log Column&lt;/b&gt;&lt;br&gt;The change log column store the latest change time. Providing this value the Pull capabilities are activated.","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"nativeTimestamps","displayName":"Native Timestamps ","helpMessage":"&lt;b&gt;Native Timestamps&lt;/b&gt;&lt;br&gt;Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table.","type":"boolean","required":false,"order":18,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"cipherAlgorithm","displayName":"Password cipher algorithm (defaults to CLEARTEXT)","helpMessage":"Cipher algorithm used to encode password before to store it onto the database table.\nSpecify one of the values among CLEARTEXT,AES, MD5, SHA1, SHA256 or a custom implementation identified by its class name.","type":"java.lang.String","required":false,"order":24,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"enabledStatusValue","displayName":"Enabled Status Value","helpMessage":"&lt;b&gt;Enabled Status Value&lt;/b&gt;&lt;br&gt;Enter the value for enabled status.","type":"java.lang.String","required":false,"order":12,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"retrievePassword","displayName":"Retrieve password","helpMessage":"Specify if password must be retrieved by default.","type":"boolean","required":true,"order":27,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"datasource","displayName":"Datasource Path","helpMessage":"&lt;b&gt;JDBC Data Source Name/Path&lt;/b&gt;&lt;br&gt;Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified.&lt;br&gt;the example value is: &lt;CODE&gt;jdbc/SampleDataSourceName&lt;/CODE&gt;","type":"java.lang.String","required":false,"order":22,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"allNative","displayName":"All native","helpMessage":"&lt;b&gt;All native&lt;/b&gt;&lt;br&gt;Select to retrieve all data type of the columns in a native format from the database table.","type":"boolean","required":false,"order":19,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"user","displayName":"User","helpMessage":"&lt;b&gt;User&lt;/b&gt;&lt;br&gt;Enter the name of the mandatory Database user with permission to account table.","type":"java.lang.String","required":false,"order":4,"confidential":false,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"pwdEncodeToLowerCase","displayName":"Force password encoding to lower case","helpMessage":"Force password encoding to lower case.","type":"boolean","required":false,"order":26,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"jdbcUrlTemplate","displayName":"JDBC Connection URL","helpMessage":"&lt;b&gt;JDBC Connection URL&lt;/b&gt;&lt;br&gt;Specify the JDBC Driver Connection URL.&lt;br&gt; Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB].&lt;br&gt;  MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation.&lt;br&gt;Could be empty if datasource is provided.","type":"java.lang.String","required":false,"order":15,"confidential":false,"defaultValues":null},"overridable":false,"values":["${testdb.url}"]},{"schema":{"name":"keyColumn","displayName":"Key Column","helpMessage":"&lt;b&gt;Key Column&lt;/b&gt;&lt;br&gt;This mandatory column value will be used as the unique identifier for rows in the table.&lt;br&gt;","type":"java.lang.String","required":true,"order":8,"confidential":false,"defaultValues":null},"overridable":false,"values":["id"]},{"schema":{"name":"validConnectionQuery","displayName":"Validate Connection Query","helpMessage":"&lt;b&gt;Validate Connection Query&lt;/b&gt;&lt;br&gt;There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.","type":"java.lang.String","required":false,"order":20,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"rethrowAllSQLExceptions","displayName":"Rethrow all SQLExceptions","helpMessage":"If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown.","type":"boolean","required":false,"order":17,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"passwordColumn","displayName":"Password Column","helpMessage":"&lt;b&gt;Password Column&lt;/b&gt;&lt;br&gt;Enter the name of the column in the table that will hold the password values. If empty, no validation on resource and passwords are activated.","type":"java.lang.String","required":false,"order":9,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"jndiProperties","displayName":"Initial JNDI Properties","helpMessage":"&lt;b&gt;Initial JNDI Properties&lt;/b&gt;&lt;br&gt;Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.","type":"[Ljava.lang.String;","required":false,"order":23,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"password","displayName":"User Password","helpMessage":"&lt;b&gt;User Password&lt;/b&gt;&lt;br&gt;Enter a user account that has permission to access accounts table.","type":"org.identityconnectors.common.security.GuardedString","required":false,"order":5,"confidential":true,"defaultValues":null},"overridable":false,"values":["sa"]},{"schema":{"name":"host","displayName":"Host","helpMessage":"&lt;b&gt;Host&lt;/b&gt;&lt;br&gt;Enter the name of the host where the database is running.","type":"java.lang.String","required":false,"order":2,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"port","displayName":"Port","helpMessage":"&lt;b&gt;TCP Port&lt;/b&gt;&lt;br&gt;Enter the port number the database server is listening on.","type":"java.lang.String","required":false,"order":3,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"statusColumn","displayName":"Status Column","helpMessage":"&lt;b&gt;Status Column&lt;/b&gt;&lt;br&gt;Enter the name of the column in the table that will hold the status values. If empty enabled and disabled operation wont be performed.","type":"java.lang.String","required":false,"order":10,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"pwdEncodeToUpperCase","displayName":"Force password encoding to upper case","helpMessage":"Force password encoding to upper case.","type":"boolean","required":false,"order":25,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"enableEmptyString","displayName":"Enable writing empty string","helpMessage":"&lt;b&gt;Enable writing empty string&lt;/b&gt;&lt;br&gt;Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. By default empty strings are written as a NULL value.","type":"boolean","required":false,"order":16,"confidential":false,"defaultValues":null},"overridable":false,"values":["false"]},{"schema":{"name":"database","displayName":"Database","helpMessage":"&lt;b&gt;Database&lt;/b&gt;&lt;br&gt;Enter the name of the database on the database server that contains the table.","type":"java.lang.String","required":false,"order":6,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"defaultStatusValue","displayName":"Default Status Value","helpMessage":"&lt;b&gt;Default Status Value&lt;/b&gt;&lt;br&gt;Enter the value for status in case of status not specified.","type":"java.lang.String","required":false,"order":13,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"table","displayName":"Table","helpMessage":"&lt;b&gt;Table&lt;/b&gt;&lt;br&gt;Enter the name of the table in the database that contains the accounts.","type":"java.lang.String","required":true,"order":7,"confidential":false,"defaultValues":null},"overridable":false,"values":["testpull"]},{"schema":{"name":"disabledStatusValue","displayName":"Disabled Status Value","helpMessage":"&lt;b&gt;Disabled Status Value&lt;/b&gt;&lt;br&gt;Enter the value for disabled status.","type":"java.lang.String","required":false,"order":11,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"jdbcDriver","displayName":"JDBC Driver","helpMessage":"&lt;b&gt;JDBC Driver&lt;/b&gt;&lt;br&gt;Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver.&lt;br&gt;Could be empty if datasource is provided.","type":"java.lang.String","required":false,"order":14,"confidential":false,"defaultValues":null},"overridable":false,"values":["org.h2.Driver"]},{"schema":{"name":"quoting","displayName":"Name Quoting","helpMessage":"&lt;b&gt;Name Quoting&lt;/b&gt;&lt;br&gt;Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.","type":"java.lang.String","required":false,"order":1,"confidential":false,"defaultValues":null},"overridable":false,"values":[]},{"schema":{"name":"cipherKey","displayName":"Password cipher key","helpMessage":"Specify key in case of reversible algorithm.","type":"java.lang.String","required":false,"order":25,"confidential":false,"defaultValues":null},"overridable":false,"values":[]}]'
+                capabilities='["CREATE","UPDATE","DELETE","SEARCH"]'/>
+  <ConnInstance_Realm left="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  
+  <ConnInstance id="a6d017fd-a705-4507-bb7c-6ab6a6745997" bundleName="net.tirasa.connid.bundles.db" 
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                connectorName="net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector"
+                displayName="Scripted SQL" version="${connid.db.version}"
+                jsonConf='[{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScriptFileName&quot;,&quot;displayName&quot;:&quot;updateScriptFileName&quot;,&quot;helpMessage&quot;:&quot;updateScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/UpdateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScript&quot;,&quot;displayName&quot;:&quot;testScript&quot;,&quot;helpMessage&quot;:&quot;testScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;host&quot;,&quot;displayName&quot;:&quot;Host&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Host&lt;/b&gt;&lt;br/&gt;Enter the name of the host where the database is running.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:2,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;localhost&quot;]},&quot;overridable&quot;:false},{&quot;schema&quot;:{&quot;name&quot;:&quot;port&quot;,&quot;displayName&quot;:&quot;Port&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;TCP Port&lt;/b&gt;&lt;br/&gt;Enter the port number the database server is listening on.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:3,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;3306&quot;]},&quot;overridable&quot;:false},{&quot;schema&quot;:{&quot;name&quot;:&quot;database&quot;,&quot;displayName&quot;:&quot;Database&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Database&lt;/b&gt;&lt;br/&gt;Enter the name of the database on the database server that contains the table.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScript&quot;,&quot;displayName&quot;:&quot;createScript&quot;,&quot;helpMessage&quot;:&quot;createScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;jdbcUrlTemplate&quot;,&quot;displayName&quot;:&quot;JDBC Connection URL&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;JDBC Connection URL&lt;/b&gt;&lt;br/&gt;Specify the JDBC Driver Connection URL.&lt;br/&gt; Oracle template is jdbc:oracle:thin:@[host]:[port(1521)]:[DB].&lt;br/&gt;  MySQL template is jdbc:mysql://[host]:[port(3306)]/[db], for more info, read the JDBC driver documentation.&lt;br/&gt;Could be empty if datasource is provided.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:11,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;jdbc:mysql://%h:%p/%d&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.url}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;jndiProperties&quot;,&quot;displayName&quot;:&quot;Initial JNDI Properties&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Initial JNDI Properties&lt;/b&gt;&lt;br/&gt;Could be empty or enter the JDBC JNDI Initial context factory, context provider in a format: key = value.&quot;,&quot;type&quot;:&quot;[Ljava.lang.String;&quot;,&quot;required&quot;:false,&quot;order&quot;:21,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;enableEmptyString&quot;,&quot;displayName&quot;:&quot;Enable writing empty string&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Enable writing empty string&lt;/b&gt;&lt;br/&gt;Select to enable support for writing an empty strings, instead of a NULL value, in character based columns defined as not-null in the table schema. This option does not influence the way strings are written for Oracle based tables. By default empty strings are written as a NULL value.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:12,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;false&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;allNative&quot;,&quot;displayName&quot;:&quot;All native&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;All native&lt;/b&gt;&lt;br/&gt;Select to retrieve all data type of the columns in a native format from the database table.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:16,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[false]},{&quot;schema&quot;:{&quot;name&quot;:&quot;password&quot;,&quot;displayName&quot;:&quot;User Password&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;User Password&lt;/b&gt;&lt;br/&gt;Enter a user account that has permission to access accounts table.&quot;,&quot;type&quot;:&quot;org.identityconnectors.common.security.GuardedString&quot;,&quot;required&quot;:false,&quot;order&quot;:5,&quot;confidential&quot;:true,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.password}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;validConnectionQuery&quot;,&quot;displayName&quot;:&quot;Validate Connection Query&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Validate Connection Query&lt;/b&gt;&lt;br/&gt;There can be specified the check connection alive query. If empty, default implementation will test it using the switch on/off the autocommit. Some select 1 from dummy table could be more efficient.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:17,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;reloadScriptOnExecution&quot;,&quot;displayName&quot;:&quot;reloadScriptOnExecution&quot;,&quot;helpMessage&quot;:&quot;reloadScriptOnExecution&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;true&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;schemaScriptFileName&quot;,&quot;displayName&quot;:&quot;schemaScriptFileName&quot;,&quot;helpMessage&quot;:&quot;schemaScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/SchemaScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;jdbcDriver&quot;,&quot;displayName&quot;:&quot;JDBC Driver&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;JDBC Driver&lt;/b&gt;&lt;br/&gt;Specify the JDBC Driver class name. Oracle is oracle.jdbc.driver.OracleDriver. MySQL is org.gjt.mm.mysql.Driver.&lt;br/&gt;Could be empty if datasource is provided.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:10,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;com.mysql.jdbc.Driver&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.driver}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScriptFileName&quot;,&quot;displayName&quot;:&quot;testScriptFileName&quot;,&quot;helpMessage&quot;:&quot;testScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/TestScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;quoting&quot;,&quot;displayName&quot;:&quot;Name Quoting&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Name Quoting&lt;/b&gt;&lt;br/&gt;Select whether database column names for this resource should be quoted, and the quoting characters. By default, database column names are not quoted (None). For other selections (Single, Double, Back, or Brackets), column names will appear between single quotes, double quotes, back quotes, or brackets in the SQL generated to access the database.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:-1,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScriptFileName&quot;,&quot;displayName&quot;:&quot;createScriptFileName&quot;,&quot;helpMessage&quot;:&quot;createScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/CreateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;clearTextPasswordToScript&quot;,&quot;displayName&quot;:&quot;clearTextPasswordToScript&quot;,&quot;helpMessage&quot;:&quot;clearTextPasswordToScript&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;false&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;nativeTimestamps&quot;,&quot;displayName&quot;:&quot;Native Timestamps&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;Native Timestamps&lt;/b&gt;&lt;br/&gt;Select to retrieve Timestamp data type of the columns in java.sql.Timestamp format from the database table.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:15,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[false]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScript&quot;,&quot;displayName&quot;:&quot;syncScript&quot;,&quot;helpMessage&quot;:&quot;syncScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;autoCommit&quot;,&quot;displayName&quot;:&quot;autoCommit&quot;,&quot;helpMessage&quot;:&quot;autoCommit&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[true]},{&quot;schema&quot;:{&quot;name&quot;:&quot;scriptingLanguage&quot;,&quot;displayName&quot;:&quot;scriptingLanguage&quot;,&quot;helpMessage&quot;:&quot;scriptingLanguage&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;GROOVY&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;GROOVY&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;datasource&quot;,&quot;displayName&quot;:&quot;Datasource Path&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;JDBC Data Source Name/Path&lt;/b&gt;&lt;br/&gt;Enter the JDBC Data Source Name/Path to connect to the Oracle server. If specified, connector will only try to connect using Datasource and ignore other resource parameters specified.&lt;br/&gt;the example value is: &lt;CODE&gt;jdbc/SampleDataSourceName&lt;/CODE&gt;&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:20,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScript&quot;,&quot;displayName&quot;:&quot;deleteScript&quot;,&quot;helpMessage&quot;:&quot;deleteScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;rethrowAllSQLExceptions&quot;,&quot;displayName&quot;:&quot;Rethrow all SQLExceptions&quot;,&quot;helpMessage&quot;:&quot;If this is not checked, SQL statements which throw SQLExceptions with a 0 ErrorCode will be have the exception caught and suppressed. Check it to have exceptions with 0 ErrorCodes rethrown.&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:14,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[true]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScriptFileName&quot;,&quot;displayName&quot;:&quot;syncScriptFileName&quot;,&quot;helpMessage&quot;:&quot;syncScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/SyncScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScript&quot;,&quot;displayName&quot;:&quot;updateScript&quot;,&quot;helpMessage&quot;:&quot;updateScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;user&quot;,&quot;displayName&quot;:&quot;User&quot;,&quot;helpMessage&quot;:&quot;&lt;b&gt;User&lt;/b&gt;&lt;br/&gt;Enter the name of the mandatory Database user with permission to account table.&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:4,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${testdb.username}&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScriptFileName&quot;,&quot;displayName&quot;:&quot;deleteScriptFileName&quot;,&quot;helpMessage&quot;:&quot;deleteScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/DeleteScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScriptFileName&quot;,&quot;displayName&quot;:&quot;searchScriptFileName&quot;,&quot;helpMessage&quot;:&quot;searchScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:true,&quot;values&quot;:[&quot;${syncope.conf.dir}/scriptedsql/SearchScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScript&quot;,&quot;displayName&quot;:&quot;searchScript&quot;,&quot;helpMessage&quot;:&quot;searchScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]}]'
+                capabilities='["CREATE","UPDATE","UPDATE_DELTA","DELETE","SEARCH","SYNC"]'/>
+  <ConnInstance_Realm left="a6d017fd-a705-4507-bb7c-6ab6a6745997" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  
+  <ConnInstance id="44c02549-19c3-483c-8025-4919c3283c37" bundlename="net.tirasa.connid.bundles.rest"
+                location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
+                connectorname="net.tirasa.connid.bundles.rest.RESTConnector"
+                displayname="REST" version="${connid.rest.version}"
+                jsonconf="[{&quot;schema&quot;:{&quot;name&quot;:&quot;authenticateScript&quot;,&quot;displayName&quot;:&quot;authenticateScript&quot;,&quot;helpMessage&quot;:&quot;authenticateScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;contentType&quot;,&quot;displayName&quot;:&quot;contentType&quot;,&quot;helpMessage&quot;:&quot;contentType&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:true,&quot;order&quot;:-1,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;application/json&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;application/json&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;resolveUsernameScriptFileName&quot;,&quot;displayName&quot;:&quot;resolveUsernameScriptFileName&quot;,&quot;helpMessage&quot;:&quot;resolveUsernameScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:15,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScriptFileName&quot;,&quot;displayName&quot;:&quot;createScriptFileName&quot;,&quot;helpMessage&quot;:&quot;createScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:10,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/CreateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;username&quot;,&quot;displayName&quot;:&quot;username&quot;,&quot;helpMessage&quot;:&quot;username&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScript&quot;,&quot;displayName&quot;:&quot;updateScript&quot;,&quot;helpMessage&quot;:&quot;updateScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:4,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScript&quot;,&quot;displayName&quot;:&quot;searchScript&quot;,&quot;helpMessage&quot;:&quot;searchScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;clearTextPasswordToScript&quot;,&quot;displayName&quot;:&quot;clearTextPasswordToScript&quot;,&quot;helpMessage&quot;:&quot;clearTextPasswordToScript&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:1,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[true]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScript&quot;,&quot;displayName&quot;:&quot;syncScript&quot;,&quot;helpMessage&quot;:&quot;syncScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:7,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScriptFileName&quot;,&quot;displayName&quot;:&quot;deleteScriptFileName&quot;,&quot;helpMessage&quot;:&quot;deleteScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:12,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/DeleteScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;resolveUsernameScript&quot;,&quot;displayName&quot;:&quot;resolveUsernameScript&quot;,&quot;helpMessage&quot;:&quot;resolveUsernameScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScriptFileName&quot;,&quot;displayName&quot;:&quot;searchScriptFileName&quot;,&quot;helpMessage&quot;:&quot;searchScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:13,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/SearchScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScriptFileName&quot;,&quot;displayName&quot;:&quot;syncScriptFileName&quot;,&quot;helpMessage&quot;:&quot;syncScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:16,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/SyncScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;schemaScriptFileName&quot;,&quot;displayName&quot;:&quot;schemaScriptFileName&quot;,&quot;helpMessage&quot;:&quot;schemaScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:17,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/SchemaScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;password&quot;,&quot;displayName&quot;:&quot;password&quot;,&quot;helpMessage&quot;:&quot;password&quot;,&quot;type&quot;:&quot;org.identityconnectors.common.security.GuardedString&quot;,&quot;required&quot;:false,&quot;order&quot;:1,&quot;confidential&quot;:true,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScriptFileName&quot;,&quot;displayName&quot;:&quot;updateScriptFileName&quot;,&quot;helpMessage&quot;:&quot;updateScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:11,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/UpdateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScriptFileName&quot;,&quot;displayName&quot;:&quot;testScriptFileName&quot;,&quot;helpMessage&quot;:&quot;testScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:18,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/TestScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;accept&quot;,&quot;displayName&quot;:&quot;accept&quot;,&quot;helpMessage&quot;:&quot;accept&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:true,&quot;order&quot;:-2,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;application/json&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;application/json&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;baseAddress&quot;,&quot;displayName&quot;:&quot;baseAddress&quot;,&quot;helpMessage&quot;:&quot;baseAddress&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:true,&quot;order&quot;:-3,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/cxf/rest&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;authenticateScriptFileName&quot;,&quot;displayName&quot;:&quot;authenticateScriptFileName&quot;,&quot;helpMessage&quot;:&quot;authenticateScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:14,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/AuthenticateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScript&quot;,&quot;displayName&quot;:&quot;deleteScript&quot;,&quot;helpMessage&quot;:&quot;deleteScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:5,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;schemaScript&quot;,&quot;displayName&quot;:&quot;schemaScript&quot;,&quot;helpMessage&quot;:&quot;schemaScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:8,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScript&quot;,&quot;displayName&quot;:&quot;createScript&quot;,&quot;helpMessage&quot;:&quot;createScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:3,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;scriptingLanguage&quot;,&quot;displayName&quot;:&quot;scriptingLanguage&quot;,&quot;helpMessage&quot;:&quot;scriptingLanguage&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;GROOVY&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;GROOVY&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScript&quot;,&quot;displayName&quot;:&quot;testScript&quot;,&quot;helpMessage&quot;:&quot;testScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:9,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;reloadScriptOnExecution&quot;,&quot;displayName&quot;:&quot;reloadScriptOnExecution&quot;,&quot;helpMessage&quot;:&quot;reloadScriptOnExecution&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:2,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[false]}]"
+                capabilities='["AUTHENTICATE","CREATE","UPDATE","DELETE","SEARCH","SYNC"]'/>
+  <ConnInstance_Realm left="44c02549-19c3-483c-8025-4919c3283c37" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <ExternalResource id="ws-target-resource-1" enforceMandatoryCondition="0" overrideCapabilities="0"
+                    propagationPriority="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"fullname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"ctype","extAttrName":"type","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-1" right="88a7a819-dab5-46b4-9b90-0b9769eabdb8"/>
+  <ExternalResource id="ws-target-resource-2" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"ctype","extAttrName":"type","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"type == &#39;F&#39;","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"virtualdata","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"type == &#39;F&#39;","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"cn","extAttrName":"fullname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-2" right="88a7a819-dab5-46b4-9b90-0b9769eabdb8"/>
+  <ExternalResource_PullPolicy left="ws-target-resource-2" right="9454b0d7-2610-400a-be82-fc23cf553dd6"/>
+  <ExternalResource id="ws-target-resource-timeout" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    propagationPriority="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/services/provisioning"]}]'
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-timeout" right="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08"/>
+  <ExternalResource id="ws-target-resource-list-mappings-1" enforceMandatoryCondition="0" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"email","extAttrName":"email","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"email","extAttrName":"email","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-list-mappings-1" right="88a7a819-dab5-46b4-9b90-0b9769eabdb8"/>
+  <ExternalResource id="ws-target-resource-list-mappings-2" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
+  <ExternalResource_ConnInstance left="ws-target-resource-list-mappings-2" right="88a7a819-dab5-46b4-9b90-0b9769eabdb8"/>
+  <ExternalResource id="ws-target-resource-delete" enforceMandatoryCondition="0" overrideCapabilities="0"
+                    propagationPriority="2" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-delete" right="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08"/>
+  <ExternalResource id="ws-target-resource-update" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"test3","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-update" right="88a7a819-dab5-46b4-9b90-0b9769eabdb8"/>
+  <ExternalResource id="resource-testdb" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="resource-testdb" right="5aa5b8be-7521-481a-9651-c557aea078c1"/>
+  <ExternalResource id="resource-testdb2" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="resource-testdb2" right="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d"/>
+  <Implementation id="GenerateRandomPasswordPropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPasswordPropagationActions"/>
+  <ExternalResource_Implementation type="RESOURCE_PROPAGATION_ACTIONS" left="resource-testdb2" right="GenerateRandomPasswordPropagationActions"/>
+  <ExternalResource id="resource-csv" enforceMandatoryCondition="0" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":["csv","generic membership","minimal group"],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"id","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"id","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"csvuserid","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"groups[root].rderToBePropagated","extAttrName":"theirgroup","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"csvuserid","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="resource-csv" right="6c2acf1b-b052-46f0-8c56-7a8ad6905edf"/>
+  <ExternalResource_PullPolicy left="resource-csv" right="880f8553-069b-4aed-9930-2cd53873f544"/>
+  <ExternalResource id="ws-target-resource-update-resetsynctoken" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":"{\"value\":null}","ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-update-resetsynctoken" right="88a7a819-dab5-46b4-9b90-0b9769eabdb8"/>
+  <ExternalResource id="resource-ldap" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    propagationPriority="1"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":["generic membership","minimal group"],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":"&#39;uid=&#39; + username + &#39;,ou=people,${testds.rootDn}&#39;","items":[{"intAttrName":"username","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"sn","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"cn","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"mail","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"title","extAttrName":"title","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"postalAddress","extAttrName":"postalAddress","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"mail","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"obscure","extAttrName":"registeredAddress","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"photo","extAttrName":"jpegPhoto","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[{"intAttrName":"virtualReadOnly","extAttrName":"givenname","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":["virtualReadOnly"]},{"anyType":"GROUP","objectClass":"__GROUP__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":"&#39;cn=&#39; + name + &#39;,ou=groups,${testds.rootDn}&#39;","items":[{"intAttrName":"name","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userOwner","extAttrName":"owner","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"title","extAttrName":"description","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[{"intAttrName":"rvirtualdata","extAttrName":"businessCategory","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"name","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":["rvirtualdata"]}]'/>
+  <ExternalResource_ConnInstance left="resource-ldap" right="74141a3b-0762-4720-a4aa-fc3e374ef3ef"/>
+  <ExternalResource_Implementation type="RESOURCE_PROPAGATION_ACTIONS" left="resource-ldap" right="GenerateRandomPasswordPropagationActions"/>
+  <Implementation id="LDAPMembershipPropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
+  <ExternalResource_Implementation type="RESOURCE_PROPAGATION_ACTIONS" left="resource-ldap" right="LDAPMembershipPropagationActions"/>
+  <ExternalResource id="resource-ldap-orgunit" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    propagationPriority="1"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    jsonConf='[{"schema":{"name":"uidAttribute","displayName":"Uid Attribute","helpMessage":"The name of the LDAP attribute which is mapped to the Uid attribute. Default is \"entryUUID\".","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":["entryUUID"]},"overridable":true,"values":["l"]},{"schema":{"name":"baseContexts","displayName":"Base Contexts","helpMessage":"One or more starting points in the LDAP tree that will be used when searching the tree. Searches are performed when discovering users from the LDAP server or when looking for the groups of which a user is a member.","type":"[Ljava.lang.String;","required":true,"order":7,"confidential":false,"defaultValues":[]},"overridable":true,"values":["${testds.rootDn}"]}]'
+                    orgUnit='{"objectClass":"organizationalUnit","syncToken":null,"ignoreCaseMatch":false,"connObjectLink":"syncope:fullPath2Dn(fullPath, &#39;ou&#39;) + &#39;,${testds.rootDn}&#39;","items":[{"intAttrName":"fullpath","extAttrName":"l","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"name","extAttrName":"ou","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"fullpath","extAttrName":"l","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}}'/>
+  <ExternalResource_ConnInstance left="resource-ldap-orgunit" right="74141a3b-0762-4720-a4aa-fc3e374ef3ef"/>  
+  <ExternalResource id="ws-target-resource-nopropagation" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>  
+  <ExternalResource_ConnInstance left="ws-target-resource-nopropagation" right="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"/>
+  <ExternalResource_PasswordPolicy left="ws-target-resource-nopropagation" right="986d1236-3ac5-4a19-810c-5ab21d79cba1"/>
+  <ExternalResource id="ws-target-resource-nopropagation2" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-nopropagation2" right="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"/>
+  <ExternalResource id="ws-target-resource-nopropagation3" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-nopropagation3" right="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"/>
+  <ExternalResource id="ws-target-resource-nopropagation4" enforceMandatoryCondition="1" overrideCapabilities="0"
+                    createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="ws-target-resource-nopropagation4" right="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"/>                    
+  <ExternalResource id="resource-db-pull" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"email","extAttrName":"EMAIL","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"SURNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"SURNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"username","extAttrName":"USERNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"EMAIL","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"mustChangePassword","extAttrName":"MUSTCHANGEPASSWORD","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"firstname","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="resource-db-pull" right="be24b061-019d-4e3e-baf0-0a6d0a45cb9c"/>                                        
+  <ExternalResource id="resource-db-virattr" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[{"intAttrName":"virtualdata","extAttrName":"USERNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":["virtualdata"]}]'/>
+  <ExternalResource_ConnInstance left="resource-db-virattr" right="be24b061-019d-4e3e-baf0-0a6d0a45cb9c"/>                                        
+  <ExternalResource id="resource-db-scripted" createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    provisions='[{"anyType":"PRINTER","objectClass":"__PRINTER__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"name","extAttrName":"PRINTERNAME","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"location","extAttrName":"LOCATION","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="resource-db-scripted" right="a6d017fd-a705-4507-bb7c-6ab6a6745997"/>
+  <ExternalResource_PropagationPolicy left="resource-db-scripted" right="89d322db-9878-420c-b49c-67be13df9a12"/>
+  <ExternalResource id="rest-target-resource" createTraceLevel="ALL" updateTraceLevel="ALL"  deleteTraceLevel="ALL" provisioningTraceLevel="ALL" 
+                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    propagationPriority="0" provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"firstname","extAttrName":"firstName","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"key","extAttrName":"key","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"username","extAttrName":"username","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"key","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+  <ExternalResource_ConnInstance left="rest-target-resource" right="44c02549-19c3-483c-8025-4919c3283c37"/>                                        
+
+  <!-- Use resource-testdb for passthrough authentication (SYNCOPE-164) -->
+  <AccountPolicy_ExternalResource left="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" right="resource-testdb"/>
+    
+  <SyncopeUser_ExternalResource left="1417acbe-cbf6-4277-9372-e75e04f97000" right="resource-testdb2"/>
+  <SyncopeUser_ExternalResource left="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" right="ws-target-resource-delete"/>
+  <SyncopeUser_ExternalResource left="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" right="ws-target-resource-2"/>
+  <SyncopeUser_ExternalResource left="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" right="ws-target-resource-1"/>
+  <SyncopeUser_ExternalResource left="823074dc-d280-436d-a7dd-07399fae48ec" right="resource-testdb2"/>
+  <SyncopeGroup_ExternalResource left="29f96485-729e-4d31-88a1-6fc60e4677f3" right="ws-target-resource-list-mappings-1"/>
+  <SyncopeGroup_ExternalResource left="f779c0d4-633b-4be5-8f57-32eb478a3ca5" right="ws-target-resource-2"/>
+  <SyncopeGroup_ExternalResource left="29f96485-729e-4d31-88a1-6fc60e4677f3" right="ws-target-resource-list-mappings-2"/>
+  <SyncopeGroup_ExternalResource left="bf825fe1-7320-4a54-bd64-143b5c18ab97" right="ws-target-resource-nopropagation"/>
+  <SyncopeGroup_ExternalResource left="b8d38784-57e7-4595-859a-076222644b55" right="ws-target-resource-nopropagation3"/>
+  <SyncopeGroup_ExternalResource left="0626100b-a4ba-4e00-9971-86fad52a6216" right="resource-csv"/>
+  <SyncopeGroup_ExternalResource left="ba9ed509-b1f5-48ab-a334-c8530a6422dc" right="resource-csv"/>
+
+  <VirSchema id="virtualReadOnly" readonly="1" extAttrName="givenname"/>
+  <VirSchema_AnyTypeClass left="virtualReadOnly" right="minimal user"/>
+  <VirSchema_AnyType left="virtualReadOnly" right="USER"/>
+  <VirSchema_ExternalResource left="virtualReadOnly" right="resource-ldap"/>
+  
+  <VirSchema id="rvirtualdata" readonly="0" extAttrName="businessCategory"/>
+  <VirSchema_AnyTypeClass left="rvirtualdata" right="minimal group"/>
+  <VirSchema_AnyType left="rvirtualdata" right="GROUP"/>
+  <VirSchema_ExternalResource left="rvirtualdata" right="resource-ldap"/>
+
+  <VirSchema id="virtualdata" readonly="0" extAttrName="USERNAME"/>
+  <VirSchema_AnyTypeClass left="virtualdata" right="minimal user"/>
+  <VirSchema_AnyType left="virtualdata" right="USER"/>
+  <VirSchema_ExternalResource left="virtualdata" right="resource-ldap"/>
+
+  <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
+
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
+  <PropagationTask id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" operation="UPDATE"
+                   objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+                   propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]}'/>
+  <PropagationTask_ExternalResource left="1e697572-b896-484c-ae7f-0c8f63fcbc6c" right="ws-target-resource-2"/>
+  <PropagationTaskExec id="e58ca1c7-178a-4012-8a71-8aa14eaf0655" startDate="2015-12-17 09:40:00" endDate="2015-12-17 09:42:00" status="SUCCESS" executor="admin"/>
+  <PropagationTaskExec_PropagationTask left="e58ca1c7-178a-4012-8a71-8aa14eaf0655" right="1e697572-b896-484c-ae7f-0c8f63fcbc6c"/>
+  <PropagationTask id="b8870cfb-3c1e-4fc4-abcb-2559826232e6" operation="CREATE"
+                   objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+                   propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]}'/>
+  <PropagationTask_ExternalResource left="b8870cfb-3c1e-4fc4-abcb-2559826232e6" right="ws-target-resource-2"/>
+  <PropagationTask id="316285cc-ae52-4ea2-a33b-7355e189ac3f" operation="DELETE"
+                   objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+                   propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]}'/>
+  <PropagationTask_ExternalResource left="316285cc-ae52-4ea2-a33b-7355e189ac3f" right="ws-target-resource-2"/>
+  <!--SYNCOPE-1641 to be purged-->
+  <PropagationTask id="025c956d-ea88-4bd7-9e44-2f35e0aa7055" operation="UPDATE"
+                   objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+                   propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]}'/>
+  <PropagationTask_ExternalResource left="025c956d-ea88-4bd7-9e44-2f35e0aa7055" right="ws-target-resource-1"/>
+  <PropagationTaskExec id="c3290f8b-caf9-4a85-84fb-fb619b65cd49" startDate="2015-12-17 09:40:00" endDate="2015-12-17 09:42:00" status="SUCCESS"/>
+  <PropagationTaskExec_PropagationTask left="c3290f8b-caf9-4a85-84fb-fb619b65cd49" right="025c956d-ea88-4bd7-9e44-2f35e0aa7055"/>
+  <PullTask remediation="0" id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" name="CSV (update matching; assign unmatching)"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
+            pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="c41b9b71-9bfa-4f90-89f2-84787def4c5c" right="resource-csv"/>
+  <PullTask_Realm left="c41b9b71-9bfa-4f90-89f2-84787def4c5c" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="c41b9b71-9bfa-4f90-89f2-84787def4c5c" right="PullJobDelegate"/>
+  <AnyTemplatePullTask id="3a6173a9-8c34-4e37-b3b1-0c2ea385fac0"
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"groupKey":"f779c0d4-633b-4be5-8f57-32eb478a3ca5","groupName":null}],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
+  <AnyTemplatePullTask_PullTask left="3a6173a9-8c34-4e37-b3b1-0c2ea385fac0" right="c41b9b71-9bfa-4f90-89f2-84787def4c5c"/>           
+  <AnyTemplatePullTask_AnyType left="3a6173a9-8c34-4e37-b3b1-0c2ea385fac0" right="USER"/>           
+  <AnyTemplatePullTask id="b3772d66-ec06-4133-bf38-b3273845ac5b"
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+  <AnyTemplatePullTask_PullTask left="b3772d66-ec06-4133-bf38-b3273845ac5b" right="c41b9b71-9bfa-4f90-89f2-84787def4c5c"/>           
+  <AnyTemplatePullTask_AnyType left="b3772d66-ec06-4133-bf38-b3273845ac5b" right="GROUP"/>           
+  <Implementation id="TestSampleJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.fit.core.reference.TestSampleJobDelegate"/>
+  <SchedTask id="e95555d2-1b09-42c8-b25b-f4c4ec597979" name="SampleJob Task" active="1" cronExpression="0 0 0 1 * ?"/>
+  <SchedTask_Implementation left="e95555d2-1b09-42c8-b25b-f4c4ec597979" right="TestSampleJobDelegate"/>           
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
+  <SchedTask id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task" active="1" cronExpression="0 0/5 * * * ?"/>
+  <SchedTask_Implementation left="89de5014-e3f5-4462-84d8-d97575740baf" right="ExpiredAccessTokenCleanup"/>           
+  <PropagationTask id="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" operation="UPDATE"
+                   objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+                   propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]}'/>
+  <PropagationTask_ExternalResource left="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" right="ws-target-resource-nopropagation"/>
+  <PropagationTaskExec id="d789462f-e395-424f-bd8e-0db44a93222f" startDate="2015-12-17 09:40:00" endDate="2015-12-17 09:42:00" status="SUCCESS"/>
+  <PropagationTaskExec_PropagationTask left="d789462f-e395-424f-bd8e-0db44a93222f" right="d6c2d6d3-6329-44c1-9187-f1469ead1cfa"/>
+  <PullTask remediation="0" id="83f7e85d-9774-43fe-adba-ccd856312994" name="TestDB Task"
+            performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="83f7e85d-9774-43fe-adba-ccd856312994" right="PullJobDelegate"/>
+  <PullTask_ExternalResource left="83f7e85d-9774-43fe-adba-ccd856312994" right="resource-testdb"/>
+  <PullTask_Realm left="83f7e85d-9774-43fe-adba-ccd856312994" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <AnyTemplatePullTask id="6c3f578d-327b-4a7c-8037-6f5ba24eb770"
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["&apos;type a&apos;"]},{"schema":"userId","values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","values":["&apos;surname&apos;"]}]}'/>
+  <AnyTemplatePullTask_PullTask left="6c3f578d-327b-4a7c-8037-6f5ba24eb770" right="83f7e85d-9774-43fe-adba-ccd856312994"/>                
+  <AnyTemplatePullTask_AnyType left="6c3f578d-327b-4a7c-8037-6f5ba24eb770" right="USER"/>                
+  <AnyTemplatePullTask id="45b61137-c7c3-49ee-86e0-9efffa75ae68"
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+  <AnyTemplatePullTask_PullTask left="45b61137-c7c3-49ee-86e0-9efffa75ae68" right="83f7e85d-9774-43fe-adba-ccd856312994"/>                
+  <AnyTemplatePullTask_AnyType left="45b61137-c7c3-49ee-86e0-9efffa75ae68" right="GROUP"/>                
+  <PullTask remediation="0" id="81d88f73-d474-4450-9031-605daa4e313f" name="TestDB2 Task"
+            performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="81d88f73-d474-4450-9031-605daa4e313f" right="resource-testdb2"/>
+  <PullTask_Realm left="81d88f73-d474-4450-9031-605daa4e313f" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="81d88f73-d474-4450-9031-605daa4e313f" right="PullJobDelegate"/>
+  <PullTask remediation="0" id="7c2242f4-14af-4ab5-af31-cdae23783655" name="TestDB Pull Task"
+            pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="7c2242f4-14af-4ab5-af31-cdae23783655" right="resource-db-pull"/>
+  <PullTask_Realm left="7c2242f4-14af-4ab5-af31-cdae23783655" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="7c2242f4-14af-4ab5-af31-cdae23783655" right="PullJobDelegate"/>
+  <PullTask remediation="0" id="1e419ca4-ea81-4493-a14f-28b90113686d" name="LDAP Pull Task" 
+            pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="1e419ca4-ea81-4493-a14f-28b90113686d" right="resource-ldap"/>
+  <PullTask_Realm left="1e419ca4-ea81-4493-a14f-28b90113686d" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="1e419ca4-ea81-4493-a14f-28b90113686d" right="PullJobDelegate"/>
+  <AnyTemplatePullTask id="df655a2a-40c0-43b1-a157-3f4988802f58"
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":"&apos;/&apos; + title","status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["minimal group"],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[]}'/>
+  <AnyTemplatePullTask_PullTask left="df655a2a-40c0-43b1-a157-3f4988802f58" right="1e419ca4-ea81-4493-a14f-28b90113686d"/>                
+  <AnyTemplatePullTask_AnyType left="df655a2a-40c0-43b1-a157-3f4988802f58" right="USER"/>                
+  <AnyTemplatePullTask id="fda22ff3-98f3-42e4-a2ae-cd9a28282d57"
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","values":["true"]}]}'/>
+  <AnyTemplatePullTask_PullTask left="fda22ff3-98f3-42e4-a2ae-cd9a28282d57" right="1e419ca4-ea81-4493-a14f-28b90113686d"/>                
+  <AnyTemplatePullTask_AnyType left="fda22ff3-98f3-42e4-a2ae-cd9a28282d57" right="GROUP"/>                
+  <Implementation id="LDAPMembershipPullActions" type="PULL_ACTIONS"  engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
+  <PullTask_Implementation type="PULL_TASK_PULL_ACTIONS" left="1e419ca4-ea81-4493-a14f-28b90113686d" right="LDAPMembershipPullActions"/>
+  <PullTask remediation="0" id="38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1" name="VirAttrCache test"
+            performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" pullMode="FULL_RECONCILIATION"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1" right="resource-csv"/>
+  <PullTask_Realm left="38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1" right="PullJobDelegate"/>
+  <PushTask id="af558be4-9d2f-4359-bf85-a554e6e90be1" name="Export on resource-testdb2.1"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+            unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"
+            filters='{"USER":"surname==Vivaldi","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="af558be4-9d2f-4359-bf85-a554e6e90be1" right="resource-testdb2"/>
+  <PushTask_Realm left="af558be4-9d2f-4359-bf85-a554e6e90be1" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="af558be4-9d2f-4359-bf85-a554e6e90be1" right="PushJobDelegate"/>
+  <PushTask id="97f327b6-2eff-4d35-85e8-d581baaab855" name="Export on resource-testdb2.2"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+            unmatchingRule="PROVISION" matchingRule="IGNORE" active="1"
+            filters='{"USER":"surname==Bellini","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="97f327b6-2eff-4d35-85e8-d581baaab855" right="resource-testdb2"/>
+  <PushTask_Realm left="97f327b6-2eff-4d35-85e8-d581baaab855" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="97f327b6-2eff-4d35-85e8-d581baaab855" right="PushJobDelegate"/>
+  <PushTask id="03aa2a04-4881-4573-9117-753f81b04865" name="Export on resource-testdb2.3"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="UNLINK" matchingRule="IGNORE" active="1"
+            filters='{"USER":"surname==Puccini","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="03aa2a04-4881-4573-9117-753f81b04865" right="resource-testdb2"/>
+  <PushTask_Realm left="03aa2a04-4881-4573-9117-753f81b04865" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="03aa2a04-4881-4573-9117-753f81b04865" right="PushJobDelegate"/>
+  <PushTask id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" name="Export on resource-testdb2.4"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
+            unmatchingRule="IGNORE" matchingRule="IGNORE" active="1"
+            filters='{"USER":"surname==Verdi","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" right="resource-testdb2"/>
+  <PushTask_Realm left="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" right="PushJobDelegate"/>
+  <PushTask id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" name="Export on resource-testdb2.5"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"
+            filters='{"USER":"username==_NO_ONE_","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" right="resource-testdb2"/>
+  <PushTask_Realm left="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" right="PushJobDelegate"/>
+  <PushTask id="ec674143-480a-4816-98ad-b61fa090821e" name="Export on resource-testdb2.6"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="IGNORE" matchingRule="DEPROVISION" active="1"
+            filters='{"USER":"surname==Verdi","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="ec674143-480a-4816-98ad-b61fa090821e" right="resource-testdb2"/>
+  <PushTask_Realm left="ec674143-480a-4816-98ad-b61fa090821e" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="ec674143-480a-4816-98ad-b61fa090821e" right="PushJobDelegate"/>
+  <PushTask id="c46edc3a-a18b-4af2-b707-f4a415507496" name="Export on resource-testdb2.7"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="IGNORE" matchingRule="UNASSIGN" active="1"
+            filters='{"USER":"surname==Rossini","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="c46edc3a-a18b-4af2-b707-f4a415507496" right="resource-testdb2"/>
+  <PushTask_Realm left="c46edc3a-a18b-4af2-b707-f4a415507496" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="c46edc3a-a18b-4af2-b707-f4a415507496" right="PushJobDelegate"/>
+  <PushTask id="51318433-cce4-4f71-8f45-9534b6c9c819" name="Export on resource-testdb2.8"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="IGNORE" matchingRule="LINK" active="1"
+            filters='{"USER":"surname==Verdi","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="51318433-cce4-4f71-8f45-9534b6c9c819" right="resource-testdb2"/>
+  <PushTask_Realm left="51318433-cce4-4f71-8f45-9534b6c9c819" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="51318433-cce4-4f71-8f45-9534b6c9c819" right="PushJobDelegate"/>
+  <PushTask id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" name="Export on resource-testdb2.9"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"
+            filters='{"USER":"surname==Verdi","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" right="resource-testdb2"/>
+  <PushTask_Realm left="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" right="PushJobDelegate"/>
+  <PushTask id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" name="Export on resource-testdb2.10"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="IGNORE" matchingRule="UPDATE"  active="1"
+            filters='{"USER":"surname==Verdi","GROUP":"name==_NO_ONE_"}'/>
+  <PushTask_ExternalResource left="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" right="resource-testdb2"/>
+  <PushTask_Realm left="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" right="PushJobDelegate"/>
+  <PushTask id="fd905ba5-9d56-4f51-83e2-859096a67b75" name="Export on resource-ldap"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
+            unmatchingRule="ASSIGN" matchingRule="UNLINK" active="1"
+            filters='{"USER":"username==_NO_ONE_","GROUP":"name==citizen"}'/>
+  <PushTask_ExternalResource left="fd905ba5-9d56-4f51-83e2-859096a67b75" right="resource-ldap"/>
+  <PushTask_Realm left="fd905ba5-9d56-4f51-83e2-859096a67b75" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PushTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="fd905ba5-9d56-4f51-83e2-859096a67b75" right="PushJobDelegate"/>
+  <PullTask remediation="0" id="986867e2-993b-430e-8feb-aa9abb4c1dcd" name="CSV Task (update matching; provision unmatching)"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="INCREMENTAL"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="986867e2-993b-430e-8feb-aa9abb4c1dcd" right="resource-csv"/>
+  <PullTask_Realm left="986867e2-993b-430e-8feb-aa9abb4c1dcd" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="986867e2-993b-430e-8feb-aa9abb4c1dcd" right="PullJobDelegate"/>
+  <AnyTemplatePullTask id="8bc41ba1-cc1d-4ee0-bb43-61cd148b414f"
+                       template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[{"schema":"firstname","values":[""]},{"schema":"userId","values":["&apos;test&apos;"]},{"schema":"fullname","values":["&apos;test&apos;"]},{"schema":"surname","values":["&apos;test&apos;"]}]}'/>
+  <AnyTemplatePullTask_PullTask left="8bc41ba1-cc1d-4ee0-bb43-61cd148b414f" right="986867e2-993b-430e-8feb-aa9abb4c1dcd"/>                
+  <AnyTemplatePullTask_AnyType left="8bc41ba1-cc1d-4ee0-bb43-61cd148b414f" right="USER"/>                
+  <AnyTemplatePullTask id="9af0e343-8a37-42d2-9bc7-6e2e3b103219"
+                       template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
+  <AnyTemplatePullTask_PullTask left="9af0e343-8a37-42d2-9bc7-6e2e3b103219" right="986867e2-993b-430e-8feb-aa9abb4c1dcd"/>                
+  <AnyTemplatePullTask_AnyType left="9af0e343-8a37-42d2-9bc7-6e2e3b103219" right="GROUP"/>                
+  <PullTask remediation="0" id="feae4e57-15ca-40d9-b973-8b9015efca49" name="CSV (unlink matching; ignore unmatching)"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="FULL_RECONCILIATION"
+            unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"/>
+  <PullTask_ExternalResource left="feae4e57-15ca-40d9-b973-8b9015efca49" right="resource-csv"/>
+  <PullTask_Realm left="feae4e57-15ca-40d9-b973-8b9015efca49" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="feae4e57-15ca-40d9-b973-8b9015efca49" right="PullJobDelegate"/>
+  <PullTask remediation="0" id="55d5e74b-497e-4bc0-9156-73abef4b9adc" name="CSV (ignore matching; assign unmatching)"
+            performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="FULL_RECONCILIATION"
+            unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"/>
+  <PullTask_ExternalResource left="55d5e74b-497e-4bc0-9156-73abef4b9adc" right="resource-csv"/>
+  <PullTask_Realm left="55d5e74b-497e-4bc0-9156-73abef4b9adc" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="55d5e74b-497e-4bc0-9156-73abef4b9adc" right="PullJobDelegate"/>
+  <PropagationTask id="0f618183-17ce-48bc-80bc-cc535f38983a" operation="CREATE"
+                   objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
+                   propagationData='{"attributes":[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]}'/>
+  <PropagationTask_ExternalResource left="0f618183-17ce-48bc-80bc-cc535f38983a" right="resource-testdb"/>
+  <PullTask remediation="0" id="30cfd653-257b-495f-8665-281281dbcb3d" name="Scripted SQL" 
+            performCreate="1" performUpdate="1" performDelete="0" syncStatus="0" pullMode="INCREMENTAL"
+            unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+  <PullTask_ExternalResource left="30cfd653-257b-495f-8665-281281dbcb3d" right="resource-db-scripted"/>
+  <PullTask_Realm left="30cfd653-257b-495f-8665-281281dbcb3d" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <PullTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="30cfd653-257b-495f-8665-281281dbcb3d" right="PullJobDelegate"/>
+  <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
+  <SchedTask id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task" active="1"
+             cronExpression="0 0/5 * * * ?"/>
+  <SchedTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" right="ExpiredBatchCleanup"/>
+
+  <MailTemplate id="requestPasswordReset"
+                textTemplate="Hi,
+a password reset was requested for ${user.getUsername()}.
+
+In order to complete this request, you need to visit this link:
+
+http://localhost:${cargo.servlet.port}/syncope-enduser/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}
+
+If you did not request this reset, just ignore the present e-mail.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,
+a password reset was requested for ${user.getUsername()}.&lt;/p&gt;
+
+&lt;p&gt;In order to complete this request, you need to visit this 
+&lt;a href=&quot;http://localhost:${cargo.servlet.port}/syncope-enduser/confirmpasswordreset?token=${input.get(0).replaceAll(' ', '%20')}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;.
+
+&lt;p&gt;If you did not request this reset, just ignore the present e-mail.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate id="confirmPasswordReset"
+                textTemplate="Hi,
+we are happy to inform you that the password request was successfully executed for your account.
+
+Best regards."
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi,&lt;br/&gt;
+we are happy to inform you that the password request was successfully executed for your account.&lt;/p&gt;
+
+&lt;p&gt;Best regards.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+  <MailTemplate id="test"/>
+  <MailTemplate id="optin"
+                textTemplate="Hi ${user.getPlainAttr(&quot;firstname&quot;).get().values[0]} ${user.getPlainAttr(&quot;surname&quot;).get().values[0]}, welcome to Syncope!
+
+Your username is ${user.username}.
+Your email address is ${user.getPlainAttr(&quot;email&quot;).get().values[0]}.
+Your email address inside a link: http://localhost/?email=${user.getPlainAttr(&quot;email&quot;).get().values[0].replace('@', '%40')}
+
+This message was sent to the following recipients:&#10;
+$$ for (recipient: recipients) {&#10;
+  * ${recipient.getPlainAttr(&quot;email&quot;).get().values[0]}&#10;
+$$ }&#10;
+&#10;
+because one of the following events occurred:&#10;
+$$ for (event: events) {&#10;
+  * ${event}&#10;
+$$ }&#10;
+&#10;
+$$ if (!empty(user.memberships)) {&#10;
+You have been provided with the following groups:&#10;
+$$ for(membership : user.memberships) {&#10;
+  * ${membership.groupName}&#10;
+$$ }&#10;
+$$ }&#10;"
+                htmlTemplate="&lt;html&gt;
+&lt;body&gt;
+&lt;h3&gt;Hi ${user.getPlainAttr(&quot;firstname&quot;).get().values[0]} ${user.getPlainAttr(&quot;surname&quot;).get().values[0]}, welcome to Syncope!&lt;/h3&gt;
+
+&lt;p&gt;
+   Your username is ${user.username}.&lt;br/&gt;
+   Your email address is ${user.getPlainAttr(&quot;email&quot;).get().values[0]}.
+   Your email address inside a &lt;a href=&quot;http://localhost/?email=${user.getPlainAttr(&quot;email&quot;).get().values[0].replace('@', '%40')}&quot;&gt;link&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;p&gt;
+    This message was sent to the following recipients:
+&lt;ul&gt;&#10;
+$$ for (recipient: recipients) {&#10;Na
+  &lt;li&gt;${recipient.getPlainAttr(&quot;email&quot;).get().values[0]}&lt;/li&gt;&#10;
+$$ }&#10;
+&lt;/ul&gt;&#10;
+
+because one of the following events occurred:
+&lt;ul&gt;&#10;
+$$ for (event: events) {&#10;
+  &lt;li&gt;${event}&lt;/li&gt;&#10;
+$$ }&#10;
+&lt;/ul&gt;&#10;
+&lt;/p&gt;
+&#10;
+$$ if (!empty(user.memberships)) {&#10;
+You have been provided with the following groups:&#10;
+&lt;ul&gt;&#10;
+$$ for(membership : user.memberships) {&#10;
+  &lt;li&gt;${membership.groupName}&lt;/li&gt;&#10;
+$$ }&#10;
+&lt;/ul&gt;&#10;
+$$ }&#10;
+&lt;/body&gt;
+&lt;/html&gt;"/>
+
+  <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset request"
+                traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"]'/>
+  <Notification_MailTemplate left="e00945b5-1184-4d43-8e45-4318a8dcdfd4" right="requestPasswordReset"/>
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" filter="token!=$null"/>
+  <AnyAbout_AnyType left="a328f2e6-25e9-4cc1-badf-7425d7be4b39" right="USER"/>
+  <AnyAbout_Notification left="a328f2e6-25e9-4cc1-badf-7425d7be4b39" right="e00945b5-1184-4d43-8e45-4318a8dcdfd4"/>
+  <NotificationTask id="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7"
+                    sender="admin@prova.org" subject="Notification for SYNCOPE-81" executed="0"
+                    textBody="NOTIFICATION-81" htmlBody="NOTIFICATION-81" traceLevel="ALL" recipients='["recipient@prova.org"]'/>
+  <NotificationTask_Notification left="e1e520f0-2cbd-4e11-9a89-ea58a0f957e7" right="e00945b5-1184-4d43-8e45-4318a8dcdfd4"/>
+
+  <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful"
+                traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
+  <Notification_MailTemplate left="bef0c250-e8a7-4848-bb63-2564fc409ce2" right="confirmPasswordReset"/>
+
+  <Notification id="9e2b911c-25de-4c77-bcea-b86ed9451050" sender="test@syncope.apache.org" subject="Test subject" selfAsRecipient="0" 
+                traceLevel="FAILURES" recipientsFIQL="$groups==7" recipientAttrName="email" active="1"
+                events='["[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]", "[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"]'/>
+  <Notification_MailTemplate left="9e2b911c-25de-4c77-bcea-b86ed9451050" right="test"/>
+  <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" filter="fullname==*o*;fullname==*i*"/>
+  <AnyAbout_AnyType left="2e2ee845-2abf-43c6-b543-49243a84e2f1" right="USER"/>
+  <AnyAbout_Notification left="2e2ee845-2abf-43c6-b543-49243a84e2f1" right="9e2b911c-25de-4c77-bcea-b86ed9451050"/>
+
+  <Implementation id="SampleReportJobDelegate" type="REPORT_DELEGATE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.fit.core.reference.SampleReportConf","stringValue":"a string","intValue":1,"longValue":45,"floatValue":1.2,"doubleValue":2.1}'/>
+  <Report id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" name="test" active="1" mimeType="application/pdf" fileExt="pdf"/>
+  <Report_Implementation left="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" right="SampleReportJobDelegate"/>
+  <ReportExec id="c13f39c5-0d35-4bff-ba79-3cd5de940369"
+              status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
+  <ReportExec_Report left="c13f39c5-0d35-4bff-ba79-3cd5de940369" right="0062ea9c-924d-4ecf-9961-4492a8cc6d1b"/>
+
+  <SecurityQuestion id="887028ea-66fc-41e7-b397-620d7ea6dfbb" content="What's your mother's maiden name?"/>
+
+  <SRARoute id="ec7bada2-3dd6-460c-8441-65521d005ffa" name="basic1" target="http://httpbin.org:80"
+            logout="0" csrf="1" routeType="PROTECTED"
+            predicates="[{&quot;cond&quot;:null,&quot;factory&quot;:&quot;METHOD&quot;,&quot;args&quot;:&quot;GET&quot;}]"/>
+
+  <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_SEARCH","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
+
+  <AuditConf id="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" active="1"/>
+
+  <AuditConf id="syncope.audit.[WA]:[]:[AUTHENTICATION]:[validate]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[WA]:[]:[AuthenticationEvent]:[auth]:[SUCCESS]" active="1"/>
+
+  <AuditConf id="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" active="1"/>
+
+  <AuditConf id="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" active="1"/>
+
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" active="1"/>
+
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" active="1"/>
+
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[delete]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[link]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[provision]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" active="1"/>
+</dataset>

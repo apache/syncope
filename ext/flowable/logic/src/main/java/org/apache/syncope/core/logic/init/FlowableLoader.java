@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import javax.sql.DataSource;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
@@ -61,7 +60,7 @@ public class FlowableLoader implements SyncopeCoreLoader {
     }
 
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         byte[] wfDef = new byte[0];
 
         try (InputStream wfIn = userWorkflowDef.getInputStream()) {

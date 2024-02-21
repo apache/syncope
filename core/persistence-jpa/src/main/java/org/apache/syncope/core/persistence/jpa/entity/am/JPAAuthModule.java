@@ -146,5 +146,4 @@ public class JPAAuthModule extends AbstractProvidedKeyEntity implements AuthModu
     public void list2json() {
         items = POJOHelper.serialize(getItems());
     }
-
 }

@@ -27,8 +27,6 @@ public interface EntityFactory {
 
     <E extends Entity> E newEntity(Class<E> reference);
 
-    ConnPoolConf newConnPoolConf();
-
     Class<? extends User> userClass();
 
     Class<? extends Group> groupClass();

@@ -52,9 +52,9 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 
 public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
 
-    private final DomainHolder domainHolder;
+    private final DomainHolder<?> domainHolder;
 
-    public SyncopeOpenApiCustomizer(final DomainHolder domainHolder) {
+    public SyncopeOpenApiCustomizer(final DomainHolder<?> domainHolder) {
         this.domainHolder = domainHolder;
     }
 

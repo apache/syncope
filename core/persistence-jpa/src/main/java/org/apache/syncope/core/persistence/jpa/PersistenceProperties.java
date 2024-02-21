@@ -18,24 +18,17 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.syncope.core.persistence.common.AbstractPersistenceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 @ConfigurationProperties("persistence")
-public class PersistenceProperties {
+public class PersistenceProperties extends AbstractPersistenceProperties<DomainProperties> {
 
     private String remoteCommitProvider = "sjvm";
 
     private String metaDataFactory;
 
     private String viewsXML = "classpath:views.xml";
-
-    private String indexesXML = "classpath:indexes.xml";
-
-    @NestedConfigurationProperty
-    private final List<DomainProperties> domain = new ArrayList<>();
 
     public String getRemoteCommitProvider() {
         return remoteCommitProvider;
@@ -59,17 +52,5 @@ public class PersistenceProperties {
 
     public void setViewsXML(final String viewsXML) {
         this.viewsXML = viewsXML;
-    }
-
-    public String getIndexesXML() {
-        return indexesXML;
-    }
-
-    public void setIndexesXML(final String indexesXML) {
-        this.indexesXML = indexesXML;
-    }
-
-    public List<DomainProperties> getDomain() {
-        return domain;
     }
 }

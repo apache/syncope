@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.logic.api.LogicActions;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValueValidator;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;

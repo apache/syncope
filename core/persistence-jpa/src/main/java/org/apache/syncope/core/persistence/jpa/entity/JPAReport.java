@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
-import org.apache.syncope.core.persistence.jpa.validation.entity.ReportCheck;
+import org.apache.syncope.core.persistence.common.validation.ReportCheck;
 
 @Entity
 @Table(name = JPAReport.TABLE)

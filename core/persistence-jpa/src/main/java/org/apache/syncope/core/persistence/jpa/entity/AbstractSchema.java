@@ -36,7 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
+import org.apache.syncope.core.persistence.common.validation.SchemaKeyCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity

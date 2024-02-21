@@ -51,13 +51,13 @@ public class NotificationJob extends AbstractInterruptableJob {
 
     protected final SecurityProperties securityProperties;
 
-    protected final DomainHolder domainHolder;
+    protected final DomainHolder<?> domainHolder;
 
     protected final NotificationJobDelegate delegate;
 
     public NotificationJob(
             final SecurityProperties securityProperties,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final NotificationJobDelegate delegate) {
 
         this.securityProperties = securityProperties;

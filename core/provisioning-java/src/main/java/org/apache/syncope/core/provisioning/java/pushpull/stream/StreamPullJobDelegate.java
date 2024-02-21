@@ -106,7 +106,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         provision.setMapping(mapping);
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
-        if (anyUtils.getField(keyColumn) == null) {
+        if (anyUtils.getField(keyColumn).isEmpty()) {
             plainSchemaDAO.findById(keyColumn).
                     orElseThrow(() -> new JobExecutionException("Plain Schema for key column not found: " + keyColumn));
         }
@@ -118,7 +118,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         mapping.setConnObjectKeyItem(connObjectKeyItem);
 
         columns.stream().
-                filter(column -> anyUtils.getField(column) != null
+                filter(column -> anyUtils.getField(column).isPresent()
                 || plainSchemaDAO.existsById(column) || virSchemaDAO.existsById(column)).
                 map(column -> {
                     Item item = new Item();

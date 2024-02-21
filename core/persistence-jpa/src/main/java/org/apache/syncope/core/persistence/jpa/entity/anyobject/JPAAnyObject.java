@@ -42,11 +42,11 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.common.validation.AnyObjectCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.validation.entity.AnyObjectCheck;
 
 @Entity
 @Table(name = JPAAnyObject.TABLE, uniqueConstraints =

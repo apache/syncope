@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import javax.sql.DataSource;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
@@ -32,7 +33,7 @@ public class TestInitializer implements InitializingBean {
 
     private final StartupDomainLoader domainLoader;
 
-    private final DomainHolder domainHolder;
+    private final DomainHolder<DataSource> domainHolder;
 
     private final ContentLoader contentLoader;
 
@@ -42,7 +43,7 @@ public class TestInitializer implements InitializingBean {
 
     public TestInitializer(
             final StartupDomainLoader domainLoader,
-            final DomainHolder domainHolder,
+            final DomainHolder<DataSource> domainHolder,
             final ContentLoader contentLoader,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
@@ -61,16 +62,12 @@ public class TestInitializer implements InitializingBean {
 
         domainLoader.load();
 
-        contentLoader.load(
-                SyncopeConstants.MASTER_DOMAIN,
-                domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
+        contentLoader.load(SyncopeConstants.MASTER_DOMAIN);
 
         if (domainHolder.getDomains().containsKey("Two")) {
             AuthContextUtils.runAsAdmin("Two", () -> entityManagerFactory.initJPASchema());
 
-            AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load(
-                    "Two",
-                    domainHolder.getDomains().get("Two")));
+            AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load("Two"));
         }
     }
 }

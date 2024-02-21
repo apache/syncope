@@ -80,9 +80,9 @@ public class RoleRepoExtImpl implements RoleRepoExt {
 
         // refresh dynamic memberships
         clearDynMembers(merged);
-        if (merged.getDynMembership() != null) {
+        if (merged.getDynMembershipCond() != null) {
             List<User> matching = anySearchDAO.search(
-                    SearchCondConverter.convert(searchCondVisitor, merged.getDynMembership().getFIQLCond()),
+                    SearchCondConverter.convert(searchCondVisitor, merged.getDynMembershipCond()),
                     AnyTypeKind.USER);
 
             matching.forEach(user -> {
@@ -120,7 +120,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
 
     @Override
     public List<String> findDynMembers(final Role role) {
-        if (role.getDynMembership() == null) {
+        if (role.getDynMembershipCond() == null) {
             return List.of();
         }
 
@@ -145,11 +145,12 @@ public class RoleRepoExtImpl implements RoleRepoExt {
     @Override
     public void refreshDynMemberships(final User user) {
         entityManager.createQuery(
-                "SELECT e FROM " + JPARole.class.getSimpleName() + " e WHERE e.dynMembership IS NOT NULL", Role.class).
+                "SELECT e FROM " + JPARole.class.getSimpleName() + " e "
+                + "WHERE e.dynMembershipCond IS NOT NULL", Role.class).
                 getResultStream().forEach(role -> {
                     boolean matches = anyMatchDAO.matches(
                             user,
-                            SearchCondConverter.convert(searchCondVisitor, role.getDynMembership().getFIQLCond()));
+                            SearchCondConverter.convert(searchCondVisitor, role.getDynMembershipCond()));
 
                     Query find = entityManager.createNativeQuery(
                             "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
@@ -174,8 +175,7 @@ public class RoleRepoExtImpl implements RoleRepoExt {
 
     @Override
     public void removeDynMemberships(final String key) {
-        Query delete = entityManager.
-                createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
+        Query delete = entityManager.createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
         delete.setParameter(1, key);
         delete.executeUpdate();
     }

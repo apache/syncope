@@ -31,8 +31,8 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.persistence.common.validation.ProvisioningTaskCheck;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.validation.entity.ProvisioningTaskCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @MappedSuperclass

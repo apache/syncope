@@ -19,18 +19,24 @@
 package org.apache.syncope.core.persistence.jpa.spring;
 
 import jakarta.persistence.ValidationMode;
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.orm.jpa.persistenceunit.PersistenceUnitPostProcessor;
 
 /**
  * Container for common configuration options among all EntityManagerFactory entities (one for each domain).
  * Acts as a commodity place for fetching each domain's {@link DataSource}..
  */
-public class CommonEntityManagerFactoryConf implements DomainHolder {
+public class CommonEntityManagerFactoryConf implements DomainHolder<DataSource> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DomainHolder.class);
 
     private final Map<String, DataSource> domains = new ConcurrentHashMap<>();
 
@@ -45,6 +51,22 @@ public class CommonEntityManagerFactoryConf implements DomainHolder {
     @Override
     public Map<String, DataSource> getDomains() {
         return domains;
+    }
+
+    @Override
+    public Map<String, Boolean> getHealthInfo() {
+        Map<String, Boolean> healthInfo = new HashMap<>(domains.size());
+
+        domains.forEach((domain, dataSource) -> {
+            try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
+                healthInfo.put(domain, !conn.isValid(0));
+            } catch (Exception e) {
+                healthInfo.put(domain, false);
+                LOG.debug("When attempting to connect to Domain {}", domain, e);
+            }
+        });
+
+        return healthInfo;
     }
 
     public String[] getPackagesToScan() {

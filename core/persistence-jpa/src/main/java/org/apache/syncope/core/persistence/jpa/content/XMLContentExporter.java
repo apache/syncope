@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -58,13 +57,8 @@ import java.util.TreeSet;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.sql.DataSource;
-import javax.xml.XMLConstants;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
@@ -72,14 +66,14 @@ import org.apache.openjpa.lib.util.collections.BidiMap;
 import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.content.ContentExporter;
-import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.common.content.AbstractXMLContentExporter;
+import org.apache.syncope.core.persistence.common.content.MultiParentNode;
+import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -91,12 +85,9 @@ import org.xml.sax.helpers.AttributesImpl;
 /**
  * Export internal storage content as XML.
  */
-public class XMLContentExporter implements ContentExporter {
+public class XMLContentExporter extends AbstractXMLContentExporter {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(XMLContentExporter.class);
-
-    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Set.of(
-            "QRTZ_", AuditConfDAO.AUDIT_ENTRY_TABLE);
+    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Set.of("QRTZ_", AuditEntryDAO.TABLE);
 
     protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
@@ -214,12 +205,10 @@ public class XMLContentExporter implements ContentExporter {
             final Connection conn, final String schema, final Set<String> tableNames)
             throws SQLException {
 
-        Set<MultiParentNode<String>> roots = new HashSet<>();
-
         DatabaseMetaData meta = conn.getMetaData();
 
+        Set<MultiParentNode<String>> roots = new HashSet<>();
         Map<String, MultiParentNode<String>> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        Set<String> pkTableNames = new HashSet<>();
 
         for (String tableName : tableNames) {
             MultiParentNode<String> node = Optional.ofNullable(exploited.get(tableName)).orElseGet(() -> {
@@ -229,7 +218,7 @@ public class XMLContentExporter implements ContentExporter {
                 return n;
             });
 
-            pkTableNames.clear();
+            Set<String> pkTableNames = new HashSet<>();
             try (ResultSet rs = meta.getImportedKeys(conn.getCatalog(), schema, tableName)) {
                 // this is to avoid repetition
                 while (rs.next()) {
@@ -271,14 +260,14 @@ public class XMLContentExporter implements ContentExporter {
         return sortedTableNames;
     }
 
-    protected final DomainHolder domainHolder;
+    protected final DomainHolder<DataSource> domainHolder;
 
     protected final RealmDAO realmDAO;
 
     protected final EntityManagerFactory entityManagerFactory;
 
     public XMLContentExporter(
-            final DomainHolder domainHolder,
+            final DomainHolder<DataSource> domainHolder,
             final RealmDAO realmDAO,
             final EntityManagerFactory entityManagerFactory) {
 
@@ -386,21 +375,11 @@ public class XMLContentExporter implements ContentExporter {
     @Override
     public void export(
             final String domain,
-            final int tableThreshold,
+            final int threshold,
             final OutputStream os)
             throws SAXException, TransformerConfigurationException {
 
-        StreamResult streamResult = new StreamResult(os);
-        SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-        transformerFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-
-        TransformerHandler handler = transformerFactory.newTransformerHandler();
-        Transformer serializer = handler.getTransformer();
-        serializer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name());
-        serializer.setOutputProperty(OutputKeys.INDENT, "yes");
-        handler.setResult(streamResult);
-        handler.startDocument();
-        handler.startElement("", "", ROOT_ELEMENT, new AttributesImpl());
+        TransformerHandler handler = start(os);
 
         DataSource dataSource = Optional.ofNullable(domainHolder.getDomains().get(domain)).
                 orElseThrow(() -> new IllegalArgumentException("Could not find DataSource for domain " + domain));
@@ -437,7 +416,7 @@ public class XMLContentExporter implements ContentExporter {
             // then sort tables based on foreign keys and dump
             for (String tableName : sortByForeignKeys(conn, schema, tableNames)) {
                 try {
-                    exportTable(dataSource, tableName, tableThreshold, entities, relationTables(entities), handler);
+                    exportTable(dataSource, tableName, threshold, entities, relationTables(entities), handler);
                 } catch (Exception e) {
                     LOG.error("Failure exporting table {}", tableName, e);
                 }
@@ -448,7 +427,6 @@ public class XMLContentExporter implements ContentExporter {
             DataSourceUtils.releaseConnection(conn, dataSource);
         }
 
-        handler.endElement("", "", ROOT_ELEMENT);
-        handler.endDocument();
+        end(handler);
     }
 }

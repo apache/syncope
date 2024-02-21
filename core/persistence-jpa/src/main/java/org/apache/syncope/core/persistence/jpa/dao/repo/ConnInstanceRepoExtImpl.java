@@ -92,8 +92,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
             return;
         }
 
-        connInstance.getResources().stream().map(ExternalResource::getKey).toList().
-                forEach(resourceDAO::deleteById);
+        connInstance.getResources().stream().map(ExternalResource::getKey).toList().forEach(resourceDAO::deleteById);
 
         entityManager.remove(connInstance);
     }

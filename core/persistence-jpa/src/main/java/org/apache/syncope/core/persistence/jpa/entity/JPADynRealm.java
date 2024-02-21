@@ -30,7 +30,7 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
-import org.apache.syncope.core.persistence.jpa.validation.entity.DynRealmCheck;
+import org.apache.syncope.core.persistence.common.validation.DynRealmCheck;
 
 @Entity
 @Table(name = JPADynRealm.TABLE)
@@ -62,5 +62,4 @@ public class JPADynRealm extends AbstractProvidedKeyEntity implements DynRealm {
     public List<? extends DynRealmMembership> getDynMemberships() {
         return dynMemberships;
     }
-
 }

@@ -151,11 +151,6 @@ public class JPAJSONUPlainAttr extends AbstractPlainAttr<User> implements UPlain
         return values;
     }
 
-    @JsonIgnore
-    public List<JPAJSONUPlainAttrValue> getPGValues() {
-        return values;
-    }
-
     @Override
     public JPAJSONUPlainAttrUniqueValue getUniqueValue() {
         return uniqueValue;

@@ -22,60 +22,42 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.sql.DataSource;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
+import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.common.content.AbstractXMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.xml.sax.SAXException;
 
 /**
  * Initialize Database with default content if no data is present already.
  */
-public class XMLContentLoader implements ContentLoader {
+public class XMLContentLoader extends AbstractXMLContentLoader {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(XMLContentLoader.class);
-
-    protected final PersistenceProperties persistenceProperties;
+    protected final DomainHolder<DataSource> domainHolder;
 
     protected final Resource viewsXML;
 
     protected final Resource indexesXML;
 
-    protected final Environment env;
-
     public XMLContentLoader(
-            final PersistenceProperties persistenceProperties,
+            final DomainHolder<DataSource> domainHolder,
             final Resource viewsXML,
             final Resource indexesXML,
             final Environment env) {
 
-        this.persistenceProperties = persistenceProperties;
+        super(env);
+        this.domainHolder = domainHolder;
         this.viewsXML = viewsXML;
         this.indexesXML = indexesXML;
-        this.env = env;
     }
 
     @Override
-    public int getOrder() {
-        return 400;
-    }
-
-    @Override
-    public void load(final String domain, final DataSource datasource) {
-        LOG.debug("Loading data for domain [{}]", domain);
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
+    protected boolean existingData(final String domain) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(domainHolder.getDomains().get(domain));
         boolean existingData;
         try {
             existingData = jdbcTemplate.queryForObject("SELECT COUNT(0) FROM " + JPARealm.TABLE, Integer.class) > 0;
@@ -83,50 +65,14 @@ public class XMLContentLoader implements ContentLoader {
             LOG.error("[{}] Could not access table {}", domain, JPARealm.TABLE, e);
             existingData = true;
         }
-
-        if (existingData) {
-            LOG.info("[{}] Data found in the database, leaving untouched", domain);
-        } else {
-            LOG.info("[{}] Empty database found, loading default content", domain);
-
-            try {
-                createViews(domain, datasource);
-            } catch (IOException e) {
-                LOG.error("[{}] While creating views", domain, e);
-            }
-            try {
-                createIndexes(domain, datasource);
-            } catch (IOException e) {
-                LOG.error("[{}] While creating indexes", domain, e);
-            }
-            try {
-                InputStream contentXML = ApplicationContextProvider.getBeanFactory().
-                        getBean(domain + "ContentXML", InputStream.class);
-                loadDefaultContent(domain, contentXML, datasource);
-            } catch (Exception e) {
-                LOG.error("[{}] While loading default content", domain, e);
-            }
-        }
+        return existingData;
     }
 
-    protected void loadDefaultContent(
-            final String domain, final InputStream contentXML, final DataSource dataSource)
-            throws IOException, ParserConfigurationException, SAXException {
-
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        try (contentXML) {
-            SAXParser parser = factory.newSAXParser();
-            parser.parse(contentXML, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true, env));
-            LOG.debug("[{}] Default content successfully loaded", domain);
-        }
-    }
-
-    protected void createViews(final String domain, final DataSource dataSource) throws IOException {
+    @Override
+    protected void createViews(final String domain) throws IOException {
         LOG.debug("[{}] Creating views", domain);
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(domainHolder.getDomains().get(domain));
 
         Properties views = PropertiesLoaderUtils.loadProperties(viewsXML);
         views.stringPropertyNames().stream().sorted().forEach(idx -> {
@@ -141,10 +87,11 @@ public class XMLContentLoader implements ContentLoader {
         LOG.debug("Views created");
     }
 
-    protected void createIndexes(final String domain, final DataSource dataSource) throws IOException {
+    @Override
+    protected void createIndexes(final String domain) throws IOException {
         LOG.debug("[{}] Creating indexes", domain);
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(domainHolder.getDomains().get(domain));
 
         Properties indexes = PropertiesLoaderUtils.loadProperties(indexesXML);
         indexes.stringPropertyNames().stream().sorted().forEach(idx -> {
@@ -157,5 +104,15 @@ public class XMLContentLoader implements ContentLoader {
         });
 
         LOG.debug("Indexes created");
+    }
+
+    @Override
+    protected void loadDefaultContent(final String domain, final String contentXML) throws Exception {
+        InputStream in = ApplicationContextProvider.getBeanFactory().getBean(contentXML, InputStream.class);
+        try (in) {
+            saxParser().parse(in, new ContentLoaderHandler(
+                    domainHolder.getDomains().get(domain), ROOT_ELEMENT, true, env));
+            LOG.debug("[{}] Default content successfully loaded", domain);
+        }
     }
 }

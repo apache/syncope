@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
@@ -43,7 +42,7 @@ public class IdRepoEntitlementLoader implements SyncopeCoreLoader {
     }
 
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         AuthContextUtils.runAsAdmin(domain, () -> entitlementAccessor.addEntitlementsForAnyTypes());
     }
 }

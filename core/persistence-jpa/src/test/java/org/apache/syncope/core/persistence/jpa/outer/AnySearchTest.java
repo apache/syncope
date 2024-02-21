@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -45,12 +45,11 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -90,12 +89,7 @@ public class AnySearchTest extends AbstractTest {
         role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
-
-        DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
-        dynMembership.setFIQLCond("cool==true");
-        dynMembership.setRole(role);
-
-        role.setDynMembership(dynMembership);
+        role.setDynMembershipCond("cool==true");
 
         role = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(role);

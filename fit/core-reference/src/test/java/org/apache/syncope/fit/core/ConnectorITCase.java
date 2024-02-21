@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnIdObjectClass;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
@@ -54,6 +53,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
@@ -160,7 +160,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.getCapabilities().add(ConnectorCapability.UPDATE);
 
         // set connector pool conf
-        ConnPoolConfTO cpc = new ConnPoolConfTO();
+        ConnPoolConf cpc = new ConnPoolConf();
         cpc.setMaxObjects(1534);
         connectorTO.setPoolConf(cpc);
 

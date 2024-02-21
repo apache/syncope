@@ -20,9 +20,47 @@ package org.apache.syncope.core.persistence.api.entity.policy;
 
 import org.apache.syncope.common.lib.types.PolicyType;
 
-public interface PolicyUtils {
+public class PolicyUtils {
 
-    PolicyType getType();
+    protected final PolicyType type;
 
-    Class<? extends Policy> policyClass();
+    public PolicyUtils(final PolicyType type) {
+        this.type = type;
+    }
+
+    public PolicyType getType() {
+        return type;
+    }
+
+    public Class<? extends Policy> policyClass() {
+        switch (type) {
+            case ACCOUNT:
+                return AccountPolicy.class;
+
+            case PASSWORD:
+                return PasswordPolicy.class;
+
+            case AUTH:
+                return AuthPolicy.class;
+
+            case ATTR_RELEASE:
+                return AttrReleasePolicy.class;
+
+            case ACCESS:
+                return AccessPolicy.class;
+
+            case TICKET_EXPIRATION:
+                return TicketExpirationPolicy.class;
+
+            case PROPAGATION:
+                return PropagationPolicy.class;
+
+            case PULL:
+                return PullPolicy.class;
+
+            case PUSH:
+            default:
+                return PushPolicy.class;
+        }
+    }
 }

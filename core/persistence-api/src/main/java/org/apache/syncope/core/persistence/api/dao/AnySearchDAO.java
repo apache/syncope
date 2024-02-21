@@ -37,7 +37,7 @@ public interface AnySearchDAO {
      * @param kind any object
      * @return size of search result
      */
-    int count(
+    long count(
             Realm base,
             boolean recursive,
             Set<String> adminRealms,

@@ -22,8 +22,8 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
@@ -65,7 +65,7 @@ abstract class AbstractPlainSchemaRepoExtJSON extends PlainSchemaRepoExtImpl {
     @SuppressWarnings("unchecked")
     public <T extends PlainAttr<?>> void delete(final T plainAttr) {
         if (plainAttr.getOwner() != null) {
-            ((Any<T>) plainAttr.getOwner()).remove(plainAttr);
+            ((Attributable<T>) plainAttr.getOwner()).remove(plainAttr);
         }
     }
 }

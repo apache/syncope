@@ -22,7 +22,6 @@ import jakarta.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -86,10 +85,15 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
         return conf.buildProcessEngine();
     }
 
+    @SuppressWarnings("unchecked")
+    protected DomainHolder<DataSource> getDomainHolder() {
+        return ctx.getBean(DomainHolder.class);
+    }
+
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         try {
-            Objects.requireNonNull(getObject()).getEngines().put(domain, build(datasource));
+            getObject().getEngines().put(domain, build(getDomainHolder().getDomains().get(domain)));
         } catch (Exception e) {
             LOG.error("Could not setup Flowable for {}", domain, e);
         }
@@ -100,8 +104,7 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 
-            ctx.getBean(DomainHolder.class).getDomains().forEach(
-                    (domain, datasource) -> engines.put(domain, build(datasource)));
+            getDomainHolder().getDomains().forEach((domain, datasource) -> engines.put(domain, build(datasource)));
 
             engine = new DomainProcessEngine(engines);
         }

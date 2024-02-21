@@ -19,7 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 
 public interface PlainAttr<A extends Any<?>> extends Entity {
 

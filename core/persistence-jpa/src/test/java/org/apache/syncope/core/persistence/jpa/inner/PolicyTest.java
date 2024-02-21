@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -43,6 +42,7 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -75,9 +75,17 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<? extends Policy> policies = policyDAO.findAll();
-        assertNotNull(policies);
-        assertFalse(policies.isEmpty());
+        assertEquals(16, policyDAO.findAll().size());
+
+        assertEquals(1, policyDAO.findAll(AccessPolicy.class).size());
+        assertEquals(2, policyDAO.findAll(AccountPolicy.class).size());
+        assertEquals(2, policyDAO.findAll(AttrReleasePolicy.class).size());
+        assertEquals(2, policyDAO.findAll(AuthPolicy.class).size());
+        assertEquals(3, policyDAO.findAll(PasswordPolicy.class).size());
+        assertEquals(1, policyDAO.findAll(PropagationPolicy.class).size());
+        assertEquals(4, policyDAO.findAll(PullPolicy.class).size());
+        assertEquals(1, policyDAO.findAll(PushPolicy.class).size());
+        assertEquals(0, policyDAO.findAll(TicketExpirationPolicy.class).size());
     }
 
     @Test
@@ -91,7 +99,7 @@ public class PolicyTest extends AbstractTest {
         PullPolicy pullPolicy = policyDAO.findById(
                 "880f8553-069b-4aed-9930-2cd53873f544", PullPolicy.class).orElseThrow();
 
-        PullCorrelationRuleEntity pullCR = pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElse(null);
+        PullCorrelationRuleEntity pullCR = pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElseThrow();
         DefaultPullCorrelationRuleConf pullCRConf =
                 POJOHelper.deserialize(pullCR.getImplementation().getBody(), DefaultPullCorrelationRuleConf.class);
         assertNotNull(pullCRConf);
@@ -102,7 +110,7 @@ public class PolicyTest extends AbstractTest {
         PushPolicy pushPolicy = policyDAO.findById(
                 "fb6530e5-892d-4f47-a46b-180c5b6c5c83", PushPolicy.class).orElseThrow();
 
-        PushCorrelationRuleEntity pushCR = pushPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElse(null);
+        PushCorrelationRuleEntity pushCR = pushPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElseThrow();
         DefaultPushCorrelationRuleConf pushCRConf =
                 POJOHelper.deserialize(pushCR.getImplementation().getBody(), DefaultPushCorrelationRuleConf.class);
         assertNotNull(pushCRConf);
@@ -123,35 +131,8 @@ public class PolicyTest extends AbstractTest {
     }
 
     @Test
-    public void findByType() {
-        List<PropagationPolicy> propagationPolicies = policyDAO.findAll(PropagationPolicy.class);
-        assertNotNull(propagationPolicies);
-        assertFalse(propagationPolicies.isEmpty());
-
-        List<PullPolicy> pullPolicies = policyDAO.findAll(PullPolicy.class);
-        assertNotNull(pullPolicies);
-        assertFalse(pullPolicies.isEmpty());
-
-        List<AccessPolicy> accessPolicies = policyDAO.findAll(AccessPolicy.class);
-        assertNotNull(accessPolicies);
-        assertEquals(1, accessPolicies.size());
-
-        List<AuthPolicy> authPolicies = policyDAO.findAll(AuthPolicy.class);
-        assertNotNull(authPolicies);
-        assertEquals(2, authPolicies.size());
-
-        List<AttrReleasePolicy> attrReleasePolicies = policyDAO.findAll(AttrReleasePolicy.class);
-        assertNotNull(attrReleasePolicies);
-        assertEquals(2, attrReleasePolicies.size());
-
-        List<TicketExpirationPolicy> ticketExpirationPolicies = policyDAO.findAll(TicketExpirationPolicy.class);
-        assertNotNull(ticketExpirationPolicies);
-        assertEquals(0, ticketExpirationPolicies.size());
-    }
-
-    @Test
     public void createPropagation() {
-        int beforeCount = policyDAO.findAll().size();
+        long beforeCount = policyDAO.findAll().size();
 
         PropagationPolicy propagationPolicy = entityFactory.newEntity(PropagationPolicy.class);
         propagationPolicy.setName("Propagation policy");
@@ -165,7 +146,7 @@ public class PolicyTest extends AbstractTest {
         assertEquals(BackOffStrategy.EXPONENTIAL, propagationPolicy.getBackOffStrategy());
         assertEquals(BackOffStrategy.EXPONENTIAL.getDefaultBackOffParams(), propagationPolicy.getBackOffParams());
 
-        int afterCount = policyDAO.findAll().size();
+        long afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 
@@ -259,7 +240,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void createAccess() {
-        int beforeCount = policyDAO.findAll().size();
+        long beforeCount = policyDAO.findAll().size();
 
         AccessPolicy accessPolicy = entityFactory.newEntity(AccessPolicy.class);
         accessPolicy.setName("AttrReleasePolicyAllowEverything");
@@ -273,13 +254,13 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(accessPolicy);
         assertNotNull(accessPolicy.getKey());
 
-        int afterCount = policyDAO.findAll().size();
+        long afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 
     @Test
     public void createAuth() {
-        int beforeCount = policyDAO.findAll().size();
+        long beforeCount = policyDAO.findAll().size();
 
         AuthPolicy authPolicy = entityFactory.newEntity(AuthPolicy.class);
         authPolicy.setName("AuthPolicyTest");
@@ -294,13 +275,13 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(authPolicy);
         assertNotNull(authPolicy.getKey());
 
-        int afterCount = policyDAO.findAll().size();
+        long afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 
     @Test
     public void createAttrRelease() {
-        int beforeCount = policyDAO.findAll().size();
+        long beforeCount = policyDAO.findAll().size();
 
         AttrReleasePolicy attrReleasePolicy = entityFactory.newEntity(AttrReleasePolicy.class);
         attrReleasePolicy.setName("AttrReleasePolicyAllowEverything");
@@ -318,13 +299,13 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(attrReleasePolicy.getStatus());
         assertNotNull(((DefaultAttrReleasePolicyConf) attrReleasePolicy.getConf()).getAllowedAttrs());
 
-        int afterCount = policyDAO.findAll().size();
+        long afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 
     @Test
     public void createTicketExpiration() {
-        int beforeCount = policyDAO.findAll().size();
+        long beforeCount = policyDAO.findAll().size();
 
         TicketExpirationPolicy ticketExpirationPolicy = entityFactory.newEntity(TicketExpirationPolicy.class);
         ticketExpirationPolicy.setName("TicketExpirationPolicyTest");
@@ -346,7 +327,7 @@ public class PolicyTest extends AbstractTest {
         assertNotNull(((DefaultTicketExpirationPolicyConf) ticketExpirationPolicy.getConf()).getTgtConf());
         assertNotNull(((DefaultTicketExpirationPolicyConf) ticketExpirationPolicy.getConf()).getStConf());
 
-        int afterCount = policyDAO.findAll().size();
+        long afterCount = policyDAO.findAll().size();
         assertEquals(afterCount, beforeCount + 1);
     }
 

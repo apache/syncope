@@ -26,7 +26,7 @@ under the License.
   <persistence-unit-metadata>
     <persistence-unit-defaults>
       <entity-listeners>
-        <entity-listener class="org.apache.syncope.core.persistence.jpa.validation.entity.EntityValidationListener">
+        <entity-listener class="org.apache.syncope.core.persistence.jpa.openjpa.EntityValidationListener">
           <pre-persist method-name="validate"/>
           <pre-update method-name="validate"/>
         </entity-listener>

@@ -255,7 +255,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
             SearchCond cond = StringUtils.isBlank(filter)
                     ? anyDAO.getAllMatchingCond()
                     : SearchCondConverter.convert(searchCondVisitor, filter);
-            int count = searchDAO.count(
+            long count = searchDAO.count(
                     profile.getTask().getSourceRealm(),
                     true,
                     Set.of(profile.getTask().getSourceRealm().getFullPath()),

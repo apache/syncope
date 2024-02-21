@@ -23,6 +23,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -43,9 +44,7 @@ public class JPAWAConfigEntry extends AbstractProvidedKeyEntity implements WACon
 
     @Override
     public List<String> getValues() {
-        return waConfigValues == null
-                ? List.of()
-                : POJOHelper.deserialize(waConfigValues, TYPEREF);
+        return Optional.ofNullable(waConfigValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElse(List.of());
     }
 
     @Override

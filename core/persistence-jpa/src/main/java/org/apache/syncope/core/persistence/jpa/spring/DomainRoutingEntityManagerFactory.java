@@ -59,31 +59,6 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected final Map<String, EntityManagerFactory> delegates = new ConcurrentHashMap<>();
 
-    protected EntityManagerFactory delegate() {
-        return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
-            throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
-        });
-    }
-
-    public void initJPASchema() {
-        OpenJPAEntityManagerFactorySPI emfspi = delegate().unwrap(OpenJPAEntityManagerFactorySPI.class);
-        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
-
-        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
-        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
-
-        String action = "buildSchema(ForeignKeys=true)";
-        String props = Configurations.getProperties(action);
-        action = Configurations.getClassName(action);
-        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
-        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
-
-        // initialize the schema
-        classes.forEach(mappingTool::run);
-
-        mappingTool.record();
-    }
-
     public void master(
             final PersistenceProperties props,
             final JndiObjectFactoryBean dataSource) {
@@ -145,6 +120,31 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     public void remove(final String domain) {
         EntityManagerFactory emf = delegates.remove(domain);
         close(domain, emf);
+    }
+
+    protected EntityManagerFactory delegate() {
+        return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
+            throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
+        });
+    }
+
+    public void initJPASchema() {
+        OpenJPAEntityManagerFactorySPI emfspi = delegate().unwrap(OpenJPAEntityManagerFactorySPI.class);
+        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
+
+        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
+        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
+
+        String action = "buildSchema(ForeignKeys=true)";
+        String props = Configurations.getProperties(action);
+        action = Configurations.getClassName(action);
+        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
+        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
+
+        // initialize the schema
+        classes.forEach(mappingTool::run);
+
+        mappingTool.record();
     }
 
     @Override

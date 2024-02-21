@@ -29,11 +29,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrValueCheck;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.common.validation.PlainAttrValueCheck;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.Encryptor;
 
@@ -145,42 +145,42 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
             case Long:
                 try {
-                this.setLongValue(schema.getConversionPattern() == null
-                        ? Long.valueOf(value)
-                        : FormatUtils.parseNumber(value, schema.getConversionPattern()).longValue());
-            } catch (Exception pe) {
-                exception = pe;
-            }
-            break;
+                    this.setLongValue(schema.getConversionPattern() == null
+                            ? Long.valueOf(value)
+                            : FormatUtils.parseNumber(value, schema.getConversionPattern()).longValue());
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
 
             case Double:
                 try {
-                this.setDoubleValue(schema.getConversionPattern() == null
-                        ? Double.valueOf(value)
-                        : FormatUtils.parseNumber(value, schema.getConversionPattern()).doubleValue());
-            } catch (Exception pe) {
-                exception = pe;
-            }
-            break;
+                    this.setDoubleValue(schema.getConversionPattern() == null
+                            ? Double.valueOf(value)
+                            : FormatUtils.parseNumber(value, schema.getConversionPattern()).doubleValue());
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
 
             case Date:
                 try {
-                this.setDateValue(schema.getConversionPattern() == null
-                        ? FormatUtils.parseDate(value)
-                        : FormatUtils.parseDate(value, schema.getConversionPattern()));
-            } catch (Exception pe) {
-                exception = pe;
-            }
-            break;
+                    this.setDateValue(schema.getConversionPattern() == null
+                            ? FormatUtils.parseDate(value)
+                            : FormatUtils.parseDate(value, schema.getConversionPattern()));
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
 
             case Encrypted:
                 try {
-                this.setStringValue(Encryptor.getInstance(getSecretKey(schema)).
-                        encode(value, schema.getCipherAlgorithm()));
-            } catch (Exception pe) {
-                exception = pe;
-            }
-            break;
+                    this.setStringValue(Encryptor.getInstance(getSecretKey(schema)).
+                            encode(value, schema.getCipherAlgorithm()));
+                } catch (Exception pe) {
+                    exception = pe;
+                }
+                break;
 
             case Binary:
                 this.setBinaryValue(Base64.getDecoder().decode(value));

@@ -20,14 +20,12 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Cacheable;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
@@ -47,15 +45,11 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
-import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPARole.TABLE)
 @Cacheable
-@RoleCheck
 public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     private static final long serialVersionUID = -7657701119422588832L;
@@ -70,6 +64,11 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     @Transient
     private Set<String> entitlementsSet = new HashSet<>();
+
+    private String dynMembershipCond;
+
+    @Lob
+    private String anyLayout;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -91,13 +90,6 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Valid
     private List<JPADynRealm> dynRealms = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "role")
-    @Valid
-    private JPADynRoleMembership dynMembership;
-
-    @Lob
-    private String anyLayout;
-
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
             @JoinColumn(name = "role_id"),
@@ -111,6 +103,16 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public Set<String> getEntitlements() {
         return entitlementsSet;
+    }
+
+    @Override
+    public String getDynMembershipCond() {
+        return dynMembershipCond;
+    }
+
+    @Override
+    public void setDynMembershipCond(final String dynMembershipCond) {
+        this.dynMembershipCond = dynMembershipCond;
     }
 
     @Override
@@ -133,17 +135,6 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public List<? extends DynRealm> getDynRealms() {
         return dynRealms;
-    }
-
-    @Override
-    public DynRoleMembership getDynMembership() {
-        return dynMembership;
-    }
-
-    @Override
-    public void setDynMembership(final DynRoleMembership dynMembership) {
-        checkType(dynMembership, JPADynRoleMembership.class);
-        this.dynMembership = (JPADynRoleMembership) dynMembership;
     }
 
     @Override
@@ -179,8 +170,7 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
             getEntitlements().clear();
         }
         if (entitlements != null) {
-            getEntitlements().addAll(
-                    POJOHelper.deserialize(entitlements, TYPEREF));
+            getEntitlements().addAll(POJOHelper.deserialize(entitlements, TYPEREF));
         }
     }
 

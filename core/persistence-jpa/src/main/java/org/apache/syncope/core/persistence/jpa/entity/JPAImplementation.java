@@ -27,7 +27,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.jpa.validation.entity.ImplementationCheck;
+import org.apache.syncope.core.persistence.common.validation.ImplementationCheck;
 
 @Entity
 @Table(name = JPAImplementation.TABLE)

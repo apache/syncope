@@ -24,7 +24,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PrivilegeCheck;
+import org.apache.syncope.core.persistence.common.validation.PrivilegeCheck;
 
 @Entity
 @Table(name = JPAPrivilege.TABLE)
@@ -73,5 +73,4 @@ public class JPAPrivilege extends AbstractProvidedKeyEntity implements Privilege
     public void setSpec(final String spec) {
         this.spec = spec;
     }
-
 }

@@ -55,10 +55,10 @@ cleartext on-demand (requires AES ciphering)
 ** `Binary` - it is required to provide the declared mime type
 * Validator class - (optional) Java class validating the value(s) provided for attributes, see 
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/attrvalue/validation/EmailAddressValidator.java[EmailAddressValidator^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-common/src/main/java/org/apache/syncope/core/persistence/common/attrvalue/EmailAddressValidator.java[EmailAddressValidator^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/attrvalue/validation/EmailAddressValidator.java[EmailAddressValidator^]
+https://github.com/apache/syncope/blob/master/core/persistence-common/src/main/java/org/apache/syncope/core/persistence/common/attrvalue/EmailAddressValidator.java[EmailAddressValidator^]
 endif::[]
 for reference
 * Mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 

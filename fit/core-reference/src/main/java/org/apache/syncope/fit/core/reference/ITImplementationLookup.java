@@ -37,10 +37,11 @@ import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.logic.job.MacroRunJobDelegate;
-import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
-import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
-import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator;
-import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
+import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.common.attrvalue.AlwaysTrueValidator;
+import org.apache.syncope.core.persistence.common.attrvalue.BasicValidator;
+import org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator;
+import org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
@@ -193,14 +194,18 @@ public class ITImplementationLookup implements ImplementationLookup {
         }
     };
 
+    private final DomainHolder<?> domainHolder;
+
     private final UserWorkflowAdapter uwf;
 
     private final EnableFlowableForTestUsers enableFlowableForTestUsers;
 
     public ITImplementationLookup(
+            final DomainHolder<?> domainHolder,
             final UserWorkflowAdapter uwf,
             final EnableFlowableForTestUsers enableFlowableForTestUsers) {
 
+        this.domainHolder = domainHolder;
         this.uwf = uwf;
         this.enableFlowableForTestUsers = enableFlowableForTestUsers;
     }
@@ -213,10 +218,15 @@ public class ITImplementationLookup implements ImplementationLookup {
     protected static final Logger LOG = LoggerFactory.getLogger(ITImplementationLookup.class);
 
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
+        Object v = domainHolder.getDomains().get(domain);
+
         // in case the Flowable extension is enabled, enable modifications for test users
-        if (enableFlowableForTestUsers != null && AopUtils.getTargetClass(uwf).getName().contains("Flowable")) {
-            AuthContextUtils.runAsAdmin(domain, () -> enableFlowableForTestUsers.init(datasource));
+        if (enableFlowableForTestUsers != null
+                && AopUtils.getTargetClass(uwf).getName().contains("Flowable")
+                && v instanceof DataSource dataSource) {
+
+            AuthContextUtils.runAsAdmin(domain, () -> enableFlowableForTestUsers.init(dataSource));
         }
     }
 

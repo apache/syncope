@@ -84,16 +84,6 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
     }
 
     @Override
-    public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
-        TypedQuery<T> query = entityManager.createQuery(
-                "SELECT e FROM " + getEntityReference(reference).getSimpleName()
-                + " e WHERE e.schema=:schema", reference);
-        query.setParameter("schema", schema);
-
-        return query.getResultList();
-    }
-
-    @Override
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
         String plainAttrTable = getTable(reference);
         Query query = entityManager.createNativeQuery(
@@ -109,6 +99,15 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
     public PlainSchema save(final PlainSchema schema) {
         ((JPAPlainSchema) schema).map2json();
         return entityManager.merge(schema);
+    }
+
+    protected <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
+        TypedQuery<T> query = entityManager.createQuery(
+                "SELECT e FROM " + getEntityReference(reference).getSimpleName()
+                + " e WHERE e.schema=:schema", reference);
+        query.setParameter("schema", schema);
+
+        return query.getResultList();
     }
 
     protected void deleteAttrs(final PlainSchema schema) {

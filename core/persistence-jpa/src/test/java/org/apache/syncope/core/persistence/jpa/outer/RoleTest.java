@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.outer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import jakarta.persistence.Query;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -41,12 +40,10 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExt;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,12 +118,7 @@ public class RoleTest extends AbstractTest {
         role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
-
-        DynRoleMembership dynMembership = entityFactory.newEntity(DynRoleMembership.class);
-        dynMembership.setFIQLCond("cool==true");
-        dynMembership.setRole(role);
-
-        role.setDynMembership(dynMembership);
+        role.setDynMembershipCond("cool==true");
 
         Role actual = roleDAO.saveAndRefreshDynMemberships(role);
         assertNotNull(actual);
@@ -135,9 +127,7 @@ public class RoleTest extends AbstractTest {
 
         // 2. verify that dynamic membership is there
         actual = roleDAO.findById(actual.getKey()).orElseThrow();
-        assertNotNull(actual.getDynMembership());
-        assertNotNull(actual.getDynMembership().getKey());
-        assertEquals(actual, actual.getDynMembership().getRole());
+        assertNotNull(actual.getDynMembershipCond());
 
         // 3. verify that expected users have the created role dynamically assigned
         List<String> members = roleDAO.findDynMembers(actual);
@@ -147,7 +137,7 @@ public class RoleTest extends AbstractTest {
         user = userDAO.findById("c9b2dec2-00a7-4855-97c0-d854842b4b24").orElseThrow();
         Collection<Role> dynRoleMemberships = findDynRoles(user);
         assertEquals(1, dynRoleMemberships.size());
-        assertTrue(dynRoleMemberships.contains(actual.getDynMembership().getRole()));
+        assertTrue(dynRoleMemberships.contains(actual));
 
         // 4. delete the new user and verify that dynamic membership was updated
         userDAO.deleteById(newUserKey);
@@ -160,13 +150,9 @@ public class RoleTest extends AbstractTest {
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
 
         // 5. delete role and verify that dynamic membership was also removed
-        String dynMembershipKey = actual.getDynMembership().getKey();
-
         roleDAO.delete(actual);
 
         entityManager.flush();
-
-        assertNull(entityManager.find(JPADynRoleMembership.class, dynMembershipKey));
 
         dynRoleMemberships = findDynRoles(user);
         assertTrue(dynRoleMemberships.isEmpty());

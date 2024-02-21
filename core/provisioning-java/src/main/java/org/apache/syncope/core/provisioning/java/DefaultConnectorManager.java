@@ -34,11 +34,11 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
@@ -151,8 +151,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         });
 
         if (connInstance.getPoolConf() != null) {
-            override.setPoolConf(
-                    ConnPoolConfUtils.getConnPoolConf(connInstance.getPoolConf(), entityFactory.newConnPoolConf()));
+            override.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstance.getPoolConf()));
         }
 
         return override;

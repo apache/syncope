@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.init;
 
 import java.util.List;
 import java.util.Optional;
-import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
@@ -71,7 +70,7 @@ public class AuditLoader implements SyncopeCoreLoader {
     }
 
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
 
         auditAppenders.forEach(auditAppender -> auditAppender.getEvents().stream().

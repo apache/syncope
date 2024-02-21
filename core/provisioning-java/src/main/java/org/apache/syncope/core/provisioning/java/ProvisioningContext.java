@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -327,7 +327,7 @@ public class ProvisioningContext {
     @Bean
     public JobManager jobManager(
             final ProvisioningProperties provisioningProperties,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final SecurityProperties securityProperties,
             final SchedulerFactoryBean scheduler,
             final TaskDAO taskDAO,
@@ -709,7 +709,7 @@ public class ProvisioningContext {
     @Bean
     public NotificationJob notificationJob(
             final NotificationJobDelegate delegate,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final SecurityProperties securityProperties) {
 
         return new NotificationJob(securityProperties, domainHolder, delegate);

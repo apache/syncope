@@ -58,7 +58,7 @@ public class ReportJob extends AbstractInterruptableJob {
     private ImplementationDAO implementationDAO;
 
     @Autowired
-    private DomainHolder domainHolder;
+    private DomainHolder<?> domainHolder;
 
     private ReportJobDelegate delegate;
 

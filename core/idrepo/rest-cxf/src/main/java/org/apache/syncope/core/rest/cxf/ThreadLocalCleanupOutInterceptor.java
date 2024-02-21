@@ -22,7 +22,7 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.impl.api.local.ThreadClassLoaderManager;
 import org.slf4j.MDC;

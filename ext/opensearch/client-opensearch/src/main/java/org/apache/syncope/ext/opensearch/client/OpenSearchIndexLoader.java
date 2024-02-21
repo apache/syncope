@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import javax.sql.DataSource;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ public class OpenSearchIndexLoader implements SyncopeCoreLoader {
     }
 
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         try {
             if (!indexManager.existsAnyIndex(domain, AnyTypeKind.USER)) {
                 indexManager.createAnyIndex(domain, AnyTypeKind.USER,
