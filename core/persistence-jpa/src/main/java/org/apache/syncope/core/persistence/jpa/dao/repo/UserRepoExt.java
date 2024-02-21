@@ -56,4 +56,10 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
 
     boolean linkedAccountExists(String userKey, String connObjectKeyValue);
+
+    @Override
+    <S extends User> S save(S user);
+
+    @Override
+    void delete(User user);
 }

@@ -130,11 +130,11 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         if (v instanceof DataSource dataSource) {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
             return jdbcTemplate.queryForObject(
-                    "SELECT 1 FROM " + Constants.DEFAULT_TABLE_PREFIX + "FIRED_TRIGGERS "
+                    "SELECT COUNT(ENTRY_ID) FROM " + Constants.DEFAULT_TABLE_PREFIX + "FIRED_TRIGGERS "
                     + "WHERE JOB_NAME = ? AND JOB_GROUP = ?",
-                    Boolean.class,
+                    Integer.class,
                     jobKey.getName(),
-                    jobKey.getGroup());
+                    jobKey.getGroup()) > 0;
         }
 
         LOG.warn("Unsupported persistence source: " + v.getClass().getName());

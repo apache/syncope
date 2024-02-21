@@ -77,7 +77,7 @@ public class RoleITCase extends AbstractITCase {
             createRole(role);
             fail("This should not happen");
         } catch (SyncopeClientException e) {
-            assertEquals(ClientExceptionType.InvalidRole, e.getType());
+            assertEquals(ClientExceptionType.GenericPersistence, e.getType());
         }
 
         role.setKey("new" + getUUIDString());

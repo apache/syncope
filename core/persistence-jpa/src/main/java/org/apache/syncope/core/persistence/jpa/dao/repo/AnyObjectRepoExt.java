@@ -52,4 +52,10 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(AnyObject anyObject);
+
+    @Override
+    <S extends AnyObject> S save(S anyObject);
+
+    @Override
+    void delete(AnyObject anyObject);
 }
