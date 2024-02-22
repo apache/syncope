@@ -89,6 +89,7 @@ public class PGJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
     }
 
     @ConditionalOnMissingBean(name = "pgJPAJSONAuditEntryDAO")
+    @Bean
     public AuditEntryDAO auditEntryDAO(final EntityManager entityManager) {
         return new PGJPAJSONAuditEntryDAO(entityManager);
     }

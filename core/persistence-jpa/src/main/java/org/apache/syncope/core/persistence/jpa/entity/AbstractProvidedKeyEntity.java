@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 @MappedSuperclass
@@ -28,6 +29,7 @@ public abstract class AbstractProvidedKeyEntity extends AbstractEntity implement
     private static final long serialVersionUID = 821537874069666593L;
 
     @Id
+    @NotNull
     private String id;
 
     @Override
