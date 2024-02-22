@@ -426,7 +426,7 @@ under the License.
 
     <groovy.version>4.0.18</groovy.version>
 
-    <flowable.version>6.8.0</flowable.version>
+    <flowable.version>6.8.1</flowable.version>
 
     <slf4j.version>1.7.36</slf4j.version>
 
