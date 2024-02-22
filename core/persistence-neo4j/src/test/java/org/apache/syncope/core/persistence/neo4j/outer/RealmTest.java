@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -39,6 +40,9 @@ public class RealmTest extends AbstractTest {
     private RealmDAO realmDAO;
 
     @Autowired
+    private RealmSearchDAO realmSearchDAO;
+
+    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
@@ -46,7 +50,7 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void test() {
-        Realm realm = realmDAO.findByFullPath("/odd").orElseThrow();
+        Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
 
         // need to remove this group in order to remove the realm, which is otherwise empty
         Group group = groupDAO.findByName("fake").orElseThrow();

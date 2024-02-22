@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao;
+package org.apache.syncope.core.persistence.opensearch.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -78,6 +79,9 @@ public class OpenSearchAnySearchDAOTest {
     private RealmDAO realmDAO;
 
     @Mock
+    private RealmSearchDAO realmSearchDAO;
+
+    @Mock
     private DynRealmDAO dynRealmDAO;
 
     @Mock
@@ -97,7 +101,7 @@ public class OpenSearchAnySearchDAOTest {
     @BeforeEach
     protected void setupSearchDAO() {
         searchDAO = new OpenSearchAnySearchDAO(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 null,
                 groupDAO,
@@ -116,8 +120,9 @@ public class OpenSearchAnySearchDAOTest {
         Realm root = mock(Realm.class);
         when(root.getFullPath()).thenReturn(SyncopeConstants.ROOT_REALM);
 
-        when(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenAnswer(ic -> Optional.of(root));
-        when(realmDAO.findDescendants(eq(SyncopeConstants.ROOT_REALM), anyString())).thenReturn(List.of("rootKey"));
+        when(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM)).thenAnswer(ic -> Optional.of(root));
+        when(realmSearchDAO.findDescendants(eq(SyncopeConstants.ROOT_REALM), anyString())).
+                thenReturn(List.of("rootKey"));
 
         // 2. test
         Set<String> adminRealms = Set.of(SyncopeConstants.ROOT_REALM);

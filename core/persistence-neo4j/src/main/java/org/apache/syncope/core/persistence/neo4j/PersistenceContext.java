@@ -57,6 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -90,6 +91,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.Neo4jOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPolicyDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jRealmDAO;
+import org.apache.syncope.core.persistence.neo4j.dao.Neo4jRealmSearchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jTaskDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jTaskExecDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AccessTokenRepo;
@@ -460,7 +462,7 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public AnySearchDAO anySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -473,7 +475,7 @@ public class PersistenceContext {
             final Neo4jClient neo4jClient) {
 
         return new Neo4jAnySearchDAO(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -945,16 +947,26 @@ public class PersistenceContext {
         return neo4jRepositoryFactory.getRepository(RelationshipTypeRepo.class, relationshipTypeRepoExt);
     }
 
-    @ConditionalOnMissingBean(name = { "realmDAO", "delegateRealmDAO" })
-    @Bean(name = { "realmDAO", "delegateRealmDAO" })
+    @ConditionalOnMissingBean
+    @Bean
     public RealmDAO realmDAO(
             final @Lazy RoleDAO roleDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ApplicationEventPublisher publisher,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
 
-        return new Neo4jRealmDAO(roleDAO, publisher, neo4jTemplate, neo4jClient, nodeValidator);
+        return new Neo4jRealmDAO(roleDAO, realmSearchDAO, publisher, neo4jTemplate, neo4jClient, nodeValidator);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RealmSearchDAO realmSearchDAO(
+            final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient) {
+
+        return new Neo4jRealmSearchDAO(neo4jTemplate, neo4jClient);
     }
 
     @ConditionalOnMissingBean
@@ -1136,7 +1148,7 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public TaskDAO taskDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final SecurityProperties securityProperties,
@@ -1145,7 +1157,7 @@ public class PersistenceContext {
             final NodeValidator nodeValidator) {
 
         return new Neo4jTaskDAO(
-                realmDAO,
+                realmSearchDAO,
                 remediationDAO,
                 taskUtilsFactory,
                 securityProperties,

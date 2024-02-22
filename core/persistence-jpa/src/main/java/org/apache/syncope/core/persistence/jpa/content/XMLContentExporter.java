@@ -67,7 +67,7 @@ import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.common.content.AbstractXMLContentExporter;
 import org.apache.syncope.core.persistence.common.content.MultiParentNode;
@@ -262,17 +262,17 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected final DomainHolder<DataSource> domainHolder;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final EntityManagerFactory entityManagerFactory;
 
     public XMLContentExporter(
             final DomainHolder<DataSource> domainHolder,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final EntityManagerFactory entityManagerFactory) {
 
         this.domainHolder = domainHolder;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.entityManagerFactory = entityManagerFactory;
     }
 
@@ -355,7 +355,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
         if (tableName.equalsIgnoreCase(JPARealm.TABLE)) {
             List<Map<String, String>> realmRows = new ArrayList<>(rows);
             rows.clear();
-            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, Pageable.unpaged()).
+            realmSearchDAO.findDescendants(SyncopeConstants.ROOT_REALM, null, Pageable.unpaged()).
                     forEach(realm -> realmRows.stream().filter(row -> {
 
                 String id = Optional.ofNullable(row.get("ID")).orElseGet(() -> row.get("id"));

@@ -19,14 +19,12 @@
 package org.apache.syncope.core.persistence.neo4j.dao;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -69,25 +67,9 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDAO.class);
 
-    protected static StringBuilder buildDescendantQuery(
-            final String base,
-            final String keyword,
-            final Map<String, Object> parameters) {
-
-        StringBuilder queryString = new StringBuilder("MATCH (n:").append(Neo4jRealm.NODE).append(") ").
-                append("WHERE (n.fullPath = $base OR n.fullPath =~ $like)");
-        parameters.put("base", base);
-        parameters.put("like", SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*");
-
-        if (keyword != null) {
-            queryString.append(" AND toLower(n.name) =~ $name");
-            parameters.put("name", keyword.replaceAll("_", "\\\\_").toLowerCase() + ".*");
-        }
-
-        return queryString;
-    }
-
     protected final RoleDAO roleDAO;
+
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final ApplicationEventPublisher publisher;
 
@@ -95,14 +77,16 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     public Neo4jRealmDAO(
             final RoleDAO roleDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ApplicationEventPublisher publisher,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
 
         super(neo4jTemplate, neo4jClient);
-        this.publisher = publisher;
         this.roleDAO = roleDAO;
+        this.realmSearchDAO = realmSearchDAO;
+        this.publisher = publisher;
         this.nodeValidator = nodeValidator;
     }
 
@@ -126,72 +110,10 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         return neo4jTemplate.findById(key, Neo4jRealm.class);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Realm> findByFullPath(final String fullPath) {
-        if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {
-            return Optional.of(getRoot());
-        }
-
-        if (StringUtils.isBlank(fullPath) || !RealmDAO.PATH_PATTERN.matcher(fullPath).matches()) {
-            throw new MalformedPathException(fullPath);
-        }
-
-        return neo4jClient.query(
-                "MATCH (n:" + Neo4jRealm.NODE + ") WHERE n.fullPath = $fullPath RETURN n.id").
-                bindAll(Map.of("fullPath", fullPath)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jRealm.class));
-    }
-
-    @Override
-    public List<Realm> findByName(final String name) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jRealm.NODE + ") WHERE n.name = $name RETURN n.id").
-                bindAll(Map.of("name", name)).fetch().all(), "n.id", Neo4jRealm.class);
-    }
-
-    @Override
-    public long countDescendants(final String base, final String keyword) {
-        Map<String, Object> parameters = new HashMap<>();
-
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters).append(" RETURN COUNT(n)");
-        return neo4jTemplate.count(queryString.toString(), parameters);
-    }
-
-    @Override
-    public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
-        Map<String, Object> parameters = new HashMap<>();
-
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters).
-                append(" RETURN n.id ORDER BY n.fullPath");
-        if (pageable.isPaged()) {
-            queryString.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
-                    append(" LIMIT ").append(pageable.getPageSize());
-        }
-
-        return toList(neo4jClient.query(
-                queryString.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jRealm.class);
-    }
-
-    @Override
-    public List<String> findDescendants(final String base, final String prefix) {
-        Map<String, Object> parameters = new HashMap<>();
-
-        StringBuilder queryString = buildDescendantQuery(base, null, parameters).
-                append(" AND (n.fullPath = $prefix OR n.fullPath =~ $likePrefix)").
-                append(" RETURN n.id ORDER BY n.fullPath");
-        parameters.put("prefix", prefix);
-        parameters.put("likePrefix", SyncopeConstants.ROOT_REALM.equals(prefix) ? "/.*" : prefix + "/.*");
-
-        return neo4jClient.query(queryString.toString()).
-                bindAll(parameters).fetch().all().stream().
-                map(found -> (String) found.values().iterator().next()).toList();
-    }
-
     protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
         List<Realm> result = new ArrayList<>();
 
-        findChildren(realm).stream().
+        realmSearchDAO.findChildren(realm).stream().
                 filter(child -> (policy instanceof AccountPolicy
                 && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
                 || (policy instanceof PasswordPolicy
@@ -248,28 +170,6 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         return result;
     }
 
-    protected void findAncestors(final List<Realm> result, final Realm realm) {
-        if (realm.getParent() != null && !result.contains(realm.getParent())) {
-            result.add(realm.getParent());
-            findAncestors(result, realm.getParent());
-        }
-    }
-
-    @Override
-    public List<Realm> findAncestors(final Realm realm) {
-        List<Realm> result = new ArrayList<>();
-        result.add(realm);
-        findAncestors(result, realm);
-        return result;
-    }
-
-    @Override
-    public List<Realm> findChildren(final Realm realm) {
-        return toList(neo4jClient.query(
-                "MATCH (n:" + Neo4jRealm.NODE + " {id: $id})<-[r:" + Neo4jRealm.PARENT_REL + "]-(c) RETURN c.id").
-                bindAll(Map.of("id", realm.getKey())).fetch().all(), "c.id", Neo4jRealm.class);
-    }
-
     @Override
     public List<Realm> findByActionsContaining(final Implementation logicActions) {
         return findByRelationship(Neo4jRealm.NODE, Neo4jImplementation.NODE, logicActions.getKey(), Neo4jRealm.class);
@@ -319,7 +219,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         S merged = neo4jTemplate.save(nodeValidator.validate(realm));
 
         if (!fullPathAfter.equals(fullPathBefore)) {
-            findChildren(merged).forEach(this::save);
+            realmSearchDAO.findChildren(merged).forEach(this::save);
         }
 
         publisher.publishEvent(
@@ -339,7 +239,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
             return;
         }
 
-        findDescendants(realm.getFullPath(), null, Pageable.unpaged()).forEach(toBeDeleted -> {
+        realmSearchDAO.findDescendants(realm.getFullPath(), null, Pageable.unpaged()).forEach(toBeDeleted -> {
             roleDAO.findByRealms(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
 
             cascadeDelete(

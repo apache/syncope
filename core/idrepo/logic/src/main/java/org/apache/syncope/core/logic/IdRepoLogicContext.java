@@ -61,6 +61,7 @@ import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -208,16 +209,16 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectLogic anyObjectLogic(
-            final AnyObjectDataBinder binder,
-            final TemplateUtils templateUtils,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
+            final AnyObjectDataBinder binder,
             final AnyObjectProvisioningManager provisioningManager) {
 
         return new AnyObjectLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 templateUtils,
                 anyObjectDAO,
@@ -316,24 +317,24 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public GroupLogic groupLogic(
-            final GroupProvisioningManager provisioningManager,
-            final JobManager jobManager,
-            final TemplateUtils templateUtils,
-            final EntityFactory entityFactory,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final SecurityProperties securityProperties,
             final AnySearchDAO anySearchDAO,
-            final SchedulerFactoryBean scheduler,
+            final ImplementationDAO implementationDAO,
             final TaskDAO taskDAO,
             final GroupDataBinder groupDataBinder,
+            final GroupProvisioningManager provisioningManager,
             final TaskDataBinder taskDataBinder,
-            final ImplementationDAO implementationDAO,
-            final SecurityProperties securityProperties) {
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final EntityFactory entityFactory) {
 
         return new GroupLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 templateUtils,
                 userDAO,
@@ -410,18 +411,20 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public RealmLogic realmLogic(
-            final RealmDataBinder binder,
             final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnySearchDAO anySearchDAO,
             final TaskDAO taskDAO,
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
             final SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final RealmDataBinder binder,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor) {
 
         return new RealmLogic(
                 realmDAO,
+                realmSearchDAO,
                 anySearchDAO,
                 taskDAO,
                 casSPClientAppDAO,
@@ -496,7 +499,7 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeLogic syncopeLogic(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -505,7 +508,7 @@ public class IdRepoLogicContext {
             final ContentExporter exporter) {
 
         return new SyncopeLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 groupDAO,
                 anySearchDAO,
@@ -546,10 +549,9 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public UserLogic userLogic(
-            final UserDataBinder binder,
-            final TemplateUtils templateUtils,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -557,12 +559,13 @@ public class IdRepoLogicContext {
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
+            final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
             final RuleEnforcer ruleEnforcer) {
 
         return new UserLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 templateUtils,
                 userDAO,

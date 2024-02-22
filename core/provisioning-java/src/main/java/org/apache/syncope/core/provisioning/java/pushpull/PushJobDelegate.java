@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -68,7 +68,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
     protected AnySearchDAO searchDAO;
 
     @Autowired
-    protected RealmDAO realmDAO;
+    protected RealmSearchDAO realmSearchDAO;
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
@@ -203,7 +203,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
             });
 
             // Never push the root realm
-            List<Realm> realms = realmDAO.findDescendants(
+            List<Realm> realms = realmSearchDAO.findDescendants(
                     profile.getTask().getSourceRealm().getFullPath(), null, Pageable.unpaged()).stream().
                     filter(realm -> realm.getParent() != null).toList();
             boolean result = true;

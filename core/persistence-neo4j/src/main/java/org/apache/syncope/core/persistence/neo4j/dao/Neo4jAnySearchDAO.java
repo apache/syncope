@@ -43,7 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -134,7 +134,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
     protected final Neo4jClient neo4jClient;
 
     public Neo4jAnySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -147,7 +147,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final Neo4jClient neo4jClient) {
 
         super(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -191,14 +191,14 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                     goRealm -> groupOwners.add(goRealm.getRight()),
                     () -> {
                         if (realmPath.startsWith("/")) {
-                            Realm realm = realmDAO.findByFullPath(realmPath).orElseThrow(() -> {
+                            Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
                                 SyncopeClientException noRealm =
                                         SyncopeClientException.build(ClientExceptionType.InvalidRealm);
                                 noRealm.getElements().add("Invalid realm specified: " + realmPath);
                                 return noRealm;
                             });
 
-                            realmKeys.addAll(realmDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
+                            realmKeys.addAll(realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()));
                         } else {
                             dynRealmDAO.findById(realmPath).ifPresentOrElse(
                                     dynRealm -> dynRealmKeys.add(dynRealm.getKey()),
@@ -655,7 +655,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema())) {
             if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
 
-                Realm realm = realmDAO.findByFullPath(cond.getExpression()).
+                Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
                         orElseThrow(() -> new IllegalArgumentException(
                         "Invalid Realm full path: " + cond.getExpression()));
                 cond.setExpression(realm.getKey());

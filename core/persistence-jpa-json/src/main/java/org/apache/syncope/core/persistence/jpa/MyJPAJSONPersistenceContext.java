@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.JPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -62,7 +62,7 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
     @ConditionalOnMissingBean(name = "myJPAJSONAnySearchDAO")
     @Bean
     public AnySearchDAO anySearchDAO(
-            final @Lazy RealmDAO realmDAO,
+            final @Lazy RealmSearchDAO realmSearchDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -75,7 +75,7 @@ public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
             final EntityManager entityManager) {
 
         return new MyJPAJSONAnySearchDAO(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,

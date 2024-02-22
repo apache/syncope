@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -40,7 +40,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RoleDataBinder.class);
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final DynRealmDAO dynRealmDAO;
 
@@ -53,14 +53,14 @@ public class RoleDataBinderImpl implements RoleDataBinder {
     protected final SearchCondVisitor searchCondVisitor;
 
     public RoleDataBinderImpl(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final ApplicationDAO applicationDAO,
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor) {
 
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.roleDAO = roleDAO;
         this.applicationDAO = applicationDAO;
@@ -83,7 +83,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role.getRealms().clear();
         for (String realmFullPath : roleTO.getRealms()) {
-            realmDAO.findByFullPath(realmFullPath).ifPresentOrElse(
+            realmSearchDAO.findByFullPath(realmFullPath).ifPresentOrElse(
                     role::add,
                     () -> LOG.debug("Invalid realm full path {}, ignoring", realmFullPath));
         }

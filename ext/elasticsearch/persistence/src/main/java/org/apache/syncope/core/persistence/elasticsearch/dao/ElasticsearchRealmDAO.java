@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao;
+package org.apache.syncope.core.persistence.elasticsearch.dao;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ScriptLanguage;
@@ -35,19 +35,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ElasticsearchRealmDAO implements RealmDAO {
+public class ElasticsearchRealmDAO implements RealmSearchDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDAO.class);
 
@@ -59,18 +56,18 @@ public class ElasticsearchRealmDAO implements RealmDAO {
                     order(SortOrder.Asc)).
                     build());
 
-    protected final RealmDAO delegate;
+    protected final RealmDAO realmDAO;
 
     protected final ElasticsearchClient client;
 
     protected final int indexMaxResultWindow;
 
     public ElasticsearchRealmDAO(
-            final RealmDAO delegate,
+            final RealmDAO realmDAO,
             final ElasticsearchClient client,
             final int indexMaxResultWindow) {
 
-        this.delegate = delegate;
+        this.realmDAO = realmDAO;
         this.client = client;
         this.indexMaxResultWindow = indexMaxResultWindow;
     }
@@ -79,10 +76,10 @@ public class ElasticsearchRealmDAO implements RealmDAO {
     @Override
     public Optional<Realm> findByFullPath(final String fullPath) {
         if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {
-            return Optional.of(getRoot());
+            return Optional.of(realmDAO.getRoot());
         }
 
-        if (StringUtils.isBlank(fullPath) || !PATH_PATTERN.matcher(fullPath).matches()) {
+        if (StringUtils.isBlank(fullPath) || !RealmDAO.PATH_PATTERN.matcher(fullPath).matches()) {
             throw new MalformedPathException(fullPath);
         }
 
@@ -98,7 +95,7 @@ public class ElasticsearchRealmDAO implements RealmDAO {
             String result = client.search(request, Void.class).hits().hits().stream().findFirst().
                     map(Hit::id).
                     orElse(null);
-            return findById(result).map(Realm.class::cast);
+            return realmDAO.findById(result).map(Realm.class::cast);
         } catch (Exception e) {
             LOG.error("While searching ES for one match", e);
         }
@@ -129,7 +126,7 @@ public class ElasticsearchRealmDAO implements RealmDAO {
         List<String> result = search(
                 new Query.Builder().term(QueryBuilders.term().
                         field("name").value(name).build()).build());
-        return result.stream().map(this::findById).
+        return result.stream().map(realmDAO::findById).
                 filter(Optional::isPresent).map(Optional::get).map(Realm.class::cast).toList();
     }
 
@@ -138,7 +135,7 @@ public class ElasticsearchRealmDAO implements RealmDAO {
         List<String> result = search(
                 new Query.Builder().term(QueryBuilders.term().
                         field("parent_id").value(realm.getKey()).build()).build());
-        return result.stream().map(this::findById).
+        return result.stream().map(realmDAO::findById).
                 filter(Optional::isPresent).map(Optional::get).map(Realm.class::cast).toList();
     }
 
@@ -211,7 +208,7 @@ public class ElasticsearchRealmDAO implements RealmDAO {
             LOG.error("While searching in Elasticsearch", e);
         }
 
-        return result.stream().map(this::findById).
+        return result.stream().map(realmDAO::findById).
                 filter(Optional::isPresent).map(Optional::get).map(Realm.class::cast).toList();
     }
 
@@ -247,71 +244,5 @@ public class ElasticsearchRealmDAO implements RealmDAO {
             LOG.error("While searching in Elasticsearch", e);
         }
         return result;
-    }
-
-    @Override
-    public Realm getRoot() {
-        return delegate.getRoot();
-    }
-
-    @Override
-    public List<Realm> findByResources(final ExternalResource resource) {
-        return delegate.findByResources(resource);
-    }
-
-    @Override
-    public <T extends Policy> List<Realm> findByPolicy(final T policy) {
-        return delegate.findByPolicy(policy);
-    }
-
-    @Override
-    public List<Realm> findByActionsContaining(final Implementation logicActions) {
-        return delegate.findByActionsContaining(logicActions);
-    }
-
-    @Override
-    public List<Realm> findAncestors(final Realm realm) {
-        return delegate.findAncestors(realm);
-    }
-
-    @Override
-    public Page<? extends Realm> findAll(final Pageable pageable) {
-        return delegate.findAll(pageable);
-    }
-
-    @Override
-    public boolean existsById(final String key) {
-        return delegate.existsById(key);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<? extends Realm> findById(final String key) {
-        return delegate.findById(key);
-    }
-
-    @Override
-    public long count() {
-        return delegate.count();
-    }
-
-    @Override
-    public List<? extends Realm> findAll() {
-        return delegate.findAll();
-    }
-
-    @Override
-    public <S extends Realm> S save(final S entity) {
-        return delegate.save(entity);
-    }
-
-    @Override
-    public void delete(final Realm entity) {
-        delegate.delete(entity);
-    }
-
-    @Override
-    public void deleteById(final String key) {
-        delegate.deleteById(key);
     }
 }

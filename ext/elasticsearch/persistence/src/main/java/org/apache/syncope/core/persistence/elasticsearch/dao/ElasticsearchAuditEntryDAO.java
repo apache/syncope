@@ -16,8 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao;
+package org.apache.syncope.core.persistence.elasticsearch.dao;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldSort;
+import co.elastic.clients.elasticsearch._types.SearchType;
+import co.elastic.clients.elasticsearch._types.SortOptions;
+import co.elastic.clients.elasticsearch._types.SortOrder;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
+import co.elastic.clients.elasticsearch.core.CountRequest;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -31,36 +43,23 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
-import org.opensearch.client.json.JsonData;
-import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.opensearch._types.FieldSort;
-import org.opensearch.client.opensearch._types.FieldValue;
-import org.opensearch.client.opensearch._types.SearchType;
-import org.opensearch.client.opensearch._types.SortOptions;
-import org.opensearch.client.opensearch._types.SortOrder;
-import org.opensearch.client.opensearch._types.query_dsl.Query;
-import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
-import org.opensearch.client.opensearch._types.query_dsl.TextQueryType;
-import org.opensearch.client.opensearch.core.CountRequest;
-import org.opensearch.client.opensearch.core.SearchRequest;
-import org.opensearch.client.opensearch.core.search.Hit;
+import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
-public class OpenSearchAuditEntryDAO implements AuditEntryDAO {
+public class ElasticsearchAuditEntryDAO implements AuditEntryDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuditEntryDAO.class);
 
-    protected final OpenSearchClient client;
+    protected final ElasticsearchClient client;
 
     protected final int indexMaxResultWindow;
 
-    public OpenSearchAuditEntryDAO(
-            final OpenSearchClient client,
+    public ElasticsearchAuditEntryDAO(
+            final ElasticsearchClient client,
             final int indexMaxResultWindow) {
 
         this.client = client;
@@ -89,27 +88,24 @@ public class OpenSearchAuditEntryDAO implements AuditEntryDAO {
 
         if (type != null) {
             queries.add(new Query.Builder().
-                    term(QueryBuilders.term().field("message.logger.type").
-                            value(FieldValue.of(type.name())).build()).
+                    term(QueryBuilders.term().field("message.logger.type").value(type.name()).build()).
                     build());
         }
 
         if (StringUtils.isNotBlank(category)) {
             queries.add(new Query.Builder().
-                    term(QueryBuilders.term().field("message.logger.category").
-                            value(FieldValue.of(category)).build()).
+                    term(QueryBuilders.term().field("message.logger.category").value(category).build()).
                     build());
         }
 
         if (StringUtils.isNotBlank(subcategory)) {
             queries.add(new Query.Builder().
-                    term(QueryBuilders.term().field("message.logger.subcategory").
-                            value(FieldValue.of(subcategory)).build()).
+                    term(QueryBuilders.term().field("message.logger.subcategory").value(subcategory).build()).
                     build());
         }
 
         List<Query> eventQueries = events.stream().map(event -> new Query.Builder().
-                term(QueryBuilders.term().field("message.logger.event").value(FieldValue.of(event)).build()).
+                term(QueryBuilders.term().field("message.logger.event").value(event).build()).
                 build()).
                 toList();
         if (!eventQueries.isEmpty()) {
@@ -118,8 +114,7 @@ public class OpenSearchAuditEntryDAO implements AuditEntryDAO {
 
         if (result != null) {
             queries.add(new Query.Builder().
-                    term(QueryBuilders.term().field("message.logger.result").
-                            value(FieldValue.of(result.name())).build()).
+                    term(QueryBuilders.term().field("message.logger.result").value(result.name()).build()).
                     build());
         }
 
@@ -152,7 +147,7 @@ public class OpenSearchAuditEntryDAO implements AuditEntryDAO {
             final OffsetDateTime after) {
 
         CountRequest request = new CountRequest.Builder().
-                index(OpenSearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
+                index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
                 build();
         try {
@@ -192,7 +187,7 @@ public class OpenSearchAuditEntryDAO implements AuditEntryDAO {
             final Pageable pageable) {
 
         SearchRequest request = new SearchRequest.Builder().
-                index(OpenSearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
+                index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(entityKey, type, category, subcategory, events, result, before, after)).
                 fields(f -> f.field("message")).
@@ -205,7 +200,7 @@ public class OpenSearchAuditEntryDAO implements AuditEntryDAO {
         try {
             esResult = client.search(request, ObjectNode.class).hits().hits();
         } catch (Exception e) {
-            LOG.error("While searching in OpenSearch", e);
+            LOG.error("While searching in Elasticsearch", e);
         }
 
         return CollectionUtils.isEmpty(esResult)

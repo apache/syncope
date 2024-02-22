@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -63,7 +63,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
     private ImplementationDAO implementationDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    private RealmSearchDAO realmSearchDAO;
 
     private PullPolicy pullPolicy(
             final AnyType anyType,
@@ -178,7 +178,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             task.setPerformUpdate(true);
             task.setPerformDelete(false);
             task.setSyncStatus(false);
-            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
+            task.setDestinationRealm(realmSearchDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
             task.setRemediation(pullTaskTO.isRemediation());
 

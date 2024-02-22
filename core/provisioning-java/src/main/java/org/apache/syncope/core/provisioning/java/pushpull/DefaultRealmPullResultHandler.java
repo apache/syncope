@@ -563,7 +563,7 @@ public class DefaultRealmPullResultHandler
                     }
 
                     try {
-                        if (!realmDAO.findChildren(realm).isEmpty()) {
+                        if (!realmSearchDAO.findChildren(realm).isEmpty()) {
                             throw SyncopeClientException.build(ClientExceptionType.RealmContains);
                         }
 

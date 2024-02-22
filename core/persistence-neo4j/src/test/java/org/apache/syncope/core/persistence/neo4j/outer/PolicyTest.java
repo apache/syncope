@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
@@ -45,9 +46,12 @@ public class PolicyTest extends AbstractClientAppTest {
     @Autowired
     private RealmDAO realmDAO;
 
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
+
     @Test
     public void authPolicyCanBeNull() {
-        Realm realm = realmDAO.findByFullPath("/odd").orElseThrow();
+        Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
 
         // Create new client app and assign policy
         OIDCRPClientApp rp = entityFactory.newEntity(OIDCRPClientApp.class);

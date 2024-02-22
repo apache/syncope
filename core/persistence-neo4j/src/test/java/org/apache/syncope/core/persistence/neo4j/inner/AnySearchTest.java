@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -98,6 +99,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -796,7 +800,7 @@ public class AnySearchTest extends AbstractTest {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("one");
         anyObject.setType(service);
-        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
+        anyObject.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         AMembership membership = entityFactory.newEntity(AMembership.class);
         membership.setRightEnd(citizen);

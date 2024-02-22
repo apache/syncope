@@ -16,8 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa;
+package org.apache.syncope.core.persistence.elasticsearch;
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -26,27 +27,26 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.OpenSearchAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.OpenSearchAuditEntryDAO;
-import org.apache.syncope.core.persistence.jpa.dao.OpenSearchRealmDAO;
-import org.apache.syncope.ext.opensearch.client.OpenSearchProperties;
-import org.opensearch.client.opensearch.OpenSearchClient;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAnySearchDAO;
+import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAuditEntryDAO;
+import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchRealmDAO;
+import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration(proxyBeanMethods = false)
-public class OpenSearchPersistenceContext {
+public class ElasticsearchPersistenceContext {
 
-    @ConditionalOnMissingBean(name = "openSearchAnySearchDAO")
+    @ConditionalOnMissingBean(name = "elasticsearchAnySearchDAO")
     @Bean
     public AnySearchDAO anySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -55,11 +55,11 @@ public class OpenSearchPersistenceContext {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final OpenSearchClient client,
-            final OpenSearchProperties props) {
+            final ElasticsearchClient client,
+            final ElasticsearchProperties props) {
 
-        return new OpenSearchAnySearchDAO(
-                realmDAO,
+        return new ElasticsearchAnySearchDAO(
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -72,22 +72,22 @@ public class OpenSearchPersistenceContext {
                 props.getIndexMaxResultWindow());
     }
 
-    @ConditionalOnMissingBean(name = { "realmDAO", "openSearchRealmDAO" })
-    @Bean(name = { "realmDAO", "openSearchRealmDAO" })
-    public RealmDAO realmDAO(
-            @Qualifier("delegateRealmDAO") final RealmDAO delegate,
-            final OpenSearchClient client,
-            final OpenSearchProperties props) {
+    @ConditionalOnMissingBean(name = "elasticsearchRealmSearchDAO")
+    @Bean
+    public RealmSearchDAO realmSearchDAO(
+            final @Lazy RealmDAO realmDAO,
+            final ElasticsearchClient client,
+            final ElasticsearchProperties props) {
 
-        return new OpenSearchRealmDAO(delegate, client, props.getIndexMaxResultWindow());
+        return new ElasticsearchRealmDAO(realmDAO, client, props.getIndexMaxResultWindow());
     }
 
-    @ConditionalOnMissingBean(name = "openSearchAuditEntryDAO")
+    @ConditionalOnMissingBean(name = "elasticsearchAuditEntryDAO")
     @Bean
     public AuditEntryDAO auditEntryDAO(
-            final OpenSearchClient client,
-            final OpenSearchProperties props) {
+            final ElasticsearchClient client,
+            final ElasticsearchProperties props) {
 
-        return new OpenSearchAuditEntryDAO(client, props.getIndexMaxResultWindow());
+        return new ElasticsearchAuditEntryDAO(client, props.getIndexMaxResultWindow());
     }
 }

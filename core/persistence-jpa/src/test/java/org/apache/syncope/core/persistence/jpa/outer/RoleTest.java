@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -56,6 +57,9 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -98,7 +102,7 @@ public class RoleTest extends AbstractTest {
         // 0. create user matching the condition below
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
@@ -115,7 +119,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
+        role.add(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
         role.setDynMembershipCond("cool==true");
@@ -164,7 +168,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
+        role.add(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 
@@ -174,7 +178,7 @@ public class RoleTest extends AbstractTest {
         // 1. create user and assign that role
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(role);
 
         user = userDAO.save(user);

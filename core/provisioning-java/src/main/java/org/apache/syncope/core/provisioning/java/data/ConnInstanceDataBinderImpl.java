@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -52,19 +52,19 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     protected final ConnInstanceDAO connInstanceDAO;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final EntityFactory entityFactory;
 
     public ConnInstanceDataBinderImpl(
             final ConnIdBundleManager connIdBundleManager,
             final ConnInstanceDAO connInstanceDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final EntityFactory entityFactory) {
 
         this.connIdBundleManager = connIdBundleManager;
         this.connInstanceDAO = connInstanceDAO;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -102,7 +102,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getAdminRealm() != null) {
-            connInstance.setAdminRealm(realmDAO.findByFullPath(connInstanceTO.getAdminRealm()).
+            connInstance.setAdminRealm(realmSearchDAO.findByFullPath(connInstanceTO.getAdminRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + connInstanceTO.getAdminRealm())));
         }
         if (connInstance.getAdminRealm() == null) {
@@ -135,7 +135,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getAdminRealm() != null) {
-            Realm realm = realmDAO.findByFullPath(connInstanceTO.getAdminRealm()).
+            Realm realm = realmSearchDAO.findByFullPath(connInstanceTO.getAdminRealm()).
                     orElseThrow(() -> {
                         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
                         sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());

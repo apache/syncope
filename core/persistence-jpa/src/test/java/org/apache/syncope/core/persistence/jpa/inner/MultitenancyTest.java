@@ -26,6 +26,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -57,6 +58,9 @@ public class MultitenancyTest extends AbstractTest {
     private RealmDAO realmDAO;
 
     @Autowired
+    private RealmSearchDAO realmSearchDAO;
+
+    @Autowired
     private UserDAO userDAO;
 
     @Test
@@ -66,10 +70,12 @@ public class MultitenancyTest extends AbstractTest {
 
     @Test
     public void readRealm() {
-        assertEquals(1, realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).size());
+        assertEquals(
+                1,
+                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).size());
         assertEquals(
                 realmDAO.getRoot(),
-                realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).get(0));
+                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).get(0));
     }
 
     @Test

@@ -29,7 +29,7 @@ import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -48,7 +48,7 @@ public class AnyObjectTest extends AbstractTest {
     private AnyObjectDAO anyObjectDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    private RealmSearchDAO realmSearchDAO;
 
     @Test
     public void findAll() {
@@ -117,7 +117,7 @@ public class AnyObjectTest extends AbstractTest {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("a name");
         anyObject.setType(anyTypeDAO.findById("PRINTER").orElseThrow());
-        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
+        anyObject.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         anyObject = anyObjectDAO.save(anyObject);
         assertNotNull(anyObject);

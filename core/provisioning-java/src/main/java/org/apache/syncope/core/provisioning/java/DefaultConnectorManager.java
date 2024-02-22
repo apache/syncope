@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -60,6 +61,8 @@ public class DefaultConnectorManager implements ConnectorManager {
 
     protected final RealmDAO realmDAO;
 
+    protected final RealmSearchDAO realmSearchDAO;
+
     protected final ExternalResourceDAO resourceDAO;
 
     protected final ConnInstanceDataBinder connInstanceDataBinder;
@@ -71,6 +74,7 @@ public class DefaultConnectorManager implements ConnectorManager {
     public DefaultConnectorManager(
             final ConnIdBundleManager connIdBundleManager,
             final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDataBinder connInstanceDataBinder,
             final AsyncConnectorFacade asyncFacade,
@@ -78,6 +82,7 @@ public class DefaultConnectorManager implements ConnectorManager {
 
         this.connIdBundleManager = connIdBundleManager;
         this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.resourceDAO = resourceDAO;
         this.connInstanceDataBinder = connInstanceDataBinder;
         this.asyncFacade = asyncFacade;
@@ -106,7 +111,7 @@ public class DefaultConnectorManager implements ConnectorManager {
             final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
-        override.setAdminRealm(realmDAO.findByFullPath(connInstance.getAdminRealm()).orElseGet(() -> {
+        override.setAdminRealm(realmSearchDAO.findByFullPath(connInstance.getAdminRealm()).orElseGet(() -> {
             LOG.warn("Could not find admin Realm {}, reverting to {}",
                     connInstance.getAdminRealm(), SyncopeConstants.ROOT_REALM);
             return realmDAO.getRoot();

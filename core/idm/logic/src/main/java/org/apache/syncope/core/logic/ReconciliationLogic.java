@@ -59,7 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -118,7 +118,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final ExternalResourceDAO resourceDAO;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
@@ -142,7 +142,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final ExternalResourceDAO resourceDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
@@ -156,7 +156,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         this.anyUtilsFactory = anyUtilsFactory;
         this.anyTypeDAO = anyTypeDAO;
         this.resourceDAO = resourceDAO;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.virSchemaDAO = virSchemaDAO;
@@ -480,7 +480,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Set<String> moreAttrsToGet,
             final PullTaskTO pullTask) {
 
-        if (pullTask.getDestinationRealm() == null || realmDAO.findByFullPath(pullTask.getDestinationRealm()) == null) {
+        if (pullTask.getDestinationRealm() == null || realmSearchDAO.findByFullPath(pullTask.getDestinationRealm())
+                == null) {
             throw new NotFoundException("Realm " + pullTask.getDestinationRealm());
         }
 
@@ -606,7 +607,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 entitlement = IdRepoEntitlement.USER_SEARCH;
         }
 
-        Realm base = realmDAO.findByFullPath(realm).
+        Realm base = realmSearchDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
@@ -692,7 +693,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         AnyType anyType = anyTypeDAO.findById(spec.getAnyTypeKey()).
                 orElseThrow(() -> new NotFoundException("AnyType " + spec.getAnyTypeKey()));
 
-        if (realmDAO.findByFullPath(spec.getDestinationRealm()) == null) {
+        if (realmSearchDAO.findByFullPath(spec.getDestinationRealm()) == null) {
             throw new NotFoundException("Realm " + spec.getDestinationRealm());
         }
 

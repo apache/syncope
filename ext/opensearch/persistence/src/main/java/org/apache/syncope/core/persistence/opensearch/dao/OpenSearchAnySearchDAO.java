@@ -16,22 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao;
+package org.apache.syncope.core.persistence.opensearch.dao;
 
-import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.FieldSort;
-import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.SearchType;
-import co.elastic.clients.elasticsearch._types.SortOptions;
-import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.DisMaxQuery;
-import co.elastic.clients.elasticsearch._types.query_dsl.Query;
-import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
-import co.elastic.clients.elasticsearch.core.CountRequest;
-import co.elastic.clients.elasticsearch.core.SearchRequest;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.JsonData;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,7 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -77,22 +63,36 @@ import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AbstractAnySearchDAO;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
+import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
+import org.opensearch.client.json.JsonData;
+import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.FieldSort;
+import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.SearchType;
+import org.opensearch.client.opensearch._types.SortOptions;
+import org.opensearch.client.opensearch._types.SortOrder;
+import org.opensearch.client.opensearch._types.query_dsl.BoolQuery;
+import org.opensearch.client.opensearch._types.query_dsl.DisMaxQuery;
+import org.opensearch.client.opensearch._types.query_dsl.Query;
+import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
+import org.opensearch.client.opensearch.core.CountRequest;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.search.Hit;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 
 /**
- * Search engine implementation for users, groups and any objects, based on Elasticsearch.
+ * Search engine implementation for users, groups and any objects, based on OpenSearch.
  */
-public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
+public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected final ElasticsearchClient client;
+    protected final OpenSearchClient client;
 
     protected final int indexMaxResultWindow;
 
-    public ElasticsearchAnySearchDAO(
-            final RealmDAO realmDAO,
+    public OpenSearchAnySearchDAO(
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -101,11 +101,11 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator,
-            final ElasticsearchClient client,
+            final OpenSearchClient client,
             final int indexMaxResultWindow) {
 
         super(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -135,20 +135,20 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 if (goRealm.isPresent()) {
                     groupOwners.add(goRealm.get().getRight());
                 } else if (realmPath.startsWith("/")) {
-                    Realm realm = realmDAO.findByFullPath(realmPath).
+                    Realm realm = realmSearchDAO.findByFullPath(realmPath).
                             orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + realmPath));
 
-                    realmDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
+                    realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                             forEach(descendant -> queries.add(
                             new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(descendant).build()).
+                                    field("realm").value(FieldValue.of(descendant)).build()).
                                     build()));
                 } else {
                     dynRealmDAO.findById(realmPath).ifPresentOrElse(
                             dynRealm -> {
                                 dynRealmKeys.add(dynRealm.getKey());
                                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                                        field("dynRealm").value(dynRealm.getKey()).build()).
+                                        field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
                                         build());
                             },
                             () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
@@ -157,7 +157,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         } else {
             if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(base.getKey()).build()).
+                        field("realm").value(FieldValue.of(base.getKey())).build()).
                         build());
             }
         }
@@ -185,7 +185,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
                                 must(new Query.Builder().term(QueryBuilders.term().
-                                        field("realm").value(base.getKey()).build()).
+                                        field("realm").value(FieldValue.of(base.getKey())).build()).
                                         build()).
                                 must(query).build()).
                         build();
@@ -216,7 +216,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind) {
 
         CountRequest request = new CountRequest.Builder().
-                index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
+                index(OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 build();
         LOG.debug("Count JSON request: {}", request);
@@ -224,7 +224,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         try {
             return client.count(request).count();
         } catch (Exception e) {
-            LOG.error("While counting in Elasticsearch", e);
+            LOG.error("While counting in OpenSearch", e);
             return 0;
         }
     }
@@ -255,8 +255,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 options.add(new SortOptions.Builder().field(
                         new FieldSort.Builder().
                                 field(sortName).
-                                order(clause.getDirection() == Sort.Direction.ASC
-                                        ? SortOrder.Asc : SortOrder.Desc).
+                                order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
                                 build()).
                         build());
             }
@@ -274,7 +273,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind) {
 
         SearchRequest request = new SearchRequest.Builder().
-                index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
+                index(OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 searchType(SearchType.QueryThenFetch).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
@@ -287,7 +286,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         try {
             esResult = client.search(request, Void.class).hits().hits();
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in OpenSearch", e);
         }
 
         return CollectionUtils.isEmpty(esResult)
@@ -434,20 +433,20 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AnyTypeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("anyType").value(cond.getAnyTypeKey()).build()).
+                field("anyType").value(FieldValue.of(cond.getAnyTypeKey())).build()).
                 build();
     }
 
     protected Query getQuery(final RelationshipTypeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("relationshipTypes").value(cond.getRelationshipTypeKey()).build()).
+                field("relationshipTypes").value(FieldValue.of(cond.getRelationshipTypeKey())).build()).
                 build();
     }
 
     protected Query getQuery(final RelationshipCond cond) {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("relationships").value(key).build()).
+                field("relationships").value(FieldValue.of(key)).build()).
                 build()).toList();
 
         return queries.size() == 1
@@ -458,7 +457,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected Query getQuery(final MembershipCond cond) {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("memberships").value(key).build()).
+                field("memberships").value(FieldValue.of(key)).build()).
                 build()).toList();
 
         return queries.size() == 1
@@ -468,26 +467,26 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final RoleCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("roles").value(cond.getRole()).build()).
+                field("roles").value(FieldValue.of(cond.getRole())).build()).
                 build();
     }
 
     protected Query getQuery(final PrivilegeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("privileges").value(cond.getPrivilege()).build()).
+                field("privileges").value(FieldValue.of(cond.getPrivilege())).build()).
                 build();
     }
 
     protected Query getQuery(final DynRealmCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("dynRealms").value(cond.getDynRealm()).build()).
+                field("dynRealms").value(FieldValue.of(cond.getDynRealm())).build()).
                 build();
     }
 
     protected Query getQuery(final MemberCond cond) {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("members").value(key).build()).
+                field("members").value(FieldValue.of(key)).build()).
                 build()).toList();
 
         return queries.size() == 1
@@ -497,13 +496,13 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AuxClassCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("auxClasses").value(cond.getAuxClass()).build()).
+                field("auxClasses").value(FieldValue.of(cond.getAuxClass())).build()).
                 build();
     }
 
     protected Query getQuery(final ResourceCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("resources").value(cond.getResource()).build()).
+                field("resources").value(FieldValue.of(cond.getResource())).build()).
                 build();
     }
 
@@ -540,7 +539,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                                 append(Character.toUpperCase(c)).
                                 append(']');
                     } else {
-                        output.append(ElasticsearchUtils.escapeForLikeRegex(c));
+                        output.append(OpenSearchUtils.escapeForLikeRegex(c));
                     }
                 }
                 query = new Query.Builder().regexp(QueryBuilders.regexp().
@@ -554,7 +553,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
             case IEQ:
                 query = new Query.Builder().match(QueryBuilders.match().
-                        field(schema.getKey()).query(cond.getExpression().toLowerCase()).build()).
+                        field(schema.getKey()).query(FieldValue.of(cond.getExpression().toLowerCase())).build()).
                         build();
                 break;
 
@@ -612,7 +611,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AnyCond cond, final AnyTypeKind kind) {
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema()) && cond.getExpression().startsWith("/")) {
-            Realm realm = realmDAO.findByFullPath(cond.getExpression()).
+            Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
                     orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression()));
             cond.setExpression(realm.getKey());
         }

@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
@@ -44,17 +44,17 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected final PolicyDAO policyDAO;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final EntityFactory entityFactory;
 
     public ClientAppDataBinderImpl(
             final PolicyDAO policyDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final EntityFactory entityFactory) {
 
         this.policyDAO = policyDAO;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -281,7 +281,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected void copyToEntity(final ClientApp clientApp, final ClientAppTO clientAppTO) {
         Optional.ofNullable(clientAppTO.getRealm()).
-                flatMap(realmDAO::findByFullPath).
+                flatMap(realmSearchDAO::findByFullPath).
                 ifPresentOrElse(clientApp::setRealm, () -> clientApp.setRealm(null));
 
         clientApp.setName(clientAppTO.getName());

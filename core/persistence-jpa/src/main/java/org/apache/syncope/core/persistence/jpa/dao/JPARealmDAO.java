@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -58,33 +58,9 @@ public class JPARealmDAO implements RealmDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDAO.class);
 
-    protected static int setParameter(final List<Object> parameters, final Object parameter) {
-        parameters.add(parameter);
-        return parameters.size();
-    }
-
-    protected static StringBuilder buildDescendantQuery(
-            final String base,
-            final String keyword,
-            final List<Object> parameters) {
-
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPARealm.class.getSimpleName()).append(" e ").
-                append("WHERE (e.fullPath=?").
-                append(setParameter(parameters, base)).
-                append(" OR e.fullPath LIKE ?").
-                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
-                append(')');
-
-        if (keyword != null) {
-            queryString.append(" AND LOWER(e.name) LIKE ?").
-                    append(setParameter(parameters, "%" + keyword.replaceAll("_", "\\\\_").toLowerCase() + "%"));
-        }
-
-        return queryString;
-    }
-
     protected final RoleDAO roleDAO;
+
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final ApplicationEventPublisher publisher;
 
@@ -92,11 +68,13 @@ public class JPARealmDAO implements RealmDAO {
 
     public JPARealmDAO(
             final RoleDAO roleDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ApplicationEventPublisher publisher,
             final EntityManager entityManager) {
 
-        this.publisher = publisher;
         this.roleDAO = roleDAO;
+        this.realmSearchDAO = realmSearchDAO;
+        this.publisher = publisher;
         this.entityManager = entityManager;
     }
 
@@ -127,102 +105,10 @@ public class JPARealmDAO implements RealmDAO {
         return Optional.ofNullable(entityManager.find(JPARealm.class, key));
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<Realm> findByFullPath(final String fullPath) {
-        if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {
-            return Optional.of(getRoot());
-        }
-
-        if (StringUtils.isBlank(fullPath) || !PATH_PATTERN.matcher(fullPath).matches()) {
-            throw new MalformedPathException(fullPath);
-        }
-
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.fullPath=:fullPath", Realm.class);
-        query.setParameter("fullPath", fullPath);
-
-        Realm result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("Realm with fullPath {} not found", fullPath, e);
-        }
-
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public List<Realm> findByName(final String name) {
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.name=:name", Realm.class);
-        query.setParameter("name", name);
-
-        return query.getResultList();
-    }
-
-    @Override
-    public long countDescendants(final String base, final String keyword) {
-        List<Object> parameters = new ArrayList<>();
-
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
-        Query query = entityManager.createQuery(StringUtils.replaceOnce(
-                queryString.toString(),
-                "SELECT e ",
-                "SELECT COUNT(e) "));
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        return ((Number) query.getSingleResult()).longValue();
-    }
-
-    @Override
-    public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
-        List<Object> parameters = new ArrayList<>();
-
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
-        TypedQuery<Realm> query = entityManager.createQuery(
-                queryString.append(" ORDER BY e.fullPath").toString(), Realm.class);
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        if (pageable.isPaged()) {
-            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
-            query.setMaxResults(pageable.getPageSize());
-        }
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<String> findDescendants(final String base, final String prefix) {
-        List<Object> parameters = new ArrayList<>();
-
-        StringBuilder queryString = buildDescendantQuery(base, null, parameters);
-        TypedQuery<Realm> query = entityManager.createQuery(queryString.
-                append(" AND (e.fullPath=?").
-                append(setParameter(parameters, prefix)).
-                append(" OR e.fullPath LIKE ?").
-                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(prefix) ? "/%" : prefix + "/%")).
-                append(')').
-                append(" ORDER BY e.fullPath").toString(),
-                Realm.class);
-
-        for (int i = 1; i <= parameters.size(); i++) {
-            query.setParameter(i, parameters.get(i - 1));
-        }
-
-        return query.getResultList().stream().map(Realm::getKey).toList();
-    }
-
     protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
         List<Realm> result = new ArrayList<>();
 
-        findChildren(realm).stream().
+        realmSearchDAO.findChildren(realm).stream().
                 filter(child -> (policy instanceof AccountPolicy
                 && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
                 || (policy instanceof PasswordPolicy
@@ -268,30 +154,6 @@ public class JPARealmDAO implements RealmDAO {
         });
 
         return result;
-    }
-
-    protected void findAncestors(final List<Realm> result, final Realm realm) {
-        if (realm.getParent() != null && !result.contains(realm.getParent())) {
-            result.add(realm.getParent());
-            findAncestors(result, realm.getParent());
-        }
-    }
-
-    @Override
-    public List<Realm> findAncestors(final Realm realm) {
-        List<Realm> result = new ArrayList<>();
-        result.add(realm);
-        findAncestors(result, realm);
-        return result;
-    }
-
-    @Override
-    public List<Realm> findChildren(final Realm realm) {
-        TypedQuery<Realm> query = entityManager.createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e WHERE e.parent=:realm", Realm.class);
-        query.setParameter("realm", realm);
-
-        return query.getResultList();
     }
 
     @Override
@@ -352,7 +214,7 @@ public class JPARealmDAO implements RealmDAO {
         S merged = entityManager.merge(realm);
 
         if (!fullPathAfter.equals(fullPathBefore)) {
-            findChildren(realm).forEach(this::save);
+            realmSearchDAO.findChildren(realm).forEach(this::save);
         }
 
         publisher.publishEvent(
@@ -372,7 +234,7 @@ public class JPARealmDAO implements RealmDAO {
             return;
         }
 
-        findDescendants(realm.getFullPath(), null, Pageable.unpaged()).forEach(toBeDeleted -> {
+        realmSearchDAO.findDescendants(realm.getFullPath(), null, Pageable.unpaged()).forEach(toBeDeleted -> {
             roleDAO.findByRealms(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
 
             toBeDeleted.setParent(null);

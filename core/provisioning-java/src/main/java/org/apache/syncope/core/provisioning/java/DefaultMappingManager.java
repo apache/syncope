@@ -53,7 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -121,7 +121,7 @@ public class DefaultMappingManager implements MappingManager {
 
     protected final RelationshipTypeDAO relationshipTypeDAO;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final ApplicationDAO applicationDAO;
 
@@ -143,7 +143,7 @@ public class DefaultMappingManager implements MappingManager {
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ApplicationDAO applicationDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
@@ -157,7 +157,7 @@ public class DefaultMappingManager implements MappingManager {
         this.anyObjectDAO = anyObjectDAO;
         this.groupDAO = groupDAO;
         this.relationshipTypeDAO = relationshipTypeDAO;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.applicationDAO = applicationDAO;
         this.implementationDAO = implementationDAO;
         this.derAttrHandler = derAttrHandler;
@@ -1103,7 +1103,7 @@ public class DefaultMappingManager implements MappingManager {
 
                 case "fullpath" -> {
                     String parentFullPath = StringUtils.substringBeforeLast(values.get(0).toString(), "/");
-                    realmDAO.findByFullPath(parentFullPath).ifPresentOrElse(
+                    realmSearchDAO.findByFullPath(parentFullPath).ifPresentOrElse(
                             parent -> realmTO.setParent(parent.getFullPath()),
                             () -> LOG.warn("Could not find Realm with path {}, ignoring", parentFullPath));
                 }

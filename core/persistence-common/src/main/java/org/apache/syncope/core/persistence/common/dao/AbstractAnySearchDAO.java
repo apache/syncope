@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AbstractSearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -144,7 +144,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         return key;
     }
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final DynRealmDAO dynRealmDAO;
 
@@ -163,7 +163,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     protected final PlainAttrValidationManager validator;
 
     public AbstractAnySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -173,7 +173,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator) {
 
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
@@ -219,7 +219,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             final SearchCond cond, final List<Sort.Order> orderBy, final AnyTypeKind kind) {
 
         return search(
-                realmDAO.getRoot(),
+                realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElse(null),
                 true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
                 cond,

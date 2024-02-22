@@ -25,7 +25,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -130,8 +130,8 @@ public class SecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RuleEnforcer ruleEnforcer(final RealmDAO realmDAO) {
-        return new DefaultRuleEnforcer(realmDAO);
+    public RuleEnforcer ruleEnforcer(final RealmSearchDAO realmSearchDAO) {
+        return new DefaultRuleEnforcer(realmSearchDAO);
     }
 
     @Bean

@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -68,7 +68,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private GroupDAO groupDAO;
@@ -247,7 +247,7 @@ public class DefaultMappingManagerTest extends AbstractTest {
         // 0. create user matching the condition below
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
         UPlainAttr cool = entityFactory.newEntity(UPlainAttr.class);

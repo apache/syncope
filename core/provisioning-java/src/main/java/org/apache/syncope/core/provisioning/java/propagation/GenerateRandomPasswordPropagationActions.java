@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -49,7 +49,7 @@ public class GenerateRandomPasswordPropagationActions implements PropagationActi
     protected UserDAO userDAO;
 
     @Autowired
-    protected RealmDAO realmDAO;
+    protected RealmSearchDAO realmSearchDAO;
 
     @Autowired
     protected PasswordGenerator passwordGenerator;
@@ -67,9 +67,8 @@ public class GenerateRandomPasswordPropagationActions implements PropagationActi
             Set<Attribute> attrs = taskInfo.getPropagationData().getAttributes();
 
             // generate random password
-            attrs.add(AttributeBuilder.buildPassword(passwordGenerator.generate(
-                    taskInfo.getResource(),
-                    realmDAO.findAncestors(userDAO.findById(taskInfo.getEntityKey()).
+            attrs.add(AttributeBuilder.buildPassword(passwordGenerator.generate(taskInfo.getResource(),
+                    realmSearchDAO.findAncestors(userDAO.findById(taskInfo.getEntityKey()).
                             orElseThrow(() -> new NotFoundException("User " + taskInfo.getEntityKey())).getRealm())).
                     toCharArray()));
 

@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
@@ -80,6 +81,9 @@ public class GroupTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
@@ -200,7 +204,7 @@ public class GroupTest extends AbstractTest {
     public void createWithInternationalCharacters() {
         Group group = entityFactory.newEntity(Group.class);
         group.setName("räksmörgås");
-        group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
+        group.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         groupDAO.save(group);
         entityManager.flush();
@@ -247,7 +251,7 @@ public class GroupTest extends AbstractTest {
         // 0. create user matching the condition below
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
@@ -340,7 +344,7 @@ public class GroupTest extends AbstractTest {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("name");
         anyObject.setType(anyTypeDAO.findById("PRINTER").orElseThrow());
-        anyObject.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        anyObject.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
 
         APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
         attr.setOwner(anyObject);

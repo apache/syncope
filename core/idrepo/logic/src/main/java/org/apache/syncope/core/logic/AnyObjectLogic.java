@@ -44,7 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -74,7 +74,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
     protected final AnyObjectProvisioningManager provisioningManager;
 
     public AnyObjectLogic(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final TemplateUtils templateUtils,
             final AnyObjectDAO anyObjectDAO,
@@ -82,7 +82,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
             final AnyObjectDataBinder binder,
             final AnyObjectProvisioningManager provisioningManager) {
 
-        super(realmDAO, anyTypeDAO, templateUtils);
+        super(realmSearchDAO, anyTypeDAO, templateUtils);
 
         this.anyObjectDAO = anyObjectDAO;
         this.searchDAO = searchDAO;
@@ -116,7 +116,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
         }
 
-        Realm base = realmDAO.findByFullPath(realm).
+        Realm base = realmSearchDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(

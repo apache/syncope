@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -49,7 +49,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     protected static final String REST_CONTEXT = "REST";
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -58,11 +58,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
     protected final Map<String, LogicActions> perContextActions = new ConcurrentHashMap<>();
 
     public AbstractAnyLogic(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final TemplateUtils templateUtils) {
 
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.templateUtils = templateUtils;
     }
@@ -86,7 +86,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<C, List<LogicActions>> beforeCreate(final C input) {
-        Realm realm = realmDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
+        Realm realm = realmSearchDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
             return sce;
@@ -121,7 +121,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<U, List<LogicActions>> beforeUpdate(final U input, final String realmPath) {
-        Realm realm = realmDAO.findByFullPath(realmPath).orElseThrow(() -> {
+        Realm realm = realmSearchDAO.findByFullPath(realmPath).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(realmPath);
             return sce;
@@ -141,7 +141,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
 
     @SuppressWarnings("unchecked")
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
-        Realm realm = realmDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
+        Realm realm = realmSearchDAO.findByFullPath(input.getRealm()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
             return sce;

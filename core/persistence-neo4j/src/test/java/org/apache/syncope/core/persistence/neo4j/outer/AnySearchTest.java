@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -69,6 +70,9 @@ public class AnySearchTest extends AbstractTest {
     private RealmDAO realmDAO;
 
     @Autowired
+    private RealmSearchDAO realmSearchDAO;
+
+    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
@@ -83,7 +87,7 @@ public class AnySearchTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
+        role.add(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
         role.setDynMembershipCond("cool==true");

@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -41,6 +42,9 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Test
     public void find() {
@@ -64,7 +68,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.findByFullPath("/even/two").orElseThrow());
+        role.add(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_LIST);
         role.getEntitlements().add(IdRepoEntitlement.AUDIT_SET);
 

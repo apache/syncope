@@ -26,7 +26,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class GroupTest extends AbstractTest {
     private GroupDAO groupDAO;
 
     @Autowired
-    private RealmDAO realmDAO;
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -71,7 +71,7 @@ public class GroupTest extends AbstractTest {
     public void save() {
         Group group = entityFactory.newEntity(Group.class);
         group.setName("secondChild");
-        group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
+        group.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         group = groupDAO.save(group);
 

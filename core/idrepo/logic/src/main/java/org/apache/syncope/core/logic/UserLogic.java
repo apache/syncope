@@ -58,7 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -113,7 +113,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     protected final RuleEnforcer ruleEnforcer;
 
     public UserLogic(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final TemplateUtils templateUtils,
             final UserDAO userDAO,
@@ -128,7 +128,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final SyncopeLogic syncopeLogic,
             final RuleEnforcer ruleEnforcer) {
 
-        super(realmDAO, anyTypeDAO, templateUtils);
+        super(realmSearchDAO, anyTypeDAO, templateUtils);
 
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
@@ -172,7 +172,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final boolean recursive,
             final boolean details) {
 
-        Realm base = realmDAO.findByFullPath(realm).
+        Realm base = realmSearchDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         Set<String> authRealms = RealmUtils.getEffective(
@@ -393,7 +393,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
         Realm realm = null;
         if (StringUtils.isNotBlank(query.getRealm())) {
-            realm = realmDAO.findByFullPath(query.getRealm()).
+            realm = realmSearchDAO.findByFullPath(query.getRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
         }
         Set<ExternalResource> resources = query.getResources().stream().

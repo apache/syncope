@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -137,7 +137,7 @@ public class ConnObjectUtils {
 
     protected final TemplateUtils templateUtils;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final UserDAO userDAO;
 
@@ -151,7 +151,7 @@ public class ConnObjectUtils {
 
     public ConnObjectUtils(
             final TemplateUtils templateUtils,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final ExternalResourceDAO resourceDAO,
             final PasswordGenerator passwordGenerator,
@@ -159,7 +159,7 @@ public class ConnObjectUtils {
             final AnyUtilsFactory anyUtilsFactory) {
 
         this.templateUtils = templateUtils;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.userDAO = userDAO;
         this.resourceDAO = resourceDAO;
         this.passwordGenerator = passwordGenerator;
@@ -207,8 +207,8 @@ public class ConnObjectUtils {
                     forEach(r -> passwordPolicies.add(r.getPasswordPolicy()));
 
             // add realm policies
-            realmDAO.findByFullPath(userCR.getRealm()).
-                    ifPresent(realm -> realmDAO.findAncestors(realm).stream().
+            realmSearchDAO.findByFullPath(userCR.getRealm()).
+                    ifPresent(realm -> realmSearchDAO.findAncestors(realm).stream().
                     filter(ancestor -> ancestor.getPasswordPolicy() != null
                     && !passwordPolicies.contains(ancestor.getPasswordPolicy())).
                     forEach(ancestor -> passwordPolicies.add(ancestor.getPasswordPolicy())));

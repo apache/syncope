@@ -40,7 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -86,7 +86,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     public PGJPAJSONAnySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -99,7 +99,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final EntityManager entityManager) {
 
         super(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -610,7 +610,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
                 && !SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
 
-            Realm realm = realmDAO.findByFullPath(cond.getExpression()).
+            Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
                     orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression()));
             cond.setExpression(realm.getKey());
         }

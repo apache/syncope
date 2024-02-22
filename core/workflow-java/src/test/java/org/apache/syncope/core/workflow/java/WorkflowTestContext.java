@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
@@ -60,7 +60,7 @@ public class WorkflowTestContext {
     }
 
     @Bean
-    public UserDataBinder userDataBinder(final RealmDAO realmDAO) {
+    public UserDataBinder userDataBinder(final RealmSearchDAO realmSearchDAO) {
         UserDataBinder dataBinder = mock(UserDataBinder.class);
 
         doAnswer(ic -> {
@@ -68,7 +68,7 @@ public class WorkflowTestContext {
             UserCR userCR = ic.getArgument(1);
 
             user.setUsername(userCR.getUsername());
-            user.setRealm(realmDAO.findByFullPath(userCR.getRealm()).orElseThrow());
+            user.setRealm(realmSearchDAO.findByFullPath(userCR.getRealm()).orElseThrow());
             user.setCreator("admin");
             user.setCreationDate(OffsetDateTime.now());
             user.setCipherAlgorithm(CipherAlgorithm.SHA256);

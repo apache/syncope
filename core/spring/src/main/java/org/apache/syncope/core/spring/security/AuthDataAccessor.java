@@ -44,7 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -89,7 +89,7 @@ public class AuthDataAccessor {
 
     protected final SecurityProperties securityProperties;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final UserDAO userDAO;
 
@@ -115,7 +115,7 @@ public class AuthDataAccessor {
 
     public AuthDataAccessor(
             final SecurityProperties securityProperties,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -129,7 +129,7 @@ public class AuthDataAccessor {
             final List<JWTSSOProvider> jwtSSOProviders) {
 
         this.securityProperties = securityProperties;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anySearchDAO = anySearchDAO;
@@ -295,7 +295,7 @@ public class AuthDataAccessor {
         }
 
         // 2. look for realms, pick the ones whose account policy has authentication resources
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+        for (Realm realm : realmSearchDAO.findAncestors(user.getRealm())) {
             if (realm.getAccountPolicy() != null && !realm.getAccountPolicy().getResources().isEmpty()) {
                 if (result == null) {
                     result = realm.getAccountPolicy().getResources();

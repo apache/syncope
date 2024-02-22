@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -58,6 +59,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -189,7 +193,7 @@ public class UserTest extends AbstractTest {
     public void save() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.setCreator("admin");
         user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SHA256);
@@ -212,7 +216,7 @@ public class UserTest extends AbstractTest {
     public void issue237() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.setCreator("admin");
         user.setCreationDate(OffsetDateTime.now());
 
@@ -229,7 +233,7 @@ public class UserTest extends AbstractTest {
         user.setUsername("username");
         user.setCipherAlgorithm(CipherAlgorithm.AES);
         user.setPassword(null);
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
 
         User actual = userDAO.save(user);
         assertNull(user.getPassword());
@@ -268,7 +272,7 @@ public class UserTest extends AbstractTest {
     public void issueSYNCOPE1666() {
         User user = entityFactory.newEntity(User.class);
         user.setUsername("username");
-        user.setRealm(realmDAO.findByFullPath("/even/two").orElseThrow());
+        user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.setCreator("admin");
         user.setCreationDate(OffsetDateTime.now());
         user.setCipherAlgorithm(CipherAlgorithm.SSHA256);

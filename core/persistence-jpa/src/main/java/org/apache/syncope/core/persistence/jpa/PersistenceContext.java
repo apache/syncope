@@ -62,6 +62,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -96,6 +97,7 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARealmDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPARealmSearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPATaskExecDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AccessTokenRepo;
@@ -302,10 +304,10 @@ public class PersistenceContext {
     @Bean
     public XMLContentExporter xmlContentExporter(
             final DomainHolder<DataSource> domainHolder,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final EntityManagerFactory entityManagerFactory) {
 
-        return new XMLContentExporter(domainHolder, realmDAO, entityManagerFactory);
+        return new XMLContentExporter(domainHolder, realmSearchDAO, entityManagerFactory);
     }
 
     @ConditionalOnMissingBean
@@ -429,7 +431,7 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public AnySearchDAO anySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -442,7 +444,7 @@ public class PersistenceContext {
             final EntityManager entityManager) {
 
         return new JPAAnySearchDAO(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -843,14 +845,21 @@ public class PersistenceContext {
                 entityManager);
     }
 
-    @ConditionalOnMissingBean(name = { "realmDAO", "delegateRealmDAO" })
-    @Bean(name = { "realmDAO", "delegateRealmDAO" })
+    @ConditionalOnMissingBean
+    @Bean
     public RealmDAO realmDAO(
             final @Lazy RoleDAO roleDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ApplicationEventPublisher publisher,
             final EntityManager entityManager) {
 
-        return new JPARealmDAO(roleDAO, publisher, entityManager);
+        return new JPARealmDAO(roleDAO, realmSearchDAO, publisher, entityManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RealmSearchDAO realmSearchDAO(final EntityManager entityManager) {
+        return new JPARealmSearchDAO(entityManager);
     }
 
     @ConditionalOnMissingBean
@@ -1018,13 +1027,13 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public TaskDAO taskDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final SecurityProperties securityProperties,
             final EntityManager entityManager) {
 
-        return new JPATaskDAO(realmDAO, remediationDAO, taskUtilsFactory, securityProperties, entityManager);
+        return new JPATaskDAO(realmSearchDAO, remediationDAO, taskUtilsFactory, securityProperties, entityManager);
     }
 
     @ConditionalOnMissingBean

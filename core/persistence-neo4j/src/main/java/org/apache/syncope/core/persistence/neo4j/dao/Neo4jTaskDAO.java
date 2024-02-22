@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -77,7 +77,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TaskDAO.class);
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final RemediationDAO remediationDAO;
 
@@ -88,7 +88,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     protected final NodeValidator nodeValidator;
 
     public Neo4jTaskDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final RemediationDAO remediationDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final SecurityProperties securityProperties,
@@ -97,7 +97,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             final NodeValidator nodeValidator) {
 
         super(neo4jTemplate, neo4jClient);
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.remediationDAO = remediationDAO;
         this.taskUtilsFactory = taskUtilsFactory;
         this.securityProperties = securityProperties;
@@ -300,9 +300,10 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 && !AuthContextUtils.getUsername().equals(securityProperties.getAdminUser())) {
 
             Stream<String> realmKeys = AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.TASK_LIST).stream().
-                    map(realmDAO::findByFullPath).
+                    map(realmSearchDAO::findByFullPath).
                     filter(Optional::isPresent).
-                    flatMap(r -> realmDAO.findDescendants(r.get().getFullPath(), null, Pageable.unpaged()).stream()).
+                    flatMap(r -> realmSearchDAO.findDescendants(r.get().getFullPath(), null, Pageable.unpaged()).
+                    stream()).
                     map(Realm::getKey).
                     distinct();
 
