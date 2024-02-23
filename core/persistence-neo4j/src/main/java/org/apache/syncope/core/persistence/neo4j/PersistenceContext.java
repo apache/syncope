@@ -1273,8 +1273,11 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public NetworkServiceRepoExt networkServiceRepoExt(final Neo4jTemplate neo4jTemplate) {
-        return new NetworkServiceRepoExtImpl(neo4jTemplate);
+    public NetworkServiceRepoExt networkServiceRepoExt(
+            final Neo4jTemplate neo4jTemplate,
+            final NodeValidator nodeValidator) {
+
+        return new NetworkServiceRepoExtImpl(neo4jTemplate, nodeValidator);
     }
 
     @Bean
