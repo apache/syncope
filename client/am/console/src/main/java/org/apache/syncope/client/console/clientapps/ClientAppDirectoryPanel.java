@@ -218,7 +218,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
-                            LOG.error("While restoring ClientApp {}", ((ClientAppTO) model.getObject()).getKey(), e);
+                            LOG.error("While restoring ClientApp {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

@@ -1200,6 +1200,12 @@ under the License.
         <groupId>org.webjars.npm</groupId>
         <artifactId>bootstrap5-toggle</artifactId>
         <version>${bootstrap5-toggle.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>bootstrap</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>

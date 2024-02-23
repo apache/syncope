@@ -59,7 +59,7 @@ public class SyncopeAnonymousClient extends SyncopeClient {
         this.anonymousAuthHandler = anonymousAuthHandler;
     }
 
-    protected JsonNode info() throws IOException {
+    public JsonNode info() throws IOException {
         WebClient webClient = WebClient.create(
                 StringUtils.removeEnd(restClientFactory.getAddress().replace("/rest", "/actuator/info"), "/")).
                 accept(MediaType.APPLICATION_JSON_TYPE).

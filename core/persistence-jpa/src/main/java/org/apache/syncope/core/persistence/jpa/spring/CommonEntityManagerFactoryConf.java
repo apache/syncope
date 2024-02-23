@@ -59,7 +59,7 @@ public class CommonEntityManagerFactoryConf implements DomainHolder<DataSource> 
 
         domains.forEach((domain, dataSource) -> {
             try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
-                healthInfo.put(domain, !conn.isValid(0));
+                healthInfo.put(domain, conn.isValid(0));
             } catch (Exception e) {
                 healthInfo.put(domain, false);
                 LOG.debug("When attempting to connect to Domain {}", domain, e);

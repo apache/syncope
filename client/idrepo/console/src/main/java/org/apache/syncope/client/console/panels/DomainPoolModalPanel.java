@@ -29,6 +29,8 @@ import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -45,16 +47,29 @@ public class DomainPoolModalPanel extends AbstractModalPanel<Domain> {
         super(modal, pageRef);
         this.domain = domain;
 
+        IModel<Integer> poolMaxActiveModel;
+        IModel<Integer> poolMinIdleModel;
+        if (domain instanceof JPADomain) {
+            poolMaxActiveModel = new PropertyModel<>(domain, "poolMaxActive");
+            poolMinIdleModel = new PropertyModel<>(domain, "poolMinIdle");
+        } else {
+            poolMaxActiveModel = new PropertyModel<>(domain, "maxConnectionPoolSize");
+            poolMinIdleModel = new Model<>();
+        }
+
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
                 "poolMaxActive",
                 "poolMaxActive",
                 Integer.class,
-                new PropertyModel<>(domain, "poolMaxActive")).setRequired(true));
+                poolMaxActiveModel).setRequired(true));
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
                 "poolMinIdle",
                 "poolMinIdle",
                 Integer.class,
-                new PropertyModel<>(domain, "poolMinIdle")).setRequired(true));
+                poolMinIdleModel).
+                setRequired(domain instanceof JPADomain).
+                setOutputMarkupPlaceholderTag(true).
+                setVisible(domain instanceof JPADomain));
     }
 
     @Override

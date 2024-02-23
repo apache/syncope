@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +39,7 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -59,6 +61,8 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
 
     private final BaseModal<Domain> utilityModal = new BaseModal<>(Constants.OUTER);
 
+    private Class<? extends Domain> domainClass = JPADomain.class;
+
     public DomainDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, null, pageRef);
         disableCheckBoxes();
@@ -78,7 +82,24 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
         utilityModal.size(Modal.Size.Small);
         utilityModal.addSubmitButton();
 
-        addNewItemPanelBuilder(new DomainWizardBuilder(domainOps, new JPADomain(), pageRef), true);
+        Domain newDomain;
+        try {
+            JsonNode info = SyncopeConsoleSession.get().getAnonymousClient().info();
+            if (info.has("persistence") && info.get("persistence").has("vendor")
+                    && "OpenJPA".equals(info.get("persistence").get("vendor").asText())) {
+
+                domainClass = JPADomain.class;
+            } else {
+                domainClass = Neo4jDomain.class;
+            }
+
+            newDomain = domainClass.getConstructor().newInstance();
+        } catch (Exception e) {
+            LOG.error("Could not instantiate {}", domainClass.getName(), e);
+            newDomain = new JPADomain();
+        }
+
+        addNewItemPanelBuilder(new DomainWizardBuilder(domainOps, newDomain, pageRef), true);
 
         initResultTable();
 
@@ -89,12 +110,20 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
     protected List<IColumn<Domain, String>> getColumns() {
         List<IColumn<Domain, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
-        columns.add(new PropertyColumn<>(
-                new StringResourceModel("jdbcURL", this), "jdbcURL", "jdbcURL"));
-        columns.add(new PropertyColumn<>(
-                new StringResourceModel("poolMaxActive", this), "poolMaxActive", "poolMaxActive"));
-        columns.add(new PropertyColumn<>(
-                new StringResourceModel("poolMinIdle", this), "poolMinIdle", "poolMinIdle"));
+        if (JPADomain.class.equals(domainClass)) {
+            columns.add(new PropertyColumn<>(
+                    new StringResourceModel("jdbcURL", this), "jdbcURL", "jdbcURL"));
+            columns.add(new PropertyColumn<>(
+                    new StringResourceModel("poolMaxActive", this), "poolMaxActive", "poolMaxActive"));
+            columns.add(new PropertyColumn<>(
+                    new StringResourceModel("poolMinIdle", this), "poolMinIdle", "poolMinIdle"));
+        } else {
+            columns.add(new PropertyColumn<>(
+                    new StringResourceModel("uri", this), "uri", "uri"));
+            columns.add(new PropertyColumn<>(
+                    new StringResourceModel("poolMaxActive", this),
+                    "maxConnectionPoolSize", "maxConnectionPoolSize"));
+        }
         return columns;
     }
 
