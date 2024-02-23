@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
@@ -26,13 +27,13 @@ import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManager
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class JPARuntimeDomainLoader extends RuntimeDomainLoader {
+public class JPARuntimeDomainLoader extends RuntimeDomainLoader<JPADomain> {
 
     protected final DomainRoutingEntityManagerFactory entityManagerFactory;
 
     public JPARuntimeDomainLoader(
             final DomainHolder<?> domainHolder,
-            final DomainRegistry domainRegistry,
+            final DomainRegistry<JPADomain> domainRegistry,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 

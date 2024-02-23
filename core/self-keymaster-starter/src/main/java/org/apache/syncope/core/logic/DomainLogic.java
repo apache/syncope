@@ -24,27 +24,29 @@ import java.util.Objects;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.DomainEntity;
-import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final DomainDAO domainDAO;
 
-    protected final SelfKeymasterEntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
     protected final DomainWatcher domainWatcher;
 
     public DomainLogic(
             final DomainDAO domainDAO,
-            final SelfKeymasterEntityFactory entityFactory,
+            final EntityFactory entityFactory,
             final DomainWatcher domainWatcher) {
 
         this.domainDAO = domainDAO;
@@ -75,7 +77,7 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
             throw new DuplicateException("Domain " + domain.getKey() + " already existing");
         }
 
-        DomainEntity domainEntity = entityFactory.newDomainEntity();
+        DomainEntity domainEntity = entityFactory.newEntity(DomainEntity.class);
         domainEntity.setKey(domain.getKey());
         domainEntity.set(domain);
         domainEntity = domainDAO.save(domainEntity);
@@ -99,14 +101,25 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
-        DomainEntity domain = domainDAO.findById(key).
+        DomainEntity domainEntity = domainDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Domain " + key));
 
-        Domain domainObj = domain.get();
-        domainObj.setPoolMaxActive(poolMaxActive);
-        domainObj.setPoolMinIdle(poolMinIdle);
-        domain.set(domainObj);
-        domainDAO.save(domain);
+        Domain domain = domainEntity.get();
+        switch (domain) {
+            case JPADomain jpaDomain -> {
+                jpaDomain.setPoolMaxActive(poolMaxActive);
+                jpaDomain.setPoolMinIdle(poolMinIdle);
+            }
+
+            case Neo4jDomain neo4jDomain ->
+                neo4jDomain.setMaxConnectionPoolSize(poolMaxActive);
+
+            default -> {
+            }
+        }
+        domainEntity.set(domain);
+
+        domainDAO.save(domainEntity);
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")

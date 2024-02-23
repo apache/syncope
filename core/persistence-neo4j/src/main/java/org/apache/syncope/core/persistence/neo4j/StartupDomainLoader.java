@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.neo4j;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
@@ -46,14 +46,14 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
     protected final ResourceLoader resourceLoader;
 
-    protected final DomainRegistry domainRegistry;
+    protected final DomainRegistry<Neo4jDomain> domainRegistry;
 
     public StartupDomainLoader(
             final DomainOps domainOps,
             final DomainHolder<?> domainHolder,
             final PersistenceProperties persistenceProperties,
             final ResourceLoader resourceLoader,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry<Neo4jDomain> domainRegistry) {
 
         this.domainOps = domainOps;
         this.domainHolder = domainHolder;
@@ -69,8 +69,8 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
     @Override
     public void load() {
-        Map<String, Domain> keymasterDomains = domainOps.list().stream().
-                collect(Collectors.toMap(Domain::getKey, Function.identity()));
+        Map<String, Neo4jDomain> keymasterDomains = domainOps.list().stream().
+                collect(Collectors.toMap(Domain::getKey, domain -> (Neo4jDomain) domain));
 
         persistenceProperties.getDomain().stream().
                 filter(d -> !SyncopeConstants.MASTER_DOMAIN.equals(d.getKey())
@@ -83,13 +83,13 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
 
                 LOG.info("Domain {} successfully inited", domainProps.getKey());
             } else {
-                Domain.Builder builder = new Domain.Builder(domainProps.getKey()).
+                Neo4jDomain.Builder builder = new Neo4jDomain.Builder(domainProps.getKey()).
                         adminPassword(domainProps.getAdminPassword()).
                         adminCipherAlgorithm(domainProps.getAdminCipherAlgorithm()).
-                        jdbcURL(domainProps.getUri().toASCIIString()).
-                        dbUsername(domainProps.getUsername()).
-                        dbPassword(domainProps.getPassword()).
-                        poolMaxActive(domainProps.getMaxConnectionPoolSize());
+                        uri(domainProps.getUri()).
+                        username(domainProps.getUsername()).
+                        password(domainProps.getPassword()).
+                        maxConnectionPoolSize(domainProps.getMaxConnectionPoolSize());
 
                 try {
                     builder.content(IOUtils.toString(

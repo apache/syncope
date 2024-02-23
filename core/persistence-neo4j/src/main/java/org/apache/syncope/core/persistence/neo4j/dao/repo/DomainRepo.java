@@ -16,9 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-import org.apache.syncope.core.persistence.api.entity.ConfParam;
+import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jDomain;
+import org.springframework.data.repository.ListCrudRepository;
 
-public interface ConfParamDAO extends DAO<ConfParam> {
+public interface DomainRepo extends ListCrudRepository<Neo4jDomain, String>, DomainDAO {
 }

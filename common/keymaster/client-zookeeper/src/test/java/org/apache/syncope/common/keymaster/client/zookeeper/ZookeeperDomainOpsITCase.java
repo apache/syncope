@@ -29,6 +29,7 @@ import java.util.UUID;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.junit.jupiter.api.Test;
@@ -45,19 +46,19 @@ public class ZookeeperDomainOpsITCase {
     public void crud() {
         String key = UUID.randomUUID().toString();
 
-        domainOps.create(new Domain.Builder(key).
+        domainOps.create(new JPADomain.Builder(key).
                 jdbcDriver("org.h2.Driver").
                 jdbcURL("jdbc:h2:mem:syncopetest;DB_CLOSE_DELAY=-1").
                 dbUsername("sa").
                 dbPassword("").
                 databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
-                transactionIsolation(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
+                transactionIsolation(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
                 adminPassword("password").
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
                 build());
 
-        Domain domain = domainOps.read(key);
-        assertEquals(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
+        JPADomain domain = (JPADomain) domainOps.read(key);
+        assertEquals(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
         assertEquals("password", domain.getAdminPassword());
         assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
         assertEquals(10, domain.getPoolMaxActive());
@@ -68,7 +69,7 @@ public class ZookeeperDomainOpsITCase {
         assertEquals(domain, list.get(0));
 
         try {
-            domainOps.create(new Domain.Builder(domain.getKey()).build());
+            domainOps.create(new JPADomain.Builder(domain.getKey()).build());
             fail();
         } catch (KeymasterException e) {
             assertNotNull(e);
@@ -76,13 +77,13 @@ public class ZookeeperDomainOpsITCase {
 
         domainOps.changeAdminPassword(key, "newpassword", CipherAlgorithm.SSHA512);
 
-        domain = domainOps.read(key);
+        domain = (JPADomain) domainOps.read(key);
         assertEquals("newpassword", domain.getAdminPassword());
         assertEquals(CipherAlgorithm.SSHA512, domain.getAdminCipherAlgorithm());
 
         domainOps.adjustPoolSize(key, 100, 23);
 
-        domain = domainOps.read(key);
+        domain = (JPADomain) domainOps.read(key);
         assertEquals(100, domain.getPoolMaxActive());
         assertEquals(23, domain.getPoolMinIdle());
 
@@ -96,6 +97,6 @@ public class ZookeeperDomainOpsITCase {
     @Test
     public void createMaster() {
         assertThrows(KeymasterException.class, () -> domainOps.create(
-                new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
+                new JPADomain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
     }
 }

@@ -21,14 +21,15 @@ package org.apache.syncope.core.persistence.neo4j;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 
 public class DummyDomainOps implements DomainOps {
 
-    private final DomainRegistry domainRegistry;
+    private final DomainRegistry<Neo4jDomain> domainRegistry;
 
-    public DummyDomainOps(final DomainRegistry domainRegistry) {
+    public DummyDomainOps(final DomainRegistry<Neo4jDomain> domainRegistry) {
         this.domainRegistry = domainRegistry;
     }
 
@@ -39,12 +40,12 @@ public class DummyDomainOps implements DomainOps {
 
     @Override
     public Domain read(final String key) {
-        return new Domain.Builder(key).build();
+        return new Neo4jDomain.Builder(key).build();
     }
 
     @Override
     public void create(final Domain domain) {
-        domainRegistry.register(domain);
+        domainRegistry.register((Neo4jDomain) domain);
     }
 
     @Override

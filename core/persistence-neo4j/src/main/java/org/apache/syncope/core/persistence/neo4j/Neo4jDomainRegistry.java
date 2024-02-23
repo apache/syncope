@@ -19,8 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j;
 
 import java.io.ByteArrayInputStream;
-import java.net.URI;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingNeo4jClient;
@@ -37,7 +36,7 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.transaction.Neo4jBookmarkManager;
 import org.springframework.data.neo4j.core.transaction.Neo4jTransactionManager;
 
-public class Neo4jDomainRegistry implements DomainRegistry {
+public class Neo4jDomainRegistry implements DomainRegistry<Neo4jDomain> {
 
     protected final ConfigurableApplicationContext ctx;
 
@@ -66,13 +65,13 @@ public class Neo4jDomainRegistry implements DomainRegistry {
     }
 
     @Override
-    public void register(final Domain domain) {
+    public void register(final Neo4jDomain domain) {
         // domainDriver
         Driver driver = GraphDatabase.driver(
-                URI.create(domain.getJdbcURL()),
-                AuthTokens.basic(domain.getDbUsername(), domain.getDbPassword()),
+                domain.getUri(),
+                AuthTokens.basic(domain.getUsername(), domain.getPassword()),
                 Config.builder().
-                        withMaxConnectionPoolSize(domain.getPoolMaxActive()).
+                        withMaxConnectionPoolSize(domain.getMaxConnectionPoolSize()).
                         withDriverMetrics().
                         withLogging(Logging.slf4j()).build());
         registerSingleton(domain.getKey().toLowerCase() + "Driver", driver);

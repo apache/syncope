@@ -16,28 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity;
+package org.apache.syncope.core.persistence.neo4j.entity.keymaster;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
 import java.io.IOException;
-import org.apache.syncope.core.persistence.api.entity.ConfParam;
+import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
+import org.springframework.data.neo4j.core.schema.Node;
 
-@Entity
-@Table(name = JPAConfParam.TABLE)
-public class JPAConfParam extends AbstractProvidedKeyEntity implements ConfParam {
+@Node(Neo4jConfParam.NODE)
+public class Neo4jConfParam extends AbstractProvidedKeyNode implements ConfParam {
 
     private static final long serialVersionUID = 8742750097008236475L;
 
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    public static final String TABLE = "ConfParam";
+    public static final String NODE = "ConfParam";
 
-    @Lob
     private String jsonValue;
 
     @Override

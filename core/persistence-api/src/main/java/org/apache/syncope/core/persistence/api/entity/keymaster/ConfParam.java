@@ -16,15 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.api.entity.keymaster;
 
-import java.util.List;
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
-public interface NetworkServiceDAO extends DAO<NetworkServiceEntity> {
+public interface ConfParam extends ProvidedKeyEntity {
 
-    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
+    JsonNode getValue();
 
-    int deleteAll(NetworkService service);
+    void setValue(JsonNode value);
 }

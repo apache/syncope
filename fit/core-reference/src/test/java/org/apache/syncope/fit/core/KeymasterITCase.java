@@ -42,6 +42,7 @@ import java.util.function.Function;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterDomainOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -217,19 +218,19 @@ public class KeymasterITCase extends AbstractITCase {
         // 1. create new domain
         String key = UUID.randomUUID().toString();
 
-        domainOps.create(new Domain.Builder(key).
+        domainOps.create(new JPADomain.Builder(key).
                 jdbcDriver("org.h2.Driver").
                 jdbcURL("jdbc:h2:mem:syncopetest" + key + ";DB_CLOSE_DELAY=-1").
                 dbUsername("sa").
                 dbPassword("").
                 databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
-                transactionIsolation(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
+                transactionIsolation(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
                 adminPassword(Encryptor.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
                 build());
 
-        Domain domain = domainOps.read(key);
-        assertEquals(Domain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
+        JPADomain domain = (JPADomain) domainOps.read(key);
+        assertEquals(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
         assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
         assertEquals(10, domain.getPoolMaxActive());
         assertEquals(2, domain.getPoolMinIdle());
@@ -239,7 +240,7 @@ public class KeymasterITCase extends AbstractITCase {
         // 2. update domain
         domainOps.adjustPoolSize(key, 100, 23);
 
-        domain = domainOps.read(key);
+        domain = (JPADomain) domainOps.read(key);
         assertEquals(100, domain.getPoolMaxActive());
         assertEquals(23, domain.getPoolMinIdle());
 
@@ -306,12 +307,12 @@ public class KeymasterITCase extends AbstractITCase {
     public void domainCreateMaster() {
         assertThrows(
                 KeymasterException.class,
-                () -> domainOps.create(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
+                () -> domainOps.create(new JPADomain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
     }
 
     @Test
     public void domainCreateDuplicateKey() {
-        assertThrows(KeymasterException.class, () -> domainOps.create(new Domain.Builder("Two").build()));
+        assertThrows(KeymasterException.class, () -> domainOps.create(new JPADomain.Builder("Two").build()));
     }
 
     @Test

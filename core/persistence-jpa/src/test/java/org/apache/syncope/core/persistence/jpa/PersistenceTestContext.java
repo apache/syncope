@@ -24,6 +24,7 @@ import java.util.List;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
@@ -115,7 +116,7 @@ public class PersistenceTestContext {
     }
 
     @Bean
-    public DomainOps domainOps(final DomainRegistry domainRegistry) {
+    public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }
 

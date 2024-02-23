@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jNetworkService;
+import org.springframework.data.repository.ListCrudRepository;
 
-public interface ConfParam extends ProvidedKeyEntity {
+public interface NetworkServiceRepo
+        extends ListCrudRepository<Neo4jNetworkService, String>, NetworkServiceRepoExt, NetworkServiceDAO {
 
-    JsonNode getValue();
-
-    void setValue(JsonNode value);
 }

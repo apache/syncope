@@ -38,7 +38,7 @@ import org.apache.openjpa.jdbc.meta.MappingRepository;
 import org.apache.openjpa.jdbc.meta.MappingTool;
 import org.apache.openjpa.lib.conf.Configurations;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
@@ -89,7 +89,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     }
 
     public void domain(
-            final Domain domain,
+            final JPADomain domain,
             final DataSource dataSource,
             final String metadataFactory) {
 

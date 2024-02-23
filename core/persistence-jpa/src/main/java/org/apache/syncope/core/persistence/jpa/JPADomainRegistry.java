@@ -23,7 +23,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import javax.sql.DataSource;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
@@ -35,7 +35,7 @@ import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
-public class JPADomainRegistry implements DomainRegistry {
+public class JPADomainRegistry implements DomainRegistry<JPADomain> {
 
     protected final ConfigurableApplicationContext ctx;
 
@@ -64,7 +64,7 @@ public class JPADomainRegistry implements DomainRegistry {
     }
 
     @Override
-    public void register(final Domain domain) {
+    public void register(final JPADomain domain) {
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setDriverClassName(domain.getJdbcDriver());
         hikariConfig.setJdbcUrl(domain.getJdbcURL());

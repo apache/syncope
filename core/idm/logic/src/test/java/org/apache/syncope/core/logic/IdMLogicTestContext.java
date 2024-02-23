@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.MasterDomain;
@@ -76,7 +77,7 @@ public class IdMLogicTestContext {
     }
 
     @Bean
-    public DomainOps domainOps(final DomainRegistry domainRegistry) {
+    public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }
 

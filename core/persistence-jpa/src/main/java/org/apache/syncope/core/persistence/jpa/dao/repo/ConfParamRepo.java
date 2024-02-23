@@ -16,18 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api;
+package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPAConfParam;
+import org.springframework.data.repository.ListCrudRepository;
 
-/**
- * Allows to register domains, to make available at runtime.
- *
- * @param <D> domain persistence type
- */
-public interface DomainRegistry<D extends Domain> {
-
-    void register(D domain);
-
-    void unregister(String domain);
+public interface ConfParamRepo extends ListCrudRepository<JPAConfParam, String>, ConfParamDAO {
 }

@@ -16,17 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.dao.keymaster;
 
-import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.core.persistence.api.dao.DAO;
+import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
 
-public interface NetworkServiceEntity extends Entity {
-
-    NetworkService.Type getType();
-
-    void setType(NetworkService.Type type);
-
-    String getAddress();
-
-    void setAddress(String address);
+public interface DomainDAO extends DAO<DomainEntity> {
 }

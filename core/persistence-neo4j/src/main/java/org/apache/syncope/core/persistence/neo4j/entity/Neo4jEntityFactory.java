@@ -72,6 +72,9 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValu
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
+import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -124,6 +127,9 @@ import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttrUni
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jTypeExtension;
+import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jConfParam;
+import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jDomain;
+import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jNetworkService;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
@@ -325,6 +331,12 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jOIDCJWKS();
         } else if (reference.equals(WAConfigEntry.class)) {
             result = (E) new Neo4jWAConfigEntry();
+        } else if (reference.equals(ConfParam.class)) {
+            result = (E) new Neo4jConfParam();
+        } else if (reference.equals(DomainEntity.class)) {
+            result = (E) new Neo4jDomain();
+        } else if (reference.equals(NetworkServiceEntity.class)) {
+            result = (E) new Neo4jNetworkService();
         } else {
             throw new IllegalArgumentException("Could not find a Neo4j implementation of " + reference.getName());
         }

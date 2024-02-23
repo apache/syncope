@@ -16,18 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api;
+package org.apache.syncope.core.persistence.api.entity.keymaster;
 
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
-/**
- * Allows to register domains, to make available at runtime.
- *
- * @param <D> domain persistence type
- */
-public interface DomainRegistry<D extends Domain> {
+public interface NetworkServiceEntity extends Entity {
 
-    void register(D domain);
+    NetworkService.Type getType();
 
-    void unregister(String domain);
+    void setType(NetworkService.Type type);
+
+    String getAddress();
+
+    void setAddress(String address);
 }

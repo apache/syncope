@@ -23,8 +23,8 @@ import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
-import org.apache.syncope.core.persistence.jpa.entity.JPANetworkService;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPANetworkService;
 import org.springframework.transaction.annotation.Transactional;
 
 public class NetworkServiceRepoExtImpl implements NetworkServiceRepoExt {
@@ -46,13 +46,13 @@ public class NetworkServiceRepoExtImpl implements NetworkServiceRepoExt {
     }
 
     @Override
-    public int deleteAll(final NetworkService service) {
+    public void deleteAll(final NetworkService service) {
         Query query = entityManager.createQuery(
                 "DELETE FROM " + JPANetworkService.class.getSimpleName()
                 + " e WHERE e.type=:serviceType AND e.address=:address");
         query.setParameter("serviceType", service.getType());
         query.setParameter("address", service.getAddress());
 
-        return query.executeUpdate();
+        query.executeUpdate();
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -70,18 +71,19 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     @Override
     public Authentication authenticate(final Authentication authentication) {
-        Domain domain;
+        String domainKey;
+        Optional<Domain> domain;
         if (SyncopeConstants.MASTER_DOMAIN.equals(
                 SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain())) {
 
-            domain = new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build();
+            domainKey = SyncopeConstants.MASTER_DOMAIN;
+            domain = Optional.empty();
         } else {
+            domainKey = SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain();
             try {
-                domain = domainOps.read(
-                        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain());
+                domain = Optional.of(domainOps.read(domainKey));
             } catch (NotFoundException | KeymasterException e) {
-                throw new BadCredentialsException("Could not find domain "
-                        + SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain(), e);
+                throw new BadCredentialsException("Could not find domain " + domainKey, e);
             }
         }
 
@@ -95,27 +97,30 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             authenticated = authentication.getCredentials().toString().equals(securityProperties.getAnonymousKey());
         } else if (securityProperties.getAdminUser().equals(authentication.getName())) {
             username.set(securityProperties.getAdminUser());
-            if (SyncopeConstants.MASTER_DOMAIN.equals(domain.getKey())) {
+            if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
                 authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
                         securityProperties.getAdminPasswordAlgorithm(),
                         securityProperties.getAdminPassword());
-            } else {
+            } else if (domain.isPresent()) {
                 authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
-                        domain.getAdminCipherAlgorithm(),
-                        domain.getAdminPassword());
+                        domain.get().getAdminCipherAlgorithm(),
+                        domain.get().getAdminPassword());
+            } else {
+                LOG.error("Could not read admin credentials for domain {}", domainKey);
+                authenticated = false;
             }
         } else {
-            Triple<User, Boolean, String> authResult = AuthContextUtils.callAsAdmin(domain.getKey(),
-                    () -> dataAccessor.authenticate(domain.getKey(), authentication));
+            Triple<User, Boolean, String> authResult = AuthContextUtils.callAsAdmin(domainKey,
+                    () -> dataAccessor.authenticate(domainKey, authentication));
             authenticated = authResult.getMiddle();
             if (authResult.getLeft() != null && authResult.getMiddle() != null) {
                 username.set(authResult.getLeft().getUsername());
 
                 if (!authenticated) {
-                    AuthContextUtils.runAsAdmin(domain.getKey(), () -> provisioningManager.internalSuspend(
+                    AuthContextUtils.runAsAdmin(domainKey, () -> provisioningManager.internalSuspend(
                             authResult.getLeft().getKey(), securityProperties.getAdminUser(), "Failed authentication"));
                 }
             }
@@ -125,8 +130,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             username.set(authentication.getPrincipal().toString());
         }
 
-        return finalizeAuthentication(
-                authenticated, domain.getKey(), username.get(), delegationKey.get(), authentication);
+        return finalizeAuthentication(authenticated, domainKey, username.get(), delegationKey.get(), authentication);
     }
 
     protected Authentication finalizeAuthentication(

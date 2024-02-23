@@ -72,6 +72,9 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValu
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
+import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -124,6 +127,9 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueV
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPAConfParam;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPADomain;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPANetworkService;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
@@ -325,6 +331,12 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAOIDCJWKS();
         } else if (reference.equals(WAConfigEntry.class)) {
             result = (E) new JPAWAConfigEntry();
+        } else if (reference.equals(ConfParam.class)) {
+            result = (E) new JPAConfParam();
+        } else if (reference.equals(DomainEntity.class)) {
+            result = (E) new JPADomain();
+        } else if (reference.equals(NetworkServiceEntity.class)) {
+            result = (E) new JPANetworkService();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

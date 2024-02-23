@@ -16,9 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.api.entity.keymaster;
 
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 public interface DomainEntity extends ProvidedKeyEntity {
 

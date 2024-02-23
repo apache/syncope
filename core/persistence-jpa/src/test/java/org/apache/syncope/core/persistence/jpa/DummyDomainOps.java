@@ -21,14 +21,15 @@ package org.apache.syncope.core.persistence.jpa;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 
 public class DummyDomainOps implements DomainOps {
 
-    private final DomainRegistry domainRegistry;
+    private final DomainRegistry<JPADomain> domainRegistry;
 
-    public DummyDomainOps(final DomainRegistry domainRegistry) {
+    public DummyDomainOps(final DomainRegistry<JPADomain> domainRegistry) {
         this.domainRegistry = domainRegistry;
     }
 
@@ -39,12 +40,12 @@ public class DummyDomainOps implements DomainOps {
 
     @Override
     public Domain read(final String key) {
-        return new Domain.Builder(key).build();
+        return new JPADomain.Builder(key).build();
     }
 
     @Override
     public void create(final Domain domain) {
-        domainRegistry.register(domain);
+        domainRegistry.register((JPADomain) domain);
     }
 
     @Override

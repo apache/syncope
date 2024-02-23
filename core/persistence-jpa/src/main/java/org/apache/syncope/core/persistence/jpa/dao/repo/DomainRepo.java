@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
-import org.apache.syncope.core.persistence.jpa.entity.JPANetworkService;
+import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPADomain;
 import org.springframework.data.repository.ListCrudRepository;
 
-public interface NetworkServiceRepo
-        extends ListCrudRepository<JPANetworkService, String>, NetworkServiceRepoExt, NetworkServiceDAO {
+public interface DomainRepo extends ListCrudRepository<JPADomain, String>, DomainDAO {
 }

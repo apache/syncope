@@ -32,6 +32,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -119,10 +120,11 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             add(new EncryptedFieldPanel(
                     "dbPassword", "dbPassword", new PropertyModel<>(domain, "dbPassword"), false));
 
-            AjaxDropDownChoicePanel<Domain.TransactionIsolation> transactionIsolation = new AjaxDropDownChoicePanel<>(
-                    "transactionIsolation", "transactionIsolation",
-                    new PropertyModel<>(domain, "transactionIsolation"), false);
-            transactionIsolation.setChoices(List.of(Domain.TransactionIsolation.values()));
+            AjaxDropDownChoicePanel<JPADomain.TransactionIsolation> transactionIsolation =
+                    new AjaxDropDownChoicePanel<>(
+                            "transactionIsolation", "transactionIsolation",
+                            new PropertyModel<>(domain, "transactionIsolation"), false);
+            transactionIsolation.setChoices(List.of(JPADomain.TransactionIsolation.values()));
             transactionIsolation.addRequiredLabel();
             transactionIsolation.setNullValid(false);
             add(transactionIsolation);

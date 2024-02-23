@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
@@ -78,6 +79,9 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -124,6 +128,7 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AuthProfileRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.CASSPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.ConfParamRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ConnInstanceRepoExtImpl;
@@ -131,6 +136,7 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.DelegationRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DerSchemaRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.DomainRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.DynRealmRepoExtImpl;
@@ -147,6 +153,9 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.ImplementationRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MailTemplateRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepoExtImpl;
@@ -312,15 +321,15 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainRegistry domainRegistry(final ConfigurableApplicationContext ctx) {
+    public DomainRegistry<JPADomain> domainRegistry(final ConfigurableApplicationContext ctx) {
         return new JPADomainRegistry(ctx);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RuntimeDomainLoader runtimeDomainLoader(
+    public RuntimeDomainLoader<JPADomain> runtimeDomainLoader(
             final DomainHolder<?> domainHolder,
-            final DomainRegistry domainRegistry,
+            final DomainRegistry<JPADomain> domainRegistry,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
             final ConfigurableApplicationContext ctx) {
 
@@ -334,7 +343,7 @@ public class PersistenceContext {
             final ResourceLoader resourceLoader,
             final DomainOps domainOps,
             final DomainHolder<?> domainHolder,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry<JPADomain> domainRegistry) {
 
         return new StartupDomainLoader(domainOps, domainHolder, persistenceProperties, resourceLoader, domainRegistry);
     }
@@ -1106,5 +1115,29 @@ public class PersistenceContext {
     @Bean
     public WAConfigDAO waConfigDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
         return jpaRepositoryFactory.getRepository(WAConfigRepo.class);
+    }
+
+    @Bean
+    public ConfParamDAO confParamDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(ConfParamRepo.class);
+    }
+
+    @Bean
+    public DomainDAO domainDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
+        return jpaRepositoryFactory.getRepository(DomainRepo.class);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public NetworkServiceRepoExt networkServiceRepoExt(final EntityManager entityManager) {
+        return new NetworkServiceRepoExtImpl(entityManager);
+    }
+
+    @Bean
+    public NetworkServiceDAO networkServiceDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final NetworkServiceRepoExt networkServiceRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(NetworkServiceRepo.class, networkServiceRepoExt);
     }
 }

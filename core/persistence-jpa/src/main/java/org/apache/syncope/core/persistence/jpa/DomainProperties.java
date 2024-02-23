@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.common.AbstractDomainProperties;
 
 public class DomainProperties extends AbstractDomainProperties {
@@ -33,7 +33,8 @@ public class DomainProperties extends AbstractDomainProperties {
 
     private String dbPassword;
 
-    private Domain.TransactionIsolation transactionIsolation = Domain.TransactionIsolation.TRANSACTION_READ_COMMITTED;
+    private JPADomain.TransactionIsolation transactionIsolation =
+            JPADomain.TransactionIsolation.TRANSACTION_READ_COMMITTED;
 
     private int poolMaxActive = 10;
 
@@ -85,11 +86,11 @@ public class DomainProperties extends AbstractDomainProperties {
         this.dbPassword = dbPassword;
     }
 
-    public Domain.TransactionIsolation getTransactionIsolation() {
+    public JPADomain.TransactionIsolation getTransactionIsolation() {
         return transactionIsolation;
     }
 
-    public void setTransactionIsolation(final Domain.TransactionIsolation transactionIsolation) {
+    public void setTransactionIsolation(final JPADomain.TransactionIsolation transactionIsolation) {
         this.transactionIsolation = transactionIsolation;
     }
 

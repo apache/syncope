@@ -16,25 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity;
+package org.apache.syncope.core.persistence.neo4j.entity.keymaster;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Lob;
-import jakarta.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
-import org.apache.syncope.core.persistence.api.entity.DomainEntity;
+import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.neo4j.core.schema.Node;
 
-@Entity
-@Table(name = JPADomain.TABLE)
-public class JPADomain extends AbstractProvidedKeyEntity implements DomainEntity {
+@Node(Neo4jDomain.NODE)
+public class Neo4jDomain extends AbstractProvidedKeyNode implements DomainEntity {
 
     private static final long serialVersionUID = -9028021617728866693L;
 
-    public static final String TABLE = "SyncopeDomain";
+    public static final String NODE = "SyncopeDomain";
 
-    @Lob
     private String spec;
 
     @Override

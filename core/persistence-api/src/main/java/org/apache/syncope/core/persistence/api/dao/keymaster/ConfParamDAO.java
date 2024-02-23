@@ -16,11 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.api.dao.keymaster;
 
-import org.apache.syncope.core.persistence.api.dao.DomainDAO;
-import org.apache.syncope.core.persistence.jpa.entity.JPADomain;
-import org.springframework.data.repository.ListCrudRepository;
+import org.apache.syncope.core.persistence.api.dao.DAO;
+import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 
-public interface DomainRepo extends ListCrudRepository<JPADomain, String>, DomainDAO {
+public interface ConfParamDAO extends DAO<ConfParam> {
 }

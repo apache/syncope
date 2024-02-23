@@ -16,13 +16,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-public interface SelfKeymasterEntityFactory {
+import java.util.List;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jNetworkService;
 
-    ConfParam newConfParam();
+public interface NetworkServiceRepoExt {
 
-    NetworkServiceEntity newNetworkService();
+    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
 
-    DomainEntity newDomainEntity();
+    <S extends Neo4jNetworkService> S save(S service);
+
+    void deleteAll(NetworkService service);
 }

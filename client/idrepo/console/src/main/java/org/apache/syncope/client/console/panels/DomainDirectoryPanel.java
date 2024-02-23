@@ -37,6 +37,7 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -77,7 +78,7 @@ public class DomainDirectoryPanel extends DirectoryPanel<Domain, Domain, DomainP
         utilityModal.size(Modal.Size.Small);
         utilityModal.addSubmitButton();
 
-        addNewItemPanelBuilder(new DomainWizardBuilder(domainOps, new Domain(), pageRef), true);
+        addNewItemPanelBuilder(new DomainWizardBuilder(domainOps, new JPADomain(), pageRef), true);
 
         initResultTable();
 

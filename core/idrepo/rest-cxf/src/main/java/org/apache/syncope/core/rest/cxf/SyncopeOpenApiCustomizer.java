@@ -123,7 +123,7 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
             operation.setResponses(responses);
         }
 
-        ApiResponse defaultResponse = responses.getDefault();
+        ApiResponse defaultResponse = responses.get(ApiResponses.DEFAULT);
         if (defaultResponse != null) {
             responses.remove(ApiResponses.DEFAULT);
             responses.addApiResponse("200", defaultResponse);

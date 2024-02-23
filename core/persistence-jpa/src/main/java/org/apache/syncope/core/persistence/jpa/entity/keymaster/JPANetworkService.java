@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity;
+package org.apache.syncope.core.persistence.jpa.entity.keymaster;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,7 +25,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPANetworkService.TABLE, uniqueConstraints =

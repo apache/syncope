@@ -16,9 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.dao.repo;
 
-import org.apache.syncope.core.persistence.api.entity.DomainEntity;
+import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPANetworkService;
+import org.springframework.data.repository.ListCrudRepository;
 
-public interface DomainDAO extends DAO<DomainEntity> {
+public interface NetworkServiceRepo
+        extends ListCrudRepository<JPANetworkService, String>, NetworkServiceRepoExt, NetworkServiceDAO {
 }

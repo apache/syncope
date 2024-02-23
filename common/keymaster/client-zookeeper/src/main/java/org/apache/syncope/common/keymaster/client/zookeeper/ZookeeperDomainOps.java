@@ -30,6 +30,8 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.slf4j.Logger;
@@ -170,9 +172,19 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
     public void adjustPoolSize(final String key, final int poolMaxActive, final int poolMinIdle) {
         try {
             Domain domain = read(key);
+            switch (domain) {
+                case JPADomain jpaDomain -> {
+                    jpaDomain.setPoolMaxActive(poolMaxActive);
+                    jpaDomain.setPoolMinIdle(poolMinIdle);
+                }
 
-            domain.setPoolMaxActive(poolMaxActive);
-            domain.setPoolMinIdle(poolMinIdle);
+                case Neo4jDomain neo4jDomain ->
+                    neo4jDomain.setMaxConnectionPoolSize(poolMaxActive);
+
+                default -> {
+                }
+            }
+
             client.setData().forPath(buildDomainPath(key), MAPPER.writeValueAsBytes(domain));
         } catch (KeymasterException e) {
             throw e;

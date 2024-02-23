@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import java.time.OffsetDateTime;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
@@ -103,7 +104,7 @@ public class WorkflowTestContext {
     }
 
     @Bean
-    public DomainOps domainOps(final DomainRegistry domainRegistry) {
+    public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }
 }

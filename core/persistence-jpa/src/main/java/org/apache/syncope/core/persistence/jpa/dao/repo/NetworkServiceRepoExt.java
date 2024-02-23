@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 
 public interface NetworkServiceRepoExt {
 
     List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
 
-    int deleteAll(NetworkService service);
+    void deleteAll(NetworkService service);
 }

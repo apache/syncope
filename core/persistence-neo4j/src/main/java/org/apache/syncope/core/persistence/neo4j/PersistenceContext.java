@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j;
 import jakarta.validation.Validator;
 import java.util.Map;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
@@ -73,6 +74,9 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -118,6 +122,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.AuthProfileRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.CASSPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.ConfParamRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.ConnInstanceRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.ConnInstanceRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.ConnInstanceRepoExtImpl;
@@ -127,6 +132,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.DelegationRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.DerSchemaRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.DerSchemaRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.DerSchemaRepoExtImpl;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.DomainRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.DynRealmRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.DynRealmRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.DynRealmRepoExtImpl;
@@ -143,6 +149,9 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.ImplementationRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.ImplementationRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.ImplementationRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.MailTemplateRepo;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.NetworkServiceRepo;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.NetworkServiceRepoExt;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.NetworkServiceRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.NotificationRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.NotificationRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.NotificationRepoExtImpl;
@@ -355,18 +364,18 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public DomainRegistry domainRegistry(final ConfigurableApplicationContext ctx) {
+    public DomainRegistry<Neo4jDomain> domainRegistry(final ConfigurableApplicationContext ctx) {
         return new Neo4jDomainRegistry(ctx);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public RuntimeDomainLoader runtimeDomainLoader(
+    public RuntimeDomainLoader<Neo4jDomain> runtimeDomainLoader(
             final DomainHolder<?> domainHolder,
-            final DomainRegistry domainRegistry,
+            final DomainRegistry<Neo4jDomain> domainRegistry,
             final ConfigurableApplicationContext ctx) {
 
-        return new RuntimeDomainLoader(domainHolder, domainRegistry, ctx);
+        return new RuntimeDomainLoader<>(domainHolder, domainRegistry, ctx);
     }
 
     @ConditionalOnMissingBean
@@ -376,7 +385,7 @@ public class PersistenceContext {
             final ResourceLoader resourceLoader,
             final DomainOps domainOps,
             final DomainHolder<?> domainHolder,
-            final DomainRegistry domainRegistry) {
+            final DomainRegistry<Neo4jDomain> domainRegistry) {
 
         return new StartupDomainLoader(domainOps, domainHolder, persistenceProperties, resourceLoader, domainRegistry);
     }
@@ -1250,5 +1259,29 @@ public class PersistenceContext {
     @Bean
     public WAConfigDAO waConfigDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
         return neo4jRepositoryFactory.getRepository(WAConfigRepo.class);
+    }
+
+    @Bean
+    public ConfParamDAO confParamDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
+        return neo4jRepositoryFactory.getRepository(ConfParamRepo.class);
+    }
+
+    @Bean
+    public DomainDAO domainDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
+        return neo4jRepositoryFactory.getRepository(DomainRepo.class);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public NetworkServiceRepoExt networkServiceRepoExt(final Neo4jTemplate neo4jTemplate) {
+        return new NetworkServiceRepoExtImpl(neo4jTemplate);
+    }
+
+    @Bean
+    public NetworkServiceDAO networkServiceDAO(
+            final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
+            final NetworkServiceRepoExt networkServiceRepoExt) {
+
+        return neo4jRepositoryFactory.getRepository(NetworkServiceRepo.class, networkServiceRepoExt);
     }
 }

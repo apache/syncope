@@ -16,11 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.dao.repo;
+package org.apache.syncope.core.persistence.api.dao.keymaster;
 
-import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
-import org.apache.syncope.core.persistence.jpa.entity.JPAConfParam;
-import org.springframework.data.repository.ListCrudRepository;
+import java.util.List;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.core.persistence.api.dao.DAO;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 
-public interface ConfParamRepo extends ListCrudRepository<JPAConfParam, String>, ConfParamDAO {
+public interface NetworkServiceDAO extends DAO<NetworkServiceEntity> {
+
+    List<NetworkServiceEntity> findAll(NetworkService.Type serviceType);
+
+    void deleteAll(NetworkService service);
 }

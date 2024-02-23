@@ -31,17 +31,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class RuntimeDomainLoader implements DomainWatcher {
+public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RuntimeDomainLoader.class);
 
     protected final DomainHolder<?> domainHolder;
 
-    protected final DomainRegistry domainRegistry;
+    protected final DomainRegistry<D> domainRegistry;
 
     public RuntimeDomainLoader(
             final DomainHolder<?> domainHolder,
-            final DomainRegistry domainRegistry,
+            final DomainRegistry<D> domainRegistry,
             final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
@@ -57,6 +57,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
         // nothing to do
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void added(final Domain domain) {
         if (domainHolder.getDomains().containsKey(domain.getKey())) {
@@ -64,7 +65,7 @@ public class RuntimeDomainLoader implements DomainWatcher {
         } else {
             LOG.info("Domain {} registration", domain.getKey());
 
-            domainRegistry.register(domain);
+            domainRegistry.register((D) domain);
 
             onAdd(domain);
 
