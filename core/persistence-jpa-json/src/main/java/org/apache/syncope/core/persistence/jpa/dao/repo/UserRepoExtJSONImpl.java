@@ -80,8 +80,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByPlainAttrValue(
-                JPAJSONUser.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
+        return anyDAO.findByPlainAttrValue(JPAJSONUser.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -90,8 +89,7 @@ public class UserRepoExtJSONImpl extends UserRepoExtImpl {
             final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByPlainAttrUniqueValue(
-                JPAJSONUser.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
+        return anyDAO.findByPlainAttrUniqueValue(JPAJSONUser.TABLE, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override

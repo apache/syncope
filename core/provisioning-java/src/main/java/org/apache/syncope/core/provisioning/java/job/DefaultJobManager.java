@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.HashMap;
@@ -57,7 +53,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.identityconnectors.common.IOUtil;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -71,7 +66,7 @@ import org.quartz.TriggerKey;
 import org.quartz.impl.jdbcjobstore.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,7 +74,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     protected static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
 
-    protected final DomainHolder domainHolder;
+    protected final DomainHolder<?> domainHolder;
 
     protected final SchedulerFactoryBean scheduler;
 
@@ -98,7 +93,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     protected boolean disableQuartzInstance;
 
     public DefaultJobManager(
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final SchedulerFactoryBean scheduler,
             final TaskDAO taskDAO,
             final ReportDAO reportDAO,
@@ -131,26 +126,19 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             return false;
         }
 
-        DataSource dataSource = domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN);
-        Connection conn = DataSourceUtils.getConnection(dataSource);
-        PreparedStatement stmt = null;
-        ResultSet resultSet = null;
-        try {
-            stmt = conn.prepareStatement(
-                    "SELECT 1 FROM " + Constants.DEFAULT_TABLE_PREFIX + "FIRED_TRIGGERS "
-                    + "WHERE JOB_NAME = ? AND JOB_GROUP = ?");
-            stmt.setString(1, jobKey.getName());
-            stmt.setString(2, jobKey.getGroup());
-
-            resultSet = stmt.executeQuery();
-            return resultSet.next();
-        } catch (SQLException e) {
-            throw new SchedulerException(e);
-        } finally {
-            IOUtil.quietClose(resultSet);
-            IOUtil.quietClose(stmt);
-            DataSourceUtils.releaseConnection(conn, dataSource);
+        Object v = domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN);
+        if (v instanceof DataSource dataSource) {
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+            return jdbcTemplate.queryForObject(
+                    "SELECT COUNT(ENTRY_ID) FROM " + Constants.DEFAULT_TABLE_PREFIX + "FIRED_TRIGGERS "
+                    + "WHERE JOB_NAME = ? AND JOB_GROUP = ?",
+                    Integer.class,
+                    jobKey.getName(),
+                    jobKey.getGroup()) > 0;
         }
+
+        LOG.warn("Unsupported persistence source: " + v.getClass().getName());
+        return false;
     }
 
     @Override
@@ -291,7 +279,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     @Transactional
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         if (disableQuartzInstance) {
             String instanceId = "AUTO";
             try {

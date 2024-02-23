@@ -44,7 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
@@ -54,10 +54,10 @@ import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,8 +79,6 @@ public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
-    public static final String GROUP_OWNER_ROLE = "GROUP_OWNER";
-
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
@@ -91,7 +89,7 @@ public class AuthDataAccessor {
 
     protected final SecurityProperties securityProperties;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final UserDAO userDAO;
 
@@ -117,7 +115,7 @@ public class AuthDataAccessor {
 
     public AuthDataAccessor(
             final SecurityProperties securityProperties,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -131,7 +129,7 @@ public class AuthDataAccessor {
             final List<JWTSSOProvider> jwtSSOProviders) {
 
         this.securityProperties = securityProperties;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anySearchDAO = anySearchDAO;
@@ -297,7 +295,7 @@ public class AuthDataAccessor {
         }
 
         // 2. look for realms, pick the ones whose account policy has authentication resources
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+        for (Realm realm : realmSearchDAO.findAncestors(user.getRealm())) {
             if (realm.getAccountPolicy() != null && !realm.getAccountPolicy().getResources().isEmpty()) {
                 if (result == null) {
                     result = realm.getAccountPolicy().getResources();
@@ -341,7 +339,7 @@ public class AuthDataAccessor {
         // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
         // either statically and dynamically
         userDAO.findAllRoles(user).stream().
-                filter(role -> !GROUP_OWNER_ROLE.equals(role.getKey())).
+                filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
@@ -356,7 +354,8 @@ public class AuthDataAccessor {
         }));
 
         // Give group entitlements for owned groups
-        groupDAO.findOwnedByUser(user.getKey()).forEach(group -> roleDAO.findById(GROUP_OWNER_ROLE).ifPresentOrElse(
+        groupDAO.findOwnedByUser(user.getKey()).
+                forEach(group -> roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).ifPresentOrElse(
                 groupOwnerRole -> groupOwnerRole.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                         HashSet<String> r = new HashSet<>();
@@ -366,7 +365,7 @@ public class AuthDataAccessor {
 
                     realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                 }),
-                () -> LOG.warn("Role {} was not found", GROUP_OWNER_ROLE)));
+                () -> LOG.warn("Role {} was not found", RoleDAO.GROUP_OWNER_ROLE)));
 
         return buildAuthorities(entForRealms);
     }
@@ -374,7 +373,7 @@ public class AuthDataAccessor {
     protected Set<SyncopeGrantedAuthority> getDelegatedAuthorities(final Delegation delegation) {
         Map<String, Set<String>> entForRealms = new HashMap<>();
 
-        delegation.getRoles().stream().filter(role -> !GROUP_OWNER_ROLE.equals(role.getKey())).
+        delegation.getRoles().stream().filter(role -> !RoleDAO.GROUP_OWNER_ROLE.equals(role.getKey())).
                 forEach(role -> role.getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 HashSet<String> r = new HashSet<>();

@@ -32,7 +32,7 @@ import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.QueryResultCacheImpl;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 
 public class JPAEntityCacheDAO implements EntityCacheDAO {
 

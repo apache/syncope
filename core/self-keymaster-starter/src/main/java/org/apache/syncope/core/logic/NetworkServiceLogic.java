@@ -22,10 +22,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.NetworkServiceEntity;
-import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,9 +34,9 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final NetworkServiceDAO serviceDAO;
 
-    protected final SelfKeymasterEntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    public NetworkServiceLogic(final NetworkServiceDAO serviceDAO, final SelfKeymasterEntityFactory entityFactory) {
+    public NetworkServiceLogic(final NetworkServiceDAO serviceDAO, final EntityFactory entityFactory) {
         this.serviceDAO = serviceDAO;
         this.entityFactory = entityFactory;
     }
@@ -76,7 +76,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
         if (serviceDAO.findAll(networkService.getType()).stream().
                 noneMatch(s -> s.getAddress().equals(networkService.getAddress()))) {
 
-            NetworkServiceEntity service = entityFactory.newNetworkService();
+            NetworkServiceEntity service = entityFactory.newEntity(NetworkServiceEntity.class);
             service.setType(networkService.getType());
             service.setAddress(networkService.getAddress());
             serviceDAO.save(service);

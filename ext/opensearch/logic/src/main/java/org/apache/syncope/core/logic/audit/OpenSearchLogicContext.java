@@ -40,13 +40,13 @@ public class OpenSearchLogicContext {
     @ConditionalOnMissingBean(name = { "defaultAuditAppenders", "openSearchDefaultAuditAppenders" })
     @Bean
     public List<AuditAppender> defaultAuditAppenders(
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final OpenSearchIndexManager openSearchIndexManager) {
 
         List<AuditAppender> auditAppenders = new ArrayList<>();
 
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
-        domainHolder.getDomains().forEach((domain, dataSource) -> {
+        domainHolder.getDomains().keySet().forEach(domain -> {
             AuditAppender appender = new OpenSearchAuditAppender(domain, openSearchIndexManager);
 
             LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);

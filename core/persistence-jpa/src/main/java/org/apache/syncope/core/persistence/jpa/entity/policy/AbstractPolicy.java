@@ -23,8 +23,8 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
+import org.apache.syncope.core.persistence.common.validation.PolicyCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PolicyCheck;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)

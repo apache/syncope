@@ -21,7 +21,6 @@ package org.apache.syncope.core.starter;
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,15 +56,10 @@ import org.apache.syncope.core.keymaster.rest.security.SelfKeymasterUsernamePass
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
-import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
-import org.apache.syncope.core.persistence.api.dao.DomainDAO;
-import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
-import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ConfParamRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.DomainRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.NetworkServiceRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.entity.JPASelfKeymasterEntityFactory;
+import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
+import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.rest.cxf.JavaDocUtils;
 import org.apache.syncope.core.rest.cxf.RestServiceExceptionMapper;
@@ -87,7 +81,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 
 @EnableConfigurationProperties(KeymasterProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -210,7 +203,7 @@ public class SelfKeymasterContext {
     @Bean
     public InternalConfParamHelper internalConfParamHelper(
             final ConfParamDAO confParamDAO,
-            final SelfKeymasterEntityFactory entityFactory) {
+            final EntityFactory entityFactory) {
 
         return new InternalConfParamHelper(confParamDAO, entityFactory);
     }
@@ -241,7 +234,7 @@ public class SelfKeymasterContext {
     @Bean
     public DomainLogic domainLogic(
             final DomainDAO domainDAO,
-            final SelfKeymasterEntityFactory selfKeymasterEntityFactory,
+            final EntityFactory selfKeymasterEntityFactory,
             final DomainWatcher domainWatcher) {
 
         return new DomainLogic(domainDAO, selfKeymasterEntityFactory, domainWatcher);
@@ -250,34 +243,9 @@ public class SelfKeymasterContext {
     @Bean
     public NetworkServiceLogic networkServiceLogic(
             final NetworkServiceDAO serviceDAO,
-            final SelfKeymasterEntityFactory selfKeymasterEntityFactory) {
+            final EntityFactory entityFactory) {
 
-        return new NetworkServiceLogic(serviceDAO, selfKeymasterEntityFactory);
-    }
-
-    @Bean
-    public SelfKeymasterEntityFactory selfKeymasterEntityFactory() {
-        return new JPASelfKeymasterEntityFactory();
-    }
-
-    @Bean
-    public ConfParamDAO confParamDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
-        return jpaRepositoryFactory.getRepository(ConfParamRepo.class);
-    }
-
-    @Bean
-    public DomainDAO domainDAO(final JpaRepositoryFactory jpaRepositoryFactory) {
-        return jpaRepositoryFactory.getRepository(DomainRepo.class);
-    }
-
-    @Bean
-    public NetworkServiceDAO networkServiceDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final EntityManager entityManager) {
-
-        return jpaRepositoryFactory.getRepository(
-                NetworkServiceRepo.class,
-                new NetworkServiceRepoExtImpl(entityManager));
+        return new NetworkServiceLogic(serviceDAO, entityFactory);
     }
 
     @Bean

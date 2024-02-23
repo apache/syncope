@@ -18,208 +18,97 @@
  */
 package org.apache.syncope.common.keymaster.client.api.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.IOException;
 import java.io.Serializable;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Domain implements Serializable {
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
+@JsonPropertyOrder(value = { "_class", "key" })
+public abstract class Domain implements Serializable {
 
     private static final long serialVersionUID = -5881851479361505961L;
 
     private static final Logger LOG = LoggerFactory.getLogger(Domain.class);
 
-    public enum TransactionIsolation {
-        TRANSACTION_NONE,
-        TRANSACTION_READ_COMMITTED,
-        TRANSACTION_READ_UNCOMMITTED,
-        TRANSACTION_REPEATABLE_READ,
-        TRANSACTION_SERIALIZABLE
+    protected abstract static class Builder<D extends Domain, B extends Builder<D, B>> {
 
-    }
+        protected final D domain;
 
-    public static class Builder {
-
-        private final Domain domain;
-
-        public Builder(final String key) {
-            this.domain = new Domain();
+        Builder(final D domain, final String key) {
+            this.domain = domain;
             this.domain.key = key;
         }
 
-        public Builder jdbcDriver(final String jdbcDriver) {
-            this.domain.jdbcDriver = jdbcDriver;
-            return this;
-        }
-
-        public Builder jdbcURL(final String jdbcURL) {
-            this.domain.jdbcURL = jdbcURL;
-            return this;
-        }
-
-        public Builder dbSchema(final String dbSchema) {
-            if (StringUtils.isNotBlank(dbSchema)) {
-                this.domain.dbSchema = dbSchema;
-            }
-            return this;
-        }
-
-        public Builder dbUsername(final String dbUsername) {
-            this.domain.dbUsername = dbUsername;
-            return this;
-        }
-
-        public Builder dbPassword(final String dbPassword) {
-            this.domain.dbPassword = dbPassword;
-            return this;
-        }
-
-        public Builder transactionIsolation(final TransactionIsolation transactionIsolation) {
-            this.domain.transactionIsolation = transactionIsolation;
-            return this;
-        }
-
-        public Builder poolMaxActive(final int poolMaxActive) {
-            this.domain.poolMaxActive = poolMaxActive;
-            return this;
-        }
-
-        public Builder poolMinIdle(final int poolMinIdle) {
-            this.domain.poolMinIdle = poolMinIdle;
-            return this;
-        }
-
-        public Builder auditSql(final String auditSql) {
-            this.domain.auditSql = auditSql;
-            return this;
-        }
-
-        public Builder orm(final String orm) {
-            this.domain.orm = orm;
-            return this;
-        }
-
-        public Builder databasePlatform(final String databasePlatform) {
-            this.domain.databasePlatform = databasePlatform;
-            return this;
-        }
-
-        public Builder adminPassword(final String adminPassword) {
+        @SuppressWarnings("unchecked")
+        public B adminPassword(final String adminPassword) {
             this.domain.adminPassword = adminPassword;
-            return this;
+            return (B) this;
         }
 
-        public Builder adminCipherAlgorithm(final CipherAlgorithm adminCipherAlgorithm) {
+        @SuppressWarnings("unchecked")
+        public B adminCipherAlgorithm(final CipherAlgorithm adminCipherAlgorithm) {
             this.domain.adminCipherAlgorithm = adminCipherAlgorithm;
-            return this;
+            return (B) this;
         }
 
-        public Builder content(final String content) {
+        @SuppressWarnings("unchecked")
+        public B content(final String content) {
             this.domain.content = content;
-            return this;
+            return (B) this;
         }
 
-        public Builder keymasterConfParams(final String keymasterConfParams) {
+        @SuppressWarnings("unchecked")
+        public B keymasterConfParams(final String keymasterConfParams) {
             this.domain.keymasterConfParams = keymasterConfParams;
-            return this;
+            return (B) this;
         }
 
-        public Domain build() {
+        public D build() {
             return this.domain;
         }
     }
 
-    private String key;
+    protected static String read(final String filename) {
+        String read = null;
+        try {
+            read = IOUtils.toString(Domain.class.getResourceAsStream('/' + filename));
+        } catch (IOException e) {
+            LOG.error("Could not read {}", filename, e);
+        }
 
-    private String jdbcDriver;
+        return read;
+    }
 
-    private String jdbcURL;
+    protected String key;
 
-    private String dbSchema;
+    protected String adminPassword;
 
-    private String dbUsername;
+    protected CipherAlgorithm adminCipherAlgorithm = CipherAlgorithm.SHA512;
 
-    private String dbPassword;
+    protected String content;
 
-    private TransactionIsolation transactionIsolation = TransactionIsolation.TRANSACTION_READ_COMMITTED;
+    protected String keymasterConfParams;
 
-    private int poolMaxActive = 10;
+    @JsonProperty("_class")
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 
-    private int poolMinIdle = 2;
-
-    private String auditSql = "audit.sql";
-
-    private String orm = "META-INF/spring-orm.xml";
-
-    private String databasePlatform;
-
-    private String adminPassword;
-
-    private CipherAlgorithm adminCipherAlgorithm = CipherAlgorithm.SHA512;
-
-    private String content;
-
-    private String keymasterConfParams;
+    public void setDiscriminator(final String discriminator) {
+        // do nothing
+    }
 
     public String getKey() {
         return key;
-    }
-
-    public String getJdbcDriver() {
-        return jdbcDriver;
-    }
-
-    public String getJdbcURL() {
-        return jdbcURL;
-    }
-
-    public String getDbSchema() {
-        return dbSchema;
-    }
-
-    public String getDbUsername() {
-        return dbUsername;
-    }
-
-    public String getDbPassword() {
-        return dbPassword;
-    }
-
-    public TransactionIsolation getTransactionIsolation() {
-        return transactionIsolation;
-    }
-
-    public int getPoolMaxActive() {
-        return poolMaxActive;
-    }
-
-    public void setPoolMaxActive(final int poolMaxActive) {
-        this.poolMaxActive = poolMaxActive;
-    }
-
-    public int getPoolMinIdle() {
-        return poolMinIdle;
-    }
-
-    public void setPoolMinIdle(final int poolMinIdle) {
-        this.poolMinIdle = poolMinIdle;
-    }
-
-    public String getAuditSql() {
-        return auditSql;
-    }
-
-    public String getOrm() {
-        return orm;
-    }
-
-    public String getDatabasePlatform() {
-        return databasePlatform;
     }
 
     public String getAdminPassword() {
@@ -238,20 +127,11 @@ public class Domain implements Serializable {
         this.adminCipherAlgorithm = adminCipherAlgorithm;
     }
 
-    private String read(final String filename) {
-        String read = null;
-        try {
-            read = IOUtils.toString(Domain.class.getResourceAsStream('/' + filename));
-        } catch (IOException e) {
-            LOG.error("Could not read {}", filename, e);
-        }
-
-        return read;
-    }
+    protected abstract String defaultContentFile();
 
     public String getContent() {
         if (content == null) {
-            content = read("defaultContent.xml");
+            content = read(defaultContentFile());
         }
 
         return content;
@@ -269,17 +149,6 @@ public class Domain implements Serializable {
     public int hashCode() {
         return new HashCodeBuilder().
                 append(key).
-                append(jdbcDriver).
-                append(jdbcURL).
-                append(dbSchema).
-                append(dbUsername).
-                append(dbPassword).
-                append(transactionIsolation).
-                append(poolMaxActive).
-                append(poolMinIdle).
-                append(auditSql).
-                append(orm).
-                append(databasePlatform).
                 append(adminPassword).
                 append(adminCipherAlgorithm).
                 append(content).
@@ -301,17 +170,6 @@ public class Domain implements Serializable {
         final Domain other = (Domain) obj;
         return new EqualsBuilder().
                 append(key, other.key).
-                append(jdbcDriver, other.jdbcDriver).
-                append(jdbcURL, other.jdbcURL).
-                append(dbSchema, other.dbSchema).
-                append(dbUsername, other.dbUsername).
-                append(dbPassword, other.dbPassword).
-                append(transactionIsolation, other.transactionIsolation).
-                append(poolMaxActive, other.poolMaxActive).
-                append(poolMinIdle, other.poolMinIdle).
-                append(auditSql, other.auditSql).
-                append(orm, other.orm).
-                append(databasePlatform, other.databasePlatform).
                 append(adminPassword, other.adminPassword).
                 append(adminCipherAlgorithm, other.adminCipherAlgorithm).
                 append(content, other.content).
@@ -321,23 +179,12 @@ public class Domain implements Serializable {
 
     @Override
     public String toString() {
-        return "Domain{"
-                + "key=" + key
-                + ", jdbcDriver=" + jdbcDriver
-                + ", jdbcURL=" + jdbcURL
-                + ", dbSchema=" + dbSchema
-                + ", dbUsername=" + dbUsername
-                + ", dbPassword=" + dbPassword
-                + ", transactionIsolation=" + transactionIsolation
-                + ", poolMaxSize=" + poolMaxActive
-                + ", poolMinIdle=" + poolMinIdle
-                + ", auditSql=" + auditSql
-                + ", orm=" + orm
-                + ", databasePlatform=" + databasePlatform
-                + ", adminPassword=" + adminPassword
-                + ", adminCipherAlgorithm=" + adminCipherAlgorithm
-                + ", content=" + content
-                + ", keymasterConfParams=" + keymasterConfParams
-                + '}';
+        return new ToStringBuilder(this).
+                append(key).
+                append(adminPassword).
+                append(adminCipherAlgorithm).
+                append(content).
+                append(keymasterConfParams).
+                build();
     }
 }

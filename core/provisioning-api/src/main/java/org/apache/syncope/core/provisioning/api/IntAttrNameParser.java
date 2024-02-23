@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.text.ParseException;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.tuple.Pair;
@@ -100,15 +101,12 @@ public class IntAttrNameParser {
             final AnyTypeKind anyTypeKind,
             final IntAttrName result) {
 
-        if (anyUtilsFactory.getInstance(anyTypeKind).getField(fieldOrSchemaName) == null) {
-            Pair<Schema, SchemaType> schemaInfo = find(fieldOrSchemaName);
-            if (schemaInfo != null) {
-                result.setSchemaType(schemaInfo.getRight());
-                result.setSchema(schemaInfo.getLeft());
-            }
-        } else {
-            result.setField(fieldOrSchemaName);
-        }
+        anyUtilsFactory.getInstance(anyTypeKind).getField(fieldOrSchemaName).ifPresentOrElse(
+                field -> result.setField(fieldOrSchemaName),
+                () -> Optional.ofNullable(find(fieldOrSchemaName)).ifPresent(schemaInfo -> {
+                    result.setSchemaType(schemaInfo.getRight());
+                    result.setSchema(schemaInfo.getLeft());
+                }));
     }
 
     @Transactional(readOnly = true)

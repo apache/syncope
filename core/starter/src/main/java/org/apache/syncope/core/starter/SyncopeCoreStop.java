@@ -36,9 +36,9 @@ public class SyncopeCoreStop extends KeymasterStop implements Ordered {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStop.class);
 
-    private final DomainHolder domainHolder;
+    private final DomainHolder<?> domainHolder;
 
-    public SyncopeCoreStop(final DomainHolder domainHolder) {
+    public SyncopeCoreStop(final DomainHolder<?> domainHolder) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
     }

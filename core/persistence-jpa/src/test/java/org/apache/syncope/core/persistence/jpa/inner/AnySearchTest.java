@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -60,11 +61,10 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.BeforeEach;
@@ -99,6 +99,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -275,7 +278,7 @@ public class AnySearchTest extends AbstractTest {
 
         assertTrue(cond.isValid());
 
-        int count = searchDAO.count(
+        long count = searchDAO.count(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, cond, AnyTypeKind.USER);
         assertEquals(1, count);
 
@@ -391,7 +394,7 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByBooleanAnyCond() {
+    public void searchByBooleanAttrCond() {
         AttrCond booleanCond = new AttrCond(AnyCond.Type.EQ);
         booleanCond.setSchema("show");
         booleanCond.setExpression("true");
@@ -632,7 +635,7 @@ public class AnySearchTest extends AbstractTest {
     public void asGroupOwner() {
         // prepare authentication
         Map<String, Set<String>> entForRealms = new HashMap<>();
-        roleDAO.findById(AuthDataAccessor.GROUP_OWNER_ROLE).orElseThrow().getEntitlements().forEach(entitlement -> {
+        roleDAO.findById(RoleDAO.GROUP_OWNER_ROLE).orElseThrow().getEntitlements().forEach(entitlement -> {
             Set<String> realms = Optional.ofNullable(entForRealms.get(entitlement)).orElseGet(() -> {
                 Set<String> r = new HashSet<>();
                 entForRealms.put(entitlement, r);
@@ -756,7 +759,7 @@ public class AnySearchTest extends AbstractTest {
         SearchCond searchCond = SearchCond.getOr(
                 SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
 
-        int count = searchDAO.count(
+        long count = searchDAO.count(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);
         assertTrue(count > 0);
     }
@@ -797,7 +800,7 @@ public class AnySearchTest extends AbstractTest {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         anyObject.setName("one");
         anyObject.setType(service);
-        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
+        anyObject.setRealm(realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
 
         AMembership membership = entityFactory.newEntity(AMembership.class);
         membership.setRightEnd(citizen);

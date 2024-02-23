@@ -19,13 +19,15 @@
 package org.apache.syncope.core.persistence.api;
 
 import java.util.Map;
-import javax.sql.DataSource;
 
 /**
  * Holds information about domain effectively available at runtime.
+ *
+ * @param <T> persistence source for the given domain
  */
-@FunctionalInterface
-public interface DomainHolder {
+public interface DomainHolder<T> {
 
-    Map<String, DataSource> getDomains();
+    Map<String, T> getDomains();
+
+    Map<String, Boolean> getHealthInfo();
 }

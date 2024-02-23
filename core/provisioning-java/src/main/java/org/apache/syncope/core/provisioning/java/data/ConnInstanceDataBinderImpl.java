@@ -25,19 +25,18 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.api.ConnectorInfo;
@@ -53,19 +52,19 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     protected final ConnInstanceDAO connInstanceDAO;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final EntityFactory entityFactory;
 
     public ConnInstanceDataBinderImpl(
             final ConnIdBundleManager connIdBundleManager,
             final ConnInstanceDAO connInstanceDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final EntityFactory entityFactory) {
 
         this.connIdBundleManager = connIdBundleManager;
         this.connInstanceDAO = connInstanceDAO;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.entityFactory = entityFactory;
     }
 
@@ -103,7 +102,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getAdminRealm() != null) {
-            connInstance.setAdminRealm(realmDAO.findByFullPath(connInstanceTO.getAdminRealm()).
+            connInstance.setAdminRealm(realmSearchDAO.findByFullPath(connInstanceTO.getAdminRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + connInstanceTO.getAdminRealm())));
         }
         if (connInstance.getAdminRealm() == null) {
@@ -114,8 +113,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         }
         connInstance.setConf(connInstanceTO.getConf());
         if (connInstanceTO.getPoolConf() != null) {
-            connInstance.setPoolConf(
-                    ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
+            connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf()));
         }
 
         // Throw exception if there is at least one element set
@@ -137,7 +135,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
         if (connInstanceTO.getAdminRealm() != null) {
-            Realm realm = realmDAO.findByFullPath(connInstanceTO.getAdminRealm()).
+            Realm realm = realmSearchDAO.findByFullPath(connInstanceTO.getAdminRealm()).
                     orElseThrow(() -> {
                         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
                         sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
@@ -177,8 +175,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         if (connInstanceTO.getPoolConf() == null) {
             connInstance.setPoolConf(null);
         } else {
-            connInstance.setPoolConf(
-                    ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
+            connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf()));
         }
 
         return connInstance;
@@ -251,22 +248,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         Collections.sort(connInstanceTO.getConf());
 
-        // pool configuration
-        if (connInstance.getPoolConf() != null
-                && (connInstance.getPoolConf().getMaxIdle() != null
-                || connInstance.getPoolConf().getMaxObjects() != null
-                || connInstance.getPoolConf().getMaxWait() != null
-                || connInstance.getPoolConf().getMinEvictableIdleTimeMillis() != null
-                || connInstance.getPoolConf().getMinIdle() != null)) {
-
-            ConnPoolConfTO poolConf = new ConnPoolConfTO();
-            poolConf.setMaxIdle(connInstance.getPoolConf().getMaxIdle());
-            poolConf.setMaxObjects(connInstance.getPoolConf().getMaxObjects());
-            poolConf.setMaxWait(connInstance.getPoolConf().getMaxWait());
-            poolConf.setMinEvictableIdleTimeMillis(connInstance.getPoolConf().getMinEvictableIdleTimeMillis());
-            poolConf.setMinIdle(connInstance.getPoolConf().getMinIdle());
-            connInstanceTO.setPoolConf(poolConf);
-        }
+        connInstanceTO.setPoolConf(connInstance.getPoolConf());
 
         return connInstanceTO;
     }

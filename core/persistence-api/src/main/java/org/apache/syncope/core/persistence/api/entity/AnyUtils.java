@@ -19,12 +19,13 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.lang.reflect.Field;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 
 public interface AnyUtils {
@@ -33,7 +34,7 @@ public interface AnyUtils {
 
     <T extends Any<?>> Class<T> anyClass();
 
-    Field getField(String name);
+    Optional<Field> getField(String name);
 
     <T extends PlainAttr<?>> Class<T> plainAttrClass();
 
@@ -43,9 +44,9 @@ public interface AnyUtils {
 
     <T extends PlainAttrValue> T newPlainAttrValue();
 
-    <T extends PlainAttrValue> Class<T> plainAttrUniqueValueClass();
+    <T extends PlainAttrUniqueValue> Class<T> plainAttrUniqueValueClass();
 
-    <T extends PlainAttrValue> T newPlainAttrUniqueValue();
+    <T extends PlainAttrUniqueValue> T newPlainAttrUniqueValue();
 
     <T extends PlainAttrValue> T clonePlainAttrValue(T src);
 

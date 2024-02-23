@@ -20,9 +20,27 @@ package org.apache.syncope.core.persistence.api.entity.am;
 
 import org.apache.syncope.common.lib.types.ClientAppType;
 
-public interface ClientAppUtils {
+public class ClientAppUtils {
 
-    ClientAppType getType();
+    private final ClientAppType type;
 
-    Class<? extends ClientApp> clientAppClass();
+    public ClientAppUtils(final ClientAppType type) {
+        this.type = type;
+    }
+
+    public ClientAppType getType() {
+        return type;
+    }
+
+    public Class<? extends ClientApp> clientAppClass() {
+        switch (type) {
+            case OIDCRP:
+                return OIDCRPClientApp.class;
+            case CASSP:
+                return CASSPClientApp.class;
+            case SAML2SP:
+            default:
+                return SAML2SPClientApp.class;
+        }
+    }
 }

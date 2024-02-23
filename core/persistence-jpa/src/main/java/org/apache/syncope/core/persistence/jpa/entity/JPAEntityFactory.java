@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
@@ -73,6 +72,9 @@ import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValu
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
+import org.apache.syncope.core.persistence.api.entity.keymaster.DomainEntity;
+import org.apache.syncope.core.persistence.api.entity.keymaster.NetworkServiceEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
@@ -91,7 +93,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
@@ -126,6 +127,9 @@ import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrUniqueV
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPAConfParam;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPADomain;
+import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPANetworkService;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
@@ -144,7 +148,6 @@ import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPASchedTask;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrValue;
@@ -280,8 +283,6 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPASecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {
             result = (E) new JPAAuditConf();
-        } else if (reference.equals(DynRoleMembership.class)) {
-            result = (E) new JPADynRoleMembership();
         } else if (reference.equals(ADynGroupMembership.class)) {
             result = (E) new JPAADynGroupMembership();
         } else if (reference.equals(UDynGroupMembership.class)) {
@@ -330,20 +331,21 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAOIDCJWKS();
         } else if (reference.equals(WAConfigEntry.class)) {
             result = (E) new JPAWAConfigEntry();
+        } else if (reference.equals(ConfParam.class)) {
+            result = (E) new JPAConfParam();
+        } else if (reference.equals(DomainEntity.class)) {
+            result = (E) new JPADomain();
+        } else if (reference.equals(NetworkServiceEntity.class)) {
+            result = (E) new JPANetworkService();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }
 
-        if (result instanceof AbstractGeneratedKeyEntity abstractGeneratedKeyEntity) {
-            abstractGeneratedKeyEntity.setKey(SecureRandomUtils.generateRandomUUID().toString());
+        if (result instanceof AbstractGeneratedKeyEntity generatedKeyEntity) {
+            generatedKeyEntity.setKey(SecureRandomUtils.generateRandomUUID().toString());
         }
 
         return result;
-    }
-
-    @Override
-    public ConnPoolConf newConnPoolConf() {
-        return new JPAConnPoolConf();
     }
 
     @Override

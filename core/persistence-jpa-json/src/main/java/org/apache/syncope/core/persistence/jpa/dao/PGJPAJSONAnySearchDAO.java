@@ -35,12 +35,12 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
@@ -69,11 +69,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
     protected static final String ALWAYS_FALSE_ASSERTION = "1=2";
 
-    protected static final String POSTGRESQL_REGEX_CHARS = "!$()*+.:<=>?[\\]^{|}-";
+    protected static final String REGEX_CHARS = "!$()*+.:<=>?[\\]^{|}-";
 
     protected static String escapeForLikeRegex(final String input) {
         String output = input;
-        for (char toEscape : POSTGRESQL_REGEX_CHARS.toCharArray()) {
+        for (char toEscape : REGEX_CHARS.toCharArray()) {
             output = output.replace(String.valueOf(toEscape), "\\" + toEscape);
         }
         return output.replace("'", "''");
@@ -86,7 +86,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     public PGJPAJSONAnySearchDAO(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -99,7 +99,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final EntityManager entityManager) {
 
         super(
-                realmDAO,
+                realmSearchDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -150,15 +150,14 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final PlainSchema schema,
             final AttrCond cond,
             final boolean not,
-            final List<Object> parameters,
             final SearchSupport svs) {
 
         if (not && cond.getType() == AttrCond.Type.ISNULL) {
             cond.setType(AttrCond.Type.ISNOTNULL);
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters, svs);
+            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, svs);
         } else if (not) {
             query.append("NOT (");
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
+            fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, svs);
             query.append(')');
         } else {
             String key = key(schema.getType());
@@ -217,11 +216,12 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         LOG.error("LIKE is only compatible with string or enum schemas");
                     }
                 }
+
                 case IEQ, EQ -> {
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key);
 
-                    if (StringUtils.containsAny(value, POSTGRESQL_REGEX_CHARS) || lower) {
+                    if (StringUtils.containsAny(value, REGEX_CHARS) || lower) {
                         query.append(" like_regex \"^").
                                 append(escapeForLikeRegex(value).replace("'", "''")).
                                 append("$\"");
@@ -236,6 +236,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key).append(" >= ").
                             append(escapeIfString(value, isStr)).append(")')");
+
                 case GT ->
                     query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                             append("(@.").append(key).append(" > ").
@@ -279,8 +280,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         append("jsonb_path_exists(").append(checked.getLeft().getKey()).append(",'$[*]')");
 
             default ->
-                fillAttrQuery(anyUtilsFactory.getInstance(svs.anyTypeKind),
-                        query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
+                fillAttrQuery(
+                        anyUtilsFactory.getInstance(svs.anyTypeKind),
+                        query, checked.getRight(), checked.getLeft(), cond, not, svs);
         }
 
         return query.toString();
@@ -608,7 +610,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
                 && !SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
 
-            Realm realm = realmDAO.findByFullPath(cond.getExpression()).
+            Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
                     orElseThrow(() -> new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression()));
             cond.setExpression(realm.getKey());
         }
@@ -618,8 +620,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         StringBuilder query = new StringBuilder();
 
         plainSchemaDAO.findById(cond.getSchema()).ifPresentOrElse(
-                schema -> fillAttrQuery(anyUtilsFactory.getInstance(svs.anyTypeKind),
-                        query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters, svs),
+                schema -> fillAttrQuery(
+                        anyUtilsFactory.getInstance(svs.anyTypeKind),
+                        query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, svs),
                 () -> fillAttrQuery(
                         query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters, svs));
 
@@ -643,7 +646,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     @Override
-    protected int doCount(
+    protected long doCount(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
@@ -668,7 +671,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         Query countQuery = entityManager.createNativeQuery(queryString.toString());
         fillWithParameters(countQuery, parameters);
 
-        return ((Number) countQuery.getSingleResult()).intValue();
+        return ((Number) countQuery.getSingleResult()).longValue();
     }
 
     @Override
@@ -783,8 +786,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
                 case ILIKE, LIKE -> {
                     if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
-                        query.append(column);
-                        query.append(" LIKE ");
+                        query.append(column).append(" LIKE ");
                         if (lower) {
                             query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
                         } else {
@@ -795,9 +797,9 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         LOG.error("LIKE is only compatible with string or enum schemas");
                     }
                 }
+
                 case IEQ, EQ -> {
-                    query.append(column);
-                    query.append('=');
+                    query.append(column).append('=');
 
                     if (lower
                             && (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)) {
@@ -817,6 +819,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     }
                     query.append('?').append(setParameter(parameters, attrValue.getValue()));
                 }
+
                 case GT -> {
                     query.append(column);
                     if (not) {

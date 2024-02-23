@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 
 public class ConnInstanceTO implements EntityTO {
@@ -59,7 +60,7 @@ public class ConnInstanceTO implements EntityTO {
 
     private Integer connRequestTimeout;
 
-    private ConnPoolConfTO poolConf;
+    private ConnPoolConf poolConf;
 
     @Override
     public String getKey() {
@@ -166,11 +167,11 @@ public class ConnInstanceTO implements EntityTO {
         this.connRequestTimeout = connRequestTimeout;
     }
 
-    public ConnPoolConfTO getPoolConf() {
+    public ConnPoolConf getPoolConf() {
         return poolConf;
     }
 
-    public void setPoolConf(final ConnPoolConfTO poolConf) {
+    public void setPoolConf(final ConnPoolConf poolConf) {
         this.poolConf = poolConf;
     }
 

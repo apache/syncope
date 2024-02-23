@@ -34,8 +34,8 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.persistence.common.validation.SchedTaskCheck;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchedTaskCheck;
 
 @Entity
 @Table(name = JPASchedTask.TABLE)

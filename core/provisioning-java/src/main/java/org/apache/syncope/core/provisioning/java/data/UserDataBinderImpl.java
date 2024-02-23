@@ -48,7 +48,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -60,7 +60,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
@@ -113,7 +113,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     public UserDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -139,7 +139,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final SecurityProperties securityProperties) {
 
         super(anyTypeDAO,
-                realmDAO,
+                realmSearchDAO,
                 anyTypeClassDAO,
                 anyObjectDAO,
                 userDAO,
@@ -326,7 +326,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 () -> LOG.warn("Ignoring unknown role with id {}", roleKey)));
 
         // realm
-        Realm realm = realmDAO.findByFullPath(userCR.getRealm()).orElse(null);
+        Realm realm = realmSearchDAO.findByFullPath(userCR.getRealm()).orElse(null);
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + userCR.getRealm());

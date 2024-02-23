@@ -22,6 +22,7 @@ import com.nimbusds.jose.JOSEException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.IdRepoLogicContext;
 import org.apache.syncope.core.logic.audit.AuditAppender;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -45,10 +46,11 @@ public class CoreReferenceContext {
 
     @Bean
     public ImplementationLookup implementationLookup(
+            final DomainHolder<?> domainHolder,
             final UserWorkflowAdapter uwf,
             final EnableFlowableForTestUsers enableFlowableForTestUsers) {
 
-        return new ITImplementationLookup(uwf, enableFlowableForTestUsers);
+        return new ITImplementationLookup(domainHolder, uwf, enableFlowableForTestUsers);
     }
 
     @Bean

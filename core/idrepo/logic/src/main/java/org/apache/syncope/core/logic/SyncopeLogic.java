@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -52,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -67,7 +67,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
     protected final ContentExporter exporter;
 
     public SyncopeLogic(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -75,7 +75,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final ConfParamOps confParamOps,
             final ContentExporter exporter) {
 
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.groupDAO = groupDAO;
         this.anySearchDAO = anySearchDAO;
@@ -102,7 +102,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             final String term,
             final Pageable pageable) {
 
-        Realm base = realmDAO.findByFullPath(realm).
+        Realm base = realmSearchDAO.findByFullPath(realm).
                 orElseThrow(() -> new NotFoundException("Realm " + realm));
 
         AnyCond termCond;

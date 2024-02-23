@@ -53,7 +53,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -105,7 +105,8 @@ public abstract class AbstractTest {
         @Bean
         public DomainOps domainOps() {
             DomainOps domainOps = mock(DomainOps.class);
-            when(domainOps.list()).thenReturn(List.of(new Domain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
+            when(domainOps.list()).thenReturn(
+                    List.of(new JPADomain.Builder(SyncopeConstants.MASTER_DOMAIN).build()));
             return domainOps;
         }
 

@@ -26,7 +26,7 @@ import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
+import org.apache.syncope.core.persistence.common.validation.AnyCheck;
 
 @AnyCheck
 @MappedSuperclass

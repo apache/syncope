@@ -77,13 +77,18 @@ under the License.
       <artifactId>syncope-common-keymaster-client-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+
     <!-- TEST -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>    
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>

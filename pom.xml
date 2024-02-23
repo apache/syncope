@@ -413,7 +413,7 @@ under the License.
     <bouncycastle.version>1.77</bouncycastle.version>
     <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.2.2</spring-boot.version>
+    <spring-boot.version>3.2.3</spring-boot.version>
     <spring-cloud-gateway.version>4.1.1</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0</openjpa.version>
@@ -427,9 +427,9 @@ under the License.
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.12.1</elasticsearch.version>
+    <elasticsearch.version>8.12.2</elasticsearch.version>
     <opensearch.version>2.12.0</opensearch.version>
-    <opensearch-java.version>2.8.4</opensearch-java.version>
+    <opensearch-java.version>2.9.0</opensearch-java.version>
 
     <commons-lang3.version>3.14.0</commons-lang3.version>
     <commons-jexl.version>3.3</commons-jexl.version>
@@ -501,6 +501,7 @@ under the License.
     <docker.postgresql.version>16</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
+    <docker.neo4j.version>5.16.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
@@ -672,6 +673,18 @@ under the License.
           <exclusion>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-neo4j</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -1187,6 +1200,12 @@ under the License.
         <groupId>org.webjars.npm</groupId>
         <artifactId>bootstrap5-toggle</artifactId>
         <version>${bootstrap5-toggle.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>bootstrap</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
@@ -1650,7 +1669,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.2.0</version>
         </plugin>
 
         <plugin>

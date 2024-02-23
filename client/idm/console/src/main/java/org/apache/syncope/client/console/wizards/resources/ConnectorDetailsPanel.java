@@ -34,8 +34,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPan
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -177,7 +177,7 @@ public class ConnectorDetailsPanel extends WizardStep {
         });
 
         if (connInstanceTO.getPoolConf() == null) {
-            connInstanceTO.setPoolConf(new ConnPoolConfTO());
+            connInstanceTO.setPoolConf(new ConnPoolConf());
         }
 
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).max(Integer.MAX_VALUE).build(

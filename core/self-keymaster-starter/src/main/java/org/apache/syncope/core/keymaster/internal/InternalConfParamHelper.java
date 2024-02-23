@@ -23,10 +23,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.util.Map;
 import java.util.TreeMap;
-import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.entity.ConfParam;
-import org.apache.syncope.core.persistence.api.entity.SelfKeymasterEntityFactory;
+import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +39,9 @@ public class InternalConfParamHelper {
 
     protected final ConfParamDAO confParamDAO;
 
-    protected final SelfKeymasterEntityFactory entityFactory;
+    protected final EntityFactory entityFactory;
 
-    public InternalConfParamHelper(final ConfParamDAO confParamDAO, final SelfKeymasterEntityFactory entityFactory) {
+    public InternalConfParamHelper(final ConfParamDAO confParamDAO, final EntityFactory entityFactory) {
         this.confParamDAO = confParamDAO;
         this.entityFactory = entityFactory;
     }
@@ -72,7 +72,7 @@ public class InternalConfParamHelper {
 
         ConfParam param = confParamDAO.findById(key).orElse(null);
         if (param == null) {
-            param = entityFactory.newConfParam();
+            param = entityFactory.newEntity(ConfParam.class);
             param.setKey(key);
         }
         param.setValue(value);

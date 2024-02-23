@@ -134,8 +134,8 @@ public class SearchSupport {
     }
 
     SearchViewSupport asSearchViewSupport() {
-        if (this instanceof SearchViewSupport) {
-            return (SearchViewSupport) this;
+        if (this instanceof SearchViewSupport searchViewSupport) {
+            return searchViewSupport;
         }
         throw new IllegalArgumentException("Not an " + SearchViewSupport.class + " instance");
     }

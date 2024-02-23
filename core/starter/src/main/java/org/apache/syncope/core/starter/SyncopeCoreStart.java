@@ -38,9 +38,9 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeCoreStart.class);
 
-    private final DomainHolder domainHolder;
+    private final DomainHolder<?> domainHolder;
 
-    public SyncopeCoreStart(final DomainHolder domainHolder) {
+    public SyncopeCoreStart(final DomainHolder<?> domainHolder) {
         super(NetworkService.Type.CORE);
         this.domainHolder = domainHolder;
     }
@@ -61,10 +61,10 @@ public class SyncopeCoreStart extends KeymasterStart implements Ordered {
 
                     loader.load();
 
-                    domainHolder.getDomains().forEach((domain, datasource) -> {
+                    domainHolder.getDomains().keySet().forEach(domain -> {
                         LOG.debug("[{}] Starting init on domain '{}'", loaderName, domain);
 
-                        AuthContextUtils.runAsAdmin(domain, () -> loader.load(domain, datasource));
+                        AuthContextUtils.runAsAdmin(domain, () -> loader.load(domain));
 
                         LOG.debug("[{}] Init completed on domain '{}'", loaderName, domain);
                     });

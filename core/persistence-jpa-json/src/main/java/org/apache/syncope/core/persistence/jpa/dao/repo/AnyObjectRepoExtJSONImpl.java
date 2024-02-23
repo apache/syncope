@@ -68,8 +68,7 @@ public class AnyObjectRepoExtJSONImpl extends AnyObjectRepoExtImpl {
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        return anyDAO.findByPlainAttrValue(
-                JPAJSONAnyObject.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
+        return anyDAO.findByPlainAttrValue(JPAJSONAnyObject.TABLE, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override

@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.jpa.validation.entity.PlainSchemaCheck;
+import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
@@ -218,5 +218,4 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     public void setMimeType(final String mimeType) {
         this.mimeType = mimeType;
     }
-
 }

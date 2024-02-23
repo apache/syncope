@@ -141,7 +141,7 @@ public class DefaultRealmPushResultHandler
     }
 
     private Realm update(final RealmTO realmTO, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        Realm realm = realmDAO.findByFullPath(realmTO.getFullPath()).
+        Realm realm = realmSearchDAO.findByFullPath(realmTO.getFullPath()).
                 orElseThrow(() -> new NotFoundException("Realm " + realmTO.getFullPath()));
 
         Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);

@@ -26,6 +26,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleDAO extends DAO<Role> {
 
+    String GROUP_OWNER_ROLE = "GROUP_OWNER";
+
     List<Role> findByRealms(Realm realm);
 
     List<Role> findByPrivileges(Privilege privilege);

@@ -32,7 +32,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.jpa.validation.entity.AnyTypeCheck;
+import org.apache.syncope.core.persistence.common.validation.AnyTypeCheck;
 
 @Entity
 @Table(name = JPAAnyType.TABLE)

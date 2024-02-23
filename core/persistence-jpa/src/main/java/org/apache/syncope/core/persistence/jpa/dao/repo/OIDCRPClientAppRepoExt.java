@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 
-public interface OIDCRPClientAppRepoExt {
+public interface OIDCRPClientAppRepoExt extends ClientAppRepoExt<OIDCRPClientApp> {
 
     OIDCRPClientApp save(OIDCRPClientApp clientApp);
 }

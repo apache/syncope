@@ -26,7 +26,7 @@ import java.util.concurrent.Executors;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -327,7 +328,7 @@ public class ProvisioningContext {
     @Bean
     public JobManager jobManager(
             final ProvisioningProperties provisioningProperties,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final SecurityProperties securityProperties,
             final SchedulerFactoryBean scheduler,
             final TaskDAO taskDAO,
@@ -361,6 +362,7 @@ public class ProvisioningContext {
             final EntityFactory entityFactory,
             final ConnIdBundleManager connIdBundleManager,
             final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDataBinder connInstanceDataBinder,
             final AsyncConnectorFacade asyncConnectorFacade) {
@@ -368,6 +370,7 @@ public class ProvisioningContext {
         return new DefaultConnectorManager(
                 connIdBundleManager,
                 realmDAO,
+                realmSearchDAO,
                 resourceDAO,
                 connInstanceDataBinder,
                 asyncConnectorFacade,
@@ -389,6 +392,7 @@ public class ProvisioningContext {
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
             final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final VirSchemaDAO virSchemaDAO,
             final ImplementationDAO implementationDAO,
             final VirAttrHandler virAttrHandler,
@@ -400,6 +404,7 @@ public class ProvisioningContext {
                 groupDAO,
                 anySearchDAO,
                 realmDAO,
+                realmSearchDAO,
                 virSchemaDAO,
                 implementationDAO,
                 virAttrHandler,
@@ -445,7 +450,7 @@ public class ProvisioningContext {
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ApplicationDAO applicationDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
@@ -459,7 +464,7 @@ public class ProvisioningContext {
                 anyObjectDAO,
                 groupDAO,
                 relationshipTypeDAO,
-                realmDAO,
+                realmSearchDAO,
                 applicationDAO,
                 implementationDAO,
                 derAttrHandler,
@@ -482,13 +487,13 @@ public class ProvisioningContext {
             final AnyUtilsFactory anyUtilsFactory,
             final MappingManager mappingManager,
             final TemplateUtils templateUtils,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final ExternalResourceDAO resourceDAO) {
 
         return new ConnObjectUtils(
                 templateUtils,
-                realmDAO,
+                realmSearchDAO,
                 userDAO,
                 resourceDAO,
                 passwordGenerator,
@@ -709,7 +714,7 @@ public class ProvisioningContext {
     @Bean
     public NotificationJob notificationJob(
             final NotificationJobDelegate delegate,
-            final DomainHolder domainHolder,
+            final DomainHolder<?> domainHolder,
             final SecurityProperties securityProperties) {
 
         return new NotificationJob(securityProperties, domainHolder, delegate);
@@ -740,7 +745,7 @@ public class ProvisioningContext {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -758,7 +763,7 @@ public class ProvisioningContext {
 
         return new AnyObjectDataBinderImpl(
                 anyTypeDAO,
-                realmDAO,
+                realmSearchDAO,
                 anyTypeClassDAO,
                 anyObjectDAO,
                 userDAO,
@@ -843,10 +848,10 @@ public class ProvisioningContext {
     @Bean
     public ClientAppDataBinder clientAppDataBinder(
             final PolicyDAO policyDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final EntityFactory entityFactory) {
 
-        return new ClientAppDataBinderImpl(policyDAO, realmDAO, entityFactory);
+        return new ClientAppDataBinderImpl(policyDAO, realmSearchDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -855,9 +860,9 @@ public class ProvisioningContext {
             final EntityFactory entityFactory,
             final ConnIdBundleManager connIdBundleManager,
             final ConnInstanceDAO connInstanceDAO,
-            final RealmDAO realmDAO) {
+            final RealmSearchDAO realmSearchDAO) {
 
-        return new ConnInstanceDataBinderImpl(connIdBundleManager, connInstanceDAO, realmDAO, entityFactory);
+        return new ConnInstanceDataBinderImpl(connIdBundleManager, connInstanceDAO, realmSearchDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -898,7 +903,7 @@ public class ProvisioningContext {
             final SearchCondVisitor searchCondVisitor,
             final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -916,7 +921,7 @@ public class ProvisioningContext {
 
         return new GroupDataBinderImpl(
                 anyTypeDAO,
-                realmDAO,
+                realmSearchDAO,
                 anyTypeClassDAO,
                 anyObjectDAO,
                 userDAO,
@@ -1051,12 +1056,18 @@ public class ProvisioningContext {
     public RoleDataBinder roleDataBinder(
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final ApplicationDAO applicationDAO) {
 
-        return new RoleDataBinderImpl(realmDAO, dynRealmDAO, roleDAO, applicationDAO, entityFactory, searchCondVisitor);
+        return new RoleDataBinderImpl(
+                realmSearchDAO,
+                dynRealmDAO,
+                roleDAO,
+                applicationDAO,
+                entityFactory,
+                searchCondVisitor);
     }
 
     @ConditionalOnMissingBean
@@ -1113,7 +1124,7 @@ public class ProvisioningContext {
     public TaskDataBinder taskDataBinder(
             final EntityFactory entityFactory,
             final TaskUtilsFactory taskUtilsFactory,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
             final TaskExecDAO taskExecDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -1121,7 +1132,7 @@ public class ProvisioningContext {
             final SchedulerFactoryBean scheduler) {
 
         return new TaskDataBinderImpl(
-                realmDAO,
+                realmSearchDAO,
                 resourceDAO,
                 taskExecDAO,
                 anyTypeDAO,
@@ -1138,7 +1149,7 @@ public class ProvisioningContext {
             final AnyUtilsFactory anyUtilsFactory,
             final SecurityProperties securityProperties,
             final AnyTypeDAO anyTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -1162,7 +1173,7 @@ public class ProvisioningContext {
 
         return new UserDataBinderImpl(
                 anyTypeDAO,
-                realmDAO,
+                realmSearchDAO,
                 anyTypeClassDAO,
                 anyObjectDAO,
                 userDAO,

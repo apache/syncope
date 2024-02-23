@@ -38,7 +38,7 @@ import org.apache.openjpa.jdbc.meta.MappingRepository;
 import org.apache.openjpa.jdbc.meta.MappingTool;
 import org.apache.openjpa.lib.conf.Configurations;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
 import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
@@ -58,31 +58,6 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     }
 
     protected final Map<String, EntityManagerFactory> delegates = new ConcurrentHashMap<>();
-
-    protected EntityManagerFactory delegate() {
-        return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
-            throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
-        });
-    }
-
-    public void initJPASchema() {
-        OpenJPAEntityManagerFactorySPI emfspi = delegate().unwrap(OpenJPAEntityManagerFactorySPI.class);
-        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
-
-        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
-        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
-
-        String action = "buildSchema(ForeignKeys=true)";
-        String props = Configurations.getProperties(action);
-        action = Configurations.getClassName(action);
-        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
-        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
-
-        // initialize the schema
-        classes.forEach(mappingTool::run);
-
-        mappingTool.record();
-    }
 
     public void master(
             final PersistenceProperties props,
@@ -114,7 +89,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     }
 
     public void domain(
-            final Domain domain,
+            final JPADomain domain,
             final DataSource dataSource,
             final String metadataFactory) {
 
@@ -145,6 +120,31 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
     public void remove(final String domain) {
         EntityManagerFactory emf = delegates.remove(domain);
         close(domain, emf);
+    }
+
+    protected EntityManagerFactory delegate() {
+        return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
+            throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
+        });
+    }
+
+    public void initJPASchema() {
+        OpenJPAEntityManagerFactorySPI emfspi = delegate().unwrap(OpenJPAEntityManagerFactorySPI.class);
+        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
+
+        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
+        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
+
+        String action = "buildSchema(ForeignKeys=true)";
+        String props = Configurations.getProperties(action);
+        action = Configurations.getClassName(action);
+        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
+        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
+
+        // initialize the schema
+        classes.forEach(mappingTool::run);
+
+        mappingTool.record();
     }
 
     @Override

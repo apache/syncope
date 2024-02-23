@@ -563,7 +563,7 @@ public class DefaultRealmPullResultHandler
                     }
 
                     try {
-                        if (!realmDAO.findChildren(realm).isEmpty()) {
+                        if (!realmSearchDAO.findChildren(realm).isEmpty()) {
                             throw SyncopeClientException.build(ClientExceptionType.RealmContains);
                         }
 
@@ -571,14 +571,14 @@ public class DefaultRealmPullResultHandler
                         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
                         keyCond.setSchema("key");
                         SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
-                        int users = searchDAO.count(
+                        long users = searchDAO.count(
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.USER);
-                        int groups = searchDAO.count(
+                        long groups = searchDAO.count(
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
-                        int anyObjects = searchDAO.count(
+                        long anyObjects = searchDAO.count(
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);
-                        int macroTasks = taskDAO.findByRealm(realm).size();
-                        int clientApps = casSPClientAppDAO.findAllByRealm(realm).size()
+                        long macroTasks = taskDAO.findByRealm(realm).size();
+                        long clientApps = casSPClientAppDAO.findAllByRealm(realm).size()
                                 + saml2SPClientAppDAO.findAllByRealm(realm).size()
                                 + oidcRPClientAppDAO.findAllByRealm(realm).size();
 

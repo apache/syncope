@@ -107,7 +107,7 @@ public class ReportExecRepoExtImpl implements ReportExecRepoExt {
             query.setParameter("after", after);
         }
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     protected String toOrderByStatement(final Stream<Sort.Order> orderByClauses) {

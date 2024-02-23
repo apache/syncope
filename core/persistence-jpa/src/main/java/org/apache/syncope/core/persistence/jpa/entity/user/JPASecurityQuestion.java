@@ -44,5 +44,4 @@ public class JPASecurityQuestion extends AbstractGeneratedKeyEntity implements S
     public void setContent(final String content) {
         this.content = content;
     }
-
 }

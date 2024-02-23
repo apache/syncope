@@ -52,6 +52,5 @@ public class OIDCJWKSTest extends AbstractTest {
         jwks = jwksDAO.save(jwks);
         assertNotNull(jwks);
         assertNotNull(jwks.getKey());
-
     }
 }

@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.SRARouteFilter;
 import org.apache.syncope.common.lib.types.SRARoutePredicate;
 import org.apache.syncope.common.lib.types.SRARouteType;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SRARouteCheck;
+import org.apache.syncope.core.persistence.common.validation.SRARouteCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
@@ -155,9 +155,9 @@ public class JPASRARoute extends AbstractGeneratedKeyEntity implements SRARoute 
 
     @Override
     public List<SRARouteFilter> getFilters() {
-        return filters == null
-                ? List.of()
-                : List.of(POJOHelper.deserialize(filters, SRARouteFilter[].class));
+        return Optional.ofNullable(filters).
+                map(f -> List.of(POJOHelper.deserialize(f, SRARouteFilter[].class))).
+                orElse(List.of());
     }
 
     @Override
@@ -167,9 +167,9 @@ public class JPASRARoute extends AbstractGeneratedKeyEntity implements SRARoute 
 
     @Override
     public List<SRARoutePredicate> getPredicates() {
-        return predicates == null
-                ? List.of()
-                : List.of(POJOHelper.deserialize(predicates, SRARoutePredicate[].class));
+        return Optional.ofNullable(predicates).
+                map(f -> List.of(POJOHelper.deserialize(f, SRARoutePredicate[].class))).
+                orElse(List.of());
     }
 
     @Override

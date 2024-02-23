@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api;
 
-import javax.sql.DataSource;
 import org.springframework.core.Ordered;
 
 @FunctionalInterface
@@ -35,9 +34,8 @@ public interface SyncopeCoreLoader extends Ordered {
      * Perform init operations on the given domain.
      *
      * @param domain domain to initialize
-     * @param datasource db access for the given domain
      */
-    default void load(String domain, DataSource datasource) {
+    default void load(String domain) {
         // nothing to do        
     }
 

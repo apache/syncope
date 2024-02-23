@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.init.AuditLoader;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
@@ -76,6 +77,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final AuditConfDAO auditConfDAO;
 
+    protected final AuditEntryDAO auditEntryDAO;
+
     protected final ExternalResourceDAO resourceDAO;
 
     protected final EntityFactory entityFactory;
@@ -90,6 +93,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     public AuditLogic(
             final AuditConfDAO auditConfDAO,
+            final AuditEntryDAO auditEntryDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
@@ -98,6 +102,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final LoggingSystem loggingSystem) {
 
         this.auditConfDAO = auditConfDAO;
+        this.auditEntryDAO = auditEntryDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
         this.binder = binder;
@@ -270,9 +275,9 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final OffsetDateTime after,
             final Pageable pageable) {
 
-        long count = auditConfDAO.countEntries(entityKey, type, category, subcategory, events, result, before, after);
+        long count = auditEntryDAO.count(entityKey, type, category, subcategory, events, result, before, after);
 
-        List<AuditEntry> matching = auditConfDAO.searchEntries(
+        List<AuditEntry> matching = auditEntryDAO.search(
                 entityKey, type, category, subcategory, events, result, before, after, pageable);
 
         return new SyncopePage<>(matching, pageable, count);

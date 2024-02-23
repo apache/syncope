@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -42,14 +42,14 @@ public class DefaultRuleEnforcer implements RuleEnforcer {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RuleEnforcer.class);
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final Map<String, AccountRule> perContextAccountRules = new ConcurrentHashMap<>();
 
     protected final Map<String, PasswordRule> perContextPasswordRules = new ConcurrentHashMap<>();
 
-    public DefaultRuleEnforcer(final RealmDAO realmDAO) {
-        this.realmDAO = realmDAO;
+    public DefaultRuleEnforcer(final RealmSearchDAO realmSearchDAO) {
+        this.realmSearchDAO = realmSearchDAO;
     }
 
     @Transactional(readOnly = true)
@@ -64,7 +64,7 @@ public class DefaultRuleEnforcer implements RuleEnforcer {
 
         // add realm policies
         if (realm != null) {
-            realmDAO.findAncestors(realm).
+            realmSearchDAO.findAncestors(realm).
                     forEach(r -> Optional.ofNullable(r.getAccountPolicy()).
                     filter(p -> !policies.contains(p)).
                     ifPresent(policies::add));
@@ -105,7 +105,7 @@ public class DefaultRuleEnforcer implements RuleEnforcer {
 
         // add realm policies
         if (realm != null) {
-            realmDAO.findAncestors(realm).
+            realmSearchDAO.findAncestors(realm).
                     forEach(r -> Optional.ofNullable(r.getPasswordPolicy()).
                     filter(p -> !policies.contains(p)).
                     ifPresent(policies::add));

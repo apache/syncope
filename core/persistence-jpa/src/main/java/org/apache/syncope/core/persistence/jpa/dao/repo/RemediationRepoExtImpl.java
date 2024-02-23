@@ -73,7 +73,7 @@ public class RemediationRepoExtImpl implements RemediationRepoExt {
             query.setParameter("after", after);
         }
 
-        return ((Number) query.getSingleResult()).intValue();
+        return ((Number) query.getSingleResult()).longValue();
     }
 
     @Override

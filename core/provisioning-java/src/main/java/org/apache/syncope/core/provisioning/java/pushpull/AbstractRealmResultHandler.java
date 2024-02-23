@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
@@ -40,6 +41,9 @@ public abstract class AbstractRealmResultHandler<T extends ProvisioningTask<?>, 
 
     @Autowired
     protected RealmDAO realmDAO;
+
+    @Autowired
+    protected RealmSearchDAO realmSearchDAO;
 
     @Autowired
     protected RealmDataBinder binder;

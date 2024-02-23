@@ -36,7 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
+import org.apache.syncope.core.persistence.jpa.validation.JPAJSONAttributableCheck;
 
 @Entity
 @Table(name = JPAUser.TABLE)

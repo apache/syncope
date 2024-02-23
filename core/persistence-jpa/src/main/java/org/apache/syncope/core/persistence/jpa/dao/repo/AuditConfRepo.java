@@ -23,6 +23,6 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAuditConf;
 import org.springframework.data.repository.ListCrudRepository;
 
 public interface AuditConfRepo
-        extends ListCrudRepository<JPAAuditConf, String>, AuditConfRepoExt, AuditConfDAO {
+        extends ListCrudRepository<JPAAuditConf, String>, AuditConfDAO {
 
 }

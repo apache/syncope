@@ -141,6 +141,11 @@ public class JPATaskExecDAO implements TaskExecDAO {
         return findLatest(type, task, "end");
     }
 
+    @Override
+    public long count() {
+        throw new UnsupportedOperationException();
+    }
+
     protected StringBuilder query(
             final StringBuilder select,
             final Task<?> task,
@@ -157,11 +162,6 @@ public class JPATaskExecDAO implements TaskExecDAO {
             query.append("AND e.start >= :after ");
         }
         return query;
-    }
-
-    @Override
-    public long count() {
-        throw new UnsupportedOperationException();
     }
 
     @Override

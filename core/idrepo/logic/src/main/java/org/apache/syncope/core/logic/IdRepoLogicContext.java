@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import jakarta.validation.Validator;
 import java.util.ArrayList;
 import java.util.List;
+import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -44,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -59,6 +61,7 @@ import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
@@ -106,6 +109,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.Bean;
@@ -116,6 +121,8 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 @EnableAspectJAutoProxy(proxyTargetClass = false)
 @Configuration(proxyBeanMethods = false)
 public class IdRepoLogicContext {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(IdRepoLogicContext.class);
 
     @ConditionalOnMissingBean
     @Bean
@@ -149,19 +156,23 @@ public class IdRepoLogicContext {
 
     @ConditionalOnMissingBean(name = "defaultAuditAppenders")
     @Bean
-    public List<AuditAppender> defaultAuditAppenders(final DomainHolder domainHolder) {
+    public List<AuditAppender> defaultAuditAppenders(final DomainHolder<?> domainHolder) {
         List<AuditAppender> auditAppenders = new ArrayList<>();
 
         LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
-        domainHolder.getDomains().forEach((domain, dataSource) -> {
-            AuditAppender appender = new JdbcAuditAppender(domain, dataSource);
+        domainHolder.getDomains().forEach((domain, v) -> {
+            if (v instanceof DataSource dataSource) {
+                AuditAppender appender = new JdbcAuditAppender(domain, dataSource);
 
-            LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
-            logConf.addAppender(appender.getTargetAppender(), Level.DEBUG, null);
-            logConf.setLevel(Level.DEBUG);
-            logCtx.getConfiguration().addLogger(logConf.getName(), logConf);
+                LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
+                logConf.addAppender(appender.getTargetAppender(), Level.DEBUG, null);
+                logConf.setLevel(Level.DEBUG);
+                logCtx.getConfiguration().addLogger(logConf.getName(), logConf);
 
-            auditAppenders.add(appender);
+                auditAppenders.add(appender);
+            } else {
+                LOG.warn("Unsupported persistence source: " + v.getClass().getName());
+            }
         });
 
         return auditAppenders;
@@ -198,16 +209,16 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public AnyObjectLogic anyObjectLogic(
-            final AnyObjectDataBinder binder,
-            final TemplateUtils templateUtils,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
+            final AnyObjectDataBinder binder,
             final AnyObjectProvisioningManager provisioningManager) {
 
         return new AnyObjectLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 templateUtils,
                 anyObjectDAO,
@@ -248,6 +259,7 @@ public class IdRepoLogicContext {
     @Bean
     public AuditLogic auditLogic(
             final AuditConfDAO auditConfDAO,
+            final AuditEntryDAO auditEntryDAO,
             final ExternalResourceDAO externalResourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
@@ -257,6 +269,7 @@ public class IdRepoLogicContext {
 
         return new AuditLogic(
                 auditConfDAO,
+                auditEntryDAO,
                 externalResourceDAO,
                 entityFactory,
                 binder,
@@ -304,24 +317,24 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public GroupLogic groupLogic(
-            final GroupProvisioningManager provisioningManager,
-            final JobManager jobManager,
-            final TemplateUtils templateUtils,
-            final EntityFactory entityFactory,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final SecurityProperties securityProperties,
             final AnySearchDAO anySearchDAO,
-            final SchedulerFactoryBean scheduler,
+            final ImplementationDAO implementationDAO,
             final TaskDAO taskDAO,
             final GroupDataBinder groupDataBinder,
+            final GroupProvisioningManager provisioningManager,
             final TaskDataBinder taskDataBinder,
-            final ImplementationDAO implementationDAO,
-            final SecurityProperties securityProperties) {
+            final JobManager jobManager,
+            final SchedulerFactoryBean scheduler,
+            final EntityFactory entityFactory) {
 
         return new GroupLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 templateUtils,
                 userDAO,
@@ -398,18 +411,20 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public RealmLogic realmLogic(
-            final RealmDataBinder binder,
             final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnySearchDAO anySearchDAO,
             final TaskDAO taskDAO,
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
             final SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final RealmDataBinder binder,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor) {
 
         return new RealmLogic(
                 realmDAO,
+                realmSearchDAO,
                 anySearchDAO,
                 taskDAO,
                 casSPClientAppDAO,
@@ -484,7 +499,7 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SyncopeLogic syncopeLogic(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -493,7 +508,7 @@ public class IdRepoLogicContext {
             final ContentExporter exporter) {
 
         return new SyncopeLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 groupDAO,
                 anySearchDAO,
@@ -534,10 +549,9 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public UserLogic userLogic(
-            final UserDataBinder binder,
-            final TemplateUtils templateUtils,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
+            final TemplateUtils templateUtils,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -545,12 +559,13 @@ public class IdRepoLogicContext {
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
+            final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
             final RuleEnforcer ruleEnforcer) {
 
         return new UserLogic(
-                realmDAO,
+                realmSearchDAO,
                 anyTypeDAO,
                 templateUtils,
                 userDAO,

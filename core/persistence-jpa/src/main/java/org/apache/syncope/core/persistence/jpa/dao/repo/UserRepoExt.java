@@ -31,15 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserRepoExt extends AnyRepoExt<User> {
 
-    /**
-     * Checks if the calling user is authorized to access the User matching the provided key, under the given
-     * realm.
-     *
-     * @param authRealms realms for which the calling user owns entitlement(s) to check
-     * @param key User key
-     * @param realm User's realm full path
-     * @param groups group the User is member of
-     */
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
 
     Map<String, Long> countByRealm();

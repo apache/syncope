@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -37,7 +36,7 @@ public class ConnectorLoader implements SyncopeCoreLoader {
     }
 
     @Override
-    public void load(final String domain, final DataSource datasource) {
+    public void load(final String domain) {
         AuthContextUtils.runAsAdmin(domain, () -> connectorManager.load());
     }
 }

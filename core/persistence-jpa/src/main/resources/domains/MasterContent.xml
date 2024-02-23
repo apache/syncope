@@ -29,14 +29,14 @@ under the License.
   <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
         
   <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
-                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+                  body="org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validator_id="EmailAddressValidator"/>
 
   <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
-                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
+                  body="org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator"/>
 
   <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>

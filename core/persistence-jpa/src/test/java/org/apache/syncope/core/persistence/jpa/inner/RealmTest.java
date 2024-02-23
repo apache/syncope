@@ -28,10 +28,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -47,6 +48,9 @@ public class RealmTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RealmSearchDAO realmSearchDAO;
 
     @Autowired
     private PolicyDAO policyDAO;
@@ -68,7 +72,7 @@ public class RealmTest extends AbstractTest {
         assertEquals("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28", realm.getParent().getKey());
         assertEquals(realmDAO.getRoot(), realm.getParent());
 
-        realm = realmDAO.findByFullPath("/even/two").orElseThrow();
+        realm = realmSearchDAO.findByFullPath("/even/two").orElseThrow();
         assertEquals("0679e069-7355-4b20-bd11-a5a0a5453c7c", realm.getKey());
         assertEquals("two", realm.getName());
         assertEquals("/even/two", realm.getFullPath());
@@ -76,24 +80,24 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void findInvalidPath() {
-        assertThrows(MalformedPathException.class, () -> realmDAO.findByFullPath("even/two"));
+        assertThrows(MalformedPathException.class, () -> realmSearchDAO.findByFullPath("even/two"));
     }
 
     @Test
     public void findChildren() {
-        List<Realm> children = realmDAO.findChildren(
-                realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
+        List<Realm> children = realmSearchDAO.findChildren(
+                realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow());
         assertEquals(2, children.size());
-        assertTrue(children.contains(realmDAO.findByFullPath("/odd").orElseThrow()));
-        assertTrue(children.contains(realmDAO.findByFullPath("/even").orElseThrow()));
+        assertTrue(children.contains(realmSearchDAO.findByFullPath("/odd").orElseThrow()));
+        assertTrue(children.contains(realmSearchDAO.findByFullPath("/even").orElseThrow()));
 
-        children = realmDAO.findChildren(realmDAO.findByFullPath("/odd").orElseThrow());
+        children = realmSearchDAO.findChildren(realmSearchDAO.findByFullPath("/odd").orElseThrow());
         assertTrue(children.isEmpty());
     }
 
     @Test
     public void findAll() {
-        List<Realm> list = realmDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged());
+        List<Realm> list = realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged());
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
@@ -105,13 +109,13 @@ public class RealmTest extends AbstractTest {
     public void save() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("last");
-        realm.setParent(realmDAO.findByFullPath("/even/two").orElseThrow());
+        realm.setParent(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
 
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
-        assertEquals(realmDAO.findByFullPath("/even/two").orElseThrow(), actual.getParent());
+        assertEquals(realmSearchDAO.findByFullPath("/even/two").orElseThrow(), actual.getParent());
         assertEquals("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7", realm.getAccountPolicy().getKey());
         assertEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", realm.getPasswordPolicy().getKey());
 

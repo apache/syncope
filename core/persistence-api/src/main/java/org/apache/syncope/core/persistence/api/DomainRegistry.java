@@ -22,10 +22,12 @@ import org.apache.syncope.common.keymaster.client.api.model.Domain;
 
 /**
  * Allows to register domains, to make available at runtime.
+ *
+ * @param <D> domain persistence type
  */
-public interface DomainRegistry {
+public interface DomainRegistry<D extends Domain> {
 
-    void register(Domain req);
+    void register(D domain);
 
     void unregister(String domain);
 }

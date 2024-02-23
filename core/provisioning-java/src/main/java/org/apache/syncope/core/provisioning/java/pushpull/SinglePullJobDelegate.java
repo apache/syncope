@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -60,7 +60,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
     protected ImplementationDAO implementationDAO;
 
     @Autowired
-    protected RealmDAO realmDAO;
+    protected RealmSearchDAO realmSearchDAO;
 
     @Override
     public List<ProvisioningReport> pull(
@@ -87,7 +87,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             task.setPerformUpdate(pullTaskTO.isPerformUpdate());
             task.setPerformDelete(pullTaskTO.isPerformDelete());
             task.setSyncStatus(pullTaskTO.isSyncStatus());
-            task.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
+            task.setDestinationRealm(realmSearchDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
             task.setRemediation(pullTaskTO.isRemediation());
 

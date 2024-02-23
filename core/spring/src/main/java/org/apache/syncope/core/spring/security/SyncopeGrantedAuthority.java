@@ -28,7 +28,7 @@ import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.springframework.security.core.GrantedAuthority;
 
 public class SyncopeGrantedAuthority implements GrantedAuthority {

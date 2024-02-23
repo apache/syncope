@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Optional;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 
 public abstract class AbstractExecutableDatabinder {
 

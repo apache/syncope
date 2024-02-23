@@ -58,5 +58,4 @@ public class JPAMailTemplate extends AbstractProvidedKeyEntity implements MailTe
     public void setHTMLTemplate(final String htmlTemplate) {
         this.htmlTemplate = htmlTemplate;
     }
-
 }

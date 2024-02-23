@@ -1,0 +1,158 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.core.persistence.neo4j.entity.user;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+
+public class Neo4jUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr, Neo4jPlainAttr<User> {
+
+    private static final long serialVersionUID = 806271775349587902L;
+
+    /**
+     * The owner of this attribute.
+     */
+    @JsonIgnore
+    private Neo4jUser owner;
+
+    /**
+     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
+     */
+    @JsonProperty("membership")
+    private String membershipKey;
+
+    /**
+     * Values of this attribute (if schema is not UNIQUE).
+     */
+    private final List<Neo4jUPlainAttrValue> values = new ArrayList<>();
+
+    /**
+     * Value of this attribute (if schema is UNIQUE).
+     */
+    @JsonProperty
+    private Neo4jUPlainAttrUniqueValue uniqueValue;
+
+    @Override
+    public User getOwner() {
+        return owner;
+    }
+
+    @Override
+    public void setOwner(final User owner) {
+        checkType(owner, Neo4jUser.class);
+        this.owner = (Neo4jUser) owner;
+    }
+
+    public String getMembershipKey() {
+        return membershipKey;
+    }
+
+    @JsonSetter("membership")
+    public void setMembershipKey(final String membershipKey) {
+        this.membershipKey = membershipKey;
+    }
+
+    @JsonIgnore
+    @Override
+    public UMembership getMembership() {
+        return ApplicationContextProvider.getBeanFactory().getBean(UserDAO.class).findMembership(membershipKey);
+    }
+
+    @JsonIgnore
+    @Override
+    public void setMembership(final UMembership membership) {
+        checkType(membership, Neo4jUMembership.class);
+        if (membership != null) {
+            this.membershipKey = membership.getKey();
+        }
+    }
+
+    @Override
+    protected boolean addForMultiValue(final PlainAttrValue attrValue) {
+        checkType(attrValue, Neo4jUPlainAttrValue.class);
+        return values.add((Neo4jUPlainAttrValue) attrValue);
+    }
+
+    @Override
+    public boolean add(final PlainAttrValue value) {
+        return addForMultiValue(value);
+    }
+
+    @Override
+    public List<? extends UPlainAttrValue> getValues() {
+        return values;
+    }
+
+    @Override
+    public Neo4jUPlainAttrUniqueValue getUniqueValue() {
+        return uniqueValue;
+    }
+
+    @JsonIgnore
+    @Override
+    public void setUniqueValue(final PlainAttrUniqueValue uniqueValue) {
+        checkType(uniqueValue, Neo4jUPlainAttrUniqueValue.class);
+        this.uniqueValue = (Neo4jUPlainAttrUniqueValue) uniqueValue;
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(schemaKey).
+                append(membershipKey).
+                append(values).
+                append(uniqueValue).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Neo4jUPlainAttr other = (Neo4jUPlainAttr) obj;
+        return new EqualsBuilder().
+                append(schemaKey, other.schemaKey).
+                append(membershipKey, other.membershipKey).
+                append(values, other.values).
+                append(uniqueValue, other.uniqueValue).
+                build();
+    }
+}

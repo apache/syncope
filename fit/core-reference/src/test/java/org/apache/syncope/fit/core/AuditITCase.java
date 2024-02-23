@@ -60,7 +60,6 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -73,6 +72,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -488,7 +488,7 @@ public class AuditITCase extends AbstractITCase {
 
             ConnInstanceTO connector = CONNECTOR_SERVICE.readByResource(RESOURCE_NAME_CSV, null);
             assertNotNull(connector);
-            connector.setPoolConf(new ConnPoolConfTO());
+            connector.setPoolConf(new ConnPoolConf());
             CONNECTOR_SERVICE.update(connector);
 
             // check audit_for_Master_file.log, it should contain only a static message

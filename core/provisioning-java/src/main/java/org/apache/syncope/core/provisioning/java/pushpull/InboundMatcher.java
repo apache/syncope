@@ -32,12 +32,13 @@ import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -99,6 +100,8 @@ public class InboundMatcher {
 
     protected final RealmDAO realmDAO;
 
+    protected final RealmSearchDAO realmSearchDAO;
+
     protected final VirSchemaDAO virSchemaDAO;
 
     protected final ImplementationDAO implementationDAO;
@@ -117,6 +120,7 @@ public class InboundMatcher {
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
             final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final VirSchemaDAO virSchemaDAO,
             final ImplementationDAO implementationDAO,
             final VirAttrHandler virAttrHandler,
@@ -128,6 +132,7 @@ public class InboundMatcher {
         this.groupDAO = groupDAO;
         this.anySearchDAO = anySearchDAO;
         this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.implementationDAO = implementationDAO;
         this.virAttrHandler = virAttrHandler;
@@ -487,15 +492,15 @@ public class InboundMatcher {
 
             case "name" -> {
                 if (orgUnit.isIgnoreCaseMatch()) {
-                    result.addAll(
-                            realmDAO.findDescendants(SyncopeConstants.ROOT_REALM, connObjectKey, Pageable.unpaged()));
+                    result.addAll(realmSearchDAO.findDescendants(
+                            SyncopeConstants.ROOT_REALM, connObjectKey, Pageable.unpaged()));
                 } else {
-                    result.addAll(realmDAO.findByName(connObjectKey).stream().toList());
+                    result.addAll(realmSearchDAO.findByName(connObjectKey).stream().toList());
                 }
             }
 
             case "fullpath" -> {
-                realmDAO.findByFullPath(connObjectKey).ifPresent(result::add);
+                realmSearchDAO.findByFullPath(connObjectKey).ifPresent(result::add);
             }
 
             default -> {

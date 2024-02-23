@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -88,8 +88,7 @@ public class TaskTest extends AbstractTest {
 
     @Test
     public void read() {
-        Task<?> task = taskDAO.findById(
-                TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
+        Task<?> task = taskDAO.findById(TaskType.PROPAGATION, "1e697572-b896-484c-ae7f-0c8f63fcbc6c").orElseThrow();
         assertNotNull(task);
 
         assertNotNull(task.getExecs());
@@ -151,6 +150,7 @@ public class TaskTest extends AbstractTest {
         execution.setStart(OffsetDateTime.now());
         execution.setExecutor("admin");
         task.add(execution);
+        execution.setTask(task);
 
         taskDAO.save(task);
         entityManager.flush();
@@ -177,6 +177,7 @@ public class TaskTest extends AbstractTest {
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
+        execution.setTask(task);
 
         taskDAO.save(task);
         entityManager.flush();
@@ -203,6 +204,7 @@ public class TaskTest extends AbstractTest {
         execution.setMessage("A message");
         execution.setExecutor("admin");
         task.add(execution);
+        execution.setTask(task);
 
         taskDAO.save(task);
         entityManager.flush();
@@ -284,7 +286,7 @@ public class TaskTest extends AbstractTest {
         task.setResource(resourceDAO.findById("ws-target-resource-1").orElseThrow());
 
         // this save() finally works
-        task = (PullTask) taskDAO.save(task);
+        task = taskDAO.save(task);
         assertNotNull(task);
 
         PullTask actual = (PullTask) taskDAO.findById(TaskType.PULL, task.getKey()).orElseThrow();
@@ -314,7 +316,7 @@ public class TaskTest extends AbstractTest {
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
-        task = (PullTask) taskDAO.save(task);
+        task = taskDAO.save(task);
         assertNotNull(task);
 
         PullTask actual = (PullTask) taskDAO.findById(TaskType.PULL, task.getKey()).orElseThrow();
@@ -325,7 +327,7 @@ public class TaskTest extends AbstractTest {
         actual.setName("issueSYNCOPE144_2");
         actual.setDescription("issueSYNCOPE144 Description_2");
 
-        actual = (PullTask) taskDAO.save(actual);
+        actual = taskDAO.save(actual);
         assertNotNull(actual);
         assertEquals("issueSYNCOPE144_2", actual.getName());
         assertEquals("issueSYNCOPE144 Description_2", actual.getDescription());

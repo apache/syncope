@@ -33,23 +33,8 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
-    /**
-     * Checks if the calling user is authorized to access the Any Object matching the provided key, under the given
-     * realm.
-     *
-     * @param authRealms realms for which the calling user owns entitlement(s) to check
-     * @param key Any Object key
-     * @param realm Any Object's realm full path
-     * @param groups group the Any Object is member of
-     */
     void securityChecks(Set<String> authRealms, String key, String realm, Collection<String> groups);
 
-    /**
-     * Counts the number of instances for each type.
-     * The returned map is expected to be sorted on values.
-     *
-     * @return the number of instances for each type
-     */
     Map<AnyType, Long> countByType();
 
     Map<String, Long> countByRealm(AnyType anyType);

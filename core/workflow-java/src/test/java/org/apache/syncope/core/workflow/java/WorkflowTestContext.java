@@ -25,12 +25,12 @@ import static org.mockito.Mockito.mock;
 import java.time.OffsetDateTime;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
@@ -54,15 +54,14 @@ public class WorkflowTestContext {
     @Bean
     public TestInitializer testInitializer(
             final StartupDomainLoader domainLoader,
-            final DomainHolder domainHolder,
             final ContentLoader contentLoader,
             final ConfigurableApplicationContext ctx) {
 
-        return new TestInitializer(domainLoader, domainHolder, contentLoader, ctx);
+        return new TestInitializer(domainLoader, contentLoader, ctx);
     }
 
     @Bean
-    public UserDataBinder userDataBinder(final RealmDAO realmDAO) {
+    public UserDataBinder userDataBinder(final RealmSearchDAO realmSearchDAO) {
         UserDataBinder dataBinder = mock(UserDataBinder.class);
 
         doAnswer(ic -> {
@@ -70,7 +69,7 @@ public class WorkflowTestContext {
             UserCR userCR = ic.getArgument(1);
 
             user.setUsername(userCR.getUsername());
-            user.setRealm(realmDAO.findByFullPath(userCR.getRealm()).orElseThrow());
+            user.setRealm(realmSearchDAO.findByFullPath(userCR.getRealm()).orElseThrow());
             user.setCreator("admin");
             user.setCreationDate(OffsetDateTime.now());
             user.setCipherAlgorithm(CipherAlgorithm.SHA256);
@@ -105,7 +104,7 @@ public class WorkflowTestContext {
     }
 
     @Bean
-    public DomainOps domainOps(final DomainRegistry domainRegistry) {
+    public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
     }
 }

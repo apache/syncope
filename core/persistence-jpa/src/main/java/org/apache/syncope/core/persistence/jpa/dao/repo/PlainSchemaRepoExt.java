@@ -28,8 +28,6 @@ public interface PlainSchemaRepoExt {
 
     List<? extends PlainSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
-    <T extends PlainAttr<?>> List<T> findAttrs(PlainSchema schema, Class<T> reference);
-
     <T extends PlainAttr<?>> boolean hasAttrs(PlainSchema schema, Class<T> reference);
 
     PlainSchema save(PlainSchema schema);

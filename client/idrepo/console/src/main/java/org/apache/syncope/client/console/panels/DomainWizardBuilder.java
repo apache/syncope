@@ -19,7 +19,9 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
@@ -32,12 +34,15 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
@@ -78,18 +83,18 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
 
     @Override
     protected WizardModel buildModelSteps(final Domain domain, final WizardModel wizardModel) {
-        wizardModel.add(new Storage(domain));
+        wizardModel.add(domain instanceof Neo4jDomain ? new Neo4jStorage(domain) : new JPAStorage(domain));
         wizardModel.add(new AdminCredentials(domain));
         wizardModel.add(new Content(domain));
         wizardModel.add(new KeymasterConfParams(domain, pageRef));
         return wizardModel;
     }
 
-    public static class Storage extends WizardStep {
+    public static class JPAStorage extends WizardStep {
 
         private static final long serialVersionUID = 3671044119870133102L;
 
-        public Storage(final Domain domain) {
+        public JPAStorage(final Domain domain) {
             add(new AjaxTextFieldPanel(
                     "key",
                     "key",
@@ -117,12 +122,15 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
                     "dbUsername",
                     new PropertyModel<>(domain, "dbUsername")).addRequiredLabel());
             add(new EncryptedFieldPanel(
-                    "dbPassword", "dbPassword", new PropertyModel<>(domain, "dbPassword"), false));
+                    "dbPassword",
+                    "dbPassword",
+                    new PropertyModel<>(domain, "dbPassword"), false));
 
-            AjaxDropDownChoicePanel<Domain.TransactionIsolation> transactionIsolation = new AjaxDropDownChoicePanel<>(
-                    "transactionIsolation", "transactionIsolation",
-                    new PropertyModel<>(domain, "transactionIsolation"), false);
-            transactionIsolation.setChoices(List.of(Domain.TransactionIsolation.values()));
+            AjaxDropDownChoicePanel<JPADomain.TransactionIsolation> transactionIsolation =
+                    new AjaxDropDownChoicePanel<>(
+                            "transactionIsolation", "transactionIsolation",
+                            new PropertyModel<>(domain, "transactionIsolation"), false);
+            transactionIsolation.setChoices(List.of(JPADomain.TransactionIsolation.values()));
             transactionIsolation.addRequiredLabel();
             transactionIsolation.setNullValid(false);
             add(transactionIsolation);
@@ -154,6 +162,46 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             databasePlatform.addRequiredLabel();
             databasePlatform.setNullValid(false);
             add(databasePlatform);
+        }
+    }
+
+    public static class Neo4jStorage extends WizardStep {
+
+        private static final long serialVersionUID = 3671044119870133102L;
+
+        public Neo4jStorage(final Domain domain) {
+            add(new AjaxTextFieldPanel(
+                    "key",
+                    "key",
+                    new PropertyModel<>(domain, "key")).addRequiredLabel());
+
+            PropertyModel<URI> uriModel = new PropertyModel<>(domain, "uri");
+            add(new AjaxTextFieldPanel(
+                    "uri",
+                    "uri",
+                    new IModel<>() {
+
+                private static final long serialVersionUID = 807008909842554829L;
+
+                @Override
+                public String getObject() {
+                    return Optional.ofNullable(uriModel.getObject()).map(URI::toASCIIString).orElse(null);
+                }
+
+                @Override
+                public void setObject(final String object) {
+                    uriModel.setObject(URI.create(object));
+                }
+            }).addRequiredLabel());
+
+            add(new AjaxTextFieldPanel(
+                    "username",
+                    "username",
+                    new PropertyModel<>(domain, "username")).addRequiredLabel());
+            add(new EncryptedFieldPanel(
+                    "password",
+                    "password",
+                    new PropertyModel<>(domain, "password"), false));
         }
     }
 

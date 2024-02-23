@@ -41,9 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
-import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -66,6 +63,29 @@ import org.springframework.transaction.annotation.Transactional;
 public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
+
+    /**
+     * Split an attribute value recurring on provided literals/tokens.
+     *
+     * @param attrValue value to be split
+     * @param literals literals/tokens
+     * @return split value
+     */
+    protected static List<String> split(final String attrValue, final List<String> literals) {
+        final List<String> attrValues = new ArrayList<>();
+
+        if (literals.isEmpty()) {
+            attrValues.add(attrValue);
+        } else {
+            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
+                if (!token.isEmpty()) {
+                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
+                }
+            }
+        }
+
+        return attrValues;
+    }
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
@@ -200,29 +220,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         return result.isEmpty()
                 ? Optional.empty()
                 : Optional.of(result.get(0));
-    }
-
-    /**
-     * Split an attribute value recurring on provided literals/tokens.
-     *
-     * @param attrValue value to be split
-     * @param literals literals/tokens
-     * @return split value
-     */
-    private static List<String> split(final String attrValue, final List<String> literals) {
-        final List<String> attrValues = new ArrayList<>();
-
-        if (literals.isEmpty()) {
-            attrValues.add(attrValue);
-        } else {
-            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
-                if (!token.isEmpty()) {
-                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
-                }
-            }
-        }
-
-        return attrValues;
     }
 
     private Set<String> getWhereClause(final String expression, final String value, final boolean ignoreCaseMatch) {
@@ -377,13 +374,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         return result;
     }
 
-    @Override
-    public SearchCond getAllMatchingCond() {
-        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
-        idCond.setSchema("id");
-        return SearchCond.getLeaf(idCond);
-    }
-
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     @SuppressWarnings("unchecked")
@@ -448,7 +438,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         @SuppressWarnings("unchecked")
         List<Object> result = query.getResultList();
         return result.stream().
-                map(roleKey -> dynRealmDAO.findById(roleKey.toString())).
+                map(dynRealm -> dynRealmDAO.findById(dynRealm.toString())).
                 filter(Optional::isPresent).map(Optional::get).
                 map(DynRealm::getKey).
                 distinct().

@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
+import org.apache.syncope.core.persistence.jpa.validation.JPAJSONAttributableCheck;
 
 @Entity
 @Table(name = JPALinkedAccount.TABLE)

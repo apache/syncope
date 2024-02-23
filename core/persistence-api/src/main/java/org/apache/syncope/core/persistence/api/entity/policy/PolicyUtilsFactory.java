@@ -18,16 +18,79 @@
  */
 package org.apache.syncope.core.persistence.api.entity.policy;
 
+import org.apache.syncope.common.lib.policy.AccessPolicyTO;
+import org.apache.syncope.common.lib.policy.AccountPolicyTO;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
+import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
+import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.PushPolicyTO;
+import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 
-public interface PolicyUtilsFactory {
+public class PolicyUtilsFactory {
 
-    PolicyUtils getInstance(PolicyType type);
+    public PolicyUtils getInstance(final PolicyType type) {
+        return new PolicyUtils(type);
+    }
 
-    PolicyUtils getInstance(Policy policy);
+    public PolicyUtils getInstance(final Policy policy) {
+        PolicyType type;
+        if (policy instanceof AccountPolicy) {
+            type = PolicyType.ACCOUNT;
+        } else if (policy instanceof PasswordPolicy) {
+            type = PolicyType.PASSWORD;
+        } else if (policy instanceof PropagationPolicy) {
+            type = PolicyType.PROPAGATION;
+        } else if (policy instanceof PullPolicy) {
+            type = PolicyType.PULL;
+        } else if (policy instanceof PushPolicy) {
+            type = PolicyType.PUSH;
+        } else if (policy instanceof AuthPolicy) {
+            type = PolicyType.AUTH;
+        } else if (policy instanceof AccessPolicy) {
+            type = PolicyType.ACCESS;
+        } else if (policy instanceof AttrReleasePolicy) {
+            type = PolicyType.ATTR_RELEASE;
+        } else if (policy instanceof TicketExpirationPolicy) {
+            type = PolicyType.TICKET_EXPIRATION;
+        } else {
+            throw new IllegalArgumentException("Invalid policy: " + policy);
+        }
 
-    PolicyUtils getInstance(Class<? extends PolicyTO> policyClass);
+        return getInstance(type);
+    }
 
-    PolicyUtils getInstance(PolicyTO policyTO);
+    public PolicyUtils getInstance(final Class<? extends PolicyTO> policyClass) {
+        PolicyType type;
+        if (policyClass == AccountPolicyTO.class) {
+            type = PolicyType.ACCOUNT;
+        } else if (policyClass == PasswordPolicyTO.class) {
+            type = PolicyType.PASSWORD;
+        } else if (policyClass == PropagationPolicyTO.class) {
+            type = PolicyType.PROPAGATION;
+        } else if (policyClass == PullPolicyTO.class) {
+            type = PolicyType.PULL;
+        } else if (policyClass == PushPolicyTO.class) {
+            type = PolicyType.PUSH;
+        } else if (policyClass == AuthPolicyTO.class) {
+            type = PolicyType.AUTH;
+        } else if (policyClass == AccessPolicyTO.class) {
+            type = PolicyType.ACCESS;
+        } else if (policyClass == AttrReleasePolicyTO.class) {
+            type = PolicyType.ATTR_RELEASE;
+        } else if (policyClass == TicketExpirationPolicyTO.class) {
+            type = PolicyType.TICKET_EXPIRATION;
+        } else {
+            throw new IllegalArgumentException("Invalid PolicyTO class: " + policyClass.getName());
+        }
+
+        return getInstance(type);
+    }
+
+    public PolicyUtils getInstance(final PolicyTO policyTO) {
+        return getInstance(policyTO.getClass());
+    }
 }

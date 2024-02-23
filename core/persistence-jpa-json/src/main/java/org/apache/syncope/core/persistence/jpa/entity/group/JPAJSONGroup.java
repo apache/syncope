@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.JSONAttributable;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.jpa.validation.entity.JPAJSONAttributableCheck;
+import org.apache.syncope.core.persistence.jpa.validation.JPAJSONAttributableCheck;
 
 @Entity
 @Table(name = JPAGroup.TABLE)

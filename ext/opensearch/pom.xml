@@ -39,7 +39,7 @@ under the License.
   
   <modules>
     <module>client-opensearch</module>
-    <module>persistence-jpa</module>
+    <module>persistence</module>
     <module>provisioning-java</module>
     <module>logic</module>
   </modules>

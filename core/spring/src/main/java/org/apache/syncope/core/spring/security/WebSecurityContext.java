@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -142,7 +142,7 @@ public class WebSecurityContext {
     @Bean
     public AuthDataAccessor authDataAccessor(
             final SecurityProperties securityProperties,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final AnySearchDAO anySearchDAO,
@@ -157,7 +157,7 @@ public class WebSecurityContext {
 
         return new AuthDataAccessor(
                 securityProperties,
-                realmDAO,
+                realmSearchDAO,
                 userDAO,
                 groupDAO,
                 anySearchDAO,

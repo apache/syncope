@@ -51,7 +51,7 @@ public class TaskJob extends AbstractInterruptableJob {
     private ImplementationDAO implementationDAO;
 
     @Autowired
-    private DomainHolder domainHolder;
+    private DomainHolder<?> domainHolder;
 
     private SchedTaskJobDelegate delegate;
 

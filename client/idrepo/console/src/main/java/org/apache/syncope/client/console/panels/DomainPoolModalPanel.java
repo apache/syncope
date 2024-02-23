@@ -25,8 +25,12 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -43,16 +47,29 @@ public class DomainPoolModalPanel extends AbstractModalPanel<Domain> {
         super(modal, pageRef);
         this.domain = domain;
 
+        IModel<Integer> poolMaxActiveModel;
+        IModel<Integer> poolMinIdleModel;
+        if (domain instanceof JPADomain) {
+            poolMaxActiveModel = new PropertyModel<>(domain, "poolMaxActive");
+            poolMinIdleModel = new PropertyModel<>(domain, "poolMinIdle");
+        } else {
+            poolMaxActiveModel = new PropertyModel<>(domain, "maxConnectionPoolSize");
+            poolMinIdleModel = new Model<>();
+        }
+
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
                 "poolMaxActive",
                 "poolMaxActive",
                 Integer.class,
-                new PropertyModel<>(domain, "poolMaxActive")).setRequired(true));
+                poolMaxActiveModel).setRequired(true));
         add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
                 "poolMinIdle",
                 "poolMinIdle",
                 Integer.class,
-                new PropertyModel<>(domain, "poolMinIdle")).setRequired(true));
+                poolMinIdleModel).
+                setRequired(domain instanceof JPADomain).
+                setOutputMarkupPlaceholderTag(true).
+                setVisible(domain instanceof JPADomain));
     }
 
     @Override
@@ -62,8 +79,17 @@ public class DomainPoolModalPanel extends AbstractModalPanel<Domain> {
 
     @Override
     public void onSubmit(final AjaxRequestTarget target) {
+        int max = 10;
+        int min = 0;
+        if (domain instanceof JPADomain jpaDomain) {
+            max = jpaDomain.getPoolMaxActive();
+            min = jpaDomain.getPoolMinIdle();
+        } else if (domain instanceof Neo4jDomain neo4jDomain) {
+            max = neo4jDomain.getMaxConnectionPoolSize();
+        }
+
         try {
-            domainOps.adjustPoolSize(domain.getKey(), domain.getPoolMaxActive(), domain.getPoolMinIdle());
+            domainOps.adjustPoolSize(domain.getKey(), max, min);
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);

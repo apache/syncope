@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import java.sql.Connection;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.slf4j.Logger;
@@ -26,15 +25,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.health.Status;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 
 public class DomainsHealthIndicator implements HealthIndicator {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DomainsHealthIndicator.class);
 
-    protected final DomainHolder domainHolder;
+    protected final DomainHolder<?> domainHolder;
 
-    public DomainsHealthIndicator(final DomainHolder domainHolder) {
+    public DomainsHealthIndicator(final DomainHolder<?> domainHolder) {
         this.domainHolder = domainHolder;
     }
 
@@ -43,25 +41,9 @@ public class DomainsHealthIndicator implements HealthIndicator {
         Health.Builder builder = new Health.Builder();
 
         AtomicReference<Boolean> anyDown = new AtomicReference<>(Boolean.FALSE);
-
-        domainHolder.getDomains().forEach((key, ds) -> {
-            Status status;
-
-            Connection conn = null;
-            try {
-                conn = DataSourceUtils.getConnection(ds);
-                status = conn.isValid(0) ? Status.UP : Status.OUT_OF_SERVICE;
-            } catch (Exception e) {
-                status = Status.DOWN;
-                LOG.debug("When attempting to connect to Domain {}", key, e);
-            } finally {
-                if (conn != null) {
-                    DataSourceUtils.releaseConnection(conn, ds);
-                }
-            }
-
-            builder.withDetail(key, status);
-            if (status != Status.UP) {
+        domainHolder.getHealthInfo().forEach((domain, status) -> {
+            builder.withDetail(domain, status ? Status.UP : Status.DOWN);
+            if (!status) {
                 anyDown.set(true);
             }
         });

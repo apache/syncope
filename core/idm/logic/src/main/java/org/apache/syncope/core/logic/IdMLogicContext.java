@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -45,6 +45,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration(proxyBeanMethods = false)
 public class IdMLogicContext {
+
     @ConditionalOnMissingBean
     @Bean
     public IdMEntitlementLoader idmEntitlementLoader() {
@@ -60,11 +61,11 @@ public class IdMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public ConnectorLogic connectorLogic(
-        final ConnIdBundleManager connIdBundleManager,
-        final ExternalResourceDAO resourceDAO,
-        final ConnInstanceDAO connInstanceDAO,
-        final ConnInstanceDataBinder connInstanceDataBinder,
-        final ConnectorManager connectorManager) {
+            final ConnIdBundleManager connIdBundleManager,
+            final ExternalResourceDAO resourceDAO,
+            final ConnInstanceDAO connInstanceDAO,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final ConnectorManager connectorManager) {
         return new ConnectorLogic(
                 connIdBundleManager,
                 connectorManager,
@@ -76,14 +77,14 @@ public class IdMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public ReconciliationLogic reconciliationLogic(
-            final RealmDAO realmDAO,
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainSchemaDAO plainSchemaDAO,
-            final DerSchemaDAO derSchemaDAO,
-            final AnySearchDAO anySearchDAO,
             final AnyTypeDAO anyTypeDAO,
             final ExternalResourceDAO resourceDAO,
+            final RealmSearchDAO realmSearchDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
+            final AnySearchDAO anySearchDAO,
             final VirAttrHandler virAttrHandler,
             final ConnectorManager connectorManager,
             final InboundMatcher inboundMatcher,
@@ -94,7 +95,7 @@ public class IdMLogicContext {
                 anyUtilsFactory,
                 anyTypeDAO,
                 resourceDAO,
-                realmDAO,
+                realmSearchDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
                 virSchemaDAO,
@@ -121,18 +122,18 @@ public class IdMLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public ResourceLogic resourceLogic(
-        final ResourceDataBinder resourceDataBinder,
-        final AnyUtilsFactory anyUtilsFactory,
-        final AnyTypeDAO anyTypeDAO,
-        final ExternalResourceDAO resourceDAO,
-        final ConnInstanceDAO connInstanceDAO,
-        final VirSchemaDAO virSchemaDAO,
-        final VirAttrHandler virAttrHandler,
-        final ConnInstanceDataBinder connInstanceDataBinder,
-        final ConnectorManager connectorManager,
-        final OutboundMatcher outboundMatcher,
-        final MappingManager mappingManager) {
-        
+            final ResourceDataBinder resourceDataBinder,
+            final AnyUtilsFactory anyUtilsFactory,
+            final AnyTypeDAO anyTypeDAO,
+            final ExternalResourceDAO resourceDAO,
+            final ConnInstanceDAO connInstanceDAO,
+            final VirSchemaDAO virSchemaDAO,
+            final VirAttrHandler virAttrHandler,
+            final ConnInstanceDataBinder connInstanceDataBinder,
+            final ConnectorManager connectorManager,
+            final OutboundMatcher outboundMatcher,
+            final MappingManager mappingManager) {
+
         return new ResourceLogic(
                 resourceDAO,
                 anyTypeDAO,

@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 
-public interface SAML2SPClientAppRepoExt {
+public interface SAML2SPClientAppRepoExt extends ClientAppRepoExt<SAML2SPClientApp> {
 
     SAML2SPClientApp save(SAML2SPClientApp clientApp);
 }

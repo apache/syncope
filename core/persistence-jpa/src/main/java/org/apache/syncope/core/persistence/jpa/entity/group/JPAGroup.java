@@ -45,13 +45,13 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.validation.GroupCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.persistence.jpa.validation.entity.GroupCheck;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @Entity
@@ -81,7 +81,8 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
             @JoinColumn(name = "group_id"),
             inverseJoinColumns =
             @JoinColumn(name = "resource_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "resource_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "group_id", "resource_id" }))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -89,7 +90,8 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
             @JoinColumn(name = "group_id"),
             inverseJoinColumns =
             @JoinColumn(name = "anyTypeClass_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "group_id", "anyTypeClass_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "group_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "group")
@@ -169,8 +171,8 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @Override
     public Optional<? extends GPlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrs().stream().filter(plainAttr
-                -> plainAttr != null && plainAttr.getSchema() != null
+        return getPlainAttrs().stream().
+                filter(plainAttr -> plainAttr != null && plainAttr.getSchema() != null
                 && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }
 

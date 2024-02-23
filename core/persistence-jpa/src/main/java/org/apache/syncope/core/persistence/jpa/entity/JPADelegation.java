@@ -32,8 +32,8 @@ import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.validation.DelegationCheck;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.persistence.jpa.validation.entity.DelegationCheck;
 
 @Entity
 @Table(name = JPADelegation.TABLE, uniqueConstraints =

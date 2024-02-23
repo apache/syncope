@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.apache.syncope</groupId>
+    <artifactId>syncope-core</artifactId>
+    <version>4.0.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Apache Syncope Core Persistence Neo4j</name>
+  <description>Apache Syncope Core Persistence Neo4j</description>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-persistence-neo4j</artifactId>
+  <packaging>jar</packaging>
+  
+  <properties>
+    <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
+    <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-neo4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-persistence-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- TEST -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk18on</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk18on</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+    </plugins>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>neo4j</id>
+      
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <CORE_PROPERTIES>classpath:core-test.properties</CORE_PROPERTIES>
+                <NEO4J_CONTAINER_IP>${docker.container.neo4j.ip}</NEO4J_CONTAINER_IP>
+                <NEO4J_TWO_CONTAINER_IP>${docker.container.neo4jTwo.ip}</NEO4J_TWO_CONTAINER_IP>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>neo4j</alias>
+                  <name>neo4j:${docker.neo4j.version}</name>
+                  <run>
+                    <env>
+                      <NEO4J_AUTH>none</NEO4J_AUTH>
+                      <NEO4JLABS_PLUGINS>["apoc"]</NEO4JLABS_PLUGINS>
+                    </env>
+                    <wait>
+                      <log>Started.</log>
+                      <time>30000</time>
+                    </wait>
+                    <tmpfs>
+                      <mount>/data:rw</mount>
+                      <mount>/logs:rw</mount>
+                      <mount>/var/lib/neo4j/data:rw</mount>
+                      <mount>/var/lib/neo4j/logs:rw</mount>
+                      <mount>/var/lib/neo4j/metrics:rw</mount>
+                    </tmpfs>
+                  </run>
+                </image>
+                <image>
+                  <alias>neo4jTwo</alias>
+                  <name>neo4j:${docker.neo4j.version}</name>
+                  <run>
+                    <env>
+                      <NEO4J_AUTH>none</NEO4J_AUTH>
+                      <NEO4JLABS_PLUGINS>["apoc"]</NEO4JLABS_PLUGINS>
+                    </env>
+                    <wait>
+                      <log>Started.</log>
+                      <time>30000</time>
+                    </wait>
+                    <tmpfs>
+                      <mount>/data:rw</mount>
+                      <mount>/logs:rw</mount>
+                      <mount>/var/lib/neo4j/data:rw</mount>
+                      <mount>/var/lib/neo4j/logs:rw</mount>
+                      <mount>/var/lib/neo4j/metrics:rw</mount>
+                    </tmpfs>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-neo4j</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-neo4j</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

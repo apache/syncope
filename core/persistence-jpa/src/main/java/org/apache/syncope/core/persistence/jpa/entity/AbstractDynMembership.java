@@ -41,5 +41,4 @@ public abstract class AbstractDynMembership<A extends Any<?>>
     public void setFIQLCond(final String fiql) {
         this.fiql = fiql;
     }
-
 }

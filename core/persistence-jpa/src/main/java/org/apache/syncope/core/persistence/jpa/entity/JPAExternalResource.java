@@ -59,17 +59,14 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
+import org.apache.syncope.core.persistence.common.validation.ExternalResourceCheck;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
-import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-/**
- * Resource for propagation and pull.
- */
 @Entity
 @Table(name = JPAExternalResource.TABLE)
 @ExternalResourceCheck

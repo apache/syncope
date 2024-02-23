@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -45,7 +45,7 @@ public class DerSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void search() {
+    public void findByIdLike() {
         List<? extends DerSchema> schemas = derSchemaDAO.findByIdLike("mderivedd%");
         assertEquals(1, schemas.size());
     }

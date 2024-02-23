@@ -45,8 +45,8 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -55,7 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -151,7 +151,7 @@ abstract class AbstractAnyDataBinder {
 
     protected final AnyTypeDAO anyTypeDAO;
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final AnyTypeClassDAO anyTypeClassDAO;
 
@@ -187,7 +187,7 @@ abstract class AbstractAnyDataBinder {
 
     protected AbstractAnyDataBinder(
             final AnyTypeDAO anyTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -206,7 +206,7 @@ abstract class AbstractAnyDataBinder {
             final PlainAttrValidationManager validator) {
 
         this.anyTypeDAO = anyTypeDAO;
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.userDAO = userDAO;
@@ -227,7 +227,7 @@ abstract class AbstractAnyDataBinder {
 
     protected void setRealm(final Any<?> any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
-            realmDAO.findByFullPath(anyUR.getRealm().getValue()).ifPresentOrElse(
+            realmSearchDAO.findByFullPath(anyUR.getRealm().getValue()).ifPresentOrElse(
                     newRealm -> any.setRealm(newRealm),
                     () -> LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue()));
         }

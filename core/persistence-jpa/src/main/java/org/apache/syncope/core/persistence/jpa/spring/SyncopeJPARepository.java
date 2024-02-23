@@ -26,7 +26,10 @@ public class SyncopeJPARepository<T, ID> extends SimpleJpaRepository<T, ID> {
 
     protected final EntityManager entityManager;
 
-    public SyncopeJPARepository(final JpaEntityInformation<T, ?> entityInformation, final EntityManager entityManager) {
+    public SyncopeJPARepository(
+            final JpaEntityInformation<T, ID> entityInformation,
+            final EntityManager entityManager) {
+
         super(entityInformation, entityManager);
         this.entityManager = entityManager;
     }

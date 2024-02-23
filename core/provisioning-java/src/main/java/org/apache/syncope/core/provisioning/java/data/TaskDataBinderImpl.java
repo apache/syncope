@@ -43,7 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -79,7 +79,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
     protected static final String MACRO_RUN_JOB_DELEGATE = "org.apache.syncope.core.logic.job.MacroRunJobDelegate";
 
-    protected final RealmDAO realmDAO;
+    protected final RealmSearchDAO realmSearchDAO;
 
     protected final ExternalResourceDAO resourceDAO;
 
@@ -96,7 +96,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     protected final TaskUtilsFactory taskUtilsFactory;
 
     public TaskDataBinderImpl(
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final ExternalResourceDAO resourceDAO,
             final TaskExecDAO taskExecDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -105,7 +105,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             final SchedulerFactoryBean scheduler,
             final TaskUtilsFactory taskUtilsFactory) {
 
-        this.realmDAO = realmDAO;
+        this.realmSearchDAO = realmSearchDAO;
         this.resourceDAO = resourceDAO;
         this.taskExecDAO = taskExecDAO;
         this.anyTypeDAO = anyTypeDAO;
@@ -135,7 +135,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             }
             pushTask.setJobDelegate(jobDelegate);
 
-            pushTask.setSourceRealm(realmDAO.findByFullPath(pushTaskTO.getSourceRealm()).
+            pushTask.setSourceRealm(realmSearchDAO.findByFullPath(pushTaskTO.getSourceRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + pushTaskTO.getSourceRealm())));
 
             pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
@@ -178,7 +178,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         () -> LOG.debug("Invalid Implementation {}, ignoring...", pullTaskTO.getReconFilterBuilder()));
             }
 
-            pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
+            pullTask.setDestinationRealm(realmSearchDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
 
             pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
@@ -224,7 +224,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     protected void fill(final MacroTask macroTask, final MacroTaskTO macroTaskTO) {
-        macroTask.setRealm(realmDAO.findByFullPath(macroTaskTO.getRealm()).
+        macroTask.setRealm(realmSearchDAO.findByFullPath(macroTaskTO.getRealm()).
                 orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
         macroTaskTO.getCommands().
@@ -288,7 +288,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             }
             macroTask.setJobDelegate(jobDelegate);
 
-            macroTask.setRealm(realmDAO.findByFullPath(macroTaskTO.getRealm()).
+            macroTask.setRealm(realmSearchDAO.findByFullPath(macroTaskTO.getRealm()).
                     orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
             fill(macroTask, macroTaskTO);

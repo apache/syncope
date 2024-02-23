@@ -22,6 +22,8 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
+import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
@@ -68,7 +70,11 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     /**
      * @return the search condition to match all entities
      */
-    SearchCond getAllMatchingCond();
+    default SearchCond getAllMatchingCond() {
+        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+        return SearchCond.getLeaf(idCond);
+    }
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 

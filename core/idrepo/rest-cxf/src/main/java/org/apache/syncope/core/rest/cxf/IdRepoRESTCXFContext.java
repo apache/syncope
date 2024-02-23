@@ -243,7 +243,7 @@ public class IdRepoRESTCXFContext {
 
     @ConditionalOnMissingBean(name = { "openApiCustomizer", "syncopeOpenApiCustomizer" })
     @Bean
-    public OpenApiCustomizer openApiCustomizer(final DomainHolder domainHolder, final Environment env) {
+    public OpenApiCustomizer openApiCustomizer(final DomainHolder<?> domainHolder, final Environment env) {
         JavaDocProvider javaDocProvider = JavaDocUtils.getJavaDocURLs().
                 map(JavaDocProvider::new).
                 orElseGet(() -> JavaDocUtils.getJavaDocPaths(env).

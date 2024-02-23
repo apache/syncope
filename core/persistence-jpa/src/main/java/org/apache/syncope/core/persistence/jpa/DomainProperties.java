@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
-import org.apache.syncope.common.keymaster.client.api.model.Domain;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.core.persistence.common.AbstractDomainProperties;
 
-public class DomainProperties {
-
-    private String key;
+public class DomainProperties extends AbstractDomainProperties {
 
     private String jdbcDriver;
 
@@ -35,7 +33,8 @@ public class DomainProperties {
 
     private String dbPassword;
 
-    private Domain.TransactionIsolation transactionIsolation = Domain.TransactionIsolation.TRANSACTION_READ_COMMITTED;
+    private JPADomain.TransactionIsolation transactionIsolation =
+            JPADomain.TransactionIsolation.TRANSACTION_READ_COMMITTED;
 
     private int poolMaxActive = 10;
 
@@ -46,22 +45,6 @@ public class DomainProperties {
     private String orm = "META-INF/spring-orm.xml";
 
     private String databasePlatform;
-
-    private String adminPassword;
-
-    private CipherAlgorithm adminCipherAlgorithm = CipherAlgorithm.SHA512;
-
-    private String content;
-
-    private String keymasterConfParams;
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(final String key) {
-        this.key = key;
-    }
 
     public String getJdbcDriver() {
         return jdbcDriver;
@@ -103,11 +86,11 @@ public class DomainProperties {
         this.dbPassword = dbPassword;
     }
 
-    public Domain.TransactionIsolation getTransactionIsolation() {
+    public JPADomain.TransactionIsolation getTransactionIsolation() {
         return transactionIsolation;
     }
 
-    public void setTransactionIsolation(final Domain.TransactionIsolation transactionIsolation) {
+    public void setTransactionIsolation(final JPADomain.TransactionIsolation transactionIsolation) {
         this.transactionIsolation = transactionIsolation;
     }
 
@@ -149,41 +132,5 @@ public class DomainProperties {
 
     public void setDatabasePlatform(final String databasePlatform) {
         this.databasePlatform = databasePlatform;
-    }
-
-    public String getAdminPassword() {
-        return adminPassword;
-    }
-
-    public void setAdminPassword(final String adminPassword) {
-        this.adminPassword = adminPassword;
-    }
-
-    public CipherAlgorithm getAdminCipherAlgorithm() {
-        return adminCipherAlgorithm;
-    }
-
-    public void setAdminCipherAlgorithm(final CipherAlgorithm adminCipherAlgorithm) {
-        this.adminCipherAlgorithm = adminCipherAlgorithm;
-    }
-
-    public String getContent() {
-        return content == null
-                ? "classpath:domains/" + key + "Content.xml"
-                : content;
-    }
-
-    public void setContent(final String content) {
-        this.content = content;
-    }
-
-    public String getKeymasterConfParams() {
-        return keymasterConfParams == null
-                ? "classpath:domains/" + key + "KeymasterConfParams.json"
-                : keymasterConfParams;
-    }
-
-    public void setKeymasterConfParams(final String keymasterConfParams) {
-        this.keymasterConfParams = keymasterConfParams;
     }
 }

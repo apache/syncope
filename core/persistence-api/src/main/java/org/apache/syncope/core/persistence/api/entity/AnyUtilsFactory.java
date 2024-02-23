@@ -19,12 +19,64 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface AnyUtilsFactory {
+public class AnyUtilsFactory {
 
-    AnyUtils getInstance(AnyTypeKind anyTypeKind);
+    protected final AnyUtils userAnyUtils;
 
-    AnyUtils getInstance(Any<?> any);
+    protected final AnyUtils linkedAccountAnyUtils;
 
-    AnyUtils getLinkedAccountInstance();
+    protected final AnyUtils groupAnyUtils;
+
+    protected final AnyUtils anyObjectAnyUtils;
+
+    public AnyUtilsFactory(
+            final AnyUtils userAnyUtils,
+            final AnyUtils linkedAccountAnyUtils,
+            final AnyUtils groupAnyUtils,
+            final AnyUtils anyObjectAnyUtils) {
+
+        this.userAnyUtils = userAnyUtils;
+        this.linkedAccountAnyUtils = linkedAccountAnyUtils;
+        this.groupAnyUtils = groupAnyUtils;
+        this.anyObjectAnyUtils = anyObjectAnyUtils;
+    }
+
+    public AnyUtils getInstance(final AnyTypeKind anyTypeKind) {
+        switch (anyTypeKind) {
+            case ANY_OBJECT:
+                return anyObjectAnyUtils;
+
+            case GROUP:
+                return groupAnyUtils;
+
+            case USER:
+            default:
+                return userAnyUtils;
+        }
+    }
+
+    public AnyUtils getInstance(final Any<?> any) {
+        AnyTypeKind anyTypeKind = null;
+        if (any instanceof User) {
+            anyTypeKind = AnyTypeKind.USER;
+        } else if (any instanceof Group) {
+            anyTypeKind = AnyTypeKind.GROUP;
+        } else if (any instanceof AnyObject) {
+            anyTypeKind = AnyTypeKind.ANY_OBJECT;
+        }
+
+        if (anyTypeKind == null) {
+            throw new IllegalArgumentException("Any type not supported: " + any.getClass().getName());
+        }
+
+        return getInstance(anyTypeKind);
+    }
+
+    public AnyUtils getLinkedAccountInstance() {
+        return linkedAccountAnyUtils;
+    }
 }

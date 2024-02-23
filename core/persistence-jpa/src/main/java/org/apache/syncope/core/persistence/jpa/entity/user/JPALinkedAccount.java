@@ -151,7 +151,7 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
             throw new IllegalArgumentException("Cannot override existing cipher algorithm");
         }
     }
-    
+
     @Override
     public boolean canDecodeSecrets() {
         return this.cipherAlgorithm != null && this.cipherAlgorithm.isInvertible();
@@ -173,8 +173,8 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
         try {
             this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
                     ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                    get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                            String.class))
+                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
+                                    String.class))
                     : cipherAlgorithm);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -206,8 +206,8 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
 
     @Override
     public Optional<? extends LAPlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrs().stream().filter(plainAttr
-                -> plainAttr != null && plainAttr.getSchema() != null
+        return getPlainAttrs().stream().
+                filter(plainAttr -> plainAttr != null && plainAttr.getSchema() != null
                 && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }
 

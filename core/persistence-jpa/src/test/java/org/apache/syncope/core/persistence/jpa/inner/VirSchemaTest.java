@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -54,7 +54,7 @@ public class VirSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void search() {
+    public void findByIdLike() {
         List<? extends VirSchema> schemas = virSchemaDAO.findByIdLike("rvirtuald%");
         assertEquals(1, schemas.size());
     }

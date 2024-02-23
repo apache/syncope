@@ -124,30 +124,26 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
                 count() > 0;
     }
 
-    protected StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
-        StringBuilder query = new StringBuilder("SELECT e FROM ").
+    @Override
+    public List<ExternalResource> findByPolicy(final Policy policy) {
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
                 append(" e WHERE e.");
 
-        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("accountPolicy");
-        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("passwordPolicy");
-        } else if (PropagationPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("propagationPolicy");
-        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pullPolicy");
-        } else if (PushPolicy.class.isAssignableFrom(policyClass)) {
-            query.append("pushPolicy");
+        if (AccountPolicy.class.isAssignableFrom(policy.getClass())) {
+            queryString.append("accountPolicy");
+        } else if (PasswordPolicy.class.isAssignableFrom(policy.getClass())) {
+            queryString.append("passwordPolicy");
+        } else if (PropagationPolicy.class.isAssignableFrom(policy.getClass())) {
+            queryString.append("propagationPolicy");
+        } else if (PullPolicy.class.isAssignableFrom(policy.getClass())) {
+            queryString.append("pullPolicy");
+        } else if (PushPolicy.class.isAssignableFrom(policy.getClass())) {
+            queryString.append("pushPolicy");
         }
 
-        return query;
-    }
-
-    @Override
-    public List<ExternalResource> findByPolicy(final Policy policy) {
         TypedQuery<ExternalResource> query = entityManager.createQuery(
-                getByPolicyQuery(policy.getClass()).append("=:policy").toString(), ExternalResource.class);
+                queryString.append("=:policy").toString(), ExternalResource.class);
         query.setParameter("policy", policy);
         return query.getResultList();
     }

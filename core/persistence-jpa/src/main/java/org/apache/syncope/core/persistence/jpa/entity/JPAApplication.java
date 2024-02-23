@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
-import org.apache.syncope.core.persistence.jpa.validation.entity.ApplicationCheck;
+import org.apache.syncope.core.persistence.common.validation.ApplicationCheck;
 
 @Entity
 @Table(name = JPAApplication.TABLE)

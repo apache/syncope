@@ -25,37 +25,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import javax.sql.DataSource;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.commons.text.StringSubstitutor;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.core.persistence.api.utils.FormatUtils;
+import org.apache.syncope.core.persistence.common.content.AbstractContentLoaderHandler;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * SAX handler for generating SQL INSERT statements out of given XML file.
  */
-public class ContentLoaderHandler extends DefaultHandler {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ContentLoaderHandler.class);
-
-    private static final String CONF_DIR = "syncope.conf.dir";
+public class ContentLoaderHandler extends AbstractContentLoaderHandler {
 
     private final JdbcTemplate jdbcTemplate;
-
-    private final String rootElement;
-
-    private final boolean continueOnError;
-
-    private final Map<String, String> fetches = new HashMap<>();
-
-    private final StringSubstitutor paramSubstitutor;
 
     public ContentLoaderHandler(
             final DataSource dataSource,
@@ -63,16 +46,15 @@ public class ContentLoaderHandler extends DefaultHandler {
             final boolean continueOnError,
             final Environment env) {
 
+        super(rootElement, continueOnError, env);
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.rootElement = rootElement;
-        this.continueOnError = continueOnError;
-        this.paramSubstitutor = new StringSubstitutor(key -> {
-            String value = env.getProperty(key, fetches.get(key));
-            if (value != null && CONF_DIR.equals(key)) {
-                value = value.replace('\\', '/');
-            }
-            return StringUtils.isBlank(value) ? null : value;
-        });
+    }
+
+    @Override
+    protected void fetch(final Attributes atts) {
+        String value = jdbcTemplate.queryForObject(atts.getValue("query"), String.class);
+        String key = atts.getValue("key");
+        fetches.put(key, value);
     }
 
     private Object[] getParameters(final String tableName, final Attributes attrs) {
@@ -190,39 +172,27 @@ public class ContentLoaderHandler extends DefaultHandler {
     }
 
     @Override
-    public void startElement(final String uri, final String localName, final String qName, final Attributes atts)
-            throws SAXException {
+    protected void create(final String qName, final Attributes atts) {
+        StringBuilder query = new StringBuilder("INSERT INTO ").append(qName).append('(');
 
-        // skip root element
-        if (rootElement.equals(qName)) {
-            return;
-        }
-        if ("fetch".equalsIgnoreCase(qName)) {
-            String value = jdbcTemplate.queryForObject(atts.getValue("query"), String.class);
-            String key = atts.getValue("key");
-            fetches.put(key, value);
-        } else {
-            StringBuilder query = new StringBuilder("INSERT INTO ").append(qName).append('(');
+        StringBuilder values = new StringBuilder();
 
-            StringBuilder values = new StringBuilder();
-
-            for (int i = 0; i < atts.getLength(); i++) {
-                query.append(atts.getQName(i));
-                values.append('?');
-                if (i < atts.getLength() - 1) {
-                    query.append(',');
-                    values.append(',');
-                }
+        for (int i = 0; i < atts.getLength(); i++) {
+            query.append(atts.getQName(i));
+            values.append('?');
+            if (i < atts.getLength() - 1) {
+                query.append(',');
+                values.append(',');
             }
-            query.append(") VALUES (").append(values).append(')');
+        }
+        query.append(") VALUES (").append(values).append(')');
 
-            try {
-                jdbcTemplate.update(query.toString(), getParameters(qName, atts));
-            } catch (DataAccessException e) {
-                LOG.error("While trying to perform {} with params {}", query, getParameters(qName, atts), e);
-                if (!continueOnError) {
-                    throw e;
-                }
+        try {
+            jdbcTemplate.update(query.toString(), getParameters(qName, atts));
+        } catch (DataAccessException e) {
+            LOG.error("While trying to perform {} with params {}", query, getParameters(qName, atts), e);
+            if (!continueOnError) {
+                throw e;
             }
         }
     }

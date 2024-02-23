@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -76,7 +76,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
     public AnyObjectDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
-            final RealmDAO realmDAO,
+            final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -95,7 +95,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             final PlainAttrValidationManager validator) {
 
         super(anyTypeDAO,
-                realmDAO,
+                realmSearchDAO,
                 anyTypeClassDAO,
                 anyObjectDAO,
                 userDAO,
@@ -202,7 +202,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // realm
-        Realm realm = realmDAO.findByFullPath(anyObjectCR.getRealm()).orElse(null);
+        Realm realm = realmSearchDAO.findByFullPath(anyObjectCR.getRealm()).orElse(null);
         if (realm == null) {
             SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             noRealm.getElements().add("Invalid or null realm specified: " + anyObjectCR.getRealm());
