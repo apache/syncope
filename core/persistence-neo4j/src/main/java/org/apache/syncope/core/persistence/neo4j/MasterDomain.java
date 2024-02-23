@@ -33,7 +33,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.transaction.Neo4jBookmarkManager;
-import org.springframework.data.neo4j.core.transaction.Neo4jTransactionManager;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -61,19 +60,6 @@ public class MasterDomain {
         return Neo4jClient.
                 with(driver).
                 withNeo4jBookmarkManager(bookmarkManager).
-                build();
-    }
-
-    @ConditionalOnMissingBean(name = "MasterNeo4jTransactionManager")
-    @Bean(name = "MasterNeo4jTransactionManager")
-    public Neo4jTransactionManager masterNeo4jTransactionManager(
-            @Qualifier("MasterDriver")
-            final Driver driver,
-            final Neo4jBookmarkManager bookmarkManager) {
-
-        return Neo4jTransactionManager.
-                with(driver).
-                withBookmarkManager(bookmarkManager).
                 build();
     }
 

@@ -277,11 +277,17 @@ public class PersistenceContext {
 
     @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_TRANSACTION_MANAGER_BEAN_NAME)
     public PlatformTransactionManager transactionManager(
-            @Qualifier("MasterNeo4jTransactionManager")
-            final Neo4jTransactionManager masterNeo4jTransactionManager) {
+            @Qualifier("MasterDriver")
+            final Driver driver,
+            final Neo4jBookmarkManager bookmarkManager) {
 
         DomainRoutingNeo4jTransactionManager transactionManager = new DomainRoutingNeo4jTransactionManager();
-        transactionManager.add(SyncopeConstants.MASTER_DOMAIN, masterNeo4jTransactionManager);
+        transactionManager.add(
+                SyncopeConstants.MASTER_DOMAIN,
+                Neo4jTransactionManager.
+                        with(driver).
+                        withBookmarkManager(bookmarkManager).
+                        build());
         return transactionManager;
     }
 

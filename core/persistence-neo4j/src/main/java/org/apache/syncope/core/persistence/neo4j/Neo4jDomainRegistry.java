@@ -88,14 +88,11 @@ public class Neo4jDomainRegistry implements DomainRegistry {
         // DomainRoutingNeo4jClient#add
         beanFactory().getBean(DomainRoutingNeo4jClient.class).add(domain.getKey(), neo4jClient);
 
-        // domainNeo4jTransactionManager
+        // DomainRoutingTransactionManager#add
         Neo4jTransactionManager transactionManager = Neo4jTransactionManager.
                 with(driver).
                 withBookmarkManager(ctx.getBean(Neo4jBookmarkManager.class)).
                 build();
-        registerSingleton(domain.getKey().toLowerCase() + "Neo4jTransactionManager", transactionManager);
-
-        // DomainRoutingTransactionManager#add
         beanFactory().getBean(DomainRoutingNeo4jTransactionManager.class).add(domain.getKey(), transactionManager);
 
         // domainContentXML
@@ -121,8 +118,6 @@ public class Neo4jDomainRegistry implements DomainRegistry {
         unregisterSingleton(domain + "ContentXML");
         beanFactory().removeBeanDefinition(domain + "ContentXML");
 
-        // domainTransactionManager
-        unregisterSingleton(domain + "Neo4jTransactionManager");
         // DomainRoutingTransactionManager#remove
         beanFactory().getBean(DomainRoutingNeo4jTransactionManager.class).remove(domain);
 
@@ -132,9 +127,6 @@ public class Neo4jDomainRegistry implements DomainRegistry {
         beanFactory().getBean(DomainRoutingNeo4jClient.class).remove(domain);
 
         // domainDriver
-        unregisterSingleton(domain + "Driver");
-
-        // domainDataSource
         unregisterSingleton(domain + "Driver");
 
         beanFactory().getBean(DomainHolder.class).getDomains().remove(domain);
