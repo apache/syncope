@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -767,7 +768,10 @@ public class SCIMDataBinder {
         }
     }
 
-    public Pair<UserUR, StatusR> toUserUpdate(final UserTO before, final SCIMPatchOperation op) {
+    public Pair<UserUR, StatusR> toUserUpdate(
+            final UserTO before,
+            final Collection<String> resources,
+            final SCIMPatchOperation op) {
         StatusR statusR = null;
 
         if (op.getPath() == null && op.getOp() != PatchOp.remove
@@ -779,6 +783,7 @@ public class SCIMDataBinder {
                 statusR = new StatusR.Builder(
                         before.getKey(),
                         after.isActive() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
+                        resources(resources).
                         build();
             }
 
@@ -825,6 +830,7 @@ public class SCIMDataBinder {
                     statusR = new StatusR.Builder(
                             before.getKey(),
                             (boolean) op.getValue().get(0) ? StatusRType.REACTIVATE : StatusRType.SUSPEND).
+                            resources(resources).
                             build();
                 }
                 break;

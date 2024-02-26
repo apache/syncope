@@ -36,7 +36,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class SCIMDataBinderTest {
+class SCIMDataBinderTest {
 
     private SCIMDataBinder dataBinder;
 
@@ -61,6 +61,6 @@ public class SCIMDataBinderTest {
         scimPatchPath.setAttribute("active");
         operation.setPath(scimPatchPath);
         operation.setValue(List.of(value));
-        assertDoesNotThrow(() -> dataBinder.toUserUpdate(new UserTO(), operation));
+        assertDoesNotThrow(() -> dataBinder.toUserUpdate(new UserTO(), List.of(), operation));
     }
 }
