@@ -92,7 +92,10 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
         }
 
         patch.getOperations().forEach(op -> {
-            Pair<UserUR, StatusR> update = binder.toUserUpdate(userLogic.read(id), op);
+            Pair<UserUR, StatusR> update = binder.toUserUpdate(
+                    userLogic.read(id),
+                    userDAO.findAllResourceKeys(id),
+                    op);
             userLogic.update(update.getLeft(), false);
             Optional.ofNullable(update.getRight()).ifPresent(statusR -> userLogic.status(statusR, false));
         });
