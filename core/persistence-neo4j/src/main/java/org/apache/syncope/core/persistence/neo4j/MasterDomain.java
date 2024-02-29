@@ -25,14 +25,11 @@ import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.GraphDatabase;
 import org.neo4j.driver.Logging;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.neo4j.core.Neo4jClient;
-import org.springframework.data.neo4j.core.transaction.Neo4jBookmarkManager;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -48,19 +45,6 @@ public class MasterDomain {
                         withMaxConnectionPoolSize(props.getDomain().get(0).getMaxConnectionPoolSize()).
                         withDriverMetrics().
                         withLogging(Logging.slf4j()).build());
-    }
-
-    @ConditionalOnMissingBean(name = "MasterNeo4jClient")
-    @Bean(name = "MasterNeo4jClient")
-    public Neo4jClient masterNeo4jClient(
-            @Qualifier("MasterDriver")
-            final Driver driver,
-            final Neo4jBookmarkManager bookmarkManager) {
-
-        return Neo4jClient.
-                with(driver).
-                withNeo4jBookmarkManager(bookmarkManager).
-                build();
     }
 
     @Bean(name = "MasterContentXML")

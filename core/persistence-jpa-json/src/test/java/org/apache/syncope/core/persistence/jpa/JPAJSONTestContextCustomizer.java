@@ -24,7 +24,6 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.test.context.ContextCustomizer;
 import org.springframework.test.context.MergedContextConfiguration;
-import org.springframework.test.context.support.TestPropertySourceUtils;
 
 public class JPAJSONTestContextCustomizer implements ContextCustomizer {
 
@@ -40,26 +39,6 @@ public class JPAJSONTestContextCustomizer implements ContextCustomizer {
 
     @Override
     public void customizeContext(final ConfigurableApplicationContext ctx, final MergedContextConfiguration cfg) {
-        switch (System.getProperty("profileId")) {
-            case "pgjsonb" ->
-                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-                        ctx,
-                        "provisioning.quartz.sql=tables_postgres.sql");
-
-            case "myjson" ->
-                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-                        ctx,
-                        "provisioning.quartz.sql=tables_mysql_innodb.sql");
-
-            case "ojson" ->
-                TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
-                        ctx,
-                        "provisioning.quartz.sql=tables_oracle.sql");
-
-            default -> {
-            }
-        }
-
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(getBeanDefinitionRegistry(ctx));
         reader.registerBean(PGJPAJSONPersistenceContext.class, "PGJPAJSONPersistenceContext");
         reader.registerBean(MyJPAJSONPersistenceContext.class, "MyJPAJSONPersistenceContext");

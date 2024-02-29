@@ -27,8 +27,8 @@ import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.identityconnectors.framework.common.objects.SyncDelta;
-import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during pull.

@@ -25,13 +25,6 @@ import org.quartz.JobExecutionException
 @CompileStatic
 class MySchedTaskJobDelegate implements SchedTaskJobDelegate {
 
-  void interrupt() {
-  }
-
-  boolean isInterrupted() {
-    return false
-  }
-
   @Override
   void execute(TaskType taskType, String taskKey, boolean dryRun, JobExecutionContext context)
     throws JobExecutionException {

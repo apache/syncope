@@ -25,7 +25,7 @@ import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -52,13 +52,11 @@ import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,7 +72,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     public ReportLogic(
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO,
             final ReportDAO reportDAO,
             final ReportExecDAO reportExecDAO,
@@ -98,9 +96,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    AuthContextUtils.getUsername());
+                    AuthContextUtils.getUsername(),
+                    false);
         } catch (Exception e) {
-            LOG.error("While registering quartz job for report " + report.getKey(), e);
+            LOG.error("While registering job for report " + report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -121,9 +120,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    AuthContextUtils.getUsername());
+                    AuthContextUtils.getUsername(),
+                    false);
         } catch (Exception e) {
-            LOG.error("While registering quartz job for report " + report.getKey(), e);
+            LOG.error("While registering job for report " + report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -160,15 +160,11 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
 
         try {
-            Map<String, Object> jobDataMap = jobManager.register(
+            jobManager.register(
                     report,
-                    startAt,
-                    AuthContextUtils.getUsername());
-            jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
-
-            if (startAt == null) {
-                scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
-            }
+                    Optional.ofNullable(startAt).orElseGet(() -> OffsetDateTime.now()),
+                    AuthContextUtils.getUsername(),
+                    dryRun);
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
@@ -182,7 +178,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         result.setRefKey(report.getKey());
         result.setRefDesc(binder.buildRefDesc(report));
         result.setStart(OffsetDateTime.now());
-        result.setStatus("JOB_FIRED");
+        result.setStatus(JobStatusDAO.JOB_FIRED_STATUS);
         result.setMessage("Job fired; waiting for results...");
         result.setExecutor(AuthContextUtils.getUsername());
         return result;
@@ -308,11 +304,11 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     }
 
     @Override
-    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
-        String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
+    protected Triple<JobType, String, String> getReference(final String jobName) {
+        String key = JobNamer.getReportKeyFromJobName(jobName);
 
         return reportDAO.findById(key).
-                map(f -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(f))).orElse(null);
+                map(r -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(r))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")
@@ -324,23 +320,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")
     @Override
     public JobTO getJob(final String key) {
-        Report report = reportDAO.findById(key).
-                orElseThrow(() -> new NotFoundException("Report " + key));
+        Report report = reportDAO.findById(key).orElseThrow(() -> new NotFoundException("Report " + key));
 
-        JobTO jobTO = null;
-        try {
-            jobTO = getJobTO(JobNamer.getJobKey(report), false);
-        } catch (SchedulerException e) {
-            LOG.error("Problems while retrieving scheduled job {}", JobNamer.getJobKey(report), e);
-
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-            sce.getElements().add(e.getMessage());
-            throw sce;
-        }
-        if (jobTO == null) {
-            throw new NotFoundException("Job for report " + key);
-        }
-        return jobTO;
+        return getJobTO(JobNamer.getJobName(report), false).
+                orElseThrow(() -> new NotFoundException("Job for report " + key));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
@@ -349,7 +332,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         Report report = reportDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Report " + key));
 
-        doActionJob(JobNamer.getJobKey(report), action);
+        doActionJob(JobNamer.getJobName(report), action);
     }
 
     @Override

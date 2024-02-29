@@ -24,13 +24,6 @@ import org.quartz.JobExecutionException
 
 @CompileStatic
 class MyReportJobDelegate implements ReportJobDelegate {	
-
-  void interrupt() {
-  }
-
-  boolean isInterrupted() {
-    return false
-  }
   
   void setConf(ReportConf conf) {
     

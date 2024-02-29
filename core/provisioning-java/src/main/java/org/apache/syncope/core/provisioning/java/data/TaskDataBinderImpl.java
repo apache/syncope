@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Comparator;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -61,17 +62,14 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements TaskDataBinder {
 
@@ -91,7 +89,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
     protected final EntityFactory entityFactory;
 
-    protected final SchedulerFactoryBean scheduler;
+    protected final SyncopeTaskScheduler scheduler;
 
     protected final TaskUtilsFactory taskUtilsFactory;
 
@@ -102,7 +100,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
             final EntityFactory entityFactory,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final TaskUtilsFactory taskUtilsFactory) {
 
         this.realmSearchDAO = realmSearchDAO;
@@ -377,18 +375,13 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         schedTaskTO.setCronExpression(schedTask.getCronExpression());
         schedTaskTO.setActive(schedTask.isActive());
 
-        schedTaskTO.setLastExec(schedTaskTO.getStart());
+        schedTaskTO.getExecutions().stream().sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().
+                map(ExecTO::getStart).ifPresentOrElse(
+                schedTaskTO::setLastExec,
+                () -> schedTaskTO.setLastExec(schedTaskTO.getStart()));
 
-        String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(schedTask).getName());
-        try {
-            Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
-            if (trigger != null) {
-                schedTaskTO.setLastExec(toOffsetDateTime(trigger.getPreviousFireTime()));
-                schedTaskTO.setNextExec(toOffsetDateTime(trigger.getNextFireTime()));
-            }
-        } catch (SchedulerException e) {
-            LOG.warn("While trying to get to " + triggerName, e);
-        }
+        scheduler.getNextTrigger(AuthContextUtils.getDomain(), JobNamer.getJobName(schedTask)).
+                ifPresent(schedTaskTO::setNextExec);
 
         if (schedTaskTO instanceof ProvisioningTaskTO && schedTask instanceof ProvisioningTask) {
             ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) schedTaskTO;

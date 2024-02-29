@@ -18,12 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import jakarta.annotation.Resource;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -152,8 +148,7 @@ import org.apache.syncope.core.provisioning.java.data.WAConfigDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.wa.WAClientAppDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.job.DefaultJobManager;
 import org.apache.syncope.core.provisioning.java.job.JobStatusUpdater;
-import org.apache.syncope.core.provisioning.java.job.SchedulerDBInit;
-import org.apache.syncope.core.provisioning.java.job.SyncopeSpringBeanJobFactory;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.notification.MailNotificationJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
@@ -179,29 +174,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.support.TaskExecutorAdapter;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.scheduling.concurrent.SimpleAsyncTaskScheduler;
 
 @EnableAsync
 @EnableConfigurationProperties(ProvisioningProperties.class)
 @Configuration(proxyBeanMethods = false)
 public class ProvisioningContext {
-
-    @Resource(name = "MasterDataSource")
-    private DataSource masterDataSource;
-
-    @Resource(name = "domainTransactionManager")
-    private PlatformTransactionManager domainTransactionManager;
 
     @ConditionalOnMissingBean
     @Bean
@@ -272,82 +257,39 @@ public class ProvisioningContext {
     }
 
     @Bean
-    public SchedulerDBInit quartzDataSourceInit(final ProvisioningProperties provisioningProperties) {
-        SchedulerDBInit init = new SchedulerDBInit();
-        init.setDataSource(masterDataSource);
+    public SyncopeTaskScheduler taskScheduler(final ProvisioningProperties props, final JobStatusDAO jobStatusDAO) {
+        SimpleAsyncTaskScheduler taskScheduler = new SimpleAsyncTaskScheduler();
+        taskScheduler.setVirtualThreads(true);
+        taskScheduler.setConcurrencyLimit(props.getScheduling().getPoolSize());
+        taskScheduler.setTaskTerminationTimeout(props.getScheduling().getAwaitTerminationSeconds() * 1000);
+        taskScheduler.setThreadNamePrefix("TaskScheduler-");
 
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.setContinueOnError(true);
-        databasePopulator.setIgnoreFailedDrops(true);
-        databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
-        databasePopulator.setScripts(new ClassPathResource("/quartz/" + provisioningProperties.getQuartz().getSql()));
-        init.setDatabasePopulator(databasePopulator);
-
-        return init;
-    }
-
-    @DependsOn("quartzDataSourceInit")
-    @Lazy(false)
-    @Bean
-    public SchedulerFactoryBean scheduler(final ApplicationContext ctx, final ProvisioningProperties props) {
-        SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
-        scheduler.setAutoStartup(true);
-        scheduler.setApplicationContext(ctx);
-        scheduler.setWaitForJobsToCompleteOnShutdown(props.getQuartz().isWaitForJobsToCompleteOnShutdown());
-        scheduler.setOverwriteExistingJobs(true);
-        scheduler.setDataSource(masterDataSource);
-        scheduler.setTransactionManager(domainTransactionManager);
-        scheduler.setJobFactory(new SyncopeSpringBeanJobFactory());
-
-        Properties quartzProperties = new Properties();
-        quartzProperties.setProperty(
-                "org.quartz.scheduler.idleWaitTime",
-                String.valueOf(props.getQuartz().getIdleWaitTime()));
-        quartzProperties.setProperty(
-                "org.quartz.jobStore.misfireThreshold",
-                String.valueOf(props.getQuartz().getMisfireThreshold()));
-        quartzProperties.setProperty(
-                "org.quartz.jobStore.driverDelegateClass",
-                props.getQuartz().getDelegate().getName());
-        quartzProperties.setProperty(
-                "org.quartz.jobStore.class",
-                "org.springframework.scheduling.quartz.LocalDataSourceJobStore");
-        quartzProperties.setProperty("org.quartz.threadPool.makeThreadsDaemons", "true");
-        quartzProperties.setProperty("org.quartz.scheduler.makeSchedulerThreadDaemon", "true");
-        quartzProperties.setProperty("org.quartz.jobStore.isClustered", "true");
-        quartzProperties.setProperty("org.quartz.jobStore.clusterCheckinInterval", "20000");
-        quartzProperties.setProperty("org.quartz.scheduler.instanceName", "SyncopeClusteredScheduler");
-        quartzProperties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
-        quartzProperties.setProperty("org.quartz.scheduler.jmx.export", "true");
-        scheduler.setQuartzProperties(quartzProperties);
-
-        return scheduler;
+        return new SyncopeTaskScheduler(taskScheduler, jobStatusDAO);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public JobManager jobManager(
-            final ProvisioningProperties provisioningProperties,
             final DomainHolder<?> domainHolder,
             final SecurityProperties securityProperties,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
+            final JobStatusDAO jobStatusDAO,
             final TaskDAO taskDAO,
             final ReportDAO reportDAO,
             final ImplementationDAO implementationDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final ConfParamOps confParamOps) {
 
-        DefaultJobManager jobManager = new DefaultJobManager(
+        return new DefaultJobManager(
                 domainHolder,
                 scheduler,
+                jobStatusDAO,
                 taskDAO,
                 reportDAO,
                 implementationDAO,
                 taskUtilsFactory,
                 confParamOps,
                 securityProperties);
-        jobManager.setDisableQuartzInstance(provisioningProperties.getQuartz().isDisableInstance());
-        return jobManager;
     }
 
     @ConditionalOnMissingBean
@@ -1019,7 +961,7 @@ public class ProvisioningContext {
     public ReportDataBinder reportDataBinder(
             final ReportExecDAO reportExecDAO,
             final ImplementationDAO implementationDAO,
-            final SchedulerFactoryBean scheduler) {
+            final SyncopeTaskScheduler scheduler) {
 
         return new ReportDataBinderImpl(reportExecDAO, implementationDAO, scheduler);
     }
@@ -1129,7 +1071,7 @@ public class ProvisioningContext {
             final TaskExecDAO taskExecDAO,
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
-            final SchedulerFactoryBean scheduler) {
+            final SyncopeTaskScheduler scheduler) {
 
         return new TaskDataBinderImpl(
                 realmSearchDAO,

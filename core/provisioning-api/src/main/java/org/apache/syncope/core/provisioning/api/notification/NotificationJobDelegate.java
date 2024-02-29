@@ -20,10 +20,9 @@ package org.apache.syncope.core.provisioning.api.notification;
 
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
-public interface NotificationJobDelegate extends JobDelegate {
+public interface NotificationJobDelegate {
 
     TaskExec<NotificationTask> executeSingle(NotificationTask task, String executor);
 

@@ -28,10 +28,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -163,8 +164,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE660() {
-        List<JobTO> jobs = TASK_SERVICE.listJobs();
-        int oldSize = jobs.size();
+        int oldSize = TASK_SERVICE.listJobs().size();
 
         ImplementationTO taskJobDelegate = IMPLEMENTATION_SERVICE.read(
                 IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
@@ -176,32 +176,25 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         task.setJobDelegate(taskJobDelegate.getKey());
 
         Response response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
-        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
+        String taskKey = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class).getKey();
 
-        jobs = TASK_SERVICE.listJobs();
-        assertEquals(oldSize + 1, jobs.size());
+        assertEquals(oldSize + 1, TASK_SERVICE.listJobs().size());
 
-        TASK_SERVICE.actionJob(task.getKey(), JobAction.START);
+        TASK_SERVICE.actionJob(taskKey, JobAction.START);
 
-        AtomicReference<List<JobTO>> run = new AtomicReference<>();
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).toList());
-                return !run.get().isEmpty();
+                return Optional.of(TASK_SERVICE.getJob(taskKey)).filter(JobTO::isRunning).isPresent();
             } catch (Exception e) {
                 return false;
             }
         });
-        assertEquals(1, run.get().size());
-        assertEquals(task.getKey(), run.get().get(0).getRefKey());
 
-        TASK_SERVICE.actionJob(task.getKey(), JobAction.STOP);
+        TASK_SERVICE.actionJob(taskKey, JobAction.STOP);
 
-        run.set(List.of());
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                run.set(TASK_SERVICE.listJobs().stream().filter(JobTO::isRunning).toList());
-                return run.get().isEmpty();
+                return Optional.of(TASK_SERVICE.getJob(taskKey)).filter(Predicate.not(JobTO::isRunning)).isPresent();
             } catch (Exception e) {
                 return false;
             }

@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -47,6 +45,7 @@ import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
 
@@ -135,11 +134,12 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             final int maxWaitSeconds,
             final boolean dryRun) throws Exception {
 
-        ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
+        SimpleAsyncTaskExecutor executor = new SimpleAsyncTaskExecutor();
+        executor.setVirtualThreads(true);
         List<Future<ExecTO>> futures = new ArrayList<>();
 
         taskKeys.forEach(taskKey -> {
-            futures.add(service.submit(() -> {
+            futures.add(executor.submit(() -> {
                 try {
                     return execSchedTask(taskService, type, taskKey, maxWaitSeconds, dryRun);
                 } catch (Exception e) {
@@ -166,8 +166,6 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
                 LOG.error("While getting futures", e);
             }
         });
-
-        service.shutdownNow();
     }
 
     protected NotificationTaskTO findNotificationTask(final String notification, final int maxWaitSeconds) {

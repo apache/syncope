@@ -29,16 +29,15 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -75,9 +74,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     @Autowired
     protected TaskUtilsFactory taskUtilsFactory;
 
-    @Autowired
-    protected TaskDataBinder taskDataBinder;
-
     /**
      * Notification manager.
      */
@@ -93,23 +89,9 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     @Autowired
     protected ApplicationEventPublisher publisher;
 
-    protected boolean interrupt;
-
-    protected boolean interrupted;
-
     protected void setStatus(final String status) {
         publisher.publishEvent(new JobStatusEvent(
-                this, AuthContextUtils.getDomain(), taskDataBinder.buildRefDesc(task), status));
-    }
-
-    @Override
-    public void interrupt() {
-        interrupt = true;
-    }
-
-    @Override
-    public boolean isInterrupted() {
-        return interrupted;
+                this, AuthContextUtils.getDomain(), JobNamer.getJobName(task), status));
     }
 
     @SuppressWarnings("unchecked")
@@ -131,15 +113,14 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             return;
         }
 
-        boolean manageOperationId = Optional.ofNullable(MDC.get(OPERATION_ID)).
+        boolean manageOperationId = Optional.ofNullable(MDC.get(Job.OPERATION_ID)).
                 map(operationId -> false).
                 orElseGet(() -> {
-                    MDC.put(OPERATION_ID, SecureRandomUtils.generateRandomUUID().toString());
+                    MDC.put(Job.OPERATION_ID, SecureRandomUtils.generateRandomUUID().toString());
                     return true;
                 });
 
-        String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                orElse(securityProperties.getAdminUser());
+        String executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
         TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(taskType).newTaskExec();
         execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
@@ -168,8 +149,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         }
         task = taskDAO.save(task);
 
-        setStatus(null);
-
         notificationManager.createTasks(
                 executor,
                 AuditElements.EventCategoryType.TASK,
@@ -191,7 +170,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 null);
 
         if (manageOperationId) {
-            MDC.remove(OPERATION_ID);
+            MDC.remove(Job.OPERATION_ID);
         }
     }
 
@@ -200,7 +179,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
      *
      * @param dryRun whether to actually touch the data
      * @param executor the user executing this task
-     * @param context Quartz' execution context, can be used to pass parameters to the job
+     * @param context job execution context, can be used to pass parameters to the job
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */

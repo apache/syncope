@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.common.security.GuardedString;
@@ -49,7 +50,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.quartz.JobExecutionException;
 
 public class LDAPPasswordPullActionsTest extends AbstractTest {
 

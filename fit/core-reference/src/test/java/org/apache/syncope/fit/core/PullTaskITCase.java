@@ -36,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -46,8 +47,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.naming.NamingException;
@@ -119,6 +119,7 @@ import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class PullTaskITCase extends AbstractTaskITCase {
@@ -951,10 +952,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 0. first cleanup then create 20 users on LDAP
         ldapCleanup();
 
-        ExecutorService tp = Executors.newVirtualThreadPerTaskExecutor();
+        SimpleAsyncTaskExecutor tp = new SimpleAsyncTaskExecutor();
+        tp.setVirtualThreads(true);
+        List<Future<?>> futures = new ArrayList<>();
+
         for (int i = 0; i < 20; i++) {
             String idx = StringUtils.leftPad(String.valueOf(i), 2, "0");
-            tp.submit(() -> {
+            futures.add(tp.submit(() -> {
                 try {
                     createLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, prepareLdapAttributes(
                             "pullFromLDAP_" + idx,
@@ -968,10 +972,15 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 } catch (NamingException e) {
                     LOG.error("While creating LDAP {}-th user", idx, e);
                 }
-            });
+            }));
         }
-        tp.shutdown();
-        tp.awaitTermination(MAX_WAIT_SECONDS, TimeUnit.SECONDS);
+        futures.forEach(future -> {
+            try {
+                future.get(MAX_WAIT_SECONDS, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                LOG.error("While getting futures", e);
+            }
+        });
 
         // 1. create new concurrent pull task
         PullTaskTO pullTask = TASK_SERVICE.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);

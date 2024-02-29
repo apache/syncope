@@ -20,84 +20,20 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.quartz.impl.jdbcjobstore.DriverDelegate;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties("provisioning")
 public class ProvisioningProperties {
 
-    public static class QuartzProperties {
-
-        private Class<? extends DriverDelegate> delegate;
-
-        private String sql;
-
-        private boolean disableInstance = false;
-
-        private boolean waitForJobsToCompleteOnShutdown = true;
-
-        private int idleWaitTime = 30000;
-
-        private int misfireThreshold = 60000;
-
-        public Class<? extends DriverDelegate> getDelegate() {
-            return delegate;
-        }
-
-        public void setDelegate(final Class<? extends DriverDelegate> delegate) {
-            this.delegate = delegate;
-        }
-
-        public String getSql() {
-            return sql;
-        }
-
-        public void setSql(final String sql) {
-            this.sql = sql;
-        }
-
-        public boolean isDisableInstance() {
-            return disableInstance;
-        }
-
-        public void setDisableInstance(final boolean disableInstance) {
-            this.disableInstance = disableInstance;
-        }
-
-        public boolean isWaitForJobsToCompleteOnShutdown() {
-            return waitForJobsToCompleteOnShutdown;
-        }
-
-        public void setWaitForJobsToCompleteOnShutdown(final boolean waitForJobsToCompleteOnShutdown) {
-            this.waitForJobsToCompleteOnShutdown = waitForJobsToCompleteOnShutdown;
-        }
-
-        public int getIdleWaitTime() {
-            return idleWaitTime;
-        }
-
-        public void setIdleWaitTime(final int idleWaitTime) {
-            this.idleWaitTime = idleWaitTime;
-        }
-
-        public int getMisfireThreshold() {
-            return misfireThreshold;
-        }
-
-        public void setMisfireThreshold(final int misfireThreshold) {
-            this.misfireThreshold = misfireThreshold;
-        }
-    }
+    private String virAttrCacheSpec = "maximumSize=5000,expireAfterAccess=1m";
 
     private final ExecutorProperties asyncConnectorFacadeExecutor = new ExecutorProperties();
 
     private final ExecutorProperties propagationTaskExecutorAsyncExecutor = new ExecutorProperties();
 
-    private String virAttrCacheSpec = "maximumSize=5000,expireAfterAccess=1m";
+    private final ExecutorProperties scheduling = new ExecutorProperties();
 
     private final List<String> connIdLocation = new ArrayList<>();
-
-    private final QuartzProperties quartz = new QuartzProperties();
 
     public String getVirAttrCacheSpec() {
         return virAttrCacheSpec;
@@ -115,11 +51,12 @@ public class ProvisioningProperties {
         return propagationTaskExecutorAsyncExecutor;
     }
 
+    public ExecutorProperties getScheduling() {
+        return scheduling;
+    }
+
     public List<String> getConnIdLocation() {
         return connIdLocation;
     }
 
-    public QuartzProperties getQuartz() {
-        return quartz;
-    }
 }

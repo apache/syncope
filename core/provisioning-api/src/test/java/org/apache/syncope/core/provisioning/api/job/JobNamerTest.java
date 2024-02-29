@@ -20,18 +20,14 @@ package org.apache.syncope.core.provisioning.api.job;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
 
 public class JobNamerTest extends AbstractTest {
 
@@ -61,21 +57,13 @@ public class JobNamerTest extends AbstractTest {
     public void getJobKey(final @Mock Task<?> task) {
         String uuid = UUID.randomUUID().toString();
         when(task.getKey()).thenReturn(uuid);
-        assertTrue(EqualsBuilder.reflectionEquals(new JobKey("taskJob" + task.getKey(), Scheduler.DEFAULT_GROUP),
-                JobNamer.getJobKey(task)));
+        assertEquals("taskJob" + task.getKey(), JobNamer.getJobName(task));
     }
 
     @Test
     public void getJobKey(final @Mock Report report) {
         String uuid = UUID.randomUUID().toString();
         when(report.getKey()).thenReturn(uuid);
-        assertTrue(EqualsBuilder.reflectionEquals(new JobKey("reportJob" + report.getKey(), Scheduler.DEFAULT_GROUP),
-                JobNamer.getJobKey(report)));
-    }
-
-    @Test
-    public void getTriggerName() {
-        String jobName = "testJobName";
-        assertEquals("Trigger_" + jobName, JobNamer.getTriggerName(jobName));
+        assertEquals("reportJob" + report.getKey(), JobNamer.getJobName(report));
     }
 }

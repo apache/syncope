@@ -37,8 +37,6 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ProvisionAction;
@@ -48,6 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -64,15 +63,13 @@ import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
-import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.quartz.JobDataMap;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,7 +99,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
 
     protected final JobManager jobManager;
 
-    protected final SchedulerFactoryBean scheduler;
+    protected final SyncopeTaskScheduler scheduler;
 
     protected final EntityFactory entityFactory;
 
@@ -120,7 +117,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
             final GroupProvisioningManager provisioningManager,
             final TaskDataBinder taskDataBinder,
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final EntityFactory entityFactory) {
 
         super(realmSearchDAO, anyTypeDAO, templateUtils);
@@ -403,17 +400,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     public ExecTO provisionMembers(final String key, final ProvisionAction action) {
         Group group = groupDAO.findById(key).orElseThrow(() -> new NotFoundException("Group " + key));
 
-        Implementation jobDelegate = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
-                findFirst().orElseGet(() -> {
-                    Implementation groupMemberProvision = entityFactory.newEntity(Implementation.class);
-                    groupMemberProvision.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
-                    groupMemberProvision.setEngine(ImplementationEngine.JAVA);
-                    groupMemberProvision.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
-                    groupMemberProvision.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
-                    groupMemberProvision = implementationDAO.save(groupMemberProvision);
-                    return groupMemberProvision;
-                });
+        Implementation jobDelegate = implementationDAO.findById(
+                GroupMemberProvisionTaskJobDelegate.class.getSimpleName()).
+                orElseThrow(() -> new NotFoundException(
+                "Implementation " + GroupMemberProvisionTaskJobDelegate.class.getSimpleName()));
 
         String name = (action == ProvisionAction.DEPROVISION ? "de" : "")
                 + "provision members of group " + group.getName();
@@ -428,18 +418,13 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         task = taskDAO.save(task);
 
         try {
-            Map<String, Object> jobDataMap = jobManager.register(
+            jobManager.register(
                     task,
-                    null,
-                    AuthContextUtils.getUsername());
-
-            jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, false);
-            jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);
-            jobDataMap.put(GroupMemberProvisionTaskJobDelegate.ACTION_JOBDETAIL_KEY, action);
-
-            scheduler.getScheduler().triggerJob(
-                    JobNamer.getJobKey(task),
-                    new JobDataMap(jobDataMap));
+                    OffsetDateTime.now(),
+                    AuthContextUtils.getUsername(),
+                    false,
+                    Map.of(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key,
+                            GroupMemberProvisionTaskJobDelegate.ACTION_JOBDETAIL_KEY, action));
         } catch (Exception e) {
             LOG.error("While executing task {}", task, e);
 
@@ -453,7 +438,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         result.setRefKey(task.getKey());
         result.setRefDesc(taskDataBinder.buildRefDesc(task));
         result.setStart(OffsetDateTime.now());
-        result.setStatus("JOB_FIRED");
+        result.setStatus(JobStatusDAO.JOB_FIRED_STATUS);
         result.setMessage("Job fired; waiting for results...");
 
         return result;

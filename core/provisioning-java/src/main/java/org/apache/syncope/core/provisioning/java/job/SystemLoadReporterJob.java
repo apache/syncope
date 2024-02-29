@@ -20,14 +20,14 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
  * Reports about system load.
  */
-public class SystemLoadReporterJob extends AbstractInterruptableJob {
+public class SystemLoadReporterJob extends Job {
 
     protected static final Integer MB = 1024 * 1024;
 
@@ -38,7 +38,7 @@ public class SystemLoadReporterJob extends AbstractInterruptableJob {
     }
 
     @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
+    protected void execute(final JobExecutionContext context) throws JobExecutionException {
         SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant();
 
         instant.setSystemLoadAverage(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());

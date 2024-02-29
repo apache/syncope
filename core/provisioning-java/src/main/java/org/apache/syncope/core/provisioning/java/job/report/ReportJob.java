@@ -23,22 +23,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
-import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.provisioning.java.job.Job;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Quartz job for executing a given report.
+ * Job executing a given report.
  */
-public class ReportJob extends AbstractInterruptableJob {
+public class ReportJob extends Job {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportJob.class);
 
@@ -60,31 +59,23 @@ public class ReportJob extends AbstractInterruptableJob {
     @Autowired
     private DomainHolder<?> domainHolder;
 
-    private ReportJobDelegate delegate;
-
     @Override
-    public JobDelegate getDelegate() {
-        return delegate;
-    }
-
-    @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
-        String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
-        if (!domainHolder.getDomains().containsKey(domain)) {
-            LOG.debug("Domain {} not found, skipping", domain);
+    protected void execute(final JobExecutionContext context) throws JobExecutionException {
+        if (!domainHolder.getDomains().containsKey(context.getDomain())) {
+            LOG.debug("Domain {} not found, skipping", context.getDomain());
             return;
         }
 
-        String reportKey = context.getMergedJobDataMap().getString(JobManager.REPORT_KEY);
+        String reportKey = (String) context.getData().get(JobManager.REPORT_KEY);
         try {
-            AuthContextUtils.runAsAdmin(domain, () -> {
+            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
                 try {
-                    String implKey = context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION);
+                    String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
                     Implementation impl = implementationDAO.findById(implKey).orElse(null);
                     if (impl == null) {
                         LOG.error("Could not find Implementation '{}', aborting", implKey);
                     } else {
-                        delegate = ImplementationManager.buildReportJobDelegate(
+                        ReportJobDelegate delegate = ImplementationManager.buildReportJobDelegate(
                                 impl,
                                 () -> perContextReportJobDelegates.get(impl.getKey()),
                                 instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
@@ -92,7 +83,7 @@ public class ReportJob extends AbstractInterruptableJob {
                                 "Could not instantiate " + impl.getBody()));
                         delegate.execute(
                                 reportKey,
-                                context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
+                                context.isDryRun(),
                                 context);
                     }
                 } catch (Exception e) {

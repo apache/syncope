@@ -18,14 +18,45 @@
  */
 package org.apache.syncope.core.provisioning.api.job;
 
-/**
- * Implementations of this interface will perform the actual operations required to Quartz's {@link org.quartz.Job}.
- */
-public interface JobDelegate {
+import java.util.HashMap;
+import java.util.Map;
 
-    String OPERATION_ID = "operation.id";
+public class JobExecutionContext {
 
-    void interrupt();
+    private final String domain;
 
-    boolean isInterrupted();
+    private final String jobName;
+
+    private final String executor;
+
+    private final boolean dryRun;
+
+    private final Map<String, Object> data = new HashMap<>();
+
+    public JobExecutionContext(final String domain, final String jobName, final String executor, final boolean dryRun) {
+        this.domain = domain;
+        this.jobName = jobName;
+        this.executor = executor;
+        this.dryRun = dryRun;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public String getJobName() {
+        return jobName;
+    }
+
+    public String getExecutor() {
+        return executor;
+    }
+
+    public boolean isDryRun() {
+        return dryRun;
+    }
+
+    public Map<String, Object> getData() {
+        return data;
+    }
 }

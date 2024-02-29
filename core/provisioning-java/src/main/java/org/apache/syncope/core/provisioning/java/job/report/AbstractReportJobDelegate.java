@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.OffsetDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -35,15 +34,14 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,9 +71,6 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
     @Autowired
     protected EntityFactory entityFactory;
 
-    @Autowired
-    protected ReportDataBinder reportDataBinder;
-
     /**
      * Notification manager.
      */
@@ -91,29 +86,14 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
     @Autowired
     protected ApplicationEventPublisher publisher;
 
-    protected boolean interrupt;
-
-    protected boolean interrupted;
-
     @Override
     public void setConf(final ReportConf conf) {
         this.conf = conf;
     }
 
     protected void setStatus(final String status) {
-        Objects.requireNonNull(report, "Report cannot be undefined");
         publisher.publishEvent(new JobStatusEvent(
-                this, AuthContextUtils.getDomain(), reportDataBinder.buildRefDesc(report), status));
-    }
-
-    @Override
-    public void interrupt() {
-        interrupt = true;
-    }
-
-    @Override
-    public boolean isInterrupted() {
-        return interrupted;
+                this, AuthContextUtils.getDomain(), JobNamer.getJobName(report), status));
     }
 
     @Transactional
@@ -131,8 +111,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             return;
         }
 
-        String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                orElse(securityProperties.getAdminUser());
+        String executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
         ReportExec execution = entityFactory.newEntity(ReportExec.class);
         execution.setStart(OffsetDateTime.now());
         execution.setReport(report);
@@ -149,7 +128,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             // a single ZipEntry in the ZipOutputStream
             zos.putNextEntry(new ZipEntry(report.getName()));
         } catch (IOException e) {
-            throw new JobExecutionException("While configuring for output", e, true);
+            throw new JobExecutionException("While configuring for output", e);
         }
 
         setStatus("Starting");
@@ -165,8 +144,6 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(ReportJob.Status.FAILURE.name());
         } finally {
-            setStatus(null);
-
             try {
                 zos.closeEntry();
                 zos.close();
@@ -181,8 +158,6 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
 
         report.add(execution);
         report = reportDAO.save(report);
-
-        setStatus(null);
 
         notificationManager.createTasks(
                 executor,
@@ -211,7 +186,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
      * @param dryRun whether to actually touch the data
      * @param os where to stream report execution's data
      * @param executor the user executing this report
-     * @param context Quartz' execution context, can be used to pass parameters to the job
+     * @param context job execution context, can be used to pass parameters to the job
      * @return the report execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */

@@ -23,8 +23,6 @@ import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,16 +53,12 @@ public final class JobNamer {
         return getKeyFromJobName(name, "reportJob" + SyncopeConstants.UUID_REGEX, 9);
     }
 
-    public static JobKey getJobKey(final Task<?> task) {
-        return new JobKey("taskJob" + task.getKey(), Scheduler.DEFAULT_GROUP);
+    public static String getJobName(final Task<?> task) {
+        return "taskJob" + task.getKey();
     }
 
-    public static JobKey getJobKey(final Report report) {
-        return new JobKey("reportJob" + report.getKey(), Scheduler.DEFAULT_GROUP);
-    }
-
-    public static String getTriggerName(final String jobName) {
-        return "Trigger_" + jobName;
+    public static String getJobName(final Report report) {
+        return "reportJob" + report.getKey();
     }
 
     private JobNamer() {

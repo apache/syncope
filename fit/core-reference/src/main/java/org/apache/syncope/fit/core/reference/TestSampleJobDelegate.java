@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
 /**
  * Sample implementation for executing a scheduled task.
@@ -35,7 +35,7 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate<SchedTas
             throws JobExecutionException {
 
         for (int i = 0; i < 2; i++) {
-            LOG.debug("TestSampleJob#doExecute round {} time {}", i, new Date().toString());
+            LOG.debug("TestSampleJob#doExecute round {} time {}", i, OffsetDateTime.now());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
@@ -50,15 +50,6 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate<SchedTas
         return (dryRun
                 ? "DRY "
                 : "") + "RUNNING";
-    }
-
-    @Override
-    public void interrupt() {
-    }
-
-    @Override
-    public boolean isInterrupted() {
-        return false;
     }
 
     @Override

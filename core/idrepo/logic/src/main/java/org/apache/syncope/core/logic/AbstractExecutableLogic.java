@@ -27,15 +27,15 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 public abstract class AbstractExecutableLogic<T extends EntityTO> extends AbstractJobLogic<T> {
 
     public AbstractExecutableLogic(
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO) {
 
         super(jobManager, scheduler, jobStatusDAO);

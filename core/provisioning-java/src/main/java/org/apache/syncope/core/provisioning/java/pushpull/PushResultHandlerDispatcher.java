@@ -39,12 +39,6 @@ public class PushResultHandlerDispatcher
     }
 
     public boolean handle(final String anyType, final String anyKey) {
-        if (executor.wasInterruptRequested()) {
-            LOG.debug("Push interrupted");
-            executor.setInterrupted();
-            return false;
-        }
-
         if (tpte.isEmpty()) {
             boolean result = nonConcurrentHandler(anyType).handle(anyKey);
 
