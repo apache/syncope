@@ -132,18 +132,17 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public static List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
+    public List<ResourceType> resourceTypes(final UriBuilder uriBuilder) {
         synchronized (MONITOR) {
+            String uri = uriBuilder.build().toASCIIString();
             if (USER == null) {
                 USER = new ResourceType("User", "User", "/Users", "User Account", Resource.User.schema(),
-                        new Meta(Resource.ResourceType,
-                                null, null, null, uriBuilder.path("User").build().toASCIIString()));
+                        new Meta(Resource.ResourceType, null, null, null, uri + "User"));
                 USER.getSchemaExtensions().add(new SchemaExtension(Resource.EnterpriseUser.schema(), true));
             }
             if (GROUP == null) {
                 GROUP = new ResourceType("Group", "Group", "/Groups", "Group", Resource.Group.schema(),
-                        new Meta(Resource.ResourceType,
-                                null, null, null, uriBuilder.path("Group").build().toASCIIString()));
+                        new Meta(Resource.ResourceType, null, null, null, uri + "Group"));
             }
         }
 
@@ -151,7 +150,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public static ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
+    public ResourceType resourceType(final UriBuilder uriBuilder, final String type) {
         if (Resource.User.name().equals(type)) {
             resourceTypes(uriBuilder);
             return USER;

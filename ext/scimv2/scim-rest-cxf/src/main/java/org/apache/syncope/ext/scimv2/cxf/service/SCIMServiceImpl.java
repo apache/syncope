@@ -56,12 +56,12 @@ public class SCIMServiceImpl extends AbstractSCIMService<SCIMResource> implement
 
     @Override
     public List<ResourceType> resourceTypes() {
-        return SCIMLogic.resourceTypes(uriInfo.getAbsolutePathBuilder());
+        return scimLogic.resourceTypes(uriInfo.getAbsolutePathBuilder());
     }
 
     @Override
     public ResourceType resourceType(final String type) {
-        return SCIMLogic.resourceType(uriInfo.getAbsolutePathBuilder(), type);
+        return scimLogic.resourceType(uriInfo.getAbsolutePathBuilder(), type);
     }
 
     @Override
