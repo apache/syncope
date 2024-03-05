@@ -203,13 +203,6 @@ under the License.
         <filtering>true</filtering>
       </testResource>
       <testResource>
-        <directory>${basedir}/../persistence-jpa/src/main/resources</directory>
-        <includes>
-          <include>persistence.properties</include>
-        </includes>
-        <filtering>true</filtering>
-      </testResource>
-      <testResource>
         <directory>${basedir}/../persistence-jpa/src/test/resources</directory>
         <filtering>true</filtering>
       </testResource>
