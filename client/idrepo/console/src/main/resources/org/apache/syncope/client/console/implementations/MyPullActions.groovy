@@ -27,12 +27,12 @@ import org.apache.syncope.common.lib.to.OrgUnit
 import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.common.lib.to.ProvisioningReport
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions
 import org.identityconnectors.framework.common.objects.SyncDelta
-import org.quartz.JobExecutionException
 
 @CompileStatic
 class MyPullActions implements PullActions {

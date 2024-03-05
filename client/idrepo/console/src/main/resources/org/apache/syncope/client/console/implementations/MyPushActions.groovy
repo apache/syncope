@@ -21,9 +21,9 @@ import groovy.transform.CompileStatic
 import java.util.Set
 import org.apache.syncope.common.lib.to.ProvisioningReport
 import org.apache.syncope.core.persistence.api.entity.Entity
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions
-import org.quartz.JobExecutionException
 
 @CompileStatic
 class MyPushActions implements PushActions {

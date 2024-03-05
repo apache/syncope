@@ -18,9 +18,9 @@
  */
 import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.types.TaskType
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate
-import org.quartz.JobExecutionContext
-import org.quartz.JobExecutionException
 
 @CompileStatic
 class MySchedTaskJobDelegate implements SchedTaskJobDelegate {
