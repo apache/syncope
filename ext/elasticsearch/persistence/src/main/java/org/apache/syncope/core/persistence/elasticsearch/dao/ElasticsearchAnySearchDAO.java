@@ -531,7 +531,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
             case ILIKE:
                 StringBuilder output = new StringBuilder();
-                for (char c : cond.getExpression().toLowerCase().toCharArray()) {
+                for (char c : cond.getExpression().toLowerCase().replace("\\_", "_").toCharArray()) {
                     if (c == '%') {
                         output.append(".*");
                     } else if (Character.isLetter(c)) {
@@ -549,7 +549,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
             case LIKE:
                 query = new Query.Builder().wildcard(QueryBuilders.wildcard().
-                        field(schema.getKey()).value(cond.getExpression().replace('%', '*')).build()).build();
+                        field(schema.getKey()).value(cond.getExpression().replace('%', '*').replace("\\_", "_")).
+                        build()).build();
                 break;
 
             case IEQ:
