@@ -110,7 +110,6 @@ public class DomainConfFactory implements DomainRegistry {
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
         databasePopulator.addScript(new ClassPathResource("/audit/" + domain.getAuditSql()));
-        registerSingleton(domain.getKey().toLowerCase() + "ResourceDatabasePopulator", databasePopulator);
 
         // domainDataSourceInitializer
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
@@ -118,6 +117,7 @@ public class DomainConfFactory implements DomainRegistry {
         dataSourceInitializer.setEnabled(true);
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
         registerSingleton(domain.getKey().toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
+        beanFactory().initializeBean(dataSourceInitializer, domain.getKey().toLowerCase() + "DataSourceInitializer");
 
         // domainEntityManagerFactory
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
