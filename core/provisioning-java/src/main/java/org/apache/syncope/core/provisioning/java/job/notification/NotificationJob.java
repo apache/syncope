@@ -20,14 +20,12 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
-import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
+import org.apache.syncope.core.provisioning.java.job.Job;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see org.apache.syncope.core.persistence.api.entity.task.NotificationTask
  */
-public class NotificationJob extends AbstractInterruptableJob {
+public class NotificationJob extends Job {
 
     public enum Status {
 
@@ -66,15 +64,9 @@ public class NotificationJob extends AbstractInterruptableJob {
     }
 
     @Override
-    public JobDelegate getDelegate() {
-        return delegate;
-    }
-
-    @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
+    protected void execute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Waking up...");
-        String executor = Optional.ofNullable(context.getMergedJobDataMap().getString(JobManager.EXECUTOR_KEY)).
-                orElse(securityProperties.getAdminUser());
+        String executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
         for (String domain : domainHolder.getDomains().keySet()) {
             try {
                 AuthContextUtils.runAsAdmin(domain, () -> {

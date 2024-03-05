@@ -92,7 +92,6 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
         databasePopulator.addScript(new ClassPathResource("/audit/" + domain.getAuditSql()));
-        registerSingleton(domain.getKey().toLowerCase() + "ResourceDatabasePopulator", databasePopulator);
 
         // domainDataSourceInitializer
         DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
@@ -100,6 +99,7 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
         dataSourceInitializer.setEnabled(true);
         dataSourceInitializer.setDatabasePopulator(databasePopulator);
         registerSingleton(domain.getKey().toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
+        beanFactory().initializeBean(dataSourceInitializer, domain.getKey().toLowerCase() + "DataSourceInitializer");
 
         // DomainRoutingEntityManagerFactory#domain
         beanFactory().getBean(DomainRoutingEntityManagerFactory.class).

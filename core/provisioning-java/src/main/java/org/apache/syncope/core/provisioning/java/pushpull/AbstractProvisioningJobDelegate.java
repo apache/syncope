@@ -40,11 +40,11 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask<T>>
@@ -157,9 +157,6 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         if (dryRun) {
             report.append("==> Dry run only, no modifications were made <==\n\n");
         }
-        if (interrupted) {
-            report.append("==> Execution was interrupted <==\n\n");
-        }
 
         List<ProvisioningReport> rSuccCreate = new ArrayList<>();
         List<ProvisioningReport> rFailCreate = new ArrayList<>();
@@ -204,203 +201,182 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
         for (ProvisioningReport provResult : provResults) {
             switch (provResult.getStatus()) {
-                case SUCCESS:
+                case SUCCESS -> {
                     switch (provResult.getOperation()) {
-                        case CREATE:
+                        case CREATE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccCreate.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uSuccCreate.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laSuccCreate.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gSuccCreate.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aSuccCreate.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        case UPDATE:
+                        case UPDATE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccUpdate.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uSuccUpdate.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laSuccUpdate.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gSuccUpdate.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aSuccUpdate.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        case DELETE:
+                        case DELETE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccDelete.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uSuccDelete.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laSuccDelete.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gSuccDelete.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aSuccDelete.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        case NONE:
+                        case NONE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rSuccNone.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uSuccNone.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laSuccNone.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gSuccNone.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aSuccNone.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        default:
+                        default -> {
+                        }
                     }
-                    break;
+                }
 
-                case FAILURE:
+                case FAILURE -> {
                     switch (provResult.getOperation()) {
-                        case CREATE:
+                        case CREATE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailCreate.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uFailCreate.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laFailCreate.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gFailCreate.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aFailCreate.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        case UPDATE:
+                        case UPDATE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailUpdate.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uFailUpdate.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laFailUpdate.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gFailUpdate.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aFailUpdate.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        case DELETE:
+                        case DELETE -> {
                             if (StringUtils.isBlank(provResult.getAnyType())) {
                                 rFailDelete.add(provResult);
                             } else {
                                 switch (provResult.getAnyType()) {
-                                    case USER:
+                                    case USER ->
                                         uFailDelete.add(provResult);
-                                        break;
 
-                                    case LINKED_ACCOUNT:
+                                    case LINKED_ACCOUNT ->
                                         laFailDelete.add(provResult);
-                                        break;
 
-                                    case GROUP:
+                                    case GROUP ->
                                         gFailDelete.add(provResult);
-                                        break;
 
-                                    default:
+                                    default ->
                                         aFailDelete.add(provResult);
                                 }
                             }
-                            break;
+                        }
 
-                        default:
+                        default -> {
+                        }
                     }
-                    break;
+                }
 
-                case IGNORE:
+                case IGNORE -> {
                     if (StringUtils.isBlank(provResult.getAnyType())) {
                         rIgnore.add(provResult);
                     } else {
                         switch (provResult.getAnyType()) {
-                            case USER:
+                            case USER ->
                                 uIgnore.add(provResult);
-                                break;
 
-                            case LINKED_ACCOUNT:
+                            case LINKED_ACCOUNT ->
                                 laIgnore.add(provResult);
-                                break;
 
-                            case GROUP:
+                            case GROUP ->
                                 gIgnore.add(provResult);
-                                break;
 
-                            default:
+                            default ->
                                 aIgnore.add(provResult);
                         }
                     }
-                    break;
+                }
 
-                default:
+                default -> {
+                }
             }
         }
 

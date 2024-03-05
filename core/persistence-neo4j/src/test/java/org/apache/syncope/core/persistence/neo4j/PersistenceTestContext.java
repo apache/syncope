@@ -27,14 +27,13 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingNeo4jClient;
+import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.DefaultPasswordGenerator;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.neo4j.driver.Driver;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -44,8 +43,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
-import org.springframework.data.neo4j.core.Neo4jClient;
-import org.springframework.data.neo4j.repository.config.Neo4jRepositoryConfigurationExtension;
 
 @Import(PersistenceContext.class)
 @Configuration(proxyBeanMethods = false)
@@ -125,21 +122,16 @@ public class PersistenceTestContext {
     }
 
     @Primary
-    @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_NEO4J_CLIENT_BEAN_NAME)
-    public Neo4jClient neo4jClient(
-            @Qualifier("MasterNeo4jClient")
-            final Neo4jClient masterNeo4jClient) {
-
-        DomainRoutingNeo4jClient neo4jClient = new DomainRoutingNeo4jClient() {
+    @Bean
+    public DomainRoutingDriver driver(final DomainHolder<Driver> domainHolder) {
+        return new DomainRoutingDriver(domainHolder) {
 
             @Override
-            protected Neo4jClient delegate() {
-                return delegates.getOrDefault(
+            protected Driver delegate() {
+                return domainHolder.getDomains().getOrDefault(
                         TEST_DOMAIN.get(),
-                        delegates.get(SyncopeConstants.MASTER_DOMAIN));
+                        domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
             }
         };
-        neo4jClient.add(SyncopeConstants.MASTER_DOMAIN, masterNeo4jClient);
-        return neo4jClient;
     }
 }

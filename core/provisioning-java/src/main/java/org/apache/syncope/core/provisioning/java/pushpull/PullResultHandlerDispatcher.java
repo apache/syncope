@@ -45,12 +45,6 @@ public class PullResultHandlerDispatcher
     @Transactional
     @Override
     public boolean handle(final SyncDelta delta) {
-        if (executor.wasInterruptRequested()) {
-            LOG.debug("Pull interrupted");
-            executor.setInterrupted();
-            return false;
-        }
-
         if (tpte.isEmpty()) {
             boolean result = nonConcurrentHandler(delta.getObjectClass().getObjectClassValue()).handle(delta);
 

@@ -20,7 +20,9 @@ package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
 import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
@@ -68,6 +70,15 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
         configuration.getOpenAPI().setServers(List.of(new Server().url(url)));
 
         return configuration;
+    }
+
+    @Override
+    public void customize(final OpenAPI oas) {
+        if (oas.getPaths() == null) {
+            oas.setPaths(new Paths());
+        }
+
+        super.customize(oas);
     }
 
     @Override

@@ -39,14 +39,14 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-quartz</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-persistence-api</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
     </dependency>
 
     <dependency>

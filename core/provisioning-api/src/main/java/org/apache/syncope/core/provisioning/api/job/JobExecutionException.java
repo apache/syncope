@@ -16,34 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.java.job;
+package org.apache.syncope.core.provisioning.api.job;
 
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
-import org.quartz.DisallowConcurrentExecution;
-import org.quartz.InterruptableJob;
-import org.quartz.UnableToInterruptJobException;
+public class JobExecutionException extends Exception {
 
-@DisallowConcurrentExecution
-public abstract class AbstractInterruptableJob implements InterruptableJob {
+    private static final long serialVersionUID = -4545623806027347816L;
 
-    private final JobDelegate embeddedDelegate = new JobDelegate() {
-
-        @Override
-        public void interrupt() {
-        }
-
-        @Override
-        public boolean isInterrupted() {
-            return false;
-        }
-    };
-
-    public JobDelegate getDelegate() {
-        return embeddedDelegate;
+    public JobExecutionException(final String message) {
+        super(message);
     }
 
-    @Override
-    public void interrupt() throws UnableToInterruptJobException {
-        getDelegate().interrupt();
+    public JobExecutionException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public JobExecutionException(final Throwable cause) {
+        super(cause);
     }
 }

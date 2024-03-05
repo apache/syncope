@@ -26,14 +26,14 @@ public class JobStatusEvent extends ApplicationEvent {
 
     private final String domain;
 
-    private final String jobRefDesc;
+    private final String jobName;
 
     private final String jobStatus;
 
-    public JobStatusEvent(final Object source, final String domain, final String jobRefDesc, final String jobStatus) {
+    public JobStatusEvent(final Object source, final String domain, final String jobName, final String jobStatus) {
         super(source);
         this.domain = domain;
-        this.jobRefDesc = jobRefDesc;
+        this.jobName = jobName;
         this.jobStatus = jobStatus;
     }
 
@@ -41,8 +41,8 @@ public class JobStatusEvent extends ApplicationEvent {
         return domain;
     }
 
-    public String getJobRefDesc() {
-        return jobRefDesc;
+    public String getJobName() {
+        return jobName;
     }
 
     public String getJobStatus() {
@@ -53,7 +53,7 @@ public class JobStatusEvent extends ApplicationEvent {
     public String toString() {
         return "JobStatusEvent{"
                 + "domain=" + domain
-                + ", jobRefDesc=" + jobRefDesc
+                + ", jobName=" + jobName
                 + ", jobStatus=" + jobStatus
                 + '}';
     }

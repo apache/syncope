@@ -24,29 +24,37 @@ import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.AsciiArtUtils;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.refresh.ContextRefresher;
 
-public class WARefreshContextJob implements Job {
+public class WARefreshContextJob implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(WARefreshContextJob.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(WARefreshContextJob.class);
 
-    @Autowired
-    private WARestClient waRestClient;
+    protected static void advertiseReady() {
+        AsciiArtUtils.printAsciiArtReady(LOG, StringUtils.EMPTY);
+        LOG.info("Ready to process requests");
+    }
 
-    @Autowired
-    private ContextRefresher contextRefresher;
+    protected final WARestClient waRestClient;
 
-    @Autowired
-    private SamlIdPMetadataGenerator metadataGenerator;
+    protected final ContextRefresher contextRefresher;
+
+    protected final SamlIdPMetadataGenerator metadataGenerator;
+
+    public WARefreshContextJob(
+            final WARestClient waRestClient,
+            final ContextRefresher contextRefresher,
+            final SamlIdPMetadataGenerator metadataGenerator) {
+
+        this.waRestClient = waRestClient;
+        this.contextRefresher = contextRefresher;
+        this.metadataGenerator = metadataGenerator;
+    }
 
     @Override
-    public void execute(final JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    public void run() {
         try {
             LOG.debug("Attempting to refresh WA application context");
             if (!waRestClient.isReady()) {
@@ -62,12 +70,7 @@ public class WARefreshContextJob implements Job {
 
             advertiseReady();
         } catch (Throwable t) {
-            throw new JobExecutionException("While generating SAML2 IdP metadata", t);
+            throw new IllegalStateException("While generating SAML2 IdP metadata", t);
         }
-    }
-
-    private static void advertiseReady() {
-        AsciiArtUtils.printAsciiArtReady(LOG, StringUtils.EMPTY);
-        LOG.info("Ready to process requests");
     }
 }

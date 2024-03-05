@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -68,17 +69,14 @@ import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.quartz.JobDataMap;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,7 +100,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     public TaskLogic(
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO,
             final TaskDAO taskDAO,
             final TaskExecDAO taskExecDAO,
@@ -152,9 +150,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    AuthContextUtils.getUsername());
+                    AuthContextUtils.getUsername(),
+                    false,
+                    Map.of());
         } catch (Exception e) {
-            LOG.error("While registering quartz job for task " + task.getKey(), e);
+            LOG.error("While registering job for task " + task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -187,9 +187,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    AuthContextUtils.getUsername());
+                    AuthContextUtils.getUsername(),
+                    false,
+                    Map.of());
         } catch (Exception e) {
-            LOG.error("While registering quartz job for task " + task.getKey(), e);
+            LOG.error("While registering job for task " + task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -325,15 +327,12 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 }
 
                 try {
-                    Map<String, Object> jobDataMap = jobManager.register(
+                    jobManager.register(
                             (SchedTask) task,
-                            startAt,
-                            executor);
-                    jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
-
-                    if (startAt == null) {
-                        scheduler.getScheduler().triggerJob(JobNamer.getJobKey(task), new JobDataMap(jobDataMap));
-                    }
+                            Optional.ofNullable(startAt).orElseGet(() -> OffsetDateTime.now()),
+                            executor,
+                            dryRun,
+                            Map.of());
                 } catch (Exception e) {
                     LOG.error("While executing task {}", task, e);
 
@@ -348,7 +347,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 result.setRefDesc(binder.buildRefDesc(task));
                 result.setStart(OffsetDateTime.now());
                 result.setExecutor(executor);
-                result.setStatus("JOB_FIRED");
+                result.setStatus(JobStatusDAO.JOB_FIRED_STATUS);
                 result.setMessage("Job fired; waiting for results...");
                 break;
 
@@ -478,13 +477,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @Override
-    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
-        String key = JobNamer.getTaskKeyFromJobName(jobKey.getName());
+    protected Triple<JobType, String, String> getReference(final String jobName) {
+        String key = JobNamer.getTaskKeyFromJobName(jobName);
 
-        Task<?> task = taskDAO.findById(key).orElse(null);
-        return task == null || !(task instanceof SchedTask)
-                ? null
-                : Triple.of(JobType.TASK, key, binder.buildRefDesc(task));
+        return taskDAO.findById(key).filter(SchedTask.class::isInstance).
+                map(t -> Triple.of(JobType.TASK, key, binder.buildRefDesc(t))).orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")
@@ -502,20 +499,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             securityChecks(IdRepoEntitlement.TASK_READ, macroTask.getRealm().getFullPath());
         }
 
-        JobTO jobTO = null;
-        try {
-            jobTO = getJobTO(JobNamer.getJobKey(task), false);
-        } catch (SchedulerException e) {
-            LOG.error("Problems while retrieving scheduled job {}", JobNamer.getJobKey(task), e);
-
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-            sce.getElements().add(e.getMessage());
-            throw sce;
-        }
-        if (jobTO == null) {
-            throw new NotFoundException("Job for task " + key);
-        }
-        return jobTO;
+        return getJobTO(JobNamer.getJobName(task), false).
+                orElseThrow(() -> new NotFoundException("Job for task " + key));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
@@ -527,7 +512,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             securityChecks(IdRepoEntitlement.TASK_EXECUTE, macroTask.getRealm().getFullPath());
         }
 
-        doActionJob(JobNamer.getJobKey(task), action);
+        doActionJob(JobNamer.getJobName(task), action);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")

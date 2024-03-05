@@ -23,9 +23,6 @@ import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 
 @SuppressWarnings("squid:S1214")
 public interface JobManager {
@@ -36,27 +33,24 @@ public interface JobManager {
 
     String REPORT_KEY = "reportKey";
 
-    String DOMAIN_KEY = "domain";
-
-    String EXECUTOR_KEY = "executor";
-
-    String DRY_RUN_JOBDETAIL_KEY = "dryRun";
-
     String DELEGATE_IMPLEMENTATION = "delegateImpl";
 
-    JobKey NOTIFICATION_JOB = new JobKey("notificationJob", Scheduler.DEFAULT_GROUP);
+    String NOTIFICATION_JOB = "notificationJob";
 
-    boolean isRunning(JobKey jobKey) throws SchedulerException;
+    boolean isRunning(String jobName);
 
-    Map<String, Object> register(
+    void register(
             SchedTask task,
             OffsetDateTime startAt,
-            String executor) throws SchedulerException;
+            String executor,
+            boolean dryRun,
+            Map<String, Object> jobData);
 
-    Map<String, Object> register(
+    void register(
             Report report,
             OffsetDateTime startAt,
-            String executor) throws SchedulerException;
+            String executor,
+            boolean dryRun);
 
     void unregister(Task<?> task);
 

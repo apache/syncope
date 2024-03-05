@@ -18,19 +18,12 @@
  */
 import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.report.ReportConf
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate
-import org.quartz.JobExecutionContext
-import org.quartz.JobExecutionException
 
 @CompileStatic
 class MyReportJobDelegate implements ReportJobDelegate {	
-
-  void interrupt() {
-  }
-
-  boolean isInterrupted() {
-    return false
-  }
   
   void setConf(ReportConf conf) {
     

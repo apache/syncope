@@ -123,9 +123,6 @@ under the License.
     <asyncLogger name="org.springframework" additivity="false" level="INFO">
       <appender-ref ref="main"/>
     </asyncLogger>
-    <asyncLogger name="org.quartz" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
-    </asyncLogger>
     <asyncLogger name="org.flowable" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
     </asyncLogger>

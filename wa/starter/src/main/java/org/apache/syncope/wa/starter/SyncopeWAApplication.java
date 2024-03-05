@@ -18,21 +18,15 @@
  */
 package org.apache.syncope.wa.starter;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.Instant;
 import java.util.Map;
 import org.apache.syncope.wa.bootstrap.WAProperties;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.config.WARefreshContextJob;
 import org.apereo.cas.config.GoogleAuthenticatorLdapConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
+import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -52,11 +46,13 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cloud.context.refresh.ContextRefresher;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.task.TaskRejectedException;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
@@ -111,28 +107,22 @@ public class SyncopeWAApplication extends SpringBootServletInitializer {
     @EventListener
     public void handleApplicationReadyEvent(final ApplicationReadyEvent event) {
         new CasConfigurationPropertiesValidator(event.getApplicationContext()).validate();
-        final WAProperties waProperties = event.getApplicationContext().getBean(WAProperties.class);
-        final SchedulerFactoryBean scheduler = event.getApplicationContext().getBean(SchedulerFactoryBean.class);
-        scheduleJobToRefreshContext(waProperties, scheduler);
-    }
 
-    protected void scheduleJobToRefreshContext(
-            final WAProperties waProperties,
-            final SchedulerFactoryBean scheduler) {
+        WARestClient waRestClient = event.getApplicationContext().getBean(WARestClient.class);
+        ContextRefresher contextRefresher = event.getApplicationContext().getBean(ContextRefresher.class);
+        SamlIdPMetadataGenerator metadataGenerator =
+                event.getApplicationContext().getBean(SamlIdPMetadataGenerator.class);
 
+        WARefreshContextJob job = new WARefreshContextJob(waRestClient, contextRefresher, metadataGenerator);
+
+        WAProperties waProperties = event.getApplicationContext().getBean(WAProperties.class);
+        TaskScheduler scheduler = event.getApplicationContext().getBean(TaskScheduler.class);
+        Instant startAt = Instant.now().plusSeconds(waProperties.getContextRefreshDelay());
         try {
-            Date date = Date.from(LocalDateTime.now().plusSeconds(waProperties.getContextRefreshDelay()).
-                    atZone(ZoneId.systemDefault()).toInstant());
-            Trigger trigger = TriggerBuilder.newTrigger().startAt(date).build();
-            JobKey jobKey = new JobKey(getClass().getSimpleName());
-
-            JobDetail job = JobBuilder.newJob(WARefreshContextJob.class).
-                    withIdentity(jobKey).
-                    build();
-            LOG.info("Scheduled job to refresh application context @ [{}]", date);
-            scheduler.getScheduler().scheduleJob(job, trigger);
-        } catch (final SchedulerException e) {
-            throw new RuntimeException("Could not schedule refresh job", e);
+            scheduler.schedule(job, startAt);
+            LOG.info("Scheduled job to refresh application context @ [{}]", startAt);
+        } catch (TaskRejectedException e) {
+            throw new IllegalStateException("Could not schedule refresh job", e);
         }
     }
 }

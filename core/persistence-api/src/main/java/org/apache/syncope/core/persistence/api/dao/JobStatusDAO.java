@@ -21,4 +21,10 @@ package org.apache.syncope.core.persistence.api.dao;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 
 public interface JobStatusDAO extends DAO<JobStatus> {
+
+    String JOB_FIRED_STATUS = "JOB_FIRED";
+
+    boolean lock(String key);
+
+    void unlock(String key);
 }

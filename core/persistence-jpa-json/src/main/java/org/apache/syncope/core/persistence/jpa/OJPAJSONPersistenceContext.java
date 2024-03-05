@@ -39,12 +39,12 @@ import org.apache.syncope.core.persistence.jpa.dao.OJPAJSONAuditEntryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtOJSONImpl;
 import org.apache.syncope.core.persistence.jpa.entity.OJPAJSONEntityFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
-@ConditionalOnExpression("#{'${provisioning.quartz.sql}' matches '.*oracle.*'}")
+@ConditionalOnClass(name = "oracle.jdbc.OracleDriver")
 public class OJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "oJPAJSONEntityFactory")

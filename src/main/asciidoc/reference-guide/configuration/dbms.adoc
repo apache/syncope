@@ -36,9 +36,6 @@ persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDicti
 persistence.domain[0].auditSql=audit.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
-provisioning.quartz.sql=tables_postgres.sql
 ....
 
 as `core/src/main/resources/core-postgres.properties`.
@@ -88,9 +85,6 @@ persistence.domain[0].orm=META-INF/spring-orm-pgjsonb.xml
 persistence.domain[0].auditSql=audit_pgjsonb.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
-provisioning.quartz.sql=tables_postgres.sql
 ....
 
 as `core/src/main/resources/core-pgjsonb.properties`.
@@ -121,9 +115,6 @@ persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictiona
 persistence.domain[0].auditSql=audit_mysql_innodb.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-provisioning.quartz.sql=tables_mysql_innodb.sql
 ....
 
 as `core/src/main/resources/core-mysql.properties`.
@@ -180,9 +171,6 @@ persistence.domain[0].orm=META-INF/spring-orm-myjson.xml
 persistence.domain[0].auditSql=audit_myjson.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-provisioning.quartz.sql=tables_mysql_innodb.sql
 ....
 
 as `core/src/main/resources/core-myjson.properties`.
@@ -219,9 +207,6 @@ persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictio
 persistence.domain[0].auditSql=audit_mariadb.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-provisioning.quartz.sql=tables_mariadb.sql
 ....
 
 as `core/src/main/resources/core-mariadb.properties`.
@@ -259,9 +244,6 @@ persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 
 persistence.indexesXML=classpath:oracle_indexes.xml
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
-provisioning.quartz.sql=tables_oracle.sql
 ....
 
 as `core/src/main/resources/core-oracle.properties`.
@@ -312,9 +294,6 @@ persistence.domain[0].orm=META-INF/spring-orm-ojson.xml
 persistence.domain[0].auditSql=audit_ojson.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.oracle.OracleDelegate
-provisioning.quartz.sql=tables_oracle.sql
 ....
 
 as `core/src/main/resources/core-ojson.properties`.
@@ -349,9 +328,6 @@ persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 
 persistence.viewsXML=classpath:sqlserver_views.xml
-
-provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.MSSQLDelegate
-provisioning.quartz.sql=tables_sqlServer.sql
 ....
 
 as `core/src/main/resources/core-sqlserver.properties`.

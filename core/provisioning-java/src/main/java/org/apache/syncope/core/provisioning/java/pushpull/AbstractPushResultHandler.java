@@ -47,6 +47,7 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
@@ -54,17 +55,58 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
+
+    protected static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
+        if (!reporter.getStatuses().isEmpty()) {
+            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
+            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
+        }
+    }
+
+    protected static ResourceOperation toResourceOperation(final UnmatchingRule rule) {
+        return switch (rule) {
+            case ASSIGN, PROVISION ->
+                ResourceOperation.CREATE;
+            default ->
+                ResourceOperation.NONE;
+        };
+    }
+
+    protected static ResourceOperation toResourceOperation(final MatchingRule rule) {
+        return switch (rule) {
+            case UPDATE ->
+                ResourceOperation.UPDATE;
+            case DEPROVISION, UNASSIGN ->
+                ResourceOperation.DELETE;
+            default ->
+                ResourceOperation.NONE;
+        };
+    }
+
+    protected static ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
+        switch (status) {
+            case FAILURE:
+                return ProvisioningReport.Status.FAILURE;
+
+            case SUCCESS:
+                return ProvisioningReport.Status.SUCCESS;
+
+            case CREATED:
+            case NOT_ATTEMPTED:
+            default:
+                return ProvisioningReport.Status.IGNORE;
+        }
+    }
 
     @Autowired
     protected OutboundMatcher outboundMatcher;
@@ -85,7 +127,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     protected MappingManager mappingManager;
 
     @Autowired
-    protected SchedulerFactoryBean scheduler;
+    protected SyncopeTaskScheduler scheduler;
 
     protected abstract String getName(Any<?> any);
 
@@ -321,7 +363,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     result.setOperation(toResourceOperation(profile.getTask().getUnmatchingRule()));
 
                     switch (profile.getTask().getUnmatchingRule()) {
-                        case ASSIGN:
+                        case ASSIGN -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeAssign(profile, any);
                             }
@@ -332,9 +374,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 assign(any, enable, result);
                             }
-                            break;
+                        }
 
-                        case PROVISION:
+                        case PROVISION -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeProvision(profile, any);
                             }
@@ -345,9 +387,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 provision(any, enable, result);
                             }
-                            break;
+                        }
 
-                        case UNLINK:
+                        case UNLINK -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUnlink(profile, any);
                             }
@@ -358,21 +400,22 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 link(any, true, result);
                             }
-                            break;
+                        }
 
-                        case IGNORE:
+                        case IGNORE -> {
                             LOG.debug("Ignored any: {}", any);
                             result.setStatus(ProvisioningReport.Status.IGNORE);
-                            break;
+                        }
 
-                        default:
-                        // do nothing
+                        default -> {
+                        }
                     }
+                    // do nothing
                 } else {
                     result.setOperation(toResourceOperation(profile.getTask().getMatchingRule()));
 
                     switch (profile.getTask().getMatchingRule()) {
-                        case UPDATE:
+                        case UPDATE -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUpdate(profile, any);
                             }
@@ -382,9 +425,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 update(any, enable, beforeObj, result);
                             }
-                            break;
+                        }
 
-                        case DEPROVISION:
+                        case DEPROVISION -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeDeprovision(profile, any);
                             }
@@ -395,9 +438,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 deprovision(any, beforeObj, result);
                             }
-                            break;
+                        }
 
-                        case UNASSIGN:
+                        case UNASSIGN -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUnassign(profile, any);
                             }
@@ -408,9 +451,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 unassign(any, beforeObj, result);
                             }
-                            break;
+                        }
 
-                        case LINK:
+                        case LINK -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeLink(profile, any);
                             }
@@ -421,9 +464,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 link(any, false, result);
                             }
-                            break;
+                        }
 
-                        case UNLINK:
+                        case UNLINK -> {
                             for (PushActions action : profile.getActions()) {
                                 action.beforeUnlink(profile, any);
                             }
@@ -434,17 +477,17 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             } else {
                                 link(any, true, result);
                             }
+                        }
 
-                            break;
-
-                        case IGNORE:
+                        case IGNORE -> {
                             LOG.debug("Ignored any: {}", any);
                             result.setStatus(ProvisioningReport.Status.IGNORE);
-                            break;
+                        }
 
-                        default:
-                        // do nothing
+                        default -> {
+                        }
                     }
+                    // do nothing
                 }
 
                 for (PushActions action : profile.getActions()) {
@@ -498,50 +541,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }
-        }
-    }
-
-    protected static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
-        if (!reporter.getStatuses().isEmpty()) {
-            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
-            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
-        }
-    }
-
-    protected static ResourceOperation toResourceOperation(final UnmatchingRule rule) {
-        switch (rule) {
-            case ASSIGN:
-            case PROVISION:
-                return ResourceOperation.CREATE;
-            default:
-                return ResourceOperation.NONE;
-        }
-    }
-
-    protected static ResourceOperation toResourceOperation(final MatchingRule rule) {
-        switch (rule) {
-            case UPDATE:
-                return ResourceOperation.UPDATE;
-            case DEPROVISION:
-            case UNASSIGN:
-                return ResourceOperation.DELETE;
-            default:
-                return ResourceOperation.NONE;
-        }
-    }
-
-    protected static ProvisioningReport.Status toProvisioningReportStatus(final ExecStatus status) {
-        switch (status) {
-            case FAILURE:
-                return ProvisioningReport.Status.FAILURE;
-
-            case SUCCESS:
-                return ProvisioningReport.Status.SUCCESS;
-
-            case CREATED:
-            case NOT_ATTEMPTED:
-            default:
-                return ProvisioningReport.Status.IGNORE;
         }
     }
 }

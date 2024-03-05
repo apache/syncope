@@ -22,18 +22,17 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class TaskJob extends AbstractInterruptableJob {
+public class TaskJob extends Job {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskJob.class);
 
@@ -53,35 +52,27 @@ public class TaskJob extends AbstractInterruptableJob {
     @Autowired
     private DomainHolder<?> domainHolder;
 
-    private SchedTaskJobDelegate delegate;
-
     @Override
-    public JobDelegate getDelegate() {
-        return delegate;
-    }
-
-    @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
-        String domain = context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY);
-        if (!domainHolder.getDomains().containsKey(domain)) {
-            LOG.debug("Domain {} not found, skipping", domain);
+    protected void execute(final JobExecutionContext context) throws JobExecutionException {
+        if (!domainHolder.getDomains().containsKey(context.getDomain())) {
+            LOG.debug("Domain {} not found, skipping", context.getDomain());
             return;
         }
 
-        String taskKey = context.getMergedJobDataMap().getString(JobManager.TASK_KEY);
+        String taskKey = (String) context.getData().get(JobManager.TASK_KEY);
         try {
-            AuthContextUtils.runAsAdmin(domain, () -> {
+            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
                 try {
-                    String implKey = context.getMergedJobDataMap().getString(JobManager.DELEGATE_IMPLEMENTATION);
+                    String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
                     Implementation impl = implementationDAO.findById(implKey).orElse(null);
                     if (impl == null) {
                         LOG.error("Could not find Implementation '{}', aborting", implKey);
                     } else {
-                        delegate = ImplementationManager.build(impl);
+                        SchedTaskJobDelegate delegate = ImplementationManager.build(impl);
                         delegate.execute(
-                                (TaskType) context.getMergedJobDataMap().get(JobManager.TASK_TYPE),
+                                (TaskType) context.getData().get(JobManager.TASK_TYPE),
                                 taskKey,
-                                context.getMergedJobDataMap().getBoolean(JobManager.DRY_RUN_JOBDETAIL_KEY),
+                                context.isDryRun(),
                                 context);
                     }
                 } catch (Exception e) {

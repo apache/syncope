@@ -19,18 +19,16 @@
 package org.apache.syncope.core.provisioning.api.job;
 
 import org.apache.syncope.common.lib.types.TaskType;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 
-public interface SchedTaskJobDelegate extends JobDelegate {
+public interface SchedTaskJobDelegate {
 
     /**
-     * Executes a Quartz Job to run the given Task.
+     * Executes a Job to run the given Task.
      *
      * @param taskType Type of task to run
      * @param taskKey Task key to run
      * @param dryRun indicates if execution shall be simulated with no actual changes
-     * @param context Quartz' execution context, can be used to pass parameters to the job
+     * @param context execution context, can be used to pass parameters to the job
      * @throws JobExecutionException if anything goes wrong
      */
     void execute(

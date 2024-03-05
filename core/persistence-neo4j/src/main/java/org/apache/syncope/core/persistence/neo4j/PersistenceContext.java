@@ -198,8 +198,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jTaskUtilsFactory;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingNeo4jClient;
-import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingNeo4jTransactionManager;
+import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.persistence.neo4j.spring.PlainsAttrsConverter;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -265,19 +264,24 @@ public class PersistenceContext {
     }
 
     @Primary
+    @Bean
+    public DomainRoutingDriver driver(final DomainHolder<Driver> domainHolder) {
+        return new DomainRoutingDriver(domainHolder);
+    }
+
     @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_NEO4J_CLIENT_BEAN_NAME)
     public Neo4jClient neo4jClient(
-            @Qualifier("MasterNeo4jClient")
-            final Neo4jClient masterNeo4jClient) {
+            final DomainRoutingDriver driver,
+            final Neo4jBookmarkManager bookmarkManager) {
 
-        DomainRoutingNeo4jClient neo4jClient = new DomainRoutingNeo4jClient();
-        neo4jClient.add(SyncopeConstants.MASTER_DOMAIN, masterNeo4jClient);
-        return neo4jClient;
+        return Neo4jClient.
+                with(driver).
+                withNeo4jBookmarkManager(bookmarkManager).
+                build();
     }
 
     @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_NEO4J_TEMPLATE_BEAN_NAME)
     public Neo4jOperations neo4jTemplate(
-            @Qualifier(Neo4jRepositoryConfigurationExtension.DEFAULT_NEO4J_CLIENT_BEAN_NAME)
             final Neo4jClient neo4jClient,
             final Neo4jMappingContext mappingContext) {
 
@@ -286,18 +290,13 @@ public class PersistenceContext {
 
     @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_TRANSACTION_MANAGER_BEAN_NAME)
     public PlatformTransactionManager transactionManager(
-            @Qualifier("MasterDriver")
-            final Driver driver,
+            final DomainRoutingDriver driver,
             final Neo4jBookmarkManager bookmarkManager) {
 
-        DomainRoutingNeo4jTransactionManager transactionManager = new DomainRoutingNeo4jTransactionManager();
-        transactionManager.add(
-                SyncopeConstants.MASTER_DOMAIN,
-                Neo4jTransactionManager.
-                        with(driver).
-                        withBookmarkManager(bookmarkManager).
-                        build());
-        return transactionManager;
+        return Neo4jTransactionManager.
+                with(driver).
+                withBookmarkManager(bookmarkManager).
+                build();
     }
 
     @Bean(name = "uPlainAttrsConverter")

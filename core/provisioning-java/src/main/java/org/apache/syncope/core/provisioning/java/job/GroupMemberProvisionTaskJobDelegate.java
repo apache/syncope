@@ -36,8 +36,8 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,8 +72,8 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
             final JobExecutionContext context)
             throws JobExecutionException {
 
-        groupKey = context.getMergedJobDataMap().getString(GROUP_KEY_JOBDETAIL_KEY);
-        action = (ProvisionAction) context.getMergedJobDataMap().get(ACTION_JOBDETAIL_KEY);
+        groupKey = (String) context.getData().get(GROUP_KEY_JOBDETAIL_KEY);
+        action = (ProvisionAction) context.getData().get(ACTION_JOBDETAIL_KEY);
 
         super.execute(taskType, taskKey, dryRun, context);
     }
@@ -100,14 +100,14 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + users.size() + " users from " + gResources);
 
-        for (int i = 0; i < users.size() && !interrupt; i++) {
+        for (User user : users) {
             List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                     ? userProvisioningManager.deprovision(
-                            users.get(i).getKey(), gResources, false, executor)
+                            user.getKey(), gResources, false, executor)
                     : userProvisioningManager.provision(
-                            users.get(i).getKey(), true, null, gResources, false, executor);
+                            user.getKey(), true, null, gResources, false, executor);
             for (PropagationStatus propagationStatus : statuses) {
-                result.append("User ").append(users.get(i).getKey()).append('\t').
+                result.append("User ").append(user.getKey()).append('\t').
                         append("Resource ").append(propagationStatus.getResource()).append('\t').
                         append(propagationStatus.getStatus());
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
@@ -116,11 +116,6 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 result.append('\n');
             }
             result.append('\n');
-        }
-        if (interrupt) {
-            LOG.debug("Group assignment interrupted");
-            interrupted = true;
-            return result.append("\n*** Group assignment interrupted ***\n").toString();
         }
 
         membershipCond = new MembershipCond();
@@ -130,16 +125,16 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 + (action == ProvisionAction.DEPROVISION ? "de" : "") + "provision "
                 + anyObjects.size() + " any objects from " + gResources);
 
-        for (int i = 0; i < anyObjects.size() && !interrupt; i++) {
+        for (AnyObject anyObject : anyObjects) {
             List<PropagationStatus> statuses = action == ProvisionAction.DEPROVISION
                     ? anyObjectProvisioningManager.deprovision(
-                            anyObjects.get(i).getKey(), gResources, false, executor)
+                            anyObject.getKey(), gResources, false, executor)
                     : anyObjectProvisioningManager.provision(
-                            anyObjects.get(i).getKey(), gResources, false, executor);
+                            anyObject.getKey(), gResources, false, executor);
 
             for (PropagationStatus propagationStatus : statuses) {
-                result.append(anyObjects.get(i).getType().getKey()).append(' ').
-                        append(anyObjects.get(i).getKey()).append('\t').
+                result.append(anyObject.getType().getKey()).append(' ').
+                        append(anyObject.getKey()).append('\t').
                         append("Resource ").append(propagationStatus.getResource()).append('\t').
                         append(propagationStatus.getStatus());
                 if (StringUtils.isNotBlank(propagationStatus.getFailureReason())) {
@@ -148,11 +143,6 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
                 result.append('\n');
             }
             result.append('\n');
-        }
-        if (interrupt) {
-            LOG.debug("Group assignment interrupted");
-            interrupted = true;
-            result.append("\n*** Group assignment interrupted ***\n");
         }
 
         return result.toString();

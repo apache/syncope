@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Comparator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -32,13 +33,10 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerKey;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 public class ReportDataBinderImpl extends AbstractExecutableDatabinder implements ReportDataBinder {
 
@@ -48,12 +46,12 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
 
     protected final ImplementationDAO implementationDAO;
 
-    protected final SchedulerFactoryBean scheduler;
+    protected final SyncopeTaskScheduler scheduler;
 
     public ReportDataBinderImpl(
             final ReportExecDAO reportExecDAO,
             final ImplementationDAO implementationDAO,
-            final SchedulerFactoryBean scheduler) {
+            final SyncopeTaskScheduler scheduler) {
 
         this.reportExecDAO = reportExecDAO;
         this.implementationDAO = implementationDAO;
@@ -100,19 +98,13 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
             reportTO.setLastExec(reportTO.getStart());
         }
 
-        reportTO.getExecutions().addAll(report.getExecs().stream().
-                map(this::getExecTO).toList());
+        reportTO.getExecutions().addAll(report.getExecs().stream().map(this::getExecTO).toList());
 
-        String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
-        try {
-            Trigger trigger = scheduler.getScheduler().getTrigger(new TriggerKey(triggerName, Scheduler.DEFAULT_GROUP));
-            if (trigger != null) {
-                reportTO.setLastExec(toOffsetDateTime(trigger.getPreviousFireTime()));
-                reportTO.setNextExec(toOffsetDateTime(trigger.getNextFireTime()));
-            }
-        } catch (SchedulerException e) {
-            LOG.warn("While trying to get to " + triggerName, e);
-        }
+        reportTO.getExecutions().stream().sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().
+                map(ExecTO::getStart).ifPresent(reportTO::setLastExec);
+
+        scheduler.getNextTrigger(AuthContextUtils.getDomain(), JobNamer.getJobName(report)).
+                ifPresent(reportTO::setNextExec);
 
         return reportTO;
     }

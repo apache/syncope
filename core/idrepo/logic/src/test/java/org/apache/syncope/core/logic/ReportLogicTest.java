@@ -28,12 +28,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.report.AbstractReportJobDelegate;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -42,9 +42,6 @@ import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -115,9 +112,8 @@ public class ReportLogicTest extends AbstractTest {
         report = logic.read(report.getKey());
         assertTrue(report.getExecutions().isEmpty());
 
-        JobDataMap jobDataMap = new JobDataMap(Map.of(JobManager.EXECUTOR_KEY, "test"));
         JobExecutionContext ctx = mock(JobExecutionContext.class);
-        when(ctx.getMergedJobDataMap()).thenReturn(jobDataMap);
+        when(ctx.getExecutor()).thenReturn("test");
 
         ReportJobDelegate delegate =
                 ApplicationContextProvider.getBeanFactory().createBean(TestReportJobDelegate.class);

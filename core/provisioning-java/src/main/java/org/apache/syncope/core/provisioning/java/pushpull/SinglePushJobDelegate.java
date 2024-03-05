@@ -35,12 +35,12 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSinglePushExecutor {
@@ -127,8 +127,6 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pushing to connector", e);
-        } finally {
-            setStatus(null);
         }
     }
 
@@ -158,8 +156,6 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While pushing to connector", e);
-        } finally {
-            setStatus(null);
         }
     }
 }

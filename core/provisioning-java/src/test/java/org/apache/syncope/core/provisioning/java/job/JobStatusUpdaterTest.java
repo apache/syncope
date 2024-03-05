@@ -41,15 +41,16 @@ public class JobStatusUpdaterTest extends AbstractTest {
 
     @Test
     public void verifyUpdate() {
-        String refDesc = "JobRefDesc-" + SecureRandomUtils.generateRandomNumber();
+        String jobName = "job-" + SecureRandomUtils.generateRandomNumber();
 
         JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO, entityFactory);
         jobStatusUpdater.initComplete();
 
-        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, refDesc, "Started"));
-        assertTrue(jobStatusDAO.findById(refDesc).isPresent());
+        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, jobName, "Started"));
+        assertTrue(jobStatusDAO.findById(jobName).isPresent());
 
-        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, refDesc, null));
-        assertTrue(jobStatusDAO.findById(refDesc).isEmpty());
+        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, jobName, null));
+        // no change is expected
+        assertTrue(jobStatusDAO.findById(jobName).isPresent());
     }
 }

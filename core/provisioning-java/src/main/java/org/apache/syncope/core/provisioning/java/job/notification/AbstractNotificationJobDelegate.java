@@ -31,11 +31,11 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -55,10 +55,6 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
     protected final ApplicationEventPublisher publisher;
 
-    protected boolean interrupt;
-
-    protected boolean interrupted;
-
     protected AbstractNotificationJobDelegate(
             final TaskDAO taskDAO,
             final TaskUtilsFactory taskUtilsFactory,
@@ -75,17 +71,7 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
     protected void setStatus(final String status) {
         publisher.publishEvent(new JobStatusEvent(
-                this, AuthContextUtils.getDomain(), JobManager.NOTIFICATION_JOB.getName(), status));
-    }
-
-    @Override
-    public void interrupt() {
-        interrupt = true;
-    }
-
-    @Override
-    public boolean isInterrupted() {
-        return interrupted;
+                this, AuthContextUtils.getDomain(), JobManager.NOTIFICATION_JOB, status));
     }
 
     protected abstract void notify(String to, NotificationTask task, TaskExec<NotificationTask> execution)
@@ -118,14 +104,12 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                 execution.setMessage(message);
             }
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("About to send notifications:\n"
-                        + task.getRecipients() + '\n'
-                        + task.getSender() + '\n'
-                        + task.getSubject() + '\n'
-                        + task.getHtmlBody() + '\n'
-                        + task.getTextBody() + '\n');
-            }
+            LOG.debug("About to send notifications:\n{}\n{}\n{}\n{}\n{}",
+                    task.getRecipients(),
+                    task.getSender(),
+                    task.getSubject(),
+                    task.getHtmlBody(),
+                    task.getTextBody());
 
             setStatus("Sending notifications to " + task.getRecipients());
 
@@ -190,17 +174,11 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
         setStatus("Sending out " + tasks.size() + " notifications");
 
-        for (int i = 0; i < tasks.size() && !interrupt; i++) {
+        for (int i = 0; i < tasks.size(); i++) {
             LOG.debug("Found notification task {} to be executed: starting...", tasks.get(i));
             executeSingle(tasks.get(i), executor);
             LOG.debug("Notification task {} executed", tasks.get(i));
         }
-        if (interrupt) {
-            LOG.debug("Notification job interrupted");
-            interrupted = true;
-        }
-
-        setStatus(null);
     }
 
     protected static boolean hasToBeRegistered(final TaskExec<NotificationTask> execution) {

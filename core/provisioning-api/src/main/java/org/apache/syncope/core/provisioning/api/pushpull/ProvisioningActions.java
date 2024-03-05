@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
 public interface ProvisioningActions {
 

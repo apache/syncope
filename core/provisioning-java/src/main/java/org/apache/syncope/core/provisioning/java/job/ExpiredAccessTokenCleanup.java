@@ -21,8 +21,8 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.time.OffsetDateTime;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExpiredAccessTokenCleanup extends AbstractSchedTaskJobDelegate<SchedTask> {

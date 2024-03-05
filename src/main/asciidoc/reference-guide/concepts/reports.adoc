@@ -34,4 +34,4 @@ endif::[]
 providing the custom logic to extract information from Syncope and generate output according to the configured mime type
 * scheduling information:
 ** when to start
-** http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron expression^]
+** https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron expression^]

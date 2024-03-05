@@ -24,11 +24,15 @@ import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jJobStatus;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = Throwable.class)
 public class Neo4jJobStatusDAO implements JobStatusDAO {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(JobStatusDAO.class);
 
     protected final Neo4jTemplate neo4jTemplate;
 
@@ -39,6 +43,7 @@ public class Neo4jJobStatusDAO implements JobStatusDAO {
         this.nodeValidator = nodeValidator;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public boolean existsById(final String key) {
         return neo4jTemplate.existsById(key, Neo4jJobStatus.class);
@@ -75,5 +80,29 @@ public class Neo4jJobStatusDAO implements JobStatusDAO {
     @Override
     public void deleteById(final String key) {
         findById(key).ifPresent(this::delete);
+    }
+
+    @Override
+    public boolean lock(final String key) {
+        if (existsById(key)) {
+            return false;
+        }
+
+        try {
+            JobStatus jobStatus = new Neo4jJobStatus();
+            jobStatus.setKey(key);
+            jobStatus.setStatus(JOB_FIRED_STATUS);
+            save(jobStatus);
+
+            return true;
+        } catch (Exception e) {
+            LOG.debug("Could not lock job {}", key, e);
+            return false;
+        }
+    }
+
+    @Override
+    public void unlock(final String key) {
+        deleteById(key);
     }
 }

@@ -701,6 +701,8 @@ under the License.
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+  <Implementation id="GroupMemberProvisionTaskJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate"/>
 
   <PropagationTask id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" operation="UPDATE"
                    objectClassName="__ACCOUNT__" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"

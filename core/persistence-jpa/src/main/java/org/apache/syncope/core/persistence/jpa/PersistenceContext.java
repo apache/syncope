@@ -232,7 +232,7 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public CommonEntityManagerFactoryConf commonEMFConf(
-            final PersistenceProperties persistenceProperties,
+            final PersistenceProperties props,
             @Qualifier("MasterDataSource")
             final JndiObjectFactoryBean masterDataSource) {
 
@@ -260,7 +260,7 @@ public class PersistenceContext {
         jpaPropertyMap.put("openjpa.DataCache", "true");
         jpaPropertyMap.put("openjpa.QueryCache", "true");
 
-        jpaPropertyMap.put("openjpa.RemoteCommitProvider", persistenceProperties.getRemoteCommitProvider());
+        jpaPropertyMap.put("openjpa.RemoteCommitProvider", props.getRemoteCommitProvider());
 
         commonEMFConf.setJpaPropertyMap(jpaPropertyMap);
 
@@ -298,14 +298,14 @@ public class PersistenceContext {
     @Bean
     public XMLContentLoader xmlContentLoader(
             final DomainHolder<DataSource> domainHolder,
-            final PersistenceProperties persistenceProperties,
+            final PersistenceProperties props,
             final ResourceLoader resourceLoader,
             final Environment env) {
 
         return new XMLContentLoader(
                 domainHolder,
-                resourceLoader.getResource(persistenceProperties.getViewsXML()),
-                resourceLoader.getResource(persistenceProperties.getIndexesXML()),
+                resourceLoader.getResource(props.getViewsXML()),
+                resourceLoader.getResource(props.getIndexesXML()),
                 env);
     }
 
@@ -339,13 +339,13 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public StartupDomainLoader startupDomainLoader(
-            final PersistenceProperties persistenceProperties,
+            final PersistenceProperties props,
             final ResourceLoader resourceLoader,
             final DomainOps domainOps,
             final DomainHolder<?> domainHolder,
             final DomainRegistry<JPADomain> domainRegistry) {
 
-        return new StartupDomainLoader(domainOps, domainHolder, persistenceProperties, resourceLoader, domainRegistry);
+        return new StartupDomainLoader(domainOps, domainHolder, props, resourceLoader, domainRegistry);
     }
 
     @ConditionalOnMissingBean

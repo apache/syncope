@@ -18,8 +18,10 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -27,32 +29,25 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
-import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.impl.matchers.GroupMatcher;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
 abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactionalLogic<T> {
 
     protected final JobManager jobManager;
 
-    protected final SchedulerFactoryBean scheduler;
+    protected final SyncopeTaskScheduler scheduler;
 
     protected final JobStatusDAO jobStatusDAO;
 
     protected AbstractJobLogic(
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO) {
 
         this.jobManager = jobManager;
@@ -60,100 +55,76 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
         this.jobStatusDAO = jobStatusDAO;
     }
 
-    protected abstract Triple<JobType, String, String> getReference(JobKey jobKey);
+    protected abstract Triple<JobType, String, String> getReference(String jobName);
 
-    protected JobTO getJobTO(final JobKey jobKey, final boolean includeCustom) throws SchedulerException {
+    protected Optional<JobTO> getJobTO(final String jobName, final boolean includeCustom) {
         JobTO jobTO = null;
 
-        if (scheduler.getScheduler().checkExists(jobKey)) {
-            Triple<JobType, String, String> reference = getReference(jobKey);
+        if (scheduler.contains(AuthContextUtils.getDomain(), jobName)) {
+            Triple<JobType, String, String> reference = getReference(jobName);
             if (reference != null) {
                 jobTO = new JobTO();
                 jobTO.setType(reference.getLeft());
                 jobTO.setRefKey(reference.getMiddle());
                 jobTO.setRefDesc(reference.getRight());
             } else if (includeCustom) {
-                JobDetail jobDetail = scheduler.getScheduler().getJobDetail(jobKey);
-                if (!TaskJob.class.isAssignableFrom(jobDetail.getJobClass())
-                        && !ReportJob.class.isAssignableFrom(jobDetail.getJobClass())
-                        && !SystemLoadReporterJob.class.isAssignableFrom(jobDetail.getJobClass())
-                        && !NotificationJob.class.isAssignableFrom(jobDetail.getJobClass())) {
-
+                Optional<Class<?>> jobClass = scheduler.getJobClass(AuthContextUtils.getDomain(), jobName).
+                        filter(jc -> !TaskJob.class.isAssignableFrom(jc)
+                        && !ReportJob.class.isAssignableFrom(jc)
+                        && !SystemLoadReporterJob.class.isAssignableFrom(jc)
+                        && !NotificationJob.class.isAssignableFrom(jc));
+                if (jobClass.isPresent()) {
                     jobTO = new JobTO();
                     jobTO.setType(JobType.CUSTOM);
-                    jobTO.setRefKey(jobKey.getName());
-                    jobTO.setRefDesc(jobDetail.getJobClass().getName());
+                    jobTO.setRefKey(jobName);
+                    jobTO.setRefDesc(jobClass.get().getName());
                 }
             }
 
             if (jobTO != null) {
-                List<? extends Trigger> jobTriggers = scheduler.getScheduler().getTriggersOfJob(jobKey);
-                if (jobTriggers.isEmpty()) {
-                    jobTO.setScheduled(false);
-                } else {
+                Optional<OffsetDateTime> nextTrigger = scheduler.getNextTrigger(AuthContextUtils.getDomain(), jobName);
+                if (nextTrigger.isPresent()) {
                     jobTO.setScheduled(true);
-                    jobTO.setStart(jobTriggers.get(0).getStartTime().toInstant().atOffset(FormatUtils.DEFAULT_OFFSET));
+                    jobTO.setStart(nextTrigger.get());
+                } else {
+                    jobTO.setScheduled(false);
                 }
 
-                jobTO.setRunning(jobManager.isRunning(jobKey));
+                jobTO.setRunning(jobManager.isRunning(jobName));
 
-                jobTO.setStatus("UNKNOWN");
-                if (jobTO.isRunning()) {
-                    try {
-                        jobTO.setStatus(jobStatusDAO.findById(jobTO.getRefDesc()).
-                                map(JobStatus::getStatus).
-                                orElse(jobTO.getStatus()));
-                    } catch (NoSuchBeanDefinitionException e) {
-                        LOG.warn("Could not find job {} implementation", jobKey, e);
-                    }
-                }
+                jobTO.setStatus(jobStatusDAO.findById(jobName).map(JobStatus::getStatus).orElse("UNKNOWN"));
             }
         }
 
-        return jobTO;
+        return Optional.ofNullable(jobTO);
     }
 
     protected List<JobTO> doListJobs(final boolean includeCustom) {
         List<JobTO> jobTOs = new ArrayList<>();
-        try {
-            for (JobKey jobKey : scheduler.getScheduler().
-                    getJobKeys(GroupMatcher.jobGroupEquals(Scheduler.DEFAULT_GROUP))) {
-
-                JobTO jobTO = getJobTO(jobKey, includeCustom);
-                if (jobTO != null) {
-                    jobTOs.add(jobTO);
-                }
-            }
-        } catch (SchedulerException e) {
-            LOG.debug("Problems while retrieving scheduled jobs", e);
+        for (String jobName : scheduler.getJobNames(AuthContextUtils.getDomain())) {
+            getJobTO(jobName, includeCustom).ifPresent(jobTOs::add);
         }
 
         return jobTOs;
     }
 
-    protected void doActionJob(final JobKey jobKey, final JobAction action) {
-        try {
-            if (scheduler.getScheduler().checkExists(jobKey)) {
-                switch (action) {
-                    case START:
-                        scheduler.getScheduler().triggerJob(jobKey);
-                        break;
+    protected void doActionJob(final String jobName, final JobAction action) {
+        if (scheduler.contains(AuthContextUtils.getDomain(), jobName)) {
+            switch (action) {
+                case START ->
+                    scheduler.start(AuthContextUtils.getDomain(), jobName);
 
-                    case STOP:
-                        scheduler.getScheduler().interrupt(jobKey);
-                        break;
+                case STOP ->
+                    scheduler.cancel(AuthContextUtils.getDomain(), jobName);
 
-                    case DELETE:
-                        scheduler.getScheduler().deleteJob(jobKey);
-                        break;
+                case DELETE ->
+                    scheduler.delete(AuthContextUtils.getDomain(), jobName);
 
-                    default:
+                default -> {
                 }
-            } else {
-                LOG.warn("Could not find job {}", jobKey);
             }
-        } catch (SchedulerException e) {
-            LOG.debug("Problems during {} operation on job {}", action.toString(), jobKey, e);
+        } else {
+            LOG.warn("Could not find job {}", jobName);
         }
     }
 }

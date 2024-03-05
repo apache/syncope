@@ -18,56 +18,44 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
-import org.apache.syncope.core.provisioning.api.job.JobManager;
-import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.core.task.TaskRejectedException;
 
 /**
- * Quartz job for asynchronous handling of notification / audit events.
+ * Job for asynchronous handling of notification / audit events.
  * Instead of direct synchronous invocation - which occurs in the same transaction where the event is generated, the
  * execution of the scheduled code happens in a new transaction.
  */
-public class AfterHandlingJob extends AbstractInterruptableJob {
+public class AfterHandlingJob extends Job {
 
     private static final Logger LOG = LoggerFactory.getLogger(AfterHandlingJob.class);
 
-    public static void schedule(final SchedulerFactoryBean scheduler, final Map<String, Object> jobMap) {
-        AfterHandlingJob jobInstance = ApplicationContextProvider.getBeanFactory().createBean(AfterHandlingJob.class);
-        String jobName = AfterHandlingJob.class.getSimpleName() + SecureRandomUtils.generateRandomUUID();
-
-        jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-
-        ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
-
-        JobBuilder jobDetailBuilder = JobBuilder.newJob(AfterHandlingJob.class).
-                withIdentity(jobName, Scheduler.DEFAULT_GROUP).
-                usingJobData(new JobDataMap(jobMap));
-
-        TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger().
-                withIdentity(JobNamer.getTriggerName(jobName), Scheduler.DEFAULT_GROUP).
-                startNow();
+    public static void schedule(final SyncopeTaskScheduler scheduler, final Map<String, Object> jobMap) {
+        JobExecutionContext context = new JobExecutionContext(
+                AuthContextUtils.getDomain(),
+                AfterHandlingJob.class.getSimpleName() + "_" + SecureRandomUtils.generateRandomUUID(),
+                AuthContextUtils.getWho(),
+                false);
+        context.getData().putAll(jobMap);
 
         try {
-            scheduler.getScheduler().scheduleJob(jobDetailBuilder.build(), triggerBuilder.build());
-        } catch (SchedulerException e) {
+            AfterHandlingJob job = ApplicationContextProvider.getBeanFactory().createBean(AfterHandlingJob.class);
+            job.setContext(context);
+            scheduler.schedule(job, Instant.now());
+        } catch (TaskRejectedException e) {
             LOG.error("Could not schedule, aborting", e);
         }
     }
@@ -79,19 +67,23 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
     private AuditManager auditManager;
 
     @Override
-    public void execute(final JobExecutionContext context) throws JobExecutionException {
+    protected void execute(final JobExecutionContext context) throws JobExecutionException {
+        Optional<AfterHandlingEvent> event = Optional.ofNullable(
+                context.getData().get(AfterHandlingEvent.JOBMAP_KEY)).map(AfterHandlingEvent.class::cast);
+        if (event.isEmpty()) {
+            LOG.debug("No event to process, aborting");
+            return;
+        }
+
         try {
-            AuthContextUtils.runAsAdmin(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
+            AuthContextUtils.runAsAdmin(
+                    context.getDomain(),
                     () -> {
-                        notificationManager.createTasks(
-                                (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));
-                        auditManager.audit(
-                                (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));
+                        notificationManager.createTasks(event.get());
+                        auditManager.audit(event.get());
                     });
         } catch (RuntimeException e) {
             throw new JobExecutionException("While handling notification / audit events", e);
-        } finally {
-            ApplicationContextProvider.getBeanFactory().destroySingleton(context.getJobDetail().getKey().getName());
         }
     }
 }

@@ -30,10 +30,10 @@ import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts.FontName;
 import org.apache.syncope.common.lib.report.ReportConf;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.report.ReportConfClass;
 import org.apache.syncope.core.provisioning.java.job.report.AbstractReportJobDelegate;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
 import org.springframework.http.MediaType;
 
 @ReportConfClass(SampleReportConf.class)

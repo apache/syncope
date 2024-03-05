@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
 public interface SyncopeSinglePushExecutor {
 

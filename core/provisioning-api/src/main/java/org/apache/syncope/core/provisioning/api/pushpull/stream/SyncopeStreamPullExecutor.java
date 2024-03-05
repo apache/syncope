@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.quartz.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
 @FunctionalInterface
 public interface SyncopeStreamPullExecutor {

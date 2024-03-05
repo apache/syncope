@@ -494,14 +494,14 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>10.1.19</tomcat.version>
-    <wildfly.version>30.0.1.Final</wildfly.version>
-    <payara.version>6.2023.11</payara.version>
+    <wildfly.version>31.0.1.Final</wildfly.version>
+    <payara.version>6.2024.2</payara.version>
     <jakarta.faces.version>4.0.5</jakarta.faces.version>
 
     <docker.postgresql.version>16</docker.postgresql.version>
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
-    <docker.neo4j.version>5.16.0</docker.neo4j.version>
+    <docker.neo4j.version>5.17.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
@@ -592,7 +592,7 @@ under the License.
       <!-- Swagger -->
       <dependency>
         <groupId>io.swagger.core.v3</groupId>
-        <artifactId>swagger-annotations</artifactId>
+        <artifactId>swagger-annotations-jakarta</artifactId>
         <version>${swagger-core.version}</version>
         <exclusions>
           <exclusion>
@@ -750,30 +750,6 @@ under the License.
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-quartz</artifactId>
-        <version>${spring-boot.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-aop</artifactId>
-        <version>${spring-boot.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-mail</artifactId>
         <version>${spring-boot.version}</version>
         <exclusions>
@@ -919,6 +895,12 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.jasypt</groupId>
+        <artifactId>jasypt</artifactId>
+        <version>${jasypt.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy</artifactId>
         <version>${groovy.version}</version>
@@ -967,36 +949,6 @@ under the License.
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-groovysh</artifactId>
         <version>${groovy.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.icegreen</groupId>
-        <artifactId>greenmail</artifactId>
-        <version>2.1.0-alpha-4</version>
-        <exclusions>
-          <exclusion>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>jakarta.activation</groupId>
-            <artifactId>jakarta.activation-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <dependency>
-        <groupId>org.jasypt</groupId>
-        <artifactId>jasypt</artifactId>
-        <version>${jasypt.version}</version>
       </dependency>
 
       <!-- Flowable -->
@@ -1300,6 +1252,30 @@ under the License.
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
         <version>1.17.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.icegreen</groupId>
+        <artifactId>greenmail</artifactId>
+        <version>2.1.0-alpha-4</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>jakarta.activation</groupId>
+            <artifactId>jakarta.activation-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <!-- TEST -->

@@ -39,12 +39,12 @@ import org.apache.syncope.core.persistence.jpa.dao.MyJPAJSONAuditEntryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtMyJSONImpl;
 import org.apache.syncope.core.persistence.jpa.entity.MyJPAJSONEntityFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 
-@ConditionalOnExpression("#{'${provisioning.quartz.sql}' matches '.*mysql.*'}")
+@ConditionalOnClass(name = "com.mysql.cj.jdbc.Driver")
 public class MyJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
 
     @ConditionalOnMissingBean(name = "myJPAJSONEntityFactory")

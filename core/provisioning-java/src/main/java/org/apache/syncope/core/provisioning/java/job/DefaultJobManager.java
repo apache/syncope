@@ -19,14 +19,10 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.time.OffsetDateTime;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -35,6 +31,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -44,6 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
@@ -51,23 +49,12 @@ import org.apache.syncope.core.provisioning.java.job.notification.NotificationJo
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
-import org.quartz.CronScheduleBuilder;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDataMap;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.TriggerKey;
-import org.quartz.impl.jdbcjobstore.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
@@ -76,7 +63,9 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     protected final DomainHolder<?> domainHolder;
 
-    protected final SchedulerFactoryBean scheduler;
+    protected final SyncopeTaskScheduler scheduler;
+
+    protected final JobStatusDAO jobStatusDAO;
 
     protected final TaskDAO taskDAO;
 
@@ -90,11 +79,10 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     protected final SecurityProperties securityProperties;
 
-    protected boolean disableQuartzInstance;
-
     public DefaultJobManager(
             final DomainHolder<?> domainHolder,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
+            final JobStatusDAO jobStatusDAO,
             final TaskDAO taskDAO,
             final ReportDAO reportDAO,
             final ImplementationDAO implementationDAO,
@@ -104,6 +92,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
         this.domainHolder = domainHolder;
         this.scheduler = scheduler;
+        this.jobStatusDAO = jobStatusDAO;
         this.taskDAO = taskDAO;
         this.reportDAO = reportDAO;
         this.implementationDAO = implementationDAO;
@@ -112,90 +101,52 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         this.securityProperties = securityProperties;
     }
 
-    public void setDisableQuartzInstance(final boolean disableQuartzInstance) {
-        this.disableQuartzInstance = disableQuartzInstance;
-    }
-
-    protected boolean isRunningHere(final JobKey jobKey) throws SchedulerException {
-        return scheduler.getScheduler().getCurrentlyExecutingJobs().stream().
-                anyMatch(jec -> jobKey.equals(jec.getJobDetail().getKey()));
-    }
-
-    protected boolean isRunningElsewhere(final JobKey jobKey) throws SchedulerException {
-        if (!scheduler.getScheduler().getMetaData().isJobStoreClustered()) {
-            return false;
-        }
-
-        Object v = domainHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN);
-        if (v instanceof DataSource dataSource) {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-            return jdbcTemplate.queryForObject(
-                    "SELECT COUNT(ENTRY_ID) FROM " + Constants.DEFAULT_TABLE_PREFIX + "FIRED_TRIGGERS "
-                    + "WHERE JOB_NAME = ? AND JOB_GROUP = ?",
-                    Integer.class,
-                    jobKey.getName(),
-                    jobKey.getGroup()) > 0;
-        }
-
-        LOG.warn("Unsupported persistence source: " + v.getClass().getName());
-        return false;
-    }
-
     @Override
-    public boolean isRunning(final JobKey jobKey) throws SchedulerException {
-        return isRunningHere(jobKey) || isRunningElsewhere(jobKey);
+    public boolean isRunning(final String jobName) {
+        boolean locked = jobStatusDAO.lock(jobName);
+        if (locked) {
+            jobStatusDAO.unlock(jobName);
+        }
+        return !locked;
     }
 
     protected void registerJob(
-            final String jobName,
+            final JobExecutionContext context,
             final Class<? extends Job> jobClass,
             final String cronExpression,
-            final Date startAt,
-            final Map<String, Object> jobMap)
-            throws SchedulerException {
+            final OffsetDateTime startAt) {
 
-        if (isRunning(new JobKey(jobName, Scheduler.DEFAULT_GROUP))) {
-            LOG.debug("Job {} already running, cancel", jobName);
+        if (isRunning(context.getJobName())) {
+            LOG.debug("Job {} already running, cancel", context.getJobName());
             return;
         }
 
         // 0. unregister job
-        unregisterJob(jobName);
+        unregisterJob(context.getJobName());
 
-        // 1. JobDetail
-        JobBuilder jobDetailBuilder = JobBuilder.newJob(jobClass).
-                withIdentity(jobName).
-                usingJobData(new JobDataMap(jobMap));
+        // 1. prepare job
+        Job job = ApplicationContextProvider.getBeanFactory().createBean(jobClass);
+        job.setContext(context);
 
-        // 2. Trigger
+        // 2. schedule
         if (cronExpression == null && startAt == null) {
-            // Jobs added with no trigger must be durable
-            scheduler.getScheduler().addJob(jobDetailBuilder.storeDurably().build(), true);
+            scheduler.register(job);
         } else {
-            TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger().
-                    withIdentity(JobNamer.getTriggerName(jobName));
-
             if (cronExpression == null) {
-                triggerBuilder.startAt(startAt);
+                scheduler.schedule(job, startAt.toInstant());
             } else {
-                triggerBuilder.withSchedule(CronScheduleBuilder.cronSchedule(cronExpression));
-
-                if (startAt == null) {
-                    triggerBuilder.startNow();
-                } else {
-                    triggerBuilder.startAt(startAt);
-                }
+                scheduler.schedule(job, new CronTrigger(cronExpression));
             }
-
-            scheduler.getScheduler().scheduleJob(jobDetailBuilder.build(), triggerBuilder.build());
         }
     }
 
-    @Override
-    public Map<String, Object> register(
+    protected void register(
+            final String domain,
             final SchedTask task,
             final OffsetDateTime startAt,
-            final String executor) throws SchedulerException {
+            final String executor,
+            final boolean dryRun,
+            final Map<String, Object> jobData) {
 
         Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
@@ -213,63 +164,79 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                     + " does not provide any " + SchedTaskJobDelegate.class.getSimpleName());
         }
 
-        Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
-        jobMap.put(JobManager.TASK_TYPE, taskUtilsFactory.getInstance(task).getType());
-        jobMap.put(JobManager.TASK_KEY, task.getKey());
-        jobMap.put(JobManager.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
+        JobExecutionContext context = new JobExecutionContext(
+                domain,
+                JobNamer.getJobName(task),
+                executor,
+                dryRun);
+        context.getData().put(JobManager.TASK_TYPE, taskUtilsFactory.getInstance(task).getType());
+        context.getData().put(JobManager.TASK_KEY, task.getKey());
+        context.getData().put(JobManager.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
+        context.getData().putAll(jobData);
 
         registerJob(
-                JobNamer.getJobKey(task).getName(),
+                context,
                 TaskJob.class,
                 task.getCronExpression(),
-                Optional.ofNullable(startAt).map(s -> new Date(s.toInstant().toEpochMilli())).orElse(null),
-                jobMap);
-        return jobMap;
+                startAt);
     }
 
     @Override
-    public Map<String, Object> register(
-            final Report report,
+    public void register(
+            final SchedTask task,
             final OffsetDateTime startAt,
-            final String executor) throws SchedulerException {
+            final String executor,
+            final boolean dryRun,
+            final Map<String, Object> jobData) {
 
-        Map<String, Object> jobMap = createJobMapForExecutionContext(executor);
-        jobMap.put(JobManager.REPORT_KEY, report.getKey());
-        jobMap.put(JobManager.DELEGATE_IMPLEMENTATION, report.getJobDelegate().getKey());
-
-        registerJob(
-                JobNamer.getJobKey(report).getName(),
-                ReportJob.class,
-                report.getCronExpression(),
-                Optional.ofNullable(startAt).map(s -> new Date(s.toInstant().toEpochMilli())).orElse(null),
-                jobMap);
-        return jobMap;
+        register(AuthContextUtils.getDomain(), task, startAt, executor, dryRun, jobData);
     }
 
-    protected Map<String, Object> createJobMapForExecutionContext(final String executor) {
-        Map<String, Object> jobMap = new HashMap<>();
-        jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(JobManager.EXECUTOR_KEY, executor);
-        return jobMap;
+    protected void register(
+            final String domain,
+            final Report report,
+            final OffsetDateTime startAt,
+            final String executor,
+            final boolean dryRun) {
+
+        JobExecutionContext context = new JobExecutionContext(
+                domain,
+                JobNamer.getJobName(report),
+                executor,
+                dryRun);
+        context.getData().put(JobManager.REPORT_KEY, report.getKey());
+        context.getData().put(JobManager.DELEGATE_IMPLEMENTATION, report.getJobDelegate().getKey());
+
+        registerJob(
+                context,
+                ReportJob.class,
+                report.getCronExpression(),
+                startAt);
+    }
+
+    @Override
+    public void register(
+            final Report report,
+            final OffsetDateTime startAt,
+            final String executor,
+            final boolean dryRun) {
+
+        register(AuthContextUtils.getDomain(), report, startAt, executor, dryRun);
     }
 
     protected void unregisterJob(final String jobName) {
-        try {
-            scheduler.getScheduler().unscheduleJob(new TriggerKey(jobName, Scheduler.DEFAULT_GROUP));
-            scheduler.getScheduler().deleteJob(new JobKey(jobName, Scheduler.DEFAULT_GROUP));
-        } catch (SchedulerException e) {
-            LOG.error("Could not remove job " + jobName, e);
-        }
+        scheduler.cancel(AuthContextUtils.getDomain(), jobName);
+        scheduler.delete(AuthContextUtils.getDomain(), jobName);
     }
 
     @Override
     public void unregister(final Task<?> task) {
-        unregisterJob(JobNamer.getJobKey(task).getName());
+        unregisterJob(JobNamer.getJobName(task));
     }
 
     @Override
     public void unregister(final Report report) {
-        unregisterJob(JobNamer.getJobKey(report).getName());
+        unregisterJob(JobNamer.getJobName(report));
     }
 
     @Override
@@ -280,20 +247,6 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     @Transactional
     @Override
     public void load(final String domain) {
-        if (disableQuartzInstance) {
-            String instanceId = "AUTO";
-            try {
-                instanceId = scheduler.getScheduler().getSchedulerInstanceId();
-                scheduler.getScheduler().standby();
-
-                LOG.info("Successfully put Quartz instance {} in standby", instanceId);
-            } catch (SchedulerException e) {
-                LOG.error("Could not put Quartz instance {} in standby", instanceId, e);
-            }
-
-            return;
-        }
-
         String notificationJobCronExp = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
             String result = StringUtils.EMPTY;
 
@@ -317,7 +270,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
                 SchedTask task = it.next();
                 try {
-                    register(task, task.getStartAt(), securityProperties.getAdminUser());
+                    register(domain, task, task.getStartAt(), securityProperties.getAdminUser(), false, Map.of());
                 } catch (Exception e) {
                     LOG.error("While loading job instance for task " + task.getKey(), e);
                     loadException = true;
@@ -331,7 +284,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 for (Iterator<? extends Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
                     try {
-                        register(report, null, securityProperties.getAdminUser());
+                        register(domain, report, null, securityProperties.getAdminUser(), false);
                     } catch (Exception e) {
                         LOG.error("While loading job instance for report " + report.getName(), e);
                         loadException = true;
@@ -347,20 +300,22 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         if (SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
             // 3. NotificationJob
             if (StringUtils.isBlank(notificationJobCronExp)) {
-                LOG.debug("Empty value provided for {}'s cron, not registering anything on Quartz",
-                        NotificationJob.class.getSimpleName());
+                LOG.debug("Empty value provided for {}'s cron, not scheduling", NotificationJob.class.getSimpleName());
             } else {
-                LOG.debug("{}'s cron expression: {} - registering Quartz job and trigger",
+                LOG.debug("{}'s cron expression: {} - scheduling",
                         NotificationJob.class.getSimpleName(), notificationJobCronExp);
 
+                JobExecutionContext context = new JobExecutionContext(
+                        domain,
+                        NOTIFICATION_JOB,
+                        securityProperties.getAdminUser(),
+                        false);
                 try {
-                    Map<String, Object> jobData = createJobMapForExecutionContext(securityProperties.getAdminUser());
                     registerJob(
-                            NOTIFICATION_JOB.getName(),
+                            context,
                             NotificationJob.class,
                             notificationJobCronExp,
-                            null,
-                            jobData);
+                            null);
                 } catch (Exception e) {
                     LOG.error("While loading {} instance", NotificationJob.class.getSimpleName(), e);
                 }
@@ -368,14 +323,18 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
             // 4. SystemLoadReporterJob (fixed schedule, every minute)
             LOG.debug("Registering {}", SystemLoadReporterJob.class);
+
+            JobExecutionContext context = new JobExecutionContext(
+                    domain,
+                    StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
+                    securityProperties.getAdminUser(),
+                    false);
             try {
-                Map<String, Object> jobData = createJobMapForExecutionContext(securityProperties.getAdminUser());
                 registerJob(
-                        StringUtils.uncapitalize(SystemLoadReporterJob.class.getSimpleName()),
+                        context,
                         SystemLoadReporterJob.class,
                         "0 * * * * ?",
-                        null,
-                        jobData);
+                        null);
             } catch (Exception e) {
                 LOG.error("While loading {} instance", SystemLoadReporterJob.class.getSimpleName(), e);
             }

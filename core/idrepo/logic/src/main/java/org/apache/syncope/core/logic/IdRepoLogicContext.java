@@ -107,6 +107,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationManager
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
@@ -116,7 +117,6 @@ import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 @EnableAspectJAutoProxy(proxyTargetClass = false)
 @Configuration(proxyBeanMethods = false)
@@ -330,7 +330,7 @@ public class IdRepoLogicContext {
             final GroupProvisioningManager provisioningManager,
             final TaskDataBinder taskDataBinder,
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final EntityFactory entityFactory) {
 
         return new GroupLogic(
@@ -392,7 +392,7 @@ public class IdRepoLogicContext {
             final NotificationDataBinder binder,
             final JobManager jobManager,
             final JobStatusDAO jobStatusDAO,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final NotificationDAO notificationDAO) {
 
         return new NotificationLogic(jobManager, scheduler, jobStatusDAO, notificationDAO, binder);
@@ -449,7 +449,7 @@ public class IdRepoLogicContext {
     public ReportLogic reportLogic(
             final JobManager jobManager,
             final ReportDataBinder binder,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO,
             final ReportDAO reportDAO,
             final EntityFactory entityFactory,
@@ -524,7 +524,7 @@ public class IdRepoLogicContext {
             final PropagationTaskExecutor taskExecutor,
             final TaskExecDAO taskExecDAO,
             final TaskDAO taskDAO,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO,
             final ExternalResourceDAO externalResourceDAO,
             final NotificationJobDelegate notificationJobDelegate,

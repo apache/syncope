@@ -22,8 +22,6 @@ import java.io.ByteArrayInputStream;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
-import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingNeo4jClient;
-import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingNeo4jTransactionManager;
 import org.neo4j.driver.AuthTokens;
 import org.neo4j.driver.Config;
 import org.neo4j.driver.Driver;
@@ -32,9 +30,6 @@ import org.neo4j.driver.Logging;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.data.neo4j.core.Neo4jClient;
-import org.springframework.data.neo4j.core.transaction.Neo4jBookmarkManager;
-import org.springframework.data.neo4j.core.transaction.Neo4jTransactionManager;
 
 public class Neo4jDomainRegistry implements DomainRegistry<Neo4jDomain> {
 
@@ -78,22 +73,6 @@ public class Neo4jDomainRegistry implements DomainRegistry<Neo4jDomain> {
 
         domainHolder().getDomains().put(domain.getKey(), driver);
 
-        // domainNeo4jClient
-        Neo4jClient neo4jClient = Neo4jClient.
-                with(driver).
-                withNeo4jBookmarkManager(ctx.getBean(Neo4jBookmarkManager.class)).build();
-        registerSingleton(domain.getKey().toLowerCase() + "Neo4jClient", neo4jClient);
-
-        // DomainRoutingNeo4jClient#add
-        beanFactory().getBean(DomainRoutingNeo4jClient.class).add(domain.getKey(), neo4jClient);
-
-        // DomainRoutingTransactionManager#add
-        Neo4jTransactionManager transactionManager = Neo4jTransactionManager.
-                with(driver).
-                withBookmarkManager(ctx.getBean(Neo4jBookmarkManager.class)).
-                build();
-        beanFactory().getBean(DomainRoutingNeo4jTransactionManager.class).add(domain.getKey(), transactionManager);
-
         // domainContentXML
         beanFactory().registerBeanDefinition(domain.getKey() + "ContentXML",
                 BeanDefinitionBuilder.rootBeanDefinition(ByteArrayInputStream.class).
@@ -116,14 +95,6 @@ public class Neo4jDomainRegistry implements DomainRegistry<Neo4jDomain> {
         // domainContentXML
         unregisterSingleton(domain + "ContentXML");
         beanFactory().removeBeanDefinition(domain + "ContentXML");
-
-        // DomainRoutingTransactionManager#remove
-        beanFactory().getBean(DomainRoutingNeo4jTransactionManager.class).remove(domain);
-
-        // domainNeo4jClient
-        unregisterSingleton(domain + "Neo4jClient");
-        // DomainRoutingNeo4jClient#remove
-        beanFactory().getBean(DomainRoutingNeo4jClient.class).remove(domain);
 
         // domainDriver
         unregisterSingleton(domain + "Driver");

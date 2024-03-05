@@ -64,16 +64,18 @@ public class JobStatusUpdater {
         }
 
         if (event.getJobStatus() == null) {
-            LOG.debug("Deleting status for job '{}#{}'", event.getDomain(), event.getJobRefDesc());
-
-            AuthContextUtils.runAsAdmin(event.getDomain(), () -> jobStatusDAO.deleteById(event.getJobRefDesc()));
+            LOG.debug("Requesting to delete status for job '{}#{}', ignoring", event.getDomain(), event.getJobName());
         } else {
             LOG.debug("Updating job '{}#{}' with status '{}'",
-                    event.getDomain(), event.getJobRefDesc(), event.getJobStatus());
+                    event.getDomain(), event.getJobName(), event.getJobStatus());
 
             AuthContextUtils.runAsAdmin(event.getDomain(), () -> {
-                JobStatus jobStatus = entityFactory.newEntity(JobStatus.class);
-                jobStatus.setKey(event.getJobRefDesc());
+                JobStatus jobStatus = jobStatusDAO.findById(event.getJobName()).orElse(null);
+                if (jobStatus == null) {
+                    jobStatus = entityFactory.newEntity(JobStatus.class);
+                    jobStatus.setKey(event.getJobName());
+                }
+
                 jobStatus.setStatus(event.getJobStatus());
                 jobStatusDAO.save(jobStatus);
             });

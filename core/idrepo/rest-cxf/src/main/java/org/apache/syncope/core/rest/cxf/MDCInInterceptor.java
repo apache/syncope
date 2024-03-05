@@ -23,7 +23,7 @@ import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.syncope.core.provisioning.api.job.JobDelegate;
+import org.apache.syncope.core.provisioning.java.job.Job;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.slf4j.MDC;
 
@@ -53,6 +53,6 @@ public class MDCInInterceptor extends AbstractPhaseInterceptor<Message> {
             exchange.put(KEY_EXCHANGE_ID, exchangeId);
         }
 
-        MDC.put(JobDelegate.OPERATION_ID, exchangeId);
+        MDC.put(Job.OPERATION_ID, exchangeId);
     }
 }

@@ -54,26 +54,3 @@ becomes:
 persistence.remoteCommitProvider=tcp(Addresses=10.0.1.10;10.0.1.11,TransmitPersistedObjectIds=true)
 ....
 ====
-
-[discrete]
-===== Quartz
-
-The http://www.quartz-scheduler.org[Quartz^] scheduler is largely used within <<core>> to schedule the execution
-of jobs, including <<tasks-pull,pull>>, <<tasks-push,push>>, <<tasks-notification,notification>>, <<tasks-macro,macro>> and 
-<<tasks-scheduled,scheduled>> tasks, and <<reports,reports>>.
-
-By default, Quartz is configured for
-http://www.quartz-scheduler.org/documentation/quartz-2.2.x/configuration/ConfigJDBCJobStoreClustering.html[clustering^],
-where each node is automatically handled via the underlying JDBC store, and all cluster nodes are equally selectable
-for processing jobs.
-
-There are deployment scenarios which might have different requirements: for example, there could be three Core nodes
-configured with OpenJPA remote commit provider (see above), where two of them are dedicated to serve REST requests,
-leaving the third for running Quartz jobs.
-
-In such cases, it is possible to prevent Quartz from running on a given node by setting the following parameter in
-`core.properties`:
-
-....
-provisioning.quartz.disableInstance=true
-....

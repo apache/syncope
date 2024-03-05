@@ -33,9 +33,8 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
-import org.quartz.JobKey;
-import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +46,7 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     public NotificationLogic(
             final JobManager jobManager,
-            final SchedulerFactoryBean scheduler,
+            final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO,
             final NotificationDAO notificationDAO,
             final NotificationDataBinder binder) {
@@ -100,8 +99,8 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
     }
 
     @Override
-    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
-        return JobManager.NOTIFICATION_JOB.equals(jobKey)
+    protected Triple<JobType, String, String> getReference(final String jobName) {
+        return JobManager.NOTIFICATION_JOB.equals(jobName)
                 ? Triple.of(JobType.NOTIFICATION, null, NotificationJob.class.getSimpleName())
                 : null;
     }

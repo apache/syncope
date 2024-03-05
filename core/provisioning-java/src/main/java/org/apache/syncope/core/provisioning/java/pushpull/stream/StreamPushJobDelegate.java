@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -47,7 +48,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushResultHandlerDispatcher;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStreamPushExecutor {
@@ -181,8 +181,6 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e
                     : new JobExecutionException("While stream pushing", e);
-        } finally {
-            setStatus(null);
         }
     }
 }
