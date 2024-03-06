@@ -231,6 +231,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
                 filter(provision -> provision.getUidOnCreate() != null).
                 ifPresent(provision -> {
+                    LOG.debug("Adding uidOnCreate [{}] attribute to [{}] on create", provision.getUidOnCreate(),
+                            taskInfo.getEntityKey());
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
                     anyUtils.addAttr(
                             validator,
@@ -388,6 +390,25 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             connector.delete(objectClass, uid, null, propagationAttempted);
             result = uid;
+            taskInfo.getResource()
+                    .getProvisionByAnyType(taskInfo.getAnyType())
+                    .filter(provision -> provision.getUidOnCreate() != null)
+                    .ifPresent(provision -> {
+                        LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete",
+                                provision.getUidOnCreate(), taskInfo.getEntityKey());
+                        AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
+                        anyUtils.removeAttr(taskInfo.getEntityKey(),
+                                plainSchemaDAO.findById(provision.getUidOnCreate())
+                                        .orElseThrow(() -> new NotFoundException(
+                                                "PlainSchema " + (provision.getUidOnCreate()))));
+                        publisher.publishEvent(new EntityLifecycleEvent<>(
+                                this,
+                                SyncDeltaType.UPDATE,
+                                anyUtils.dao().findById(taskInfo.getEntityKey()).
+                                        orElseThrow(() -> new NotFoundException(
+                                        anyUtils.anyTypeKind() + "" + taskInfo.getEntityKey())),
+                                AuthContextUtils.getDomain()));
+                    });
         }
 
         return result;

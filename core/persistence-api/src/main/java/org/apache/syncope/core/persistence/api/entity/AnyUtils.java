@@ -61,4 +61,6 @@ public interface AnyUtils {
     Set<ExternalResource> getAllResources(Any<?> any);
 
     void addAttr(PlainAttrValidationManager validator, String key, PlainSchema schema, String value);
+    
+    void removeAttr(String key, PlainSchema schema);
 }

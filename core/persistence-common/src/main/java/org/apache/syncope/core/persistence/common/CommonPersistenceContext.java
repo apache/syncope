@@ -24,6 +24,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -78,9 +80,18 @@ public class CommonPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, false);
+        return new DefaultAnyUtils(userDAO,
+                groupDAO,
+                anyObjectDAO,
+                plainSchemaDAO,
+                plainAttrValueDAO,
+                entityFactory,
+                AnyTypeKind.USER,
+                false);
     }
 
     @Bean(name = "linkedAccountAnyUtils")
@@ -88,9 +99,18 @@ public class CommonPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.USER, true);
+        return new DefaultAnyUtils(userDAO,
+                groupDAO,
+                anyObjectDAO,
+                plainSchemaDAO,
+                plainAttrValueDAO,
+                entityFactory,
+                AnyTypeKind.USER,
+                true);
     }
 
     @Bean(name = "groupAnyUtils")
@@ -98,9 +118,18 @@ public class CommonPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.GROUP, false);
+        return new DefaultAnyUtils(userDAO,
+                groupDAO,
+                anyObjectDAO,
+                plainSchemaDAO,
+                plainAttrValueDAO,
+                entityFactory,
+                AnyTypeKind.GROUP,
+                false);
     }
 
     @Bean(name = "anyObjectAnyUtils")
@@ -108,9 +137,18 @@ public class CommonPersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
+            final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO, groupDAO, anyObjectDAO, entityFactory, AnyTypeKind.ANY_OBJECT, false);
+        return new DefaultAnyUtils(userDAO,
+                groupDAO,
+                anyObjectDAO,
+                plainSchemaDAO,
+                plainAttrValueDAO,
+                entityFactory,
+                AnyTypeKind.ANY_OBJECT,
+                false);
     }
 
     @ConditionalOnMissingBean
