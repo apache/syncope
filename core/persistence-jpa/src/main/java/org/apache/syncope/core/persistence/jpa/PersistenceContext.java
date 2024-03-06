@@ -282,9 +282,11 @@ public class PersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
+            final @Lazy PlainAttrDAO plainAttrDAO,
+            final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new JPAAnyUtilsFactory(userDAO, groupDAO, anyObjectDAO, entityFactory);
+        return new JPAAnyUtilsFactory(userDAO, groupDAO, anyObjectDAO, plainAttrDAO, plainAttrValueDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

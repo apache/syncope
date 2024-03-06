@@ -55,16 +55,19 @@ import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.ResourceAR;
+import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -72,6 +75,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -83,6 +87,8 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
+import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -1633,5 +1639,73 @@ public class UserIssuesITCase extends AbstractITCase {
         Response response = userService.associate(new ResourceAR.Builder().key(userTO.getKey()).
                 resource(RESOURCE_NAME_NOPROPAGATION).action(ResourceAssociationAction.ASSIGN).build());
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void issue1809() throws IOException {
+        // 1. add a new schema externalKey and update provision accordingly
+        PlainSchemaTO externalKeySchemaTO = new PlainSchemaTO();
+        externalKeySchemaTO.setKey("externalKey");
+        externalKeySchemaTO.setType(AttrSchemaType.String);
+        externalKeySchemaTO.setReadonly(true);
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, externalKeySchemaTO);
+        try {
+            AnyTypeClassTO minimalUser = ANY_TYPE_CLASS_SERVICE.read("minimal user");
+            minimalUser.getPlainSchemas().add(externalKeySchemaTO.getKey());
+            ANY_TYPE_CLASS_SERVICE.update(minimalUser);
+            ResourceTO restResourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
+            restResourceTO.getProvision(AnyTypeKind.USER.name())
+                    .ifPresent(p -> p.setUidOnCreate(externalKeySchemaTO.getKey()));
+            RESOURCE_SERVICE.update(restResourceTO);
+            UserCR userCR = UserITCase.getUniqueSample("rest@syncope.apache.org");
+            userCR.getResources().clear();
+            userCR.getResources().add(RESOURCE_NAME_REST);
+
+            // 2. create
+            ProvisioningResult<UserTO> result = createUser(userCR);
+            assertEquals(1, result.getPropagationStatuses().size());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
+            assertEquals("surname", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
+            // externalKey is going to be populated on create
+            assertTrue(result.getEntity().getPlainAttr("externalKey").isPresent());
+            assertEquals(result.getEntity().getKey(),
+                    result.getEntity().getPlainAttr("externalKey").get().getValues().get(0));
+            // 3. remove resource from the user
+            result = updateUser(new UserUR.Builder(result.getEntity()
+                    .getKey()).resource(new StringPatchItem.Builder().value(RESOURCE_NAME_REST)
+                    .operation(PatchOperation.DELETE)
+                    .build()).build());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            // externalKey is going to be removed on resource unassignment
+            assertFalse(result.getEntity().getPlainAttr("externalKey").isPresent());
+
+            // 4. create a new user and deprovision, attribute is cleared
+            userCR = UserITCase.getUniqueSample("rest@syncope.apache.org");
+            userCR.getResources().clear();
+            userCR.getResources().add(RESOURCE_NAME_REST);
+            result = createUser(userCR);
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            // this time fire a deprovision
+            assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(new ResourceDR.Builder().key(result.getEntity()
+                    .getKey()).action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_REST).build())));
+            UserTO restUserTO = USER_SERVICE.read(result.getEntity().getKey());
+            assertFalse(restUserTO.getPlainAttr("externalKey").isPresent());
+
+            // 5. create a new user and unlink, attribute is not cleared since provisioning hasn't been fired
+            userCR = UserITCase.getUniqueSample("rest@syncope.apache.org");
+            userCR.getResources().clear();
+            userCR.getResources().add(RESOURCE_NAME_REST);
+            result = createUser(userCR);
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            // this time deprovision
+            assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(new ResourceDR.Builder().key(result.getEntity()
+                    .getKey()).action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_REST).build())));
+            restUserTO = USER_SERVICE.read(result.getEntity().getKey());
+            assertTrue(restUserTO.getPlainAttr("externalKey").isPresent());
+        } finally {
+            // remove additional externalKey schema
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, externalKeySchemaTO.getKey());
+        }
     }
 }

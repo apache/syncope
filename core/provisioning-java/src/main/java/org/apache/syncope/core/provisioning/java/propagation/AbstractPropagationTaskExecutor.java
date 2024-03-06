@@ -383,6 +383,20 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             connector.delete(objectClass, uid, null, propagationAttempted);
             result = uid;
+            // SYNCOPE-1809 remove uidOnCreate attribute, if any
+            taskInfo.getResource()
+                    .getProvisionByAnyType(taskInfo.getAnyType())
+                    .filter(provision -> provision.getUidOnCreate() != null)
+                    .ifPresent(provision -> {
+                        LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete",
+                                provision.getUidOnCreate(), taskInfo.getEntityKey());
+                        AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
+                        anyUtils.removeAttr(taskInfo.getEntityKey(), plainSchemaDAO.find(provision.getUidOnCreate()));
+                        publisher.publishEvent(new EntityLifecycleEvent<>(this,
+                                SyncDeltaType.UPDATE,
+                                anyUtils.dao().find(taskInfo.getEntityKey()),
+                                AuthContextUtils.getDomain()));
+                    });
         }
 
         return result;
