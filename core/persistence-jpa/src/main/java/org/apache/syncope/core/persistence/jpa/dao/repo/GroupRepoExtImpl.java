@@ -448,11 +448,11 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 after.add(memb.getGroup().getKey());
             }
 
-            Query find = entityManager.createNativeQuery(
-                    "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            find.setParameter(1, memb.getGroup().getKey());
-            find.setParameter(2, anyObject.getKey());
-            boolean existing = !find.getResultList().isEmpty();
+            Query query = entityManager.createNativeQuery(
+                    "SELECT COUNT(group_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            query.setParameter(1, memb.getGroup().getKey());
+            query.setParameter(2, anyObject.getKey());
+            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
             if (existing) {
                 before.add(memb.getGroup().getKey());
             }
@@ -518,11 +518,11 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 after.add(memb.getGroup().getKey());
             }
 
-            Query find = entityManager.createNativeQuery(
-                    "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            find.setParameter(1, memb.getGroup().getKey());
-            find.setParameter(2, user.getKey());
-            boolean existing = !find.getResultList().isEmpty();
+            Query query = entityManager.createNativeQuery(
+                    "SELECT COUNT(group_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            query.setParameter(1, memb.getGroup().getKey());
+            query.setParameter(2, user.getKey());
+            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
             if (existing) {
                 before.add(memb.getGroup().getKey());
             }

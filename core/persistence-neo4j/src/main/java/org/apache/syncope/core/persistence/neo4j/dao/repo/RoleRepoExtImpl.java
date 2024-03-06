@@ -173,9 +173,10 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
                     SearchCondConverter.convert(searchCondVisitor, role.getDynMembershipCond()));
 
             boolean existing = neo4jTemplate.count(
-                    "MATCH (n)-[:" + DYN_ROLE_MEMBERSHIP_REL + "]-(p:" + Neo4jRole.NODE + "{id: $id}) "
+                    "MATCH (n:" + Neo4jUser.NODE + " {id: $aid})-[:" + DYN_ROLE_MEMBERSHIP_REL + "]-"
+                    + "(p:" + Neo4jRole.NODE + "{id: $pid}) "
                     + "RETURN COUNT(n)",
-                    Map.of("id", role.getKey())) > 0;
+                    Map.of("aid", user.getKey(), "pid", role.getKey())) > 0;
 
             if (matches && !existing) {
                 neo4jClient.query(

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.common.content;
 
-import static org.apache.syncope.core.persistence.api.content.ContentDealer.ROOT_ELEMENT;
-
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import javax.xml.XMLConstants;

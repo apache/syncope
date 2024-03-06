@@ -36,6 +36,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -252,7 +253,6 @@ public class DynRealmITCase extends AbstractITCase {
             dynRealm = new DynRealmTO();
             dynRealm.setKey("name" + getUUIDString());
             dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "ctype==" + ctype);
-            DYN_REALM_SERVICE.create(dynRealm);
 
             Response response = DYN_REALM_SERVICE.create(dynRealm);
             dynRealm = getObject(response.getLocation(), DynRealmService.class, DynRealmTO.class);
@@ -310,6 +310,62 @@ public class DynRealmITCase extends AbstractITCase {
         } finally {
             if (dynRealm != null) {
                 DYN_REALM_SERVICE.delete(dynRealm.getKey());
+            }
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1806() {
+        DynRealmTO realm1 = null;
+        DynRealmTO realm2 = null;
+        try {
+            // 1. create two dyn realms with same condition
+            realm1 = new DynRealmTO();
+            realm1.setKey("realm1");
+            realm1.getDynMembershipConds().put(AnyTypeKind.USER.name(), "cool==true");
+            realm1 = getObject(DYN_REALM_SERVICE.create(realm1).getLocation(), DynRealmService.class, DynRealmTO.class);
+            assertNotNull(realm1);
+
+            realm2 = new DynRealmTO();
+            realm2.setKey("realm2");
+            realm2.getDynMembershipConds().put(AnyTypeKind.USER.name(), "cool==true");
+            realm2 = getObject(DYN_REALM_SERVICE.create(realm2).getLocation(), DynRealmService.class, DynRealmTO.class);
+            assertNotNull(realm2);
+
+            // 2. verify that dynamic members are the same
+            PagedResult<UserTO> matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
+            PagedResult<UserTO> matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm2.getKey()).query()).build());
+
+            assertEquals(matching1, matching2);
+            assertEquals(1, matching1.getResult().size());
+            assertTrue(matching1.getResult().stream().
+                    anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));
+
+            // 3. update an user to let them become part of both dyn realms
+            UserUR userUR = new UserUR();
+            userUR.setKey("823074dc-d280-436d-a7dd-07399fae48ec");
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("cool").value("true").build()).build());
+            updateUser(userUR);
+
+            // 4. verify that dynamic members are still the same
+            matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
+            matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm2.getKey()).query()).build());
+            assertEquals(matching1, matching2);
+            assertEquals(2, matching1.getResult().size());
+            assertTrue(matching1.getResult().stream().
+                    anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));
+            assertTrue(matching1.getResult().stream().
+                    anyMatch(u -> "823074dc-d280-436d-a7dd-07399fae48ec".equals(u.getKey())));
+        } finally {
+            if (realm1 != null) {
+                DYN_REALM_SERVICE.delete(realm1.getKey());
+            }
+            if (realm2 != null) {
+                DYN_REALM_SERVICE.delete(realm2.getKey());
             }
         }
     }

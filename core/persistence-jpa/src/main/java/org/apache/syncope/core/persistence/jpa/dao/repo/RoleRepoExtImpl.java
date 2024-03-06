@@ -146,16 +146,16 @@ public class RoleRepoExtImpl implements RoleRepoExt {
     public void refreshDynMemberships(final User user) {
         entityManager.createQuery(
                 "SELECT e FROM " + JPARole.class.getSimpleName() + " e "
-                + "WHERE e.dynMembershipCond IS NOT NULL", Role.class).
-                getResultStream().forEach(role -> {
+                + "WHERE e.dynMembershipCond IS NOT NULL", Role.class).getResultStream().forEach(role -> {
                     boolean matches = anyMatchDAO.matches(
                             user,
                             SearchCondConverter.convert(searchCondVisitor, role.getDynMembershipCond()));
 
-                    Query find = entityManager.createNativeQuery(
-                            "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
-                    find.setParameter(1, role.getKey());
-                    boolean existing = !find.getResultList().isEmpty();
+                    Query query = entityManager.createNativeQuery(
+                            "SELECT COUNT(role_id) FROM " + DYNMEMB_TABLE + " WHERE any_id=? AND role_id=?");
+                    query.setParameter(1, user.getKey());
+                    query.setParameter(2, role.getKey());
+                    boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
 
                     if (matches && !existing) {
                         Query insert = entityManager.createNativeQuery(

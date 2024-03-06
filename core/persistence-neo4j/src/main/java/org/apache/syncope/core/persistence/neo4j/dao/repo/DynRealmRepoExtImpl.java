@@ -179,9 +179,9 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
                     any, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
 
             boolean existing = neo4jTemplate.count(
-                    "MATCH (n {id: $id})-[:" + DYN_REALM_MEMBERSHIP_REL + "]-(p:" + Neo4jDynRealm.NODE + ") "
+                    "MATCH (n {id: $aid})-[:" + DYN_REALM_MEMBERSHIP_REL + "]-(p:" + Neo4jDynRealm.NODE + "{id: $pid}) "
                     + "RETURN COUNT(p)",
-                    Map.of("id", any.getKey())) > 0;
+                    Map.of("aid", any.getKey(), "pid", dynRealm.getKey())) > 0;
 
             if (matches && !existing) {
                 neo4jClient.query(
