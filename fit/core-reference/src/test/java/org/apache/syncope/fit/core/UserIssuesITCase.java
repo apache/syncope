@@ -1642,7 +1642,7 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public void issue1809() throws IOException {
+    public void issueSYNCOPE1809() throws IOException {
         // 1. add a new schema externalKey and update provision accordingly
         PlainSchemaTO externalKeySchemaTO = new PlainSchemaTO();
         externalKeySchemaTO.setKey("externalKey");
