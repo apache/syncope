@@ -386,7 +386,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return neo4jTemplate.count(
                 "MATCH (n)-[:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN COUNT(n.id)", Map.of("id", group.getKey()));
+                + "RETURN COUNT(DISTINCT n.id)", Map.of("id", group.getKey()));
     }
 
     @Override
@@ -394,7 +394,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return neo4jTemplate.count(
                 "MATCH (n)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN COUNT(n.id)", Map.of("id", group.getKey()));
+                + "RETURN COUNT(DISTNCT n.id)", Map.of("id", group.getKey()));
     }
 
     @Override
@@ -402,7 +402,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return neo4jClient.query(
                 "MATCH (n)-[:" + DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all().stream().
+                + "RETURN DISTINCT n.id").bindAll(Map.of("id", group.getKey())).fetch().all().stream().
                 map(found -> found.get("n.id").toString()).toList();
     }
 
@@ -411,7 +411,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return neo4jClient.query(
                 "MATCH (n)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all().stream().
+                + "RETURN DISTINCT n.id").bindAll(Map.of("id", group.getKey())).fetch().all().stream().
                 map(found -> found.get("n.id").toString()).toList();
     }
 

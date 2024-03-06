@@ -43,19 +43,19 @@ public interface GroupRepoBase extends GroupDAO {
     @Override
     List<Group> findOwnedByGroup(@Param("groupKey") String groupKey);
 
-    @Query("SELECT e.leftEnd.id FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
+    @Query("SELECT DISTINCT e.leftEnd.id FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
     @Override
     List<String> findAMembers(@Param("groupKey") String groupKey);
 
-    @Query("SELECT e.leftEnd.id FROM JPAUMembership e WHERE e.rightEnd.id = :groupKey")
+    @Query("SELECT DISTINCT e.leftEnd.id FROM JPAUMembership e WHERE e.rightEnd.id = :groupKey")
     @Override
     List<String> findUMembers(@Param("groupKey") String groupKey);
 
-    @Query("SELECT COUNT(e.leftEnd.id) FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
+    @Query("SELECT COUNT(DISTINCT e.leftEnd.id) FROM JPAAMembership e WHERE e.rightEnd.id = :groupKey")
     @Override
     long countAMembers(@Param("groupKey") String groupKey);
 
-    @Query("SELECT COUNT(e.leftEnd.id) FROM JPAUMembership e WHERE e.rightEnd.id = :groupKey")
+    @Query("SELECT COUNT(DISTINCT e.leftEnd.id) FROM JPAUMembership e WHERE e.rightEnd.id = :groupKey")
     @Override
     long countUMembers(@Param("groupKey") String groupKey);
 }

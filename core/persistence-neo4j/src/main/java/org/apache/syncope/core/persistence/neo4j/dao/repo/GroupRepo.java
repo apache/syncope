@@ -72,14 +72,14 @@ public interface GroupRepo
     @Query("MATCH (a:" + Neo4jAnyObject.NODE + ")-[]-"
             + "(n:" + Neo4jAMembership.NODE + ")-[]-"
             + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
-            + "RETURN COUNT(a)")
+            + "RETURN COUNT(DISTINCT a)")
     @Override
     long countAMembers(@Param("groupKey") String groupKey);
 
     @Query("MATCH (u:" + Neo4jUser.NODE + ")-[]-"
             + "(n:" + Neo4jUMembership.NODE + ")-[]-"
             + "(g:" + Neo4jGroup.NODE + " {id: $groupKey}) "
-            + "RETURN COUNT(u)")
+            + "RETURN COUNT(DISTINCT u)")
     @Override
     long countUMembers(@Param("groupKey") String groupKey);
 }

@@ -138,23 +138,30 @@ public class RoleITCase extends AbstractITCase {
         assertTrue(bellini.getDynRoles().isEmpty());
         assertTrue(bellini.getPrivileges().isEmpty());
 
-        RoleTO role = getSampleRoleTO("dynMembership");
-        role.getPrivileges().add("getMighty");
-        role.setDynMembershipCond("cool==true");
-        Response response = ROLE_SERVICE.create(role);
-        role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
-        assertNotNull(role);
+        RoleTO role = null;
+        try {
+            role = getSampleRoleTO("dynMembership");
+            role.getPrivileges().add("getMighty");
+            role.setDynMembershipCond("cool==true");
+            Response response = ROLE_SERVICE.create(role);
+            role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
+            assertNotNull(role);
 
-        bellini = USER_SERVICE.read("bellini");
-        assertTrue(bellini.getDynRoles().contains(role.getKey()));
-        assertTrue(bellini.getPrivileges().contains("getMighty"));
+            bellini = USER_SERVICE.read("bellini");
+            assertTrue(bellini.getDynRoles().contains(role.getKey()));
+            assertTrue(bellini.getPrivileges().contains("getMighty"));
 
-        role.setDynMembershipCond("cool==false");
-        ROLE_SERVICE.update(role);
+            role.setDynMembershipCond("cool==false");
+            ROLE_SERVICE.update(role);
 
-        bellini = USER_SERVICE.read("bellini");
-        assertTrue(bellini.getDynMemberships().isEmpty());
-        assertTrue(bellini.getPrivileges().isEmpty());
+            bellini = USER_SERVICE.read("bellini");
+            assertTrue(bellini.getDynMemberships().isEmpty());
+            assertTrue(bellini.getPrivileges().isEmpty());
+        } finally {
+            if (role != null) {
+                ROLE_SERVICE.delete(role.getKey());
+            }
+        }
     }
 
     @Test

@@ -357,7 +357,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public long countADynMembers(final Group group) {
         Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
+                "SELECT COUNT(DISTINCT any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).longValue();
@@ -370,7 +370,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         }
 
         Query query = entityManager.createNativeQuery(
-                "SELECT COUNT(any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+                "SELECT COUNT(DISTINCT any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).longValue();
@@ -383,7 +383,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
         group.getADynMemberships().forEach(memb -> {
             Query query = entityManager.createNativeQuery(
-                    "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
+                    "SELECT DISTINCT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
             query.setParameter(1, group.getKey());
             query.setParameter(2, memb.getAnyType().getKey());
 
@@ -404,7 +404,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             return List.of();
         }
 
-        Query query = entityManager.createNativeQuery("SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+        Query query = entityManager.createNativeQuery(
+                "SELECT DISTINCT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         @SuppressWarnings("unchecked")

@@ -64,6 +64,27 @@ import org.junit.jupiter.api.Test;
 
 public class DynRealmITCase extends AbstractITCase {
 
+    private static ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
+        String body =
+                '{'
+                + "    \"query\": {"
+                + "        \"match\": {\"_id\": \"" + userKey + "\"}"
+                + "    }"
+                + '}';
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(
+                HttpRequest.newBuilder(URI.create("http://localhost:9200/master_user/_search")).
+                        header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
+                        method("GET", BodyPublishers.ofString(body)).
+                        build(),
+                BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+        return (ArrayNode) JSON_MAPPER.readTree(response.body()).
+                get("hits").get("hits").get(0).get("_source").get("dynRealms");
+    }
+
     @Test
     public void misc() {
         DynRealmTO dynRealm = null;
@@ -222,27 +243,6 @@ public class DynRealmITCase extends AbstractITCase {
         }
     }
 
-    private static ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
-        String body =
-                '{'
-                + "    \"query\": {"
-                + "        \"match\": {\"_id\": \"" + userKey + "\"}"
-                + "    }"
-                + '}';
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = client.send(
-                HttpRequest.newBuilder(URI.create("http://localhost:9200/master_user/_search")).
-                        header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
-                        method("GET", BodyPublishers.ofString(body)).
-                        build(),
-                BodyHandlers.ofString());
-        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
-
-        return (ArrayNode) JSON_MAPPER.readTree(response.body()).
-                get("hits").get("hits").get(0).get("_source").get("dynRealms");
-    }
-
     @Test
     public void issueSYNCOPE1480() throws Exception {
         String ctype = getUUIDString();
@@ -333,6 +333,14 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(realm2);
 
             // 2. verify that dynamic members are the same
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             PagedResult<UserTO> matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
             PagedResult<UserTO> matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
@@ -350,6 +358,14 @@ public class DynRealmITCase extends AbstractITCase {
             updateUser(userUR);
 
             // 4. verify that dynamic members are still the same
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
             matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
@@ -367,6 +383,11 @@ public class DynRealmITCase extends AbstractITCase {
             if (realm2 != null) {
                 DYN_REALM_SERVICE.delete(realm2.getKey());
             }
+            UserUR userUR = new UserUR();
+            userUR.setKey("823074dc-d280-436d-a7dd-07399fae48ec");
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("cool").build()).
+                    operation(PatchOperation.DELETE).build());
+            updateUser(userUR);
         }
     }
 }
