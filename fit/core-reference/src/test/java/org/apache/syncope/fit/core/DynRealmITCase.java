@@ -25,14 +25,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -54,15 +60,30 @@ import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.eclipse.jetty.client.HttpClient;
-import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.client.util.InputStreamContentProvider;
-import org.eclipse.jetty.http.HttpHeader;
-import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 
 public class DynRealmITCase extends AbstractITCase {
+
+    private static ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
+        String body =
+                '{'
+                + "    \"query\": {"
+                + "        \"match\": {\"_id\": \"" + userKey + "\"}"
+                + "    }"
+                + '}';
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpResponse<String> response = client.send(
+                HttpRequest.newBuilder(URI.create("http://localhost:9200/master_user/_search")).
+                        header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON).
+                        method("GET", BodyPublishers.ofString(body)).
+                        build(),
+                BodyHandlers.ofString());
+        assertEquals(Response.Status.OK.getStatusCode(), response.statusCode());
+
+        return (ArrayNode) JSON_MAPPER.readTree(response.body()).
+                get("hits").get("hits").get(0).get("_source").get("dynRealms");
+    }
 
     @Test
     public void misc() {
@@ -222,25 +243,75 @@ public class DynRealmITCase extends AbstractITCase {
         }
     }
 
-    private static ArrayNode fetchDynRealmsFromElasticsearch(final String userKey) throws Exception {
-        String body =
-                '{'
-                + "    \"query\": {"
-                + "        \"match\": {\"_id\": \"" + userKey + "\"}"
-                + "    }"
-                + '}';
+    @Test
+    public void issueSYNCOPE1480() throws Exception {
+        String ctype = getUUIDString();
 
-        HttpClient httpClient = new HttpClient();
-        httpClient.start();
-        ContentResponse response = httpClient.newRequest("http://localhost:9200/master_user/_search").
-                method(HttpMethod.GET).
-                header(HttpHeader.CONTENT_TYPE, MediaType.APPLICATION_JSON).
-                content(new InputStreamContentProvider(IOUtils.toInputStream(body, StandardCharsets.UTF_8))).
-                send();
-        assertEquals(HttpStatus.OK_200, response.getStatus());
+        DynRealmTO dynRealm = null;
+        try {
+            // 1. create new dyn realm matching a very specific attribute value
+            dynRealm = new DynRealmTO();
+            dynRealm.setKey("name" + getUUIDString());
+            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "ctype==" + ctype);
 
-        return (ArrayNode) JSON_MAPPER.readTree(response.getContent()).
-                get("hits").get("hits").get(0).get("_source").get("dynRealms");
+            Response response = DYN_REALM_SERVICE.create(dynRealm);
+            dynRealm = getObject(response.getLocation(), DynRealmService.class, DynRealmTO.class);
+            assertNotNull(dynRealm);
+
+            // 2. no dyn realm members
+            PagedResult<UserTO> matching = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
+            assertEquals(0, matching.getSize());
+
+            // 3. create user with that attribute value
+            UserCR userCR = UserITCase.getUniqueSample("syncope1480@syncope.apache.org");
+            userCR.getPlainAttr("ctype").get().getValues().set(0, ctype);
+            UserTO user = createUser(userCR).getEntity();
+            assertNotNull(user.getKey());
+
+            // 4a. check that Elasticsearch index was updated correctly
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+
+                ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
+                assertEquals(1, dynRealms.size());
+                assertEquals(dynRealm.getKey(), dynRealms.get(0).asText());
+            }
+
+            // 4b. now there is 1 realm member
+            matching = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
+            assertEquals(1, matching.getSize());
+
+            // 5. change dyn realm condition
+            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "ctype==ANY");
+            DYN_REALM_SERVICE.update(dynRealm);
+
+            // 6a. check that Elasticsearch index was updated correctly
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+
+                ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
+                assertTrue(dynRealms.isEmpty());
+            }
+
+            // 6b. no more dyn realm members
+            matching = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
+            assertEquals(0, matching.getSize());
+        } finally {
+            if (dynRealm != null) {
+                DYN_REALM_SERVICE.delete(dynRealm.getKey());
+            }
+        }
     }
 
     @Test
@@ -262,6 +333,14 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(realm2);
 
             // 2. verify that dynamic members are the same
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             PagedResult<UserTO> matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
             PagedResult<UserTO> matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
@@ -279,6 +358,14 @@ public class DynRealmITCase extends AbstractITCase {
             updateUser(userUR);
 
             // 4. verify that dynamic members are still the same
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
             matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
