@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.outer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,10 +26,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -57,6 +60,12 @@ public class DynRealmTest extends AbstractTest {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private PlainAttrValidationManager plainAttrValidationManager;
 
     @Test
     public void misc() {
@@ -95,5 +104,67 @@ public class DynRealmTest extends AbstractTest {
         assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(dynRealmCond)));
 
         assertTrue(userDAO.findDynRealms(user.getKey()).contains(actual.getKey()));
+    }
+
+    @Test
+    public void issueSYNCOPE1806() {
+        // 1. create two dyn realms with same condition
+        DynRealm realm1 = entityFactory.newEntity(DynRealm.class);
+        realm1.setKey("realm1");
+
+        DynRealmMembership memb1 = entityFactory.newEntity(DynRealmMembership.class);
+        memb1.setDynRealm(realm1);
+        memb1.setAnyType(anyTypeDAO.findUser());
+        memb1.setFIQLCond("cool==true");
+
+        realm1.add(memb1);
+        memb1.setDynRealm(realm1);
+
+        realm1 = dynRealmDAO.saveAndRefreshDynMemberships(realm1);
+
+        DynRealm realm2 = entityFactory.newEntity(DynRealm.class);
+        realm2.setKey("realm2");
+
+        DynRealmMembership memb2 = entityFactory.newEntity(DynRealmMembership.class);
+        memb2.setDynRealm(realm2);
+        memb2.setAnyType(anyTypeDAO.findUser());
+        memb2.setFIQLCond("cool==true");
+
+        realm2.add(memb2);
+        memb2.setDynRealm(realm2);
+
+        realm2 = dynRealmDAO.saveAndRefreshDynMemberships(realm2);
+
+        entityManager().flush();
+
+        // 2. verify that dynamic members are the same
+        DynRealmCond dynRealmCond1 = new DynRealmCond();
+        dynRealmCond1.setDynRealm(realm1.getKey());
+        List<User> matching1 = searchDAO.search(SearchCond.getLeaf(dynRealmCond1), AnyTypeKind.USER);
+
+        DynRealmCond dynRealmCond2 = new DynRealmCond();
+        dynRealmCond2.setDynRealm(realm2.getKey());
+        List<User> matching2 = searchDAO.search(SearchCond.getLeaf(dynRealmCond2), AnyTypeKind.USER);
+
+        assertEquals(matching1, matching2);
+        assertEquals(1, matching1.size());
+        assertTrue(matching1.stream().anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));
+
+        // 3. update an user to let them become part of both dyn realms        
+        anyUtilsFactory.getInstance(AnyTypeKind.USER).addAttr(
+                plainAttrValidationManager,
+                "823074dc-d280-436d-a7dd-07399fae48ec",
+                plainSchemaDAO.find("cool"),
+                "true");
+
+        entityManager().flush();
+
+        // 4. verify that dynamic members are still the same
+        matching1 = searchDAO.search(SearchCond.getLeaf(dynRealmCond1), AnyTypeKind.USER);
+        matching2 = searchDAO.search(SearchCond.getLeaf(dynRealmCond2), AnyTypeKind.USER);
+        assertEquals(matching1, matching2);
+        assertEquals(2, matching1.size());
+        assertTrue(matching1.stream().anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));
+        assertTrue(matching1.stream().anyMatch(u -> "823074dc-d280-436d-a7dd-07399fae48ec".equals(u.getKey())));
     }
 }

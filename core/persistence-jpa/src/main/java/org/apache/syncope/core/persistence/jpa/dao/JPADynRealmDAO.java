@@ -172,10 +172,11 @@ public class JPADynRealmDAO extends AbstractDAO<DynRealm> implements DynRealmDAO
             boolean matches = anyMatchDAO.matches(
                     any, SearchCondConverter.convert(searchCondVisitor, memb.getFIQLCond()));
 
-            Query find = entityManager().createNativeQuery(
-                    "SELECT dynRealm_id FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
-            find.setParameter(1, any.getKey());
-            boolean existing = !find.getResultList().isEmpty();
+            Query query = entityManager().createNativeQuery(
+                    "SELECT COUNT(dynRealm_id) FROM " + DYNMEMB_TABLE + " WHERE any_id=? AND dynRealm_id=?");
+            query.setParameter(1, any.getKey());
+            query.setParameter(2, dynRealm.getKey());
+            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
 
             if (matches && !existing) {
                 Query insert = entityManager().

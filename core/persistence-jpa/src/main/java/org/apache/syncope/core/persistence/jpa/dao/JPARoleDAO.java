@@ -172,7 +172,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
             return List.of();
         }
 
-        Query query = entityManager().createNativeQuery("SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+        Query query = entityManager().createNativeQuery(
+                "SELECT DISTINCT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
         query.setParameter(1, role.getKey());
 
         List<String> result = new ArrayList<>();
@@ -202,9 +203,10 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
                     user, SearchCondConverter.convert(searchCondVisitor, role.getDynMembership().getFIQLCond()));
 
             Query find = entityManager().createNativeQuery(
-                    "SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
-            find.setParameter(1, role.getKey());
-            boolean existing = !find.getResultList().isEmpty();
+                    "SELECT COUNT(role_id) FROM " + DYNMEMB_TABLE + " WHERE any_id=? AND role_id=?");
+            find.setParameter(1, user.getKey());
+            find.setParameter(2, role.getKey());
+            boolean existing = ((Number) find.getSingleResult()).longValue() > 0;
 
             if (matches && !existing) {
                 Query insert = entityManager().createNativeQuery(

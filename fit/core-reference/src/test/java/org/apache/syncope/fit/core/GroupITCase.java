@@ -679,17 +679,26 @@ public class GroupITCase extends AbstractITCase {
 
         GroupCR groupCR = getBasicSample("uDynMembership");
         groupCR.setUDynMembershipCond("cool==true");
-        GroupTO group = createGroup(groupCR).getEntity();
-        assertNotNull(group);
+        GroupTO group = null;
+        try {
+            group = createGroup(groupCR).getEntity();
+            assertNotNull(group);
+            String groupKey = group.getKey();
 
-        List<MembershipTO> memberships = USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(group.getKey())));
-        assertEquals(1, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
+            List<MembershipTO> memberships =
+                    USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
+            assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+            assertEquals(1, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
 
-        GROUP_SERVICE.update(new GroupUR.Builder(group.getKey()).udynMembershipCond("cool==false").build());
+            GROUP_SERVICE.update(new GroupUR.Builder(group.getKey()).udynMembershipCond("cool==false").build());
 
-        assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
-        assertEquals(0, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
+            assertTrue(USER_SERVICE.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
+            assertEquals(0, GROUP_SERVICE.read(group.getKey()).getDynamicUserMembershipCount());
+        } finally {
+            if (group != null) {
+                GROUP_SERVICE.delete(group.getKey());
+            }
+        }
     }
 
     @Test

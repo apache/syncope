@@ -315,7 +315,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                         AnyTypeKind.USER);
 
                 matching.forEach(user -> {
-                    Query insert = entityManager().createNativeQuery("INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
+                    Query insert = entityManager().createNativeQuery(
+                            "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
                     insert.setParameter(1, user.getKey());
                     insert.setParameter(2, merged.getKey());
                     insert.executeUpdate();
@@ -440,7 +441,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @SuppressWarnings("unchecked")
     public List<String> findAMembers(final String groupKey) {
         Query query = entityManager().createNativeQuery(
-                "SELECT anyObject_id FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+                "SELECT DISTINCT anyObject_id FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, groupKey);
 
         List<String> result = new ArrayList<>();
@@ -456,7 +457,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @SuppressWarnings("unchecked")
     public List<String> findUMembers(final String groupKey) {
         Query query = entityManager().createNativeQuery(
-                "SELECT user_id FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+                "SELECT DISTINCT user_id FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, groupKey);
 
         List<String> result = new ArrayList<>();
@@ -474,7 +475,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         group.getADynMemberships().forEach(memb -> {
             Query query = entityManager().createNativeQuery(
-                    "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
+                    "SELECT DISTINCT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
             query.setParameter(1, group.getKey());
             query.setParameter(2, memb.getAnyType().getKey());
 
@@ -491,7 +492,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int countAMembers(final String groupKey) {
         Query query = entityManager().createNativeQuery(
-                "SELECT COUNT(anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
+                "SELECT COUNT(DISTINCT anyObject_id) FROM " + JPAAMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, groupKey);
 
         return ((Number) query.getSingleResult()).intValue();
@@ -500,7 +501,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int countUMembers(final String groupKey) {
         Query query = entityManager().createNativeQuery(
-                "SELECT COUNT(user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
+                "SELECT COUNT(DISTINCT user_id) FROM " + JPAUMembership.TABLE + " WHERE group_id=?");
         query.setParameter(1, groupKey);
 
         return ((Number) query.getSingleResult()).intValue();
@@ -509,7 +510,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public int countADynMembers(final Group group) {
         Query query = entityManager().createNativeQuery(
-                "SELECT COUNT(any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
+                "SELECT COUNT(DISTINCT any_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).intValue();
@@ -522,7 +523,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         Query query = entityManager().createNativeQuery(
-                "SELECT COUNT(any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+                "SELECT COUNT(DISTINCT any_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         return ((Number) query.getSingleResult()).intValue();
@@ -554,11 +555,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 after.add(memb.getGroup().getKey());
             }
 
-            Query find = entityManager().createNativeQuery(
-                    "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            find.setParameter(1, memb.getGroup().getKey());
-            find.setParameter(2, anyObject.getKey());
-            boolean existing = !find.getResultList().isEmpty();
+            Query query = entityManager().createNativeQuery(
+                    "SELECT COUNT(group_id) FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            query.setParameter(1, memb.getGroup().getKey());
+            query.setParameter(2, anyObject.getKey());
+            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
             if (existing) {
                 before.add(memb.getGroup().getKey());
             }
@@ -612,7 +613,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         Query query = entityManager().createNativeQuery(
-                "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+                "SELECT DISTINCT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
         query.setParameter(1, group.getKey());
 
         List<String> result = new ArrayList<>();
@@ -649,11 +650,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 after.add(memb.getGroup().getKey());
             }
 
-            Query find = entityManager().createNativeQuery(
-                    "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
-            find.setParameter(1, memb.getGroup().getKey());
-            find.setParameter(2, user.getKey());
-            boolean existing = !find.getResultList().isEmpty();
+            Query query = entityManager().createNativeQuery(
+                    "SELECT COUNT(group_id) FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            query.setParameter(1, memb.getGroup().getKey());
+            query.setParameter(2, user.getKey());
+            boolean existing = ((Number) query.getSingleResult()).longValue() > 0;
             if (existing) {
                 before.add(memb.getGroup().getKey());
             }

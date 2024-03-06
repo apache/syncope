@@ -31,8 +31,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -244,74 +244,63 @@ public class DynRealmITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE1480() throws Exception {
-        String ctype = getUUIDString();
-
-        DynRealmTO dynRealm = null;
+    public void issueSYNCOPE1806() {
+        DynRealmTO realm1 = null;
+        DynRealmTO realm2 = null;
         try {
-            // 1. create new dyn realm matching a very specific attribute value
-            dynRealm = new DynRealmTO();
-            dynRealm.setKey("name" + getUUIDString());
-            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "ctype==" + ctype);
-            DYN_REALM_SERVICE.create(dynRealm);
+            // 1. create two dyn realms with same condition
+            realm1 = new DynRealmTO();
+            realm1.setKey("realm1");
+            realm1.getDynMembershipConds().put(AnyTypeKind.USER.name(), "cool==true");
+            realm1 = getObject(DYN_REALM_SERVICE.create(realm1).getLocation(), DynRealmService.class, DynRealmTO.class);
+            assertNotNull(realm1);
 
-            Response response = DYN_REALM_SERVICE.create(dynRealm);
-            dynRealm = getObject(response.getLocation(), DynRealmService.class, DynRealmTO.class);
-            assertNotNull(dynRealm);
+            realm2 = new DynRealmTO();
+            realm2.setKey("realm2");
+            realm2.getDynMembershipConds().put(AnyTypeKind.USER.name(), "cool==true");
+            realm2 = getObject(DYN_REALM_SERVICE.create(realm2).getLocation(), DynRealmService.class, DynRealmTO.class);
+            assertNotNull(realm2);
 
-            // 2. no dyn realm members
-            PagedResult<UserTO> matching = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
-                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
-            assertEquals(0, matching.getSize());
+            // 2. verify that dynamic members are the same
+            PagedResult<UserTO> matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
+            PagedResult<UserTO> matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm2.getKey()).query()).build());
 
-            // 3. create user with that attribute value
-            UserCR userCR = UserITCase.getUniqueSample("syncope1480@syncope.apache.org");
-            userCR.getPlainAttr("ctype").get().getValues().set(0, ctype);
-            UserTO user = createUser(userCR).getEntity();
-            assertNotNull(user.getKey());
+            assertEquals(matching1, matching2);
+            assertEquals(1, matching1.getResult().size());
+            assertTrue(matching1.getResult().stream().
+                    anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));
 
-            // 4a. check that Elasticsearch index was updated correctly
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
+            // 3. update an user to let them become part of both dyn realms
+            UserUR userUR = new UserUR();
+            userUR.setKey("823074dc-d280-436d-a7dd-07399fae48ec");
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("cool").value("true").build()).build());
+            updateUser(userUR);
 
-                ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
-                assertEquals(1, dynRealms.size());
-                assertEquals(dynRealm.getKey(), dynRealms.get(0).asText());
-            }
-
-            // 4b. now there is 1 realm member
-            matching = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).fiql(
-                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
-            assertEquals(1, matching.getSize());
-
-            // 5. change dyn realm condition
-            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "ctype==ANY");
-            DYN_REALM_SERVICE.update(dynRealm);
-
-            // 6a. check that Elasticsearch index was updated correctly
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-
-                ArrayNode dynRealms = fetchDynRealmsFromElasticsearch(user.getKey());
-                assertTrue(dynRealms.isEmpty());
-            }
-
-            // 6b. no more dyn realm members
-            matching = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).fiql(
-                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
-            assertEquals(0, matching.getSize());
+            // 4. verify that dynamic members are still the same
+            matching1 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm1.getKey()).query()).build());
+            matching2 = USER_SERVICE.search(new AnyQuery.Builder().realm("/").fiql(
+                    SyncopeClient.getUserSearchConditionBuilder().inDynRealms(realm2.getKey()).query()).build());
+            assertEquals(matching1, matching2);
+            assertEquals(2, matching1.getResult().size());
+            assertTrue(matching1.getResult().stream().
+                    anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));
+            assertTrue(matching1.getResult().stream().
+                    anyMatch(u -> "823074dc-d280-436d-a7dd-07399fae48ec".equals(u.getKey())));
         } finally {
-            if (dynRealm != null) {
-                DYN_REALM_SERVICE.delete(dynRealm.getKey());
+            if (realm1 != null) {
+                DYN_REALM_SERVICE.delete(realm1.getKey());
             }
+            if (realm2 != null) {
+                DYN_REALM_SERVICE.delete(realm2.getKey());
+            }
+            UserUR userUR = new UserUR();
+            userUR.setKey("823074dc-d280-436d-a7dd-07399fae48ec");
+            userUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("cool").build()).
+                    operation(PatchOperation.DELETE).build());
+            updateUser(userUR);
         }
     }
 }
