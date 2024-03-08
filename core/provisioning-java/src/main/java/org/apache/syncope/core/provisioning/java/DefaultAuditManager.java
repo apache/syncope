@@ -20,29 +20,32 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.time.OffsetDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.apache.syncope.core.persistence.api.entity.AuditEvent;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.provisioning.api.AuditEventProcessor;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public class DefaultAuditManager implements AuditManager {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AuditManager.class);
 
     protected static final String MASKED_VALUE = "<MASKED>";
 
@@ -77,103 +80,120 @@ public class DefaultAuditManager implements AuditManager {
 
     protected final AuditConfDAO auditConfDAO;
 
-    public DefaultAuditManager(final AuditConfDAO auditConfDAO) {
+    protected final AuditEventDAO auditEventDAO;
+
+    protected final EntityFactory entityFactory;
+
+    protected final List<AuditEventProcessor> auditEventProcessors;
+
+    protected final AsyncTaskExecutor taskExecutor;
+
+    public DefaultAuditManager(
+            final AuditConfDAO auditConfDAO,
+            final AuditEventDAO auditEventDAO,
+            final EntityFactory entityFactory,
+            final List<AuditEventProcessor> auditEventProcessors,
+            final AsyncTaskExecutor taskExecutor) {
+
         this.auditConfDAO = auditConfDAO;
+        this.auditEventDAO = auditEventDAO;
+        this.entityFactory = entityFactory;
+        this.auditEventProcessors = auditEventProcessors;
+        this.taskExecutor = taskExecutor;
     }
 
     @Override
     public boolean auditRequested(
+            final String domain,
             final String who,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
-            final String event) {
+            final String op) {
 
-        AuditEntry auditEntry = new AuditEntry();
-        auditEntry.setWho(who);
-        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS));
-        auditEntry.setDate(OffsetDateTime.now());
+        return AuthContextUtils.callAsAdmin(domain, () -> {
+            OpEvent opEvent = new OpEvent(type, category, subcategory, op, OpEvent.Outcome.SUCCESS);
+            if (auditConfDAO.findById(opEvent.toString()).map(AuditConf::isActive).orElse(false)) {
+                return true;
+            }
 
-        Optional<? extends AuditConf> auditConf = auditConfDAO.findById(auditEntry.getLogger().toAuditKey());
-        boolean auditRequested = auditConf.isPresent() && auditConf.get().isActive();
-
-        if (auditRequested) {
-            return true;
-        }
-
-        auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
-
-        auditConf = auditConfDAO.findById(auditEntry.getLogger().toAuditKey());
-        auditRequested = auditConf.isPresent() && auditConf.get().isActive();
-
-        return auditRequested;
+            opEvent = new OpEvent(type, category, subcategory, op, OpEvent.Outcome.FAILURE);
+            return auditConfDAO.findById(opEvent.toString()).map(AuditConf::isActive).orElse(false);
+        });
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void audit(final AfterHandlingEvent event) {
         audit(
+                event.getDomain(),
                 event.getWho(),
                 event.getType(),
                 event.getCategory(),
                 event.getSubcategory(),
-                event.getEvent(),
-                event.getCondition(),
+                event.getOp(),
+                event.getOutcome(),
                 event.getBefore(),
                 event.getOutput(),
                 event.getInput());
     }
 
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
     public void audit(
+            final String domain,
             final String who,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
-            final String event,
-            final Result condition,
+            final String op,
+            final OpEvent.Outcome outcome,
             final Object before,
             final Object output,
             final Object... input) {
 
-        AuditLoggerName auditLoggerName = new AuditLoggerName(type, category, subcategory, event, condition);
+        taskExecutor.submit(() -> AuthContextUtils.runAsAdmin(domain, new Runnable() {
 
-        auditConfDAO.findById(auditLoggerName.toAuditKey()).filter(AuditConf::isActive).ifPresent(audit -> {
-            Throwable throwable = output instanceof Throwable
-                    ? (Throwable) output
-                    : null;
+            @Transactional
+            @Override
+            public void run() {
+                OpEvent opEvent = new OpEvent(type, category, subcategory, op, outcome);
 
-            AuditEntry auditEntry = new AuditEntry();
-            auditEntry.setWho(who);
-            auditEntry.setLogger(auditLoggerName);
-            auditEntry.setDate(OffsetDateTime.now());
-            auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
-            if (throwable == null) {
-                auditEntry.setOutput(POJOHelper.serialize((maskSensitive(output))));
-            } else {
-                auditEntry.setOutput(throwable.getMessage());
-                auditEntry.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
+                Optional<? extends AuditConf> auditConf = auditConfDAO.findById(opEvent.toString());
+                if (auditConf.isEmpty()) {
+                    LOG.debug("No audit conf found for {}, skippping", opEvent.toString());
+                    return;
+                }
+                if (!auditConf.get().isActive()) {
+                    LOG.debug("Audit conf found for {} is not active, skippping", opEvent.toString());
+                    return;
+                }
+
+                try {
+                    AuditEvent auditEvent = entityFactory.newEntity(AuditEvent.class);
+                    auditEvent.setOpEvent(opEvent.toString());
+                    auditEvent.setWho(who);
+                    auditEvent.setWhen(OffsetDateTime.now());
+                    auditEvent.setBefore(POJOHelper.serialize((maskSensitive(before))));
+
+                    Optional.ofNullable(input).ifPresent(in -> auditEvent.setInputs(Arrays.stream(in).
+                            map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
+                            toList()));
+
+                    if (output instanceof Throwable throwable) {
+                        auditEvent.setOutput(throwable.getMessage());
+                        auditEvent.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
+                    } else {
+                        auditEvent.setOutput(POJOHelper.serialize((maskSensitive(output))));
+                    }
+
+                    auditEventDAO.save(auditEvent);
+
+                    auditEventProcessors.stream().
+                            filter(p -> p.getEvents(domain).contains(opEvent)).
+                            forEach(p -> p.process(domain, auditEvent));
+                } catch (Exception e) {
+                    LOG.error("While processing audit event for conf {}", opEvent, e);
+                }
             }
-            if (input != null) {
-                auditEntry.getInputs().addAll(Arrays.stream(input).
-                        map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
-                        toList());
-            }
-
-            Logger logger = LoggerFactory.getLogger(
-                    AuditLoggerName.getAuditLoggerName(AuthContextUtils.getDomain()));
-            Logger eventLogger = LoggerFactory.getLogger(
-                    AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), audit.getKey()));
-            String serializedAuditEntry = POJOHelper.serialize(auditEntry);
-
-            if (throwable == null) {
-                logger.debug(serializedAuditEntry);
-                eventLogger.debug(serializedAuditEntry);
-            } else {
-                logger.debug(serializedAuditEntry, throwable);
-                eventLogger.debug(serializedAuditEntry, throwable);
-            }
-        });
+        }));
     }
 }

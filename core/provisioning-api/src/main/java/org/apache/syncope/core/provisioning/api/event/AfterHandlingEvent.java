@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.event;
 
 import java.io.Serializable;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 
 @SuppressWarnings({ "squid:S00107", "squid:S1948" })
 public class AfterHandlingEvent implements Serializable {
@@ -28,17 +28,19 @@ public class AfterHandlingEvent implements Serializable {
 
     public static final String JOBMAP_KEY = "AfterHandlingEvent";
 
+    private final String domain;
+
     private final String who;
 
-    private final AuditElements.EventCategoryType type;
+    private final OpEvent.CategoryType type;
 
     private final String category;
 
     private final String subcategory;
 
-    private final String event;
+    private final String op;
 
-    private final AuditElements.Result condition;
+    private final OpEvent.Outcome outcome;
 
     private final Object before;
 
@@ -47,32 +49,38 @@ public class AfterHandlingEvent implements Serializable {
     private final Object[] input;
 
     public AfterHandlingEvent(
+            final String domain,
             final String who,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
-            final String event,
-            final AuditElements.Result condition,
+            final String op,
+            final OpEvent.Outcome outcome,
             final Object before,
             final Object output,
             final Object... input) {
 
+        this.domain = domain;
         this.who = who;
         this.type = type;
         this.category = category;
         this.subcategory = subcategory;
-        this.event = event;
-        this.condition = condition;
+        this.op = op;
+        this.outcome = outcome;
         this.before = before;
         this.output = output;
         this.input = input;
+    }
+
+    public String getDomain() {
+        return domain;
     }
 
     public String getWho() {
         return who;
     }
 
-    public AuditElements.EventCategoryType getType() {
+    public OpEvent.CategoryType getType() {
         return type;
     }
 
@@ -84,12 +92,12 @@ public class AfterHandlingEvent implements Serializable {
         return subcategory;
     }
 
-    public String getEvent() {
-        return event;
+    public String getOp() {
+        return op;
     }
 
-    public AuditElements.Result getCondition() {
-        return condition;
+    public OpEvent.Outcome getOutcome() {
+        return outcome;
     }
 
     public Object getBefore() {

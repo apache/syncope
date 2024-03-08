@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.opensearch;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -31,8 +31,9 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchAnySearchDAO;
-import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchAuditEntryDAO;
+import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchAuditEventDAO;
 import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchRealmDAO;
+import org.apache.syncope.ext.opensearch.client.OpenSearchIndexManager;
 import org.apache.syncope.ext.opensearch.client.OpenSearchProperties;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -82,12 +83,13 @@ public class OpenSearchPersistenceContext {
         return new OpenSearchRealmDAO(realmDAO, client, props.getIndexMaxResultWindow());
     }
 
-    @ConditionalOnMissingBean(name = "openSearchAuditEntryDAO")
+    @ConditionalOnMissingBean(name = "openSearchAuditEventDAO")
     @Bean
-    public AuditEntryDAO auditEntryDAO(
+    public AuditEventDAO auditEventDAO(
+            final OpenSearchIndexManager indexManager,
             final OpenSearchClient client,
             final OpenSearchProperties props) {
 
-        return new OpenSearchAuditEntryDAO(client, props.getIndexMaxResultWindow());
+        return new OpenSearchAuditEventDAO(indexManager, client, props.getIndexMaxResultWindow());
     }
 }

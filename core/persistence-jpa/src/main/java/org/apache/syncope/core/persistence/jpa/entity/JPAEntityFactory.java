@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -337,6 +338,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPADomain();
         } else if (reference.equals(NetworkServiceEntity.class)) {
             result = (E) new JPANetworkService();
+        } else if (reference.equals(AuditEvent.class)) {
+            result = (E) new JPAAuditEvent();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

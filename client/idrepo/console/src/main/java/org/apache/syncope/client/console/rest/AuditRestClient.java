@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.syncope.client.console.events.EventCategory;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -36,11 +36,11 @@ public class AuditRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 4579786978763032240L;
 
-    public List<AuditLoggerName> list() {
+    public List<OpEvent> list() {
         return getService(AuditService.class).list().stream().
                 map(a -> {
                     try {
-                        return AuditLoggerName.fromAuditKey(a.getKey());
+                        return OpEvent.fromString(a.getKey());
                     } catch (Exception e) {
                         LOG.error("Unexpected when parsing {}", a.getKey(), e);
                         return null;
@@ -50,39 +50,76 @@ public class AuditRestClient extends BaseRestClient {
                 collect(Collectors.toList());
     }
 
-    public void enable(final AuditLoggerName auditLoggerName) {
+    public void enable(final OpEvent opEvent) {
         AuditConfTO audit = new AuditConfTO();
-        audit.setKey(auditLoggerName.toAuditKey());
+        audit.setKey(opEvent.toString());
         audit.setActive(true);
         getService(AuditService.class).set(audit);
     }
 
-    public void delete(final AuditLoggerName auditLoggerName) {
+    public void delete(final OpEvent opEvent) {
         try {
-            getService(AuditService.class).delete(auditLoggerName.toAuditKey());
+            getService(AuditService.class).delete(opEvent.toString());
         } catch (SyncopeClientException e) {
             if (e.getType() != ClientExceptionType.NotFound) {
-                LOG.error("Unexpected error when deleting {}", auditLoggerName.toAuditKey(), e);
+                LOG.error("Unexpected error when deleting {}", opEvent.toString(), e);
             }
         }
     }
 
     public List<EventCategory> listEvents() {
+        List<EventCategory> eventCategories = new ArrayList<>();
+
         try {
-            return getService(AuditService.class).events();
+            getService(AuditService.class).events().forEach(opEvent -> {
+                EventCategory eventCategory = eventCategories.stream().
+                        filter(ec -> opEvent.getType() == ec.getType()
+                        && Objects.equals(opEvent.getCategory(), ec.getCategory())
+                        && Objects.equals(opEvent.getSubcategory(), ec.getSubcategory())).
+                        findFirst().orElseGet(() -> {
+                            EventCategory ec = new EventCategory(opEvent.getType());
+                            ec.setCategory(opEvent.getCategory());
+                            ec.setSubcategory(opEvent.getSubcategory());
+                            ec.getOps().add(opEvent.getOp());
+                            eventCategories.add(ec);
+                            return ec;
+                        });
+                eventCategory.getOps().add(opEvent.getOp());
+            });
         } catch (Exception e) {
-            return List.of();
+            LOG.error("Unexpected error when listing Audit events", e);
         }
+
+        return eventCategories;
     }
 
-    public List<AuditEntry> search(
+    public long count(
+            final String key,
+            final OpEvent.CategoryType type,
+            final String category,
+            final String op,
+            final OpEvent.Outcome outcome) {
+
+        AuditQuery query = new AuditQuery.Builder().
+                entityKey(key).
+                page(1).
+                size(0).
+                type(type).
+                category(category).
+                op(op).
+                outcome(outcome).
+                build();
+        return getService(AuditService.class).search(query).getTotalCount();
+    }
+
+    public List<AuditEventTO> search(
             final String key,
             final int page,
             final int size,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
-            final List<String> events,
-            final AuditElements.Result result,
+            final String op,
+            final OpEvent.Outcome outcome,
             final SortParam<String> sort) {
 
         AuditQuery query = new AuditQuery.Builder().
@@ -91,30 +128,11 @@ public class AuditRestClient extends BaseRestClient {
                 page(page).
                 type(type).
                 category(category).
-                events(events).
-                result(result).
+                op(op).
+                outcome(outcome).
                 orderBy(toOrderBy(sort)).
                 build();
 
         return getService(AuditService.class).search(query).getResult();
-    }
-
-    public long count(
-            final String key,
-            final AuditElements.EventCategoryType type,
-            final String category,
-            final List<String> events,
-            final AuditElements.Result result) {
-
-        AuditQuery query = new AuditQuery.Builder().
-                entityKey(key).
-                page(1).
-                size(0).
-                type(type).
-                category(category).
-                events(events).
-                result(result).
-                build();
-        return getService(AuditService.class).search(query).getTotalCount();
     }
 }

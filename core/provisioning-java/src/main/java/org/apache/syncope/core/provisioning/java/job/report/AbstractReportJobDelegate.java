@@ -27,7 +27,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.syncope.common.lib.report.ReportConf;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Report;
@@ -119,7 +119,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
 
         setStatus("Initialization completed");
 
-        AuditElements.Result result;
+        OpEvent.Outcome result;
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
@@ -136,10 +136,10 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             execution.setMessage(doExecute(dryRun, zos, executor, context));
             execution.setStatus(ReportJob.Status.SUCCESS.name());
 
-            result = AuditElements.Result.SUCCESS;
+            result = OpEvent.Outcome.SUCCESS;
         } catch (JobExecutionException e) {
             LOG.error("While executing report {}", reportKey, e);
-            result = AuditElements.Result.FAILURE;
+            result = OpEvent.Outcome.FAILURE;
 
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(ReportJob.Status.FAILURE.name());
@@ -151,7 +151,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
                 LOG.error("While closing output", e);
             }
         }
-        if (result == AuditElements.Result.SUCCESS) {
+        if (result == OpEvent.Outcome.SUCCESS) {
             execution.setExecResult(baos.toByteArray());
         }
         execution.setEnd(OffsetDateTime.now());
@@ -161,7 +161,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
 
         notificationManager.createTasks(
                 executor,
-                AuditElements.EventCategoryType.REPORT,
+                OpEvent.CategoryType.REPORT,
                 this.getClass().getSimpleName(),
                 null,
                 this.getClass().getSimpleName(), // searching for before object is too much expensive ...
@@ -170,8 +170,9 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
                 execution);
 
         auditManager.audit(
+                AuthContextUtils.getDomain(),
                 executor,
-                AuditElements.EventCategoryType.REPORT,
+                OpEvent.CategoryType.REPORT,
                 report.getClass().getSimpleName(),
                 null,
                 null, // searching for before object is too much expensive ...

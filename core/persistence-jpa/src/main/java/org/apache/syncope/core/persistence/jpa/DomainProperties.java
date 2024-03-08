@@ -40,8 +40,6 @@ public class DomainProperties extends AbstractDomainProperties {
 
     private int poolMinIdle = 2;
 
-    private String auditSql = "audit.sql";
-
     private String orm = "META-INF/spring-orm.xml";
 
     private String databasePlatform;
@@ -108,14 +106,6 @@ public class DomainProperties extends AbstractDomainProperties {
 
     public void setPoolMinIdle(final int poolMinIdle) {
         this.poolMinIdle = poolMinIdle;
-    }
-
-    public String getAuditSql() {
-        return auditSql;
-    }
-
-    public void setAuditSql(final String auditSql) {
-        this.auditSql = auditSql;
     }
 
     public String getOrm() {

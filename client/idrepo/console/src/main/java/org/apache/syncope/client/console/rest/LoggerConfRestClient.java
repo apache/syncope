@@ -36,7 +36,6 @@ import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.logging.LogLevel;
@@ -98,11 +97,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
                             loggerConf.setLevel(LogLevel.OFF);
                         }
 
-                        if (!loggerConf.getKey().startsWith(AuditLoggerName.AUDIT_PREFIX)
-                                && domains.stream().noneMatch(domain -> loggerConf.getKey().startsWith(domain))) {
-
-                            loggerConfs.add(loggerConf);
-                        }
+                        loggerConfs.add(loggerConf);
                     }
                 }
             } else {

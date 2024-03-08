@@ -964,48 +964,48 @@ $$ }&#10;
 
   <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_SEARCH","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 
-  <AuditConf id="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" active="1"/>
 
-  <AuditConf id="syncope.audit.[WA]:[]:[AUTHENTICATION]:[validate]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[WA]:[]:[AuthenticationEvent]:[auth]:[SUCCESS]" active="1"/>
+  <AuditConf id="[WA]:[AUTHENTICATION]:[]:[validate]:[SUCCESS]" active="1"/>
+  <AuditConf id="[WA]:[]:[AuthenticationEvent]:[auth]:[SUCCESS]" active="1"/>
 
-  <AuditConf id="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[ConnectorLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[ConnectorLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <AuditConf id="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[ResourceLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[confirmPasswordReset]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[link]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[mustChangePassword]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[provision]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[requestPasswordReset]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[selfCreate]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[selfStatus]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[selfUpdate]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[status]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[provisionMembers]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[GroupLogic]:[]:[update]:[SUCCESS]" active="1"/>
 
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[assign]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[create]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[delete]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[link]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[provision]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
-  <AuditConf id="syncope.audit.[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[assign]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[create]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[delete]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[link]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[provision]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
+  <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" active="1"/>
 </dataset>

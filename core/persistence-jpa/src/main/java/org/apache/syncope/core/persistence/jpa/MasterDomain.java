@@ -22,17 +22,11 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
-import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 @EnableConfigurationProperties(PersistenceProperties.class)
@@ -55,26 +49,6 @@ public class MasterDomain {
         masterDataSource.setJndiName("java:comp/env/jdbc/syncopeMasterDataSource");
         masterDataSource.setDefaultObject(new HikariDataSource(hikariConfig));
         return masterDataSource;
-    }
-
-    @ConditionalOnMissingBean(name = "MasterDataSourceInitializer")
-    @Bean(name = "MasterDataSourceInitializer")
-    public DataSourceInitializer masterDataSourceInitializer(
-            final PersistenceProperties props,
-            @Qualifier("MasterDataSource")
-            final JndiObjectFactoryBean masterDataSource) {
-
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.setContinueOnError(true);
-        databasePopulator.setIgnoreFailedDrops(true);
-        databasePopulator.setSqlScriptEncoding("UTF-8");
-        databasePopulator.addScript(new ClassPathResource("/audit/" + props.getDomain().get(0).getAuditSql()));
-
-        DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
-        dataSourceInitializer.setDataSource((DataSource) Objects.requireNonNull(masterDataSource.getObject()));
-        dataSourceInitializer.setEnabled(true);
-        dataSourceInitializer.setDatabasePopulator(databasePopulator);
-        return dataSourceInitializer;
     }
 
     @Bean(name = "MasterContentXML")

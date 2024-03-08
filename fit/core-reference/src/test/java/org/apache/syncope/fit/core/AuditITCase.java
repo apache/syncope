@@ -36,7 +36,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -44,21 +43,19 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.ResourceDR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -69,14 +66,13 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnPoolConf;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -101,8 +97,8 @@ public class AuditITCase extends AbstractITCase {
         return auditConfTO;
     }
 
-    private static AuditEntry queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
-        List<AuditEntry> results = query(query, maxWaitSeconds);
+    private static AuditEventTO queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
+        List<AuditEventTO> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
             fail("Timeout when executing query for key " + query.getEntityKey());
             return null;
@@ -140,9 +136,9 @@ public class AuditITCase extends AbstractITCase {
                 before(OffsetDateTime.now().plusSeconds(30)).
                 page(1).
                 size(1).
-                orderBy("event_date desc").
+                orderBy("when desc").
                 build();
-        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
+        AuditEventTO entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         USER_SERVICE.delete(userTO.getKey());
     }
@@ -154,16 +150,16 @@ public class AuditITCase extends AbstractITCase {
 
         AuditQuery query = new AuditQuery.Builder().
                 entityKey(userTO.getKey()).
-                orderBy("event_date desc").
+                orderBy("when desc").
                 page(1).
                 size(1).
-                type(AuditElements.EventCategoryType.LOGIC).
+                type(OpEvent.CategoryType.LOGIC).
                 category(UserLogic.class.getSimpleName()).
-                event("create").
-                result(AuditElements.Result.SUCCESS).
+                op("create").
+                outcome(OpEvent.Outcome.SUCCESS).
                 after(OffsetDateTime.now().minusSeconds(30)).
                 build();
-        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
+        AuditEventTO entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         USER_SERVICE.delete(userTO.getKey());
     }
@@ -173,9 +169,9 @@ public class AuditITCase extends AbstractITCase {
         GroupTO groupTO = createGroup(GroupITCase.getBasicSample("AuditGroup")).getEntity();
         assertNotNull(groupTO.getKey());
 
-        AuditQuery query = new AuditQuery.Builder().entityKey(groupTO.getKey()).orderBy("event_date desc").
+        AuditQuery query = new AuditQuery.Builder().entityKey(groupTO.getKey()).orderBy("when desc").
                 page(1).size(1).build();
-        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
+        AuditEventTO entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         GROUP_SERVICE.delete(groupTO.getKey());
     }
@@ -203,8 +199,8 @@ public class AuditITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = createAnyObject(AnyObjectITCase.getSample("Italy")).getEntity();
         assertNotNull(anyObjectTO.getKey());
         AuditQuery query = new AuditQuery.Builder().entityKey(anyObjectTO.getKey()).
-                orderBy("event_date desc").page(1).size(1).build();
-        AuditEntry entry = queryWithFailure(query, MAX_WAIT_SECONDS);
+                orderBy("when desc").page(1).size(1).build();
+        AuditEventTO entry = queryWithFailure(query, MAX_WAIT_SECONDS);
         assertNotNull(entry);
         ANY_OBJECT_SERVICE.delete(anyObjectTO.getKey());
     }
@@ -234,13 +230,13 @@ public class AuditITCase extends AbstractITCase {
 
         AuditQuery query = new AuditQuery.Builder().
                 entityKey(connectorKey).
-                orderBy("event_date desc").
-                type(AuditElements.EventCategoryType.LOGIC).
+                orderBy("when desc").
+                type(OpEvent.CategoryType.LOGIC).
                 category(ConnectorLogic.class.getSimpleName()).
-                event("update").
-                result(AuditElements.Result.SUCCESS).
+                op("update").
+                outcome(OpEvent.Outcome.SUCCESS).
                 build();
-        List<AuditEntry> entries = AUDIT_SERVICE.search(query).getResult();
+        List<AuditEventTO> entries = AUDIT_SERVICE.search(query).getResult();
         int pre = entries.size();
 
         ConnInstanceTO ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
@@ -275,141 +271,126 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void enableDisable() {
-        AuditLoggerName auditLoggerName = new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
+        OpEvent opEvent = new OpEvent(
+                OpEvent.CategoryType.LOGIC,
                 ReportLogic.class.getSimpleName(),
                 null,
                 "deleteExecution",
-                AuditElements.Result.FAILURE);
+                OpEvent.Outcome.FAILURE);
 
         List<AuditConfTO> audits = AUDIT_SERVICE.list();
-        assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
+        assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(opEvent.toString())));
 
         AuditConfTO audit = new AuditConfTO();
-        audit.setKey(auditLoggerName.toAuditKey());
+        audit.setKey(opEvent.toString());
         audit.setActive(true);
         AUDIT_SERVICE.set(audit);
 
         audits = AUDIT_SERVICE.list();
-        assertTrue(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
+        assertTrue(audits.stream().anyMatch(a -> a.getKey().equals(opEvent.toString())));
 
         AUDIT_SERVICE.delete(audit.getKey());
 
         audits = AUDIT_SERVICE.list();
-        assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(auditLoggerName.toAuditKey())));
+        assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(opEvent.toString())));
     }
 
     @Test
-    public void listAuditEvents() {
-        List<EventCategory> events = AUDIT_SERVICE.events();
+    public void listOpEvents() {
+        List<OpEvent> opEvents = AUDIT_SERVICE.events();
 
-        boolean found = false;
+        assertTrue(opEvents.stream().
+                filter(opEvent -> UserLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> "create".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> UserLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> "search".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> UserLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                noneMatch(opEvent -> "doCreate".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> UserLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                noneMatch(opEvent -> "setStatusOnWfAdapter".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> UserLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                noneMatch(opEvent -> "resolveReference".equals(opEvent.getOp())));
 
-        for (EventCategory eventCategoryTO : events) {
-            if (UserLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
-                assertEquals(AuditElements.EventCategoryType.LOGIC, eventCategoryTO.getType());
-                assertTrue(eventCategoryTO.getEvents().contains("create"));
-                assertTrue(eventCategoryTO.getEvents().contains("search"));
-                assertFalse(eventCategoryTO.getEvents().contains("doCreate"));
-                assertFalse(eventCategoryTO.getEvents().contains("setStatusOnWfAdapter"));
-                assertFalse(eventCategoryTO.getEvents().contains("resolveReference"));
-                found = true;
-            }
-        }
-        assertTrue(found);
+        assertTrue(opEvents.stream().
+                filter(opEvent -> GroupLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> "create".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> GroupLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> "search".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> GroupLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                noneMatch(opEvent -> "resolveReference".equals(opEvent.getOp())));
 
-        found = false;
-        for (EventCategory eventCategoryTO : events) {
-            if (GroupLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
-                assertEquals(AuditElements.EventCategoryType.LOGIC, eventCategoryTO.getType());
-                assertTrue(eventCategoryTO.getEvents().contains("create"));
-                assertTrue(eventCategoryTO.getEvents().contains("search"));
-                assertFalse(eventCategoryTO.getEvents().contains("resolveReference"));
-                found = true;
-            }
-        }
-        assertTrue(found);
+        assertTrue(opEvents.stream().
+                filter(opEvent -> ResourceLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> "create".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> ResourceLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> "read".equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> ResourceLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                anyMatch(opEvent -> ResourceOperation.DELETE.name().toLowerCase().equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> ResourceLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())).
+                noneMatch(opEvent -> "resolveReference".equals(opEvent.getOp())));
 
-        found = false;
-        for (EventCategory eventCategoryTO : events) {
-            if (ResourceLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
-                assertEquals(AuditElements.EventCategoryType.LOGIC, eventCategoryTO.getType());
-                assertTrue(eventCategoryTO.getEvents().contains("create"));
-                assertTrue(eventCategoryTO.getEvents().contains("read"));
-                assertTrue(eventCategoryTO.getEvents().contains("delete"));
-                assertFalse(eventCategoryTO.getEvents().contains("resolveReference"));
-                found = true;
-            }
-        }
-        assertTrue(found);
+        assertTrue(opEvents.stream().
+                filter(opEvent -> AnyTypeKind.USER.name().equals(opEvent.getCategory())
+                && RESOURCE_NAME_LDAP.equals(opEvent.getSubcategory())
+                && OpEvent.CategoryType.PULL == opEvent.getType()).
+                anyMatch(opEvent -> ResourceOperation.DELETE.name().toLowerCase().equals(opEvent.getOp())));
 
-        found = false;
-        for (EventCategory eventCategoryTO : events) {
-            if (AnyTypeKind.USER.name().equals(eventCategoryTO.getCategory())) {
-                if (RESOURCE_NAME_LDAP.equals(eventCategoryTO.getSubcategory())
-                        && AuditElements.EventCategoryType.PULL == eventCategoryTO.getType()) {
+        assertTrue(opEvents.stream().
+                filter(opEvent -> AnyTypeKind.USER.name().equals(opEvent.getCategory())
+                && RESOURCE_NAME_CSV.equals(opEvent.getSubcategory())
+                && OpEvent.CategoryType.PROPAGATION == opEvent.getType()).
+                anyMatch(opEvent -> ResourceOperation.CREATE.name().toLowerCase().equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> AnyTypeKind.USER.name().equals(opEvent.getCategory())
+                && RESOURCE_NAME_CSV.equals(opEvent.getSubcategory())
+                && OpEvent.CategoryType.PROPAGATION == opEvent.getType()).
+                anyMatch(opEvent -> ResourceOperation.UPDATE.name().toLowerCase().equals(opEvent.getOp())));
+        assertTrue(opEvents.stream().
+                filter(opEvent -> AnyTypeKind.USER.name().equals(opEvent.getCategory())
+                && RESOURCE_NAME_CSV.equals(opEvent.getSubcategory())
+                && OpEvent.CategoryType.PROPAGATION == opEvent.getType()).
+                anyMatch(opEvent -> ResourceOperation.DELETE.name().toLowerCase().equals(opEvent.getOp())));
 
-                    assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.DELETE.name().toLowerCase()));
-                    found = true;
-                }
-            }
-        }
-        assertTrue(found);
-
-        found = false;
-        for (EventCategory eventCategoryTO : events) {
-            if (AnyTypeKind.USER.name().equals(eventCategoryTO.getCategory())) {
-                if (RESOURCE_NAME_CSV.equals(eventCategoryTO.getSubcategory())
-                        && AuditElements.EventCategoryType.PROPAGATION == eventCategoryTO.getType()) {
-
-                    assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.CREATE.name().toLowerCase()));
-                    assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.UPDATE.name().toLowerCase()));
-                    assertTrue(eventCategoryTO.getEvents().contains(ResourceOperation.DELETE.name().toLowerCase()));
-                    found = true;
-                }
-            }
-        }
-        assertTrue(found);
-
-        found = false;
-        for (EventCategory eventCategoryTO : events) {
-            if (AuditElements.EventCategoryType.TASK == eventCategoryTO.getType()
-                    && "PullJobDelegate".equals(eventCategoryTO.getCategory())) {
-                found = true;
-            }
-        }
-        assertTrue(found);
-    }
-
-    private static void checkLogFileFor(
-            final Path path,
-            final Function<String, Boolean> checker,
-            final int maxWaitSeconds)
-            throws IOException {
-
-        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
-            try {
-                return checker.apply(Files.readString(path, StandardCharsets.UTF_8));
-            } catch (Exception e) {
-                return false;
-            }
-        });
+        assertTrue(opEvents.stream().
+                anyMatch(opEvent -> OpEvent.CategoryType.TASK == opEvent.getType()
+                && "PullJobDelegate".equals(opEvent.getCategory())));
     }
 
     @Test
     public void saveAuditEvent() {
-        AuditEntry auditEntry = new AuditEntry();
-        auditEntry.setWho("syncope-user " + UUID.randomUUID().toString());
-        auditEntry.setLogger(new AuditLoggerName(
-                AuditElements.EventCategoryType.WA,
+        AuditEventTO auditEvent = new AuditEventTO();
+        auditEvent.setOpEvent(new OpEvent(
+                OpEvent.CategoryType.WA,
+                OpEvent.AUTHENTICATION_CATEGORY,
                 null,
-                AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
                 "validate",
-                AuditElements.Result.SUCCESS));
-        auditEntry.setDate(OffsetDateTime.now());
-        auditEntry.setBefore(UUID.randomUUID().toString());
-        auditEntry.setOutput(UUID.randomUUID().toString());
-        assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
+                OpEvent.Outcome.SUCCESS));
+        auditEvent.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEvent.setWhen(OffsetDateTime.now());
+        auditEvent.setBefore(UUID.randomUUID().toString());
+        auditEvent.setOutput(UUID.randomUUID().toString());
+        assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEvent));
 
         if (IS_EXT_SEARCH_ENABLED) {
             try {
@@ -419,13 +400,13 @@ public class AuditITCase extends AbstractITCase {
             }
         }
 
-        PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
+        PagedResult<AuditEventTO> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
-                type(auditEntry.getLogger().getType()).
-                category(auditEntry.getLogger().getCategory()).
-                subcategory(auditEntry.getLogger().getSubcategory()).
-                event(auditEntry.getLogger().getEvent()).
-                result(auditEntry.getLogger().getResult()).
+                type(auditEvent.getOpEvent().getType()).
+                category(auditEvent.getOpEvent().getCategory()).
+                subcategory(auditEvent.getOpEvent().getSubcategory()).
+                op(auditEvent.getOpEvent().getOp()).
+                outcome(auditEvent.getOpEvent().getOutcome()).
                 build());
         assertNotNull(events);
         assertEquals(1, events.getSize());
@@ -433,18 +414,18 @@ public class AuditITCase extends AbstractITCase {
 
     @Test
     public void saveAuthEvent() {
-        AuditEntry auditEntry = new AuditEntry();
-        auditEntry.setWho("syncope-user " + UUID.randomUUID().toString());
-        auditEntry.setLogger(new AuditLoggerName(
-                AuditElements.EventCategoryType.WA,
+        AuditEventTO auditEvent = new AuditEventTO();
+        auditEvent.setOpEvent(new OpEvent(
+                OpEvent.CategoryType.WA,
                 null,
                 "AuthenticationEvent",
                 "auth",
-                AuditElements.Result.SUCCESS));
-        auditEntry.setDate(OffsetDateTime.now());
-        auditEntry.setBefore(UUID.randomUUID().toString());
-        auditEntry.setOutput(UUID.randomUUID().toString());
-        assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEntry));
+                OpEvent.Outcome.SUCCESS));
+        auditEvent.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEvent.setWhen(OffsetDateTime.now());
+        auditEvent.setBefore(UUID.randomUUID().toString());
+        auditEvent.setOutput(UUID.randomUUID().toString());
+        assertDoesNotThrow(() -> AUDIT_SERVICE.create(auditEvent));
 
         if (IS_EXT_SEARCH_ENABLED) {
             try {
@@ -454,31 +435,26 @@ public class AuditITCase extends AbstractITCase {
             }
         }
 
-        PagedResult<AuditEntry> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
+        PagedResult<AuditEventTO> events = AUDIT_SERVICE.search(new AuditQuery.Builder().
                 size(1).
-                type(auditEntry.getLogger().getType()).
-                category(auditEntry.getLogger().getCategory()).
-                subcategory(auditEntry.getLogger().getSubcategory()).
-                event(auditEntry.getLogger().getEvent()).
-                result(auditEntry.getLogger().getResult()).
+                type(auditEvent.getOpEvent().getType()).
+                category(auditEvent.getOpEvent().getCategory()).
+                subcategory(auditEvent.getOpEvent().getSubcategory()).
+                op(auditEvent.getOpEvent().getOp()).
+                outcome(auditEvent.getOpEvent().getOutcome()).
                 build());
         assertNotNull(events);
         assertEquals(1, events.getSize());
     }
 
     @Test
-    public void customAuditAppender() throws IOException, InterruptedException {
+    public void auditEventProcessor() throws IOException, InterruptedException {
         try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
             Path auditFilePath = Paths.get(props.getProperty("test.log.dir")
-                    + File.separator + "audit_for_Master_file.log");
-            Files.write(auditFilePath, new byte[0], StandardOpenOption.TRUNCATE_EXISTING);
-
-            Path auditNoRewriteFilePath = Paths.get(props.getProperty("test.log.dir")
-                    + File.separator + "audit_for_Master_norewrite_file.log");
-            Files.write(auditNoRewriteFilePath, new byte[0], StandardOpenOption.TRUNCATE_EXISTING);
+                    + File.separator + "audit_for_Master_file");
 
             // check that resource update is transformed and logged onto an audit file.
             ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
@@ -491,77 +467,73 @@ public class AuditITCase extends AbstractITCase {
             connector.setPoolConf(new ConnPoolConf());
             CONNECTOR_SERVICE.update(connector);
 
-            // check audit_for_Master_file.log, it should contain only a static message
-            checkLogFileFor(
-                    auditFilePath,
-                    content -> content.contains(
-                            "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                            + " - This is a static test message"),
-                    10);
-
-            // nothing expected in audit_for_Master_norewrite_file.log instead
-            checkLogFileFor(
-                    auditNoRewriteFilePath,
-                    content -> !content.contains(
-                            "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
-                            + " - This is a static test message"),
-                    10);
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+                try {
+                    return Files.readString(auditFilePath, StandardCharsets.UTF_8).contains(
+                            "{\"type\":\"LOGIC\",\"category\":\"ConnectorLogic\",\"subcategory\":null,"
+                            + "\"op\":\"update\",\"outcome\":\"SUCCESS\"}");
+                } catch (Exception e) {
+                    LOG.error("Could not check content of {}", auditFilePath, e);
+                    return false;
+                }
+            });
         } catch (IOException e) {
-            fail("Unable to read/write log files", e);
+            fail("Unable to read/write custom event processor output file", e);
         }
     }
 
     @Test
     public void issueSYNCOPE976() {
-        List<EventCategory> events = AUDIT_SERVICE.events();
-        assertNotNull(events);
+        List<OpEvent> opEvents = AUDIT_SERVICE.events();
+        assertNotNull(opEvents);
 
-        EventCategory userLogic = events.stream().
-                filter(object -> "UserLogic".equals(object.getCategory())).findAny().get();
-        assertNotNull(userLogic);
-        assertEquals(1, userLogic.getEvents().stream().filter("create"::equals).count());
+        assertEquals(1, opEvents.stream().
+                filter(opEvent -> UserLogic.class.getSimpleName().equals(opEvent.getCategory())
+                && OpEvent.CategoryType.LOGIC.equals(opEvent.getType())
+                && "create".equals(opEvent.getOp())
+                && OpEvent.Outcome.SUCCESS == opEvent.getOutcome()).count());
     }
 
     @Test
     public void issueSYNCOPE1446() {
-        AuditLoggerName createSuccess = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
+        OpEvent createSuccess = new OpEvent(
+                OpEvent.CategoryType.PROPAGATION,
                 AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "create",
-                AuditElements.Result.SUCCESS);
-        AuditLoggerName createFailure = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
+                OpEvent.Outcome.SUCCESS);
+        OpEvent createFailure = new OpEvent(
+                OpEvent.CategoryType.PROPAGATION,
                 AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "create",
-                AuditElements.Result.FAILURE);
-        AuditLoggerName updateSuccess = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
+                OpEvent.Outcome.FAILURE);
+        OpEvent updateSuccess = new OpEvent(
+                OpEvent.CategoryType.PROPAGATION,
                 AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "update",
-                AuditElements.Result.SUCCESS);
-        AuditLoggerName updateFailure = new AuditLoggerName(
-                AuditElements.EventCategoryType.PROPAGATION,
+                OpEvent.Outcome.SUCCESS);
+        OpEvent updateFailure = new OpEvent(
+                OpEvent.CategoryType.PROPAGATION,
                 AnyTypeKind.ANY_OBJECT.name(),
                 RESOURCE_NAME_DBSCRIPTED,
                 "update",
-                AuditElements.Result.FAILURE);
+                OpEvent.Outcome.FAILURE);
         try {
             // 1. setup audit for propagation
             AuditConfTO audit = new AuditConfTO();
-            audit.setKey(createSuccess.toAuditKey());
+            audit.setKey(createSuccess.toString());
             audit.setActive(true);
             AUDIT_SERVICE.set(audit);
 
-            audit.setKey(createFailure.toAuditKey());
+            audit.setKey(createFailure.toString());
             AUDIT_SERVICE.set(audit);
 
-            audit.setKey(updateSuccess.toAuditKey());
+            audit.setKey(updateSuccess.toString());
             AUDIT_SERVICE.set(audit);
 
-            audit.setKey(updateFailure.toAuditKey());
+            audit.setKey(updateFailure.toString());
             AUDIT_SERVICE.set(audit);
 
             // 2. push on resource
@@ -577,22 +549,22 @@ public class AuditITCase extends AbstractITCase {
             fail(e::getMessage);
         } finally {
             try {
-                AUDIT_SERVICE.delete(createSuccess.toAuditKey());
+                AUDIT_SERVICE.delete(createSuccess.toString());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                AUDIT_SERVICE.delete(createFailure.toAuditKey());
+                AUDIT_SERVICE.delete(createFailure.toString());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                AUDIT_SERVICE.delete(updateSuccess.toAuditKey());
+                AUDIT_SERVICE.delete(updateSuccess.toString());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                AUDIT_SERVICE.delete(updateFailure.toAuditKey());
+                AUDIT_SERVICE.delete(updateFailure.toString());
             } catch (Exception e) {
                 // ignore
             }
@@ -602,12 +574,9 @@ public class AuditITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1695() {
         // add audit conf for pull
-        AUDIT_SERVICE.set(buildAuditConf(
-                "syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
-        AUDIT_SERVICE.set(buildAuditConf(
-                "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
-        AUDIT_SERVICE.set(buildAuditConf(
-                "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(buildAuditConf("[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(buildAuditConf("[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
+        AUDIT_SERVICE.set(buildAuditConf("[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", true));
 
         UserTO pullFromLDAP = null;
         try {
@@ -640,9 +609,10 @@ public class AuditITCase extends AbstractITCase {
                     entityKey(pullFromLDAP.getKey()).
                     page(1).
                     size(10).
-                    events(List.of("matchingrule_update", "unmatchingrule_assign", "unmatchingrule_provision")).
-                    result(AuditElements.Result.SUCCESS).
-                    build()).getTotalCount());
+                    outcome(OpEvent.Outcome.SUCCESS).
+                    build()).getResult().stream().
+                    filter(e -> Set.of("matchingrule_update", "unmatchingrule_assign", "unmatchingrule_provision").
+                    contains(e.getOpEvent().getOp())).count());
         } finally {
             if (pullFromLDAP != null) {
                 USER_SERVICE.deassociate(new ResourceDR.Builder()
@@ -654,11 +624,11 @@ public class AuditITCase extends AbstractITCase {
 
                 // restore previous audit
                 AUDIT_SERVICE.set(buildAuditConf(
-                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", false));
+                        "[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", false));
                 AUDIT_SERVICE.set(buildAuditConf(
-                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", false));
+                        "[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", false));
                 AUDIT_SERVICE.set(buildAuditConf(
-                        "syncope.audit.[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", false));
+                        "[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", false));
             }
         }
     }
@@ -686,10 +656,10 @@ public class AuditITCase extends AbstractITCase {
         root.getActions().add(logicActions.getKey());
         REALM_SERVICE.update(root);
 
-        AuditQuery query = new AuditQuery.Builder().type(AuditElements.EventCategoryType.CUSTOM).build();
+        AuditQuery query = new AuditQuery.Builder().type(OpEvent.CategoryType.CUSTOM).build();
         int before = query(query, MAX_WAIT_SECONDS).size();
         try {
-            AUDIT_SERVICE.set(buildAuditConf("syncope.audit.[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", true));
+            AUDIT_SERVICE.set(buildAuditConf("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", true));
 
             AnyObjectTO printer = createAnyObject(AnyObjectITCase.getSample("syncope-1791")).getEntity();
             updateAnyObject(new AnyObjectUR.Builder(printer.getKey()).
@@ -699,7 +669,7 @@ public class AuditITCase extends AbstractITCase {
             int after = query(query, MAX_WAIT_SECONDS).size();
             assertEquals(before + 1, after);
         } finally {
-            AUDIT_SERVICE.set(buildAuditConf("syncope.audit.[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", false));
+            AUDIT_SERVICE.set(buildAuditConf("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", false));
 
             root.getActions().remove(logicActions.getKey());
             REALM_SERVICE.update(root);

@@ -23,5 +23,5 @@ import org.apache.syncope.core.persistence.api.entity.AuditConf;
 
 public interface AuditDataBinder {
 
-    AuditConfTO getAuditTO(AuditConf audit);
+    AuditConfTO getAuditConfTO(AuditConf auditConf);
 }

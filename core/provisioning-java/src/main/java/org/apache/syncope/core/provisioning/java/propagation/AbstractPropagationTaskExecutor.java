@@ -35,9 +35,8 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -60,6 +59,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
@@ -231,8 +231,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
                 filter(provision -> provision.getUidOnCreate() != null).
                 ifPresent(provision -> {
-                    LOG.debug("Adding uidOnCreate [{}] attribute to [{}] on create", provision.getUidOnCreate(),
-                            taskInfo.getEntityKey());
+                    LOG.debug("Adding uidOnCreate [{}] attribute to [{}] on create",
+                            provision.getUidOnCreate(), taskInfo.getEntityKey());
                     AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
                     anyUtils.addAttr(
                             validator,
@@ -390,17 +390,16 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             connector.delete(objectClass, uid, null, propagationAttempted);
             result = uid;
-            taskInfo.getResource()
-                    .getProvisionByAnyType(taskInfo.getAnyType())
-                    .filter(provision -> provision.getUidOnCreate() != null)
-                    .ifPresent(provision -> {
+            taskInfo.getResource().getProvisionByAnyType(taskInfo.getAnyType()).
+                    filter(provision -> provision.getUidOnCreate() != null).
+                    ifPresent(provision -> {
                         LOG.debug("Removing uidOnCreate [{}] attribute from [{}] on delete",
                                 provision.getUidOnCreate(), taskInfo.getEntityKey());
                         AnyUtils anyUtils = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind());
                         anyUtils.removeAttr(taskInfo.getEntityKey(),
                                 plainSchemaDAO.findById(provision.getUidOnCreate())
                                         .orElseThrow(() -> new NotFoundException(
-                                                "PlainSchema " + (provision.getUidOnCreate()))));
+                                        "PlainSchema " + (provision.getUidOnCreate()))));
                         publisher.publishEvent(new EntityLifecycleEvent<>(
                                 this,
                                 SyncDeltaType.UPDATE,
@@ -558,7 +557,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Provision provision = null;
         OrgUnit orgUnit = null;
         Uid uid = null;
-        Result result;
+        OpEvent.Outcome result;
         try {
             provision = taskInfo.getResource().
                     getProvisionByObjectClass(taskInfo.getObjectClass().getObjectClassValue()).orElse(null);
@@ -597,11 +596,11 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     ? ExecStatus.SUCCESS.name()
                     : ExecStatus.NOT_ATTEMPTED.name());
 
-            result = Result.SUCCESS;
+            result = OpEvent.Outcome.SUCCESS;
 
             LOG.debug("Successfully propagated to {}", taskInfo.getResource());
         } catch (Exception e) {
-            result = Result.FAILURE;
+            result = OpEvent.Outcome.FAILURE;
 
             exec.setStatus(ExecStatus.FAILURE.name());
 
@@ -696,19 +695,26 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         String anyTypeKind = Optional.ofNullable(taskInfo.getAnyTypeKind()).map(Enum::name).orElse("realm");
         String operation = taskInfo.getOperation().name().toLowerCase();
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, taskInfo.getResource().getKey(), operation);
+                AuthContextUtils.getDomain(),
+                OpEvent.CategoryType.PROPAGATION,
+                anyTypeKind,
+                taskInfo.getResource().getKey(),
+                operation);
         boolean auditRequested = auditManager.auditRequested(
+                AuthContextUtils.getDomain(),
                 AuthContextUtils.getUsername(),
-                AuditElements.EventCategoryType.PROPAGATION,
+                OpEvent.CategoryType.PROPAGATION,
                 anyTypeKind,
                 taskInfo.getResource().getKey(),
                 operation);
 
         if (notificationsAvailable || auditRequested) {
             ExecTO execTO = taskDataBinder.getExecTO(exec);
-            notificationManager.createTasks(
+
+            AfterHandlingEvent event = new AfterHandlingEvent(
+                    AuthContextUtils.getDomain(),
                     AuthContextUtils.getWho(),
-                    AuditElements.EventCategoryType.PROPAGATION,
+                    OpEvent.CategoryType.PROPAGATION,
                     anyTypeKind,
                     taskInfo.getResource().getKey(),
                     operation,
@@ -717,16 +723,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     new Object[] { execTO, afterObj },
                     taskInfo);
 
-            auditManager.audit(
-                    AuthContextUtils.getWho(),
-                    AuditElements.EventCategoryType.PROPAGATION,
-                    anyTypeKind,
-                    taskInfo.getResource().getKey(),
-                    operation,
-                    result,
-                    beforeObj,
-                    new Object[] { execTO, afterObj },
-                    taskInfo);
+            notificationManager.createTasks(event);
+
+            auditManager.audit(event);
         }
 
         return exec;

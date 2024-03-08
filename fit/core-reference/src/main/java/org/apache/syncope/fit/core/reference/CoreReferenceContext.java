@@ -19,12 +19,12 @@
 package org.apache.syncope.fit.core.reference;
 
 import com.nimbusds.jose.JOSEException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.logic.IdRepoLogicContext;
-import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.provisioning.api.AuditEventProcessor;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -54,13 +54,8 @@ public class CoreReferenceContext {
     }
 
     @Bean
-    public AuditAppender testFileAuditAppender() {
-        return new TestFileAuditAppender(SyncopeConstants.MASTER_DOMAIN);
-    }
-
-    @Bean
-    public AuditAppender testFileRewriteAuditAppender() {
-        return new TestFileRewriteAuditAppender(SyncopeConstants.MASTER_DOMAIN);
+    public AuditEventProcessor testFileAuditProcessor(final AuditEventDAO auditEventDAO) {
+        return new TestFileAuditProcessor(auditEventDAO);
     }
 
     @Bean

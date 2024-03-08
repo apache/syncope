@@ -48,9 +48,9 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -202,7 +202,7 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                 model.setObject(restClient.read(type, model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "ClientAppLogic",
                         model.getObject(),
                         AMEntitlement.CLIENTAPP_UPDATE,

@@ -19,10 +19,10 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.List;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.core.logic.AuditLogic;
@@ -59,24 +59,24 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
     }
 
     @Override
-    public void create(final AuditEntry auditEntry) {
-        logic.create(auditEntry);
+    public void create(final AuditEventTO auditEvent) {
+        logic.create(auditEvent);
     }
 
     @Override
-    public List<EventCategory> events() {
+    public List<OpEvent> events() {
         return logic.events();
     }
 
     @Override
-    public PagedResult<AuditEntry> search(final AuditQuery auditQuery) {
-        Page<AuditEntry> result = logic.search(
+    public PagedResult<AuditEventTO> search(final AuditQuery auditQuery) {
+        Page<AuditEventTO> result = logic.search(
                 auditQuery.getEntityKey(),
                 auditQuery.getType(),
                 auditQuery.getCategory(),
                 auditQuery.getSubcategory(),
-                auditQuery.getEvents(),
-                auditQuery.getResult(),
+                auditQuery.getOp(),
+                auditQuery.getOutcome(),
                 auditQuery.getBefore(),
                 auditQuery.getAfter(),
                 pageable(auditQuery));

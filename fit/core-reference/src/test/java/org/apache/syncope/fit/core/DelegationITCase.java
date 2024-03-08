@@ -35,14 +35,13 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.DelegationService;
@@ -198,14 +197,14 @@ public class DelegationITCase extends AbstractITCase {
     @Test
     public void operations() {
         // 0. enable audit
-        AuditLoggerName authLoginSuccess = new AuditLoggerName(
-                AuditElements.EventCategoryType.LOGIC,
+        OpEvent authLoginSuccess = new OpEvent(
+                OpEvent.CategoryType.LOGIC,
                 UserLogic.class.getSimpleName(),
                 null,
                 "search",
-                AuditElements.Result.SUCCESS);
+                OpEvent.Outcome.SUCCESS);
         AuditConfTO authLogin = new AuditConfTO();
-        authLogin.setKey(authLoginSuccess.toAuditKey());
+        authLogin.setKey(authLoginSuccess.toString());
         authLogin.setActive(true);
         AUDIT_SERVICE.set(authLogin);
 
@@ -255,15 +254,15 @@ public class DelegationITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        // 5. query audit entries
+        // 5. query audit events
         AuditQuery query = new AuditQuery.Builder().
                 type(authLoginSuccess.getType()).
                 category(authLoginSuccess.getCategory()).
-                event(authLoginSuccess.getEvent()).
-                result(authLoginSuccess.getResult()).
+                op(authLoginSuccess.getOp()).
+                outcome(authLoginSuccess.getOutcome()).
                 build();
-        List<AuditEntry> entries = query(query, MAX_WAIT_SECONDS);
-        assertTrue(entries.stream().anyMatch(entry -> "rossini [delegated by bellini]".equals(entry.getWho())));
+        List<AuditEventTO> events = query(query, MAX_WAIT_SECONDS);
+        assertTrue(events.stream().anyMatch(event -> "rossini [delegated by bellini]".equals(event.getWho())));
 
         // 6. disable audit
         authLogin.setActive(false);

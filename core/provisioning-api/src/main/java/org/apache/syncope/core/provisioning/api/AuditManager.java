@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 
 public interface AuditManager {
@@ -26,19 +26,21 @@ public interface AuditManager {
     /**
      * Checks if audit is requested matching the provided conditions.
      *
+     * @param domain domain
      * @param who user triggering the event
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
-     * @param event event
+     * @param op operation
      * @return created notification tasks
      */
     boolean auditRequested(
+            String domain,
             String who,
-            AuditElements.EventCategoryType type,
+            OpEvent.CategoryType type,
             String category,
             String subcategory,
-            String event);
+            String op);
 
     /**
      * Create audit entries according to the provided event.
@@ -50,24 +52,26 @@ public interface AuditManager {
     /**
      * Create audit entries for each audit matching provided conditions.
      *
+     * @param domain domain
      * @param who user triggering the event
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
-     * @param event event
-     * @param condition result value condition.
+     * @param op operation
+     * @param outcome result value condition.
      * @param before object(s) available before the event
      * @param output object(s) produced by the event
      * @param input object(s) provided to the event
      */
     @SuppressWarnings("squid:S00107")
     void audit(
+            String domain,
             String who,
-            AuditElements.EventCategoryType type,
+            OpEvent.CategoryType type,
             String category,
             String subcategory,
-            String event,
-            AuditElements.Result condition,
+            String op,
+            OpEvent.Outcome outcome,
             Object before,
             Object output,
             Object... input);

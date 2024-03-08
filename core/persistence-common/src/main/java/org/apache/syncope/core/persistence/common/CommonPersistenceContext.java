@@ -84,7 +84,8 @@ public class CommonPersistenceContext {
             final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO,
+        return new DefaultAnyUtils(
+                userDAO,
                 groupDAO,
                 anyObjectDAO,
                 plainSchemaDAO,
@@ -103,7 +104,8 @@ public class CommonPersistenceContext {
             final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO,
+        return new DefaultAnyUtils(
+                userDAO,
                 groupDAO,
                 anyObjectDAO,
                 plainSchemaDAO,
@@ -122,7 +124,8 @@ public class CommonPersistenceContext {
             final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO,
+        return new DefaultAnyUtils(
+                userDAO,
                 groupDAO,
                 anyObjectDAO,
                 plainSchemaDAO,
@@ -141,7 +144,8 @@ public class CommonPersistenceContext {
             final @Lazy PlainAttrValueDAO plainAttrValueDAO,
             final @Lazy EntityFactory entityFactory) {
 
-        return new DefaultAnyUtils(userDAO,
+        return new DefaultAnyUtils(
+                userDAO,
                 groupDAO,
                 anyObjectDAO,
                 plainSchemaDAO,

@@ -20,7 +20,7 @@ package org.apache.syncope.core.flowable.task;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.flowable.impl.FlowableRuntimeUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -49,11 +49,11 @@ public class Notify extends FlowableServiceTask {
         if (StringUtils.isNotBlank(event)) {
             notificationManager.createTasks(
                     wfExecutor,
-                    AuditElements.EventCategoryType.CUSTOM,
+                    OpEvent.CategoryType.CUSTOM,
                     null,
                     null,
                     event,
-                    AuditElements.Result.SUCCESS,
+                    OpEvent.Outcome.SUCCESS,
                     userTO,
                     null,
                     user.getToken());

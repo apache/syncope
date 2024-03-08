@@ -31,11 +31,11 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.TransformerHandler;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.content.AbstractXMLContentExporter;
 import org.apache.syncope.core.persistence.common.content.MultiParentNode;
 import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAuditEvent;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jJobStatus;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
@@ -58,7 +58,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected static final Set<String> LABELS_TO_BE_EXCLUDED = Set.of(
             Neo4jSchema.NODE, Neo4jPolicy.NODE, Neo4jProvisioningTask.NODE,
-            Neo4jJobStatus.NODE, AuditLoggerName.class.getSimpleName());
+            Neo4jJobStatus.NODE, Neo4jAuditEvent.NODE);
 
     protected static final Comparator<Record> REALM_COMPARATOR =
             Comparator.comparing(record -> record.get("n").asNode().get("fullPath").asString());

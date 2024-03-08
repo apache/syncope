@@ -30,10 +30,9 @@ import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -67,10 +66,10 @@ public class DefaultRealmPullResultHandler
         extends AbstractRealmResultHandler<PullTask, PullActions>
         implements RealmPullResultHandler {
 
-    protected static Result and(final Result left, final Result right) {
-        return left == Result.SUCCESS && right == Result.SUCCESS
-                ? Result.SUCCESS
-                : Result.FAILURE;
+    protected static OpEvent.Outcome and(final OpEvent.Outcome left, final OpEvent.Outcome right) {
+        return left == OpEvent.Outcome.SUCCESS && right == OpEvent.Outcome.SUCCESS
+                ? OpEvent.Outcome.SUCCESS
+                : OpEvent.Outcome.FAILURE;
     }
 
     @Autowired
@@ -102,7 +101,7 @@ public class DefaultRealmPullResultHandler
                     "No orgUnit found on " + profile.getTask().getResource() + " for "
                     + delta.getObject().getObjectClass()));
 
-            Result latestResult = doHandle(delta, orgUnit);
+            OpEvent.Outcome latestResult = doHandle(delta, orgUnit);
 
             LOG.debug("Successfully handled {}", delta);
 
@@ -110,7 +109,7 @@ public class DefaultRealmPullResultHandler
                 return true;
             }
 
-            return latestResult == Result.SUCCESS;
+            return latestResult == OpEvent.Outcome.SUCCESS;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport ignoreResult = new ProvisioningReport();
             ignoreResult.setOperation(ResourceOperation.NONE);
@@ -148,13 +147,13 @@ public class DefaultRealmPullResultHandler
         }
     }
 
-    protected Result assign(final SyncDelta delta, final OrgUnit orgUnit)
+    protected OpEvent.Outcome assign(final SyncDelta delta, final OrgUnit orgUnit)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(UnmatchingRule.toOp(UnmatchingRule.ASSIGN), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), orgUnit);
@@ -175,8 +174,8 @@ public class DefaultRealmPullResultHandler
 
         if (profile.isDryRun()) {
             result.setKey(null);
-            end(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(UnmatchingRule.toOp(UnmatchingRule.ASSIGN), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         for (PullActions action : profile.getActions()) {
@@ -188,13 +187,13 @@ public class DefaultRealmPullResultHandler
         return create(realmTO, delta, UnmatchingRule.ASSIGN, result);
     }
 
-    protected Result provision(final SyncDelta delta, final OrgUnit orgUnit)
+    protected OpEvent.Outcome provision(final SyncDelta delta, final OrgUnit orgUnit)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(UnmatchingRule.toOp(UnmatchingRule.PROVISION), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         RealmTO realmTO = connObjectUtils.getRealmTO(delta.getObject(), orgUnit);
@@ -214,8 +213,8 @@ public class DefaultRealmPullResultHandler
 
         if (profile.isDryRun()) {
             result.setKey(null);
-            end(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(UnmatchingRule.toOp(UnmatchingRule.PROVISION), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         for (PullActions action : profile.getActions()) {
@@ -227,7 +226,7 @@ public class DefaultRealmPullResultHandler
         return create(realmTO, delta, UnmatchingRule.PROVISION, result);
     }
 
-    protected Result create(
+    protected OpEvent.Outcome create(
             final RealmTO realmTO,
             final SyncDelta delta,
             final UnmatchingRule unmatchingRule,
@@ -235,7 +234,7 @@ public class DefaultRealmPullResultHandler
             throws JobExecutionException {
 
         Object output;
-        Result resultStatus;
+        OpEvent.Outcome resultStatus;
 
         try {
             Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinationRealm(), realmTO));
@@ -253,7 +252,7 @@ public class DefaultRealmPullResultHandler
             result.setName(profile.getTask().getDestinationRealm().getFullPath() + '/' + actual.getName());
 
             output = actual;
-            resultStatus = Result.SUCCESS;
+            resultStatus = OpEvent.Outcome.SUCCESS;
 
             for (PullActions action : profile.getActions()) {
                 action.after(profile, delta, actual, result);
@@ -265,7 +264,7 @@ public class DefaultRealmPullResultHandler
             // The propagation exception status will be reported into the propagation task execution.
             LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
             output = e;
-            resultStatus = Result.FAILURE;
+            resultStatus = OpEvent.Outcome.FAILURE;
         } catch (Exception e) {
             throwIgnoreProvisionException(delta, e);
 
@@ -273,25 +272,25 @@ public class DefaultRealmPullResultHandler
             result.setMessage(ExceptionUtils.getRootCauseMessage(e));
             LOG.error("Could not create Realm {} ", delta.getUid().getUidValue(), e);
             output = e;
-            resultStatus = Result.FAILURE;
+            resultStatus = OpEvent.Outcome.FAILURE;
         }
 
-        end(UnmatchingRule.toEventName(unmatchingRule), resultStatus, null, output, delta);
+        end(UnmatchingRule.toOp(unmatchingRule), resultStatus, null, output, delta);
         return resultStatus;
     }
 
-    protected Result update(final SyncDelta delta, final List<Realm> realms, final boolean inLink)
+    protected OpEvent.Outcome update(final SyncDelta delta, final List<Realm> realms, final boolean inLink)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
-            end(MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(MatchingRule.toOp(MatchingRule.UPDATE), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to update {}", realms);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (Realm realm : realms) {
             LOG.debug("About to update {}", realm);
 
@@ -303,7 +302,7 @@ public class DefaultRealmPullResultHandler
             result.setName(realm.getFullPath());
 
             if (!profile.isDryRun()) {
-                Result resultStatus;
+                OpEvent.Outcome resultStatus;
                 Object output;
 
                 RealmTO before = binder.getRealmTO(realm, true);
@@ -331,7 +330,7 @@ public class DefaultRealmPullResultHandler
                     }
 
                     output = updated;
-                    resultStatus = Result.SUCCESS;
+                    resultStatus = OpEvent.Outcome.SUCCESS;
                     result.setName(updated.getFullPath());
 
                     LOG.debug("{} successfully updated", updated);
@@ -340,7 +339,7 @@ public class DefaultRealmPullResultHandler
                     // The propagation exception status will be reported into the propagation task execution.
                     LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
                     output = e;
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                 } catch (Exception e) {
                     throwIgnoreProvisionException(delta, e);
 
@@ -348,10 +347,10 @@ public class DefaultRealmPullResultHandler
                     result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                     LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
                     output = e;
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                 }
 
-                end(MatchingRule.toEventName(MatchingRule.UPDATE), resultStatus, before, output, delta);
+                end(MatchingRule.toOp(MatchingRule.UPDATE), resultStatus, before, output, delta);
                 global = and(global, resultStatus);
             }
 
@@ -361,20 +360,20 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected Result deprovision(final SyncDelta delta, final List<Realm> realms, final boolean unlink)
+    protected OpEvent.Outcome deprovision(final SyncDelta delta, final List<Realm> realms, final boolean unlink)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             end(unlink
-                    ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
-                    : MatchingRule.toEventName(MatchingRule.DEPROVISION), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                    ? MatchingRule.toOp(MatchingRule.UNASSIGN)
+                    : MatchingRule.toOp(MatchingRule.DEPROVISION), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to deprovision {}", realms);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (Realm realm : realms) {
             LOG.debug("About to unassign resource {}", realm);
 
@@ -387,7 +386,7 @@ public class DefaultRealmPullResultHandler
 
             if (!profile.isDryRun()) {
                 Object output;
-                Result resultStatus;
+                OpEvent.Outcome resultStatus;
 
                 RealmTO before = binder.getRealmTO(realm, true);
                 try {
@@ -420,7 +419,7 @@ public class DefaultRealmPullResultHandler
                         action.after(profile, delta, realmTO, result);
                     }
 
-                    resultStatus = Result.SUCCESS;
+                    resultStatus = OpEvent.Outcome.SUCCESS;
 
                     LOG.debug("{} successfully updated", realm);
                 } catch (PropagationException e) {
@@ -428,7 +427,7 @@ public class DefaultRealmPullResultHandler
                     // The propagation exception status will be reported into the propagation task execution.
                     LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
                     output = e;
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                 } catch (Exception e) {
                     throwIgnoreProvisionException(delta, e);
 
@@ -436,12 +435,12 @@ public class DefaultRealmPullResultHandler
                     result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                     LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
                     output = e;
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                 }
 
                 end(unlink
-                        ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
-                        : MatchingRule.toEventName(MatchingRule.DEPROVISION),
+                        ? MatchingRule.toOp(MatchingRule.UNASSIGN)
+                        : MatchingRule.toOp(MatchingRule.DEPROVISION),
                         resultStatus, before, output, delta);
                 global = and(global, resultStatus);
             }
@@ -452,20 +451,20 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected Result link(final SyncDelta delta, final List<Realm> realms, final boolean unlink)
+    protected OpEvent.Outcome link(final SyncDelta delta, final List<Realm> realms, final boolean unlink)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             end(unlink
-                    ? MatchingRule.toEventName(MatchingRule.UNLINK)
-                    : MatchingRule.toEventName(MatchingRule.LINK), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                    ? MatchingRule.toOp(MatchingRule.UNLINK)
+                    : MatchingRule.toOp(MatchingRule.LINK), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to link {}", realms);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (Realm realm : realms) {
             LOG.debug("About to unassign resource {}", realm);
 
@@ -478,7 +477,7 @@ public class DefaultRealmPullResultHandler
 
             if (!profile.isDryRun()) {
                 Object output;
-                Result resultStatus;
+                OpEvent.Outcome resultStatus;
 
                 RealmTO before = binder.getRealmTO(realm, true);
                 try {
@@ -499,7 +498,7 @@ public class DefaultRealmPullResultHandler
                     }
                     output = update(delta, List.of(realm), true);
 
-                    resultStatus = Result.SUCCESS;
+                    resultStatus = OpEvent.Outcome.SUCCESS;
 
                     LOG.debug("{} successfully updated", realm);
                 } catch (PropagationException e) {
@@ -507,7 +506,7 @@ public class DefaultRealmPullResultHandler
                     // The propagation exception status will be reported into the propagation task execution.
                     LOG.error("Could not propagate Realm {}", delta.getUid().getUidValue(), e);
                     output = e;
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                 } catch (Exception e) {
                     throwIgnoreProvisionException(delta, e);
 
@@ -515,12 +514,12 @@ public class DefaultRealmPullResultHandler
                     result.setMessage(ExceptionUtils.getRootCauseMessage(e));
                     LOG.error("Could not update Realm {}", delta.getUid().getUidValue(), e);
                     output = e;
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                 }
 
                 end(unlink
-                        ? MatchingRule.toEventName(MatchingRule.UNLINK)
-                        : MatchingRule.toEventName(MatchingRule.LINK),
+                        ? MatchingRule.toOp(MatchingRule.UNLINK)
+                        : MatchingRule.toOp(MatchingRule.LINK),
                         resultStatus, before, output, delta);
                 global = and(global, resultStatus);
             }
@@ -531,21 +530,21 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected Result delete(final SyncDelta delta, final List<Realm> realms)
+    protected OpEvent.Outcome delete(final SyncDelta delta, final List<Realm> realms)
             throws JobExecutionException {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
-            end(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(ResourceOperation.DELETE.name().toLowerCase(), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to delete {}", realms);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (Realm realm : realms) {
             Object output;
-            Result resultStatus = Result.FAILURE;
+            OpEvent.Outcome resultStatus = OpEvent.Outcome.FAILURE;
 
             ProvisioningReport result = new ProvisioningReport();
 
@@ -601,7 +600,7 @@ public class DefaultRealmPullResultHandler
                         realmDAO.delete(realm);
 
                         output = null;
-                        resultStatus = Result.SUCCESS;
+                        resultStatus = OpEvent.Outcome.SUCCESS;
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, before, result);
@@ -630,7 +629,7 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected Result ignore(final SyncDelta delta, final boolean matching) throws JobExecutionException {
+    protected OpEvent.Outcome ignore(final SyncDelta delta, final boolean matching) throws JobExecutionException {
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
         ProvisioningReport report = new ProvisioningReport();
@@ -643,15 +642,15 @@ public class DefaultRealmPullResultHandler
 
         if (!profile.isDryRun()) {
             end(matching
-                    ? MatchingRule.toEventName(MatchingRule.IGNORE)
-                    : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                    ? MatchingRule.toOp(MatchingRule.IGNORE)
+                    : UnmatchingRule.toOp(UnmatchingRule.IGNORE), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
-        return Result.SUCCESS;
+        return OpEvent.Outcome.SUCCESS;
     }
 
-    protected Result doHandle(final SyncDelta delta, final OrgUnit orgUnit) throws JobExecutionException {
+    protected OpEvent.Outcome doHandle(final SyncDelta delta, final OrgUnit orgUnit) throws JobExecutionException {
         LOG.debug("Process {} for {} as {}",
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
@@ -686,7 +685,7 @@ public class DefaultRealmPullResultHandler
                 }
         }
 
-        Result result = Result.SUCCESS;
+        OpEvent.Outcome result = OpEvent.Outcome.SUCCESS;
         try {
             switch (delta.getDeltaType()) {
                 case CREATE:
@@ -743,7 +742,8 @@ public class DefaultRealmPullResultHandler
 
                 case DELETE:
                     if (realms.isEmpty()) {
-                        end(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, finalDelta);
+                        end(ResourceOperation.DELETE.name().toLowerCase(), OpEvent.Outcome.SUCCESS, null, null,
+                                finalDelta);
                         LOG.debug("No match found for deletion");
                     } else {
                         result = delete(finalDelta, realms);
@@ -761,14 +761,14 @@ public class DefaultRealmPullResultHandler
 
     protected void end(
             final String event,
-            final Result result,
+            final OpEvent.Outcome result,
             final Object before,
             final Object output,
             final SyncDelta delta) {
 
         notificationManager.createTasks(
                 AuthContextUtils.getWho(),
-                AuditElements.EventCategoryType.PULL,
+                OpEvent.CategoryType.PULL,
                 SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,
@@ -778,8 +778,9 @@ public class DefaultRealmPullResultHandler
                 delta);
 
         auditManager.audit(
+                AuthContextUtils.getDomain(),
                 AuthContextUtils.getWho(),
-                AuditElements.EventCategoryType.PULL,
+                OpEvent.CategoryType.PULL,
                 SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                 profile.getTask().getResource().getKey(),
                 event,

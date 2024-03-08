@@ -22,7 +22,7 @@ import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 
@@ -31,7 +31,7 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
     private static final long serialVersionUID = 1066124171682570080L;
 
     public AuditHistoryModal(
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
             final T entity,
             final String auditRestoreEntitlement,
@@ -44,7 +44,7 @@ public abstract class AuditHistoryModal<T extends EntityTO> extends Panel implem
                 entity,
                 type,
                 category,
-                AuditHistoryDetails.DEFAULT_EVENTS,
+                null,
                 auditRestoreEntitlement,
                 restClient) {
 

@@ -46,10 +46,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.panels.ModalPanel;
-import org.apache.syncope.common.lib.audit.AuditEntry;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -68,10 +68,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuditHistoryDetails.class);
 
-    public static final List<String> DEFAULT_EVENTS = List.of(
-            "create", "update", "matchingrule_update", "unmatchingrule_assign", "unmatchingrule_provision");
-
-    protected static final SortParam<String> REST_SORT = new SortParam<>("event_date", false);
+    protected static final SortParam<String> REST_SORT = new SortParam<>("when", false);
 
     protected static class SortingNodeFactory extends JsonNodeFactory {
 
@@ -139,23 +136,23 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
     protected EntityTO currentEntity;
 
-    protected AuditElements.EventCategoryType type;
+    protected OpEvent.CategoryType type;
 
     protected String category;
 
-    protected final List<String> events;
+    protected String op;
 
     protected Class<T> reference;
 
-    protected final List<AuditEntry> auditEntries = new ArrayList<>();
+    protected final List<AuditEventTO> auditEntries = new ArrayList<>();
 
-    protected AuditEntry latestAuditEntry;
+    protected AuditEventTO latestAuditEventTO;
 
-    protected AuditEntry after;
+    protected AuditEventTO after;
 
-    protected AjaxDropDownChoicePanel<AuditEntry> beforeVersionsPanel;
+    protected AjaxDropDownChoicePanel<AuditEventTO> beforeVersionsPanel;
 
-    protected AjaxDropDownChoicePanel<AuditEntry> afterVersionsPanel;
+    protected AjaxDropDownChoicePanel<AuditEventTO> afterVersionsPanel;
 
     protected final AjaxLink<Void> restore;
 
@@ -165,9 +162,9 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     public AuditHistoryDetails(
             final String id,
             final EntityTO currentEntity,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
-            final List<String> events,
+            final String op,
             final String auditRestoreEntitlement,
             final AuditRestClient restClient) {
 
@@ -176,31 +173,33 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         this.currentEntity = currentEntity;
         this.type = type;
         this.category = category;
-        this.events = events;
+        this.op = op;
         this.reference = (Class<T>) currentEntity.getClass();
         this.restClient = restClient;
 
         setOutputMarkupId(true);
 
-        IChoiceRenderer<AuditEntry> choiceRenderer = new IChoiceRenderer<>() {
+        IChoiceRenderer<AuditEventTO> choiceRenderer = new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = -3724971416312135885L;
 
             @Override
-            public String getDisplayValue(final AuditEntry value) {
-                return SyncopeConsoleSession.get().getDateFormat().format(value.getDate());
+            public String getDisplayValue(final AuditEventTO value) {
+                return SyncopeConsoleSession.get().getDateFormat().format(value.getWhen());
             }
 
             @Override
-            public String getIdValue(final AuditEntry value, final int i) {
-                return Long.toString(value.getDate().toInstant().toEpochMilli());
+            public String getIdValue(final AuditEventTO value, final int i) {
+                return Long.toString(value.getWhen().toInstant().toEpochMilli());
             }
 
             @Override
-            public AuditEntry getObject(final String id, final IModel<? extends List<? extends AuditEntry>> choices) {
+            public AuditEventTO getObject(
+                    final String id, final IModel<? extends List<? extends AuditEventTO>> choices) {
+
                 return choices.getObject().stream().
                         filter(c -> StringUtils.isNotBlank(id)
-                        && Long.parseLong(id) == c.getDate().toInstant().toEpochMilli()).
+                        && Long.parseLong(id) == c.getWhen().toInstant().toEpochMilli()).
                         findFirst().orElse(null);
             }
         };
@@ -215,18 +214,18 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                AuditEntry beforeEntry = beforeVersionsPanel.getModelObject() == null
-                        ? latestAuditEntry
+                AuditEventTO beforeEntry = beforeVersionsPanel.getModelObject() == null
+                        ? latestAuditEventTO
                         : beforeVersionsPanel.getModelObject();
-                AuditEntry afterEntry = afterVersionsPanel.getModelObject() == null
+                AuditEventTO afterEntry = afterVersionsPanel.getModelObject() == null
                         ? after
-                        : buildAfterAuditEntry(beforeEntry);
+                        : buildAfterAuditEventTO(beforeEntry);
                 AuditHistoryDetails.this.addOrReplace(
                         new JsonDiffPanel(toJSON(beforeEntry, reference), toJSON(afterEntry, reference)));
                 // change after audit entries in order to match only the ones newer than the current after one
                 afterVersionsPanel.setChoices(auditEntries.stream().
-                        filter(ae -> ae.getDate().isAfter(beforeEntry.getDate())
-                        || ae.getDate().isEqual(beforeEntry.getDate())).
+                        filter(ae -> ae.getWhen().isAfter(beforeEntry.getWhen())
+                        || ae.getWhen().isEqual(beforeEntry.getWhen())).
                         collect(Collectors.toList()));
                 // set the new after entry
                 afterVersionsPanel.setModelObject(afterEntry);
@@ -244,11 +243,11 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             protected void onEvent(final AjaxRequestTarget target) {
                 AuditHistoryDetails.this.addOrReplace(new JsonDiffPanel(
                         toJSON(beforeVersionsPanel.getModelObject() == null
-                                ? latestAuditEntry
+                                ? latestAuditEventTO
                                 : beforeVersionsPanel.getModelObject(), reference),
                         toJSON(afterVersionsPanel.getModelObject() == null
                                 ? after
-                                : buildAfterAuditEntry(afterVersionsPanel.getModelObject()), reference)));
+                                : buildAfterAuditEventTO(afterVersionsPanel.getModelObject()), reference)));
                 target.add(AuditHistoryDetails.this);
             }
         });
@@ -262,8 +261,8 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    AuditEntry before = beforeVersionsPanel.getModelObject() == null
-                            ? latestAuditEntry
+                    AuditEventTO before = beforeVersionsPanel.getModelObject() == null
+                            ? latestAuditEventTO
                             : beforeVersionsPanel.getModelObject();
                     String json = before.getBefore() == null
                             ? MAPPER.readTree(before.getOutput()).get("entity") == null
@@ -293,38 +292,38 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 50,
                 type,
                 category,
-                events,
-                AuditElements.Result.SUCCESS,
+                op,
+                OpEvent.Outcome.SUCCESS,
                 REST_SORT));
 
         // the default selected is the newest one, if any
-        latestAuditEntry = auditEntries.isEmpty() ? null : auditEntries.get(0);
-        after = latestAuditEntry == null ? null : buildAfterAuditEntry(latestAuditEntry);
+        latestAuditEventTO = auditEntries.isEmpty() ? null : auditEntries.get(0);
+        after = latestAuditEventTO == null ? null : buildAfterAuditEventTO(latestAuditEventTO);
         // add default diff panel
-        addOrReplace(new JsonDiffPanel(toJSON(latestAuditEntry, reference), toJSON(after, reference)));
+        addOrReplace(new JsonDiffPanel(toJSON(latestAuditEventTO, reference), toJSON(after, reference)));
 
         beforeVersionsPanel.setChoices(auditEntries);
         afterVersionsPanel.setChoices(auditEntries.stream().
-                filter(ae -> ae.getDate().isAfter(after.getDate()) || ae.getDate().isEqual(after.getDate())).
+                filter(ae -> ae.getWhen().isAfter(after.getWhen()) || ae.getWhen().isEqual(after.getWhen())).
                 collect(Collectors.toList()));
 
-        beforeVersionsPanel.setModelObject(latestAuditEntry);
+        beforeVersionsPanel.setModelObject(latestAuditEventTO);
         afterVersionsPanel.setModelObject(after);
 
         restore.setEnabled(!auditEntries.isEmpty());
     }
 
-    protected AuditEntry buildAfterAuditEntry(final AuditEntry input) {
-        AuditEntry output = new AuditEntry();
+    protected AuditEventTO buildAfterAuditEventTO(final AuditEventTO input) {
+        AuditEventTO output = new AuditEventTO();
         output.setWho(input.getWho());
-        output.setDate(input.getDate());
+        output.setWhen(input.getWhen());
         // current by default is the output of the selected event
         output.setOutput(input.getOutput());
         output.setThrowable(input.getThrowable());
         return output;
     }
 
-    protected Model<String> toJSON(final AuditEntry auditEntry, final Class<T> reference) {
+    protected Model<String> toJSON(final AuditEventTO auditEntry, final Class<T> reference) {
         try {
             if (auditEntry == null) {
                 return Model.of();

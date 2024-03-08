@@ -66,12 +66,13 @@ import org.apache.openjpa.lib.util.collections.BidiMap;
 import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.DomainHolder;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.common.content.AbstractXMLContentExporter;
 import org.apache.syncope.core.persistence.common.content.MultiParentNode;
 import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAuditEvent;
+import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.data.domain.Pageable;
@@ -87,7 +88,7 @@ import org.xml.sax.helpers.AttributesImpl;
  */
 public class XMLContentExporter extends AbstractXMLContentExporter {
 
-    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Set.of("QRTZ_", AuditEntryDAO.TABLE);
+    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = Set.of(JPAJobStatus.TABLE, JPAAuditEvent.TABLE);
 
     protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().

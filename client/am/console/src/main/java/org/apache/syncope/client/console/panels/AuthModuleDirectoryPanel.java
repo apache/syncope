@@ -43,8 +43,8 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -160,7 +160,7 @@ public class AuthModuleDirectoryPanel
                 model.setObject(restClient.read(model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "AuthModuleLogic",
                         model.getObject(),
                         AMEntitlement.AUTH_MODULE_UPDATE,

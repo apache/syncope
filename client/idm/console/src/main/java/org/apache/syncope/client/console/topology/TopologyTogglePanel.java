@@ -47,9 +47,9 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -329,7 +329,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ConnInstanceTO modelObject = connectorRestClient.read(node.getKey());
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "ConnectorLogic",
                         modelObject,
                         IdMEntitlement.CONNECTOR_UPDATE,
@@ -573,7 +573,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ResourceTO modelObject = resourceRestClient.read(node.getKey());
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "ResourceLogic",
                         modelObject,
                         IdMEntitlement.RESOURCE_UPDATE,

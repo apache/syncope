@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.notification;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
@@ -43,17 +43,19 @@ public interface NotificationManager {
     /**
      * Checks if notifications are available matching the provided conditions.
      *
+     * @param domain domain
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
-     * @param event event
+     * @param op operation
      * @return created notification tasks
      */
     boolean notificationsAvailable(
-            AuditElements.EventCategoryType type,
+            String domain,
+            OpEvent.CategoryType type,
             String category,
             String subcategory,
-            String event);
+            String op);
 
     /**
      * Create notification tasks according to the provided event.
@@ -69,8 +71,8 @@ public interface NotificationManager {
      * @param type event category type
      * @param category event category
      * @param subcategory event subcategory
-     * @param event event
-     * @param condition result value condition.
+     * @param op operation
+     * @param outcome result value condition.
      * @param before object(s) availabile before the event
      * @param output object(s) produced by the event
      * @param input object(s) provided to the event
@@ -79,11 +81,11 @@ public interface NotificationManager {
     @SuppressWarnings("squid:S00107")
     List<NotificationTask> createTasks(
             String who,
-            AuditElements.EventCategoryType type,
+            OpEvent.CategoryType type,
             String category,
             String subcategory,
-            String event,
-            AuditElements.Result condition,
+            String op,
+            OpEvent.Outcome outcome,
             Object before,
             Object output,
             Object... input);

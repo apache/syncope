@@ -48,7 +48,7 @@ public enum MatchingRule {
      */
     LINK;
 
-    public static String toEventName(final MatchingRule rule) {
+    public static String toOp(final MatchingRule rule) {
         return new StringBuilder(MatchingRule.class.getSimpleName()).
                 append('_').append(rule.name()).toString().toLowerCase();
     }

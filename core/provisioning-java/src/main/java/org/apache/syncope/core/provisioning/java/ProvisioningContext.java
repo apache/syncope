@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -62,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.apache.syncope.core.provisioning.api.AuditEventProcessor;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
@@ -177,7 +179,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.AsyncTaskExecutor;
-import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -224,18 +225,6 @@ public class ProvisioningContext {
                 return asyncConnectorFacadeExecutor;
             }
         };
-    }
-
-    /**
-     * This is a special thread executor that only created a single worker thread.
-     * This is necessary to allow job status update operations to queue up serially
-     * and not via multiple threads to avoid the "lost update" problem.
-     *
-     * @return the async task executor
-     */
-    @Bean
-    public AsyncTaskExecutor jobStatusUpdaterThreadExecutor() {
-        return new TaskExecutorAdapter(Executors.newSingleThreadExecutor());
     }
 
     /**
@@ -290,6 +279,22 @@ public class ProvisioningContext {
                 taskUtilsFactory,
                 confParamOps,
                 securityProperties);
+    }
+
+    /**
+     * This is a special thread executor that only created a single worker thread.
+     * This is necessary to allow job status update operations to queue up serially
+     * and not via multiple threads to avoid the "lost update" problem.
+     *
+     * @return the async task executor
+     */
+    @Bean
+    public AsyncTaskExecutor jobStatusUpdaterThreadExecutor() {
+        VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
+        executor.setPoolSize(1);
+        executor.setThreadNamePrefix("JobStatusUpdaterThreadExecutor-");
+        executor.initialize();
+        return executor;
     }
 
     @ConditionalOnMissingBean
@@ -621,10 +626,30 @@ public class ProvisioningContext {
                 searchCondVisitor);
     }
 
+    /**
+     * This is a special thread executor to allow audit event reports.
+     *
+     * @return the async task executor
+     */
+    @Bean
+    public AsyncTaskExecutor auditManagerThreadExecutor() {
+        VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("AuditManagerThreadExecutor-");
+        executor.initialize();
+        return executor;
+    }
+
     @ConditionalOnMissingBean
     @Bean
-    public AuditManager auditManager(final AuditConfDAO auditConfDAO) {
-        return new DefaultAuditManager(auditConfDAO);
+    public AuditManager auditManager(
+            final AuditConfDAO auditConfDAO,
+            final AuditEventDAO auditEventDAO,
+            final EntityFactory entityFactory,
+            final List<AuditEventProcessor> auditEventProcessors,
+            @Qualifier("auditManagerThreadExecutor")
+            final AsyncTaskExecutor taskExecutor) {
+
+        return new DefaultAuditManager(auditConfDAO, auditEventDAO, entityFactory, auditEventProcessors, taskExecutor);
     }
 
     @ConditionalOnMissingBean

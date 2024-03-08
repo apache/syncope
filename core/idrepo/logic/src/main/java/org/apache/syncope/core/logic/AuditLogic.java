@@ -26,26 +26,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
-import org.apache.syncope.core.logic.audit.AuditAppender;
-import org.apache.syncope.core.logic.init.AuditLoader;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
@@ -56,8 +48,6 @@ import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.boot.logging.LogLevel;
-import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -73,11 +63,22 @@ import org.springframework.util.SystemPropertyUtils;
 
 public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
-    protected static final List<EventCategory> EVENTS = new ArrayList<>();
+    protected static final List<OpEvent> EVENTS = new ArrayList<>();
+
+    protected static void addForOutcomes(
+            final Set<OpEvent> events,
+            final OpEvent.CategoryType type,
+            final String category,
+            final String subcategory,
+            final String op) {
+
+        events.add(new OpEvent(type, category, subcategory, op, OpEvent.Outcome.SUCCESS));
+        events.add(new OpEvent(type, category, subcategory, op, OpEvent.Outcome.FAILURE));
+    }
 
     protected final AuditConfDAO auditConfDAO;
 
-    protected final AuditEntryDAO auditEntryDAO;
+    protected final AuditEventDAO auditEventDAO;
 
     protected final ExternalResourceDAO resourceDAO;
 
@@ -87,41 +88,33 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final AuditManager auditManager;
 
-    protected final List<AuditAppender> auditAppenders;
-
-    protected final LoggingSystem loggingSystem;
-
     public AuditLogic(
             final AuditConfDAO auditConfDAO,
-            final AuditEntryDAO auditEntryDAO,
+            final AuditEventDAO auditEventDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
-            final AuditManager auditManager,
-            final List<AuditAppender> auditAppenders,
-            final LoggingSystem loggingSystem) {
+            final AuditManager auditManager) {
 
         this.auditConfDAO = auditConfDAO;
-        this.auditEntryDAO = auditEntryDAO;
+        this.auditEventDAO = auditEventDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
         this.binder = binder;
         this.auditManager = auditManager;
-        this.auditAppenders = auditAppenders;
-        this.loggingSystem = loggingSystem;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditConfTO> list() {
-        return auditConfDAO.findAll().stream().map(binder::getAuditTO).toList();
+        return auditConfDAO.findAll().stream().map(binder::getAuditConfTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
     public AuditConfTO read(final String key) {
-        return auditConfDAO.findById(key).map(binder::getAuditTO).
-                orElseThrow(() -> new NotFoundException("Audit " + key));
+        return auditConfDAO.findById(key).map(binder::getAuditConfTO).
+                orElseThrow(() -> new NotFoundException("AuditConf " + key));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SET + "')")
@@ -132,60 +125,61 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             audit.setKey(auditTO.getKey());
         }
         audit.setActive(auditTO.isActive());
-        audit = auditConfDAO.save(audit);
-
-        setLevel(audit.getKey(), audit.isActive() ? LogLevel.DEBUG : LogLevel.OFF);
+        auditConfDAO.save(audit);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")
     public void delete(final String key) {
         AuditConf audit = auditConfDAO.findById(key).
-                orElseThrow(() -> new NotFoundException("Audit " + key));
+                orElseThrow(() -> new NotFoundException("AuditConf " + key));
         auditConfDAO.delete(audit);
-
-        setLevel(audit.getKey(), LogLevel.OFF);
-    }
-
-    protected void setLevel(final String key, final LogLevel level) {
-        String auditLoggerName = AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), key);
-
-        LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
-        LoggerConfig logConf = logCtx.getConfiguration().getLoggerConfig(auditLoggerName);
-
-        auditAppenders.stream().
-                filter(appender -> appender.getEvents().stream().
-                anyMatch(event -> key.equalsIgnoreCase(event.toAuditKey()))).
-                forEach(auditAppender -> AuditLoader.addAppenderToLoggerContext(logCtx, auditAppender, logConf));
-
-        loggingSystem.setLogLevel(auditLoggerName, level);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "') "
             + "or hasRole('" + IdRepoEntitlement.NOTIFICATION_LIST + "')")
-    public List<EventCategory> events() {
+    public List<OpEvent> events() {
         synchronized (EVENTS) {
             if (!EVENTS.isEmpty()) {
                 return EVENTS;
             }
         }
 
-        Set<EventCategory> events = new HashSet<>();
+        Set<OpEvent> events = new HashSet<>();
 
-        EventCategory authenticationEventCategory = new EventCategory();
-        authenticationEventCategory.setCategory(AuditElements.AUTHENTICATION_CATEGORY);
-        authenticationEventCategory.getEvents().add(AuditElements.LOGIN_EVENT);
-        events.add(authenticationEventCategory);
+        addForOutcomes(
+                events,
+                OpEvent.CategoryType.LOGIC,
+                OpEvent.AUTHENTICATION_CATEGORY,
+                null,
+                OpEvent.LOGIN_OP);
 
-        EventCategory pullTaskEventCategory = new EventCategory(EventCategoryType.TASK);
-        pullTaskEventCategory.setCategory(PullJobDelegate.class.getSimpleName());
-        events.add(pullTaskEventCategory);
+        addForOutcomes(
+                events,
+                OpEvent.CategoryType.TASK,
+                PullJobDelegate.class.getSimpleName(),
+                null,
+                null);
 
-        EventCategory pushTaskEventCategory = new EventCategory(EventCategoryType.TASK);
-        pushTaskEventCategory.setCategory(PushJobDelegate.class.getSimpleName());
-        events.add(pushTaskEventCategory);
+        addForOutcomes(
+                events,
+                OpEvent.CategoryType.TASK,
+                PushJobDelegate.class.getSimpleName(),
+                null,
+                null);
 
-        events.add(new EventCategory(EventCategoryType.WA));
-        events.add(new EventCategory(EventCategoryType.CUSTOM));
+        addForOutcomes(
+                events,
+                OpEvent.CategoryType.WA,
+                null,
+                null,
+                null);
+
+        addForOutcomes(
+                events,
+                OpEvent.CategoryType.CUSTOM,
+                null,
+                null,
+                null);
 
         try {
             ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
@@ -203,59 +197,75 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                     Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
 
                     if (AbstractLogic.class.isAssignableFrom(clazz)) {
-                        EventCategory eventCategory = new EventCategory();
-                        eventCategory.setCategory(clazz.getSimpleName());
                         for (Method method : clazz.getDeclaredMethods()) {
-                            if (Modifier.isPublic(method.getModifiers())
-                                    && !eventCategory.getEvents().contains(method.getName())) {
-
-                                eventCategory.getEvents().add(method.getName());
+                            if (Modifier.isPublic(method.getModifiers())) {
+                                addForOutcomes(
+                                        events,
+                                        OpEvent.CategoryType.LOGIC,
+                                        clazz.getSimpleName(),
+                                        null,
+                                        method.getName());
                             }
                         }
-
-                        events.add(eventCategory);
                     }
                 }
             }
 
             for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
                 resourceDAO.findAll().forEach(resource -> {
-                    EventCategory propEventCategory = new EventCategory(EventCategoryType.PROPAGATION);
-                    EventCategory pullEventCategory = new EventCategory(EventCategoryType.PULL);
-                    EventCategory pushEventCategory = new EventCategory(EventCategoryType.PUSH);
-
-                    propEventCategory.setCategory(anyTypeKind.name());
-                    propEventCategory.setSubcategory(resource.getKey());
-
-                    pullEventCategory.setCategory(anyTypeKind.name());
-                    pushEventCategory.setCategory(anyTypeKind.name());
-                    pullEventCategory.setSubcategory(resource.getKey());
-                    pushEventCategory.setSubcategory(resource.getKey());
-
                     for (ResourceOperation resourceOperation : ResourceOperation.values()) {
-                        propEventCategory.getEvents().add(resourceOperation.name().toLowerCase());
+                        addForOutcomes(
+                                events,
+                                OpEvent.CategoryType.PROPAGATION,
+                                anyTypeKind.name(),
+                                resource.getKey(),
+                                resourceOperation.name().toLowerCase());
                     }
-                    pullEventCategory.getEvents().add(ResourceOperation.DELETE.name().toLowerCase());
 
                     for (UnmatchingRule unmatching : UnmatchingRule.values()) {
-                        String event = UnmatchingRule.toEventName(unmatching);
-                        pullEventCategory.getEvents().add(event);
-                        pushEventCategory.getEvents().add(event);
+                        String op = UnmatchingRule.toOp(unmatching);
+
+                        addForOutcomes(
+                                events,
+                                OpEvent.CategoryType.PULL,
+                                anyTypeKind.name(),
+                                resource.getKey(),
+                                op);
+                        addForOutcomes(
+                                events,
+                                OpEvent.CategoryType.PUSH,
+                                anyTypeKind.name(),
+                                resource.getKey(),
+                                op);
                     }
 
                     for (MatchingRule matching : MatchingRule.values()) {
-                        String event = MatchingRule.toEventName(matching);
-                        pullEventCategory.getEvents().add(event);
-                        pushEventCategory.getEvents().add(event);
+                        String op = MatchingRule.toOp(matching);
+
+                        addForOutcomes(
+                                events,
+                                OpEvent.CategoryType.PULL,
+                                anyTypeKind.name(),
+                                resource.getKey(),
+                                op);
+                        addForOutcomes(
+                                events,
+                                OpEvent.CategoryType.PUSH,
+                                anyTypeKind.name(),
+                                resource.getKey(),
+                                op);
                     }
 
-                    events.add(propEventCategory);
-                    events.add(pullEventCategory);
-                    events.add(pushEventCategory);
+                    addForOutcomes(
+                            events,
+                            OpEvent.CategoryType.PULL,
+                            anyTypeKind.name(),
+                            resource.getKey(),
+                            ResourceOperation.DELETE.name().toLowerCase());
                 });
             }
         } catch (Exception e) {
-            LOG.error("Failure retrieving audit/notification events", e);
+            LOG.error("Failure retrieving op events", e);
         }
 
         EVENTS.addAll(events);
@@ -264,42 +274,43 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SEARCH + "')")
     @Transactional(readOnly = true)
-    public Page<AuditEntry> search(
+    public Page<AuditEventTO> search(
             final String entityKey,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
-            final List<String> events,
-            final AuditElements.Result result,
+            final String op,
+            final OpEvent.Outcome result,
             final OffsetDateTime before,
             final OffsetDateTime after,
             final Pageable pageable) {
 
-        long count = auditEntryDAO.count(entityKey, type, category, subcategory, events, result, before, after);
+        long count = auditEventDAO.count(entityKey, type, category, subcategory, op, result, before, after);
 
-        List<AuditEntry> matching = auditEntryDAO.search(
-                entityKey, type, category, subcategory, events, result, before, after, pageable);
+        List<AuditEventTO> matching = auditEventDAO.search(
+                entityKey, type, category, subcategory, op, result, before, after, pageable);
 
         return new SyncopePage<>(matching, pageable, count);
     }
 
     @PreAuthorize("isAuthenticated()")
-    public void create(final AuditEntry auditEntry) {
+    public void create(final AuditEventTO eventTO) {
         boolean authorized =
                 AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.AUDIT_SET)
                 || AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.ANONYMOUS)
-                && AuditElements.EventCategoryType.WA == auditEntry.getLogger().getType();
+                && OpEvent.CategoryType.WA == eventTO.getOpEvent().getType();
         if (authorized) {
             auditManager.audit(
-                    auditEntry.getWho(),
-                    auditEntry.getLogger().getType(),
-                    auditEntry.getLogger().getCategory(),
-                    auditEntry.getLogger().getSubcategory(),
-                    auditEntry.getLogger().getEvent(),
-                    auditEntry.getLogger().getResult(),
-                    auditEntry.getBefore(),
-                    auditEntry.getOutput(),
-                    auditEntry.getInputs());
+                    AuthContextUtils.getDomain(),
+                    eventTO.getWho(),
+                    eventTO.getOpEvent().getType(),
+                    eventTO.getOpEvent().getCategory(),
+                    eventTO.getOpEvent().getSubcategory(),
+                    eventTO.getOpEvent().getOp(),
+                    eventTO.getOpEvent().getOutcome(),
+                    eventTO.getBefore(),
+                    eventTO.getOutput(),
+                    eventTO.getInputs());
         } else {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add("Not allowed to create Audit entries");
@@ -325,7 +336,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
         if (key != null) {
             try {
-                return binder.getAuditTO(auditConfDAO.findById(key).orElseThrow());
+                return binder.getAuditConfTO(auditConfDAO.findById(key).orElseThrow());
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

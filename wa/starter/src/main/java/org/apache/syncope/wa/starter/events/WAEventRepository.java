@@ -27,9 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.to.AuditEventTO;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
@@ -81,21 +80,21 @@ public class WAEventRepository extends AbstractCasEventRepository {
 
             String output = MAPPER.writeValueAsString(properties);
 
-            AuditEntry auditEntry = new AuditEntry();
-            auditEntry.setWho(event.getPrincipalId());
+            AuditEventTO auditEvent = new AuditEventTO();
+            auditEvent.setWho(event.getPrincipalId());
             if (event.getTimestamp() != null) {
-                auditEntry.setDate(OffsetDateTime.ofInstant(
+                auditEvent.setWhen(OffsetDateTime.ofInstant(
                         Instant.ofEpochMilli(event.getTimestamp()), ZoneId.systemDefault()));
             }
-            auditEntry.setOutput(output);
-            AuditLoggerName auditLogger = new AuditLoggerName(
-                    AuditElements.EventCategoryType.WA,
+            auditEvent.setOutput(output);
+            OpEvent opEvent = new OpEvent(
+                    OpEvent.CategoryType.WA,
                     null,
                     event.getType().toUpperCase(),
                     String.valueOf(event.getId()),
-                    AuditElements.Result.SUCCESS);
-            auditEntry.setLogger(auditLogger);
-            waRestClient.getService(AuditService.class).create(auditEntry);
+                    OpEvent.Outcome.SUCCESS);
+            auditEvent.setOpEvent(opEvent);
+            waRestClient.getService(AuditService.class).create(auditEvent);
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }

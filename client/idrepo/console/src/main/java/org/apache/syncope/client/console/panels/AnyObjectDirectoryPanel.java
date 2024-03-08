@@ -49,8 +49,8 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -170,7 +170,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                 model.setObject(restClient.read(model.getObject().getKey()));
                 target.add(altDefaultModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "AnyObjectLogic",
                         model.getObject(),
                         AnyEntitlement.UPDATE.getFor(type),
