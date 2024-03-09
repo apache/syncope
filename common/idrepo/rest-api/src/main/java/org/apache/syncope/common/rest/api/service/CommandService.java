@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -61,6 +64,8 @@ public interface CommandService extends JAXRSService {
      * @param key command key
      * @return the command for the given key, if found
      */
+    @Parameter(name = "key", description = "Command's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
@@ -72,6 +77,8 @@ public interface CommandService extends JAXRSService {
      * @param command command to run, with arguments
      * @return command output
      */
+    @Parameter(name = "key", description = "Command's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
     @POST
     @Path("{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
