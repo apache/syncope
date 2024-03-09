@@ -128,17 +128,16 @@ public class SyncopeOpenApiCustomizer extends OpenApiCustomizer {
     protected void customizeResponses(final Operation operation, final OperationResourceInfo ori) {
         super.customizeResponses(operation, ori);
 
-        ApiResponses responses = operation.getResponses();
-        if (responses == null) {
-            responses = new ApiResponses();
-            operation.setResponses(responses);
-        }
+        ApiResponses responses = Optional.ofNullable(operation.getResponses()).orElseGet(() -> {
+            ApiResponses r = new ApiResponses();
+            operation.setResponses(r);
+            return r;
+        });
 
-        ApiResponse defaultResponse = responses.get(ApiResponses.DEFAULT);
-        if (defaultResponse != null) {
+        Optional.ofNullable(responses.get(ApiResponses.DEFAULT)).ifPresent(defaultResponse -> {
             responses.remove(ApiResponses.DEFAULT);
             responses.addApiResponse("200", defaultResponse);
-        }
+        });
 
         Map<String, Header> headers = new LinkedHashMap<>();
         headers.put(
