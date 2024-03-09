@@ -46,7 +46,7 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
     protected final PlainAttrDAO plainAttrDAO;
 
     protected final PlainAttrValueDAO plainAttrValueDAO;
-    
+
     protected final EntityFactory entityFactory;
 
     protected final Map<AnyTypeKind, AnyUtils> instances = new HashMap<>(3);
@@ -75,7 +75,8 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
         synchronized (instances) {
             instance = instances.get(anyTypeKind);
             if (instance == null) {
-                instance = new JPAAnyUtils(userDAO,
+                instance = new JPAAnyUtils(
+                        userDAO,
                         groupDAO,
                         anyObjectDAO,
                         plainAttrDAO,
@@ -113,7 +114,8 @@ public class JPAAnyUtilsFactory implements AnyUtilsFactory {
     public AnyUtils getLinkedAccountInstance() {
         synchronized (this) {
             if (linkedAccountInstance == null) {
-                linkedAccountInstance = new JPAAnyUtils(userDAO,
+                linkedAccountInstance = new JPAAnyUtils(
+                        userDAO,
                         groupDAO,
                         anyObjectDAO,
                         plainAttrDAO,

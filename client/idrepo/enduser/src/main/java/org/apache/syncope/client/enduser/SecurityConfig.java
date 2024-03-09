@@ -23,12 +23,15 @@ import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointR
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
 @EnableWebSecurity
 @Configuration(proxyBeanMethods = false)
@@ -37,12 +40,14 @@ public class SecurityConfig {
     @ConditionalOnMissingBean
     @Bean
     public SecurityFilterChain actuatorFilterChain(final HttpSecurity http) throws Exception {
-        http.csrf().disable().
-                authorizeRequests().
-                requestMatchers(EndpointRequest.toAnyEndpoint()).
-                authenticated().
-                and().
-                httpBasic();
+        EndpointRequest.EndpointRequestMatcher actuatorEndpoints = EndpointRequest.toAnyEndpoint();
+        http.authorizeHttpRequests(customizer -> customizer.
+                requestMatchers(new NegatedRequestMatcher(actuatorEndpoints)).permitAll().
+                requestMatchers(actuatorEndpoints).authenticated());
+
+        http.httpBasic(Customizer.withDefaults());
+        http.csrf(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
 

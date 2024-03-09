@@ -129,9 +129,9 @@ public class JPAAnyUtils implements AnyUtils {
     protected final AnyObjectDAO anyObjectDAO;
 
     protected final PlainAttrDAO plainAttrDAO;
-    
+
     protected final PlainAttrValueDAO plainAttrValueDAO;
-    
+
     protected final EntityFactory entityFactory;
 
     protected final AnyTypeKind anyTypeKind;
