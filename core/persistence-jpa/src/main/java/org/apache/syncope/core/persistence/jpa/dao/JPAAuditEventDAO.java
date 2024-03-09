@@ -51,7 +51,7 @@ public class JPAAuditEventDAO implements AuditEventDAO {
         protected AuditEventCriteriaBuilder entityKey(final String entityKey) {
             if (entityKey != null) {
                 query.append(andIfNeeded()).
-                        append("(before LIKE '%key%").append(entityKey).append("%' OR ").
+                        append("(before_value LIKE '%key%").append(entityKey).append("%' OR ").
                         append("inputs LIKE '%key%").append(entityKey).append("%' OR ").
                         append("output LIKE '%key%").append(entityKey).append("%' OR ").
                         append("throwable LIKE '%key%").append(entityKey).append("%')");
@@ -136,7 +136,7 @@ public class JPAAuditEventDAO implements AuditEventDAO {
         List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT COUNT(0)"
                 + " FROM " + JPAAuditEvent.TABLE
-                + " WHERE " + criteriaBuilder(entityKey).
+                + " WHERE" + criteriaBuilder(entityKey).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).
@@ -163,7 +163,7 @@ public class JPAAuditEventDAO implements AuditEventDAO {
         List<Object> parameters = new ArrayList<>();
         String queryString = "SELECT id"
                 + " FROM " + JPAAuditEvent.TABLE
-                + " WHERE " + criteriaBuilder(entityKey).
+                + " WHERE" + criteriaBuilder(entityKey).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).
