@@ -60,6 +60,7 @@ public class OpEvent implements BaseBean {
      * @param event event string
      * @return instance
      */
+    @JsonCreator
     public static OpEvent fromString(final String event) {
         if (StringUtils.isBlank(event)) {
             throw new IllegalArgumentException("Null value not permitted");

@@ -26,6 +26,7 @@ import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
+import co.elastic.clients.elasticsearch._types.mapping.TextProperty;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
 import co.elastic.clients.elasticsearch.core.DeleteRequest;
 import co.elastic.clients.elasticsearch.core.DeleteResponse;
@@ -149,6 +150,26 @@ public class ElasticsearchIndexManager {
                                         keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
                                         build()).
                                 build()))).
+                properties(
+                        "before",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "inputs",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "output",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "throwable",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
                 build();
     }
 

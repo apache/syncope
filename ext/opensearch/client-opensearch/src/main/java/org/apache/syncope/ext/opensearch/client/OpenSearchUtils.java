@@ -229,7 +229,7 @@ public class OpenSearchUtils {
 
     public Map<String, Object> document(final AuditEvent auditEvent) throws IOException {
         Map<String, Object> builder = new HashMap<>();
-        builder.put("id", auditEvent.getKey());
+        builder.put("key", auditEvent.getKey());
         builder.put("opEvent", auditEvent.getOpEvent());
         builder.put("who", auditEvent.getWho());
         builder.put("when", auditEvent.getWhen());

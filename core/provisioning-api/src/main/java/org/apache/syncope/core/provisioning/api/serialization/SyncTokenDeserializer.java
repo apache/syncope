@@ -31,9 +31,7 @@ import org.identityconnectors.framework.common.objects.SyncToken;
 class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
 
     @Override
-    public SyncToken deserialize(final JsonParser jp, final DeserializationContext ctx)
-            throws IOException {
-
+    public SyncToken deserialize(final JsonParser jp, final DeserializationContext ctx) throws IOException {
         ObjectNode tree = jp.readValueAsTree();
 
         Object value = tree.has("value")

@@ -103,7 +103,10 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
 
         queries.add(new Query.Builder().regexp(QueryBuilders.regexp().
                 field("opEvent").
-                value(OpEvent.toString(type, category, subcategory, op, outcome).replace("[]", "[\\.*\\]")).build()).
+                value(OpEvent.toString(type, category, subcategory, op, outcome).
+                        replace("[]", "[.*]").
+                        replace("[", "\\[").
+                        replace("]", "\\]")).build()).
                 build());
 
         if (before != null) {

@@ -37,6 +37,7 @@ import org.opensearch.client.opensearch._types.analysis.Normalizer;
 import org.opensearch.client.opensearch._types.mapping.DynamicTemplate;
 import org.opensearch.client.opensearch._types.mapping.KeywordProperty;
 import org.opensearch.client.opensearch._types.mapping.Property;
+import org.opensearch.client.opensearch._types.mapping.TextProperty;
 import org.opensearch.client.opensearch._types.mapping.TypeMapping;
 import org.opensearch.client.opensearch.core.DeleteRequest;
 import org.opensearch.client.opensearch.core.DeleteResponse;
@@ -149,6 +150,26 @@ public class OpenSearchIndexManager {
                                         keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
                                         build()).
                                 build()))).
+                properties(
+                        "before",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "inputs",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "output",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "throwable",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
                 build();
     }
 
