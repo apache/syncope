@@ -36,13 +36,13 @@ public class AuditRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 4579786978763032240L;
 
-    public List<OpEvent> list() {
-        return getService(AuditService.class).list().stream().
-                map(a -> {
+    public List<OpEvent> confs() {
+        return getService(AuditService.class).confs().stream().
+                map(conf -> {
                     try {
-                        return OpEvent.fromString(a.getKey());
+                        return OpEvent.fromString(conf.getKey());
                     } catch (Exception e) {
-                        LOG.error("Unexpected when parsing {}", a.getKey(), e);
+                        LOG.error("Unexpected when parsing {}", conf.getKey(), e);
                         return null;
                     }
                 }).
@@ -50,16 +50,16 @@ public class AuditRestClient extends BaseRestClient {
                 collect(Collectors.toList());
     }
 
-    public void enable(final OpEvent opEvent) {
+    public void enableConf(final OpEvent opEvent) {
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(opEvent.toString());
         audit.setActive(true);
-        getService(AuditService.class).set(audit);
+        getService(AuditService.class).setConf(audit);
     }
 
-    public void delete(final OpEvent opEvent) {
+    public void deleteConf(final OpEvent opEvent) {
         try {
-            getService(AuditService.class).delete(opEvent.toString());
+            getService(AuditService.class).deleteConf(opEvent.toString());
         } catch (SyncopeClientException e) {
             if (e.getType() != ClientExceptionType.NotFound) {
                 LOG.error("Unexpected error when deleting {}", opEvent.toString(), e);
@@ -67,7 +67,7 @@ public class AuditRestClient extends BaseRestClient {
         }
     }
 
-    public List<EventCategory> listEvents() {
+    public List<EventCategory> events() {
         List<EventCategory> eventCategories = new ArrayList<>();
 
         try {
@@ -80,11 +80,12 @@ public class AuditRestClient extends BaseRestClient {
                             EventCategory ec = new EventCategory(opEvent.getType());
                             ec.setCategory(opEvent.getCategory());
                             ec.setSubcategory(opEvent.getSubcategory());
-                            ec.getOps().add(opEvent.getOp());
                             eventCategories.add(ec);
                             return ec;
                         });
-                eventCategory.getOps().add(opEvent.getOp());
+                if (!eventCategory.getOps().contains(opEvent.getOp())) {
+                    eventCategory.getOps().add(opEvent.getOp());
+                }
             });
         } catch (Exception e) {
             LOG.error("Unexpected error when listing Audit events", e);

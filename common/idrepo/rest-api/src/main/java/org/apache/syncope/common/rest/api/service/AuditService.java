@@ -61,8 +61,9 @@ public interface AuditService extends JAXRSService {
      * @return list of all audit configurations.
      */
     @GET
+    @Path("conf")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<AuditConfTO> list();
+    List<AuditConfTO> confs();
 
     /**
      * Returns the audit configuration with matching key.
@@ -71,9 +72,9 @@ public interface AuditService extends JAXRSService {
      * @return audit configuration with matching key
      */
     @GET
-    @Path("{key}")
+    @Path("conf/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    AuditConfTO read(@NotNull @PathParam("key") String key);
+    AuditConfTO getConf(@NotNull @PathParam("key") String key);
 
     /**
      * Sets an audit configuration 
@@ -85,10 +86,10 @@ public interface AuditService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
-    @Path("{key}")
+    @Path("conf/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void set(@NotNull AuditConfTO auditTO);
+    void setConf(@NotNull AuditConfTO auditTO);
 
     /**
      * Deletes the audit configuration matching the provided key.
@@ -98,9 +99,9 @@ public interface AuditService extends JAXRSService {
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
-    @Path("{key}")
+    @Path("conf/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void delete(@NotNull @PathParam("key") String key);
+    void deleteConf(@NotNull @PathParam("key") String key);
 
     /**
      * Returns the list of all managed events in audit.

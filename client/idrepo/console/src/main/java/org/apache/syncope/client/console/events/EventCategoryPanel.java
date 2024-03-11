@@ -285,92 +285,100 @@ public abstract class EventCategoryPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ChangeCategoryEvent changeCategoryEvent) {
-            // update objects ....
-            eventCategory.getOps().clear();
+        switch (event.getPayload()) {
+            case ChangeCategoryEvent changeCategoryEvent -> {
+                // update objects ....
+                eventCategory.getOps().clear();
 
-            switch (changeCategoryEvent.getChangedPanel().getId()) {
-                case "type" -> {
-                    eventCategory.setType(type.getModelObject());
-                    eventCategory.setCategory(null);
-                    eventCategory.setSubcategory(null);
-                    if (type.getModelObject() == OpEvent.CategoryType.CUSTOM
-                            || type.getModelObject() == OpEvent.CategoryType.WA) {
+                switch (changeCategoryEvent.getChangedPanel().getId()) {
+                    case "type" -> {
+                        eventCategory.setType(type.getModelObject());
+                        eventCategory.setCategory(null);
+                        eventCategory.setSubcategory(null);
+                        if (type.getModelObject() == OpEvent.CategoryType.CUSTOM
+                                || type.getModelObject() == OpEvent.CategoryType.WA) {
 
-                        category.setChoices(List.of());
-                        subcategory.setChoices(List.of());
-                        category.setEnabled(false);
-                        subcategory.setEnabled(false);
-                        custom.setVisible(true);
-                        custom.setEnabled(true);
-                        actionsPanel.setVisible(true);
-                        actionsPanel.setEnabled(true);
-                    } else {
-                        category.setChoices(filter(eventCategories, type.getModelObject()));
-                        subcategory.setChoices(List.of());
-                        category.setEnabled(true);
-                        subcategory.setEnabled(true);
-                        custom.setVisible(false);
-                        custom.setEnabled(false);
-                        actionsPanel.setVisible(false);
-                        actionsPanel.setEnabled(false);
+                            category.setChoices(List.of());
+                            subcategory.setChoices(List.of());
+                            category.setEnabled(false);
+                            subcategory.setEnabled(false);
+                            custom.setVisible(true);
+                            custom.setEnabled(true);
+                            actionsPanel.setVisible(true);
+                            actionsPanel.setEnabled(true);
+                        } else {
+                            category.setChoices(filter(eventCategories, type.getModelObject()));
+                            subcategory.setChoices(List.of());
+                            category.setEnabled(true);
+                            subcategory.setEnabled(true);
+                            custom.setVisible(false);
+                            custom.setEnabled(false);
+                            actionsPanel.setVisible(false);
+                            actionsPanel.setEnabled(false);
+                        }
+                        changeCategoryEvent.getTarget().add(categoryContainer);
                     }
-                    changeCategoryEvent.getTarget().add(categoryContainer);
+
+                    case "category" -> {
+                        subcategory.setChoices(
+                                filter(eventCategories, type.getModelObject(), category.getModelObject()));
+                        eventCategory.setCategory(category.getModelObject());
+                        eventCategory.setSubcategory(null);
+                        changeCategoryEvent.getTarget().add(categoryContainer);
+                    }
+
+                    default ->
+                        eventCategory.setSubcategory(subcategory.getModelObject());
                 }
 
-                case "category" -> {
-                    subcategory.setChoices(filter(eventCategories, type.getModelObject(), category.getModelObject()));
-                    eventCategory.setCategory(category.getModelObject());
-                    eventCategory.setSubcategory(null);
-                    changeCategoryEvent.getTarget().add(categoryContainer);
+                updateEventsContainer(changeCategoryEvent.getTarget());
+            }
+
+            case InspectSelectedEvent inspectSelectedEvent -> {
+                // update objects ....
+                eventCategory.getOps().clear();
+
+                OpEvent opEvent = OpEvent.fromString(inspectSelectedEvent.getEvent());
+
+                eventCategory.setType(opEvent.getType());
+                category.setChoices(filter(eventCategories, type.getModelObject()));
+
+                eventCategory.setCategory(opEvent.getCategory());
+                subcategory.setChoices(filter(eventCategories, type.getModelObject(), category.getModelObject()));
+
+                eventCategory.setSubcategory(opEvent.getSubcategory());
+
+                if (opEvent.getType() == OpEvent.CategoryType.CUSTOM
+                        || opEvent.getType() == OpEvent.CategoryType.WA) {
+
+                    custom.setModelObject(OpEvent.toString(
+                            opEvent.getType(),
+                            opEvent.getCategory(),
+                            opEvent.getSubcategory(),
+                            opEvent.getOp(),
+                            opEvent.getOutcome()));
+
+                    category.setEnabled(false);
+                    subcategory.setEnabled(false);
+                    custom.setVisible(true);
+                    custom.setEnabled(true);
+                    actionsPanel.setVisible(true);
+                    actionsPanel.setEnabled(true);
+                } else {
+                    category.setEnabled(true);
+                    subcategory.setEnabled(true);
+                    custom.setVisible(false);
+                    custom.setEnabled(false);
+                    actionsPanel.setVisible(false);
+                    actionsPanel.setEnabled(false);
                 }
 
-                default ->
-                    eventCategory.setSubcategory(subcategory.getModelObject());
+                inspectSelectedEvent.getTarget().add(categoryContainer);
+                updateEventsContainer(inspectSelectedEvent.getTarget());
             }
 
-            updateEventsContainer(changeCategoryEvent.getTarget());
-        } else if (event.getPayload() instanceof InspectSelectedEvent inspectSelectedEvent) {
-            // update objects ....
-            eventCategory.getOps().clear();
-
-            OpEvent opEvent = OpEvent.fromString(inspectSelectedEvent.getEvent());
-
-            eventCategory.setType(opEvent.getType());
-            category.setChoices(filter(eventCategories, type.getModelObject()));
-
-            eventCategory.setCategory(opEvent.getCategory());
-            subcategory.setChoices(filter(eventCategories, type.getModelObject(), category.getModelObject()));
-
-            eventCategory.setSubcategory(opEvent.getSubcategory());
-
-            if (opEvent.getType() == OpEvent.CategoryType.CUSTOM
-                    || opEvent.getType() == OpEvent.CategoryType.WA) {
-
-                custom.setModelObject(OpEvent.toString(
-                        opEvent.getType(),
-                        opEvent.getCategory(),
-                        opEvent.getSubcategory(),
-                        opEvent.getOp(),
-                        opEvent.getOutcome()));
-
-                category.setEnabled(false);
-                subcategory.setEnabled(false);
-                custom.setVisible(true);
-                custom.setEnabled(true);
-                actionsPanel.setVisible(true);
-                actionsPanel.setEnabled(true);
-            } else {
-                category.setEnabled(true);
-                subcategory.setEnabled(true);
-                custom.setVisible(false);
-                custom.setEnabled(false);
-                actionsPanel.setVisible(false);
-                actionsPanel.setEnabled(false);
+            default -> {
             }
-
-            inspectSelectedEvent.getTarget().add(categoryContainer);
-            updateEventsContainer(inspectSelectedEvent.getTarget());
         }
     }
 

@@ -30,14 +30,6 @@ public class EventCategory implements BaseBean {
 
     private static final long serialVersionUID = -4340060002701633401L;
 
-    public static EventCategory from(final OpEvent opEvent) {
-        EventCategory eventCategory = new EventCategory(opEvent.getType());
-        eventCategory.setCategory(opEvent.getCategory());
-        eventCategory.setSubcategory(opEvent.getSubcategory());
-        eventCategory.getOps().add(opEvent.getOp());
-        return eventCategory;
-    }
-
     private OpEvent.CategoryType type;
 
     private String category;

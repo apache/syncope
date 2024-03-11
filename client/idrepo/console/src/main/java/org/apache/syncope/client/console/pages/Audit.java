@@ -50,7 +50,7 @@ public class Audit extends BasePage {
 
         @Override
         protected List<EventCategory> load() {
-            return auditRestClient.listEvents();
+            return auditRestClient.events();
         }
     };
 
@@ -59,7 +59,7 @@ public class Audit extends BasePage {
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
-        List<String> events = auditRestClient.list().stream().
+        List<String> events = auditRestClient.confs().stream().
                 filter(audit -> eventCategories.getObject().stream().
                 anyMatch(c -> audit.getType() == c.getType()
                 && Objects.equals(audit.getCategory(), c.getCategory())
@@ -99,8 +99,8 @@ public class Audit extends BasePage {
             @Override
             public void onEventAction(final IEvent<?> event) {
                 if (event.getPayload() instanceof SelectedEventsPanel.EventSelectionChanged eventSelectionChanged) {
-                    eventSelectionChanged.getToBeRemoved().forEach(auditRestClient::delete);
-                    eventSelectionChanged.getToBeAdded().forEach(auditRestClient::enable);
+                    eventSelectionChanged.getToBeRemoved().forEach(auditRestClient::deleteConf);
+                    eventSelectionChanged.getToBeAdded().forEach(auditRestClient::enableConf);
                 }
             }
         });

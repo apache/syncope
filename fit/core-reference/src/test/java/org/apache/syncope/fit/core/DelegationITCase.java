@@ -206,7 +206,7 @@ public class DelegationITCase extends AbstractITCase {
         AuditConfTO authLogin = new AuditConfTO();
         authLogin.setKey(authLoginSuccess.toString());
         authLogin.setActive(true);
-        AUDIT_SERVICE.set(authLogin);
+        AUDIT_SERVICE.setConf(authLogin);
 
         // 1. bellini delegates rossini
         DelegationTO delegation = new DelegationTO();
@@ -266,6 +266,6 @@ public class DelegationITCase extends AbstractITCase {
 
         // 6. disable audit
         authLogin.setActive(false);
-        AUDIT_SERVICE.set(authLogin);
+        AUDIT_SERVICE.setConf(authLogin);
     }
 }

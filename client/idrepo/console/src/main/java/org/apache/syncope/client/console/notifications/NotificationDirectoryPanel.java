@@ -88,7 +88,7 @@ public class NotificationDirectoryPanel
         @Override
         protected List<EventCategory> load() {
             // cannot notify about WA events
-            return auditRestClient.listEvents().stream().
+            return auditRestClient.events().stream().
                     filter(c -> c.getType() != OpEvent.CategoryType.WA).collect(Collectors.toList());
         }
     };

@@ -280,22 +280,22 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
     protected static class StubAuditService implements AuditService {
 
         @Override
-        public List<AuditConfTO> list() {
+        public List<AuditConfTO> confs() {
             return List.of();
         }
 
         @Override
-        public AuditConfTO read(final String key) {
+        public AuditConfTO getConf(final String key) {
             throw new NotFoundException();
         }
 
         @Override
-        public void set(final AuditConfTO auditTO) {
+        public void setConf(final AuditConfTO auditTO) {
             // nothing to do
         }
 
         @Override
-        public void delete(final String key) {
+        public void deleteConf(final String key) {
             // nothing to do
         }
 

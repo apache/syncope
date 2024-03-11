@@ -39,23 +39,23 @@ public class AuditServiceImpl extends AbstractService implements AuditService {
     }
 
     @Override
-    public List<AuditConfTO> list() {
-        return logic.list();
+    public List<AuditConfTO> confs() {
+        return logic.confs();
     }
 
     @Override
-    public AuditConfTO read(final String key) {
-        return logic.read(key);
+    public AuditConfTO getConf(final String key) {
+        return logic.getConf(key);
     }
 
     @Override
-    public void set(final AuditConfTO auditTO) {
-        logic.set(auditTO);
+    public void setConf(final AuditConfTO auditTO) {
+        logic.setConf(auditTO);
     }
 
     @Override
-    public void delete(final String key) {
-        logic.delete(key);
+    public void deleteConf(final String key) {
+        logic.deleteConf(key);
     }
 
     @Override

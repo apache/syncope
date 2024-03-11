@@ -50,7 +50,7 @@ public abstract class EventSelectionPanel extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        List<String> events = getEvents(eventCategory);
+        List<String> ops = getOps(eventCategory);
 
         // needed to avoid model reset: model have to be managed into SelectedEventsPanel
         selected.addAll(model.getObject());
@@ -65,18 +65,18 @@ public abstract class EventSelectionPanel extends Panel {
                 Set<OpEvent> toBeRemoved = new HashSet<>();
                 Set<OpEvent> toBeAdded = new HashSet<>();
 
-                getEvents(eventCategory).forEach(event -> {
-                    OpEvent auditLoggerName = new OpEvent(
+                getOps(eventCategory).forEach(event -> {
+                    OpEvent opEvent = new OpEvent(
                             eventCategory.getType(),
                             eventCategory.getCategory(),
                             eventCategory.getSubcategory(),
                             event,
                             OpEvent.Outcome.SUCCESS);
 
-                    if (successGroup.getModelObject().contains(auditLoggerName.toString())) {
-                        toBeAdded.add(auditLoggerName);
+                    if (successGroup.getModelObject().contains(opEvent.toString())) {
+                        toBeAdded.add(opEvent);
                     } else {
-                        toBeRemoved.add(auditLoggerName);
+                        toBeRemoved.add(opEvent);
                     }
                 });
 
@@ -84,16 +84,16 @@ public abstract class EventSelectionPanel extends Panel {
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
             }
         });
-        successGroup.setVisible(!events.isEmpty());
+        successGroup.setVisible(!ops.isEmpty());
         add(successGroup);
 
-        add(new Label("successLabel", new ResourceModel("Success", "Success"))).setVisible(!events.isEmpty());
+        add(new Label("successLabel", new ResourceModel("Success", "Success"))).setVisible(!ops.isEmpty());
 
         CheckGroupSelector successSelector = new CheckGroupSelector("successSelector", successGroup);
-        successSelector.setVisible(!events.isEmpty());
+        successSelector.setVisible(!ops.isEmpty());
         add(successSelector);
 
-        ListView<String> categoryView = new ListView<>("categoryView", events) {
+        ListView<String> categoryView = new ListView<>("categoryView", ops) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -104,7 +104,7 @@ public abstract class EventSelectionPanel extends Panel {
         };
         add(categoryView);
 
-        ListView<String> successView = new ListView<>("successView", events) {
+        ListView<String> successView = new ListView<>("successView", ops) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -132,18 +132,18 @@ public abstract class EventSelectionPanel extends Panel {
                 Set<OpEvent> toBeRemoved = new HashSet<>();
                 Set<OpEvent> toBeAdded = new HashSet<>();
 
-                getEvents(eventCategory).forEach(event -> {
-                    OpEvent auditLoggerName = new OpEvent(
+                getOps(eventCategory).forEach(event -> {
+                    OpEvent opEvent = new OpEvent(
                             eventCategory.getType(),
                             eventCategory.getCategory(),
                             eventCategory.getSubcategory(),
                             event,
                             OpEvent.Outcome.FAILURE);
 
-                    if (failureGroup.getModelObject().contains(auditLoggerName.toString())) {
-                        toBeAdded.add(auditLoggerName);
+                    if (failureGroup.getModelObject().contains(opEvent.toString())) {
+                        toBeAdded.add(opEvent);
                     } else {
-                        toBeRemoved.add(auditLoggerName);
+                        toBeRemoved.add(opEvent);
                     }
                 });
 
@@ -151,16 +151,16 @@ public abstract class EventSelectionPanel extends Panel {
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
             }
         });
-        failureGroup.setVisible(!events.isEmpty());
+        failureGroup.setVisible(!ops.isEmpty());
         add(failureGroup);
 
-        add(new Label("failureLabel", new ResourceModel("Failure", "Failure"))).setVisible(!events.isEmpty());
+        add(new Label("failureLabel", new ResourceModel("Failure", "Failure"))).setVisible(!ops.isEmpty());
 
         CheckGroupSelector failureSelector = new CheckGroupSelector("failureSelector", failureGroup);
-        failureSelector.setVisible(!events.isEmpty());
+        failureSelector.setVisible(!ops.isEmpty());
         add(failureSelector);
 
-        ListView<String> failureView = new ListView<>("failureView", events) {
+        ListView<String> failureView = new ListView<>("failureView", ops) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -179,29 +179,30 @@ public abstract class EventSelectionPanel extends Panel {
         failureGroup.add(failureView);
     }
 
-    private static List<String> getEvents(final EventCategory eventCategoryTO) {
-        final List<String> res;
+    private List<String> getOps(final EventCategory eventCategoryTO) {
+        List<String> ops = eventCategoryTO.getOps();
 
-        res = eventCategoryTO.getOps();
-
-        if (res.isEmpty()) {
+        if (ops.isEmpty()) {
             if ((OpEvent.CategoryType.PROPAGATION == eventCategoryTO.getType()
                     || OpEvent.CategoryType.PULL == eventCategoryTO.getType()
                     || OpEvent.CategoryType.PUSH == eventCategoryTO.getType())
                     && StringUtils.isEmpty(eventCategoryTO.getCategory())) {
-                res.add(eventCategoryTO.getType().toString());
+
+                ops.add(eventCategoryTO.getType().toString());
             } else if (OpEvent.CategoryType.TASK == eventCategoryTO.getType()
                     && StringUtils.isNotEmpty(eventCategoryTO.getCategory())) {
-                res.add(eventCategoryTO.getCategory());
+
+                ops.add(eventCategoryTO.getCategory());
             } else if (OpEvent.CategoryType.REPORT == eventCategoryTO.getType()
                     && StringUtils.isNotEmpty(eventCategoryTO.getCategory())) {
-                res.add(eventCategoryTO.getCategory());
+
+                ops.add(eventCategoryTO.getCategory());
             }
         } else {
-            Collections.sort(res);
+            Collections.sort(ops);
         }
 
-        return res;
+        return ops;
     }
 
     /**

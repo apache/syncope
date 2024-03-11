@@ -278,20 +278,20 @@ public class AuditITCase extends AbstractITCase {
                 "deleteExecution",
                 OpEvent.Outcome.FAILURE);
 
-        List<AuditConfTO> audits = AUDIT_SERVICE.list();
+        List<AuditConfTO> audits = AUDIT_SERVICE.confs();
         assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(opEvent.toString())));
 
         AuditConfTO audit = new AuditConfTO();
         audit.setKey(opEvent.toString());
         audit.setActive(true);
-        AUDIT_SERVICE.set(audit);
+        AUDIT_SERVICE.setConf(audit);
 
-        audits = AUDIT_SERVICE.list();
+        audits = AUDIT_SERVICE.confs();
         assertTrue(audits.stream().anyMatch(a -> a.getKey().equals(opEvent.toString())));
 
-        AUDIT_SERVICE.delete(audit.getKey());
+        AUDIT_SERVICE.deleteConf(audit.getKey());
 
-        audits = AUDIT_SERVICE.list();
+        audits = AUDIT_SERVICE.confs();
         assertFalse(audits.stream().anyMatch(a -> a.getKey().equals(opEvent.toString())));
     }
 
@@ -525,16 +525,16 @@ public class AuditITCase extends AbstractITCase {
             AuditConfTO audit = new AuditConfTO();
             audit.setKey(createSuccess.toString());
             audit.setActive(true);
-            AUDIT_SERVICE.set(audit);
+            AUDIT_SERVICE.setConf(audit);
 
             audit.setKey(createFailure.toString());
-            AUDIT_SERVICE.set(audit);
+            AUDIT_SERVICE.setConf(audit);
 
             audit.setKey(updateSuccess.toString());
-            AUDIT_SERVICE.set(audit);
+            AUDIT_SERVICE.setConf(audit);
 
             audit.setKey(updateFailure.toString());
-            AUDIT_SERVICE.set(audit);
+            AUDIT_SERVICE.setConf(audit);
 
             // 2. push on resource
             PushTaskTO pushTask = new PushTaskTO();
@@ -549,22 +549,22 @@ public class AuditITCase extends AbstractITCase {
             fail(e::getMessage);
         } finally {
             try {
-                AUDIT_SERVICE.delete(createSuccess.toString());
+                AUDIT_SERVICE.deleteConf(createSuccess.toString());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                AUDIT_SERVICE.delete(createFailure.toString());
+                AUDIT_SERVICE.deleteConf(createFailure.toString());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                AUDIT_SERVICE.delete(updateSuccess.toString());
+                AUDIT_SERVICE.deleteConf(updateSuccess.toString());
             } catch (Exception e) {
                 // ignore
             }
             try {
-                AUDIT_SERVICE.delete(updateFailure.toString());
+                AUDIT_SERVICE.deleteConf(updateFailure.toString());
             } catch (Exception e) {
                 // ignore
             }
@@ -574,9 +574,12 @@ public class AuditITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1695() {
         // add audit conf for pull
-        AUDIT_SERVICE.set(buildAuditConf("[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
-        AUDIT_SERVICE.set(buildAuditConf("[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
-        AUDIT_SERVICE.set(buildAuditConf("[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", true));
+        AUDIT_SERVICE.setConf(
+                buildAuditConf("[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", true));
+        AUDIT_SERVICE.setConf(
+                buildAuditConf("[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", true));
+        AUDIT_SERVICE.setConf(
+                buildAuditConf("[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", true));
 
         UserTO pullFromLDAP = null;
         try {
@@ -623,11 +626,11 @@ public class AuditITCase extends AbstractITCase {
                 USER_SERVICE.delete(pullFromLDAP.getKey());
 
                 // restore previous audit
-                AUDIT_SERVICE.set(buildAuditConf(
+                AUDIT_SERVICE.setConf(buildAuditConf(
                         "[PULL]:[USER]:[resource-ldap]:[matchingrule_update]:[SUCCESS]", false));
-                AUDIT_SERVICE.set(buildAuditConf(
+                AUDIT_SERVICE.setConf(buildAuditConf(
                         "[PULL]:[USER]:[resource-ldap]:[unmatchingrule_assign]:[SUCCESS]", false));
-                AUDIT_SERVICE.set(buildAuditConf(
+                AUDIT_SERVICE.setConf(buildAuditConf(
                         "[PULL]:[USER]:[resource-ldap]:[unmatchingrule_provision]:[SUCCESS]", false));
             }
         }
@@ -659,7 +662,7 @@ public class AuditITCase extends AbstractITCase {
         AuditQuery query = new AuditQuery.Builder().type(OpEvent.CategoryType.CUSTOM).build();
         int before = query(query, MAX_WAIT_SECONDS).size();
         try {
-            AUDIT_SERVICE.set(buildAuditConf("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", true));
+            AUDIT_SERVICE.setConf(buildAuditConf("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", true));
 
             AnyObjectTO printer = createAnyObject(AnyObjectITCase.getSample("syncope-1791")).getEntity();
             updateAnyObject(new AnyObjectUR.Builder(printer.getKey()).
@@ -669,7 +672,7 @@ public class AuditITCase extends AbstractITCase {
             int after = query(query, MAX_WAIT_SECONDS).size();
             assertEquals(before + 1, after);
         } finally {
-            AUDIT_SERVICE.set(buildAuditConf("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", false));
+            AUDIT_SERVICE.setConf(buildAuditConf("[CUSTOM]:[]:[]:[MY_EVENT]:[SUCCESS]", false));
 
             root.getActions().remove(logicActions.getKey());
             REALM_SERVICE.update(root);

@@ -106,19 +106,19 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
-    public List<AuditConfTO> list() {
+    public List<AuditConfTO> confs() {
         return auditConfDAO.findAll().stream().map(binder::getAuditConfTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_READ + "')")
     @Transactional(readOnly = true)
-    public AuditConfTO read(final String key) {
+    public AuditConfTO getConf(final String key) {
         return auditConfDAO.findById(key).map(binder::getAuditConfTO).
                 orElseThrow(() -> new NotFoundException("AuditConf " + key));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_SET + "')")
-    public void set(final AuditConfTO auditTO) {
+    public void setConf(final AuditConfTO auditTO) {
         AuditConf audit = auditConfDAO.findById(auditTO.getKey()).orElse(null);
         if (audit == null) {
             audit = entityFactory.newEntity(AuditConf.class);
@@ -129,7 +129,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.AUDIT_DELETE + "')")
-    public void delete(final String key) {
+    public void deleteConf(final String key) {
         AuditConf audit = auditConfDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("AuditConf " + key));
         auditConfDAO.delete(audit);
