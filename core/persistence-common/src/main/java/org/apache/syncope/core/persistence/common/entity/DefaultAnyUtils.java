@@ -110,9 +110,9 @@ public class DefaultAnyUtils implements AnyUtils {
     protected final AnyObjectDAO anyObjectDAO;
 
     protected final PlainSchemaDAO plainSchemaDAO;
-    
+
     protected final PlainAttrValueDAO plainAttrValueDAO;
-    
+
     protected final EntityFactory entityFactory;
 
     protected final AnyTypeKind anyTypeKind;
@@ -472,8 +472,8 @@ public class DefaultAnyUtils implements AnyUtils {
             PlainAttr<?> plainAttr = (PlainAttr<?>) attr;
             any.remove(plainAttr);
             plainAttr.setOwner(null);
-            if (plainAttr instanceof GroupablePlainAttr) {
-                ((GroupablePlainAttr) plainAttr).setMembership(null);
+            if (plainAttr instanceof GroupablePlainAttr groupablePlainAttr) {
+                groupablePlainAttr.setMembership(null);
             }
             plainAttrValueDAO.deleteAll(plainAttr, this);
             plainSchemaDAO.delete(plainAttr);

@@ -38,10 +38,10 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import java.util.List;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AuditQuery;
 
@@ -56,51 +56,52 @@ import org.apache.syncope.common.rest.api.beans.AuditQuery;
 public interface AuditService extends JAXRSService {
 
     /**
-     * Returns a list of all audits.
+     * Returns a list of all audit configurations.
      *
-     * @return list of all audits.
+     * @return list of all audit configurations.
      */
     @GET
+    @Path("conf")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<AuditConfTO> list();
+    List<AuditConfTO> confs();
 
     /**
-     * Returns audit with matching key.
+     * Returns the audit configuration with matching key.
      *
      * @param key audit key to be read
-     * @return audit with matching key
+     * @return audit configuration with matching key
      */
     @GET
-    @Path("{key}")
+    @Path("conf/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    AuditConfTO read(@NotNull @PathParam("key") String key);
+    AuditConfTO getConf(@NotNull @PathParam("key") String key);
 
     /**
-     * Set an audit setting.
+     * Sets an audit configuration 
      *
-     * @param auditTO audit to be stored
+     * @param auditTO audit configuration to be stored
      */
-    @Parameter(name = "key", description = "Audit's key", in = ParameterIn.PATH, schema =
+    @Parameter(name = "key", description = "Audit configuration 's key", in = ParameterIn.PATH, schema =
             @Schema(type = "string"))
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @PUT
-    @Path("{key}")
+    @Path("conf/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void set(@NotNull AuditConfTO auditTO);
+    void setConf(@NotNull AuditConfTO auditTO);
 
     /**
-     * Deletes the audit matching the provided key.
+     * Deletes the audit configuration matching the provided key.
      *
-     * @param key audit key to be deleted
+     * @param key audit configuration key to be deleted
      */
     @ApiResponses(
             @ApiResponse(responseCode = "204", description = "Operation was successful"))
     @DELETE
-    @Path("{key}")
+    @Path("conf/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void delete(@NotNull @PathParam("key") String key);
+    void deleteConf(@NotNull @PathParam("key") String key);
 
     /**
      * Returns the list of all managed events in audit.
@@ -108,9 +109,9 @@ public interface AuditService extends JAXRSService {
      * @return list of all managed events in audit
      */
     @GET
-    @Path("events")
+    @Path("opEvents")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    List<EventCategory> events();
+    List<OpEvent> events();
 
     /**
      * Returns a paged list of audit entries matching the given query.
@@ -119,17 +120,17 @@ public interface AuditService extends JAXRSService {
      * @return paged list of audit entries matching the given query
      */
     @GET
-    @Path("entries")
+    @Path("auditEvents")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    PagedResult<AuditEntry> search(@BeanParam AuditQuery auditQuery);
+    PagedResult<AuditEventTO> search(@BeanParam AuditQuery auditQuery);
 
     /**
-     * Create an audit entry.
+     * Persist an audit event.
      *
-     * @param auditEntry audit entry to persist.
+     * @param auditEvent audit event to persist.
      */
     @POST
-    @Path("entries")
+    @Path("auditEvents")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    void create(@NotNull AuditEntry auditEntry);
+    void create(@NotNull AuditEventTO auditEvent);
 }

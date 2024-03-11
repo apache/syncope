@@ -39,7 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
@@ -92,7 +92,7 @@ import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAuditEntryDAO;
+import org.apache.syncope.core.persistence.jpa.dao.JPAAuditEventDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
@@ -538,8 +538,8 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditEntryDAO auditEntryDAO(final EntityManager entityManager) {
-        return new JPAAuditEntryDAO(entityManager);
+    public AuditEventDAO auditEventDAO(final EntityManager entityManager) {
+        return new JPAAuditEventDAO(entityManager);
     }
 
     @ConditionalOnMissingBean

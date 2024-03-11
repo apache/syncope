@@ -67,7 +67,6 @@ import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterCl
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.audit.AuditEntry;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
@@ -85,6 +84,7 @@ import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -1067,7 +1067,7 @@ public abstract class AbstractITCase {
         return policy;
     }
 
-    protected static List<AuditEntry> query(final AuditQuery query, final int maxWaitSeconds) {
+    protected static List<AuditEventTO> query(final AuditQuery query, final int maxWaitSeconds) {
         if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
@@ -1077,7 +1077,7 @@ public abstract class AbstractITCase {
         }
 
         int i = 0;
-        List<AuditEntry> results = List.of();
+        List<AuditEventTO> results = List.of();
         do {
             try {
                 Thread.sleep(1000);

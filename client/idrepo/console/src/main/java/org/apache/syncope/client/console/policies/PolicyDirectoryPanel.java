@@ -45,8 +45,8 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.PolicyTO;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -186,7 +186,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
                 model.setObject(restClient.read(type, model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "PolicyLogic",
                         model.getObject(),
                         IdRepoEntitlement.POLICY_UPDATE,

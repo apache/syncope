@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.syncope.common.lib.audit.EventCategory;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
@@ -52,7 +50,7 @@ public abstract class EventSelectionPanel extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        List<String> events = getEvents(eventCategory);
+        List<String> ops = getOps(eventCategory);
 
         // needed to avoid model reset: model have to be managed into SelectedEventsPanel
         selected.addAll(model.getObject());
@@ -64,21 +62,21 @@ public abstract class EventSelectionPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                Set<AuditLoggerName> toBeRemoved = new HashSet<>();
-                Set<AuditLoggerName> toBeAdded = new HashSet<>();
+                Set<OpEvent> toBeRemoved = new HashSet<>();
+                Set<OpEvent> toBeAdded = new HashSet<>();
 
-                getEvents(eventCategory).forEach(event -> {
-                    AuditLoggerName auditLoggerName = new AuditLoggerName(
+                getOps(eventCategory).forEach(event -> {
+                    OpEvent opEvent = new OpEvent(
                             eventCategory.getType(),
                             eventCategory.getCategory(),
                             eventCategory.getSubcategory(),
                             event,
-                            AuditElements.Result.SUCCESS);
+                            OpEvent.Outcome.SUCCESS);
 
-                    if (successGroup.getModelObject().contains(auditLoggerName.toString())) {
-                        toBeAdded.add(auditLoggerName);
+                    if (successGroup.getModelObject().contains(opEvent.toString())) {
+                        toBeAdded.add(opEvent);
                     } else {
-                        toBeRemoved.add(auditLoggerName);
+                        toBeRemoved.add(opEvent);
                     }
                 });
 
@@ -86,16 +84,16 @@ public abstract class EventSelectionPanel extends Panel {
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
             }
         });
-        successGroup.setVisible(!events.isEmpty());
+        successGroup.setVisible(!ops.isEmpty());
         add(successGroup);
 
-        add(new Label("successLabel", new ResourceModel("Success", "Success"))).setVisible(!events.isEmpty());
+        add(new Label("successLabel", new ResourceModel("Success", "Success"))).setVisible(!ops.isEmpty());
 
         CheckGroupSelector successSelector = new CheckGroupSelector("successSelector", successGroup);
-        successSelector.setVisible(!events.isEmpty());
+        successSelector.setVisible(!ops.isEmpty());
         add(successSelector);
 
-        ListView<String> categoryView = new ListView<>("categoryView", events) {
+        ListView<String> categoryView = new ListView<>("categoryView", ops) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -106,19 +104,19 @@ public abstract class EventSelectionPanel extends Panel {
         };
         add(categoryView);
 
-        ListView<String> successView = new ListView<>("successView", events) {
+        ListView<String> successView = new ListView<>("successView", ops) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Check<>("successCheck",
-                        new Model<>(AuditLoggerName.buildEvent(
+                        new Model<>(OpEvent.toString(
                                 eventCategory.getType(),
                                 eventCategory.getCategory(),
                                 eventCategory.getSubcategory(),
                                 item.getModelObject(),
-                                AuditElements.Result.SUCCESS)),
+                                OpEvent.Outcome.SUCCESS)),
                         successGroup));
             }
         };
@@ -131,21 +129,21 @@ public abstract class EventSelectionPanel extends Panel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                Set<AuditLoggerName> toBeRemoved = new HashSet<>();
-                Set<AuditLoggerName> toBeAdded = new HashSet<>();
+                Set<OpEvent> toBeRemoved = new HashSet<>();
+                Set<OpEvent> toBeAdded = new HashSet<>();
 
-                getEvents(eventCategory).forEach(event -> {
-                    AuditLoggerName auditLoggerName = new AuditLoggerName(
+                getOps(eventCategory).forEach(event -> {
+                    OpEvent opEvent = new OpEvent(
                             eventCategory.getType(),
                             eventCategory.getCategory(),
                             eventCategory.getSubcategory(),
                             event,
-                            AuditElements.Result.FAILURE);
+                            OpEvent.Outcome.FAILURE);
 
-                    if (failureGroup.getModelObject().contains(auditLoggerName.toString())) {
-                        toBeAdded.add(auditLoggerName);
+                    if (failureGroup.getModelObject().contains(opEvent.toString())) {
+                        toBeAdded.add(opEvent);
                     } else {
-                        toBeRemoved.add(auditLoggerName);
+                        toBeRemoved.add(opEvent);
                     }
                 });
 
@@ -153,57 +151,58 @@ public abstract class EventSelectionPanel extends Panel {
                         new SelectedEventsPanel.EventSelectionChanged(target, toBeAdded, toBeRemoved));
             }
         });
-        failureGroup.setVisible(!events.isEmpty());
+        failureGroup.setVisible(!ops.isEmpty());
         add(failureGroup);
 
-        add(new Label("failureLabel", new ResourceModel("Failure", "Failure"))).setVisible(!events.isEmpty());
+        add(new Label("failureLabel", new ResourceModel("Failure", "Failure"))).setVisible(!ops.isEmpty());
 
         CheckGroupSelector failureSelector = new CheckGroupSelector("failureSelector", failureGroup);
-        failureSelector.setVisible(!events.isEmpty());
+        failureSelector.setVisible(!ops.isEmpty());
         add(failureSelector);
 
-        ListView<String> failureView = new ListView<>("failureView", events) {
+        ListView<String> failureView = new ListView<>("failureView", ops) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<String> item) {
                 item.add(new Check<>("failureCheck",
-                        new Model<>(AuditLoggerName.buildEvent(
+                        new Model<>(OpEvent.toString(
                                 eventCategory.getType(),
                                 eventCategory.getCategory(),
                                 eventCategory.getSubcategory(),
                                 item.getModelObject(),
-                                AuditElements.Result.FAILURE)),
+                                OpEvent.Outcome.FAILURE)),
                         failureGroup));
             }
         };
         failureGroup.add(failureView);
     }
 
-    private static List<String> getEvents(final EventCategory eventCategoryTO) {
-        final List<String> res;
+    private List<String> getOps(final EventCategory eventCategoryTO) {
+        List<String> ops = eventCategoryTO.getOps();
 
-        res = eventCategoryTO.getEvents();
-
-        if (res.isEmpty()) {
-            if ((AuditElements.EventCategoryType.PROPAGATION == eventCategoryTO.getType()
-                    || AuditElements.EventCategoryType.PULL == eventCategoryTO.getType()
-                    || AuditElements.EventCategoryType.PUSH == eventCategoryTO.getType())
+        if (ops.isEmpty()) {
+            if ((OpEvent.CategoryType.PROPAGATION == eventCategoryTO.getType()
+                    || OpEvent.CategoryType.PULL == eventCategoryTO.getType()
+                    || OpEvent.CategoryType.PUSH == eventCategoryTO.getType())
                     && StringUtils.isEmpty(eventCategoryTO.getCategory())) {
-                res.add(eventCategoryTO.getType().toString());
-            } else if (AuditElements.EventCategoryType.TASK == eventCategoryTO.getType()
+
+                ops.add(eventCategoryTO.getType().toString());
+            } else if (OpEvent.CategoryType.TASK == eventCategoryTO.getType()
                     && StringUtils.isNotEmpty(eventCategoryTO.getCategory())) {
-                res.add(eventCategoryTO.getCategory());
-            } else if (AuditElements.EventCategoryType.REPORT == eventCategoryTO.getType()
+
+                ops.add(eventCategoryTO.getCategory());
+            } else if (OpEvent.CategoryType.REPORT == eventCategoryTO.getType()
                     && StringUtils.isNotEmpty(eventCategoryTO.getCategory())) {
-                res.add(eventCategoryTO.getCategory());
+
+                ops.add(eventCategoryTO.getCategory());
             }
         } else {
-            Collections.sort(res);
+            Collections.sort(ops);
         }
 
-        return res;
+        return ops;
     }
 
     /**

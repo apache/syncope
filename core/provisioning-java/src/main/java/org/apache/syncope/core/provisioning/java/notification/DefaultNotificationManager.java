@@ -37,9 +37,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -76,6 +74,7 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -264,46 +263,47 @@ public class DefaultNotificationManager implements NotificationManager {
 
     @Override
     public boolean notificationsAvailable(
-            final AuditElements.EventCategoryType type,
+            final String domain,
+            final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
-            final String event) {
+            final String op) {
 
-        final String successEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, Result.SUCCESS);
-        final String failureEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, Result.FAILURE);
-        return notificationDAO.findAll().stream().
+        String successEvent = OpEvent.toString(type, category, subcategory, op, OpEvent.Outcome.SUCCESS);
+        String failureEvent = OpEvent.toString(type, category, subcategory, op, OpEvent.Outcome.FAILURE);
+        return AuthContextUtils.callAsAdmin(domain, () -> notificationDAO.findAll().stream().
                 anyMatch(notification -> notification.isActive()
                 && (notification.getEvents().contains(successEvent)
-                || notification.getEvents().contains(failureEvent)));
+                || notification.getEvents().contains(failureEvent))));
     }
 
     @Override
     public void createTasks(final AfterHandlingEvent event) {
-        createTasks(
+        AuthContextUtils.runAsAdmin(event.getDomain(), () -> createTasks(
                 event.getWho(),
                 event.getType(),
                 event.getCategory(),
                 event.getSubcategory(),
-                event.getEvent(),
-                event.getCondition(),
+                event.getOp(),
+                event.getOutcome(),
                 event.getBefore(),
                 event.getOutput(),
-                event.getInput());
+                event.getInput()));
     }
 
     @Override
     public List<NotificationTask> createTasks(
             final String who,
-            final AuditElements.EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category,
             final String subcategory,
-            final String event,
-            final Result condition,
+            final String op,
+            final OpEvent.Outcome outcome,
             final Object before,
             final Object output,
             final Object... input) {
 
-        String currentEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, condition);
+        String currentEvent = OpEvent.toString(type, category, subcategory, op, outcome);
 
         Optional<? extends Any<?>> any = Optional.empty();
 
@@ -362,8 +362,8 @@ public class DefaultNotificationManager implements NotificationManager {
                     model.put("type", type);
                     model.put("category", category);
                     model.put("subcategory", subcategory);
-                    model.put("event", event);
-                    model.put("condition", condition);
+                    model.put("event", op);
+                    model.put("condition", outcome);
                     model.put("before", before);
                     model.put("output", output);
                     model.put("input", input);

@@ -19,24 +19,11 @@
 package org.apache.syncope.core.logic;
 
 import jakarta.validation.Validator;
-import java.util.ArrayList;
-import java.util.List;
-import javax.sql.DataSource;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.audit.AuditAppender;
-import org.apache.syncope.core.logic.audit.JdbcAuditAppender;
-import org.apache.syncope.core.logic.init.AuditAccessor;
-import org.apache.syncope.core.logic.init.AuditLoader;
 import org.apache.syncope.core.logic.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.core.logic.init.EntitlementAccessor;
 import org.apache.syncope.core.logic.init.IdRepoEntitlementLoader;
 import org.apache.syncope.core.logic.init.IdRepoImplementationTypeLoader;
-import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -45,7 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -113,7 +100,6 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.logging.LoggingSystem;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -137,45 +123,6 @@ public class IdRepoLogicContext {
     @Bean
     public ImplementationLookup implementationLookup() {
         return new ClassPathScanImplementationLookup();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AuditAccessor auditAccessor(final AuditConfDAO auditConfDAO, final LoggingSystem loggingSystem) {
-        return new AuditAccessor(auditConfDAO, loggingSystem);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AuditLoader auditLoader(
-            final AuditAccessor auditAccessor,
-            final List<AuditAppender> auditAppenders) {
-
-        return new AuditLoader(auditAccessor, auditAppenders);
-    }
-
-    @ConditionalOnMissingBean(name = "defaultAuditAppenders")
-    @Bean
-    public List<AuditAppender> defaultAuditAppenders(final DomainHolder<?> domainHolder) {
-        List<AuditAppender> auditAppenders = new ArrayList<>();
-
-        LoggerContext logCtx = (LoggerContext) LogManager.getContext(false);
-        domainHolder.getDomains().forEach((domain, v) -> {
-            if (v instanceof DataSource dataSource) {
-                AuditAppender appender = new JdbcAuditAppender(domain, dataSource);
-
-                LoggerConfig logConf = new LoggerConfig(AuditLoggerName.getAuditLoggerName(domain), null, false);
-                logConf.addAppender(appender.getTargetAppender(), Level.DEBUG, null);
-                logConf.setLevel(Level.DEBUG);
-                logCtx.getConfiguration().addLogger(logConf.getName(), logConf);
-
-                auditAppenders.add(appender);
-            } else {
-                LOG.warn("Unsupported persistence source: " + v.getClass().getName());
-            }
-        });
-
-        return auditAppenders;
     }
 
     @ConditionalOnMissingBean
@@ -259,23 +206,19 @@ public class IdRepoLogicContext {
     @Bean
     public AuditLogic auditLogic(
             final AuditConfDAO auditConfDAO,
-            final AuditEntryDAO auditEntryDAO,
+            final AuditEventDAO auditEventDAO,
             final ExternalResourceDAO externalResourceDAO,
             final EntityFactory entityFactory,
             final AuditDataBinder binder,
-            final AuditManager auditManager,
-            final List<AuditAppender> auditAppenders,
-            final LoggingSystem loggingSystem) {
+            final AuditManager auditManager) {
 
         return new AuditLogic(
                 auditConfDAO,
-                auditEntryDAO,
+                auditEventDAO,
                 externalResourceDAO,
                 entityFactory,
                 binder,
-                auditManager,
-                auditAppenders,
-                loggingSystem);
+                auditManager);
     }
 
     @ConditionalOnMissingBean

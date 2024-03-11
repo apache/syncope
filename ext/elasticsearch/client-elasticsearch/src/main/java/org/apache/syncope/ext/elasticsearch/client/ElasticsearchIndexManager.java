@@ -25,7 +25,6 @@ import co.elastic.clients.elasticsearch._types.analysis.CustomNormalizer;
 import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
-import co.elastic.clients.elasticsearch._types.mapping.ObjectProperty;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
 import co.elastic.clients.elasticsearch._types.mapping.TextProperty;
 import co.elastic.clients.elasticsearch._types.mapping.TypeMapping;
@@ -40,12 +39,12 @@ import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.elasticsearch.indices.IndexSettingsAnalysis;
-import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
@@ -152,29 +151,24 @@ public class ElasticsearchIndexManager {
                                         build()).
                                 build()))).
                 properties(
-                        "message",
-                        new Property.Builder().object(new ObjectProperty.Builder().
-                                properties(
-                                        "before",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
-                                properties(
-                                        "inputs",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
-                                properties(
-                                        "output",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
-                                properties(
-                                        "throwable",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
+                        "before",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
                                 build()).
+                properties(
+                        "inputs",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "output",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "throwable",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
                                 build()).
                 build();
     }
@@ -322,9 +316,7 @@ public class ElasticsearchIndexManager {
                 IndexResponse response = client.index(request);
                 LOG.debug("Index successfully created or updated for {}: {}", any, response);
             }
-        } else if (event.getEntity() instanceof Realm) {
-            Realm realm = (Realm) event.getEntity();
-
+        } else if (event.getEntity() instanceof Realm realm) {
             if (event.getType() == SyncDeltaType.DELETE) {
                 DeleteRequest request = new DeleteRequest.Builder().
                         index(ElasticsearchUtils.getRealmIndex(event.getDomain())).
@@ -346,13 +338,13 @@ public class ElasticsearchIndexManager {
         }
     }
 
-    public void audit(final String domain, final long instant, final JsonNode message) throws IOException {
+    public void audit(final String domain, final AuditEvent auditEvent) throws IOException {
         LOG.debug("About to audit");
 
         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                 index(ElasticsearchUtils.getAuditIndex(domain)).
                 id(SecureRandomUtils.generateRandomUUID().toString()).
-                document(elasticsearchUtils.document(instant, message, domain)).
+                document(elasticsearchUtils.document(auditEvent)).
                 build();
         IndexResponse response = client.index(request);
 

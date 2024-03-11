@@ -26,7 +26,7 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -149,9 +149,10 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                         dataAccessor.getAuthorities(username, delegationKey));
                 upat.setDetails(authentication.getDetails());
                 dataAccessor.audit(
+                        domain,
                         username,
                         delegationKey,
-                        Result.SUCCESS,
+                        OpEvent.Outcome.SUCCESS,
                         true,
                         authentication,
                         "Successfully authenticated, with entitlements: " + upat.getAuthorities());
@@ -160,13 +161,14 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
             LOG.debug("User {} successfully authenticated, with entitlements {}", username, token.getAuthorities());
         } else {
-            AuthContextUtils.runAsAdmin(domain, () -> dataAccessor.audit(
+            dataAccessor.audit(
+                    domain,
                     username,
                     delegationKey,
-                    Result.FAILURE,
+                    OpEvent.Outcome.FAILURE,
                     false,
                     authentication,
-                    "Not authenticated"));
+                    "Not authenticated");
 
             LOG.debug("User {} not authenticated", username);
 

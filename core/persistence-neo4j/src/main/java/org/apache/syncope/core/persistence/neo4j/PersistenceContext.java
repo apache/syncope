@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
@@ -87,7 +87,7 @@ import org.apache.syncope.core.persistence.neo4j.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnyMatchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
-import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAuditEntryDAO;
+import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAuditEventDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jBatchDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jEntityCacheDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jJobStatusDAO;
@@ -581,11 +581,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AuditEntryDAO auditEntryDAO(
+    public AuditEventDAO auditEventDAO(
             final Neo4jTemplate neo4jTemplate,
-            final Neo4jClient neo4jClient) {
+            final Neo4jClient neo4jClient,
+            final NodeValidator nodeValidator) {
 
-        return new Neo4jAuditEntryDAO(neo4jTemplate, neo4jClient);
+        return new Neo4jAuditEventDAO(neo4jTemplate, neo4jClient, nodeValidator);
     }
 
     @ConditionalOnMissingBean

@@ -19,7 +19,7 @@
 import groovy.transform.CompileStatic
 import java.time.OffsetDateTime
 import org.apache.syncope.common.lib.request.AnyUR
-import org.apache.syncope.common.lib.types.AuditElements
+import org.apache.syncope.common.lib.types.OpEvent
 import org.apache.syncope.core.logic.api.LogicActions
 import org.apache.syncope.core.provisioning.api.AuditManager
 import org.apache.syncope.core.spring.security.AuthContextUtils
@@ -34,14 +34,15 @@ class CustomAuditLogicActions implements LogicActions {
   @Override
   <R extends AnyUR> R beforeUpdate(final R input) {
     auditManager.audit(
+      AuthContextUtils.getDomain(),
       AuthContextUtils.getWho(),
-      AuditElements.EventCategoryType.CUSTOM,
+      OpEvent.CategoryType.CUSTOM,
       null,
       null,
       "MY_EVENT",
-      AuditElements.Result.SUCCESS,
+      OpEvent.Outcome.SUCCESS,
       "before",
-      OffsetDateTime.now().toString());
+      OffsetDateTime.now().toString())
     return input    
   }
 }

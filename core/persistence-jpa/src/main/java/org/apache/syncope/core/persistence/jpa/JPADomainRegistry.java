@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.StandardCharsets;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -30,9 +29,6 @@ import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManager
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
 public class JPADomainRegistry implements DomainRegistry<JPADomain> {
@@ -85,21 +81,6 @@ public class JPADomainRegistry implements DomainRegistry<JPADomain> {
         DataSource initedDataSource = beanFactory().getBean(domain.getKey() + "DataSource", DataSource.class);
 
         domainHolder().getDomains().put(domain.getKey(), initedDataSource);
-
-        // domainResourceDatabasePopulator
-        ResourceDatabasePopulator databasePopulator = new ResourceDatabasePopulator();
-        databasePopulator.setContinueOnError(true);
-        databasePopulator.setIgnoreFailedDrops(true);
-        databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
-        databasePopulator.addScript(new ClassPathResource("/audit/" + domain.getAuditSql()));
-
-        // domainDataSourceInitializer
-        DataSourceInitializer dataSourceInitializer = new DataSourceInitializer();
-        dataSourceInitializer.setDataSource(initedDataSource);
-        dataSourceInitializer.setEnabled(true);
-        dataSourceInitializer.setDatabasePopulator(databasePopulator);
-        registerSingleton(domain.getKey().toLowerCase() + "DataSourceInitializer", dataSourceInitializer);
-        beanFactory().initializeBean(dataSourceInitializer, domain.getKey().toLowerCase() + "DataSourceInitializer");
 
         // DomainRoutingEntityManagerFactory#domain
         beanFactory().getBean(DomainRoutingEntityManagerFactory.class).

@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.java.job.notification;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -119,11 +119,11 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
                     notificationManager.createTasks(
                             AuthContextUtils.getWho(),
-                            AuditElements.EventCategoryType.TASK,
+                            OpEvent.CategoryType.TASK,
                             "notification",
                             null,
                             "send",
-                            AuditElements.Result.SUCCESS,
+                            OpEvent.Outcome.SUCCESS,
                             null,
                             null,
                             task,
@@ -138,11 +138,11 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
 
                     notificationManager.createTasks(
                             AuthContextUtils.getWho(),
-                            AuditElements.EventCategoryType.TASK,
+                            OpEvent.CategoryType.TASK,
                             "notification",
                             null,
                             "send",
-                            AuditElements.Result.FAILURE,
+                            OpEvent.Outcome.FAILURE,
                             null,
                             null,
                             task,
@@ -205,12 +205,13 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
             notificationManager.setTaskExecuted(execution.getTask().getKey(), false);
 
             auditManager.audit(
+                    AuthContextUtils.getDomain(),
                     AuthContextUtils.getWho(),
-                    AuditElements.EventCategoryType.TASK,
+                    OpEvent.CategoryType.TASK,
                     "notification",
                     null,
                     "retry",
-                    AuditElements.Result.SUCCESS,
+                    OpEvent.Outcome.SUCCESS,
                     null,
                     null,
                     execution,
@@ -219,12 +220,13 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
             LOG.error("Maximum number of retries reached for task {} - giving up", execution.getTask());
 
             auditManager.audit(
+                    AuthContextUtils.getDomain(),
                     AuthContextUtils.getWho(),
-                    AuditElements.EventCategoryType.TASK,
+                    OpEvent.CategoryType.TASK,
                     "notification",
                     null,
                     "retry",
-                    AuditElements.Result.FAILURE,
+                    OpEvent.Outcome.FAILURE,
                     null,
                     null,
                     execution,

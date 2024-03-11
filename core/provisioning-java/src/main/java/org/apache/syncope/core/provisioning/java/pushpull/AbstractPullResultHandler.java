@@ -31,10 +31,9 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -63,6 +62,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.rules.PullMatch;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -74,10 +74,10 @@ public abstract class AbstractPullResultHandler
         extends AbstractSyncopeResultHandler<PullTask, PullActions>
         implements SyncopePullResultHandler {
 
-    protected static Result and(final Result left, final Result right) {
-        return left == Result.SUCCESS && right == Result.SUCCESS
-                ? Result.SUCCESS
-                : Result.FAILURE;
+    protected static OpEvent.Outcome and(final OpEvent.Outcome left, final OpEvent.Outcome right) {
+        return left == OpEvent.Outcome.SUCCESS && right == OpEvent.Outcome.SUCCESS
+                ? OpEvent.Outcome.SUCCESS
+                : OpEvent.Outcome.FAILURE;
     }
 
     @Autowired
@@ -135,7 +135,7 @@ public abstract class AbstractPullResultHandler
                     + " for " + delta.getObject().getObjectClass()));
 
             String anyType = provision.getAnyType();
-            Result latestResult = doHandle(
+            OpEvent.Outcome latestResult = doHandle(
                     delta,
                     provision,
                     anyTypeDAO.findById(anyType).
@@ -147,7 +147,7 @@ public abstract class AbstractPullResultHandler
             if (profile.getTask().getPullMode() != PullMode.INCREMENTAL) {
                 return true;
             }
-            return latestResult == Result.SUCCESS;
+            return latestResult == OpEvent.Outcome.SUCCESS;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport ignoreResult = new ProvisioningReport();
             ignoreResult.setOperation(ResourceOperation.NONE);
@@ -188,7 +188,7 @@ public abstract class AbstractPullResultHandler
         }
     }
 
-    protected Result provision(
+    protected OpEvent.Outcome provision(
             final UnmatchingRule rule,
             final SyncDelta delta,
             final AnyTypeKind anyTypeKind,
@@ -196,8 +196,8 @@ public abstract class AbstractPullResultHandler
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
-            end(provision.getAnyType(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(provision.getAnyType(), UnmatchingRule.toOp(rule), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         AnyCR anyCR = connObjectUtils.getAnyCR(
@@ -219,12 +219,12 @@ public abstract class AbstractPullResultHandler
 
         if (profile.isDryRun()) {
             result.setKey(null);
-            end(provision.getAnyType(), UnmatchingRule.toEventName(rule), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+            end(provision.getAnyType(), UnmatchingRule.toOp(rule), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         Object output;
-        Result resultStatus;
+        OpEvent.Outcome resultStatus;
         try {
             for (PullActions action : profile.getActions()) {
                 if (rule == UnmatchingRule.ASSIGN) {
@@ -239,7 +239,7 @@ public abstract class AbstractPullResultHandler
             output = created;
             result.setKey(created.getKey());
             result.setName(getName(created));
-            resultStatus = Result.SUCCESS;
+            resultStatus = OpEvent.Outcome.SUCCESS;
 
             for (PullActions action : profile.getActions()) {
                 action.after(profile, delta, created, result);
@@ -252,7 +252,7 @@ public abstract class AbstractPullResultHandler
             LOG.error("Could not propagate {} {}",
                     provision.getAnyType(), delta.getUid().getUidValue(), e);
             output = e;
-            resultStatus = Result.FAILURE;
+            resultStatus = OpEvent.Outcome.FAILURE;
         } catch (Exception e) {
             throwIgnoreProvisionException(delta, e);
 
@@ -263,19 +263,19 @@ public abstract class AbstractPullResultHandler
 
             if (profile.getTask().isRemediation()) {
                 // set to SUCCESS to let the incremental flow go on in case of errors
-                resultStatus = Result.SUCCESS;
+                resultStatus = OpEvent.Outcome.SUCCESS;
                 createRemediation(provision.getAnyType(), null, anyCR, null, result, delta);
             } else {
-                resultStatus = Result.FAILURE;
+                resultStatus = OpEvent.Outcome.FAILURE;
             }
         }
 
-        end(provision.getAnyType(), UnmatchingRule.toEventName(rule), resultStatus, null, output, delta);
+        end(provision.getAnyType(), UnmatchingRule.toOp(rule), resultStatus, null, output, delta);
         profile.getResults().add(result);
         return resultStatus;
     }
 
-    protected Result update(
+    protected OpEvent.Outcome update(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision) throws JobExecutionException {
@@ -283,13 +283,13 @@ public abstract class AbstractPullResultHandler
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType(),
-                    MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                    MatchingRule.toOp(MatchingRule.UPDATE), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to update {}", matches);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (PullMatch match : matches) {
             LOG.debug("About to update {}", match);
 
@@ -309,12 +309,12 @@ public abstract class AbstractPullResultHandler
             }
 
             if (!profile.isDryRun()) {
-                Result resultStatus;
+                OpEvent.Outcome resultStatus;
                 Object output;
                 AnyUR effectiveReq = null;
 
                 if (before == null) {
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                     output = null;
                 } else {
                     AnyUR anyUR = null;
@@ -339,7 +339,7 @@ public abstract class AbstractPullResultHandler
                         }
 
                         output = updated;
-                        resultStatus = Result.SUCCESS;
+                        resultStatus = OpEvent.Outcome.SUCCESS;
                         result.setName(getName(updated));
 
                         LOG.debug("{} {} successfully updated", provision.getAnyType(), match);
@@ -349,7 +349,7 @@ public abstract class AbstractPullResultHandler
                         LOG.error("Could not propagate {} {}",
                                 provision.getAnyType(), delta.getUid().getUidValue(), e);
                         output = e;
-                        resultStatus = Result.FAILURE;
+                        resultStatus = OpEvent.Outcome.FAILURE;
                     } catch (Exception e) {
                         throwIgnoreProvisionException(delta, e);
 
@@ -361,15 +361,15 @@ public abstract class AbstractPullResultHandler
 
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
-                            resultStatus = Result.SUCCESS;
+                            resultStatus = OpEvent.Outcome.SUCCESS;
                             createRemediation(provision.getAnyType(), null, null, anyUR, result, delta);
                         } else {
-                            resultStatus = Result.FAILURE;
+                            resultStatus = OpEvent.Outcome.FAILURE;
                         }
                     }
                 }
                 end(provision.getAnyType(),
-                        MatchingRule.toEventName(MatchingRule.UPDATE),
+                        MatchingRule.toOp(MatchingRule.UPDATE),
                         resultStatus, before, output, delta, effectiveReq);
                 global = and(global, resultStatus);
             }
@@ -380,7 +380,7 @@ public abstract class AbstractPullResultHandler
         return global;
     }
 
-    protected Result deprovision(
+    protected OpEvent.Outcome deprovision(
             final MatchingRule matchingRule,
             final SyncDelta delta,
             final List<PullMatch> matches,
@@ -390,13 +390,13 @@ public abstract class AbstractPullResultHandler
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType(),
-                    MatchingRule.toEventName(matchingRule), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                    MatchingRule.toOp(matchingRule), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to deprovision {}", matches);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (PullMatch match : matches) {
             LOG.debug("About to unassign resource {}", match);
 
@@ -416,10 +416,10 @@ public abstract class AbstractPullResultHandler
 
             if (!profile.isDryRun()) {
                 Object output;
-                Result resultStatus;
+                OpEvent.Outcome resultStatus;
 
                 if (before == null) {
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                     output = null;
                 } else {
                     result.setName(getName(before));
@@ -464,7 +464,7 @@ public abstract class AbstractPullResultHandler
                             action.after(profile, delta, AnyTO.class.cast(output), result);
                         }
 
-                        resultStatus = Result.SUCCESS;
+                        resultStatus = OpEvent.Outcome.SUCCESS;
 
                         LOG.debug("{} {} successfully updated", provision.getAnyType(), match);
                     } catch (PropagationException e) {
@@ -473,7 +473,7 @@ public abstract class AbstractPullResultHandler
                         LOG.error("Could not propagate {} {}",
                                 provision.getAnyType(), delta.getUid().getUidValue(), e);
                         output = e;
-                        resultStatus = Result.FAILURE;
+                        resultStatus = OpEvent.Outcome.FAILURE;
                     } catch (Exception e) {
                         throwIgnoreProvisionException(delta, e);
 
@@ -482,11 +482,11 @@ public abstract class AbstractPullResultHandler
                         LOG.error("Could not update {} {}",
                                 provision.getAnyType(), delta.getUid().getUidValue(), e);
                         output = e;
-                        resultStatus = Result.FAILURE;
+                        resultStatus = OpEvent.Outcome.FAILURE;
                     }
                 }
                 end(provision.getAnyType(),
-                        MatchingRule.toEventName(matchingRule),
+                        MatchingRule.toOp(matchingRule),
                         resultStatus, before, output, delta);
                 global = and(global, resultStatus);
             }
@@ -497,7 +497,7 @@ public abstract class AbstractPullResultHandler
         return global;
     }
 
-    protected Result link(
+    protected OpEvent.Outcome link(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision,
@@ -508,15 +508,15 @@ public abstract class AbstractPullResultHandler
             LOG.debug("PullTask not configured for update");
             end(provision.getAnyType(),
                     unlink
-                            ? MatchingRule.toEventName(MatchingRule.UNLINK)
-                            : MatchingRule.toEventName(MatchingRule.LINK),
-                    Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                            ? MatchingRule.toOp(MatchingRule.UNLINK)
+                            : MatchingRule.toOp(MatchingRule.LINK),
+                    OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to update {}", matches);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (PullMatch match : matches) {
             LOG.debug("About to unassign resource {}", match);
 
@@ -535,12 +535,12 @@ public abstract class AbstractPullResultHandler
             }
 
             if (!profile.isDryRun()) {
-                Result resultStatus;
+                OpEvent.Outcome resultStatus;
                 Object output;
                 AnyUR effectiveReq = null;
 
                 if (before == null) {
-                    resultStatus = Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                     output = null;
                 } else {
                     result.setName(getName(before));
@@ -568,7 +568,7 @@ public abstract class AbstractPullResultHandler
                             action.after(profile, delta, AnyTO.class.cast(output), result);
                         }
 
-                        resultStatus = Result.SUCCESS;
+                        resultStatus = OpEvent.Outcome.SUCCESS;
 
                         LOG.debug("{} {} successfully updated", provision.getAnyType(), match);
                     } catch (PropagationException e) {
@@ -577,7 +577,7 @@ public abstract class AbstractPullResultHandler
                         LOG.error("Could not propagate {} {}",
                                 provision.getAnyType(), delta.getUid().getUidValue(), e);
                         output = e;
-                        resultStatus = Result.FAILURE;
+                        resultStatus = OpEvent.Outcome.FAILURE;
                     } catch (Exception e) {
                         throwIgnoreProvisionException(delta, e);
 
@@ -586,13 +586,13 @@ public abstract class AbstractPullResultHandler
                         LOG.error("Could not update {} {}",
                                 provision.getAnyType(), delta.getUid().getUidValue(), e);
                         output = e;
-                        resultStatus = Result.FAILURE;
+                        resultStatus = OpEvent.Outcome.FAILURE;
                     }
                 }
                 end(provision.getAnyType(),
                         unlink
-                                ? MatchingRule.toEventName(MatchingRule.UNLINK)
-                                : MatchingRule.toEventName(MatchingRule.LINK),
+                                ? MatchingRule.toOp(MatchingRule.UNLINK)
+                                : MatchingRule.toOp(MatchingRule.LINK),
                         resultStatus, before, output, delta, effectiveReq);
                 global = and(global, resultStatus);
             }
@@ -603,7 +603,7 @@ public abstract class AbstractPullResultHandler
         return global;
     }
 
-    protected Result delete(
+    protected OpEvent.Outcome delete(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision)
@@ -612,16 +612,16 @@ public abstract class AbstractPullResultHandler
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
             end(provision.getAnyType(),
-                    ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
-            return Result.SUCCESS;
+                    ResourceOperation.DELETE.name().toLowerCase(), OpEvent.Outcome.SUCCESS, null, null, delta);
+            return OpEvent.Outcome.SUCCESS;
         }
 
         LOG.debug("About to delete {}", matches);
 
-        Result global = Result.SUCCESS;
+        OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
         for (PullMatch match : matches) {
             Object output;
-            Result resultStatus = Result.FAILURE;
+            OpEvent.Outcome resultStatus = OpEvent.Outcome.FAILURE;
 
             ProvisioningReport result = new ProvisioningReport();
 
@@ -648,7 +648,7 @@ public abstract class AbstractPullResultHandler
                                 profile.getExecutor(),
                                 getContext());
                         output = null;
-                        resultStatus = Result.SUCCESS;
+                        resultStatus = OpEvent.Outcome.SUCCESS;
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, before, result);
@@ -663,7 +663,7 @@ public abstract class AbstractPullResultHandler
 
                         if (profile.getTask().isRemediation()) {
                             // set to SUCCESS to let the incremental flow go on in case of errors
-                            resultStatus = Result.SUCCESS;
+                            resultStatus = OpEvent.Outcome.SUCCESS;
                             createRemediation(
                                     provision.getAnyType(), match.getAny().getKey(), null, null, result, delta);
                         }
@@ -688,7 +688,7 @@ public abstract class AbstractPullResultHandler
         return global;
     }
 
-    protected Result ignore(
+    protected OpEvent.Outcome ignore(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision,
@@ -730,14 +730,14 @@ public abstract class AbstractPullResultHandler
 
         end(provision.getAnyType(),
                 matching
-                        ? MatchingRule.toEventName(MatchingRule.IGNORE)
-                        : UnmatchingRule.toEventName(UnmatchingRule.IGNORE),
-                Result.SUCCESS, null, null, delta);
+                        ? MatchingRule.toOp(MatchingRule.IGNORE)
+                        : UnmatchingRule.toOp(UnmatchingRule.IGNORE),
+                OpEvent.Outcome.SUCCESS, null, null, delta);
 
-        return Result.SUCCESS;
+        return OpEvent.Outcome.SUCCESS;
     }
 
-    protected Result handleAnys(
+    protected OpEvent.Outcome handleAnys(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final AnyTypeKind anyTypeKind,
@@ -745,10 +745,10 @@ public abstract class AbstractPullResultHandler
 
         if (matches.isEmpty()) {
             LOG.debug("Nothing to do");
-            return Result.SUCCESS;
+            return OpEvent.Outcome.SUCCESS;
         }
 
-        Result result = Result.SUCCESS;
+        OpEvent.Outcome result = OpEvent.Outcome.SUCCESS;
         switch (delta.getDeltaType()) {
             case CREATE:
             case UPDATE:
@@ -816,7 +816,7 @@ public abstract class AbstractPullResultHandler
 
             case DELETE:
                 // Skip DELETE in case of PullCorrelationRule.NO_MATCH
-                result = matches.get(0).getAny() == null ? Result.SUCCESS : delete(delta, matches, provision);
+                result = matches.get(0).getAny() == null ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
                 break;
 
             default:
@@ -825,19 +825,19 @@ public abstract class AbstractPullResultHandler
         return result;
     }
 
-    protected Result handleLinkedAccounts(
+    protected OpEvent.Outcome handleLinkedAccounts(
             final SyncDelta delta,
             final List<PullMatch> matches,
             final Provision provision) throws JobExecutionException {
 
         if (matches.isEmpty()) {
             LOG.debug("Nothing to do");
-            return Result.SUCCESS;
+            return OpEvent.Outcome.SUCCESS;
         }
 
         // nothing to do in the general case
         LOG.warn("Unexpected linked accounts found for {}: {}", provision.getAnyType(), matches);
-        return Result.SUCCESS;
+        return OpEvent.Outcome.SUCCESS;
     }
 
     /**
@@ -849,7 +849,7 @@ public abstract class AbstractPullResultHandler
      * @return if handle was successful or not
      * @throws JobExecutionException in case of pull failure.
      */
-    protected Result doHandle(
+    protected OpEvent.Outcome doHandle(
             final SyncDelta delta,
             final Provision provision,
             final AnyTypeKind anyTypeKind) throws JobExecutionException {
@@ -865,7 +865,7 @@ public abstract class AbstractPullResultHandler
         LOG.debug("Transformed {} for {} as {}",
                 finalDelta.getDeltaType(), finalDelta.getUid().getUidValue(), finalDelta.getObject().getObjectClass());
 
-        Result result = Result.SUCCESS;
+        OpEvent.Outcome result = OpEvent.Outcome.SUCCESS;
         try {
             List<PullMatch> matches = inboundMatcher.match(
                     finalDelta,
@@ -895,7 +895,7 @@ public abstract class AbstractPullResultHandler
             }
 
             // users, groups and any objects
-            Result anys = handleAnys(
+            OpEvent.Outcome anys = handleAnys(
                     finalDelta,
                     matches.stream().
                             filter(match -> match.getMatchTarget() == MatchType.ANY).
@@ -904,7 +904,7 @@ public abstract class AbstractPullResultHandler
                     provision);
 
             // linked accounts
-            Result linkedAccounts = handleLinkedAccounts(
+            OpEvent.Outcome linkedAccounts = handleLinkedAccounts(
                     finalDelta,
                     matches.stream().
                             filter(match -> match.getMatchTarget() == MatchType.LINKED_ACCOUNT).
@@ -921,7 +921,7 @@ public abstract class AbstractPullResultHandler
     protected void end(
             final String anyType,
             final String event,
-            final Result result,
+            final OpEvent.Outcome result,
             final Object before,
             final Object output,
             final SyncDelta delta,
@@ -929,7 +929,7 @@ public abstract class AbstractPullResultHandler
 
         notificationManager.createTasks(
                 profile.getExecutor(),
-                AuditElements.EventCategoryType.PULL,
+                OpEvent.CategoryType.PULL,
                 anyType,
                 profile.getTask().getResource().getKey(),
                 event,
@@ -940,8 +940,9 @@ public abstract class AbstractPullResultHandler
                 furtherInput);
 
         auditManager.audit(
+                AuthContextUtils.getDomain(),
                 profile.getExecutor(),
-                AuditElements.EventCategoryType.PULL,
+                OpEvent.CategoryType.PULL,
                 anyType,
                 profile.getTask().getResource().getKey(),
                 event,

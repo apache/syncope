@@ -37,7 +37,7 @@ public class VirtualThreadPoolTaskExecutor
 
     private static final long serialVersionUID = 4747270938984213408L;
 
-    private int poolSize = Integer.MAX_VALUE;
+    private int poolSize = -1;
 
     private TaskDecorator taskDecorator;
 

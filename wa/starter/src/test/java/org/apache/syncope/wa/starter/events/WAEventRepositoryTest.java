@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
-import org.apache.syncope.common.lib.audit.AuditEntry;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
@@ -52,6 +52,6 @@ public class WAEventRepositoryTest extends AbstractTest {
         WAEventRepository eventRepository =
                 new WAEventRepository(CasEventRepositoryFilter.noOp(), getWaRestClient());
         eventRepository.saveInternal(event);
-        verify(AUDIT_SERVICE).create(any(AuditEntry.class));
+        verify(AUDIT_SERVICE).create(any(AuditEventTO.class));
     }
 }

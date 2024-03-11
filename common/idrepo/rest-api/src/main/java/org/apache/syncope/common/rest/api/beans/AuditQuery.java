@@ -19,12 +19,9 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.ws.rs.QueryParam;
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class AuditQuery extends AbstractTimeframeQuery {
@@ -43,7 +40,7 @@ public class AuditQuery extends AbstractTimeframeQuery {
             return this;
         }
 
-        public Builder type(final AuditElements.EventCategoryType type) {
+        public Builder type(final OpEvent.CategoryType type) {
             getInstance().setType(type);
             return this;
         }
@@ -58,33 +55,28 @@ public class AuditQuery extends AbstractTimeframeQuery {
             return this;
         }
 
-        public Builder event(final String event) {
-            getInstance().getEvents().add(event);
+        public Builder op(final String op) {
+            getInstance().setOp(op);
             return this;
         }
 
-        public Builder events(final List<String> events) {
-            getInstance().setEvents(events);
-            return this;
-        }
-
-        public Builder result(final AuditElements.Result result) {
-            getInstance().setResult(result);
+        public Builder outcome(final OpEvent.Outcome outcome) {
+            getInstance().setOutcome(outcome);
             return this;
         }
     }
 
     private String entityKey;
 
-    private AuditElements.EventCategoryType type;
+    private OpEvent.CategoryType type;
 
     private String category;
 
     private String subcategory;
 
-    private final List<String> events = new ArrayList<>();
+    private String op;
 
-    private AuditElements.Result result;
+    private OpEvent.Outcome outcome;
 
     @Parameter(name = JAXRSService.PARAM_ENTITY_KEY, description = "audit entity key to match", schema =
             @Schema(implementation = String.class, example = "50592942-73ec-44c4-a377-e859524245e4"))
@@ -98,13 +90,13 @@ public class AuditQuery extends AbstractTimeframeQuery {
     }
 
     @Parameter(name = "type", description = "audit type to match", schema =
-            @Schema(implementation = AuditElements.EventCategoryType.class))
-    public AuditElements.EventCategoryType getType() {
+            @Schema(implementation = OpEvent.CategoryType.class))
+    public OpEvent.CategoryType getType() {
         return type;
     }
 
     @QueryParam("type")
-    public void setType(final AuditElements.EventCategoryType type) {
+    public void setType(final OpEvent.CategoryType type) {
         this.type = type;
     }
 
@@ -130,28 +122,25 @@ public class AuditQuery extends AbstractTimeframeQuery {
         this.subcategory = subcategory;
     }
 
-    @Parameter(name = "result", description = "audit result to match", schema =
-            @Schema(implementation = AuditElements.Result.class))
-    public AuditElements.Result getResult() {
-        return result;
+    @Parameter(name = "outcome", description = "audit event outcome to match", schema =
+            @Schema(implementation = OpEvent.Outcome.class))
+    public OpEvent.Outcome getOutcome() {
+        return outcome;
     }
 
-    @QueryParam("result")
-    public void setResult(final AuditElements.Result result) {
-        this.result = result;
+    @QueryParam("outcome")
+    public void setOutcome(final OpEvent.Outcome outcome) {
+        this.outcome = outcome;
     }
 
-    @Parameter(name = "events", description = "audit events(s) to match", array =
-            @ArraySchema(uniqueItems = true, schema =
-                    @Schema(implementation = String.class)))
-    public List<String> getEvents() {
-        return events;
+    @Parameter(name = "op", description = "audit event op to match", schema =
+            @Schema(implementation = String.class))
+    public String getOp() {
+        return op;
     }
 
-    @QueryParam("events")
-    public void setEvents(final List<String> events) {
-        if (events != null) {
-            this.events.addAll(events);
-        }
+    @QueryParam("op")
+    public void setOp(final String op) {
+        this.op = op;
     }
 }

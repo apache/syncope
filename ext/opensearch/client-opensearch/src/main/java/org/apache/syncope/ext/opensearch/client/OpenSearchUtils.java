@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -227,26 +227,25 @@ public class OpenSearchUtils {
     protected void customizeDocument(final Map<String, Object> builder, final Realm realm) {
     }
 
-    public Map<String, Object> document(
-            final long instant,
-            final JsonNode message,
-            final String domain) throws IOException {
-
+    public Map<String, Object> document(final AuditEvent auditEvent) throws IOException {
         Map<String, Object> builder = new HashMap<>();
+        builder.put("key", auditEvent.getKey());
+        builder.put("opEvent", auditEvent.getOpEvent());
+        builder.put("who", auditEvent.getWho());
+        builder.put("when", auditEvent.getWhen());
+        builder.put("before", auditEvent.getBefore());
+        builder.put("inputs", auditEvent.getInputs());
+        builder.put("output", auditEvent.getOutput());
+        builder.put("throwable", auditEvent.getThrowable());
 
-        builder.put("instant", instant);
-        builder.put("message", message);
-
-        customizeDocument(builder, instant, message, domain);
+        customizeDocument(builder, auditEvent);
 
         return builder;
     }
 
     protected void customizeDocument(
             final Map<String, Object> builder,
-            final long instant,
-            final JsonNode message,
-            final String domain)
+            final AuditEvent auditEvent)
             throws IOException {
     }
 }

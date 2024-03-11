@@ -94,8 +94,7 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
                         databasePlatform(domainProps.getDatabasePlatform()).
                         orm(domainProps.getOrm()).
                         poolMaxActive(domainProps.getPoolMaxActive()).
-                        poolMinIdle(domainProps.getPoolMinIdle()).
-                        auditSql(domainProps.getAuditSql());
+                        poolMinIdle(domainProps.getPoolMinIdle());
 
                 try {
                     builder.content(IOUtils.toString(

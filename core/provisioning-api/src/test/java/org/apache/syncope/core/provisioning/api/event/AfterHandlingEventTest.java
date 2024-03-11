@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.junit.jupiter.api.Test;
 
@@ -31,31 +31,33 @@ public class AfterHandlingEventTest extends AbstractTest {
     @Test
     public void test() {
         String who = "testUser";
-        AuditElements.EventCategoryType type = AuditElements.EventCategoryType.CUSTOM;
+        OpEvent.CategoryType type = OpEvent.CategoryType.CUSTOM;
         String category = SyncopeConstants.REALM_ANYTYPE.toLowerCase();
         String subcategory = UUID.randomUUID().toString();
-        String event = "testEvent";
-        AuditElements.Result condition = AuditElements.Result.SUCCESS;
+        String op = "testEvent";
+        OpEvent.Outcome outcome = OpEvent.Outcome.SUCCESS;
         Object before = "before";
         Object output = "output";
         Object[] input = new String[] { "value1", "value2" };
         AfterHandlingEvent afterHandlingEvent = new AfterHandlingEvent(
+                SyncopeConstants.MASTER_DOMAIN,
                 who,
                 type,
                 category,
                 subcategory,
-                event,
-                condition,
+                op,
+                outcome,
                 before,
                 output,
                 input);
 
+        assertEquals(SyncopeConstants.MASTER_DOMAIN, afterHandlingEvent.getDomain());
         assertEquals(who, afterHandlingEvent.getWho());
         assertEquals(type, afterHandlingEvent.getType());
         assertEquals(category, afterHandlingEvent.getCategory());
         assertEquals(subcategory, afterHandlingEvent.getSubcategory());
-        assertEquals(event, afterHandlingEvent.getEvent());
-        assertEquals(condition, afterHandlingEvent.getCondition());
+        assertEquals(op, afterHandlingEvent.getOp());
+        assertEquals(outcome, afterHandlingEvent.getOutcome());
         assertEquals(before, afterHandlingEvent.getBefore());
         assertEquals(output, afterHandlingEvent.getOutput());
         assertEquals(input, afterHandlingEvent.getInput());

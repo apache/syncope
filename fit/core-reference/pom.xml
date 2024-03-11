@@ -516,11 +516,6 @@ under the License.
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.ext.elasticsearch</groupId>
-          <artifactId>syncope-ext-elasticsearch-logic</artifactId>
-          <version>${project.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.syncope.ext.elasticsearch</groupId>
           <artifactId>syncope-ext-elasticsearch-provisioning-java</artifactId>
           <version>${project.version}</version>
         </dependency>
@@ -629,11 +624,6 @@ under the License.
       </properties>
 
       <dependencies>
-        <dependency>
-          <groupId>org.apache.syncope.ext.opensearch</groupId>
-          <artifactId>syncope-ext-opensearch-logic</artifactId>
-          <version>${project.version}</version>
-        </dependency>
         <dependency>
           <groupId>org.apache.syncope.ext.opensearch</groupId>
           <artifactId>syncope-ext-opensearch-provisioning-java</artifactId>

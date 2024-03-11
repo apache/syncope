@@ -20,8 +20,8 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;

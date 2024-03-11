@@ -23,9 +23,8 @@ import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.to.AuditEventTO;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.audit.spi.AbstractAuditTrailManager;
@@ -54,22 +53,22 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
                     "clientIpAddress", audit.getClientInfo().getClientIpAddress(),
                     "serverIpAddress", audit.getClientInfo().getServerIpAddress()));
 
-            AuditEntry auditEntry = new AuditEntry();
-            auditEntry.setWho(audit.getPrincipal());
-            auditEntry.setDate(audit.getWhenActionWasPerformed().atOffset(OffsetDateTime.now().getOffset()));
-            auditEntry.setOutput(output);
-            AuditElements.Result result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
-                    ? AuditElements.Result.FAILURE
-                    : AuditElements.Result.SUCCESS;
+            AuditEventTO auditEvent = new AuditEventTO();
+            auditEvent.setWho(audit.getPrincipal());
+            auditEvent.setWhen(audit.getWhenActionWasPerformed().atOffset(OffsetDateTime.now().getOffset()));
+            auditEvent.setOutput(output);
+            OpEvent.Outcome result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
+                    ? OpEvent.Outcome.FAILURE
+                    : OpEvent.Outcome.SUCCESS;
 
-            AuditLoggerName auditLogger = new AuditLoggerName(
-                    AuditElements.EventCategoryType.WA,
+            OpEvent opEvent = new OpEvent(
+                    OpEvent.CategoryType.WA,
                     null,
-                    AuditElements.AUTHENTICATION_CATEGORY.toUpperCase(),
+                    OpEvent.AUTHENTICATION_CATEGORY.toUpperCase(),
                     audit.getActionPerformed(),
                     result);
-            auditEntry.setLogger(auditLogger);
-            waRestClient.getService(AuditService.class).create(auditEntry);
+            auditEvent.setOpEvent(opEvent);
+            waRestClient.getService(AuditService.class).create(auditEvent);
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }

@@ -33,13 +33,13 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.audit.AuditEntry;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -280,37 +280,37 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
     protected static class StubAuditService implements AuditService {
 
         @Override
-        public List<AuditConfTO> list() {
+        public List<AuditConfTO> confs() {
             return List.of();
         }
 
         @Override
-        public AuditConfTO read(final String key) {
+        public AuditConfTO getConf(final String key) {
             throw new NotFoundException();
         }
 
         @Override
-        public void set(final AuditConfTO auditTO) {
+        public void setConf(final AuditConfTO auditTO) {
             // nothing to do
         }
 
         @Override
-        public void delete(final String key) {
+        public void deleteConf(final String key) {
             // nothing to do
         }
 
         @Override
-        public List<EventCategory> events() {
+        public List<OpEvent> events() {
             return List.of();
         }
 
         @Override
-        public PagedResult<AuditEntry> search(final AuditQuery auditQuery) {
+        public PagedResult<AuditEventTO> search(final AuditQuery auditQuery) {
             return new PagedResult<>();
         }
 
         @Override
-        public void create(final AuditEntry auditEntry) {
+        public void create(final AuditEventTO auditEvent) {
             // nothing to do
         }
     }

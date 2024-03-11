@@ -25,10 +25,10 @@ import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 public class AuditDataBinderImpl implements AuditDataBinder {
 
     @Override
-    public AuditConfTO getAuditTO(final AuditConf audit) {
-        AuditConfTO auditTO = new AuditConfTO();
-        auditTO.setKey(audit.getKey());
-        auditTO.setActive(audit.isActive());
-        return auditTO;
+    public AuditConfTO getAuditConfTO(final AuditConf auditConf) {
+        AuditConfTO auditConfTO = new AuditConfTO();
+        auditConfTO.setKey(auditConf.getKey());
+        auditConfTO.setActive(auditConf.isActive());
+        return auditConfTO;
     }
 }

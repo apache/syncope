@@ -24,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
-import org.apache.syncope.common.lib.audit.AuditEntry;
+import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.AbstractTest;
@@ -34,14 +34,14 @@ import org.junit.jupiter.api.Test;
 
 public class WAAuditTrailManagerTest extends AbstractTest {
 
-    private static AuditService LOGGER_SERVICE;
+    private static AuditService AUDIT_SERVICE;
 
     private static WARestClient getWaRestClient() {
-        LOGGER_SERVICE = mock(AuditService.class);
+        AUDIT_SERVICE = mock(AuditService.class);
 
         WARestClient waRestClient = mock(WARestClient.class);
         when(waRestClient.isReady()).thenReturn(Boolean.TRUE);
-        when(waRestClient.getService(AuditService.class)).thenReturn(LOGGER_SERVICE);
+        when(waRestClient.getService(AuditService.class)).thenReturn(AUDIT_SERVICE);
 
         return waRestClient;
     }
@@ -54,6 +54,6 @@ public class WAAuditTrailManagerTest extends AbstractTest {
                 new ClientInfo("clientIpAddress", "serverIpAddress", "userAgent", null));
         WAAuditTrailManager auditTrailManager = new WAAuditTrailManager(getWaRestClient());
         auditTrailManager.saveAuditRecord(audit);
-        verify(LOGGER_SERVICE).create(any(AuditEntry.class));
+        verify(AUDIT_SERVICE).create(any(AuditEventTO.class));
     }
 }

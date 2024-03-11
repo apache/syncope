@@ -37,9 +37,9 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -479,16 +479,24 @@ public class AuthDataAccessor {
 
     @Transactional(readOnly = true)
     public void audit(
+            final String domain,
             final String username,
             final String delegationKey,
-            final AuditElements.Result result,
+            final OpEvent.Outcome outcome,
             final Object output,
             final Object... input) {
 
         auditManager.audit(
+                domain,
                 username + Optional.ofNullable(delegationKey).
                         map(d -> " [under delegation " + delegationKey + "]").orElse(StringUtils.EMPTY),
-                AuditElements.EventCategoryType.LOGIC, AuditElements.AUTHENTICATION_CATEGORY, null,
-                AuditElements.LOGIN_EVENT, result, null, output, input);
+                OpEvent.CategoryType.LOGIC,
+                OpEvent.AUTHENTICATION_CATEGORY,
+                null,
+                OpEvent.LOGIN_OP,
+                outcome,
+                null,
+                output,
+                input);
     }
 }

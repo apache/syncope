@@ -32,10 +32,9 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -252,7 +251,7 @@ public class DefaultRealmPushResultHandler
         LOG.debug("Propagating Realm with key {} towards {}", realm.getKey(), profile.getTask().getResource());
 
         Object output = null;
-        Result resultStatus = null;
+        OpEvent.Outcome resultStatus = null;
 
         // Try to read remote object BEFORE any actual operation
         OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
@@ -280,17 +279,19 @@ public class DefaultRealmPushResultHandler
             result.setStatus(ProvisioningReport.Status.SUCCESS);
         } else {
             String operation = beforeObj == null
-                    ? UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule())
-                    : MatchingRule.toEventName(profile.getTask().getMatchingRule());
+                    ? UnmatchingRule.toOp(profile.getTask().getUnmatchingRule())
+                    : MatchingRule.toOp(profile.getTask().getMatchingRule());
 
             boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                    AuditElements.EventCategoryType.PUSH,
+                    AuthContextUtils.getDomain(),
+                    OpEvent.CategoryType.PUSH,
                     SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                     profile.getTask().getResource().getKey(),
                     operation);
             boolean auditRequested = auditManager.auditRequested(
+                    AuthContextUtils.getDomain(),
                     AuthContextUtils.getUsername(),
-                    AuditElements.EventCategoryType.PUSH,
+                    OpEvent.CategoryType.PUSH,
                     SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                     profile.getTask().getResource().getKey(),
                     operation);
@@ -435,7 +436,7 @@ public class DefaultRealmPushResultHandler
                 }
 
                 if (notificationsAvailable || auditRequested) {
-                    resultStatus = AuditElements.Result.SUCCESS;
+                    resultStatus = OpEvent.Outcome.SUCCESS;
                     if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {
                         output = getRemoteObject(
                                 new ObjectClass(orgUnit.getObjectClass()),
@@ -452,7 +453,7 @@ public class DefaultRealmPushResultHandler
                 result.setMessage(ExceptionUtils.getRootCauseMessage(e));
 
                 if (notificationsAvailable || auditRequested) {
-                    resultStatus = AuditElements.Result.FAILURE;
+                    resultStatus = OpEvent.Outcome.FAILURE;
                     output = e;
                 }
 
@@ -467,8 +468,9 @@ public class DefaultRealmPushResultHandler
                 if (notificationsAvailable || auditRequested) {
                     Map<String, Object> jobMap = new HashMap<>();
                     jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                            AuthContextUtils.getDomain(),
                             AuthContextUtils.getWho(),
-                            AuditElements.EventCategoryType.PUSH,
+                            OpEvent.CategoryType.PUSH,
                             SyncopeConstants.REALM_ANYTYPE.toLowerCase(),
                             profile.getTask().getResource().getKey(),
                             operation,

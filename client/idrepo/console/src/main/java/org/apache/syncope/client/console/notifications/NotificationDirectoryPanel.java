@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.events.EventCategory;
 import org.apache.syncope.client.console.notifications.NotificationDirectoryPanel.NotificationProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
@@ -45,10 +46,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.audit.EventCategory;
 import org.apache.syncope.common.lib.to.NotificationTO;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -88,8 +88,8 @@ public class NotificationDirectoryPanel
         @Override
         protected List<EventCategory> load() {
             // cannot notify about WA events
-            return auditRestClient.listEvents().stream().
-                    filter(c -> c.getType() != AuditElements.EventCategoryType.WA).collect(Collectors.toList());
+            return auditRestClient.events().stream().
+                    filter(c -> c.getType() != OpEvent.CategoryType.WA).collect(Collectors.toList());
         }
     };
 

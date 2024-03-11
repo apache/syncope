@@ -20,7 +20,7 @@ package org.apache.syncope.core.provisioning.java.job;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
@@ -128,16 +128,16 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
 
         setStatus("Initialization completed");
 
-        AuditElements.Result result;
+        OpEvent.Outcome result;
 
         try {
             execution.setMessage(doExecute(dryRun, executor, context));
             execution.setStatus(TaskJob.Status.SUCCESS.name());
 
-            result = AuditElements.Result.SUCCESS;
+            result = OpEvent.Outcome.SUCCESS;
         } catch (JobExecutionException e) {
             LOG.error("While executing task {}", taskKey, e);
-            result = AuditElements.Result.FAILURE;
+            result = OpEvent.Outcome.FAILURE;
 
             execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
             execution.setStatus(TaskJob.Status.FAILURE.name());
@@ -151,7 +151,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
 
         notificationManager.createTasks(
                 executor,
-                AuditElements.EventCategoryType.TASK,
+                OpEvent.CategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
                 this.getClass().getSimpleName(), // searching for before object is too much expensive ...
@@ -160,8 +160,9 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 execution);
 
         auditManager.audit(
+                AuthContextUtils.getDomain(),
                 executor,
-                AuditElements.EventCategoryType.TASK,
+                OpEvent.CategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,
                 null, // searching for before object is too much expensive ...

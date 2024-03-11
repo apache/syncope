@@ -84,11 +84,6 @@ public class JPADomain extends Domain {
             return this;
         }
 
-        public Builder auditSql(final String auditSql) {
-            this.domain.auditSql = auditSql;
-            return this;
-        }
-
         public Builder orm(final String orm) {
             this.domain.orm = orm;
             return this;
@@ -115,8 +110,6 @@ public class JPADomain extends Domain {
     private int poolMaxActive = 10;
 
     private int poolMinIdle = 2;
-
-    private String auditSql = "audit.sql";
 
     private String orm = "META-INF/spring-orm.xml";
 
@@ -167,10 +160,6 @@ public class JPADomain extends Domain {
         this.poolMinIdle = poolMinIdle;
     }
 
-    public String getAuditSql() {
-        return auditSql;
-    }
-
     public String getOrm() {
         return orm;
     }
@@ -191,7 +180,6 @@ public class JPADomain extends Domain {
                 append(transactionIsolation).
                 append(poolMaxActive).
                 append(poolMinIdle).
-                append(auditSql).
                 append(orm).
                 append(databasePlatform).
                 build();
@@ -219,7 +207,6 @@ public class JPADomain extends Domain {
                 append(transactionIsolation, other.transactionIsolation).
                 append(poolMaxActive, other.poolMaxActive).
                 append(poolMinIdle, other.poolMinIdle).
-                append(auditSql, other.auditSql).
                 append(orm, other.orm).
                 append(databasePlatform, other.databasePlatform).
                 build();
@@ -237,7 +224,6 @@ public class JPADomain extends Domain {
                 append(transactionIsolation).
                 append(poolMaxActive).
                 append(poolMinIdle).
-                append(auditSql).
                 append(orm).
                 append(databasePlatform).
                 build();

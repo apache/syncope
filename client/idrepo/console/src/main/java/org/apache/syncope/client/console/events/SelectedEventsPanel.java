@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.event.Broadcast;
@@ -140,14 +140,14 @@ public class SelectedEventsPanel extends Panel {
 
         private final AjaxRequestTarget target;
 
-        private final Set<AuditLoggerName> toBeRemoved;
+        private final Set<OpEvent> toBeRemoved;
 
-        private final Set<AuditLoggerName> toBeAdded;
+        private final Set<OpEvent> toBeAdded;
 
         public EventSelectionChanged(
                 final AjaxRequestTarget target,
-                final Set<AuditLoggerName> toBeAdded,
-                final Set<AuditLoggerName> toBeRemoved) {
+                final Set<OpEvent> toBeAdded,
+                final Set<OpEvent> toBeRemoved) {
 
             this.target = target;
             this.toBeAdded = toBeAdded;
@@ -158,11 +158,11 @@ public class SelectedEventsPanel extends Panel {
             return target;
         }
 
-        public Set<AuditLoggerName> getToBeRemoved() {
+        public Set<OpEvent> getToBeRemoved() {
             return toBeRemoved;
         }
 
-        public Set<AuditLoggerName> getToBeAdded() {
+        public Set<OpEvent> getToBeAdded() {
             return toBeAdded;
         }
     }

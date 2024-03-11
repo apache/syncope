@@ -41,7 +41,7 @@ public enum UnmatchingRule {
      */
     UNLINK;
 
-    public static String toEventName(final UnmatchingRule rule) {
+    public static String toOp(final UnmatchingRule rule) {
         return new StringBuilder(UnmatchingRule.class.getSimpleName()).
                 append('_').append(rule.name()).toString().toLowerCase();
     }

@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
+import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
@@ -337,6 +338,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jDomain();
         } else if (reference.equals(NetworkServiceEntity.class)) {
             result = (E) new Neo4jNetworkService();
+        } else if (reference.equals(AuditEvent.class)) {
+            result = (E) new Neo4jAuditEvent();
         } else {
             throw new IllegalArgumentException("Could not find a Neo4j implementation of " + reference.getName());
         }

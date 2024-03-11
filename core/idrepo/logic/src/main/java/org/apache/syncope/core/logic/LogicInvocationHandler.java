@@ -20,7 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -60,11 +60,20 @@ public class LogicInvocationHandler {
         String event = joinPoint.getSignature().getName();
 
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                AuditElements.EventCategoryType.LOGIC, category, null, event);
+                AuthContextUtils.getDomain(),
+                OpEvent.CategoryType.LOGIC,
+                category,
+                null,
+                event);
         boolean auditRequested = auditManager.auditRequested(
-                AuthContextUtils.getUsername(), AuditElements.EventCategoryType.LOGIC, category, null, event);
+                AuthContextUtils.getDomain(),
+                AuthContextUtils.getUsername(),
+                OpEvent.CategoryType.LOGIC,
+                category,
+                null,
+                event);
 
-        AuditElements.Result condition = null;
+        OpEvent.Outcome outcome = null;
         Object output = null;
         Object before = null;
 
@@ -81,36 +90,36 @@ public class LogicInvocationHandler {
             }
 
             output = joinPoint.proceed();
-            condition = AuditElements.Result.SUCCESS;
+            outcome = OpEvent.Outcome.SUCCESS;
 
             LOG.debug("After returning {}.{}: {}", clazz.getSimpleName(), event, output);
             return output;
         } catch (Throwable t) {
             output = t;
-            condition = AuditElements.Result.FAILURE;
+            outcome = OpEvent.Outcome.FAILURE;
 
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
             if (notificationsAvailable || auditRequested) {
                 AfterHandlingEvent afterHandlingEvent = new AfterHandlingEvent(
+                        AuthContextUtils.getDomain(),
                         AuthContextUtils.getWho(),
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         category,
                         null,
                         event,
-                        condition,
+                        outcome,
                         before,
                         output,
                         input);
-                AuthContextUtils.runAsAdmin(AuthContextUtils.getDomain(), () -> {
-                    try {
-                        notificationManager.createTasks(afterHandlingEvent);
-                        auditManager.audit(afterHandlingEvent);
-                    } catch (Throwable t) {
-                        LOG.error("While managing Audit and Notifications", t);
-                    }
-                });
+
+                try {
+                    notificationManager.createTasks(afterHandlingEvent);
+                    auditManager.audit(afterHandlingEvent);
+                } catch (Throwable t) {
+                    LOG.error("While managing Audit and Notifications", t);
+                }
             }
         }
     }

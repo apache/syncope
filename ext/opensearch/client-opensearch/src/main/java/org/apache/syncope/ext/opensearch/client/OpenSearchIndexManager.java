@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
@@ -36,7 +36,6 @@ import org.opensearch.client.opensearch._types.analysis.CustomNormalizer;
 import org.opensearch.client.opensearch._types.analysis.Normalizer;
 import org.opensearch.client.opensearch._types.mapping.DynamicTemplate;
 import org.opensearch.client.opensearch._types.mapping.KeywordProperty;
-import org.opensearch.client.opensearch._types.mapping.ObjectProperty;
 import org.opensearch.client.opensearch._types.mapping.Property;
 import org.opensearch.client.opensearch._types.mapping.TextProperty;
 import org.opensearch.client.opensearch._types.mapping.TypeMapping;
@@ -152,29 +151,24 @@ public class OpenSearchIndexManager {
                                         build()).
                                 build()))).
                 properties(
-                        "message",
-                        new Property.Builder().object(new ObjectProperty.Builder().
-                                properties(
-                                        "before",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
-                                properties(
-                                        "inputs",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
-                                properties(
-                                        "output",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
-                                properties(
-                                        "throwable",
-                                        new Property.Builder().
-                                                text(new TextProperty.Builder().analyzer("standard").build()).
-                                                build()).
+                        "before",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
                                 build()).
+                properties(
+                        "inputs",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "output",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
+                                build()).
+                properties(
+                        "throwable",
+                        new Property.Builder().
+                                text(new TextProperty.Builder().analyzer("standard").build()).
                                 build()).
                 build();
     }
@@ -322,9 +316,7 @@ public class OpenSearchIndexManager {
                 IndexResponse response = client.index(request);
                 LOG.debug("Index successfully created or updated for {}: {}", any, response);
             }
-        } else if (event.getEntity() instanceof Realm) {
-            Realm realm = (Realm) event.getEntity();
-
+        } else if (event.getEntity() instanceof Realm realm) {
             if (event.getType() == SyncDeltaType.DELETE) {
                 DeleteRequest request = new DeleteRequest.Builder().
                         index(OpenSearchUtils.getRealmIndex(event.getDomain())).
@@ -346,13 +338,13 @@ public class OpenSearchIndexManager {
         }
     }
 
-    public void audit(final String domain, final long instant, final JsonNode message) throws IOException {
+    public void audit(final String domain, final AuditEvent auditEvent) throws IOException {
         LOG.debug("About to audit");
 
         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                 index(OpenSearchUtils.getAuditIndex(domain)).
                 id(SecureRandomUtils.generateRandomUUID().toString()).
-                document(openSearchUtils.document(instant, message, domain)).
+                document(openSearchUtils.document(auditEvent)).
                 build();
         IndexResponse response = client.index(request);
 

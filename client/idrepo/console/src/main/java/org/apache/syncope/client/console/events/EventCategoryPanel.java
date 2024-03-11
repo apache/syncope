@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.events.SelectedEventsPanel.EventSelectionChanged;
 import org.apache.syncope.client.console.events.SelectedEventsPanel.InspectSelectedEvent;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -32,10 +31,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.audit.EventCategory;
-import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -76,7 +72,7 @@ public abstract class EventCategoryPanel extends Panel {
 
     protected static List<String> filter(
             final List<EventCategory> categories,
-            final EventCategoryType type) {
+            final OpEvent.CategoryType type) {
 
         return categories.stream().
                 filter(c -> type == c.getType() && StringUtils.isNotEmpty(c.getCategory())).
@@ -88,7 +84,7 @@ public abstract class EventCategoryPanel extends Panel {
 
     protected static List<String> filter(
             final List<EventCategory> categories,
-            final EventCategoryType type,
+            final OpEvent.CategoryType type,
             final String category) {
 
         return categories.stream().
@@ -109,7 +105,7 @@ public abstract class EventCategoryPanel extends Panel {
 
     private final SelectedEventsPanel selectedEventsPanel;
 
-    private final AjaxDropDownChoicePanel<EventCategoryType> type;
+    private final AjaxDropDownChoicePanel<OpEvent.CategoryType> type;
 
     private final AjaxDropDownChoicePanel<String> category;
 
@@ -152,26 +148,26 @@ public abstract class EventCategoryPanel extends Panel {
                 false);
         type.setChoices(eventCategories.stream().
                 map(EventCategory::getType).distinct().
-                sorted(Comparator.comparing(EventCategoryType::name)).
+                sorted(Comparator.comparing(OpEvent.CategoryType::name)).
                 collect(Collectors.toList()));
         type.setChoiceRenderer(new IChoiceRenderer<>() {
 
             private static final long serialVersionUID = 2317134950949778735L;
 
             @Override
-            public String getDisplayValue(final EventCategoryType eventCategoryType) {
+            public String getDisplayValue(final OpEvent.CategoryType eventCategoryType) {
                 return eventCategoryType.name();
             }
 
             @Override
-            public String getIdValue(final EventCategoryType eventCategoryType, final int i) {
+            public String getIdValue(final OpEvent.CategoryType eventCategoryType, final int i) {
                 return eventCategoryType.name();
             }
 
             @Override
-            public EventCategoryType getObject(
+            public OpEvent.CategoryType getObject(
                     final String id,
-                    final IModel<? extends List<? extends EventCategoryType>> choices) {
+                    final IModel<? extends List<? extends OpEvent.CategoryType>> choices) {
 
                 return choices.getObject().stream().filter(object -> object.name().equals(id)).findAny().orElse(null);
             }
@@ -240,21 +236,12 @@ public abstract class EventCategoryPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target, final EventCategory ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    Pair<EventCategory, AuditElements.Result> parsed =
-                            AuditLoggerName.parseEventCategory(custom.getModelObject());
-
-                    AuditLoggerName auditLoggerName = new AuditLoggerName(
-                            parsed.getLeft().getType(),
-                            null,
-                            null,
-                            parsed.getLeft().getEvents().isEmpty()
-                            ? StringUtils.EMPTY : parsed.getLeft().getEvents().iterator().next(),
-                            parsed.getRight());
+                    OpEvent opEvent = OpEvent.fromString(custom.getModelObject());
 
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
-                            Set.of(auditLoggerName),
+                            Set.of(opEvent),
                             Set.of()));
                     target.add(categoryContainer);
                 }
@@ -267,22 +254,13 @@ public abstract class EventCategoryPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target, final EventCategory ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    Pair<EventCategory, AuditElements.Result> parsed =
-                            AuditLoggerName.parseEventCategory(custom.getModelObject());
-
-                    AuditLoggerName auditLoggerName = new AuditLoggerName(
-                            parsed.getLeft().getType(),
-                            null,
-                            null,
-                            parsed.getLeft().getEvents().isEmpty()
-                            ? StringUtils.EMPTY : parsed.getLeft().getEvents().iterator().next(),
-                            parsed.getRight());
+                    OpEvent opEvent = OpEvent.fromString(custom.getModelObject());
 
                     custom.setModelObject(StringUtils.EMPTY);
                     send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
                             target,
                             Set.of(),
-                            Set.of(auditLoggerName)));
+                            Set.of(opEvent)));
                     target.add(categoryContainer);
                 }
             }
@@ -307,100 +285,100 @@ public abstract class EventCategoryPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ChangeCategoryEvent) {
-            // update objects ....
-            eventCategory.getEvents().clear();
+        switch (event.getPayload()) {
+            case ChangeCategoryEvent changeCategoryEvent -> {
+                // update objects ....
+                eventCategory.getOps().clear();
 
-            ChangeCategoryEvent change = (ChangeCategoryEvent) event.getPayload();
+                switch (changeCategoryEvent.getChangedPanel().getId()) {
+                    case "type" -> {
+                        eventCategory.setType(type.getModelObject());
+                        eventCategory.setCategory(null);
+                        eventCategory.setSubcategory(null);
+                        if (type.getModelObject() == OpEvent.CategoryType.CUSTOM
+                                || type.getModelObject() == OpEvent.CategoryType.WA) {
 
-            switch (change.getChangedPanel().getId()) {
-                case "type":
-                    eventCategory.setType(type.getModelObject());
-                    eventCategory.setCategory(null);
-                    eventCategory.setSubcategory(null);
-                    if (type.getModelObject() == EventCategoryType.CUSTOM
-                            || type.getModelObject() == EventCategoryType.WA) {
-
-                        category.setChoices(List.of());
-                        subcategory.setChoices(List.of());
-                        category.setEnabled(false);
-                        subcategory.setEnabled(false);
-                        custom.setVisible(true);
-                        custom.setEnabled(true);
-                        actionsPanel.setVisible(true);
-                        actionsPanel.setEnabled(true);
-                    } else {
-                        category.setChoices(filter(eventCategories, type.getModelObject()));
-                        subcategory.setChoices(List.of());
-                        category.setEnabled(true);
-                        subcategory.setEnabled(true);
-                        custom.setVisible(false);
-                        custom.setEnabled(false);
-                        actionsPanel.setVisible(false);
-                        actionsPanel.setEnabled(false);
+                            category.setChoices(List.of());
+                            subcategory.setChoices(List.of());
+                            category.setEnabled(false);
+                            subcategory.setEnabled(false);
+                            custom.setVisible(true);
+                            custom.setEnabled(true);
+                            actionsPanel.setVisible(true);
+                            actionsPanel.setEnabled(true);
+                        } else {
+                            category.setChoices(filter(eventCategories, type.getModelObject()));
+                            subcategory.setChoices(List.of());
+                            category.setEnabled(true);
+                            subcategory.setEnabled(true);
+                            custom.setVisible(false);
+                            custom.setEnabled(false);
+                            actionsPanel.setVisible(false);
+                            actionsPanel.setEnabled(false);
+                        }
+                        changeCategoryEvent.getTarget().add(categoryContainer);
                     }
-                    change.getTarget().add(categoryContainer);
-                    break;
 
-                case "category":
-                    subcategory.setChoices(
-                            filter(eventCategories, type.getModelObject(), category.getModelObject()));
-                    eventCategory.setCategory(category.getModelObject());
-                    eventCategory.setSubcategory(null);
-                    change.getTarget().add(categoryContainer);
-                    break;
+                    case "category" -> {
+                        subcategory.setChoices(
+                                filter(eventCategories, type.getModelObject(), category.getModelObject()));
+                        eventCategory.setCategory(category.getModelObject());
+                        eventCategory.setSubcategory(null);
+                        changeCategoryEvent.getTarget().add(categoryContainer);
+                    }
 
-                default:
-                    eventCategory.setSubcategory(subcategory.getModelObject());
-                    break;
+                    default ->
+                        eventCategory.setSubcategory(subcategory.getModelObject());
+                }
+
+                updateEventsContainer(changeCategoryEvent.getTarget());
             }
 
-            updateEventsContainer(change.getTarget());
-        } else if (event.getPayload() instanceof InspectSelectedEvent) {
-            // update objects ....
-            eventCategory.getEvents().clear();
+            case InspectSelectedEvent inspectSelectedEvent -> {
+                // update objects ....
+                eventCategory.getOps().clear();
 
-            InspectSelectedEvent inspectSelectedEvent = (InspectSelectedEvent) event.getPayload();
+                OpEvent opEvent = OpEvent.fromString(inspectSelectedEvent.getEvent());
 
-            Pair<EventCategory, AuditElements.Result> categoryEvent =
-                    AuditLoggerName.parseEventCategory(inspectSelectedEvent.getEvent());
+                eventCategory.setType(opEvent.getType());
+                category.setChoices(filter(eventCategories, type.getModelObject()));
 
-            eventCategory.setType(categoryEvent.getLeft().getType());
-            category.setChoices(filter(eventCategories, type.getModelObject()));
+                eventCategory.setCategory(opEvent.getCategory());
+                subcategory.setChoices(filter(eventCategories, type.getModelObject(), category.getModelObject()));
 
-            eventCategory.setCategory(categoryEvent.getLeft().getCategory());
-            subcategory.setChoices(filter(eventCategories, type.getModelObject(), category.getModelObject()));
+                eventCategory.setSubcategory(opEvent.getSubcategory());
 
-            eventCategory.setSubcategory(categoryEvent.getLeft().getSubcategory());
+                if (opEvent.getType() == OpEvent.CategoryType.CUSTOM
+                        || opEvent.getType() == OpEvent.CategoryType.WA) {
 
-            if (categoryEvent.getLeft().getType() == EventCategoryType.CUSTOM
-                    || categoryEvent.getLeft().getType() == EventCategoryType.WA) {
+                    custom.setModelObject(OpEvent.toString(
+                            opEvent.getType(),
+                            opEvent.getCategory(),
+                            opEvent.getSubcategory(),
+                            opEvent.getOp(),
+                            opEvent.getOutcome()));
 
-                custom.setModelObject(AuditLoggerName.buildEvent(
-                        categoryEvent.getLeft().getType(),
-                        categoryEvent.getLeft().getCategory(),
-                        categoryEvent.getLeft().getSubcategory(),
-                        categoryEvent.getLeft().getEvents().isEmpty()
-                        ? StringUtils.EMPTY : categoryEvent.getLeft().getEvents().iterator().next(),
-                        categoryEvent.getRight()));
+                    category.setEnabled(false);
+                    subcategory.setEnabled(false);
+                    custom.setVisible(true);
+                    custom.setEnabled(true);
+                    actionsPanel.setVisible(true);
+                    actionsPanel.setEnabled(true);
+                } else {
+                    category.setEnabled(true);
+                    subcategory.setEnabled(true);
+                    custom.setVisible(false);
+                    custom.setEnabled(false);
+                    actionsPanel.setVisible(false);
+                    actionsPanel.setEnabled(false);
+                }
 
-                category.setEnabled(false);
-                subcategory.setEnabled(false);
-                custom.setVisible(true);
-                custom.setEnabled(true);
-                actionsPanel.setVisible(true);
-                actionsPanel.setEnabled(true);
-            } else {
-                category.setEnabled(true);
-                subcategory.setEnabled(true);
-                custom.setVisible(false);
-                custom.setEnabled(false);
-                actionsPanel.setVisible(false);
-                actionsPanel.setEnabled(false);
+                inspectSelectedEvent.getTarget().add(categoryContainer);
+                updateEventsContainer(inspectSelectedEvent.getTarget());
             }
 
-            inspectSelectedEvent.getTarget().add(categoryContainer);
-            updateEventsContainer(inspectSelectedEvent.getTarget());
+            default -> {
+            }
         }
     }
 
@@ -430,14 +408,14 @@ public abstract class EventCategoryPanel extends Panel {
 
     protected void updateEventsContainer(final AjaxRequestTarget target) {
         for (Iterator<EventCategory> itor = eventCategories.iterator();
-                itor.hasNext() && eventCategory.getEvents().isEmpty();) {
+                itor.hasNext() && eventCategory.getOps().isEmpty();) {
 
             EventCategory ec = itor.next();
             if (ec.getType() == eventCategory.getType()
                     && StringUtils.equals(ec.getCategory(), eventCategory.getCategory())
                     && StringUtils.equals(ec.getSubcategory(), eventCategory.getSubcategory())) {
 
-                eventCategory.getEvents().addAll(ec.getEvents());
+                eventCategory.getOps().addAll(ec.getOps());
             }
         }
 

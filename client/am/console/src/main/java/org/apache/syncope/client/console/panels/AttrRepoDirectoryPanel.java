@@ -43,8 +43,8 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
-import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -156,7 +156,7 @@ public class AttrRepoDirectoryPanel
                 model.setObject(restClient.read(model.getObject().getKey()));
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
-                        AuditElements.EventCategoryType.LOGIC,
+                        OpEvent.CategoryType.LOGIC,
                         "AttrRepoLogic",
                         model.getObject(),
                         AMEntitlement.ATTR_REPO_UPDATE,
@@ -172,7 +172,7 @@ public class AttrRepoDirectoryPanel
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
-                            LOG.error("While restoring AttrRepo {}", ((AttrRepoTO) model.getObject()).getKey(), e);
+                            LOG.error("While restoring AttrRepo {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

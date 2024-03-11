@@ -23,7 +23,6 @@ import jakarta.persistence.EntityManagerFactory;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -35,7 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.jpa.dao.OJPAJSONAnyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.OJPAJSONAnySearchDAO;
-import org.apache.syncope.core.persistence.jpa.dao.OJPAJSONAuditEntryDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtOJSONImpl;
 import org.apache.syncope.core.persistence.jpa.entity.OJPAJSONEntityFactory;
@@ -86,12 +84,6 @@ public class OJPAJSONPersistenceContext extends JPAJSONPersistenceContext {
                 validator,
                 entityManagerFactory,
                 entityManager);
-    }
-
-    @ConditionalOnMissingBean(name = "oJPAJSONAuditEntryDAO")
-    @Bean
-    public AuditEntryDAO auditEntryDAO(final EntityManager entityManager) {
-        return new OJPAJSONAuditEntryDAO(entityManager);
     }
 
     @ConditionalOnMissingBean(name = "oJPAJSONPlainSchemaRepoExt")

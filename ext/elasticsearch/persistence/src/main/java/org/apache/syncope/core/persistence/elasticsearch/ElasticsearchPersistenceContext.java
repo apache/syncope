@@ -22,7 +22,7 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AuditEntryDAO;
+import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -32,8 +32,9 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAnySearchDAO;
-import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAuditEntryDAO;
+import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAuditEventDAO;
 import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchRealmDAO;
+import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -82,12 +83,13 @@ public class ElasticsearchPersistenceContext {
         return new ElasticsearchRealmDAO(realmDAO, client, props.getIndexMaxResultWindow());
     }
 
-    @ConditionalOnMissingBean(name = "elasticsearchAuditEntryDAO")
+    @ConditionalOnMissingBean(name = "elasticsearchAuditEventDAO")
     @Bean
-    public AuditEntryDAO auditEntryDAO(
+    public AuditEventDAO auditEventDAO(
+            final ElasticsearchIndexManager indexManager,
             final ElasticsearchClient client,
             final ElasticsearchProperties props) {
 
-        return new ElasticsearchAuditEntryDAO(client, props.getIndexMaxResultWindow());
+        return new ElasticsearchAuditEventDAO(indexManager, client, props.getIndexMaxResultWindow());
     }
 }
