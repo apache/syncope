@@ -270,7 +270,7 @@ components:
 * <<provisioning-managers,provisioning managers>>
 * <<notifications,notification recipient providers>>
 * <<jwtssoprovider,JWT SSO providers>>
-* <<audit-appenders, audit appenders>>
+* <<audit-event-processors, audit event processors>>
 
 [discrete]
 ===== Customize OpenJPA settings

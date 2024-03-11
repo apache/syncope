@@ -18,9 +18,9 @@
 //
 === Audit
 
-The audit feature allows to capture <<audit-events,events>> occurring within the <<core>> and to log relevant information
+The audit feature allows to capture <<audit-events,events>> occurring within the <<core>> and to store relevant information
 about them. +
-By default, events are logged as entries into the `AuditEntry` table of the internal storage. +
+By default, events are written as entries into the `AuditEvent` table of the internal storage. +
 Audit events can also be processed differently, for example when using the <<elasticsearch>> extension.
 
 Once events are reported, they can be used as input for external tools.
@@ -30,48 +30,16 @@ Once events are reported, they can be used as input for external tools.
 The information provided for <<notification-events,notification events>> is also valid for audit events, including examples -
 except for the admin console <<console-configuration-audit,tooling>>, which is naturally distinct.
 
-==== Audit Appenders
+==== Audit Event Processors
 
-In addition to default processing, events are also available for custom handling via Audit
-Appenders, based on https://logging.apache.org/log4j/2.x/manual/appenders.html[Apache Log4j 2 Appenders^]. +
-This allows to empower the available implementations or to write new ones in order to route audit messages, with optional
-transformation (rewrite), to files, queues, sockets, syslog, etc.
+In addition to default processing, events are also available for custom handling via Audit Event Processors.
+This allows to write implementations to route audit events to files, queues, sockets, syslog, etc.
 
-Custom implementations must follow the
+Custom implementations must implement the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/audit/AuditAppender.java[AuditAppender^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/AuditEventProcessor.java[AuditEventProcessor^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/audit/AuditAppender.java[AuditAppender^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/AuditEventProcessor.java[AuditEventProcessor^]
 endif::[]
 interface.
-
-Some convenience implementations are provided, meant to serve as reference - see table below.
-
-[cols="1,2"]
-|===
-
-| 
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultAuditAppender.java[DefaultAuditAppender^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultAuditAppender.java[DefaultAuditAppender^]
-endif::[]
-| This requires to specify (a) a set of events to which the appender is bound (log only if one of such events occurs)
-and (b) a target appender, e.g. one of https://logging.apache.org/log4j/2.x/manual/appenders.html[Apache Log4j 2 Appenders^]
-or a custom implementation.
-
-| 
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultRewriteAuditAppender.java[DefaultRewriteAuditAppender^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultRewriteAuditAppender.java[DefaultRewriteAuditAppender^]
-endif::[]
-| In addition, this requires to provide a
-https://logging.apache.org/log4j/2.x/log4j-core/apidocs/org/apache/logging/log4j/core/appender/rewrite/RewritePolicy.html[RewritePolicy^] 
-implementation, which allows to rewrite the original audit message into something more suitable to the target
-destination.
-
-|===

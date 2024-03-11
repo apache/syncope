@@ -146,4 +146,4 @@ will remain valid unless deleted;
 granted, when not provided all owned Roles are considered as part of the Delegation.
 
 [NOTE]
-<<Audit>> entries generated when operating under Delegation will report both delegating and delegated users.
+<<Audit>> events generated when operating under Delegation will report both delegating and delegated users.

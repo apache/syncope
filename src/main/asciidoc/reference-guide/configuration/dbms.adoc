@@ -33,7 +33,6 @@ persistence.domain[0].jdbcURL=jdbc:postgresql://localhost:5432/syncope?stringtyp
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
-persistence.domain[0].auditSql=audit.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -82,7 +81,6 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary
 persistence.domain[0].orm=META-INF/spring-orm-pgjsonb.xml
-persistence.domain[0].auditSql=audit_pgjsonb.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -112,7 +110,6 @@ persistence.domain[0].jdbcURL=jdbc:mysql://localhost:3306/syncope?useSSL=false&a
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
-persistence.domain[0].auditSql=audit_mysql_innodb.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -125,10 +122,6 @@ for the Core application.
 
 [CAUTION]
 It is important to set the collation to `utf8_general_ci` after creation of `syncope` database.
-
-[WARNING]
-This assumes that the InnoDB engine is enabled in your MySQL instance - if this is not the case, then change the value
-for `Master.audit` to `audit.sql`.
 
 [WARNING]
 This assumes that you have a MySQL instance running on localhost, listening on its default port 3306 with a database
@@ -168,7 +161,6 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
 persistence.domain[0].orm=META-INF/spring-orm-myjson.xml
-persistence.domain[0].auditSql=audit_myjson.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -204,7 +196,6 @@ persistence.domain[0].jdbcURL=jdbc:mariadb://localhost:3306/syncope?characterEnc
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)
-persistence.domain[0].auditSql=audit_mariadb.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -239,7 +230,6 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
 persistence.domain[0].orm=META-INF/spring-orm-oracle.xml
-persistence.domain[0].auditSql=audit_oracle.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 
@@ -291,7 +281,6 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
 persistence.domain[0].orm=META-INF/spring-orm-ojson.xml
-persistence.domain[0].auditSql=audit_ojson.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 ....
@@ -323,7 +312,6 @@ persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=Syncope123
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.SQLServerDictionary
 persistence.domain[0].orm=META-INF/spring-orm-sqlserver.xml
-persistence.domain[0].auditSql=audit_sqlserver.sql
 persistence.domain[0].poolMaxActive=20
 persistence.domain[0].poolMinIdle=5
 
