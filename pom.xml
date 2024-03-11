@@ -467,7 +467,7 @@ under the License.
     <antlr4.version>4.13.1</antlr4.version>
 
     <curator.version>5.6.0</curator.version>
-    <zookeeper.version>3.9.1</zookeeper.version>
+    <zookeeper.version>3.9.2</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
