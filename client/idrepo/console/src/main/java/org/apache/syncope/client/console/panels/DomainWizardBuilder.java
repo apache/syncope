@@ -147,11 +147,6 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
                     new PropertyModel<>(domain, "poolMinIdle")).addRequiredLabel());
 
             add(new AjaxTextFieldPanel(
-                    "auditSql",
-                    "auditSql",
-                    new PropertyModel<>(domain, "auditSql")).addRequiredLabel());
-
-            add(new AjaxTextFieldPanel(
                     "orm",
                     "orm",
                     new PropertyModel<>(domain, "orm")).addRequiredLabel());

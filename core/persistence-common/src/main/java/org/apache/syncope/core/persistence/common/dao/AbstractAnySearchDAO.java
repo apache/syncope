@@ -375,7 +375,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
                 toList();
 
-        // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual sql query results
+        // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual query results
         List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
                 sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).toList();
 

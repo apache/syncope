@@ -409,7 +409,7 @@ under the License.
     <connid.okta.version>3.0.1</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>4.0.3</cxf.version>
+    <cxf.version>4.0.4</cxf.version>
     <bouncycastle.version>1.77</bouncycastle.version>
     <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
 
@@ -457,7 +457,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.1.2</chartjs.version>
 
-    <wicket.version>10.0.0-M2</wicket.version>
+    <wicket.version>10.0.0</wicket.version>
     <wicketstuff.version>10.0.0-M2</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.2-SNAPSHOT</wicket-bootstrap.version>
