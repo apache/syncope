@@ -19,17 +19,18 @@
 package org.apache.syncope.core.persistence.common;
 
 import java.util.Comparator;
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.DomainWatcher;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.scheduling.annotation.Async;
 
 public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
 
@@ -39,13 +40,17 @@ public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
 
     protected final DomainRegistry<D> domainRegistry;
 
+    protected final DomainOps domainOps;
+
     public RuntimeDomainLoader(
             final DomainHolder<?> domainHolder,
             final DomainRegistry<D> domainRegistry,
+            final DomainOps domainOps,
             final ConfigurableApplicationContext ctx) {
 
         this.domainHolder = domainHolder;
         this.domainRegistry = domainRegistry;
+        this.domainOps = domainOps;
 
         // only needed by ZookeeperDomainOps' early init on afterPropertiesSet
         if (ApplicationContextProvider.getApplicationContext() == null) {
@@ -57,6 +62,7 @@ public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
         // nothing to do
     }
 
+    @Async
     @SuppressWarnings("unchecked")
     @Override
     public void added(final Domain domain) {
@@ -76,17 +82,17 @@ public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
 
                         LOG.debug("[{}] Starting on domain '{}'", loaderName, domain);
 
-                        AuthContextUtils.runAsAdmin(
-                                domain.getKey(),
-                                () -> loader.load(domain.getKey()));
+                        loader.load(domain.getKey());
 
                         LOG.debug("[{}] Completed on domain '{}'", loaderName, domain);
                     });
 
+            domainOps.deployed(domain.getKey());
             LOG.info("Domain {} successfully deployed", domain.getKey());
         }
     }
 
+    @Async
     @Override
     public void removed(final String domain) {
         if (domainHolder.getDomains().containsKey(domain)) {
@@ -98,7 +104,9 @@ public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
                         String loaderName = AopUtils.getTargetClass(loader).getName();
 
                         LOG.debug("[{}] Starting dispose on domain '{}'", loaderName, domain);
+
                         loader.unload(domain);
+
                         LOG.debug("[{}] Dispose completed on domain '{}'", loaderName, domain);
                     });
 

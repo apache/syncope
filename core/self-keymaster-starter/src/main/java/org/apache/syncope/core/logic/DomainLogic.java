@@ -88,6 +88,17 @@ public class DomainLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
+    public void deployed(final String key) {
+        DomainEntity domain = domainDAO.findById(key).
+                orElseThrow(() -> new NotFoundException("Domain " + key));
+
+        Domain domainObj = domain.get();
+        domainObj.setDeployed(true);
+        domain.set(domainObj);
+        domainDAO.save(domain);
+    }
+
+    @PreAuthorize("@environment.getProperty('keymaster.username') == authentication.name")
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         DomainEntity domain = domainDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("Domain " + key));

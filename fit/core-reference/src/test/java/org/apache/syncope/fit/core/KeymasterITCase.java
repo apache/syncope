@@ -44,7 +44,6 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
-import org.apache.syncope.common.keymaster.client.self.SelfKeymasterDomainOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -216,11 +215,11 @@ public class KeymasterITCase extends AbstractITCase {
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
         // 1. create new domain
-        String key = UUID.randomUUID().toString();
+        String newDomain = UUID.randomUUID().toString();
 
-        domainOps.create(new JPADomain.Builder(key).
+        domainOps.create(new JPADomain.Builder(newDomain).
                 jdbcDriver("org.h2.Driver").
-                jdbcURL("jdbc:h2:mem:syncopetest" + key + ";DB_CLOSE_DELAY=-1").
+                jdbcURL("jdbc:h2:mem:syncopetest" + newDomain + ";DB_CLOSE_DELAY=-1").
                 dbUsername("sa").
                 dbPassword("").
                 databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
@@ -229,37 +228,26 @@ public class KeymasterITCase extends AbstractITCase {
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
                 build());
 
-        JPADomain domain = (JPADomain) domainOps.read(key);
+        JPADomain domain = (JPADomain) domainOps.read(newDomain);
         assertEquals(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
         assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
         assertEquals(10, domain.getPoolMaxActive());
         assertEquals(2, domain.getPoolMinIdle());
 
-        assertEquals(domain, domainOps.read(key));
+        assertEquals(domain, domainOps.read(newDomain));
 
         // 2. update domain
-        domainOps.adjustPoolSize(key, 100, 23);
+        domainOps.adjustPoolSize(newDomain, 100, 23);
 
-        domain = (JPADomain) domainOps.read(key);
+        domain = (JPADomain) domainOps.read(newDomain);
         assertEquals(100, domain.getPoolMaxActive());
         assertEquals(23, domain.getPoolMinIdle());
 
-        // temporarily finish test case at this point in case Zookeeper
-        // is used: in such a case, in fact, errors are found in the logs
-        // at this point as follows:
-        // org.springframework.beans.factory.BeanCreationException: Error creating bean
-        // with name
-        // 'org.springframework.transaction.annotation.ProxyTransactionManagementConfiguration':
-        // Initialization of bean failed; nested exception is
-        // org.springframework.beans.factory.NoSuchBeanDefinitionException: No bean named
-        // 'org.springframework.context.annotation.ConfigurationClassPostProcessor.importRegistry'
-        // available
-        // the same test, execute alone, works fine with Zookeeper, so it musy be something
-        // set or left unclean from previous tests
-        assumeTrue(domainOps instanceof SelfKeymasterDomainOps);
-
         // 3. work with new domain - create user
-        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain(key);
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).
+                until(() -> domainOps.read(newDomain).isDeployed());
+
+        CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(ADDRESS).setDomain(newDomain);
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, "password");
 
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
@@ -297,7 +285,7 @@ public class KeymasterITCase extends AbstractITCase {
         assertEquals(1, users.getTotalCount());
 
         // 4. delete domain
-        domainOps.delete(key);
+        domainOps.delete(newDomain);
 
         List<Domain> list = domainOps.list();
         assertEquals(initial, list);

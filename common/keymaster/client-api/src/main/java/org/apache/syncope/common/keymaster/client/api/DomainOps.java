@@ -33,6 +33,8 @@ public interface DomainOps {
 
     void create(Domain domain);
 
+    void deployed(String key);
+
     void changeAdminPassword(String key, String password, CipherAlgorithm cipherAlgorithm);
 
     void adjustPoolSize(String key, int poolMaxActive, int poolMinIdle);

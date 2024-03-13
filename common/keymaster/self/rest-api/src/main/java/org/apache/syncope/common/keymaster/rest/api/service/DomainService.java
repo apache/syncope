@@ -93,6 +93,18 @@ public interface DomainService extends Serializable {
     Response create(Domain domain);
 
     /**
+     * Notify that the given domain is deployed.
+     *
+     * @param key key of domain to be updated
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
+    @POST
+    @Path("{key}/deployed")
+    @Produces({ MediaType.APPLICATION_JSON })
+    void deployed(@NotNull @PathParam("key") String key);
+
+    /**
      * Change admin's password for the given domain.
      *
      * @param key key of domain to be updated

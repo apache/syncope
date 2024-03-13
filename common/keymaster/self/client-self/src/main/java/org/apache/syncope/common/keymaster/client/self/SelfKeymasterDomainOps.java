@@ -61,6 +61,17 @@ public class SelfKeymasterDomainOps extends SelfKeymasterOps implements DomainOp
     }
 
     @Override
+    public void deployed(final String key) {
+        try {
+            client(DomainService.class, Map.of()).deployed(key);
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         try {
             client(DomainService.class, Map.of()).changeAdminPassword(key, password, cipherAlgorithm);

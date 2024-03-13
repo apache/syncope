@@ -64,6 +64,11 @@ public class DomainServiceImpl implements DomainService {
     }
 
     @Override
+    public void deployed(final String key) {
+        logic.deployed(key);
+    }
+
+    @Override
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         logic.changeAdminPassword(key, password, cipherAlgorithm);
     }

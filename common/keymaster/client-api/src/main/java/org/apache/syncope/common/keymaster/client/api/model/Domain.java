@@ -98,6 +98,8 @@ public abstract class Domain implements Serializable {
 
     protected String keymasterConfParams;
 
+    protected boolean deployed = false;
+
     @JsonProperty("_class")
     public String getDiscriminator() {
         return getClass().getName();
@@ -143,6 +145,14 @@ public abstract class Domain implements Serializable {
         }
 
         return keymasterConfParams;
+    }
+
+    public boolean isDeployed() {
+        return deployed;
+    }
+
+    public void setDeployed(final boolean deployed) {
+        this.deployed = deployed;
     }
 
     @Override

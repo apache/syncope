@@ -372,9 +372,10 @@ public class PersistenceContext {
     public RuntimeDomainLoader<Neo4jDomain> runtimeDomainLoader(
             final DomainHolder<?> domainHolder,
             final DomainRegistry<Neo4jDomain> domainRegistry,
+            final @Lazy DomainOps domainOps,
             final ConfigurableApplicationContext ctx) {
 
-        return new RuntimeDomainLoader<>(domainHolder, domainRegistry, ctx);
+        return new RuntimeDomainLoader<>(domainHolder, domainRegistry, domainOps, ctx);
     }
 
     @ConditionalOnMissingBean

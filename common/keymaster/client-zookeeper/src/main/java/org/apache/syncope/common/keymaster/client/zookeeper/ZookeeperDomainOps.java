@@ -67,41 +67,43 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (watcher != null) {
-            if (client.checkExists().forPath(buildDomainPath()) == null) {
-                client.create().creatingParentContainersIfNeeded().forPath(buildDomainPath());
-            }
-
-            CuratorCache cache = CuratorCache.build(client, buildDomainPath());
-            cache.listenable().addListener((type, oldData, newData) -> {
-                switch (type) {
-                    case NODE_CREATED:
-                        LOG.debug("Domain {} added", newData.getPath());
-                        try {
-                            Domain domain = MAPPER.readValue(newData.getData(), Domain.class);
-
-                            LOG.info("Domain {} created", domain.getKey());
-                            watcher.added(domain);
-                        } catch (IOException e) {
-                            LOG.debug("Could not parse {}", new String(newData.getData()), e);
-                        }
-                        break;
-
-                    case NODE_CHANGED:
-                        LOG.debug("Domain {} updated", newData.getPath());
-                        break;
-
-                    case NODE_DELETED:
-                        LOG.debug("Domain {} removed", newData.getPath());
-                        watcher.removed(StringUtils.substringAfter(newData.getPath(), DOMAIN_PATH + '/'));
-                        break;
-
-                    default:
-                        LOG.debug("Event {} received with data {}", type, newData);
-                }
-            });
-            cache.start();
+        if (watcher == null) {
+            LOG.warn("No watcher found, aborting");
+            return;
         }
+
+        if (client.checkExists().forPath(buildDomainPath()) == null) {
+            client.create().creatingParentContainersIfNeeded().forPath(buildDomainPath());
+        }
+
+        CuratorCache cache = CuratorCache.build(client, buildDomainPath());
+        cache.listenable().addListener((type, oldData, newData) -> {
+            switch (type) {
+                case NODE_CREATED -> {
+                    LOG.debug("Domain {} added", newData.getPath());
+                    try {
+                        Domain domain = MAPPER.readValue(newData.getData(), Domain.class);
+
+                        LOG.info("Domain {} created", domain.getKey());
+                        watcher.added(domain);
+                    } catch (IOException e) {
+                        LOG.debug("Could not parse {}", new String(newData.getData()), e);
+                    }
+                }
+
+                case NODE_CHANGED ->
+                    LOG.debug("Domain {} updated", newData.getPath());
+
+                case NODE_DELETED -> {
+                    LOG.debug("Domain {} removed", newData.getPath());
+                    watcher.removed(StringUtils.substringAfter(newData.getPath(), DOMAIN_PATH + '/'));
+                }
+
+                default ->
+                    LOG.debug("Event {} received with data {}", type, newData);
+            }
+        });
+        cache.start();
     }
 
     @Override
@@ -144,6 +146,20 @@ public class ZookeeperDomainOps implements DomainOps, InitializingBean {
 
             client.create().creatingParentContainersIfNeeded().
                     forPath(buildDomainPath(domain.getKey()), MAPPER.writeValueAsBytes(domain));
+        } catch (KeymasterException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new KeymasterException(e);
+        }
+    }
+
+    @Override
+    public void deployed(final String key) {
+        try {
+            Domain domain = read(key);
+
+            domain.setDeployed(true);
+            client.setData().forPath(buildDomainPath(key), MAPPER.writeValueAsBytes(domain));
         } catch (KeymasterException e) {
             throw e;
         } catch (Exception e) {

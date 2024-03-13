@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa;
 
+import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -35,9 +36,10 @@ public class JPARuntimeDomainLoader extends RuntimeDomainLoader<JPADomain> {
             final DomainHolder<?> domainHolder,
             final DomainRegistry<JPADomain> domainRegistry,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
+            final DomainOps domainOps,
             final ConfigurableApplicationContext ctx) {
 
-        super(domainHolder, domainRegistry, ctx);
+        super(domainHolder, domainRegistry, domainOps, ctx);
         this.entityManagerFactory = entityManagerFactory;
     }
 

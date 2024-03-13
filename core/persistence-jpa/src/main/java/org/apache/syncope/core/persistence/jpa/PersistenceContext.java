@@ -331,9 +331,10 @@ public class PersistenceContext {
             final DomainHolder<?> domainHolder,
             final DomainRegistry<JPADomain> domainRegistry,
             final DomainRoutingEntityManagerFactory entityManagerFactory,
+            final @Lazy DomainOps domainOps,
             final ConfigurableApplicationContext ctx) {
 
-        return new JPARuntimeDomainLoader(domainHolder, domainRegistry, entityManagerFactory, ctx);
+        return new JPARuntimeDomainLoader(domainHolder, domainRegistry, entityManagerFactory, domainOps, ctx);
     }
 
     @ConditionalOnMissingBean

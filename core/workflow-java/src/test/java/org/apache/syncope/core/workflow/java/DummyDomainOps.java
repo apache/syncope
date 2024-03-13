@@ -49,6 +49,11 @@ public class DummyDomainOps implements DomainOps {
     }
 
     @Override
+    public void deployed(final String key) {
+        // nothing to do
+    }
+
+    @Override
     public void changeAdminPassword(final String key, final String password, final CipherAlgorithm cipherAlgorithm) {
         // nothing to do
     }
