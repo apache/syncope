@@ -300,11 +300,15 @@ public class KeymasterITCase extends AbstractITCase {
 
     @Test
     public void domainCreateDuplicateKey() {
+        assumeTrue(domainOps.list().stream().anyMatch(d -> "Two".equals(d.getKey())));
+
         assertThrows(KeymasterException.class, () -> domainOps.create(new JPADomain.Builder("Two").build()));
     }
 
     @Test
     public void domainUpdateAdminPassword() throws Exception {
+        assumeTrue(domainOps.list().stream().anyMatch(d -> "Two".equals(d.getKey())));
+
         List<Domain> initial = domainOps.list();
         assertNotNull(initial);
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
