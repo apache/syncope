@@ -20,11 +20,17 @@ package org.apache.syncope.core.starter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import io.swagger.v3.oas.integration.api.OpenAPIConfiguration;
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.HeaderParameter;
+import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
@@ -45,6 +51,8 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
 import org.apache.syncope.common.keymaster.rest.api.service.DomainService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.keymaster.internal.InternalConfParamHelper;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalConfParamOps;
 import org.apache.syncope.core.keymaster.internal.SelfKeymasterInternalDomainOps;
@@ -56,6 +64,7 @@ import org.apache.syncope.core.keymaster.rest.security.SelfKeymasterUsernamePass
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
+import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.NetworkServiceDAO;
@@ -109,6 +118,7 @@ public class SelfKeymasterContext {
 
     @Bean
     public Server selfKeymasterContainer(
+            final DomainHolder domainHolder,
             final ConfParamService confParamService,
             final NetworkServiceService networkServiceService,
             final DomainService domainService,
@@ -161,6 +171,30 @@ public class SelfKeymasterContext {
                 configuration.getOpenAPI().setServers(List.of(new io.swagger.v3.oas.models.servers.Server().url(url)));
 
                 return configuration;
+            }
+
+            @Override
+            protected void addParameters(final List<Parameter> parameters) {
+                Optional<Parameter> domainHeaderParameter = parameters.stream().
+                        filter(p -> p instanceof HeaderParameter && RESTHeaders.DOMAIN.equals(p.getName())).findFirst();
+                if (domainHeaderParameter.isEmpty()) {
+                    HeaderParameter parameter = new HeaderParameter();
+                    parameter.setName(RESTHeaders.DOMAIN);
+                    parameter.setRequired(true);
+
+                    ExternalDocumentation extDoc = new ExternalDocumentation();
+                    extDoc.setDescription("Apache Syncope Reference Guide");
+                    extDoc.setUrl("https://syncope.apache.org/docs/3.0/reference-guide.html#domains");
+
+                    Schema<String> schema = new Schema<>();
+                    schema.setDescription("Domains are built to facilitate multitenancy.");
+                    schema.setExternalDocs(extDoc);
+                    schema.setEnum(domainHolder.getDomains().keySet().stream().sorted().collect(Collectors.toList()));
+                    schema.setDefault(SyncopeConstants.MASTER_DOMAIN);
+                    parameter.setSchema(schema);
+
+                    parameters.add(parameter);
+                }
             }
         };
         openApiCustomizer.setDynamicBasePath(false);

@@ -20,16 +20,19 @@ package org.apache.syncope.core.persistence.jpa.content;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.content.ConfParamLoader;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Initialize Keymaster with default content if no data is present already.
@@ -53,41 +56,40 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
 
     @Override
     public void load(final String domain, final DataSource datasource) {
-        boolean existingData;
-        try {
-            existingData = !confParamOps.list(domain).isEmpty();
-        } catch (Exception e) {
-            LOG.error("[{}] Could not access Keymaster", domain, e);
-            existingData = true;
-        }
+        AuthContextUtils.callAsAdmin(domain, new Callable<Void>() {
 
-        if (existingData) {
-            LOG.info("[{}] Data found in Keymaster, leaving untouched", domain);
-        } else {
-            LOG.info("[{}] Empty Keymaster found, loading default content", domain);
-
-            try {
-                InputStream contentJSON = ApplicationContextProvider.getBeanFactory().
-                        getBean(domain + "KeymasterConfParamsJSON", InputStream.class);
-                loadDefaultContent(domain, contentJSON);
-            } catch (Exception e) {
-                LOG.error("[{}] While loading default Keymaster content", domain, e);
-            }
-        }
-    }
-
-    protected void loadDefaultContent(final String domain, final InputStream contentJSON)
-            throws IOException {
-
-        try (contentJSON) {
-            JsonNode content = MAPPER.readTree(contentJSON);
-            for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
-                Map.Entry<String, JsonNode> param = itor.next();
-                Object value = MAPPER.treeToValue(param.getValue(), Object.class);
-                if (value != null) {
-                    confParamOps.set(domain, param.getKey(), value);
+            @Transactional
+            @Override
+            public Void call() throws Exception {
+                boolean existingData;
+                try {
+                    existingData = !confParamOps.list(domain).isEmpty();
+                } catch (Exception e) {
+                    LOG.error("[{}] Could not access Keymaster", domain, e);
+                    existingData = true;
                 }
+
+                if (existingData) {
+                    LOG.info("[{}] Data found in Keymaster, leaving untouched", domain);
+                } else {
+                    LOG.info("[{}] Empty Keymaster found, loading default content", domain);
+
+                    try (InputStream contentJSON = ApplicationContextProvider.getBeanFactory().
+                            getBean(domain + "KeymasterConfParamsJSON", InputStream.class)) {
+
+                        JsonNode content = MAPPER.readTree(contentJSON);
+                        for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
+                            Map.Entry<String, JsonNode> param = itor.next();
+                            Optional.ofNullable(MAPPER.treeToValue(param.getValue(), Object.class)).
+                                    ifPresent(value -> confParamOps.set(domain, param.getKey(), value));
+                        }
+                    } catch (Exception e) {
+                        LOG.error("[{}] While loading default Keymaster content", domain, e);
+                    }
+                }
+
+                return null;
             }
-        }
+        });
     }
 }
