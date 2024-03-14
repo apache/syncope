@@ -503,7 +503,7 @@ under the License.
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.neo4j.version>5.17.0</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.3.3</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
