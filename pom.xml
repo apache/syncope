@@ -429,7 +429,7 @@ under the License.
 
     <elasticsearch.version>8.12.2</elasticsearch.version>
     <opensearch.version>2.12.0</opensearch.version>
-    <opensearch-java.version>2.9.0</opensearch-java.version>
+    <opensearch-java.version>2.9.1</opensearch-java.version>
 
     <commons-lang3.version>3.14.0</commons-lang3.version>
     <commons-jexl.version>3.3</commons-jexl.version>
@@ -1673,7 +1673,7 @@ under the License.
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.10.0.2594</version>
+          <version>3.11.0.3922</version>
         </plugin>
       </plugins>
     </pluginManagement>
