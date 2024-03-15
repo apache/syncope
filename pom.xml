@@ -420,7 +420,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-6</groovy.version>
+    <groovy.version>5.0.0-alpha-7</groovy.version>
 
     <flowable.version>7.0.1</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -467,7 +467,7 @@ under the License.
     <antlr4.version>4.13.1</antlr4.version>
 
     <curator.version>5.6.0</curator.version>
-    <zookeeper.version>3.9.1</zookeeper.version>
+    <zookeeper.version>3.9.2</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -503,7 +503,7 @@ under the License.
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.neo4j.version>5.17.0</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.2</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
     <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.3.3</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
@@ -1118,7 +1118,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.2</version>
       </dependency>
 
       <dependency>
