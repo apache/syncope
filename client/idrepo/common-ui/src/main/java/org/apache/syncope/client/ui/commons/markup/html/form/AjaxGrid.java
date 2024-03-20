@@ -164,7 +164,8 @@ public class AjaxGrid<K, V, S> extends Panel {
 
         @Override
         public void populateItem(
-                final Item<ICellPopulator<Pair<K, V>>> item, String componentId,
+                final Item<ICellPopulator<Pair<K, V>>> item,
+                final String componentId,
                 final IModel<Pair<K, V>> rowModel) {
 
             @SuppressWarnings("unchecked")
