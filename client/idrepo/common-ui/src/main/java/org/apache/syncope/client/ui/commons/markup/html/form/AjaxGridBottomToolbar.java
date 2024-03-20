@@ -33,14 +33,14 @@ import org.apache.wicket.markup.html.list.Loop;
 import org.apache.wicket.markup.html.list.LoopItem;
 import org.apache.wicket.model.PropertyModel;
 import org.wicketstuff.egrid.column.AbstractEditablePropertyColumn;
-import org.wicketstuff.egrid.column.EditableCellPanel;
+import org.wicketstuff.egrid.column.panel.EditablePanel;
 import org.wicketstuff.egrid.component.EditableDataTable;
-import org.wicketstuff.egrid.component.EditableGridSubmitLink;
-import org.wicketstuff.egrid.toolbar.AbstractEditableGridToolbar;
+import org.wicketstuff.egrid.component.EditableTableSubmitLink;
+import org.wicketstuff.egrid.toolbar.AbstractEditableToolbar;
 
-public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableGridToolbar {
+public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableToolbar {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8122881502408032823L;
 
     protected static final String CELL_ID = "cell";
 
@@ -70,7 +70,7 @@ public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableGridTo
 
     protected class AddToolBarForm extends Form<T> implements IFormVisitorParticipant {
 
-        protected static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 4496461574118470280L;
 
         public AddToolBarForm(final String id) {
             super(id);
@@ -86,9 +86,9 @@ public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableGridTo
     }
 
     protected Component newAddButton(final WebMarkupContainer encapsulatingContainer) {
-        return new EditableGridSubmitLink("add", encapsulatingContainer) {
+        return new EditableTableSubmitLink("add", encapsulatingContainer) {
 
-            protected static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 4073423722572857137L;
 
             @Override
             protected void onSuccess(final AjaxRequestTarget target) {
@@ -108,17 +108,19 @@ public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableGridTo
         List<AbstractEditablePropertyColumn<T, S>> columns = getEditableColumns();
         return new Loop(CELLS_ID, columns.size()) {
 
-            protected static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7579369655436866236L;
 
             @Override
             protected void populateItem(final LoopItem item) {
-                addEditorComponent(item, getEditorColumn(columns, item.getIndex()));
+                AbstractEditablePropertyColumn<T, S> editableColumn = columns.get(item.getIndex());
+
+                EditablePanel panel = editableColumn.createEditablePanel(CELL_ID);
+                FormComponent<?> editorComponent = panel.getEditableComponent();
+                editorComponent.setDefaultModel(new PropertyModel<T>(newRow, editableColumn.getPropertyExpression()));
+
+                item.add(panel);
             }
         };
-    }
-
-    protected void addEditorComponent(final LoopItem item, final AbstractEditablePropertyColumn<T, S> toolBarCell) {
-        item.add(newCell(toolBarCell));
     }
 
     @SuppressWarnings("unchecked")
@@ -129,18 +131,5 @@ public abstract class AjaxGridBottomToolbar<T, S> extends AbstractEditableGridTo
                 map(AbstractEditablePropertyColumn.class::cast).
                 forEach(columns::add);
         return columns;
-    }
-
-    protected Component newCell(final AbstractEditablePropertyColumn<T, S> editableGridColumn) {
-        EditableCellPanel panel = editableGridColumn.getEditableCellPanel(CELL_ID);
-        FormComponent<?> editorComponent = panel.getEditableComponent();
-        editorComponent.setDefaultModel(new PropertyModel<T>(newRow, editableGridColumn.getPropertyExpression()));
-        return panel;
-    }
-
-    protected AbstractEditablePropertyColumn<T, S> getEditorColumn(
-            final List<AbstractEditablePropertyColumn<T, S>> editorColumn, final int index) {
-
-        return editorColumn.get(index);
     }
 }

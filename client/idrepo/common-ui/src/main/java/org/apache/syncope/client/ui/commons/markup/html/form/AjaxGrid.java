@@ -24,7 +24,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -34,22 +33,20 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.wicketstuff.egrid.column.EditableGridActionsColumn;
-import org.wicketstuff.egrid.column.EditableGridActionsPanel;
+import org.wicketstuff.egrid.column.EditableActionsColumn;
+import org.wicketstuff.egrid.column.panel.ActionsPanel;
 import org.wicketstuff.egrid.component.EditableDataTable;
-import org.wicketstuff.egrid.model.GridOperationData;
-import org.wicketstuff.egrid.model.OperationType;
 import org.wicketstuff.egrid.provider.IEditableDataProvider;
-import org.wicketstuff.egrid.toolbar.EditableGridHeadersToolbar;
-import org.wicketstuff.egrid.toolbar.EditableGridNavigationToolbar;
+import org.wicketstuff.egrid.toolbar.HeadersToolbar;
+import org.wicketstuff.egrid.toolbar.NavigationToolbar;
 
 public class AjaxGrid<K, V, S> extends Panel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 9101893623114754751L;
 
     protected static class NonValidatingForm<T> extends Form<T> {
 
-        protected static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 8313183098058102408L;
 
         public NonValidatingForm(final String id) {
             super(id);
@@ -75,26 +72,12 @@ public class AjaxGrid<K, V, S> extends Panel {
         newCols.addAll(columns);
         newCols.add(new AjaxGridActionsColumn<>(new Model<>("Actions")));
 
-        dataTable = new EditableDataTable<>("dataTable", newCols, dataProvider, rowsPerPage, null) {
-
-            protected static final long serialVersionUID = 1L;
-
-            @Override
-            protected void onError(final AjaxRequestTarget target) {
-                AjaxGrid.this.onError(target);
-            }
-
-            @Override
-            protected Item<Pair<K, V>> newRowItem(final String id, final int index, final IModel<Pair<K, V>> model) {
-                return super.newRowItem(id, index, model);
-            }
-        };
-
+        dataTable = new EditableDataTable<>("dataTable", newCols, dataProvider, rowsPerPage);
         dataTable.setOutputMarkupId(true);
 
-        dataTable.addTopToolbar(new EditableGridNavigationToolbar(dataTable));
+        dataTable.addTopToolbar(new NavigationToolbar(dataTable));
         if (displayHeader()) {
-            dataTable.addTopToolbar(new EditableGridHeadersToolbar<>(dataTable, dataProvider));
+            dataTable.addTopToolbar(new HeadersToolbar<>(dataTable, dataProvider));
         }
         if (displayAdd()) {
             dataTable.addBottomToolbar(newAddBottomToolbar(dataTable, dataProvider));
@@ -114,12 +97,6 @@ public class AjaxGrid<K, V, S> extends Panel {
     public AjaxGrid<K, V, S> setTableCss(final String cssStyle) {
         dataTable.add(AttributeModifier.replace("class", cssStyle));
         return this;
-    }
-
-    protected EditableDataTable.RowItem<Pair<K, V>> newRowItem(
-            final String id, final int index, final IModel<Pair<K, V>> model) {
-
-        return new EditableDataTable.RowItem<>(id, index, model);
     }
 
     protected AjaxGridBottomToolbar<Pair<K, V>, S> newAddBottomToolbar(
@@ -162,7 +139,7 @@ public class AjaxGrid<K, V, S> extends Panel {
         return true;
     }
 
-    protected void onCancel(final AjaxRequestTarget target) {
+    protected void onCancel(final AjaxRequestTarget target, final IModel<Pair<K, V>> rowModel) {
     }
 
     protected void onDelete(final AjaxRequestTarget target, final IModel<Pair<K, V>> rowModel) {
@@ -177,9 +154,9 @@ public class AjaxGrid<K, V, S> extends Panel {
     protected void onAdd(final AjaxRequestTarget target, final Pair<K, V> newRow) {
     }
 
-    protected class AjaxGridActionsColumn<P, S> extends EditableGridActionsColumn<Pair<K, V>, S> {
+    protected class AjaxGridActionsColumn<P, S> extends EditableActionsColumn<Pair<K, V>, S> {
 
-        protected static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 7409805339768145855L;
 
         public AjaxGridActionsColumn(final IModel<String> displayModel) {
             super(displayModel);
@@ -187,11 +164,12 @@ public class AjaxGrid<K, V, S> extends Panel {
 
         @Override
         public void populateItem(
-                final Item<ICellPopulator<Pair<K, V>>> item,
-                final String componentId,
+                final Item<ICellPopulator<Pair<K, V>>> item, String componentId,
                 final IModel<Pair<K, V>> rowModel) {
 
-            item.add(new AjaxGridActionsPanel<>(componentId, item));
+            @SuppressWarnings("unchecked")
+            Item<Pair<K, V>> rowItem = item.findParent(Item.class);
+            item.add(new AjaxGridActionsPanel<>(componentId, rowItem));
         }
 
         @Override
@@ -210,8 +188,8 @@ public class AjaxGrid<K, V, S> extends Panel {
         }
 
         @Override
-        protected void onCancel(final AjaxRequestTarget target) {
-            AjaxGrid.this.onCancel(target);
+        protected void onCancel(final AjaxRequestTarget target, final IModel<Pair<K, V>> rowModel) {
+            AjaxGrid.this.onCancel(target, rowModel);
         }
 
         @Override
@@ -220,55 +198,64 @@ public class AjaxGrid<K, V, S> extends Panel {
         }
     }
 
-    protected class AjaxGridActionsPanel<T> extends EditableGridActionsPanel<Pair<K, V>> {
+    protected class AjaxGridActionsPanel<T> extends ActionsPanel<Pair<K, V>> {
 
         private static final long serialVersionUID = -1239486389000098745L;
 
         private final Item<Pair<K, V>> rowItem;
 
         @SuppressWarnings("unchecked")
-        public AjaxGridActionsPanel(final String id, final Item<ICellPopulator<Pair<K, V>>> item) {
+        public AjaxGridActionsPanel(final String id, final Item<Pair<K, V>> item) {
             super(id, item);
 
-            rowItem = item.findParent(Item.class);
-            addOrReplace(new AjaxLink<String>("delete") {
+            this.rowItem = item;
+        }
 
-                private static final long serialVersionUID = 1049203640150071039L;
+        @Override
+        protected void onEdit(final AjaxRequestTarget target) {
+            super.onEdit(target);
 
-                @SuppressWarnings("unchecked")
-                @Override
-                public void onClick(final AjaxRequestTarget target) {
-                    EditableDataTable<?, ?> eventTarget = rowItem.findParent(EditableDataTable.class);
-                    send(getPage(), Broadcast.BREADTH, new GridOperationData<>(
-                            OperationType.DELETE, (T) rowItem.getDefaultModelObject(), eventTarget));
-                    target.add(eventTarget);
-                    onDelete(target);
-                }
-
-                @Override
-                public boolean isVisible() {
-                    return AjaxGridActionsPanel.this.allowDelete(rowItem);
-                }
-            });
+            rowItem.setMetaData(EditableDataTable.EDITING, true);
+            send(getPage(), Broadcast.BREADTH, rowItem);
+            target.add(rowItem);
         }
 
         @Override
         protected void onSave(final AjaxRequestTarget target) {
+            super.onSave(target);
+
+            rowItem.setMetaData(EditableDataTable.EDITING, false);
+            send(getPage(), Broadcast.BREADTH, rowItem);
+            target.add(rowItem);
+
             AjaxGrid.this.onSave(target, rowItem.getModel());
         }
 
         @Override
         protected void onError(final AjaxRequestTarget target) {
+            target.add(rowItem);
+
             AjaxGrid.this.onError(target);
         }
 
         @Override
         protected void onCancel(final AjaxRequestTarget target) {
-            AjaxGrid.this.onCancel(target);
+            super.onCancel(target);
+
+            rowItem.setMetaData(EditableDataTable.EDITING, false);
+            send(getPage(), Broadcast.BREADTH, rowItem);
+            target.add(rowItem);
+
+            AjaxGrid.this.onCancel(target, rowItem.getModel());
         }
 
         @Override
         protected void onDelete(final AjaxRequestTarget target) {
+            super.onDelete(target);
+
+            dataTable.getDataProvider().remove(rowItem.getModelObject());
+            target.add(dataTable);
+
             AjaxGrid.this.onDelete(target, rowItem.getModel());
         }
     }

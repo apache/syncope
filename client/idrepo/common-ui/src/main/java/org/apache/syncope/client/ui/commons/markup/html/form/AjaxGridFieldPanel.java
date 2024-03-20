@@ -21,10 +21,10 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -32,10 +32,10 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.wicketstuff.egrid.column.AbstractEditablePropertyColumn;
-import org.wicketstuff.egrid.column.RequiredEditableTextFieldColumn;
+import org.wicketstuff.egrid.column.RequiredTextFieldColumn;
 import org.wicketstuff.egrid.provider.EditableListDataProvider;
 
-public class AjaxGridFieldPanel<K, V, S> extends Panel {
+public class AjaxGridFieldPanel<K, V> extends Panel {
 
     private static final long serialVersionUID = 7589570522964677729L;
 
@@ -48,8 +48,8 @@ public class AjaxGridFieldPanel<K, V, S> extends Panel {
                 "grid",
                 getColumns(),
                 new EditableListDataProvider<>(model.getObject().entrySet().stream().
-                        map(entry -> MutablePair.of(entry.getKey(), entry.getValue())).
-                        collect(Collectors.toList())), 10) {
+                        map(e -> MutablePair.of(e.getKey(), e.getValue())).collect(Collectors.toList()), ""),
+                10) {
 
             private static final long serialVersionUID = -1315456128897492459L;
 
@@ -75,19 +75,16 @@ public class AjaxGridFieldPanel<K, V, S> extends Panel {
         });
     }
 
-    public AjaxGridFieldPanel<K, V, S> hideLabel() {
-        Component label = get(AbstractFieldPanel.LABEL);
-        if (label != null) {
-            label.setVisible(false);
-        }
+    public AjaxGridFieldPanel<K, V> hideLabel() {
+        Optional.ofNullable(get(AbstractFieldPanel.LABEL)).ifPresent(label -> label.setVisible(false));
 
         return this;
     }
 
-    private List<AbstractEditablePropertyColumn<Pair<K, V>, S>> getColumns() {
-        List<AbstractEditablePropertyColumn<Pair<K, V>, S>> columns = new ArrayList<>();
-        columns.add(new RequiredEditableTextFieldColumn<>(Model.of(), "left"));
-        columns.add(new RequiredEditableTextFieldColumn<>(Model.of(), "right"));
+    private List<AbstractEditablePropertyColumn<Pair<K, V>, String>> getColumns() {
+        List<AbstractEditablePropertyColumn<Pair<K, V>, String>> columns = new ArrayList<>();
+        columns.add(new RequiredTextFieldColumn<>(Model.of(), "left"));
+        columns.add(new RequiredTextFieldColumn<>(Model.of(), "right"));
         return columns;
     }
 }
