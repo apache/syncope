@@ -26,7 +26,7 @@ public final class WebClientBuilder {
         return setAsync(WebClient.create(uri));
     }
 
-    public static WebClient setAsync(final WebClient webClient) {
+    protected static WebClient setAsync(final WebClient webClient) {
         ClientConfiguration config = WebClient.getConfig(webClient);
         config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
 
