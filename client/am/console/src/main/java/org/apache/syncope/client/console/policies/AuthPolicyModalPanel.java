@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -79,6 +80,24 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
                 "authModules",
                 new PropertyModel<>(model.getObject().getConf(), "authModules"),
                 allAuthModules));
+
+        add(new AjaxCheckBoxPanel(
+                "bypassEnabled",
+                "bypassEnabled",
+                new PropertyModel<>(model.getObject().getConf(), "bypassEnabled"),
+                false));
+
+        add(new AjaxTextFieldPanel(
+                "bypassPrincipalAttributeName",
+                "bypassPrincipalAttributeName",
+                new PropertyModel<>(model.getObject().getConf(), "bypassPrincipalAttributeName"),
+                false));
+
+        add(new AjaxTextFieldPanel(
+                "bypassPrincipalAttributeValue",
+                "bypassPrincipalAttributeValue",
+                new PropertyModel<>(model.getObject().getConf(), "bypassPrincipalAttributeValue"),
+                false));
     }
 
     @Override

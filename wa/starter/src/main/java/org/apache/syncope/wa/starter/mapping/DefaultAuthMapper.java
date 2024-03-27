@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.auth.MFAAuthModuleConf;
 import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
@@ -78,8 +79,9 @@ public class DefaultAuthMapper implements AuthMapper {
             delegatedAuthHandlers.addAll(authModules.stream().
                     filter(m -> m.getConf() instanceof Pac4jAuthModuleConf).
                     map(m -> Pair.of(
-                    m.getKey(),
-                    Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName()).orElse(m.getKey()))).
+                            m.getKey(),
+                            Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName())
+                                    .orElse(m.getKey()))).
                     collect(Collectors.toSet()));
             if (!delegatedAuthHandlers.isEmpty()) {
                 authHandlers.removeAll(delegatedAuthHandlers.stream().map(Pair::getLeft).collect(Collectors.toSet()));
@@ -110,7 +112,15 @@ public class DefaultAuthMapper implements AuthMapper {
                     collect(Collectors.toSet());
 
             mfaPolicy = new DefaultRegisteredServiceMultifactorPolicy();
-            mfaPolicy.setBypassEnabled(false);
+
+            if (StringUtils.isNotBlank(policyConf.getBypassPrincipalAttributeName())
+                    && StringUtils.isNotBlank(policyConf.getBypassPrincipalAttributeValue())) {
+                mfaPolicy.setBypassPrincipalAttributeName(policyConf.getBypassPrincipalAttributeName());
+                mfaPolicy.setBypassPrincipalAttributeValue(policyConf.getBypassPrincipalAttributeValue());
+            } else {
+                mfaPolicy.setBypassEnabled(policyConf.isBypassEnabled());
+            }
+
             mfaPolicy.setForceExecution(true);
             mfaPolicy.setMultifactorAuthenticationProviders(mfaProviders);
         }
