@@ -29,6 +29,12 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     private boolean tryAll;
 
+    private boolean bypassEnabled;
+
+    private String bypassPrincipalAttributeName;
+
+    private String bypassPrincipalAttributeValue;
+
     private final List<String> authModules = new ArrayList<>();
 
     public boolean isTryAll() {
@@ -37,6 +43,30 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     public void setTryAll(final boolean tryAll) {
         this.tryAll = tryAll;
+    }
+
+    public boolean isBypassEnabled() {
+        return bypassEnabled;
+    }
+
+    public void setBypassEnabled(final boolean bypassEnabled) {
+        this.bypassEnabled = bypassEnabled;
+    }
+
+    public String getBypassPrincipalAttributeName() {
+        return bypassPrincipalAttributeName;
+    }
+
+    public void setBypassPrincipalAttributeName(final String bypassPrincipalAttributeName) {
+        this.bypassPrincipalAttributeName = bypassPrincipalAttributeName;
+    }
+
+    public String getBypassPrincipalAttributeValue() {
+        return bypassPrincipalAttributeValue;
+    }
+
+    public void setBypassPrincipalAttributeValue(final String bypassPrincipalAttributeValue) {
+        this.bypassPrincipalAttributeValue = bypassPrincipalAttributeValue;
     }
 
     @JacksonXmlElementWrapper(localName = "authModules")
