@@ -15,24 +15,18 @@ public final class WebClientBuilder {
             final String username,
             final String password,
             final List<?> providers) {
-        WebClient webClient = WebClient.create(address, providers, username, password, null);
-
-        ClientConfiguration config = WebClient.getConfig(webClient);
-        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
-
-        return webClient;
+        return setAsync(WebClient.create(address, providers, username, password, null));
     }
 
     public static WebClient build(final String address) {
-        WebClient webClient = WebClient.create(address);
-        ClientConfiguration config = WebClient.getConfig(webClient);
-        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
-
-        return webClient;
+        return setAsync(WebClient.create(address));
     }
 
     public static WebClient build(final URI uri) {
-        WebClient webClient = WebClient.create(uri);
+        return setAsync(WebClient.create(uri));
+    }
+
+    public static WebClient setAsync(final WebClient webClient) {
         ClientConfiguration config = WebClient.getConfig(webClient);
         config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
 
