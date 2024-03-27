@@ -31,6 +31,7 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadParser;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
@@ -60,7 +61,7 @@ public class BatchResponse {
             final String boundary,
             final TLSClientParameters tlsClientParameters) {
 
-        WebClient webClient = WebClient.create(monitor).
+        WebClient webClient = WebClientBuilder.build(monitor).
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
         if (tlsClientParameters != null) {

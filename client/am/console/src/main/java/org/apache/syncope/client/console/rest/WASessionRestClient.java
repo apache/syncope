@@ -26,8 +26,8 @@ import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
 
@@ -50,12 +50,10 @@ public final class WASessionRestClient extends AMSessionRestClient {
     @Override
     public List<AMSession> list() {
         try {
-            Response response = WebClient.create(
-                    getActuatorEndpoint(),
+            Response response = WebClientBuilder.build(getActuatorEndpoint(),
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
-                    null).
-                    accept(MediaType.APPLICATION_JSON_TYPE).get();
+                    List.of()).accept(MediaType.APPLICATION_JSON_TYPE).get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("activeSsoSessions")) {

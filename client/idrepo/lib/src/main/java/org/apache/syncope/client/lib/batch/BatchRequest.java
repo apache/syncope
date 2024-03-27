@@ -27,6 +27,7 @@ import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
@@ -111,7 +112,8 @@ public class BatchRequest {
     public BatchResponse commit(final boolean async) {
         String boundary = "--batch_" + UUID.randomUUID().toString();
 
-        WebClient webClient = WebClient.create(bcfb.getAddress()).path("batch").
+        WebClient webClient = WebClientBuilder.build(bcfb.getAddress())
+                .path("batch").
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
         if (async) {

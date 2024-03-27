@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -47,7 +48,8 @@ public class ResourceRestClient extends BaseRestClient {
     public boolean check(final String coreAddress, final String domain, final String jwt, final String key)
             throws IOException {
 
-        WebClient client = WebClient.create(coreAddress).path("resources").
+        WebClient client = WebClientBuilder.build(coreAddress).
+                path("resources").
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 type(MediaType.APPLICATION_JSON_TYPE).
                 header(RESTHeaders.DOMAIN, domain).
