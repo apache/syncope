@@ -23,8 +23,8 @@ import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.AMSession;
@@ -56,13 +56,13 @@ public abstract class AMSessionRestClient implements RestClient {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
 
         try {
-            Response response = WebClient.create(
-                    getActuatorEndpoint(),
+            Response response = WebClientBuilder.build(getActuatorEndpoint(),
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
-                    null).
-                    path(key).
-                    accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE).delete();
+                    List.of()).
+                    accept(MediaType.APPLICATION_JSON_TYPE).
+                    type(MediaType.APPLICATION_JSON_TYPE).
+                    path(key).delete();
             if (response.getStatus() != Response.Status.OK.getStatusCode()
                     && response.getStatus() != Response.Status.NO_CONTENT.getStatusCode()) {
 
