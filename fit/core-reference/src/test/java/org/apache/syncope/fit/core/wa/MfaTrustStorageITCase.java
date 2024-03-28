@@ -32,7 +32,7 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class MfaTrustStorageTCase extends AbstractITCase {
+public class MfaTrustStorageITCase extends AbstractITCase {
 
     private static MfaTrustedDevice createDeviceRegistration() {
         MfaTrustedDevice device = new MfaTrustedDevice();

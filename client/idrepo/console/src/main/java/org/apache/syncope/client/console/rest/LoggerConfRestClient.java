@@ -113,12 +113,12 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
     @Override
     public void setLevel(final String key, final LogLevel level) {
         instances.forEach(i -> WebClientBuilder.build(getActuatorEndpoint(i),
-                        SyncopeWebApplication.get().getAnonymousUser(),
-                        SyncopeWebApplication.get().getAnonymousKey(),
-                        List.of())
-                .accept(MediaType.APPLICATION_JSON_TYPE)
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .path(key)
-                .post("{\"configuredLevel\": \"" + level.name() + "\"}"));
+                SyncopeWebApplication.get().getAnonymousUser(),
+                SyncopeWebApplication.get().getAnonymousKey(),
+                List.of()).
+                accept(MediaType.APPLICATION_JSON_TYPE).
+                type(MediaType.APPLICATION_JSON_TYPE).
+                path(key).
+                post("{\"configuredLevel\": \"" + level.name() + "\"}"));
     }
 }

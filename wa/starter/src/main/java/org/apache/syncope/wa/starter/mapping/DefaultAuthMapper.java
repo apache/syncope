@@ -79,9 +79,8 @@ public class DefaultAuthMapper implements AuthMapper {
             delegatedAuthHandlers.addAll(authModules.stream().
                     filter(m -> m.getConf() instanceof Pac4jAuthModuleConf).
                     map(m -> Pair.of(
-                            m.getKey(),
-                            Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName())
-                                    .orElse(m.getKey()))).
+                    m.getKey(),
+                    Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName()).orElse(m.getKey()))).
                     collect(Collectors.toSet()));
             if (!delegatedAuthHandlers.isEmpty()) {
                 authHandlers.removeAll(delegatedAuthHandlers.stream().map(Pair::getLeft).collect(Collectors.toSet()));
