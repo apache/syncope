@@ -60,7 +60,7 @@ public class SyncopeAnonymousClient extends SyncopeClient {
     }
 
     public JsonNode info() throws IOException {
-        WebClient webClient = WebClient.create(
+        WebClient webClient = WebClientBuilder.build(
                 StringUtils.removeEnd(restClientFactory.getAddress().replace("/rest", "/actuator/info"), "/")).
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 header(RESTHeaders.DOMAIN, getDomain()).

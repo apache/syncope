@@ -31,6 +31,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
 import org.apache.cxf.transport.http.HTTPConduit;
+import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.cxf.transports.http.configuration.ConnectionType;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 
@@ -66,6 +67,7 @@ abstract class SelfKeymasterOps {
             client.type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
             ClientConfiguration config = WebClient.getConfig(client);
+            config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
             config.getInInterceptors().add(new GZIPInInterceptor());
             config.getOutInterceptors().add(new GZIPOutInterceptor());
 

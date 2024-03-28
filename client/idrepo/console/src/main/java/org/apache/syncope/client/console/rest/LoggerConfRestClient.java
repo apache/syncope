@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeWebApplication;
+import org.apache.syncope.client.lib.WebClientBuilder;
 import org.apache.syncope.client.ui.commons.rest.RestClient;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
@@ -67,22 +67,15 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
         return address + "actuator/loggers";
     }
 
-    protected WebClient webClient(final NetworkService instance) {
-        return WebClient.create(
-                getActuatorEndpoint(instance),
-                SyncopeWebApplication.get().getAnonymousUser(),
-                SyncopeWebApplication.get().getAnonymousKey(),
-                null).
-                accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE);
-    }
-
     @Override
     public List<LoggerConf> list() {
         List<LoggerConf> loggerConfs = new ArrayList<>();
 
         try {
-            Response response = webClient(instances.get(0)).get();
+            Response response = WebClientBuilder.build(getActuatorEndpoint(instances.get(0)),
+                    SyncopeWebApplication.get().getAnonymousUser(),
+                    SyncopeWebApplication.get().getAnonymousKey(),
+                    List.of()).accept(MediaType.APPLICATION_JSON_TYPE).get();
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("loggers")) {
@@ -114,6 +107,13 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
 
     @Override
     public void setLevel(final String key, final LogLevel level) {
-        instances.forEach(i -> webClient(i).path(key).post("{\"configuredLevel\": \"" + level.name() + "\"}"));
+        instances.forEach(i -> WebClientBuilder.build(getActuatorEndpoint(i),
+                        SyncopeWebApplication.get().getAnonymousUser(),
+                        SyncopeWebApplication.get().getAnonymousKey(),
+                        List.of())
+                .accept(MediaType.APPLICATION_JSON_TYPE)
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .path(key)
+                .post("{\"configuredLevel\": \"" + level.name() + "\"}"));
     }
 }
