@@ -26,13 +26,18 @@ import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 
 public final class WebClientBuilder {
 
-    private WebClientBuilder() {
+    protected static WebClient setAsync(final WebClient webClient) {
+        ClientConfiguration config = WebClient.getConfig(webClient);
+        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
+
+        return webClient;
     }
 
     public static WebClient build(final String address,
             final String username,
             final String password,
             final List<?> providers) {
+
         return setAsync(WebClient.create(address, providers, username, password, null));
     }
 
@@ -44,10 +49,7 @@ public final class WebClientBuilder {
         return setAsync(WebClient.create(uri));
     }
 
-    protected static WebClient setAsync(final WebClient webClient) {
-        ClientConfiguration config = WebClient.getConfig(webClient);
-        config.getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
-
-        return webClient;
+    private WebClientBuilder() {
+        // private constructor for static utility class
     }
 }
