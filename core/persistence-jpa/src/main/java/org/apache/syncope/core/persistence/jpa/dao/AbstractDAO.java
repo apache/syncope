@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import org.apache.openjpa.jdbc.meta.MappingRepository;
+import org.apache.openjpa.jdbc.sql.MariaDBDictionary;
 import org.apache.openjpa.jdbc.sql.OracleDictionary;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactory;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
@@ -41,6 +42,8 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
     protected static final Logger LOG = LoggerFactory.getLogger(DAO.class);
 
     private static final Map<String, Boolean> IS_ORACLE = new ConcurrentHashMap<>();
+
+    private static final Map<String, Boolean> IS_MARIA_DB = new ConcurrentHashMap<>();
 
     protected EntityManagerFactory entityManagerFactory() {
         return EntityManagerFactoryUtils.findEntityManagerFactory(
@@ -73,5 +76,17 @@ public abstract class AbstractDAO<E extends Entity> implements DAO<E> {
             IS_ORACLE.put(AuthContextUtils.getDomain(), isOracle);
         }
         return isOracle;
+    }
+
+    protected boolean isMariaDB() {
+        Boolean isMariaDB = IS_MARIA_DB.get(AuthContextUtils.getDomain());
+        if (isMariaDB == null) {
+            OpenJPAEntityManagerFactory emf = OpenJPAPersistence.cast(entityManagerFactory());
+            OpenJPAEntityManagerFactorySPI emfspi = (OpenJPAEntityManagerFactorySPI) OpenJPAPersistence.cast(emf);
+            isMariaDB = ((MappingRepository) emfspi.getConfiguration()
+                    .getMetaDataRepositoryInstance()).getDBDictionary() instanceof MariaDBDictionary;
+            IS_MARIA_DB.put(AuthContextUtils.getDomain(), isMariaDB);
+        }
+        return isMariaDB;
     }
 }
