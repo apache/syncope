@@ -990,9 +990,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         if (not) {
                             query.append(" NOT ");
                         }
-                        if (isMariaDB()) {
-                            query.append(" COLLATE utf8mb4_bin ");
-                        }
                         query.append(" LIKE ");
                         if (ignoreCase) {
                             query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
@@ -1016,9 +1013,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 case IEQ:
                 case EQ:
                     query.append(column);
-                    if (isMariaDB() && !ignoreCase && schema.getType() == AttrSchemaType.String) {
-                        query.append(" COLLATE utf8mb4_bin ");
-                    }
                     if (not) {
                         query.append("<>");
                     } else {

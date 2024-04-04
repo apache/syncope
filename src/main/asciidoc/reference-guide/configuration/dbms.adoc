@@ -234,6 +234,10 @@ for the Core application.
 It is important to set the collation to `utf8_general_ci` after creation of `syncope` database.
 
 [WARNING]
+It is necessary to use `utf8mb4_unicode_ci` instead of `utf8mb4_general_ci` if case-sensitive queries are required.
+Just set `init_connect = "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"`.
+
+[WARNING]
 This assumes that you have a MariaDB instance running on localhost, listening on its default port 3306 with a database
 `syncope` fully accessible by user `syncope` with password `syncope`.
 
