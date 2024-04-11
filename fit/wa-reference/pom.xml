@@ -215,6 +215,12 @@ under the License.
               <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
               <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
             </systemProperties>
+            <dependencies>
+              <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+              </dependency>
+            </dependencies>
           </container>
           <configuration>
             <properties>
