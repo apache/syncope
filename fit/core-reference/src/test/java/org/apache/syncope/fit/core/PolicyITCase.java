@@ -468,13 +468,19 @@ public class PolicyITCase extends AbstractITCase {
         assertTrue(policy.getPassthroughResources().isEmpty());
 
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        ldap.setAccountPolicy(policy.getKey());
-        RESOURCE_SERVICE.update(ldap);
+        String existingAP = ldap.getAccountPolicy();
+        try {
+            ldap.setAccountPolicy(policy.getKey());
+            RESOURCE_SERVICE.update(ldap);
 
-        ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        assertEquals(policy.getKey(), ldap.getAccountPolicy());
+            ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+            assertEquals(policy.getKey(), ldap.getAccountPolicy());
 
-        policy = POLICY_SERVICE.read(PolicyType.ACCOUNT, policy.getKey());
-        assertEquals(List.of(RESOURCE_NAME_LDAP), policy.getPassthroughResources());
+            policy = POLICY_SERVICE.read(PolicyType.ACCOUNT, policy.getKey());
+            assertEquals(List.of(RESOURCE_NAME_LDAP), policy.getPassthroughResources());
+        } finally {
+            ldap.setAccountPolicy(existingAP);
+            RESOURCE_SERVICE.update(ldap);
+        }
     }
 }

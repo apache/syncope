@@ -530,8 +530,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     @Override
     public void delete(final Task<?> task) {
         if (task instanceof PullTask pullTask) {
-            remediationDAO.findByPullTask(pullTask).
-                    forEach(remediation -> remediationDAO.deleteById(remediation.getKey()));
+            remediationDAO.findByPullTask(pullTask).forEach(remediation -> remediation.setPullTask(null));
             pullTask.getTemplates().
                     forEach(template -> neo4jTemplate.deleteById(template.getKey(), Neo4jAnyTemplatePullTask.class));
         }

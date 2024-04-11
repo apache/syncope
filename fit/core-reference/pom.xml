@@ -1680,6 +1680,22 @@ under the License.
 
       <dependencies>
         <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-starter</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.tomcat.embed</groupId>
+              <artifactId>tomcat-embed-el</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.github.ben-manes.caffeine</groupId>
+              <artifactId>jcache</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <dependency>
           <groupId>org.glassfish</groupId>
           <artifactId>jakarta.faces</artifactId>
           <version>${jakarta.faces.version}</version>
@@ -1732,7 +1748,8 @@ under the License.
                   <cargo.jvmargs>-Djdk.util.zip.disableZip64ExtraFieldValidation=true
                     -Dspring.profiles.active=embedded,payara
                     -XX:+UseG1GC -Xmx2048m -Xms1024m
-                    --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED</cargo.jvmargs>
+                    --add-exports=java.naming/com.sun.jndi.ldap=ALL-UNNAMED
+                    -Dhazelcast.jcache.provider.type=member</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>
@@ -1759,13 +1776,6 @@ under the License.
 
     <profile>
       <id>wildfly-it</id>
-
-      <properties>
-        <!-- PostgreSQL JDBC Driver is not actually needed but we need this to avoid Wildfly messing up
-        by turning Cargo's H2 dependency into a module -->
-        <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>        
-      </properties>
 
       <dependencies>
         <dependency>
@@ -1806,10 +1816,8 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-          <version>${jdbc.postgresql.version}</version>
-          <scope>test</scope>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
         </dependency>
       </dependencies>
 
