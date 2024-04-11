@@ -43,8 +43,8 @@ public class NetworkServiceRepoExtImpl implements NetworkServiceRepoExt {
     @Override
     public List<NetworkServiceEntity> findAll(final NetworkService.Type serviceType) {
         return neo4jTemplate.findAll(
-                "MATCH (n:" + Neo4jNetworkService.NODE + ") WHERE n.type = $serviceType",
-                Map.of("serviceType", serviceType),
+                "MATCH (n:" + Neo4jNetworkService.NODE + ") WHERE n.type = $serviceType RETURN n",
+                Map.of("serviceType", serviceType.name()),
                 Neo4jNetworkService.class).stream().map(NetworkServiceEntity.class::cast).toList();
     }
 

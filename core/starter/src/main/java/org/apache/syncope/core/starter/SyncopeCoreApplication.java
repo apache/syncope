@@ -54,6 +54,10 @@ import org.springframework.boot.actuate.mail.MailHealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jReactiveDataAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jReactiveRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration;
@@ -67,6 +71,7 @@ import org.springframework.boot.autoconfigure.task.TaskSchedulingAutoConfigurati
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
@@ -84,12 +89,17 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
             SqlInitializationAutoConfiguration.class,
             HibernateJpaAutoConfiguration.class,
             JdbcTemplateAutoConfiguration.class,
+            Neo4jDataAutoConfiguration.class,
+            Neo4jRepositoriesAutoConfiguration.class,
+            Neo4jReactiveDataAutoConfiguration.class,
+            Neo4jReactiveRepositoriesAutoConfiguration.class,
             TaskExecutionAutoConfiguration.class,
             TaskSchedulingAutoConfiguration.class,
             ElasticsearchRestClientAutoConfiguration.class,
             ElasticsearchClientAutoConfiguration.class },
         proxyBeanMethods = false)
 @EnableTransactionManagement
+@EnableCaching
 public class SyncopeCoreApplication extends SpringBootServletInitializer {
 
     public static void main(final String[] args) {

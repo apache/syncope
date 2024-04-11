@@ -271,8 +271,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
     public UserWorkflowResult<Pair<UserUR, Boolean>> update(
             final UserUR userUR, final String updater, final String context) {
 
-        User user = userDAO.findById(userUR.getKey()).
-                orElseThrow(() -> new IllegalStateException("Could not find the User just updated"));
+        User user = Optional.ofNullable(userDAO.authFind(userUR.getKey())).
+                orElseThrow(() -> new IllegalStateException("Could not find the User to update"));
 
         UserWorkflowResult<Pair<UserUR, Boolean>> result;
         // skip actual workflow operations in case only password change on resources was requested
@@ -292,7 +292,11 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
             result = new UserWorkflowResult<>(
                     Pair.of(userUR, !user.isSuspended()), propByRes, propByLinkedAccount, "update");
         } else {
-            result = doUpdate(userDAO.authFind(userUR.getKey()), userUR, updater, context);
+            result = doUpdate(user, userUR, updater, context);
+
+            // re-read user after update
+            user = userDAO.findById(userUR.getKey()).
+                    orElseThrow(() -> new IllegalStateException("Could not find the User just updated"));
         }
 
         // enforce password and account policies

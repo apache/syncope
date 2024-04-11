@@ -117,6 +117,31 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void orOfThree() {
+        AnyCond cond1 = new AnyCond(AttrCond.Type.EQ);
+        cond1.setSchema("username");
+        cond1.setExpression("rossini");
+
+        AnyCond cond2 = new AnyCond(AttrCond.Type.EQ);
+        cond2.setSchema("username");
+        cond2.setExpression("puccini");
+
+        AnyCond cond3 = new AnyCond(AttrCond.Type.EQ);
+        cond3.setSchema("username");
+        cond3.setExpression("notfound");
+
+        SearchCond cond = SearchCond.getOr(List.of(
+                SearchCond.getLeaf(cond1), SearchCond.getLeaf(cond2), SearchCond.getLeaf(cond3)));
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(2, users.size());
+        assertTrue(users.stream().anyMatch(u -> "rossini".equals(u.getUsername())));
+        assertTrue(users.stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+    }
+
+    @Test
     public void searchWithLikeCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");

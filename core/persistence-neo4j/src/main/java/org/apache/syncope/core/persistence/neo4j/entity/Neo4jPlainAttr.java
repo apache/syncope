@@ -28,5 +28,9 @@ public interface Neo4jPlainAttr<A extends Any<?>> extends PlainAttr<A> {
 
     void setSchemaKey(String schemaKey);
 
+    String getMembershipKey();
+
+    void setMembershipKey(String membershipKey);
+
     boolean add(PlainAttrValue value);
 }

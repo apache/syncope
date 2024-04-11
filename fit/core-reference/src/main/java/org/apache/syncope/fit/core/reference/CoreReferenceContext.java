@@ -28,7 +28,9 @@ import org.apache.syncope.core.provisioning.api.AuditEventProcessor;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +41,7 @@ import org.springframework.context.annotation.Lazy;
 @Configuration(proxyBeanMethods = false)
 public class CoreReferenceContext {
 
+    @ConditionalOnClass(name = "org.apache.syncope.core.flowable.impl.FlowableUserWorkflowAdapter")
     @Bean
     public EnableFlowableForTestUsers enableFlowableForTestUsers(final UserDAO userDAO) {
         return new EnableFlowableForTestUsers(userDAO);
@@ -48,7 +51,7 @@ public class CoreReferenceContext {
     public ImplementationLookup implementationLookup(
             final DomainHolder<?> domainHolder,
             final UserWorkflowAdapter uwf,
-            final EnableFlowableForTestUsers enableFlowableForTestUsers) {
+            final ObjectProvider<EnableFlowableForTestUsers> enableFlowableForTestUsers) {
 
         return new ITImplementationLookup(domainHolder, uwf, enableFlowableForTestUsers);
     }

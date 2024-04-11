@@ -24,83 +24,70 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class MultiParentNode<T> {
+public class MultiParentNode {
 
-    private final T object;
+    private final String object;
 
-    private final Set<MultiParentNode<T>> children = new HashSet<>();
-
-    private int level;
+    private final Set<MultiParentNode> children = new HashSet<>();
 
     private boolean exploited = false;
 
-    public MultiParentNode(final T object) {
+    public MultiParentNode(final String object) {
         this.object = object;
     }
 
-    public int getLevel() {
-        return level;
-    }
-
-    public void setLevel(final int level) {
-        this.level = level;
-    }
-
-    boolean isExploited() {
-        return exploited;
-    }
-
-    void setExploited(final boolean exploited) {
-        this.exploited = exploited;
-    }
-
-    public T getObject() {
+    public String getObject() {
         return object;
     }
 
-    public boolean isParent(final MultiParentNode<T> child) {
+    public boolean isParent(final MultiParentNode child) {
         return children.contains(child);
     }
 
-    public boolean isChild(final MultiParentNode<T> parent) {
+    public boolean isChild(final MultiParentNode parent) {
         return parent.isParent(this);
     }
 
-    public Set<MultiParentNode<T>> getChildren() {
+    public Set<MultiParentNode> getChildren() {
         return children;
     }
 
-    public void addParent(final MultiParentNode<T> parent) {
+    public void addParent(final MultiParentNode parent) {
         if (parent != null) {
             parent.children.add(this);
         }
     }
 
-    public void removeParent(final MultiParentNode<T> parent) {
+    public void removeParent(final MultiParentNode parent) {
         if (parent != null) {
             parent.children.remove(this);
         }
     }
 
-    public void addChild(final MultiParentNode<T> child) {
+    public void addChild(final MultiParentNode child) {
         if (child != null) {
             children.add(child);
         }
     }
 
-    public void removeChild(final MultiParentNode<T> child) {
+    public void removeChild(final MultiParentNode child) {
         if (child != null) {
             children.remove(child);
         }
+    }
+
+    public boolean isExploited() {
+        return exploited;
+    }
+
+    public void setExploited(final boolean exploited) {
+        this.exploited = exploited;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 append(object).
-                append(children).
-                append(level).
-                append(exploited).
                 build();
     }
 
@@ -116,12 +103,9 @@ public class MultiParentNode<T> {
             return false;
         }
         @SuppressWarnings("unchecked")
-        final MultiParentNode<T> other = (MultiParentNode<T>) obj;
+        final MultiParentNode other = (MultiParentNode) obj;
         return new EqualsBuilder().
                 append(object, other.object).
-                append(children, other.children).
-                append(level, other.level).
-                append(exploited, other.exploited).
                 build();
     }
 
@@ -129,9 +113,6 @@ public class MultiParentNode<T> {
     public String toString() {
         return new ToStringBuilder(this).
                 append(object).
-                append(children).
-                append(level).
-                append(exploited).
                 build();
     }
 }

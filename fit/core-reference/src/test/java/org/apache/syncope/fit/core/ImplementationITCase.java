@@ -106,5 +106,4 @@ public class ImplementationITCase extends AbstractITCase {
 
         IMPLEMENTATION_SERVICE.delete(implementationTO.getType(), implementationTO.getKey());
     }
-
 }

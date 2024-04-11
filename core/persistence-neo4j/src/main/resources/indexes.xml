@@ -21,18 +21,25 @@ under the License.
 <properties>
   <comment>Neo4j constraints and additional indexes</comment>
 
+  <entry key="AccessToken_id">CREATE INDEX AccessToken_id FOR (n:AccessToken) ON (n.id)</entry>
   <entry key="AccessToken_owner">CREATE CONSTRAINT AccessToken_owner FOR (n:AccessToken) REQUIRE n.owner IS UNIQUE</entry>
 
   <entry key="AuthProfile_owner">CREATE CONSTRAINT AuthProfile_owner FOR (n:AuthProfile) REQUIRE n.owner IS UNIQUE</entry>
 
+  <entry key="AnyType_id">CREATE INDEX AnyType_id FOR (n:AnyType) ON (n.id)</entry>
+
+  <entry key="AnyTypeClass_id">CREATE INDEX AnyTypeClass_id FOR (n:AnyTypeClass) ON (n.id)</entry>
+
+  <entry key="AnyObject_id">CREATE INDEX AnyObject_id FOR (n:AnyObject) ON (n.id)</entry>
   <entry key="AnyObject_name">CREATE CONSTRAINT AnyObject_name FOR (n:AnyObject) REQUIRE n.name IS UNIQUE</entry>
 
+  <entry key="ConnInstance_id">CREATE INDEX ConnInstance_id FOR (n:ConnInstance) ON (n.id)</entry>
   <entry key="ConnInstance_displayName">CREATE CONSTRAINT ConnInstance_displayName FOR (n:ConnInstance) REQUIRE n.displayName IS UNIQUE</entry>
   
-  <entry key="SyncopeGroup_name">CREATE CONSTRAINT SyncopeGroup_name FOR (n:SyncopeGroup) REQUIRE n.name IS UNIQUE</entry>
-
+  <entry key="Realm_id">CREATE INDEX Realm_id FOR (n:Realm) ON (n.id)</entry>
   <entry key="Realm_fullPath">CREATE CONSTRAINT Realm_fullPath FOR (n:Realm) REQUIRE n.fullPath IS UNIQUE</entry>
 
+  <entry key="Report_id">CREATE INDEX Report_id FOR (n:Report) ON (n.id)</entry>
   <entry key="Report_name">CREATE CONSTRAINT Report_name FOR (n:Report) REQUIRE n.name IS UNIQUE</entry>
 
   <entry key="CASSPClientApp_name">CREATE CONSTRAINT CASSPClientApp_name FOR (n:CASSPClientApp) REQUIRE n.name IS UNIQUE</entry>
@@ -48,9 +55,17 @@ under the License.
   <entry key="SchedTask_name">CREATE CONSTRAINT SchedTask_name FOR (n:SchedTask) REQUIRE n.name IS UNIQUE</entry>
 
   <entry key="Schema_id">CREATE CONSTRAINT Schema_id FOR (n:Schema) REQUIRE n.id IS UNIQUE</entry>
+  <entry key="PlainSchema_id">CREATE INDEX PlainSchema_id FOR (n:PlainSchema) ON (n.id)</entry>
+  <entry key="DerSchema_id">CREATE INDEX DerSchema_id FOR (n:DerSchema) ON (n.id)</entry>
+  <entry key="VirSchema_id">CREATE INDEX VirSchema_id FOR (n:VirSchema) ON (n.id)</entry>
 
   <entry key="SRARoute_name">CREATE CONSTRAINT SRARoute_name FOR (n:SRARoute) REQUIRE n.name IS UNIQUE</entry>
 
   <entry key="SecurityQuestion_content">CREATE CONSTRAINT SecurityQuestion_content FOR (n:SecurityQuestion) REQUIRE n.content IS UNIQUE</entry>
+
+  <entry key="SyncopeGroup_id">CREATE INDEX SyncopeGroup_id FOR (n:SyncopeGroup) ON (n.id)</entry>
+  <entry key="SyncopeGroup_name">CREATE CONSTRAINT SyncopeGroup_name FOR (n:SyncopeGroup) REQUIRE n.name IS UNIQUE</entry>
+
+  <entry key="SyncopeUser_id">CREATE INDEX SyncopeUser_id FOR (n:SyncopeUser) ON (n.id)</entry>
   <entry key="SyncopeUser_username">CREATE CONSTRAINT SyncopeUser_username FOR (n:SyncopeUser) REQUIRE n.username IS UNIQUE</entry>
 </properties>

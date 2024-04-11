@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BackOffStrategy;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -448,7 +449,6 @@ public class PolicyITCase extends AbstractITCase {
     public void issueSYNCOPE682() {
         AccountPolicyTO policy = new AccountPolicyTO();
         policy.setName("SYNCOPE682");
-        policy.getPassthroughResources().add(RESOURCE_NAME_LDAP);
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);
@@ -465,6 +465,16 @@ public class PolicyITCase extends AbstractITCase {
         policy.getRules().add(rule.getKey());
 
         policy = createPolicy(PolicyType.ACCOUNT, policy);
-        assertNotNull(policy);
+        assertTrue(policy.getPassthroughResources().isEmpty());
+
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        ldap.setAccountPolicy(policy.getKey());
+        RESOURCE_SERVICE.update(ldap);
+
+        ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        assertEquals(policy.getKey(), ldap.getAccountPolicy());
+
+        policy = POLICY_SERVICE.read(PolicyType.ACCOUNT, policy.getKey());
+        assertEquals(List.of(RESOURCE_NAME_LDAP), policy.getPassthroughResources());
     }
 }

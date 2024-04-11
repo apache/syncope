@@ -28,14 +28,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -47,7 +51,10 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
@@ -62,7 +69,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implements AnyObjectRepoExt {
+public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAnyObject> implements AnyObjectRepoExt {
 
     protected final UserDAO userDAO;
 
@@ -70,20 +77,29 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     protected final NodeValidator nodeValidator;
 
+    protected final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache;
+
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache) {
 
         super(
+                anyTypeDAO,
+                anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
+                virSchemaDAO,
                 dynRealmDAO,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT),
                 neo4jTemplate,
@@ -91,6 +107,12 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.nodeValidator = nodeValidator;
+        this.anyObjectCache = anyObjectCache;
+    }
+
+    @Override
+    protected Cache<EntityCacheKey, Neo4jAnyObject> cache() {
+        return anyObjectCache;
     }
 
     @Override
@@ -100,7 +122,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 + "WHERE n.name = $name "
                 + "RETURN n.id").
                 bindAll(Map.of("type", type, "name", name)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jAnyObject.class));
+                flatMap(toOptional("n.id", Neo4jAnyObject.class, cache()));
     }
 
     @Override
@@ -109,7 +131,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 "MATCH (n:" + Neo4jAnyObject.NODE + ") WHERE n.name = $name RETURN n.id").
                 bindAll(Map.of("name", name)).fetch().all(),
                 "n.id",
-                Neo4jAnyObject.class);
+                Neo4jAnyObject.class,
+                cache());
     }
 
     @Transactional(readOnly = true)
@@ -133,7 +156,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 anyMatch(pair -> groups.contains(pair.getRight()));
 
         // 2. check if anyObject is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized) {
+        if (!authorized && key != null) {
             authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
         }
 
@@ -143,6 +166,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         }
 
         if (!authorized) {
+            Optional.ofNullable(key).map(EntityCacheKey::of).ifPresent(anyObjectCache::remove);
             throw new DelegatedAdministrationException(realm, AnyTypeKind.ANY_OBJECT.name(), key);
         }
     }
@@ -184,6 +208,11 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
+    public void deleteMembership(final AMembership membership) {
+        neo4jTemplate.deleteById(membership.getKey(), Neo4jAMembership.class);
+    }
+
+    @Override
     public List<Relationship<Any<?>, AnyObject>> findAllRelationships(final AnyObject anyObject) {
         List<Relationship<Any<?>, AnyObject>> result = new ArrayList<>();
 
@@ -191,20 +220,40 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 "MATCH (n:" + Neo4jARelationship.NODE + ")-[]-(a:" + Neo4jAnyObject.NODE + " {id: $aid}) "
                 + "RETURN n.id").bindAll(Map.of("aid", anyObject.getKey())).fetch().all(),
                 "n.id",
-                Neo4jARelationship.class));
+                Neo4jARelationship.class,
+                null));
 
         result.addAll(toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jURelationship.NODE + ")-[]-(a:" + Neo4jAnyObject.NODE + " {id: $aid}) "
                 + "RETURN n.id").bindAll(Map.of("aid", anyObject.getKey())).fetch().all(),
                 "n.id",
-                Neo4jURelationship.class));
+                Neo4jURelationship.class,
+                null));
 
         return result;
     }
 
     protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
-        // delete any membership, relationship or linked account that was removed from anyObject
+        checkBeforeSave(anyObject);
+
+        // unlink any resource or aux class that was unlinked from anyObject
+        // delete any membership or relationship that was removed from anyObject
         neo4jTemplate.findById(anyObject.getKey(), Neo4jAnyObject.class).ifPresent(before -> {
+            before.getResources().stream().filter(resource -> !anyObject.getResources().contains(resource)).
+                    forEach(resource -> deleteRelationship(
+                    Neo4jAnyObject.NODE,
+                    Neo4jExternalResource.NODE,
+                    anyObject.getKey(),
+                    resource.getKey(),
+                    Neo4jAnyObject.ANY_OBJECT_RESOURCE_REL));
+            before.getAuxClasses().stream().filter(auxClass -> !anyObject.getAuxClasses().contains(auxClass)).
+                    forEach(auxClass -> deleteRelationship(
+                    Neo4jAnyObject.NODE,
+                    Neo4jAnyTypeClass.NODE,
+                    anyObject.getKey(),
+                    auxClass.getKey(),
+                    Neo4jAnyObject.ANY_OBJECT_AUX_CLASSES_REL));
+
             Set<String> beforeMembs = before.getMemberships().stream().map(AMembership::getKey).
                     collect(Collectors.toSet());
             beforeMembs.removeAll(anyObject.getMemberships().stream().map(AMembership::getKey).toList());
@@ -217,6 +266,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         });
 
         AnyObject merged = neo4jTemplate.save(nodeValidator.validate(anyObject));
+
+        anyObjectCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jAnyObject) merged);
 
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
@@ -241,7 +292,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 Neo4jAnyObject.NODE,
                 anyObject.getKey(),
                 Neo4jARelationship.DEST_REL,
-                Neo4jARelationship.class);
+                Neo4jARelationship.class,
+                null);
     }
 
     protected List<URelationship> findURelationships(final AnyObject anyObject) {
@@ -250,7 +302,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 Neo4jAnyObject.NODE,
                 anyObject.getKey(),
                 Neo4jURelationship.DEST_REL,
-                Neo4jURelationship.class);
+                Neo4jURelationship.class,
+                null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -262,7 +315,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 + "(p:" + Neo4jGroup.NODE + ") "
                 + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
                 "p.id",
-                Neo4jGroup.class);
+                Neo4jGroup.class,
+                null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -304,23 +358,28 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         dynRealmDAO.removeDynMemberships(anyObject.getKey());
 
         findARelationships(anyObject).forEach(relationship -> {
-            relationship.getLeftEnd().getRelationships().remove(relationship);
-            save(relationship.getLeftEnd());
+            findById(relationship.getLeftEnd().getKey()).ifPresent(le -> {
+                le.getRelationships().remove(relationship);
+                save(le);
+            });
 
             neo4jTemplate.deleteById(relationship.getKey(), Neo4jARelationship.class);
         });
         findURelationships(anyObject).forEach(relationship -> {
-            relationship.getLeftEnd().getRelationships().remove(relationship);
-            userDAO.save(relationship.getLeftEnd());
+            userDAO.findById(relationship.getLeftEnd().getKey()).ifPresent(le -> {
+                le.getRelationships().remove(relationship);
+                userDAO.save(le);
+            });
 
             neo4jTemplate.deleteById(relationship.getKey(), Neo4jURelationship.class);
         });
 
+        anyObjectCache.remove(EntityCacheKey.of(anyObject.getKey()));
+
         cascadeDelete(
                 Neo4jAMembership.NODE,
                 Neo4jAnyObject.NODE,
-                anyObject.getKey(),
-                Neo4jAMembership.class);
+                anyObject.getKey());
 
         neo4jTemplate.deleteById(anyObject.getKey(), Neo4jAnyObject.class);
     }

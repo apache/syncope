@@ -22,12 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,14 +54,21 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
 
         if (keyword != null) {
             queryString.append(" AND toLower(n.name) =~ $name");
-            parameters.put("name", keyword.replaceAll("_", "\\\\_").toLowerCase() + ".*");
+            parameters.put("name", keyword.replace("%", ".*").replaceAll("_", "\\\\_").toLowerCase() + ".*");
         }
 
         return queryString;
     }
 
-    public Neo4jRealmSearchDAO(final Neo4jTemplate neo4jTemplate, final Neo4jClient neo4jClient) {
+    protected final Cache<EntityCacheKey, Neo4jRealm> cache;
+
+    public Neo4jRealmSearchDAO(
+            final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
+            final Cache<EntityCacheKey, Neo4jRealm> cache) {
+
         super(neo4jTemplate, neo4jClient);
+        this.cache = cache;
     }
 
     @Transactional(readOnly = true)
@@ -75,21 +84,21 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
         return neo4jClient.query(
                 "MATCH (n:" + Neo4jRealm.NODE + ") WHERE n.fullPath = $fullPath RETURN n.id").
                 bindAll(Map.of("fullPath", fullPath)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jRealm.class));
+                flatMap(toOptional("n.id", Neo4jRealm.class, cache));
     }
 
     @Override
     public List<Realm> findByName(final String name) {
         return toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jRealm.NODE + ") WHERE n.name = $name RETURN n.id").
-                bindAll(Map.of("name", name)).fetch().all(), "n.id", Neo4jRealm.class);
+                bindAll(Map.of("name", name)).fetch().all(), "n.id", Neo4jRealm.class, cache);
     }
 
     @Override
     public List<Realm> findChildren(final Realm realm) {
         return toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jRealm.NODE + " {id: $id})<-[r:" + Neo4jRealm.PARENT_REL + "]-(c) RETURN c.id").
-                bindAll(Map.of("id", realm.getKey())).fetch().all(), "c.id", Neo4jRealm.class);
+                bindAll(Map.of("id", realm.getKey())).fetch().all(), "c.id", Neo4jRealm.class, cache);
     }
 
     @Override
@@ -112,7 +121,7 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
         }
 
         return toList(neo4jClient.query(
-                queryString.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jRealm.class);
+                queryString.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jRealm.class, cache);
     }
 
     @Override

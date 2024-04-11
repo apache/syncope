@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -32,7 +34,9 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
+import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -64,7 +68,10 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     private Map<String, String> filterMap = new HashMap<>();
 
     @Relationship(type = PUSH_TASK_PUSH_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
-    private List<Neo4jImplementation> actions = new ArrayList<>();
+    private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
+
+    @Transient
+    private List<Neo4jImplementation> sortedActions = new SortedSetList(actions);
 
     @Relationship(type = PUSH_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jPushTaskExec> executions = new ArrayList<>();
@@ -84,12 +91,12 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     public boolean add(final Implementation action) {
         checkType(action, Neo4jImplementation.class);
         checkImplementationType(action, IdMImplementationType.PUSH_ACTIONS);
-        return actions.contains((Neo4jImplementation) action) || actions.add((Neo4jImplementation) action);
+        return sortedActions.contains((Neo4jImplementation) action) || sortedActions.add((Neo4jImplementation) action);
     }
 
     @Override
     public List<? extends Implementation> getActions() {
-        return actions;
+        return sortedActions;
     }
 
     @Override
@@ -128,6 +135,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     @PostLoad
     public void postLoad() {
+        sortedActions = new SortedSetList(actions);
         json2map(false);
     }
 

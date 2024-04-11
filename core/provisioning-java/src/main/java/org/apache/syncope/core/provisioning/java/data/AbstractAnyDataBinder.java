@@ -110,8 +110,8 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.getAuxClasses().addAll(auxClasses.stream().map(AnyTypeClass::getKey).toList());
 
-        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().add(new Attr.Builder(plainAttr.getSchema().getKey()).
-                values(plainAttr.getValuesAsStrings()).build()));
+        plainAttrs.forEach(plainAttr -> anyTO.getPlainAttrs().
+                add(new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
 
         derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().
                 add(new Attr.Builder(schema.getKey()).value(value).build()));
@@ -397,9 +397,8 @@ abstract class AbstractAnyDataBinder {
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
         allowedPlainSchemas.getForSelf().forEach(schema -> checkMandatory(
                 schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
-        if (any instanceof GroupableRelatable) {
+        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupable) {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
-                GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
                 Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
                 schemas.forEach(schema -> checkMandatory(
                         schema,

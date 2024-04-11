@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -35,10 +36,13 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -56,8 +60,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
@@ -78,7 +84,7 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements GroupRepoExt {
+public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> implements GroupRepoExt {
 
     protected final ApplicationEventPublisher publisher;
 
@@ -94,11 +100,16 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     protected final NodeValidator nodeValidator;
 
+    protected final Cache<EntityCacheKey, Neo4jGroup> groupCache;
+
     public GroupRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
@@ -107,11 +118,15 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final SearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache) {
 
         super(
+                anyTypeDAO,
+                anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
+                virSchemaDAO,
                 dynRealmDAO,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP),
                 neo4jTemplate,
@@ -123,6 +138,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         this.anySearchDAO = searchDAO;
         this.searchCondVisitor = searchCondVisitor;
         this.nodeValidator = nodeValidator;
+        this.groupCache = groupCache;
+    }
+
+    @Override
+    protected Cache<EntityCacheKey, Neo4jGroup> cache() {
+        return groupCache;
     }
 
     @Transactional(readOnly = true)
@@ -144,11 +165,12 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized) {
+        if (!authorized && key != null) {
             authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
         }
 
         if (authRealms.isEmpty() || !authorized) {
+            Optional.ofNullable(key).map(EntityCacheKey::of).ifPresent(groupCache::remove);
             throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);
         }
     }
@@ -214,7 +236,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 Neo4jGroup.NODE,
                 Neo4jGroup.NODE,
                 groupKey,
-                Neo4jGroup.class);
+                Neo4jGroup.class,
+                groupCache);
     }
 
     @Transactional(readOnly = true)
@@ -232,7 +255,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                         "MATCH (n:" + Neo4jAMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
                         + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
-                Neo4jAMembership.class);
+                Neo4jAMembership.class,
+                null);
     }
 
     @Override
@@ -242,12 +266,67 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                         "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
                         + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
-                Neo4jUMembership.class);
+                Neo4jUMembership.class,
+                null);
     }
 
     @Override
     public <S extends Group> S save(final S group) {
-        return neo4jTemplate.save(nodeValidator.validate(group));
+        checkBeforeSave(group);
+
+        // unlink any resource, aux class, user or group owner that was unlinked from group
+        // delete any dynamic membership or type extension that was removed from group
+        neo4jTemplate.findById(group.getKey(), Neo4jGroup.class).ifPresent(before -> {
+            before.getResources().stream().filter(resource -> !group.getResources().contains(resource)).
+                    forEach(resource -> deleteRelationship(
+                    Neo4jGroup.NODE,
+                    Neo4jExternalResource.NODE,
+                    group.getKey(),
+                    resource.getKey(),
+                    Neo4jGroup.GROUP_RESOURCE_REL));
+            before.getAuxClasses().stream().filter(auxClass -> !group.getAuxClasses().contains(auxClass)).
+                    forEach(auxClass -> deleteRelationship(
+                    Neo4jGroup.NODE,
+                    Neo4jAnyTypeClass.NODE,
+                    group.getKey(),
+                    auxClass.getKey(),
+                    Neo4jGroup.GROUP_AUX_CLASSES_REL));
+            if (before.getUserOwner() != null && group.getUserOwner() == null) {
+                deleteRelationship(
+                        Neo4jGroup.NODE,
+                        Neo4jUser.NODE,
+                        group.getKey(),
+                        before.getUserOwner().getKey(),
+                        Neo4jGroup.USER_OWNER_REL);
+            }
+            if (before.getGroupOwner() != null && group.getGroupOwner() == null) {
+                deleteRelationship(
+                        Neo4jGroup.NODE,
+                        Neo4jGroup.NODE,
+                        group.getKey(),
+                        before.getGroupOwner().getKey(),
+                        Neo4jGroup.GROUP_OWNER_REL);
+            }
+
+            if (before.getUDynMembership() != null && group.getUDynMembership() == null) {
+                neo4jTemplate.deleteById(before.getUDynMembership().getKey(), Neo4jUDynGroupMembership.class);
+            }
+            Set<String> beforeADynMembs = before.getADynMemberships().stream().map(ADynGroupMembership::getKey).
+                    collect(Collectors.toSet());
+            beforeADynMembs.removeAll(group.getADynMemberships().stream().map(ADynGroupMembership::getKey).toList());
+            beforeADynMembs.forEach(m -> neo4jTemplate.deleteById(m, Neo4jADynGroupMembership.class));
+
+            Set<String> beforeTypeExts = before.getTypeExtensions().stream().map(TypeExtension::getKey).
+                    collect(Collectors.toSet());
+            beforeTypeExts.removeAll(group.getTypeExtensions().stream().map(TypeExtension::getKey).toList());
+            beforeTypeExts.forEach(r -> neo4jTemplate.deleteById(r, Neo4jTypeExtension.class));
+        });
+
+        S merged = neo4jTemplate.save(nodeValidator.validate(group));
+
+        groupCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jGroup) merged);
+
+        return merged;
     }
 
     @Override
@@ -357,17 +436,17 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         Optional.ofNullable(group.getUDynMembership()).
                 ifPresent(r -> neo4jTemplate.deleteById(r.getKey(), Neo4jUDynGroupMembership.class));
 
+        groupCache.remove(EntityCacheKey.of(group.getKey()));
+
         cascadeDelete(
                 Neo4jADynGroupMembership.NODE,
                 Neo4jGroup.NODE,
-                group.getKey(),
-                Neo4jADynGroupMembership.class);
+                group.getKey());
 
         cascadeDelete(
                 Neo4jTypeExtension.NODE,
                 Neo4jGroup.NODE,
-                group.getKey(),
-                Neo4jTypeExtension.class);
+                group.getKey());
 
         neo4jTemplate.deleteById(group.getKey(), Neo4jGroup.class);
     }
@@ -378,7 +457,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 Neo4jTypeExtension.NODE,
                 Neo4jAnyTypeClass.NODE,
                 anyTypeClass.getKey(),
-                Neo4jTypeExtension.class);
+                Neo4jTypeExtension.class,
+                null);
     }
 
     @Override
@@ -394,7 +474,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
         return neo4jTemplate.count(
                 "MATCH (n)-[:" + DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
                 + "(p:" + Neo4jGroup.NODE + " {id: $id}) "
-                + "RETURN COUNT(DISTNCT n.id)", Map.of("id", group.getKey()));
+                + "RETURN COUNT(DISTINCT n.id)", Map.of("id", group.getKey()));
     }
 
     @Override
@@ -436,7 +516,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 Neo4jADynGroupMembership.NODE,
                 Neo4jAnyType.NODE,
                 anyType.getKey(),
-                Neo4jADynGroupMembership.class);
+                Neo4jADynGroupMembership.class,
+                null);
     }
 
     @Transactional

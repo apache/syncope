@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
@@ -47,6 +49,21 @@ public abstract class AbstractSchemaRepoExt extends AbstractDAO {
 
         super(neo4jTemplate, neo4jClient);
         this.nodeValidator = nodeValidator;
+    }
+
+    protected abstract <S extends Schema> Cache<EntityCacheKey, S> cache();
+
+    protected <S extends Schema> List<S> findByIdLike(
+            final String label,
+            final Class<? extends Neo4jSchema> domainType,
+            final String keyword) {
+
+        return toList(neo4jClient.query(
+                "MATCH (n:" + label + ") WHERE n.id =~ $keyword RETURN n.id").
+                bindAll(Map.of("keyword", keyword.replace("%", ".*"))).fetch().all(),
+                "n.id",
+                domainType,
+                cache());
     }
 
     protected <S extends Schema> List<S> findByAnyTypeClasses(
@@ -85,6 +102,7 @@ public abstract class AbstractSchemaRepoExt extends AbstractDAO {
                 + "WHERE (" + clauses.stream().collect(Collectors.joining(" OR ")) + ") "
                 + "RETURN n.id").bindAll(parameters).fetch().all(),
                 "n.id",
-                domainType);
+                domainType,
+                cache());
     }
 }

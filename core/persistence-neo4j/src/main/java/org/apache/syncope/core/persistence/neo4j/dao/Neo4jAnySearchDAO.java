@@ -725,9 +725,8 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         query.append("WHERE EXISTS { ").
                 append(StringUtils.prependIfMissing(leftInfo.query().toString(), "MATCH (n) ")).
                 append(" } ").
-                append(op).
-                append(" EXISTS { ").
-                append(rightInfo.query()).
+                append(op).append(" EXISTS { ").
+                append(StringUtils.prependIfMissing(rightInfo.query().toString(), "MATCH (n) ")).
                 append(" }");
     }
 
@@ -839,7 +838,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         queryInfo.fields().remove("id");
         Stream.concat(
                 queryInfo.fields().stream(),
-                orderBy.stream().filter(clause -> !"key".equals(clause.getProperty())
+                orderBy.stream().filter(clause -> !"id".equals(clause.getProperty())
                 && anyUtils.getField(clause.getProperty()).isPresent()).map(Order::getProperty)).
                 distinct().forEach(field -> match.append(", n.").append(field).append(" AS ").append(field));
 
@@ -860,12 +859,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         // take realms into account
         if (query.startsWith("MATCH (n)")) {
-            query.replaceFirst("MATCH (n)", match + " WHERE EXISTS { MATCH (n)");
+            query.replaceFirst("MATCH (n)", match + " WHERE (EXISTS { MATCH (n)");
             query.append("} ");
         } else {
+            query.replaceFirst("WHERE EXISTS", "WHERE (EXISTS");
             query.insert(0, match.append(' '));
         }
-        query.append(" AND EXISTS { ").append(adminRealmsFilter).append(" } ");
+        query.append(") AND EXISTS { ").append(adminRealmsFilter).append(" } ");
     }
 
     @Override
@@ -904,10 +904,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         orderBy.forEach(clause -> {
             if (anyUtils.getField(clause.getProperty()).isPresent()) {
-                // Manage difference among external key attribute and internal @Id
-                String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
-
-                clauses.add(fieldName + " " + clause.getDirection().name());
+                clauses.add(clause.getProperty() + " " + clause.getDirection().name());
             } else {
                 plainSchemaDAO.findById(clause.getProperty()).
                         ifPresent(schema -> clauses.add(schema.getKey() + " " + clause.getDirection().name()));

@@ -23,6 +23,8 @@ import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -42,7 +44,9 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleaseP
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jRealm.NODE)
@@ -66,6 +70,8 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     public static final String REALM_ATTR_RELEASE_POLICY_REL = "REALM_ATTR_RELEASE_POLICY";
 
     public static final String REALM_TICKET_EXPIRATION_POLICY_REL = "REALM_TICKET_EXPIRATION_POLICY";
+
+    public static final String REALM_LOGIC_ACTIONS_REL = "REALM_LOGIC_ACTIONS";
 
     public static final String REALM_RESOURCE_REL = "REALM_RESOURCE";
 
@@ -96,13 +102,16 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     @Relationship(type = REALM_TICKET_EXPIRATION_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jTicketExpirationPolicy ticketExpirationPolicy;
 
-    @Relationship(direction = Relationship.Direction.INCOMING)
-    private List<Neo4jImplementation> actions = new ArrayList<>();
+    @Relationship(type = REALM_LOGIC_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
+
+    @Transient
+    private List<Neo4jImplementation> sortedActions = new SortedSetList(actions);
 
     @Relationship(type = Neo4jAnyTemplateRealm.REALM_ANY_TEMPLATE_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jAnyTemplateRealm> templates = new ArrayList<>();
 
-    @Relationship(type = REALM_RESOURCE_REL, direction = Relationship.Direction.INCOMING)
+    @Relationship(type = REALM_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
     private List<Neo4jExternalResource> resources = new ArrayList<>();
 
     @Override
@@ -183,7 +192,7 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     public boolean add(final Implementation action) {
         checkType(action, Neo4jImplementation.class);
         checkImplementationType(action, IdRepoImplementationType.LOGIC_ACTIONS);
-        return actions.contains((Neo4jImplementation) action) || actions.add((Neo4jImplementation) action);
+        return sortedActions.contains((Neo4jImplementation) action) || sortedActions.add((Neo4jImplementation) action);
     }
 
     @Override
@@ -210,7 +219,7 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
 
     @Override
     public List<? extends Implementation> getActions() {
-        return actions;
+        return sortedActions;
     }
 
     @Override
@@ -245,5 +254,10 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     @Override
     public List<? extends ExternalResource> getResources() {
         return resources;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        sortedActions = new SortedSetList(actions);
     }
 }

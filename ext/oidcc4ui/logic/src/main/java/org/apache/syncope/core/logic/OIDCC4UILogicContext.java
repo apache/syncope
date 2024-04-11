@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.core.logic;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import org.apache.syncope.core.logic.init.OIDCC4UILoader;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
@@ -32,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.pac4j.oidc.client.OidcClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -42,14 +48,30 @@ public class OIDCC4UILogicContext {
 
     @ConditionalOnMissingBean(name = "oidcClientCacheLogin")
     @Bean
-    public OIDCClientCache oidcClientCacheLogin() {
-        return new OIDCClientCache();
+    public OIDCClientCache oidcClientCacheLogin(final CacheManager cacheManager) {
+        Cache<String, OidcClient> oidcClientCacheLogin = cacheManager.createCache(
+                "oidcClientCacheLogin",
+                new MutableConfiguration<String, OidcClient>().
+                        setTypes(String.class, OidcClient.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
+
+        return new OIDCClientCache(oidcClientCacheLogin);
     }
 
     @ConditionalOnMissingBean(name = "oidcClientCacheLogout")
     @Bean
-    public OIDCClientCache oidcClientCacheLogout() {
-        return new OIDCClientCache();
+    public OIDCClientCache oidcClientCacheLogout(final CacheManager cacheManager) {
+        Cache<String, OidcClient> oidcClientCacheLogin = cacheManager.createCache(
+                "oidcClientCacheLogout",
+                new MutableConfiguration<String, OidcClient>().
+                        setTypes(String.class, OidcClient.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
+
+        return new OIDCClientCache(oidcClientCacheLogin);
     }
 
     @ConditionalOnMissingBean

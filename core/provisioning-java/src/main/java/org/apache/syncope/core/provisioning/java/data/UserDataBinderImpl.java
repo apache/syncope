@@ -79,6 +79,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -586,6 +587,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     plainAttrValueDAO.deleteAll(attr, anyUtils);
                     plainSchemaDAO.delete(attr);
                 });
+                userDAO.deleteMembership(membership);
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
                     propByRes.addAll(
@@ -757,11 +759,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         UserTO userTO = new UserTO();
         userTO.setKey(user.getKey());
         userTO.setUsername(user.getUsername());
+        userTO.setStatus(user.getStatus());
+        userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
+        userTO.setMustChangePassword(user.isMustChangePassword());
+
         if (returnPasswordValue) {
             userTO.setPassword(user.getPassword());
             userTO.setSecurityAnswer(user.getSecurityAnswer());
         }
-        userTO.setType(user.getType().getKey());
+        Optional.ofNullable(user.getSecurityQuestion()).
+                map(SecurityQuestion::getKey).
+                ifPresent(userTO::setSecurityQuestion);
+
         userTO.setCreationDate(user.getCreationDate());
         userTO.setCreator(user.getCreator());
         userTO.setCreationDate(user.getCreationDate());
@@ -776,18 +785,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         userTO.setToken(user.getToken());
         userTO.setTokenExpireTime(user.getTokenExpireTime());
 
-        userTO.setKey(user.getKey());
-        userTO.setUsername(user.getUsername());
-        userTO.setType(user.getType().getKey());
-        userTO.setStatus(user.getStatus());
-        userTO.setSuspended(BooleanUtils.isTrue(user.isSuspended()));
-        userTO.setMustChangePassword(user.isMustChangePassword());
-
-        if (user.getSecurityQuestion() != null) {
-            userTO.setSecurityQuestion(user.getSecurityQuestion().getKey());
-        }
-
-        fillTO(userTO, user.getRealm().getFullPath(),
+        fillTO(userTO,
+                user.getRealm().getFullPath(),
                 user.getAuxClasses(),
                 user.getPlainAttrs(),
                 derAttrHandler.getValues(user),

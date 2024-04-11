@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.entity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -30,7 +31,13 @@ public abstract class AbstractMembership<L extends Any<?>, P extends PlainAttr<?
 
     private static final long serialVersionUID = -6360036936818368868L;
 
+    protected abstract Map<String, ? extends Neo4jPlainAttr<? extends Any<P>>> plainAttrs();
+    
     public abstract List<? extends P> getPlainAttrs();
 
     public abstract Optional<? extends P> getPlainAttr(String plainSchema);
+
+    public abstract boolean add(P attr);
+
+    public abstract boolean remove(String plainSchema);
 }

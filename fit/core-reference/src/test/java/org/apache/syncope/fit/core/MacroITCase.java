@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestCommand;
@@ -70,37 +71,42 @@ public class MacroITCase extends AbstractITCase {
     public static void testCommandsSetup() throws Exception {
         CommandITCase.testCommandSetup();
 
-        ImplementationTO transformer = null;
+        ImplementationTO command = null;
         try {
-            transformer = IMPLEMENTATION_SERVICE.read(
+            command = IMPLEMENTATION_SERVICE.read(
                     IdRepoImplementationType.COMMAND, "GroovyCommand");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
-                transformer = new ImplementationTO();
-                transformer.setKey("GroovyCommand");
-                transformer.setEngine(ImplementationEngine.GROOVY);
-                transformer.setType(IdRepoImplementationType.COMMAND);
-                transformer.setBody(IOUtils.toString(
+                command = new ImplementationTO();
+                command.setKey("GroovyCommand");
+                command.setEngine(ImplementationEngine.GROOVY);
+                command.setType(IdRepoImplementationType.COMMAND);
+                command.setBody(IOUtils.toString(
                         MacroITCase.class.getResourceAsStream("/GroovyCommand.groovy"), StandardCharsets.UTF_8));
-                Response response = IMPLEMENTATION_SERVICE.create(transformer);
-                transformer = IMPLEMENTATION_SERVICE.read(
-                        transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                assertNotNull(transformer.getKey());
+                Response response = IMPLEMENTATION_SERVICE.create(command);
+                command = IMPLEMENTATION_SERVICE.read(
+                        command.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(command.getKey());
             }
         }
-        assertNotNull(transformer);
+        assertNotNull(command);
 
         if (MACRO_TASK_KEY == null) {
-            MacroTaskTO task = new MacroTaskTO();
-            task.setName("Test Macro");
-            task.setActive(true);
-            task.setRealm("/odd");
-            task.getCommands().add(new CommandTO.Builder("GroovyCommand").build());
-            task.getCommands().add(new CommandTO.Builder(TestCommand.class.getSimpleName()).args(TCA).build());
+            MACRO_TASK_KEY = TASK_SERVICE.<MacroTaskTO>search(
+                    new TaskQuery.Builder(TaskType.MACRO).build()).getResult().
+                    stream().filter(t -> "Test Macro".equals(t.getName())).findFirst().map(MacroTaskTO::getKey).
+                    orElseGet(() -> {
+                        MacroTaskTO task = new MacroTaskTO();
+                        task.setName("Test Macro");
+                        task.setActive(true);
+                        task.setRealm("/odd");
+                        task.getCommands().add(new CommandTO.Builder("GroovyCommand").build());
+                        task.getCommands().add(
+                                new CommandTO.Builder(TestCommand.class.getSimpleName()).args(TCA).build());
 
-            Response response = TASK_SERVICE.create(TaskType.MACRO, task);
-            task = getObject(response.getLocation(), TaskService.class, MacroTaskTO.class);
-            MACRO_TASK_KEY = task.getKey();
+                        Response response = TASK_SERVICE.create(TaskType.MACRO, task);
+                        return response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+                    });
         }
     }
 

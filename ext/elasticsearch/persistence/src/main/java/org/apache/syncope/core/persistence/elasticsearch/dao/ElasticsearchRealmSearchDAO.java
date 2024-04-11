@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-public class ElasticsearchRealmDAO implements RealmSearchDAO {
+public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDAO.class);
 
@@ -62,7 +62,7 @@ public class ElasticsearchRealmDAO implements RealmSearchDAO {
 
     protected final int indexMaxResultWindow;
 
-    public ElasticsearchRealmDAO(
+    public ElasticsearchRealmSearchDAO(
             final RealmDAO realmDAO,
             final ElasticsearchClient client,
             final int indexMaxResultWindow) {

@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.time.Duration;
 import java.time.Instant;
@@ -35,6 +36,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
+import javax.cache.CacheManager;
+import javax.cache.integration.CacheLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -53,8 +56,11 @@ public class MSEntraJWTSSOProviderTest {
 
     private static final String AUTH_USERNAME = "auth-username";
 
-    private static final MSEntraAccessTokenJWSVerifier VERIFIER = new MSEntraAccessTokenJWSVerifier(
-            TENANT_ID, APP_ID, Duration.ofHours(24));
+    @Mock
+    private CacheManager cacheManager;
+
+    @Mock
+    private CacheLoader<String, JWSVerifier> cacheLoader;
 
     @Mock
     private User user;
@@ -65,10 +71,14 @@ public class MSEntraJWTSSOProviderTest {
     @Mock
     private AuthDataAccessor authDataAccessor;
 
+    private MSEntraAccessTokenJWSVerifier verifier() {
+        return new MSEntraAccessTokenJWSVerifier(cacheManager, cacheLoader, javax.cache.expiry.Duration.ONE_DAY);
+    }
+
     @Test
     void getIssuer() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         assertEquals(provider.getIssuer(), "https://sts.windows.net/" + TENANT_ID + "/");
     }
@@ -76,7 +86,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveSuccess() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
@@ -104,7 +114,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveMissingClaims() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
@@ -119,7 +129,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveAuthUserNull() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.empty());
 
@@ -144,7 +154,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveWrongAudience() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
@@ -167,7 +177,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveIssuedFail() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
@@ -190,7 +200,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveIssuedInClockSkew() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
@@ -216,7 +226,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveNotBeforeFail() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
@@ -239,7 +249,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveNotBeforeInClockSkew() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).
@@ -265,7 +275,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveExpirationFail() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
 
@@ -288,7 +298,7 @@ public class MSEntraJWTSSOProviderTest {
     @Test
     void resolveExpirationInClockSkew() {
         MSEntraJWTSSOProvider provider = new MSEntraJWTSSOProvider(
-                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), VERIFIER);
+                userDAO, authDataAccessor, TENANT_ID, APP_ID, AUTH_USERNAME, Duration.ofMinutes(5), verifier());
 
         when(userDAO.findByUsername(anyString())).thenAnswer(ic -> Optional.of(user));
         when(authDataAccessor.getAuthorities(AUTH_USERNAME, null)).

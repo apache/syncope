@@ -75,6 +75,14 @@ public class ResourceTest extends AbstractTest {
     private ImplementationDAO implementationDAO;
 
     @Test
+    public void accountPolicy() {
+        ExternalResource resource = resourceDAO.findById("resource-testdb").orElseThrow();
+        assertEquals(
+                policyDAO.findById("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7").orElseThrow(),
+                resource.getAccountPolicy());
+    }
+
+    @Test
     public void findByConnInstance() {
         List<ExternalResource> resources = resourceDAO.findByConnInstance("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertEquals(6, resources.size());

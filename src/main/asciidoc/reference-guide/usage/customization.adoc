@@ -265,7 +265,6 @@ components:
 * <<account-rules,account>> and <<password-rules,password>> rules for policies
 * <<plain,plain schema validators>>
 * <<mapping,mapping item transformers>>
-* <<virtual-attribute-cache,virtual attribute cache>>
 * <<workflow-adapters,workflow adapters>>
 * <<provisioning-managers,provisioning managers>>
 * <<notifications,notification recipient providers>>

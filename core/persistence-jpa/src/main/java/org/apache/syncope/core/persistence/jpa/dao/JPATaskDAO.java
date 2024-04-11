@@ -441,7 +441,7 @@ public class JPATaskDAO implements TaskDAO {
         }
 
         queryString.append(toOrderByStatement(
-                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().get()));
+                taskUtilsFactory.getInstance(type).getTaskEntity(), pageable.getSort().stream()));
 
         Query query = entityManager.createNativeQuery(queryString.toString());
 

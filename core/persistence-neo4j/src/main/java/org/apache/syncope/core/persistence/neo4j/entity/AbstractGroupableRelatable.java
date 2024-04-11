@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 
 public abstract class AbstractGroupableRelatable<
         L extends Any<P>,
@@ -41,54 +42,56 @@ public abstract class AbstractGroupableRelatable<
 
     private static final long serialVersionUID = -2269285197388729673L;
 
-    protected abstract Map<String, ? extends P> internalGetPlainAttrs();
-
-    protected abstract List<? extends AbstractMembership<L, P>> internalGetMemberships();
+    protected abstract List<? extends AbstractMembership<L, P>> memberships();
 
     @Override
     public boolean remove(final P attr) {
-        return internalGetPlainAttrs().remove(attr.getSchema().getKey()) != null;
-    }
+        Neo4jPlainAttr<L> neo4jAttr = (Neo4jPlainAttr<L>) attr;
 
-    @Override
-    public Optional<? extends P> getPlainAttr(final String plainSchema) {
-        return Optional.ofNullable(internalGetPlainAttrs().get(plainSchema));
+        if (neo4jAttr.getMembershipKey() == null) {
+            return plainAttrs().remove(neo4jAttr.getSchemaKey()) != null;
+        }
+
+        return memberships().stream().
+                filter(m -> m.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
+                map(membership -> membership.remove(neo4jAttr.getSchemaKey())).
+                orElse(false);
     }
 
     @Override
     public Optional<? extends P> getPlainAttr(final String plainSchema, final Membership<?> membership) {
-        return internalGetMemberships().stream().
-                filter(m -> m.getRightEnd().getKey().equals(membership.getKey())).findFirst().
+        return memberships().stream().
+                filter(m -> m.getKey().equals(membership.getKey())).findFirst().
                 flatMap(m -> m.getPlainAttr(plainSchema));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public List<? extends P> getPlainAttrs() {
-        return internalGetPlainAttrs().entrySet().stream().
+        return plainAttrs().entrySet().stream().
                 sorted(Comparator.comparing(Map.Entry::getKey)).
-                map(Map.Entry::getValue).toList();
+                map(e -> (P) e.getValue()).toList();
     }
 
     @Override
     public Collection<? extends P> getPlainAttrs(final String plainSchema) {
-        return Stream.concat(
-                getPlainAttr(plainSchema).map(Stream::of).orElse(Stream.empty()),
-                internalGetMemberships().stream().map(m -> m.getPlainAttr(plainSchema)).
+        return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElse(Stream.empty()),
+                memberships().stream().map(m -> m.getPlainAttr(plainSchema)).
                         filter(Optional::isPresent).map(Optional::get)).
                 toList();
     }
 
     @Override
     public Collection<? extends P> getPlainAttrs(final Membership<?> membership) {
-        return internalGetMemberships().stream().
-                filter(m -> m.getRightEnd().getKey().equals(membership.getKey())).
+        return memberships().stream().
+                filter(m -> m.getKey().equals(membership.getKey())).
                 flatMap(m -> m.getPlainAttrs().stream()).toList();
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<? extends M> getMemberships() {
-        return internalGetMemberships().stream().map(m -> (M) m).toList();
+        return memberships().stream().map(m -> (M) m).toList();
     }
 
     @Override
@@ -110,5 +113,10 @@ public abstract class AbstractGroupableRelatable<
         return getRelationships().stream().
                 filter(relationship -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
                 toList();
+    }
+
+    @PostLoad
+    public void completeMembershipPlainAttrs() {
+        memberships().forEach(m -> doComplete(m.plainAttrs()));
     }
 }

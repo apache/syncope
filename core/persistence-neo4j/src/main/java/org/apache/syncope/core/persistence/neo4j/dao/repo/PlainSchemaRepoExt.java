@@ -20,11 +20,18 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaRepoExt {
+
+    String CACHE = "plainSchemaCache";
+
+    Optional<? extends PlainSchema> findById(String key);
+
+    List<? extends PlainSchema> findByIdLike(String keyword);
 
     List<? extends PlainSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 

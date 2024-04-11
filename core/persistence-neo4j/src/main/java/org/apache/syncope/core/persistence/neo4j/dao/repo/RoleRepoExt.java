@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -26,13 +27,19 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface RoleRepoExt {
 
+    String CACHE = "roleCache";
+
     String DYN_ROLE_MEMBERSHIP_REL = "DYN_ROLE_MEMBERSHIP";
+
+    Optional<? extends Role> findById(String key);
 
     List<Role> findByRealms(Realm realm);
 
     List<Role> findByPrivileges(Privilege privilege);
 
     Role save(Role role);
+
+    void deleteById(String key);
 
     void delete(Role role);
 

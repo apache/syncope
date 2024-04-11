@@ -69,9 +69,15 @@ public class Neo4jUser
 
     public static final String NODE = "SyncopeUser";
 
+    public static final String USER_AUX_CLASSES_REL = "USER_AUX_CLASSES";
+
+    public static final String USER_RESOURCE_REL = "USER_RESOURCE";
+
     public static final String ROLE_MEMBERSHIP_REL = "ROLE_MEMBERSHIP";
 
-    public static final String GROUP_MEMBERSHIP_REL = "GROUP_MEMBERSHIP";
+    public static final String USER_GROUP_MEMBERSHIP_REL = "USER_GROUP_MEMBERSHIP";
+
+    public static final String USER_SECURITY_QUESTION_REL = "USER_SECURITY_QUESTION";
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
@@ -79,9 +85,6 @@ public class Neo4jUser
     };
 
     protected String password;
-
-    @Relationship(type = ROLE_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
-    protected List<Neo4jRole> roles = new ArrayList<>();
 
     @CompositeProperty(converterRef = "uPlainAttrsConverter")
     protected Map<String, Neo4jUPlainAttr> plainAttrs = new HashMap<>();
@@ -122,19 +125,22 @@ public class Neo4jUser
     /**
      * Provisioning external resources.
      */
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = USER_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
     protected List<Neo4jExternalResource> resources = new ArrayList<>();
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = USER_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(type = Neo4jURelationship.SOURCE_REL, direction = Relationship.Direction.INCOMING)
     protected List<Neo4jURelationship> relationships = new ArrayList<>();
 
-    @Relationship(type = GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.INCOMING)
+    @Relationship(type = USER_GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.INCOMING)
     protected List<Neo4jUMembership> memberships = new ArrayList<>();
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ROLE_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
+    protected List<Neo4jRole> roles = new ArrayList<>();
+
+    @Relationship(type = USER_SECURITY_QUESTION_REL, direction = Relationship.Direction.OUTGOING)
     protected Neo4jSecurityQuestion securityQuestion;
 
     protected String securityAnswer;
@@ -227,14 +233,23 @@ public class Neo4jUser
     }
 
     @Override
-    public boolean add(final UPlainAttr attr) {
-        checkType(attr, Neo4jUPlainAttr.class);
-        return plainAttrs.put(attr.getSchema().getKey(), (Neo4jUPlainAttr) attr) != null;
+    public Optional<? extends UPlainAttr> getPlainAttr(final String plainSchema) {
+        return Optional.ofNullable(plainAttrs.get(plainSchema));
     }
 
     @Override
-    protected Map<String, ? extends UPlainAttr> internalGetPlainAttrs() {
-        return plainAttrs;
+    public boolean add(final UPlainAttr attr) {
+        checkType(attr, Neo4jUPlainAttr.class);
+        Neo4jUPlainAttr neo4jAttr = (Neo4jUPlainAttr) attr;
+
+        if (neo4jAttr.getMembershipKey() == null) {
+            return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+        }
+
+        return memberships().stream().
+                filter(membership -> membership.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
+                map(membership -> membership.add(neo4jAttr)).
+                orElse(false);
     }
 
     @Override
@@ -428,7 +443,7 @@ public class Neo4jUser
     }
 
     @Override
-    protected List<Neo4jUMembership> internalGetMemberships() {
+    protected List<Neo4jUMembership> memberships() {
         return memberships;
     }
 

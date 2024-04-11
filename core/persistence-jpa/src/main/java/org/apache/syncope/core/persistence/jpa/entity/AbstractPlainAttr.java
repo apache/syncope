@@ -107,5 +107,4 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
 
         return Collections.unmodifiableList(result);
     }
-
 }

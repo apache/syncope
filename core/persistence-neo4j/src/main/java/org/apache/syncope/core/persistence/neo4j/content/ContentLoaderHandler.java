@@ -30,6 +30,7 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.common.content.AbstractContentLoaderHandler;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
@@ -65,7 +66,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
 
     }
 
-    protected static record Relationship(String leftId, String rightId, String type) {
+    protected static record Relationship(String leftId, String rightId, String type, String index) {
 
     }
 
@@ -251,6 +252,7 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         String left = null;
         String right = null;
         String type = null;
+        String index = null;
         for (int i = 0; i < atts.getLength(); i++) {
             if ("left".equalsIgnoreCase(atts.getQName(i))) {
                 left = atts.getValue(i);
@@ -258,6 +260,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                 right = atts.getValue(i);
             } else if ("type".equalsIgnoreCase(atts.getQName(i))) {
                 type = atts.getValue(i);
+            } else if ("index".equalsIgnoreCase(atts.getQName(i))) {
+                index = atts.getValue(i);
             }
         }
         if (left == null || right == null) {
@@ -268,10 +272,17 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         String leftId = left;
         String rightId = right;
         String relType = type;
+        String indexValue = index;
         return nodeDesc.getRelationships().stream().
                 filter(rel -> rightNode.equals(rel.getTarget().getPrimaryLabel())
                 && (relType == null || relType.equals(rel.getType()))).
-                findFirst().map(rel -> new Relationship(leftId, rightId, rel.getType()));
+                findFirst().map(rel -> new Relationship(
+                leftId,
+                rightId,
+                rel.getType(),
+                Optional.ofNullable(rel.getRelationshipPropertiesEntity()).
+                        filter(rpe -> Neo4jImplementationRelationship.class.getSimpleName().
+                        equals(rpe.getPrimaryLabel())).map(rpe -> indexValue).orElse(null)));
     }
 
     @Override
@@ -283,7 +294,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                     map(rel -> new Query(
                     "MATCH (a:" + split[0] + " {id: '" + rel.leftId() + "'}), "
                     + "(b:" + split[1] + " {id: '" + rel.rightId() + "'}) "
-                    + "CREATE (a)-[:" + rel.type() + "]->(b)",
+                    + "CREATE (a)-"
+                    + "[:" + rel.type() + (rel.index() == null ? "" : " {index: " + rel.index() + "}") + "]->(b)",
                     Map.of()));
         } else {
             query = parseNode(mappingContext.getNodeDescription(qName), atts).map(node -> {

@@ -32,6 +32,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface GroupRepoExt extends AnyRepoExt<Group> {
 
+    String CACHE = "groupCache";
+
     String DYN_GROUP_USER_MEMBERSHIP_REL = "DYN_GROUP_USER_MEMBERSHIP";
 
     String DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL = "DYN_GROUP_ANY_OBJECT_MEMBERSHIP";
@@ -71,4 +73,10 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
     Pair<Set<String>, Set<String>> refreshDynMemberships(User user);
 
     Set<String> removeDynMemberships(User user);
+
+    @Override
+    <S extends Group> S save(S group);
+
+    @Override
+    void delete(Group group);
 }

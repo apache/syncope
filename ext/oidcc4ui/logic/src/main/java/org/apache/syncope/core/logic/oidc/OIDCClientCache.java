@@ -28,12 +28,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
@@ -78,47 +77,51 @@ public class OIDCClientCache {
         Optional.ofNullable(metadata.getScopes()).ifPresent(s -> opTO.getScopes().addAll(s.toStringList()));
     }
 
-    protected final List<OidcClient> cache = Collections.synchronizedList(new ArrayList<>());
+    protected final Cache<String, OidcClient> cache;
 
-    public Optional<OidcClient> get(final String opName) {
-        return cache.stream().filter(c -> opName.equals(c.getName())).findFirst();
+    public OIDCClientCache(final Cache<String, OidcClient> cache) {
+        this.cache = cache;
     }
 
-    public OidcClient add(final OIDCC4UIProvider op, final String callbackUrl) {
-        OIDCProviderMetadata metadata = new OIDCProviderMetadata(
-                new Issuer(op.getIssuer()),
-                List.of(SubjectType.PUBLIC),
-                Optional.ofNullable(op.getJwksUri()).map(URI::create).orElse(null));
-        metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
-        metadata.setAuthorizationEndpointURI(
-                Optional.ofNullable(op.getAuthorizationEndpoint()).map(URI::create).orElse(null));
-        metadata.setTokenEndpointURI(
-                Optional.ofNullable(op.getTokenEndpoint()).map(URI::create).orElse(null));
-        metadata.setUserInfoEndpointURI(
-                Optional.ofNullable(op.getUserinfoEndpoint()).map(URI::create).orElse(null));
-        metadata.setEndSessionEndpointURI(
-                Optional.ofNullable(op.getEndSessionEndpoint()).map(URI::create).orElse(null));
+    public OidcClient get(final OIDCC4UIProvider op, final String callbackUrl) {
+        return Optional.ofNullable(cache.get(op.getName())).
+                orElseGet(() -> {
+                    OIDCProviderMetadata metadata = new OIDCProviderMetadata(
+                            new Issuer(op.getIssuer()),
+                            List.of(SubjectType.PUBLIC),
+                            Optional.ofNullable(op.getJwksUri()).map(URI::create).orElse(null));
+                    metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
+                    metadata.setAuthorizationEndpointURI(
+                            Optional.ofNullable(op.getAuthorizationEndpoint()).map(URI::create).orElse(null));
+                    metadata.setTokenEndpointURI(
+                            Optional.ofNullable(op.getTokenEndpoint()).map(URI::create).orElse(null));
+                    metadata.setUserInfoEndpointURI(
+                            Optional.ofNullable(op.getUserinfoEndpoint()).map(URI::create).orElse(null));
+                    metadata.setEndSessionEndpointURI(
+                            Optional.ofNullable(op.getEndSessionEndpoint()).map(URI::create).orElse(null));
 
-        OidcConfiguration cfg = new OidcConfiguration();
-        cfg.setClientId(op.getClientID());
-        cfg.setSecret(op.getClientSecret());
-        cfg.setDiscoveryURI(DISCOVERY_URI.apply(op.getIssuer()));
-        cfg.setPreferredJwsAlgorithm(JWSAlgorithm.HS256);
-        cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
-        cfg.setScope(op.getScopes().stream().collect(Collectors.joining(" ")));
-        cfg.setUseNonce(false);
+                    OidcConfiguration cfg = new OidcConfiguration();
+                    cfg.setClientId(op.getClientID());
+                    cfg.setSecret(op.getClientSecret());
+                    cfg.setDiscoveryURI(DISCOVERY_URI.apply(op.getIssuer()));
+                    cfg.setPreferredJwsAlgorithm(JWSAlgorithm.HS256);
+                    cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
+                    cfg.setScope(op.getScopes().stream().collect(Collectors.joining(" ")));
+                    cfg.setUseNonce(false);
 
-        OidcClient client = new OidcClient(cfg);
-        client.setName(op.getName());
-        client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
-        client.setCallbackUrl(callbackUrl);
-        client.init();
+                    OidcClient client = new OidcClient(cfg);
+                    client.setName(op.getName());
+                    client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
+                    client.setCallbackUrl(callbackUrl);
+                    client.init();
 
-        cache.add(client);
-        return client;
+                    cache.put(op.getName(), client);
+
+                    return client;
+                });
     }
 
-    public boolean removeAll(final String opName) {
-        return cache.removeIf(c -> opName.equals(c.getName()));
+    public boolean remove(final String opName) {
+        return cache.remove(opName);
     }
 }

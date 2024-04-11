@@ -27,6 +27,8 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public interface VirAttrHandler {
 
+    String CACHE = "virAttrCache";
+
     /**
      * Updates cache with values from external resource.
      *

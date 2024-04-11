@@ -33,7 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAnySearchDAO;
 import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchAuditEventDAO;
-import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchRealmDAO;
+import org.apache.syncope.core.persistence.elasticsearch.dao.ElasticsearchRealmSearchDAO;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -80,7 +80,7 @@ public class ElasticsearchPersistenceContext {
             final ElasticsearchClient client,
             final ElasticsearchProperties props) {
 
-        return new ElasticsearchRealmDAO(realmDAO, client, props.getIndexMaxResultWindow());
+        return new ElasticsearchRealmSearchDAO(realmDAO, client, props.getIndexMaxResultWindow());
     }
 
     @ConditionalOnMissingBean(name = "elasticsearchAuditEventDAO")

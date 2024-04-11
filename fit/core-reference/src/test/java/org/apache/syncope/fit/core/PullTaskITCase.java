@@ -33,7 +33,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -124,6 +123,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class PullTaskITCase extends AbstractTaskITCase {
 
+    private static final String LDAP_PULL_TASK = "1e419ca4-ea81-4493-a14f-28b90113686d";
+
     @BeforeAll
     public static void testPullActionsSetup() {
         ImplementationTO pullActions = null;
@@ -183,6 +184,23 @@ public class PullTaskITCase extends AbstractTaskITCase {
         return Pair.of(entryDn, attributes);
     }
 
+    private static void cleanUpRemediations() {
+        REMEDIATION_SERVICE.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().
+                forEach(r -> REMEDIATION_SERVICE.delete(r.getKey()));
+    }
+
+    private void removeTestUsers() {
+        for (int i = 0; i < 10; i++) {
+            String cUserName = "test" + i;
+            try {
+                UserTO cUserTO = USER_SERVICE.read(cUserName);
+                USER_SERVICE.delete(cUserTO.getKey());
+            } catch (Exception e) {
+                // Ignore
+            }
+        }
+    }
+
     @Test
     public void getPullActionsClasses() {
         Set<String> actions = ANONYMOUS_CLIENT.platform().
@@ -238,29 +256,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // Attemp to reset CSV content
         Properties props = new Properties();
-        InputStream propStream = null;
-        InputStream srcStream = null;
-        OutputStream dstStream = null;
-        try {
-            propStream = getClass().getResourceAsStream("/test.properties");
+        try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             props.load(propStream);
 
-            srcStream = new FileInputStream(props.getProperty("test.csv.src"));
-            dstStream = new FileOutputStream(props.getProperty("test.csv.dst"));
+            try (InputStream src = new FileInputStream(props.getProperty("test.csv.src"));
+                    FileOutputStream dst = new FileOutputStream(props.getProperty("test.csv.dst"))) {
 
-            IOUtils.copy(srcStream, dstStream);
+                IOUtils.copy(src, dst);
+            }
         } catch (IOException e) {
             fail(e::getMessage);
-        } finally {
-            if (propStream != null) {
-                propStream.close();
-            }
-            if (srcStream != null) {
-                srcStream.close();
-            }
-            if (dstStream != null) {
-                dstStream.close();
-            }
         }
 
         // -----------------------------
@@ -309,7 +314,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").get().getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").get().getValues().get(0));
-            assertTrue(Integer.valueOf(userTO.getPlainAttr("fullname").get().getValues().get(0)) <= 10);
+            assertTrue(Integer.parseInt(userTO.getPlainAttr("fullname").get().getValues().get(0)) <= 10);
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
 
@@ -412,14 +417,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 0. pull
-        ExecTO execution = execSchedTask(
-                TASK_SERVICE, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
+        ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 1. verify execution status
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
         // SYNCOPE-898
-        PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, LDAP_PULL_TASK, false);
         assertEquals(SyncopeConstants.ROOT_REALM, task.getDestinationRealm());
 
         if (IS_EXT_SEARCH_ENABLED) {
@@ -485,8 +489,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 userDn.getValues().get(0), Collections.singletonMap("title", null));
 
         // SYNCOPE-317
-        execSchedTask(
-                TASK_SERVICE, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
+        execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 4. verify that LDAP group membership is pulled as Syncope membership
         AtomicReference<Integer> numMembers = new AtomicReference<>();
@@ -520,8 +523,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                 groupDn.getValues().get(0), Map.of("uniquemember", "uid=admin,ou=system"));
 
-        execSchedTask(
-                TASK_SERVICE, TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", MAX_WAIT_SECONDS, false);
+        execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
@@ -850,35 +852,34 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
 
             // 3b. remediation was created
-            Optional<RemediationTO> remediation = REMEDIATION_SERVICE.list(
+            RemediationTO remediation = REMEDIATION_SERVICE.list(
                     new RemediationQuery.Builder().page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
-                    findFirst();
-            assertTrue(remediation.isPresent());
-            assertEquals(AnyTypeKind.USER.name(), remediation.get().getAnyType());
-            assertEquals(ResourceOperation.CREATE, remediation.get().getOperation());
-            assertNotNull(remediation.get().getAnyCRPayload());
-            assertNull(remediation.get().getAnyURPayload());
-            assertNull(remediation.get().getKeyPayload());
-            assertTrue(remediation.get().getError().contains("RequiredValuesMissing [userId]"));
+                    findFirst().orElseThrow();
+            assertEquals(AnyTypeKind.USER.name(), remediation.getAnyType());
+            assertEquals(ResourceOperation.CREATE, remediation.getOperation());
+            assertNotNull(remediation.getAnyCRPayload());
+            assertNull(remediation.getAnyURPayload());
+            assertNull(remediation.getKeyPayload());
+            assertTrue(remediation.getError().contains("RequiredValuesMissing [userId]"));
 
             // 4. remedy by copying the email value to userId
-            AnyCR userCR = remediation.get().getAnyCRPayload();
+            AnyCR userCR = remediation.getAnyCRPayload();
             userCR.getResources().clear();
 
-            String email = userCR.getPlainAttr("email").get().getValues().get(0);
+            String email = userCR.getPlainAttr("email").orElseThrow().getValues().get(0);
             userCR.getPlainAttrs().add(new Attr.Builder("userId").value(email).build());
 
-            REMEDIATION_SERVICE.remedy(remediation.get().getKey(), userCR);
+            REMEDIATION_SERVICE.remedy(remediation.getKey(), userCR);
 
             // 5. user is now found
             UserTO user = USER_SERVICE.read("pullFromLDAP");
             assertNotNull(user);
-            assertEquals(email, user.getPlainAttr("userId").get().getValues().get(0));
+            assertEquals(email, user.getPlainAttr("userId").orElseThrow().getValues().get(0));
 
             // 6. remediation was removed
             try {
-                REMEDIATION_SERVICE.read(remediation.get().getKey());
+                REMEDIATION_SERVICE.read(remediation.getKey());
                 fail("This should never happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.NotFound, e.getType());
@@ -924,18 +925,18 @@ public class PullTaskITCase extends AbstractTaskITCase {
             } catch (SyncopeClientException sce) {
                 assertEquals(ClientExceptionType.Reconciliation, sce.getType());
             }
-            Optional<RemediationTO> remediation = REMEDIATION_SERVICE.list(
+
+            RemediationTO remediation = REMEDIATION_SERVICE.list(
                     new RemediationQuery.Builder().after(OffsetDateTime.now().minusSeconds(30)).
                             page(1).size(1000).build()).getResult().stream().
                     filter(r -> "uid=pullFromLDAP,ou=People,o=isp".equalsIgnoreCase(r.getRemoteName())).
-                    findFirst();
-            assertTrue(remediation.isPresent());
-            assertEquals(AnyTypeKind.USER.name(), remediation.get().getAnyType());
-            assertEquals(ResourceOperation.CREATE, remediation.get().getOperation());
-            assertNotNull(remediation.get().getAnyCRPayload());
-            assertNull(remediation.get().getAnyURPayload());
-            assertNull(remediation.get().getKeyPayload());
-            assertTrue(remediation.get().getError().contains(
+                    findFirst().orElseThrow();
+            assertEquals(AnyTypeKind.USER.name(), remediation.getAnyType());
+            assertEquals(ResourceOperation.CREATE, remediation.getOperation());
+            assertNotNull(remediation.getAnyCRPayload());
+            assertNull(remediation.getAnyURPayload());
+            assertNull(remediation.getKeyPayload());
+            assertTrue(remediation.getError().contains(
                     "SyncopeClientCompositeException: {[RequiredValuesMissing [userId]]}"));
         } finally {
             RESOURCE_SERVICE.delete(ldap.getKey());
@@ -983,7 +984,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         });
 
         // 1. create new concurrent pull task
-        PullTaskTO pullTask = TASK_SERVICE.read(TaskType.PULL, "1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        PullTaskTO pullTask = TASK_SERVICE.read(TaskType.PULL, LDAP_PULL_TASK, false);
         assertNull(pullTask.getConcurrentSettings());
         pullTask.setKey(null);
         pullTask.setName("LDAP Concurrent Pull Task");
@@ -1519,27 +1520,18 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // ...and propagated
             propagationTasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
-                    resource(RESOURCE_NAME_DBPULL).
-                    anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+                    resource(RESOURCE_NAME_DBPULL).anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(2, propagationTasks.getSize());
         } catch (Exception e) {
             LOG.error("Unexpected during issueSYNCOPE1062()", e);
             fail(e::getMessage);
         } finally {
-            if (pullTask != null) {
-                TASK_SERVICE.delete(TaskType.PULL, pullTask.getKey());
-            }
+            Optional.ofNullable(pullTask).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t.getKey()));
 
-            if (propagationGroup != null) {
-                GROUP_SERVICE.delete(propagationGroup.getKey());
-            }
+            Optional.ofNullable(propagationGroup).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
+            Optional.ofNullable(group).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
 
-            if (group != null) {
-                GROUP_SERVICE.delete(group.getKey());
-            }
-            if (user != null) {
-                USER_SERVICE.delete(user.getKey());
-            }
+            Optional.ofNullable(user).ifPresent(u -> USER_SERVICE.delete(u.getKey()));
         }
     }
 
@@ -1555,27 +1547,28 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
                 "odd",
                 "password"));
+
+        PullTaskTO pullTask = new PullTaskTO();
+        pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+        pullTask.setName("SYNCOPE1656");
+        pullTask.setActive(true);
+        pullTask.setPerformCreate(true);
+        pullTask.setPerformUpdate(true);
+        pullTask.setRemediation(true);
+        pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
+        pullTask.setResource(RESOURCE_NAME_LDAP);
+
+        UserTO pullFromLDAP4issue1656 = null;
         try {
             // 1. Pull from resource-ldap
-            PullTaskTO pullTask = new PullTaskTO();
-            pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
-            pullTask.setName("SYNCOPE1656");
-            pullTask.setActive(true);
-            pullTask.setPerformCreate(true);
-            pullTask.setPerformUpdate(true);
-            pullTask.setRemediation(true);
-            pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
-            pullTask.setResource(RESOURCE_NAME_LDAP);
-
             Response taskResponse = TASK_SERVICE.create(TaskType.PULL, pullTask);
             pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(pullTask);
 
-            ExecTO execution = execSchedTask(
-                    TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
-            UserTO pullFromLDAP4issue1656 = USER_SERVICE.read("pullFromLDAP_issue1656");
+            pullFromLDAP4issue1656 = USER_SERVICE.read("pullFromLDAP_issue1656");
             assertEquals("pullFromLDAP_issue1656@syncope.apache.org",
                     pullFromLDAP4issue1656.getPlainAttr("email").get().getValues().get(0));
             // 2. Edit mail attribute directly on the resource in order to have a not valid email
@@ -1588,7 +1581,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(userDn);
             assertEquals(1, userDn.getValues().size());
             updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                    userDn.getValues().get(0), Collections.singletonMap("mail", "pullFromLDAP_issue1656@"));
+                    userDn.getValues().get(0), Map.of("mail", "pullFromLDAP_issue1656@"));
             // 3. Pull again from resource-ldap
             execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
@@ -1605,15 +1598,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertTrue(remediations.getResult().stream().anyMatch(r -> StringUtils.contains(r.getError(),
                     "\"pullFromLDAP_issue1656@\" is not a valid email address")));
         } finally {
-            // remove test entity
+            // remove test entities
             removeLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
                     "uid=pullFromLDAP_issue1656,ou=People,o=isp");
             cleanUpRemediations();
+            Optional.ofNullable(pullTask.getKey()).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t));
+            Optional.ofNullable(pullFromLDAP4issue1656).ifPresent(u -> USER_SERVICE.delete(u.getKey()));
         }
-    }
-
-    private static void cleanUpRemediations() {
-        REMEDIATION_SERVICE.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().forEach(
-                r -> REMEDIATION_SERVICE.delete(r.getKey()));
     }
 }

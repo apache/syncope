@@ -133,7 +133,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 || authRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
 
         // 2. check if groups is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized) {
+        if (!authorized && key != null) {
             authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
         }
 

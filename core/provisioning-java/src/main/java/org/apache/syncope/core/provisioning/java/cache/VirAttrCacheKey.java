@@ -18,32 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.cache;
 
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
-/**
- * Empty virtual attribute value cache implementation.
- */
-public class DisabledVirAttrCache implements VirAttrCache {
+public record VirAttrCacheKey(String domain, String anyType, String any, String schema) {
 
-    @Override
-    public void setCacheSpec(final String cacheSpec) {
-        // nothing to do
-    }
-
-    @Override
-    public void expire(final VirAttrCacheKey key) {
-        // nothing to do
-    }
-
-    @Override
-    public VirAttrCacheValue get(final VirAttrCacheKey key) {
-        return null;
-    }
-
-    @Override
-    public VirAttrCacheValue put(final VirAttrCacheKey key, final VirAttrCacheValue value) {
-        return value;
+    public static VirAttrCacheKey of(final String anyType, final String any, final String schema) {
+        return new VirAttrCacheKey(AuthContextUtils.getDomain(), anyType, any, schema);
     }
 }

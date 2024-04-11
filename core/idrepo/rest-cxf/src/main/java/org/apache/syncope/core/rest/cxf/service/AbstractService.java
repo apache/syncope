@@ -67,12 +67,16 @@ public abstract class AbstractService implements JAXRSService {
             String[] elems = clause.trim().split(" ");
 
             if (elems.length > 0 && StringUtils.isNotBlank(elems[0])) {
+                // Manage difference among external key attribute and internal id field
+                String property = "key".equals(elems[0]) ? "id" : elems[0];
+
                 Sort.Direction direction = Sort.DEFAULT_DIRECTION;
                 if (elems.length > 1 && StringUtils.isNotBlank(elems[1])) {
                     direction = elems[1].trim().equalsIgnoreCase(Sort.Direction.ASC.name())
                             ? Sort.Direction.ASC : Sort.Direction.DESC;
                 }
-                clauses.add(new Sort.Order(direction, elems[0].trim()));
+
+                clauses.add(new Sort.Order(direction, property.trim()));
             }
         }
 

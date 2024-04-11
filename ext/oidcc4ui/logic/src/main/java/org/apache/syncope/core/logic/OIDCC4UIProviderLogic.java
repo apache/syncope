@@ -115,8 +115,8 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
         }
 
         binder.update(op, opTO);
-        oidcClientCacheLogin.removeAll(op.getName());
-        oidcClientCacheLogout.removeAll(op.getName());
+        oidcClientCacheLogin.remove(op.getName());
+        oidcClientCacheLogout.remove(op.getName());
     }
 
     @PreAuthorize("hasRole('" + OIDCC4UIEntitlement.OP_DELETE + "')")
@@ -125,8 +125,8 @@ public class OIDCC4UIProviderLogic extends AbstractTransactionalLogic<OIDCC4UIPr
                 orElseThrow(() -> new NotFoundException("OIDC Provider " + key));
 
         opDAO.deleteById(key);
-        oidcClientCacheLogin.removeAll(op.getName());
-        oidcClientCacheLogout.removeAll(op.getName());
+        oidcClientCacheLogin.remove(op.getName());
+        oidcClientCacheLogout.remove(op.getName());
     }
 
     @Override

@@ -420,7 +420,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         try {
             jobManager.register(
                     task,
-                    OffsetDateTime.now(),
+                    OffsetDateTime.now().plusSeconds(1),
                     AuthContextUtils.getUsername(),
                     false,
                     Map.of(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key,

@@ -105,18 +105,20 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, C extends AnyCR, U exte
             throw sce;
         }
 
-        C anyCR = input;
+        C templatedCR = input;
 
-        templateUtils.apply(anyCR, realm.getTemplate(anyType));
+        realm.getTemplate(anyType).ifPresent(template -> templateUtils.apply(templatedCR, template.get()));
+
+        C actionedCR = input;
 
         List<LogicActions> actions = getActions(realm);
         for (LogicActions action : actions) {
-            anyCR = action.beforeCreate(anyCR);
+            actionedCR = action.beforeCreate(actionedCR);
         }
 
-        LOG.debug("Input: {}\nOutput: {}\n", input, anyCR);
+        LOG.debug("Input: {}\nOutput: {}\n", input, actionedCR);
 
-        return Pair.of(anyCR, actions);
+        return Pair.of(actionedCR, actions);
     }
 
     @SuppressWarnings("unchecked")

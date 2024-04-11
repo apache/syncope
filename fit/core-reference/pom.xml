@@ -54,11 +54,6 @@ under the License.
     </dependency>
 
     <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-starter</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.core.idm</groupId>
       <artifactId>syncope-core-idm-rest-cxf</artifactId>
       <version>${project.version}</version>
@@ -81,17 +76,17 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-    </dependency>
-
     <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -1549,17 +1544,141 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
     <profile>
-      <id>payara-it</id>
+      <id>neo4j-it</id>
+
+      <properties>
+        <spring.profiles.active>embedded,neo4j</spring.profiles.active>
+      </properties>
 
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-persistence-jpa</artifactId>
+          <artifactId>syncope-core-self-keymaster-starter</artifactId>
           <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.syncope.core</groupId>
+              <artifactId>syncope-core-persistence-jpa</artifactId>          
+            </exclusion>
+          </exclusions>
         </dependency>
 
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-neo4j</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>neo4j</alias>
+                  <name>neo4j:${docker.neo4j.version}</name>
+                  <run>
+                    <env>
+                      <NEO4J_AUTH>none</NEO4J_AUTH>
+                      <NEO4JLABS_PLUGINS>["apoc"]</NEO4JLABS_PLUGINS>
+                    </env>
+                    <wait>
+                      <log>Started.</log>
+                      <time>30000</time>
+                    </wait>
+                    <tmpfs>
+                      <mount>/data:rw</mount>
+                      <mount>/logs:rw</mount>
+                      <mount>/var/lib/neo4j/data:rw</mount>
+                      <mount>/var/lib/neo4j/logs:rw</mount>
+                      <mount>/var/lib/neo4j/metrics:rw</mount>
+                    </tmpfs>
+                  </run>
+                </image>
+                <image>
+                  <alias>neo4jTwo</alias>
+                  <name>neo4j:${docker.neo4j.version}</name>
+                  <run>
+                    <env>
+                      <NEO4J_AUTH>none</NEO4J_AUTH>
+                      <NEO4JLABS_PLUGINS>["apoc"]</NEO4JLABS_PLUGINS>
+                    </env>
+                    <wait>
+                      <log>Started.</log>
+                      <time>30000</time>
+                    </wait>
+                    <tmpfs>
+                      <mount>/data:rw</mount>
+                      <mount>/logs:rw</mount>
+                      <mount>/var/lib/neo4j/data:rw</mount>
+                      <mount>/var/lib/neo4j/logs:rw</mount>
+                      <mount>/var/lib/neo4j/metrics:rw</mount>
+                    </tmpfs>
+                  </run>
+                </image>                
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-neo4j</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-neo4j</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <NEO4J_CONTAINER_IP>${docker.container.neo4j.ip}</NEO4J_CONTAINER_IP>
+                  <NEO4J_TWO_CONTAINER_IP>${docker.container.neo4jTwo.ip}</NEO4J_TWO_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/../../core/persistence-neo4j/src/test/resources/domains</directory>
+            <targetPath>${project.build.outputDirectory}/domains</targetPath>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
+    <profile>
+      <id>payara-it</id>
+
+      <dependencies>
         <dependency>
           <groupId>org.glassfish</groupId>
           <artifactId>jakarta.faces</artifactId>

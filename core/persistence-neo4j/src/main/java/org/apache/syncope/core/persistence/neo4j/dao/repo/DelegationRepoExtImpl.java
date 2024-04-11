@@ -20,20 +20,40 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDelegation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
+import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 
 public class DelegationRepoExtImpl extends AbstractDAO implements DelegationRepoExt {
 
-    public DelegationRepoExtImpl(final Neo4jTemplate neo4jTemplate, final Neo4jClient neo4jClient) {
+    protected final NodeValidator nodeValidator;
+
+    protected final Cache<EntityCacheKey, Neo4jDelegation> cache;
+
+    public DelegationRepoExtImpl(
+            final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jDelegation> cache) {
+
         super(neo4jTemplate, neo4jClient);
+        this.nodeValidator = nodeValidator;
+        this.cache = cache;
+    }
+
+    @Override
+    public Optional<? extends Delegation> findById(final String key) {
+        return findById(key, Neo4jDelegation.class, cache);
     }
 
     @Override
@@ -44,7 +64,8 @@ public class DelegationRepoExtImpl extends AbstractDAO implements DelegationRepo
                 + "(n:" + Neo4jDelegation.NODE + ") "
                 + "RETURN n.id").bindAll(Map.of("id", user.getKey())).fetch().all(),
                 "n.id",
-                Neo4jDelegation.class);
+                Neo4jDelegation.class,
+                cache);
     }
 
     @Override
@@ -55,7 +76,8 @@ public class DelegationRepoExtImpl extends AbstractDAO implements DelegationRepo
                 + "(u:" + Neo4jUser.NODE + " {id: $id}) "
                 + "RETURN n.id").bindAll(Map.of("id", user.getKey())).fetch().all(),
                 "n.id",
-                Neo4jDelegation.class);
+                Neo4jDelegation.class,
+                cache);
     }
 
     @Override
@@ -64,6 +86,26 @@ public class DelegationRepoExtImpl extends AbstractDAO implements DelegationRepo
                 "MATCH (n:" + Neo4jDelegation.NODE + ")-[]-(r:" + Neo4jRole.NODE + " {id: $id}) "
                 + "RETURN n.id").bindAll(Map.of("id", role.getKey())).fetch().all(),
                 "n.id",
-                Neo4jDelegation.class);
+                Neo4jDelegation.class,
+                cache);
+    }
+
+    @Override
+    public Delegation save(final Delegation delegation) {
+        Delegation saved = neo4jTemplate.save(nodeValidator.validate(delegation));
+        cache.put(EntityCacheKey.of(delegation.getKey()), (Neo4jDelegation) saved);
+        return saved;
+    }
+
+    @Override
+    public void delete(final Delegation delegation) {
+        cache.remove(EntityCacheKey.of(delegation.getKey()));
+
+        neo4jTemplate.deleteById(delegation.getKey(), Neo4jDelegation.class);
+    }
+
+    @Override
+    public void deleteById(final String key) {
+        findById(key).ifPresent(this::delete);
     }
 }

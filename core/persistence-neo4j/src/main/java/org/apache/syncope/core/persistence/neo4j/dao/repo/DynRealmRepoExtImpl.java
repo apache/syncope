@@ -160,8 +160,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
             cascadeDelete(
                     Neo4jDynRealmMembership.NODE,
                     Neo4jDynRealm.NODE,
-                    key,
-                    Neo4jDynRealmMembership.class);
+                    key);
 
             notifyDynMembershipRemoval(clearDynMembers(dynRealm));
 
@@ -191,7 +190,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
             } else if (!matches && existing) {
                 neo4jClient.query(
                         "MATCH (n {id: $aid})-"
-                        + "[:" + DYN_REALM_MEMBERSHIP_REL + "]-"
+                        + "[r:" + DYN_REALM_MEMBERSHIP_REL + "]-"
                         + "(p:" + Neo4jDynRealm.NODE + " {id: $rid}) "
                         + "DETACH DELETE r").bindAll(Map.of("aid", any.getKey(), "rid", dynRealm.getKey())).run();
             }

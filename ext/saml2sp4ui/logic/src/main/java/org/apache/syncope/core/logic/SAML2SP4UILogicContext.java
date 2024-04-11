@@ -18,6 +18,11 @@
  */
 package org.apache.syncope.core.logic;
 
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
@@ -32,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.pac4j.saml.client.SAML2Client;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -45,14 +51,30 @@ public class SAML2SP4UILogicContext {
 
     @ConditionalOnMissingBean(name = "saml2ClientCacheLogin")
     @Bean
-    public SAML2ClientCache saml2ClientCacheLogin() {
-        return new SAML2ClientCache();
+    public SAML2ClientCache saml2ClientCacheLogin(final CacheManager cacheManager) {
+        Cache<String, SAML2Client> saml2ClientCacheLogin = cacheManager.createCache(
+                "saml2ClientCacheLogin",
+                new MutableConfiguration<String, SAML2Client>().
+                        setTypes(String.class, SAML2Client.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
+
+        return new SAML2ClientCache(saml2ClientCacheLogin);
     }
 
     @ConditionalOnMissingBean(name = "saml2ClientCacheLogout")
     @Bean
-    public SAML2ClientCache saml2ClientCacheLogout() {
-        return new SAML2ClientCache();
+    public SAML2ClientCache saml2ClientCacheLogout(final CacheManager cacheManager) {
+        Cache<String, SAML2Client> saml2ClientCacheLogin = cacheManager.createCache(
+                "saml2ClientCacheLogout",
+                new MutableConfiguration<String, SAML2Client>().
+                        setTypes(String.class, SAML2Client.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
+
+        return new SAML2ClientCache(saml2ClientCacheLogin);
     }
 
     @ConditionalOnMissingBean

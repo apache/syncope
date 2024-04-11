@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -30,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractMembership;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -42,13 +44,13 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
 
     public static final String NODE = "UMembership";
 
-    @Relationship(type = Neo4jUser.GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = Neo4jUser.USER_GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jUser leftEnd;
 
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Neo4jGroup rightEnd;
 
-    @CompositeProperty
+    @CompositeProperty(converterRef = "uPlainAttrsConverter")
     protected Map<String, Neo4jUPlainAttr> plainAttrs = new HashMap<>();
 
     @Override
@@ -84,6 +86,11 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     }
 
     @Override
+    protected Map<String, ? extends Neo4jPlainAttr<? extends Any<UPlainAttr>>> plainAttrs() {
+        return plainAttrs;
+    }
+
+    @Override
     public List<? extends Neo4jUPlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
                 sorted(Comparator.comparing(Map.Entry::getKey)).
@@ -93,5 +100,18 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     @Override
     public Optional<? extends Neo4jUPlainAttr> getPlainAttr(final String plainSchema) {
         return Optional.ofNullable(plainAttrs.get(plainSchema));
+    }
+
+    @Override
+    public boolean add(final UPlainAttr attr) {
+        checkType(attr, Neo4jUPlainAttr.class);
+        Neo4jUPlainAttr neo4jAttr = (Neo4jUPlainAttr) attr;
+        return getKey().equals(neo4jAttr.getMembershipKey())
+                && plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+    }
+
+    @Override
+    public boolean remove(final String plainSchema) {
+        return plainAttrs.remove(plainSchema) != null;
     }
 }

@@ -124,6 +124,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Override
     public AnyObjectTO getAnyObjectTO(final AnyObject anyObject, final boolean details) {
         AnyObjectTO anyObjectTO = new AnyObjectTO();
+        anyObjectTO.setType(anyObject.getType().getKey());
+
+        anyObjectTO.setKey(anyObject.getKey());
+        anyObjectTO.setName(anyObject.getName());
+        anyObjectTO.setStatus(anyObject.getStatus());
 
         anyObjectTO.setCreator(anyObject.getCreator());
         anyObjectTO.setCreationDate(anyObject.getCreationDate());
@@ -132,15 +137,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         anyObjectTO.setLastChangeDate(anyObject.getLastChangeDate());
         anyObjectTO.setLastChangeContext(anyObject.getLastChangeContext());
 
-        anyObjectTO.setKey(anyObject.getKey());
-        anyObjectTO.setName(anyObject.getName());
-        anyObjectTO.setType(anyObject.getType().getKey());
-        anyObjectTO.setStatus(anyObject.getStatus());
-
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHandler.getValues(anyObject)
                 : Collections.<VirSchema, List<String>>emptyMap();
-        fillTO(anyObjectTO, anyObject.getRealm().getFullPath(),
+        fillTO(anyObjectTO,
+                anyObject.getRealm().getFullPath(),
                 anyObject.getAuxClasses(),
                 anyObject.getPlainAttrs(),
                 derAttrHandler.getValues(anyObject),
@@ -389,7 +390,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     attr.setOwner(null);
                     attr.setMembership(null);
                     plainAttrValueDAO.deleteAll(attr, anyUtils);
+                    plainSchemaDAO.delete(attr);
                 });
+                anyObjectDAO.deleteMembership(membership);
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
                     propByRes.addAll(

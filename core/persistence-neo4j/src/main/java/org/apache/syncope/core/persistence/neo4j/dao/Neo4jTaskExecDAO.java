@@ -102,9 +102,10 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
         return toList(neo4jClient.query(
                 "MATCH (n:" + taskUtils.getTaskExecTable() + ")-[]-(p:" + taskUtils.getTaskTable() + " {id: $id}) "
                 + "WHERE n.endDate IS NOT NULL "
-                + "ORDER BY n.endDate DESC LIMIT " + max + " RETURN n.id").fetch().all(),
+                + "RETURN n.id ORDER BY n.endDate DESC LIMIT " + max).fetch().all(),
                 "n.id",
-                (Class<AbstractTaskExec<T>>) taskUtils.getTaskExecEntity());
+                (Class<AbstractTaskExec<T>>) taskUtils.getTaskExecEntity(),
+                null);
     }
 
     @Override
@@ -128,7 +129,7 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
                 "MATCH (n:" + taskUtils.getTaskExecTable() + ")-[]-(p:" + taskUtils.getTaskTable() + " {id: $id}) "
                 + "RETURN n.id ORDER BY n." + field + " DESC LIMIT 1").
                 bindAll(Map.of("id", task.getKey())).fetch().one().
-                flatMap(toOptional("n.id", (Class<AbstractTaskExec<?>>) taskUtils.getTaskExecEntity()));
+                flatMap(toOptional("n.id", (Class<AbstractTaskExec<?>>) taskUtils.getTaskExecEntity(), null));
     }
 
     @Override
@@ -228,7 +229,8 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
         return toList(neo4jClient.query(
                 queryString.toString()).bindAll(parameters).fetch().all(),
                 "n.id",
-                (Class<AbstractTaskExec<?>>) taskUtilsFactory.getInstance(task).getTaskExecEntity());
+                (Class<AbstractTaskExec<?>>) taskUtilsFactory.getInstance(task).getTaskExecEntity(),
+                null);
     }
 
     @Transactional(rollbackFor = { Throwable.class })

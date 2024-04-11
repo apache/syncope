@@ -41,17 +41,6 @@ public interface AnyRepoExt<A extends Any<?>> {
     Optional<A> findByPlainAttrUniqueValue(
             PlainSchema schema, PlainAttrUniqueValue attrUniqueValue, boolean ignoreCaseMatch);
 
-    /**
-     * Find any objects by derived attribute value. This method could fail if one or more string literals contained
-     * into the derived attribute value provided derive from identifier (schema key) replacement. When you are going to
-     * specify a derived attribute expression you must be quite sure that string literals used to build the expression
-     * cannot be found into the attribute values used to replace attribute schema keys used as identifiers.
-     *
-     * @param schema derived schema
-     * @param value derived attribute value
-     * @param ignoreCaseMatch whether comparison for string values should take case into account or not
-     * @return list of any objects
-     */
     List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);

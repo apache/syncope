@@ -20,11 +20,18 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface VirSchemaRepoExt {
+
+    String CACHE = "virSchemaCache";
+
+    Optional<? extends VirSchema> findById(String key);
+
+    List<? extends VirSchema> findByIdLike(String keyword);
 
     List<? extends VirSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 

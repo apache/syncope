@@ -23,19 +23,15 @@ import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
@@ -58,8 +54,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
 
     protected final GroupDAO groupDAO;
 
-    protected final PolicyDAO policyDAO;
-
     protected final VirSchemaDAO virSchemaDAO;
 
     protected final RealmDAO realmDAO;
@@ -71,7 +65,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final PolicyDAO policyDAO,
             final VirSchemaDAO virSchemaDAO,
             final RealmDAO realmDAO,
             final EntityManager entityManager) {
@@ -80,7 +73,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         this.anyObjectDAO = anyObjectDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-        this.policyDAO = policyDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.realmDAO = realmDAO;
         this.entityManager = entityManager;
@@ -105,23 +97,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         }
 
         return resource;
-    }
-
-    @Override
-    public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
-        return findAll().stream().
-                flatMap(resource -> resource.getProvisions().stream()).
-                filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
-                toList();
-    }
-
-    @Override
-    public boolean anyItemHaving(final Implementation transformer) {
-        return findAll().stream().
-                flatMap(resource -> resource.getProvisions().stream()).
-                flatMap(provision -> provision.getMapping().getItems().stream()).
-                filter(item -> item.getTransformers().contains(transformer.getKey())).
-                count() > 0;
     }
 
     @Override
@@ -211,8 +186,6 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
                 forEach(user -> user.getResources().remove(resource));
         groupDAO.findByResourcesContaining(resource).
                 forEach(group -> group.getResources().remove(resource));
-        policyDAO.findByResource(resource).
-                forEach(policy -> policy.getResources().remove(resource));
 
         virSchemaDAO.findByResource(resource).forEach(virSchemaDAO::delete);
 

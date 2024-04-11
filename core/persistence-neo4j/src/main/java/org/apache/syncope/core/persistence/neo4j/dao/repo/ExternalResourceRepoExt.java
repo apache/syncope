@@ -19,13 +19,16 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
 public interface ExternalResourceRepoExt {
+
+    String CACHE = "externalResourceCache";
+
+    Optional<? extends ExternalResource> findById(String key);
 
     ExternalResource authFind(String key);
 
@@ -34,10 +37,6 @@ public interface ExternalResourceRepoExt {
     List<ExternalResource> findByProvisionSorter(Implementation provisionSorter);
 
     List<ExternalResource> findByPropagationActionsContaining(Implementation propagationActions);
-
-    List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
-
-    boolean anyItemHaving(Implementation transformer);
 
     List<ExternalResource> findByPolicy(Policy policy);
 

@@ -19,13 +19,18 @@
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
+import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jPasswordPolicy.NODE)
@@ -43,7 +48,10 @@ public class Neo4jPasswordPolicy extends Neo4jPolicy implements PasswordPolicy {
     private int historyLength;
 
     @Relationship(type = PASSWORD_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING)
-    private List<Neo4jImplementation> rules = new ArrayList<>();
+    private SortedSet<Neo4jImplementationRelationship> rules = new TreeSet<>();
+
+    @Transient
+    private List<Neo4jImplementation> sortedRules = new SortedSetList(rules);
 
     @Override
     public boolean isAllowNullPassword() {
@@ -69,11 +77,16 @@ public class Neo4jPasswordPolicy extends Neo4jPolicy implements PasswordPolicy {
     public boolean add(final Implementation rule) {
         checkType(rule, Neo4jImplementation.class);
         checkImplementationType(rule, IdRepoImplementationType.PASSWORD_RULE);
-        return rules.contains((Neo4jImplementation) rule) || rules.add((Neo4jImplementation) rule);
+        return sortedRules.contains((Neo4jImplementation) rule) || sortedRules.add((Neo4jImplementation) rule);
     }
 
     @Override
     public List<? extends Implementation> getRules() {
-        return rules;
+        return sortedRules;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        sortedRules = new SortedSetList(rules);
     }
 }
