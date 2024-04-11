@@ -429,7 +429,7 @@ under the License.
 
     <elasticsearch.version>8.13.2</elasticsearch.version>
     <opensearch.version>2.13.0</opensearch.version>
-    <opensearch-java.version>2.9.1</opensearch-java.version>
+    <opensearch-java.version>2.10.0</opensearch-java.version>
 
     <commons-lang3.version>3.14.0</commons-lang3.version>
     <commons-jexl.version>3.3</commons-jexl.version>
