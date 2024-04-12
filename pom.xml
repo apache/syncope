@@ -407,7 +407,7 @@ under the License.
     <connid.okta.version>3.0.1</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.3.13</cxf.version>
+    <cxf.version>3.5.6</cxf.version>
 
     <jackson.version>2.12.7</jackson.version>
 
