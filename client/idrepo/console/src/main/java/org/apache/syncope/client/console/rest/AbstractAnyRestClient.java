@@ -94,7 +94,6 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
             }
 
             StatusR statusR = StatusUtils.statusR(key, StatusRType.ACTIVATE, statuses);
-
             ResourceAR resourceAR = new ResourceAR.Builder().key(key).
                     action(action).
                     onSyncope(statusR.isOnSyncope()).
@@ -130,9 +129,10 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO> extends BaseRestCl
                 client.accept(RESTHeaders.MULTIPART_MIXED);
             }
 
+            StatusR statusR = StatusUtils.statusR(key, StatusRType.SUSPEND, statuses);
             ResourceDR resourceDR = new ResourceDR.Builder().key(key).
                     action(action).
-                    resources(StatusUtils.statusR(key, StatusRType.ACTIVATE, statuses).getResources()).build();
+                    resources(statusR.getResources()).build();
             try {
                 List<BatchResponseItem> items = parseBatchResponse(service.deassociate(resourceDR));
                 for (int i = 0; i < items.size(); i++) {

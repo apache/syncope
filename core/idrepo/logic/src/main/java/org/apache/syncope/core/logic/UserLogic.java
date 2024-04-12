@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -593,7 +594,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> deprovision(
-            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key,
+            final List<String> resources,
+            final boolean nullPriorityAsync) {
 
         updateChecks(key);
 
@@ -603,6 +606,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getUserTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
         return result;
     }
 
@@ -610,7 +614,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     @Override
     public ProvisioningResult<UserTO> provision(
             final String key,
-            final Collection<String> resources,
+            final List<String> resources,
             final boolean changePwd,
             final String password,
             final boolean nullPriorityAsync) {
@@ -623,6 +627,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getUserTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
         return result;
     }
 

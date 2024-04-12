@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -301,7 +302,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
 
     @Override
     public ProvisioningResult<AnyObjectTO> deprovision(
-            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key,
+            final List<String> resources,
+            final boolean nullPriorityAsync) {
 
         updateChecks(key);
 
@@ -311,13 +314,14 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getAnyObjectTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
         return result;
     }
 
     @Override
     public ProvisioningResult<AnyObjectTO> provision(
             final String key,
-            final Collection<String> resources,
+            final List<String> resources,
             final boolean changePwd,
             final String password,
             final boolean nullPriorityAsync) {
@@ -330,6 +334,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectCR, A
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getAnyObjectTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
         return result;
     }
 

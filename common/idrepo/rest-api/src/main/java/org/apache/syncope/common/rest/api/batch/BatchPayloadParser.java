@@ -146,7 +146,7 @@ public final class BatchPayloadParser {
                 } else if (item instanceof BatchResponseItem) {
                     BatchResponseItem bri = BatchResponseItem.class.cast(item);
                     try {
-                        bri.setStatus(Integer.valueOf(StringUtils.substringBefore(
+                        bri.setStatus(Integer.parseInt(StringUtils.substringBefore(
                                 StringUtils.substringAfter(currentLine.toString(), " "), " ").trim()));
                     } catch (NumberFormatException e) {
                         LOG.error("Invalid value found in response for HTTP status", e);
@@ -197,10 +197,8 @@ public final class BatchPayloadParser {
                     LOG.debug("Body part:\n{}", bodyPart);
 
                     T item = SerializationUtils.clone(template);
-
                     consumeHeaders(bodyPart, item);
-                    item.setContent(
-                            bodyPart.stream().map(BatchPayloadLine::toString).collect(Collectors.joining()));
+                    item.setContent(bodyPart.stream().map(BatchPayloadLine::toString).collect(Collectors.joining()));
 
                     return item;
                 }).collect(Collectors.toList());
