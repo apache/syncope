@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -361,7 +362,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_UPDATE + "')")
     @Override
     public ProvisioningResult<GroupTO> deprovision(
-            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key,
+            final List<String> resources,
+            final boolean nullPriorityAsync) {
 
         updateChecks(key);
 
@@ -371,6 +374,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getGroupTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
         return result;
     }
 
@@ -378,7 +382,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @Override
     public ProvisioningResult<GroupTO> provision(
             final String key,
-            final Collection<String> resources,
+            final List<String> resources,
             final boolean changePwd,
             final String password,
             final boolean nullPriorityAsync) {
@@ -391,6 +395,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getGroupTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        result.getPropagationStatuses().sort(Comparator.comparing(item -> resources.indexOf(item.getResource())));
         return result;
     }
 
