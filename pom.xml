@@ -444,7 +444,7 @@ under the License.
     <commons-io.version>2.11.0</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
     <commons-jexl.version>3.2.1</commons-jexl.version>
-    <commons-lang.version>3.12.0</commons-lang.version>
+    <commons-lang.version>3.14.0</commons-lang.version>
     <commons-text.version>1.12.0</commons-text.version>
     <commons-logging.version>1.1.3</commons-logging.version>
     
@@ -2129,7 +2129,7 @@ under the License.
         <plugin>
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
-          <version>0.43.3</version>
+          <version>0.44.0</version>
         </plugin>
 
         <plugin>

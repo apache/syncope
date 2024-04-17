@@ -38,7 +38,7 @@ public class CaptchaResource extends CaptchaImageResource {
     private static final RandomStringGenerator RANDOM_LETTERS = new RandomStringGenerator.Builder().
             usingRandom(RANDOM::nextInt).
             withinRange('a', 'z').
-            build();
+            get();
 
     @Override
     protected byte[] render() {

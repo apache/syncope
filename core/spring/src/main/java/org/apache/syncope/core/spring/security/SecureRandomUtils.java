@@ -32,17 +32,17 @@ public final class SecureRandomUtils {
             usingRandom(RANDOM::nextInt).
             withinRange('0', 'z').
             filteredBy(Character::isLetterOrDigit).
-            build();
+            get();
 
     private static final RandomStringGenerator FOR_LETTERS = new RandomStringGenerator.Builder().
             usingRandom(RANDOM::nextInt).
             withinRange('a', 'z').
-            build();
+            get();
 
     private static final RandomStringGenerator FOR_NUMBERS = new RandomStringGenerator.Builder().
             usingRandom(RANDOM::nextInt).
             withinRange('0', '9').
-            build();
+            get();
 
     private static final NoArgGenerator UUID_GENERATOR = Generators.timeBasedEpochGenerator(RANDOM);
 
@@ -72,7 +72,7 @@ public final class SecureRandomUtils {
                     }
 
                     return found;
-                }).build().generate(1);
+                }).get().generate(1);
     }
 
     public static UUID generateRandomUUID() {
