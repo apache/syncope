@@ -32,7 +32,7 @@ under the License.
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>31</version>
+    <version>32</version>
     <relativePath />
   </parent>
 
@@ -432,14 +432,14 @@ under the License.
 
     <elasticsearch.version>8.13.2</elasticsearch.version>
     <opensearch.version>2.13.0</opensearch.version>
-    <opensearch-java.version>2.10.0</opensearch-java.version>
+    <opensearch-java.version>2.10.1</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
 
     <commons-lang3.version>3.14.0</commons-lang3.version>
     <commons-jexl.version>3.3</commons-jexl.version>
-    <commons-text.version>1.11.0</commons-text.version>
+    <commons-text.version>1.12.0</commons-text.version>
 
     <pac4j.version>5.5.0</pac4j.version>
 
@@ -450,7 +450,7 @@ under the License.
     <h2.version>2.2.224</h2.version>
 
     <swagger-core.version>2.2.21</swagger-core.version>
-    <swagger-ui.version>5.15.1</swagger-ui.version>
+    <swagger-ui.version>5.15.2</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -498,7 +498,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>9.0.87</tomcat.version>
+    <tomcat.version>9.0.88</tomcat.version>
     <wildfly.version>26.1.3.Final</wildfly.version>
     <payara.version>5.2022.5</payara.version>
     <javax.faces.version>2.3.14</javax.faces.version>
@@ -1567,7 +1567,7 @@ under the License.
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.6.3</version>
           <configuration>
-            <source>${targetJdk}</source>
+            <release>${targetJdk}</release>
           </configuration>
         </plugin>
 
@@ -2086,7 +2086,7 @@ under the License.
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.6.3</version>
         <configuration>
-          <source>${targetJdk}</source>
+          <release>${targetJdk}</release>
           <destDir>apidocs/3.0</destDir>
           <isOffline>false</isOffline>
           <detectLinks>true</detectLinks>
