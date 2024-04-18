@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
+import org.apache.syncope.common.lib.auth.JcifsSpnegoAuthModuleConf;
 import org.apache.syncope.common.lib.auth.KeycloakOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
@@ -66,6 +67,8 @@ import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGoogleOidcClie
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jKeyCloakOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
+import org.apereo.cas.configuration.model.support.spnego.SpnegoLdapProperties;
+import org.apereo.cas.configuration.model.support.spnego.SpnegoProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.x509.SubjectDnPrincipalResolverProperties.SubjectDnFormat;
 import org.apereo.cas.configuration.model.support.x509.X509LdapProperties;
@@ -442,5 +445,41 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         }
 
         return prefix("cas.authn.mfa.simple.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final JcifsSpnegoAuthModuleConf conf) {
+        SpnegoProperties props = new SpnegoProperties();
+        props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
+
+        props.setMixedModeAuthentication(conf.isMixedModeAuthentication());
+        props.setIpsToCheckPattern(conf.getIpsToCheckPattern());
+        props.setSend401OnAuthenticationFailure(conf.isSend401OnAuthenticationFailure());
+        props.setAlternativeRemoteHostAttribute(conf.getAlternativeRemoteHostAttribute());
+        props.setDnsTimeout(conf.getDnsTimeout());
+        props.setHostNameClientActionStrategy(conf.getHostNameClientActionStrategy());
+        props.setHostNamePatternString(conf.getHostNamePatternString());
+        props.setNtlmAllowed(conf.isNtlmAllowed());
+        props.setPoolSize(conf.getPoolSize());
+        props.setPoolTimeout(conf.getPoolTimeout());
+        props.setPrincipalWithDomainName(conf.isPrincipalWithDomainName());
+        props.setSpnegoAttributeName(conf.getSpnegoAttributeName());
+        props.setSupportedBrowsers(conf.getSupportedBrowsers());
+
+        props.getSystem().setUseSubjectCredsOnly(conf.isUseSubjectCredsOnly());
+        props.getSystem().setLoginConf(conf.getLoginConf());
+        props.getSystem().setKerberosKdc(conf.getKerberosKdc());
+        props.getSystem().setKerberosRealm(conf.getKerberosRealm());
+        props.getSystem().setKerberosConf(conf.getKerberosConf());
+        props.getSystem().setKerberosDebug(conf.isKerberosDebug() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
+
+        if (conf.getLdap() != null) {
+            SpnegoLdapProperties ldapProps = new SpnegoLdapProperties();
+            fill(ldapProps, conf.getLdap());
+            props.setLdap(ldapProps);
+        }
+
+        return prefix("cas.authn.spnego.", WAConfUtils.asMap(props));
     }
 }
