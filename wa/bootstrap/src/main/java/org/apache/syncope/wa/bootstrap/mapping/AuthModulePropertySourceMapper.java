@@ -460,7 +460,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setDnsTimeout(conf.getDnsTimeout());
         props.setHostNameClientActionStrategy(conf.getHostNameClientActionStrategy());
         props.setHostNamePatternString(conf.getHostNamePatternString());
-        props.setNtlm(conf.isNtlm());
         props.setNtlmAllowed(conf.isNtlmAllowed());
         props.setPoolSize(conf.getPoolSize());
         props.setPoolTimeout(conf.getPoolTimeout());
@@ -481,6 +480,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             props.setLdap(ldapProps);
         }
 
-        return prefix("cas.authn.spnego.", CasCoreConfigurationUtils.asMap(props));
+        return prefix("cas.authn.spnego.", WAConfUtils.asMap(props));
     }
 }

@@ -136,11 +136,6 @@ public class JcifsSpnegoAuthModuleConf implements AuthModuleConf {
     private String spnegoAttributeName = "distinguishedName";
 
     /**
-     * Determines the header to set and the message prefix when negotiating spnego.
-     */
-    private boolean ntlm;
-
-    /**
      * If true, does not terminate authentication and allows CAS to resume
      * and fallback to normal authentication means such as uid/psw via the login page.
      * If disallowed, considers spnego authentication to be final in the event of failures.
@@ -290,14 +285,6 @@ public class JcifsSpnegoAuthModuleConf implements AuthModuleConf {
 
     public void setSpnegoAttributeName(final String spnegoAttributeName) {
         this.spnegoAttributeName = spnegoAttributeName;
-    }
-
-    public boolean isNtlm() {
-        return ntlm;
-    }
-
-    public void setNtlm(final boolean ntlm) {
-        this.ntlm = ntlm;
     }
 
     public boolean isMixedModeAuthentication() {
