@@ -61,6 +61,8 @@ public interface AuthModuleConf extends BaseBean {
         Map<String, Object> map(AuthModuleTO authModule, U2FAuthModuleConf conf);
 
         Map<String, Object> map(AuthModuleTO authModule, SimpleMfaAuthModuleConf conf);
+
+        Map<String, Object> map(AuthModuleTO authModule, JcifsSpnegoAuthModuleConf conf);
     }
 
     Map<String, Object> map(AuthModuleTO authModule, Mapper mapper);
