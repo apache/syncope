@@ -17,8 +17,6 @@
 
 # Full deployment (Core, Console, Enduser) on MySQL
 
-version: '3.3'
-
 services:
    db:
      image: mysql/mysql-server:8.0
@@ -38,7 +36,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,mysql
+       SPRING_PROFILES_ACTIVE: docker,mysql,saml2
        DB_URL: jdbc:mysql://db:3306/syncope?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8
        DB_USER: syncope
        DB_PASSWORD: syncope

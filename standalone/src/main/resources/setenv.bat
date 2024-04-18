@@ -14,4 +14,4 @@ rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 rem See the License for the specific language governing permissions and
 rem limitations under the License.
 
-set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djavax.net.ssl.trustStore=%CATALINA_HOME%\conf\keystore.jks -Dsyncope.connid.location=connid://${testconnectorserver.key}@localhost:${testconnectorserver.port} -Dsyncope.conf.dir=%CATALINA_HOME%\webapps\syncope\WEB-INF\classes -Dsyncope.log.dir=%CATALINA_HOME%\logs -Dspring.profiles.active=embedded -server -Xms2048m -Xmx2048m -XX:NewSize=256m -XX:MaxNewSize=256m -DCATALINA_HOME=%CATALINA_HOME%
+set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djavax.net.ssl.trustStore=%CATALINA_HOME%\conf\keystore.jks -Dsyncope.connid.location=connid://${testconnectorserver.key}@localhost:${testconnectorserver.port} -Dsyncope.conf.dir=%CATALINA_HOME%\webapps\syncope\WEB-INF\classes -Dsyncope.log.dir=%CATALINA_HOME%\logs -Dspring.profiles.active=embedded,all -server -Xms2048m -Xmx2048m -XX:NewSize=256m -XX:MaxNewSize=256m -DCATALINA_HOME=%CATALINA_HOME%

@@ -20,8 +20,6 @@
 # Zookeeper is configured without JAAS, hence empty KEYMASTER_USERNAME / KEYMASTER_PASSWORD
 # are passed to other containers
 
-version: '3.3'
-
 services:
    keymaster:
      image: zookeeper:3.8.1
@@ -44,7 +42,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,postgresql
+       SPRING_PROFILES_ACTIVE: docker,postgresql,saml2
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope

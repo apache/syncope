@@ -17,8 +17,6 @@
 
 # Full deployment (Core, Console, Enduser) on MariaDB
 
-version: '3.3'
-
 services:
    db:
      image: mariadb:11
@@ -37,7 +35,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,mariadb
+       SPRING_PROFILES_ACTIVE: docker,mariadb,saml2
        DB_URL: jdbc:mariadb://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
        DB_USER: syncope
        DB_PASSWORD: syncope
