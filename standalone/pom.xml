@@ -190,8 +190,9 @@ under the License.
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8443" value="9443"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml">
-                  <replacetoken><![CDATA[redirectPort="9443" />]]></replacetoken>
-                  <replacevalue><![CDATA[redirectPort="9443" />
+                  <replacetoken><![CDATA[<Service name="Catalina">]]></replacetoken>
+                  <replacevalue><![CDATA[<Service name="Catalina">
+
 <Connector protocol="org.apache.coyote.http11.Http11NioProtocol" port="9443" maxThreads="200"
 scheme="https" secure="true" SSLEnabled="true" keystoreFile="conf/keystore.jks" keystorePass="password"
 keystoreType="JKS" clientAuth="false" sslProtocol="TLS"/>]]></replacevalue>

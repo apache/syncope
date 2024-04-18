@@ -190,8 +190,6 @@ are passed with same values as `ANONYMOUS_USER` / `ANONYMOUS_KEY`.
 
 [source,yaml,subs="verbatim,attributes"]
 ----
-version: '3.3'
-
 services:
    db: // <1>
      image: postgres:latest
@@ -272,8 +270,6 @@ containers.
 
 [source,yaml,subs="verbatim,attributes"]
 ----
-version: '3.3'
-
 services:
    keymaster: // <1>
      image: zookeeper:3.7.0
@@ -393,9 +389,14 @@ services:
 . Save the example file locally.
 . Download and start the containers:
 +
-[source,bash]
+[source,bash,subs="verbatim,attributes"]
 ----
-$ docker compose -f /path/to/docker-compose.yml up
+$ SYNCOPE_VERSION={docVersion} \
+ANONYMOUS_USER=anonymous \
+ANONYMOUS_KEY=anonymousKey \
+KEYMASTER_USERNAME=anonymous \
+KEYMASTER_PASSWORD=anonymousKey \
+docker compose -f /path/to/docker-compose.yml up
 ----
 
 The following services will be available:
@@ -498,7 +499,7 @@ Provides access to the full capabilities of Apache Syncope, and almost all exten
 [[maven-prerequisites]]
 ==== Prerequisites
 
- . http://maven.apache.org/[Apache Maven^] (version 3.5.0 or higher) installed
+ . http://maven.apache.org/[Apache Maven^] (version 3.9.5 or higher) installed
  . Some basic knowledge about Maven
  . Some basic knowledge about http://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetypes^].
 

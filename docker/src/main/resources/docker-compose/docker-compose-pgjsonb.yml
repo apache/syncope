@@ -17,8 +17,6 @@
 
 # Full deployment (Core, Console, Enduser) on PostgreSQL with JSONB support
 
-version: '3.3'
-
 services:
    db:
      image: postgres:16
@@ -36,7 +34,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,pgjsonb
+       SPRING_PROFILES_ACTIVE: docker,pgjsonb,saml2
        LOADER_PATH: "/opt/syncope/conf,/opt/syncope/lib,/opt/syncope/jpa-json"
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope

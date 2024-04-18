@@ -17,8 +17,6 @@
 
 # Full deployment (Core, Console, Enduser) on PostgreSQL
 
-version: '3.3'
-
 services:
    db:
      image: postgres:16
@@ -36,7 +34,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,postgresql
+       SPRING_PROFILES_ACTIVE: docker,postgresql,saml2
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
