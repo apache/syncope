@@ -17,8 +17,6 @@
 
 # Full deployment (Core, Console, Enduser) on MS SQL Server
 
-version: '3.3'
-
 services:
    db:
      image: mcmoe/mssqldocker:latest
@@ -38,7 +36,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,sqlserver
+       SPRING_PROFILES_ACTIVE: docker,sqlserver,saml2
        DB_URL: jdbc:sqlserver://db:1433;databaseName=syncope
        DB_SCHEMA: dbo
        DB_USER: syncope
