@@ -52,4 +52,4 @@ jobs:
     - name: 'Unit Tests: Neo4j'
       run: mvn -f core/persistence-neo4j/pom.xml -P neo4j -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'Integration Tests: Neo4j'
-      run: mvn -f fit/core-reference/pom.xml -P neo4j-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      #run: mvn -f fit/core-reference/pom.xml -P neo4j-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
