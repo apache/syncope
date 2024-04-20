@@ -19,9 +19,6 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
@@ -31,17 +28,12 @@ import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.request.UserUR;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
-@JsonPropertyOrder(value = { "_class", "bpmnProcess" })
 public class UserRequestForm implements BaseBean {
 
     private static final long serialVersionUID = -7044543391316529128L;
-
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
-    @JsonProperty("_class")
-    private final String clazz = "org.apache.syncope.common.lib.to.UserRequestForm";
 
     private String bpmnProcess;
 
@@ -63,7 +55,7 @@ public class UserRequestForm implements BaseBean {
 
     private UserUR userUR;
 
-    private final List<UserRequestFormProperty> properties = new ArrayList<>();
+    private final List<FormProperty> properties = new ArrayList<>();
 
     public String getBpmnProcess() {
         return bpmnProcess;
@@ -146,13 +138,13 @@ public class UserRequestForm implements BaseBean {
     }
 
     @JsonIgnore
-    public Optional<UserRequestFormProperty> getProperty(final String id) {
+    public Optional<FormProperty> getProperty(final String id) {
         return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
     }
 
     @JacksonXmlElementWrapper(localName = "properties")
     @JacksonXmlProperty(localName = "property")
-    public List<UserRequestFormProperty> getProperties() {
+    public List<FormProperty> getProperties() {
         return properties;
     }
 

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.form;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -25,9 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 
-public class UserRequestFormProperty implements Serializable {
+public class FormProperty implements Serializable {
 
     private static final long serialVersionUID = 9139969592634304261L;
 
@@ -35,7 +34,7 @@ public class UserRequestFormProperty implements Serializable {
 
     private String name;
 
-    private UserRequestFormPropertyType type;
+    private FormPropertyType type;
 
     private boolean readable;
 
@@ -45,9 +44,9 @@ public class UserRequestFormProperty implements Serializable {
 
     private String datePattern;
 
-    private final List<UserRequestFormPropertyValue> enumValues = new ArrayList<>();
+    private final List<FormPropertyValue> enumValues = new ArrayList<>();
 
-    private final List<UserRequestFormPropertyValue> dropdownValues = new ArrayList<>();
+    private final List<FormPropertyValue> dropdownValues = new ArrayList<>();
 
     private String value;
 
@@ -83,11 +82,11 @@ public class UserRequestFormProperty implements Serializable {
         this.required = required;
     }
 
-    public UserRequestFormPropertyType getType() {
+    public FormPropertyType getType() {
         return type;
     }
 
-    public void setType(final UserRequestFormPropertyType type) {
+    public void setType(final FormPropertyType type) {
         this.type = type;
     }
 
@@ -109,13 +108,13 @@ public class UserRequestFormProperty implements Serializable {
 
     @JacksonXmlElementWrapper(localName = "enumValues")
     @JacksonXmlProperty(localName = "enumValue")
-    public List<UserRequestFormPropertyValue> getEnumValues() {
+    public List<FormPropertyValue> getEnumValues() {
         return enumValues;
     }
 
     @JacksonXmlElementWrapper(localName = "dropdownValues")
     @JacksonXmlProperty(localName = "dropdownValue")
-    public List<UserRequestFormPropertyValue> getDropdownValues() {
+    public List<FormPropertyValue> getDropdownValues() {
         return dropdownValues;
     }
 
@@ -154,7 +153,7 @@ public class UserRequestFormProperty implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        UserRequestFormProperty other = (UserRequestFormProperty) obj;
+        FormProperty other = (FormProperty) obj;
         return new EqualsBuilder().
                 append(id, other.id).
                 append(name, other.name).

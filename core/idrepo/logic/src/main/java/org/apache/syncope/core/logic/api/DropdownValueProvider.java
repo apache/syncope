@@ -16,35 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.logic.api;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import java.util.Map;
 
-public interface MacroTask extends SchedTask {
+@FunctionalInterface
+public interface DropdownValueProvider {
 
-    Realm getRealm();
-
-    void setRealm(Realm realm);
-
-    void add(MacroTaskCommand macroTaskCommand);
-
-    List<? extends MacroTaskCommand> getMacroTaskCommands();
-
-    void add(FormPropertyDef formPropertyDef);
-
-    List<? extends FormPropertyDef> getFormPropertyDefs();
-
-    Implementation getFormValidator();
-
-    void setFormValidator(Implementation formValidator);
-
-    boolean isContinueOnError();
-
-    void setContinueOnError(boolean continueOnError);
-
-    boolean isSaveExecs();
-
-    void setSaveExecs(boolean saveExecs);
+    Map<String, String> getValues();
 }

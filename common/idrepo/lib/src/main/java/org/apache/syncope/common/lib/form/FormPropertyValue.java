@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.form;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,7 +24,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class UserRequestFormPropertyValue implements Serializable {
+public class FormPropertyValue implements Serializable {
 
     private static final long serialVersionUID = 9139969597634304261L;
 
@@ -33,7 +33,7 @@ public class UserRequestFormPropertyValue implements Serializable {
     private final String value;
 
     @JsonCreator
-    public UserRequestFormPropertyValue(
+    public FormPropertyValue(
             @JsonProperty("key") final String key,
             @JsonProperty("value") final String value) {
 
@@ -68,7 +68,7 @@ public class UserRequestFormPropertyValue implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        UserRequestFormPropertyValue other = (UserRequestFormPropertyValue) obj;
+        FormPropertyValue other = (FormPropertyValue) obj;
         return new EqualsBuilder().
                 append(key, other.key).
                 append(value, other.value).

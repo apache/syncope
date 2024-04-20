@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -54,9 +56,8 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
-import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.boot.logging.LoggingSystem;
@@ -81,6 +82,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final EntityFactory entityFactory;
 
+    protected final ImplementationLookup implementationLookup;
+
     protected final AuditDataBinder binder;
 
     protected final AuditManager auditManager;
@@ -93,6 +96,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final AuditConfDAO auditConfDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
+            final ImplementationLookup implementationLookup,
             final AuditDataBinder binder,
             final AuditManager auditManager,
             final List<AuditAppender> auditAppenders,
@@ -101,6 +105,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         this.auditConfDAO = auditConfDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
+        this.implementationLookup = implementationLookup;
         this.binder = binder;
         this.auditManager = auditManager;
         this.auditAppenders = auditAppenders;
@@ -173,13 +178,11 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         authenticationEventCategory.getEvents().add(AuditElements.LOGIN_EVENT);
         events.add(authenticationEventCategory);
 
-        EventCategory pullTaskEventCategory = new EventCategory(EventCategoryType.TASK);
-        pullTaskEventCategory.setCategory(PullJobDelegate.class.getSimpleName());
-        events.add(pullTaskEventCategory);
-
-        EventCategory pushTaskEventCategory = new EventCategory(EventCategoryType.TASK);
-        pushTaskEventCategory.setCategory(PushJobDelegate.class.getSimpleName());
-        events.add(pushTaskEventCategory);
+        implementationLookup.getClassNames(IdRepoImplementationType.TASKJOB_DELEGATE).forEach(clazz -> {
+            EventCategory eventCategory = new EventCategory(EventCategoryType.TASK);
+            eventCategory.setCategory(StringUtils.substringAfterLast(clazz, '.'));
+            events.add(eventCategory);
+        });
 
         events.add(new EventCategory(EventCategoryType.WA));
         events.add(new EventCategory(EventCategoryType.CUSTOM));

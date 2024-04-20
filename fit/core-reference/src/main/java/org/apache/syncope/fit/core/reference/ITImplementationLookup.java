@@ -36,7 +36,7 @@ import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.logic.job.MacroRunJobDelegate;
+import org.apache.syncope.core.logic.job.MacroJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
@@ -131,7 +131,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(MacroRunJobDelegate.class.getName());
+            classNames.add(MacroJobDelegate.class.getName());
             classNames.add(PullJobDelegate.class.getName());
             classNames.add(PushJobDelegate.class.getName());
             classNames.add(ExpiredAccessTokenCleanup.class.getName());
@@ -176,7 +176,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(EmailAddressValidator.class.getName());
             classNames.add(AlwaysTrueValidator.class.getName());
             classNames.add(BinaryValidator.class.getName());
-            put(IdRepoImplementationType.VALIDATOR, classNames);
+            put(IdRepoImplementationType.ATTR_VALUE_VALIDATOR, classNames);
+
+            classNames = new HashSet<>();
+            classNames.add(RealmFullPathDropdownValueProvider.class.getName());
+            put(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestNotificationRecipientsProvider.class.getName());

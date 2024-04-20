@@ -30,9 +30,13 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandTO;
+import org.apache.syncope.common.lib.form.FormProperty;
+import org.apache.syncope.common.lib.form.FormPropertyType;
+import org.apache.syncope.common.lib.form.MacroTaskForm;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.FormPropertyDefTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -46,8 +50,10 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.core.reference.RealmFullPathDropdownValueProvider;
 import org.apache.syncope.fit.core.reference.TestCommand;
 import org.apache.syncope.fit.core.reference.TestCommandArgs;
 import org.junit.jupiter.api.AfterAll;
@@ -61,8 +67,8 @@ public class MacroITCase extends AbstractITCase {
     private static final TestCommandArgs TCA = new TestCommandArgs();
 
     static {
-        TCA.setParentRealm("/odd");
-        TCA.setRealmName("macro");
+        TCA.setParentRealm("${parent}");
+        TCA.setRealmName("${realm}");
         TCA.setPrinterName("aprinter112");
     }
 
@@ -90,17 +96,59 @@ public class MacroITCase extends AbstractITCase {
         }
         assertNotNull(transformer);
 
-        if (MACRO_TASK_KEY == null) {
-            MacroTaskTO task = new MacroTaskTO();
-            task.setName("Test Macro");
-            task.setActive(true);
-            task.setRealm("/odd");
-            task.getCommands().add(new CommandTO.Builder("GroovyCommand").build());
-            task.getCommands().add(new CommandTO.Builder(TestCommand.class.getSimpleName()).args(TCA).build());
+        ImplementationTO dropdownValueProvider = null;
+        try {
+            dropdownValueProvider = IMPLEMENTATION_SERVICE.read(
+                    IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER,
+                    RealmFullPathDropdownValueProvider.class.getSimpleName());
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                dropdownValueProvider = new ImplementationTO();
+                dropdownValueProvider.setKey(RealmFullPathDropdownValueProvider.class.getSimpleName());
+                dropdownValueProvider.setEngine(ImplementationEngine.JAVA);
+                dropdownValueProvider.setType(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
+                dropdownValueProvider.setBody(RealmFullPathDropdownValueProvider.class.getName());
+                Response response = IMPLEMENTATION_SERVICE.create(dropdownValueProvider);
+                dropdownValueProvider = IMPLEMENTATION_SERVICE.read(
+                        dropdownValueProvider.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(dropdownValueProvider.getKey());
+            }
+        }
+        assertNotNull(dropdownValueProvider);
 
-            Response response = TASK_SERVICE.create(TaskType.MACRO, task);
-            task = getObject(response.getLocation(), TaskService.class, MacroTaskTO.class);
-            MACRO_TASK_KEY = task.getKey();
+        if (MACRO_TASK_KEY == null) {
+            MACRO_TASK_KEY = TASK_SERVICE.<MacroTaskTO>search(
+                    new TaskQuery.Builder(TaskType.MACRO).build()).getResult().
+                    stream().filter(t -> "Test Macro".equals(t.getName())).findFirst().map(MacroTaskTO::getKey).
+                    orElseGet(() -> {
+                        MacroTaskTO task = new MacroTaskTO();
+                        task.setName("Test Macro");
+                        task.setActive(true);
+                        task.setRealm("/odd");
+                        task.getCommands().add(new CommandTO.Builder("GroovyCommand").build());
+                        task.getCommands().add(
+                                new CommandTO.Builder(TestCommand.class.getSimpleName()).args(TCA).build());
+
+                        FormPropertyDefTO realm = new FormPropertyDefTO();
+                        realm.setKey("realm");
+                        realm.setName("Realm");
+                        realm.setWritable(true);
+                        realm.setRequired(true);
+                        realm.setType(FormPropertyType.String);
+                        task.getFormPropertyDefs().add(realm);
+
+                        FormPropertyDefTO parent = new FormPropertyDefTO();
+                        parent.setKey("parent");
+                        parent.setName("Parent Realm");
+                        parent.setWritable(true);
+                        parent.setRequired(true);
+                        parent.setType(FormPropertyType.Dropdown);
+                        parent.setDropdownValueProvider(RealmFullPathDropdownValueProvider.class.getSimpleName());
+                        task.getFormPropertyDefs().add(parent);
+
+                        Response response = TASK_SERVICE.create(TaskType.MACRO, task);
+                        return response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+                    });
         }
     }
 
@@ -117,8 +165,20 @@ public class MacroITCase extends AbstractITCase {
 
     @Test
     public void execute() {
+        MacroTaskForm form = new MacroTaskForm();
+
+        FormProperty realm = new FormProperty();
+        realm.setId("realm");
+        realm.setValue("macro");
+        form.getProperties().add(realm);
+
+        FormProperty parent = new FormProperty();
+        parent.setId("parent");
+        parent.setValue("/odd");
+        form.getProperties().add(parent);
+
         int preExecs = TASK_SERVICE.read(TaskType.MACRO, MACRO_TASK_KEY, true).getExecutions().size();
-        ExecTO execution = TASK_SERVICE.execute(new ExecSpecs.Builder().key(MACRO_TASK_KEY).build());
+        ExecTO execution = TASK_SERVICE.execute(new ExecSpecs.Builder().key(MACRO_TASK_KEY).build(), form);
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
@@ -134,7 +194,7 @@ public class MacroITCase extends AbstractITCase {
 
         AnyObjectTO printer = ANY_OBJECT_SERVICE.read(PRINTER, TCA.getPrinterName());
         assertNotNull(printer);
-        assertEquals(TCA.getParentRealm() + "/" + TCA.getRealmName(), printer.getRealm());
+        assertEquals("/odd/macro", printer.getRealm());
         assertFalse(REALM_SERVICE.search(
                 new RealmQuery.Builder().base(printer.getRealm()).build()).getResult().isEmpty());
     }

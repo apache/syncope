@@ -16,35 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-public interface MacroTask extends SchedTask {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = FormPropertyDefValidator.class)
+@Documented
+public @interface FormPropertyDefCheck {
 
-    Realm getRealm();
+    String message() default "{org.apache.syncope.core.persistence.validation.formpropertydef}";
 
-    void setRealm(Realm realm);
+    Class<?>[] groups() default {};
 
-    void add(MacroTaskCommand macroTaskCommand);
-
-    List<? extends MacroTaskCommand> getMacroTaskCommands();
-
-    void add(FormPropertyDef formPropertyDef);
-
-    List<? extends FormPropertyDef> getFormPropertyDefs();
-
-    Implementation getFormValidator();
-
-    void setFormValidator(Implementation formValidator);
-
-    boolean isContinueOnError();
-
-    void setContinueOnError(boolean continueOnError);
-
-    boolean isSaveExecs();
-
-    void setSaveExecs(boolean saveExecs);
+    Class<? extends Payload>[] payload() default {};
 }

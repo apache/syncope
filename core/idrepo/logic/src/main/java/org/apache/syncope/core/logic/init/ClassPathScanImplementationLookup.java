@@ -199,7 +199,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 } else if (PushActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 } else if (PlainAttrValueValidator.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.VALIDATOR).add(bd.getBeanClassName());
+                    classNames.get(IdRepoImplementationType.ATTR_VALUE_VALIDATOR).add(bd.getBeanClassName());
                 } else if (RecipientsProvider.class.isAssignableFrom(clazz)) {
                     classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 } else if (ProvisionSorter.class.isAssignableFrom(clazz)) {

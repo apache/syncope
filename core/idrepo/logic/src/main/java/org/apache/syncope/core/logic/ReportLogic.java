@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -150,24 +151,30 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
-    public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
-        Report report = Optional.ofNullable(reportDAO.find(key)).
-                orElseThrow(() -> new NotFoundException("Report " + key));
+    public ExecTO execute(final ExecSpecs specs) {
+        Report report = Optional.ofNullable(reportDAO.find(specs.getKey())).
+                orElseThrow(() -> new NotFoundException("Report " + specs.getKey()));
 
         if (!report.isActive()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-            sce.getElements().add("Report " + key + " is not active");
+            sce.getElements().add("Report " + specs.getKey() + " is not active");
+            throw sce;
+        }
+
+        if (specs.getStartAt() != null && specs.getStartAt().isBefore(OffsetDateTime.now())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add("Cannot schedule in the past");
             throw sce;
         }
 
         try {
             Map<String, Object> jobDataMap = jobManager.register(
                     report,
-                    startAt,
+                    specs.getStartAt(),
                     AuthContextUtils.getUsername());
-            jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
+            jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, specs.getDryRun());
 
-            if (startAt == null) {
+            if (specs.getStartAt() == null) {
                 scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
             }
         } catch (Exception e) {
@@ -218,7 +225,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
 
         // streaming output from a compressed byte array stream
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult()); ZipInputStream zis =
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
+                ZipInputStream zis =
                 new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream

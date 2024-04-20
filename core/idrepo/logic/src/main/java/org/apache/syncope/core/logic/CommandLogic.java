@@ -134,7 +134,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
         }
 
         try {
-            return runnable.run(command.getArgs());
+            return runnable.run(command.getArgs() == null ? ImplementationManager.emptyArgs(impl) : command.getArgs());
         } catch (Exception e) {
             LOG.error("While running {} on {}", command.getKey(), command.getArgs(), e);
 

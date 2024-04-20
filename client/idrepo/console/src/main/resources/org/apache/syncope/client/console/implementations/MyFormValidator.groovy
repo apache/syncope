@@ -16,35 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+import groovy.transform.CompileStatic
+import javax.validation.ValidationException
+import org.apache.syncope.common.lib.form.MacroTaskForm
+import org.apache.syncope.core.logic.api.FormValidator
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-
-public interface MacroTask extends SchedTask {
-
-    Realm getRealm();
-
-    void setRealm(Realm realm);
-
-    void add(MacroTaskCommand macroTaskCommand);
-
-    List<? extends MacroTaskCommand> getMacroTaskCommands();
-
-    void add(FormPropertyDef formPropertyDef);
-
-    List<? extends FormPropertyDef> getFormPropertyDefs();
-
-    Implementation getFormValidator();
-
-    void setFormValidator(Implementation formValidator);
-
-    boolean isContinueOnError();
-
-    void setContinueOnError(boolean continueOnError);
-
-    boolean isSaveExecs();
-
-    void setSaveExecs(boolean saveExecs);
+@CompileStatic
+class MyFormValidator implements FormValidator {
+  
+  void validate(MacroTaskForm macroTaskForm) throws ValidationException {
+  } 
 }

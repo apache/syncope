@@ -16,16 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.logic.api;
 
-public enum UserRequestFormPropertyType {
+import javax.validation.ValidationException;
+import org.apache.syncope.common.lib.form.MacroTaskForm;
 
-    String,
-    Long,
-    Enum,
-    Date,
-    Boolean,
-    Dropdown,
-    Password
+@FunctionalInterface
+public interface FormValidator {
 
+    void validate(MacroTaskForm macroTaskForm) throws ValidationException;
 }

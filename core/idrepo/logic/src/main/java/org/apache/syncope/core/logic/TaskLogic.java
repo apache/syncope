@@ -32,6 +32,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.form.MacroTaskForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
@@ -47,6 +48,8 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.core.logic.job.MacroJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -279,10 +282,11 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
     }
 
-    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    @Override
-    public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
-        Task<?> task = taskDAO.find(key).orElseThrow(() -> new NotFoundException("Task " + key));
+    protected ExecTO doExecute(
+            final Task<?> task,
+            final OffsetDateTime startAt,
+            final Map<String, Object> additionalDataMap) {
+
         if (startAt != null && startAt.isBefore(OffsetDateTime.now())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add("Cannot schedule in the past");
@@ -323,14 +327,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             case PULL:
             case PUSH:
             case MACRO:
-                if (taskUtils.getType() == TaskType.MACRO) {
-                    securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
-                }
-
                 if (!((SchedTask) task).isActive()) {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-                    sce.getElements().add("Task " + key + " is not active");
+                    sce.getElements().add("Task " + task.getKey() + " is not active");
                     throw sce;
+                }
+
+                if (taskUtils.getType() == TaskType.MACRO) {
+                    securityChecks(IdRepoEntitlement.TASK_EXECUTE, ((MacroTask) task).getRealm().getFullPath());
                 }
 
                 try {
@@ -338,7 +342,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                             (SchedTask) task,
                             startAt,
                             executor);
-                    jobDataMap.put(JobManager.DRY_RUN_JOBDETAIL_KEY, dryRun);
+                    jobDataMap.putAll(additionalDataMap);
 
                     if (startAt == null) {
                         scheduler.getScheduler().triggerJob(JobNamer.getJobKey(task), new JobDataMap(jobDataMap));
@@ -365,6 +369,31 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         return result;
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    @Override
+    public ExecTO execute(final ExecSpecs specs) {
+        Task<?> task = taskDAO.find(specs.getKey()).
+                orElseThrow(() -> new NotFoundException("Task " + specs.getKey()));
+
+        return doExecute(
+                task,
+                specs.getStartAt(),
+                Map.of(JobManager.DRY_RUN_JOBDETAIL_KEY, specs.getDryRun()));
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
+    public ExecTO execute(final ExecSpecs specs, final MacroTaskForm macroTaskForm) {
+        MacroTask task = taskDAO.find(specs.getKey()).
+                filter(MacroTask.class::isInstance).map(MacroTask.class::cast).
+                orElseThrow(() -> new NotFoundException("MacroTask " + specs.getKey()));
+
+        return doExecute(
+                task,
+                specs.getStartAt(),
+                Map.of(JobManager.DRY_RUN_JOBDETAIL_KEY, specs.getDryRun(),
+                        MacroJobDelegate.MACRO_TASK_FORM_JOBDETAIL_KEY, macroTaskForm));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_DELETE + "')")

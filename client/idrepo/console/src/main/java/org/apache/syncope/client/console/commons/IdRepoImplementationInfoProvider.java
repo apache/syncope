@@ -119,8 +119,8 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
                 templateClassName = "MyLogicActions";
                 break;
 
-            case IdRepoImplementationType.VALIDATOR:
-                templateClassName = "MyValidator";
+            case IdRepoImplementationType.ATTR_VALUE_VALIDATOR:
+                templateClassName = "MyAttrValueValidator";
                 break;
 
             case IdRepoImplementationType.RECIPIENTS_PROVIDER:
@@ -133,6 +133,14 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
 
             case IdRepoImplementationType.COMMAND:
                 templateClassName = "MyCommand";
+                break;
+
+            case IdRepoImplementationType.FORM_VALIDATOR:
+                templateClassName = "MyFormValidator";
+                break;
+
+            case IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER:
+                templateClassName = "MyDropdownValueProvider";
                 break;
 
             default:

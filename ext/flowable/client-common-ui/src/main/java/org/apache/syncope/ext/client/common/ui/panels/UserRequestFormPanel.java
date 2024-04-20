@@ -32,9 +32,9 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPa
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.common.lib.form.FormProperty;
+import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.common.lib.to.UserRequestFormProperty;
-import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -61,24 +61,24 @@ public abstract class UserRequestFormPanel extends Panel {
     public UserRequestFormPanel(final String id, final UserRequestForm form, final boolean showDetails) {
         super(id);
 
-        IModel<List<UserRequestFormProperty>> formProps = new LoadableDetachableModel<>() {
+        IModel<List<FormProperty>> formProps = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 3169142472626817508L;
 
             @Override
-            protected List<UserRequestFormProperty> load() {
+            protected List<FormProperty> load() {
                 return form.getProperties();
             }
         };
 
-        ListView<UserRequestFormProperty> propView = new ListView<>("propView", formProps) {
+        ListView<FormProperty> propView = new ListView<>("propView", formProps) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             @SuppressWarnings({ "unchecked", "rawtypes" })
-            protected void populateItem(final ListItem<UserRequestFormProperty> item) {
-                final UserRequestFormProperty prop = item.getModelObject();
+            protected void populateItem(final ListItem<FormProperty> item) {
+                FormProperty prop = item.getModelObject();
 
                 String label = StringUtils.isBlank(prop.getName()) ? prop.getId() : prop.getName();
 
@@ -134,10 +134,10 @@ public abstract class UserRequestFormPanel extends Panel {
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
                                 setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues().stream().
                                         collect(Collectors.toMap(
-                                                UserRequestFormPropertyValue::getKey,
-                                                UserRequestFormPropertyValue::getValue)))).
+                                                FormPropertyValue::getKey,
+                                                FormPropertyValue::getValue)))).
                                 setChoices(prop.getEnumValues().stream().
-                                        map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
+                                        map(FormPropertyValue::getKey).collect(Collectors.toList()));
                         break;
 
                     case Dropdown:
@@ -145,10 +145,10 @@ public abstract class UserRequestFormPanel extends Panel {
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
                                 setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
                                         collect(Collectors.toMap(
-                                                UserRequestFormPropertyValue::getKey,
-                                                UserRequestFormPropertyValue::getValue)))).
+                                                FormPropertyValue::getKey,
+                                                FormPropertyValue::getValue)))).
                                 setChoices(prop.getDropdownValues().stream().
-                                        map(UserRequestFormPropertyValue::getKey).collect(Collectors.toList()));
+                                        map(FormPropertyValue::getKey).collect(Collectors.toList()));
                         break;
 
                     case Long:

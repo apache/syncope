@@ -22,7 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.persistence.api.entity.PlainSchema
 
 @CompileStatic
-class MyValidator implements Validator {
+class MyAttrValueValidator implements Validator {
   
   @Override
   void setSchema(PlainSchema schema) {

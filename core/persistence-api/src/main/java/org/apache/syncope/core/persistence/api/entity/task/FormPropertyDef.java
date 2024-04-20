@@ -18,33 +18,46 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
-import java.util.List;
+import java.util.Map;
+import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
-public interface MacroTask extends SchedTask {
+public interface FormPropertyDef extends ProvidedKeyEntity {
 
-    Realm getRealm();
+    MacroTask getMacroTask();
 
-    void setRealm(Realm realm);
+    void setMacroTask(MacroTask macroTask);
 
-    void add(MacroTaskCommand macroTaskCommand);
+    String getName();
 
-    List<? extends MacroTaskCommand> getMacroTaskCommands();
+    void setName(String name);
 
-    void add(FormPropertyDef formPropertyDef);
+    FormPropertyType getType();
 
-    List<? extends FormPropertyDef> getFormPropertyDefs();
+    void setType(FormPropertyType type);
 
-    Implementation getFormValidator();
+    boolean isReadable();
 
-    void setFormValidator(Implementation formValidator);
+    void setReadable(boolean readable);
 
-    boolean isContinueOnError();
+    boolean isWritable();
 
-    void setContinueOnError(boolean continueOnError);
+    void setWritable(boolean writable);
 
-    boolean isSaveExecs();
+    boolean isRequired();
 
-    void setSaveExecs(boolean saveExecs);
+    void setRequired(boolean required);
+
+    String getDatePattern();
+
+    void setDatePattern(String datePattern);
+
+    Map<String, String> getEnumValues();
+
+    void setEnumValues(Map<String, String> enumValues);
+
+    Implementation getDropdownValueProvider();
+
+    void setDropdownValueProvider(Implementation dropdownValueProvider);
 }

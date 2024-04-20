@@ -497,9 +497,8 @@ public class JPATaskDAO extends AbstractDAO<Task<?>> implements TaskDAO {
             ((JPANotificationTask) task).list2json();
         } else if (task instanceof JPAPushTask) {
             ((JPAPushTask) task).map2json();
-        } else if (task instanceof JPAMacroTask) {
-            ((JPAMacroTask) task).list2json();
         }
+
         return entityManager().merge(task);
     }
 

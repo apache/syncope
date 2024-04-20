@@ -44,12 +44,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 /**
@@ -161,4 +164,17 @@ public interface TaskService extends ExecutableService {
             @QueryParam("since") OffsetDateTime since,
             @QueryParam("statuses") List<ExecStatus> statuses,
             @QueryParam("resources") List<String> resources);
+
+    /**
+     * Executes the macro task matching the given specs.
+     *
+     * @param specs conditions to exec
+     * @param macroTaskForm macro task form
+     * @return execution report for the macro task matching the given specs
+     */
+    @POST
+    @Path("MACRO/{key}/execute")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    ExecTO execute(@BeanParam ExecSpecs specs, MacroTaskForm macroTaskForm);
 }

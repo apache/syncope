@@ -303,7 +303,7 @@ under the License.
   <PlainSchema id="fullname" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
   <SyncopeSchema id="userId"/>
-  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+  <Implementation id="EmailAddressValidator" type="ATTR_VALUE_VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   <PlainSchema id="userId" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
@@ -354,7 +354,7 @@ under the License.
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                mimeType="image/jpeg"/>
   
-  <Implementation id="BinaryValidator" type="VALIDATOR" engine="JAVA"
+  <Implementation id="BinaryValidator" type="ATTR_VALUE_VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
 
   <SyncopeSchema id="csvuserid"/>
@@ -770,8 +770,8 @@ under the License.
   <VirSchema id="virtualdata" READONLY="0" anyTypeClass_id="minimal user"
              resource_id="resource-db-virattr" anyType_id="USER" extAttrName="USERNAME"/>
   
-  <Implementation id="MacroRunJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
-                  body="org.apache.syncope.core.logic.job.MacroRunJobDelegate"/>
+  <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.logic.job.MacroJobDelegate"/>
 
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
