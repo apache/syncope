@@ -65,7 +65,7 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     private List<JPAFormPropertyDef> formPropertyDefs = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private JPAImplementation formValidator;
+    private JPAImplementation macroActions;
 
     @OneToMany(targetEntity = JPAMacroTaskExec.class,
             cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
@@ -135,14 +135,14 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     }
 
     @Override
-    public Implementation getFormValidator() {
-        return formValidator;
+    public Implementation getMacroActions() {
+        return macroActions;
     }
 
     @Override
-    public void setFormValidator(final Implementation formValidator) {
-        checkType(formValidator, JPAImplementation.class);
-        checkImplementationType(formValidator, IdRepoImplementationType.FORM_VALIDATOR);
-        this.formValidator = (JPAImplementation) formValidator;
+    public void setMacroAction(final Implementation macroActions) {
+        checkType(macroActions, JPAImplementation.class);
+        checkImplementationType(macroActions, IdRepoImplementationType.MACRO_ACTIONS);
+        this.macroActions = (JPAImplementation) macroActions;
     }
 }

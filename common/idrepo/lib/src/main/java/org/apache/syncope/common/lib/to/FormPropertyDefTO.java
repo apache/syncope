@@ -44,8 +44,6 @@ public class FormPropertyDefTO implements NamedEntityTO {
 
     private final Map<String, String> enumValues = new HashMap<>();
 
-    private String dropdownValueProvider;
-
     @Override
     public String getKey() {
         return key;
@@ -110,14 +108,6 @@ public class FormPropertyDefTO implements NamedEntityTO {
         return enumValues;
     }
 
-    public String getDropdownValueProvider() {
-        return dropdownValueProvider;
-    }
-
-    public void setDropdownValueProvider(final String dropdownValueProvider) {
-        this.dropdownValueProvider = dropdownValueProvider;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -129,7 +119,6 @@ public class FormPropertyDefTO implements NamedEntityTO {
                 append(required).
                 append(datePattern).
                 append(enumValues).
-                append(dropdownValueProvider).
                 build();
     }
 
@@ -154,7 +143,6 @@ public class FormPropertyDefTO implements NamedEntityTO {
                 append(required, other.required).
                 append(datePattern, other.datePattern).
                 append(enumValues, other.enumValues).
-                append(dropdownValueProvider, other.dropdownValueProvider).
                 build();
     }
 }

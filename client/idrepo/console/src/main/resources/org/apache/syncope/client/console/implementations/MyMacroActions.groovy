@@ -18,12 +18,38 @@
  */
 import groovy.transform.CompileStatic
 import java.util.Map
-import org.apache.syncope.core.logic.api.DropdownValueProvider
+import javax.xml.bind.ValidationException
+import org.apache.syncope.common.lib.command.CommandArgs
+import org.apache.syncope.common.lib.form.MacroTaskForm
+import org.apache.syncope.core.logic.api.Command
+import org.apache.syncope.core.logic.api.MacroActions
 
 @CompileStatic
-class MyDropdownValueProvider implements DropdownValueProvider {
+class MyMacroActions implements MacroActions {
 
-  Map<String, String> getValues() {
-    
+  @Override
+  void validate(MacroTaskForm macroTaskForm) throws ValidationException {
+  }
+  
+  @Override
+  Map<String, String> getDropdownValues(String formProperty) {
+    return Map.of();
+  }
+  
+  @Override
+  void beforeAll() {
+  }
+
+  @Override
+  void beforeCommand(Command<CommandArgs> command, CommandArgs args) {
+  }
+
+  @Override
+  void afterCommand(Command<CommandArgs> command, CommandArgs args, String output) {
+  }
+
+  @Override
+  StringBuilder afterAll(StringBuilder output) {
+    return output;
   }
 }

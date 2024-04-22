@@ -53,9 +53,9 @@ import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.RealmFullPathDropdownValueProvider;
 import org.apache.syncope.fit.core.reference.TestCommand;
 import org.apache.syncope.fit.core.reference.TestCommandArgs;
+import org.apache.syncope.fit.core.reference.TestMacroActions;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -96,25 +96,24 @@ public class MacroITCase extends AbstractITCase {
         }
         assertNotNull(transformer);
 
-        ImplementationTO dropdownValueProvider = null;
+        ImplementationTO macroActions = null;
         try {
-            dropdownValueProvider = IMPLEMENTATION_SERVICE.read(
-                    IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER,
-                    RealmFullPathDropdownValueProvider.class.getSimpleName());
+            macroActions = IMPLEMENTATION_SERVICE.read(IdRepoImplementationType.MACRO_ACTIONS,
+                    TestMacroActions.class.getSimpleName());
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
-                dropdownValueProvider = new ImplementationTO();
-                dropdownValueProvider.setKey(RealmFullPathDropdownValueProvider.class.getSimpleName());
-                dropdownValueProvider.setEngine(ImplementationEngine.JAVA);
-                dropdownValueProvider.setType(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
-                dropdownValueProvider.setBody(RealmFullPathDropdownValueProvider.class.getName());
-                Response response = IMPLEMENTATION_SERVICE.create(dropdownValueProvider);
-                dropdownValueProvider = IMPLEMENTATION_SERVICE.read(
-                        dropdownValueProvider.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                assertNotNull(dropdownValueProvider.getKey());
+                macroActions = new ImplementationTO();
+                macroActions.setKey(TestMacroActions.class.getSimpleName());
+                macroActions.setEngine(ImplementationEngine.JAVA);
+                macroActions.setType(IdRepoImplementationType.MACRO_ACTIONS);
+                macroActions.setBody(TestMacroActions.class.getName());
+                Response response = IMPLEMENTATION_SERVICE.create(macroActions);
+                macroActions = IMPLEMENTATION_SERVICE.read(
+                        macroActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(macroActions.getKey());
             }
         }
-        assertNotNull(dropdownValueProvider);
+        assertNotNull(macroActions);
 
         if (MACRO_TASK_KEY == null) {
             MACRO_TASK_KEY = TASK_SERVICE.<MacroTaskTO>search(
@@ -143,8 +142,9 @@ public class MacroITCase extends AbstractITCase {
                         parent.setWritable(true);
                         parent.setRequired(true);
                         parent.setType(FormPropertyType.Dropdown);
-                        parent.setDropdownValueProvider(RealmFullPathDropdownValueProvider.class.getSimpleName());
                         task.getFormPropertyDefs().add(parent);
+
+                        task.setMacroActions(TestMacroActions.class.getSimpleName());
 
                         Response response = TASK_SERVICE.create(TaskType.MACRO, task);
                         return response.getHeaderString(RESTHeaders.RESOURCE_KEY);

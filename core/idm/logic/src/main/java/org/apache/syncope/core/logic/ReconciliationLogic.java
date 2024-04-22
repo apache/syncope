@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -72,6 +73,7 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
@@ -98,6 +100,7 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -193,6 +196,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     protected ConnObject getOnSyncope(
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
+            final Boolean suspended,
             final Set<Attribute> attrs) {
 
         ConnObject connObjectTO = ConnObjectUtils.getConnObjectTO(null, attrs);
@@ -200,6 +204,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 value(connObjectKeyValue).build());
         connObjectTO.getAttrs().add(new Attr.Builder(Uid.NAME).
                 value(connObjectKeyValue).build());
+        Optional.ofNullable(suspended).ifPresent(s -> {
+            connObjectTO.getAttrs().removeIf(a -> OperationalAttributes.ENABLE_NAME.equals(a.getSchema()));
+            connObjectTO.getAttrs().add(new Attr.Builder(OperationalAttributes.ENABLE_NAME).
+                    value(BooleanUtils.negate(s).toString()).build());
+        });
 
         return connObjectTO;
     }
@@ -212,7 +221,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
                 any, null, false, true, resource, provision);
-        return getOnSyncope(connObjectKeyItem, prepared.getLeft(), prepared.getRight());
+        return getOnSyncope(
+                connObjectKeyItem,
+                prepared.getLeft(),
+                any instanceof User ? ((User) any).isSuspended() : null,
+                prepared.getRight());
     }
 
     protected ConnObject getOnSyncope(
@@ -222,7 +235,11 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         Set<Attribute> attrs = mappingManager.prepareAttrsFromLinkedAccount(
                 account.getOwner(), account, null, false, provision);
-        return getOnSyncope(connObjectKeyItem, account.getConnObjectKeyValue(), attrs);
+        return getOnSyncope(
+                connObjectKeyItem,
+                account.getConnObjectKeyValue(),
+                account.isSuspended(),
+                attrs);
     }
 
     protected Any<?> getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
@@ -236,11 +253,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                             ? ((GroupDAO) dao).findKey(anyKey)
                             : ((AnyObjectDAO) dao).findKey(provision.getAnyType(), anyKey);
         }
-        Any<?> any = dao.authFind(actualKey);
-        if (any == null) {
-            throw new NotFoundException(provision.getAnyType() + " '" + anyKey + "'");
-        }
-        return any;
+
+        return Optional.ofNullable(dao.authFind(actualKey)).
+                orElseThrow(() -> new NotFoundException(provision.getAnyType() + " '" + anyKey + "'"));
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")

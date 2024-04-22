@@ -144,6 +144,9 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             put(IdRepoImplementationType.LOGIC_ACTIONS, classNames);
+            classNames = new HashSet<>();
+            classNames.add(TestMacroActions.class.getName());
+            put(IdRepoImplementationType.MACRO_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             classNames.add(LDAPMembershipPropagationActions.class.getName());
@@ -177,10 +180,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(AlwaysTrueValidator.class.getName());
             classNames.add(BinaryValidator.class.getName());
             put(IdRepoImplementationType.ATTR_VALUE_VALIDATOR, classNames);
-
-            classNames = new HashSet<>();
-            classNames.add(RealmFullPathDropdownValueProvider.class.getName());
-            put(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestNotificationRecipientsProvider.class.getName());

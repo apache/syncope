@@ -16,13 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.api;
+package org.apache.syncope.fit.core.reference;
 
-import javax.validation.ValidationException;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.apache.syncope.core.logic.api.MacroActions;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-@FunctionalInterface
-public interface FormValidator {
+public class TestMacroActions implements MacroActions {
 
-    void validate(MacroTaskForm macroTaskForm) throws ValidationException;
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String, String> getDropdownValues(final String formProperty) {
+        return realmDAO.findChildren(realmDAO.getRoot()).stream().
+                collect(Collectors.toMap(Realm::getFullPath, Realm::getName));
+    }
 }

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.Map;
 import org.apache.syncope.common.lib.form.FormPropertyType;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 public interface FormPropertyDef extends ProvidedKeyEntity {
@@ -56,8 +55,4 @@ public interface FormPropertyDef extends ProvidedKeyEntity {
     Map<String, String> getEnumValues();
 
     void setEnumValues(Map<String, String> enumValues);
-
-    Implementation getDropdownValueProvider();
-
-    void setDropdownValueProvider(Implementation dropdownValueProvider);
 }

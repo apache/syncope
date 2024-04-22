@@ -43,7 +43,7 @@ public class MacroTaskTO extends SchedTaskTO {
 
     private final List<FormPropertyDefTO> formPropertyDefs = new ArrayList<>();
 
-    private String formValidator;
+    private String macroActions;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -90,12 +90,12 @@ public class MacroTaskTO extends SchedTaskTO {
         return formPropertyDefs;
     }
 
-    public String getFormValidator() {
-        return formValidator;
+    public String getMacroActions() {
+        return macroActions;
     }
 
-    public void setFormValidator(final String formValidator) {
-        this.formValidator = formValidator;
+    public void setMacroActions(final String macroActions) {
+        this.macroActions = macroActions;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MacroTaskTO extends SchedTaskTO {
                 append(continueOnError).
                 append(saveExecs).
                 append(formPropertyDefs).
-                append(formValidator).
+                append(macroActions).
                 build();
     }
 
@@ -130,7 +130,7 @@ public class MacroTaskTO extends SchedTaskTO {
                 append(continueOnError, other.continueOnError).
                 append(saveExecs, other.saveExecs).
                 append(formPropertyDefs, other.formPropertyDefs).
-                append(formValidator, other.formValidator).
+                append(macroActions, other.macroActions).
                 build();
     }
 }

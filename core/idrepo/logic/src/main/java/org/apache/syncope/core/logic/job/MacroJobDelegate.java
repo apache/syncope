@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.logic.job;
 
-import java.io.StringWriter;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -34,11 +33,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
-import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.common.lib.form.MacroTaskForm;
 import org.apache.syncope.core.logic.api.Command;
-import org.apache.syncope.core.logic.api.DropdownValueProvider;
-import org.apache.syncope.core.logic.api.FormValidator;
+import org.apache.syncope.core.logic.api.MacroActions;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
@@ -64,13 +61,11 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
     @Autowired
     protected Validator validator;
 
-    protected final Map<String, FormValidator> perContextFormValidators = new ConcurrentHashMap<>();
-
-    protected final Map<String, DropdownValueProvider> perContextDropdownValueProviders = new ConcurrentHashMap<>();
+    protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
     protected final Map<String, Command<?>> perContextCommands = new ConcurrentHashMap<>();
 
-    protected boolean validate(final FormPropertyDef fpd, final String value) {
+    protected boolean validate(final FormPropertyDef fpd, final String value, final Optional<MacroActions> actions) {
         if (!fpd.isWritable()) {
             return false;
         }
@@ -80,18 +75,17 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                 return fpd.getEnumValues().containsKey(value);
 
             case Dropdown:
-                if (fpd.getDropdownValueProvider() == null) {
-                    return false;
-                }
-                return perContextDropdownValueProviders.get(fpd.getDropdownValueProvider().getKey()).
-                        getValues().containsKey(value);
+                return actions.map(a -> a.getDropdownValues(fpd.getKey()).containsKey(value)).orElse(false);
 
             default:
                 return value != null;
         }
     }
 
-    protected Optional<JexlContext> check(final MacroTaskForm macroTaskForm) throws JobExecutionException {
+    protected Optional<JexlContext> check(
+            final MacroTaskForm macroTaskForm,
+            final Optional<MacroActions> actions) throws JobExecutionException {
+
         if (macroTaskForm == null) {
             return Optional.empty();
         }
@@ -110,43 +104,18 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         }
 
         // if validator is defined, validate the provided form
-        if (task.getFormValidator() != null) {
+        if (actions.isPresent()) {
             try {
-                FormValidator formValidator = ImplementationManager.build(
-                        task.getFormValidator(),
-                        () -> perContextFormValidators.get(task.getFormValidator().getKey()),
-                        instance -> perContextFormValidators.put(task.getFormValidator().getKey(), instance));
-                formValidator.validate(macroTaskForm);
+                actions.get().validate(macroTaskForm);
             } catch (ValidationException e) {
                 throw new JobExecutionException("Invalid form submitted for task " + task.getKey(), e);
-            } catch (Exception e) {
-                throw new JobExecutionException("Could not build " + task.getFormValidator(), e);
-            }
-        }
-
-        // pre-load all dropdown value providers
-        for (FormPropertyDef fpd : task.getFormPropertyDefs().stream().
-                filter(formPropertyDef -> formPropertyDef.getType() == FormPropertyType.Dropdown).
-                collect(Collectors.toList())) {
-
-            if (fpd.getDropdownValueProvider() != null) {
-                try {
-                    ImplementationManager.build(
-                            fpd.getDropdownValueProvider(),
-                            () -> perContextDropdownValueProviders.get(fpd.getDropdownValueProvider().getKey()),
-                            instance -> perContextDropdownValueProviders.put(
-                                    fpd.getDropdownValueProvider().getKey(), instance));
-                } catch (Exception e) {
-                    throw new JobExecutionException(
-                            "Could not build " + fpd.getDropdownValueProvider().getKey(), e);
-                }
             }
         }
 
         // build the JEXL context where variables are mapped to property values, built according to the defined type
         Map<String, Object> vars = macroTaskForm.getProperties().stream().
                 map(p -> task.getFormPropertyDefs().stream().
-                filter(fpd -> fpd.getKey().equals(p.getId()) && validate(fpd, p.getValue())).findFirst().
+                filter(fpd -> fpd.getKey().equals(p.getId()) && validate(fpd, p.getValue(), actions)).findFirst().
                 map(fpd -> Pair.of(fpd, p.getValue()))).
                 filter(Optional::isPresent).map(Optional::get).
                 map(pair -> {
@@ -179,19 +148,29 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         return vars.isEmpty() ? Optional.empty() : Optional.of(new MapContext(vars));
     }
 
-    protected static String evaluate(final String template, final JexlContext ctx) {
-        StringWriter writer = new StringWriter();
-        JexlUtils.newJxltEngine().createTemplate(template).evaluate(ctx, writer);
-        return writer.toString();
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
             throws JobExecutionException {
 
+        Optional<MacroActions> actions;
+        if (task.getMacroActions() == null) {
+            actions = Optional.empty();
+        } else {
+            try {
+                actions = Optional.of(ImplementationManager.build(
+                        task.getMacroActions(),
+                        () -> perContextActions.get(task.getMacroActions().getKey()),
+                        instance -> perContextActions.put(task.getMacroActions().getKey(), instance)));
+            } catch (Exception e) {
+                throw new JobExecutionException("Could not build " + task.getMacroActions().getKey(), e);
+            }
+        }
+
         MacroTaskForm macroTaskForm = (MacroTaskForm) context.getMergedJobDataMap().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
-        Optional<JexlContext> jexlContext = check(macroTaskForm);
+        Optional<JexlContext> jexlContext = check(macroTaskForm, actions);
+
+        actions.ifPresent(MacroActions::beforeAll);
 
         StringBuilder output = new StringBuilder();
         for (MacroTaskCommand command : task.getMacroTaskCommands()) {
@@ -199,10 +178,10 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             try {
                 runnable = (Command<CommandArgs>) ImplementationManager.build(
                         command.getCommand(),
-                        () -> perContextCommands.get(command.getKey()),
-                        instance -> perContextCommands.put(command.getKey(), instance));
+                        () -> perContextCommands.get(command.getCommand().getKey()),
+                        instance -> perContextCommands.put(command.getCommand().getKey(), instance));
             } catch (Exception e) {
-                throw new JobExecutionException("Could not build " + command.getCommand(), e);
+                throw new JobExecutionException("Could not build " + command.getCommand().getKey(), e);
             }
 
             String args = command.getArgs() == null
@@ -226,13 +205,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 field -> {
                                     if (String.class.equals(field.getType())) {
                                         field.setAccessible(true);
-
-                                        StringWriter writer = new StringWriter();
-                                        JexlUtils.newJxltEngine().
-                                                createTemplate(field.get(actualArgs).toString()).
-                                                evaluate(ctx, writer);
-
-                                        field.set(actualArgs, writer.toString());
+                                        field.set(
+                                                actualArgs,
+                                                JexlUtils.evaluateTemplate(field.get(actualArgs).toString(), ctx));
                                     }
                                 },
                                 field -> !field.isSynthetic()));
@@ -244,7 +219,13 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                         }
                     }
 
-                    output.append(runnable.run(actualArgs));
+                    actions.ifPresent(a -> a.beforeCommand(runnable, actualArgs));
+
+                    String cmdOutput = runnable.run(actualArgs);
+
+                    actions.ifPresent(a -> a.afterCommand(runnable, actualArgs, cmdOutput));
+
+                    output.append(cmdOutput);
                 } catch (Exception e) {
                     if (task.isContinueOnError()) {
                         output.append("Continuing on error: <").append(e.getMessage()).append('>');
@@ -258,7 +239,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         }
 
         output.append("COMPLETED");
-        return output.toString();
+
+        return actions.map(a -> a.afterAll(output)).orElse(output).toString();
     }
 
     @Override

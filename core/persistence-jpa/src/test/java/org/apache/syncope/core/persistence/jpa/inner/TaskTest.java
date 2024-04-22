@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -193,28 +194,20 @@ public class TaskTest extends AbstractTest {
         macroTaskCommand.setMacroTask(task);
         task.add(macroTaskCommand);
 
-        Implementation dropdownValueProvider = entityFactory.newEntity(Implementation.class);
-        dropdownValueProvider.setKey("dropdownValueProvider");
-        dropdownValueProvider.setType(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
-        dropdownValueProvider.setEngine(ImplementationEngine.JAVA);
-        dropdownValueProvider.setBody("clazz");
-        dropdownValueProvider = implementationDAO.save(dropdownValueProvider);
-        assertNotNull(dropdownValueProvider);
-
         FormPropertyDef formPropertyDef = entityFactory.newEntity(FormPropertyDef.class);
         formPropertyDef.setKey("one");
         formPropertyDef.setName("One");
-        formPropertyDef.setType(FormPropertyType.Dropdown);
+        formPropertyDef.setType(FormPropertyType.Enum);
         task.add(formPropertyDef);
 
-        Implementation formValidator = entityFactory.newEntity(Implementation.class);
-        formValidator.setKey("formValidator");
-        formValidator.setType(IdRepoImplementationType.FORM_VALIDATOR);
-        formValidator.setEngine(ImplementationEngine.JAVA);
-        formValidator.setBody("clazz");
-        formValidator = implementationDAO.save(formValidator);
-        assertNotNull(formValidator);
-        task.setFormValidator(formValidator);
+        Implementation macroActions = entityFactory.newEntity(Implementation.class);
+        macroActions.setKey("macroActions");
+        macroActions.setType(IdRepoImplementationType.MACRO_ACTIONS);
+        macroActions.setEngine(ImplementationEngine.JAVA);
+        macroActions.setBody("clazz");
+        macroActions = implementationDAO.save(macroActions);
+        assertNotNull(macroActions);
+        task.setMacroAction(macroActions);
 
         try {
             taskDAO.save(task);
@@ -222,7 +215,7 @@ public class TaskTest extends AbstractTest {
         } catch (InvalidEntityException e) {
             assertNotNull(e);
         }
-        formPropertyDef.setDropdownValueProvider(dropdownValueProvider);
+        formPropertyDef.setEnumValues(Map.of("key", "value"));
 
         task = (MacroTask) taskDAO.save(task);
         assertNotNull(task);

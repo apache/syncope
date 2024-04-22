@@ -280,20 +280,16 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             fpd.setDatePattern(fpdTO.getDatePattern());
             fpd.setEnumValues(fpdTO.getEnumValues());
 
-            Optional.ofNullable(implementationDAO.find(fpdTO.getDropdownValueProvider())).ifPresentOrElse(
-                    fpd::setDropdownValueProvider,
-                    () -> LOG.debug("Invalid Implementation {}, ignoring...", fpdTO.getDropdownValueProvider()));
-
             fpd.setMacroTask(macroTask);
             macroTask.add(fpd);
         });
 
-        if (macroTaskTO.getFormValidator() == null) {
-            macroTask.setFormValidator(null);
+        if (macroTaskTO.getMacroActions() == null) {
+            macroTask.setMacroAction(null);
         } else {
-            Optional.ofNullable(implementationDAO.find(macroTaskTO.getFormValidator())).ifPresentOrElse(
-                    macroTask::setFormValidator,
-                    () -> LOG.debug("Invalid Implementation {}, ignoring...", macroTaskTO.getFormValidator()));
+            Optional.ofNullable(implementationDAO.find(macroTaskTO.getMacroActions())).ifPresentOrElse(
+                    macroTask::setMacroAction,
+                    () -> LOG.debug("Invalid Implementation {}, ignoring...", macroTaskTO.getMacroActions()));
         }
     }
 
@@ -522,14 +518,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     fpdTO.setRequired(fpd.isRequired());
                     fpdTO.setDatePattern(fpd.getDatePattern());
                     fpdTO.getEnumValues().putAll(fpd.getEnumValues());
-                    Optional.ofNullable(fpd.getDropdownValueProvider()).
-                            ifPresent(dvp -> fpdTO.setDropdownValueProvider(dvp.getKey()));
 
                     macroTaskTO.getFormPropertyDefs().add(fpdTO);
                 });
 
-                Optional.ofNullable(macroTask.getFormValidator()).
-                        ifPresent(fv -> macroTaskTO.setFormValidator(fv.getKey()));
+                Optional.ofNullable(macroTask.getMacroActions()).
+                        ifPresent(fv -> macroTaskTO.setMacroActions(fv.getKey()));
                 break;
 
             case PULL:

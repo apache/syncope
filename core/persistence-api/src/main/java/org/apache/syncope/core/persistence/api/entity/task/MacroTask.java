@@ -36,9 +36,9 @@ public interface MacroTask extends SchedTask {
 
     List<? extends FormPropertyDef> getFormPropertyDefs();
 
-    Implementation getFormValidator();
+    Implementation getMacroActions();
 
-    void setFormValidator(Implementation formValidator);
+    void setMacroAction(Implementation macroActions);
 
     boolean isContinueOnError();
 

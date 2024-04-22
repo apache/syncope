@@ -27,16 +27,12 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.form.FormPropertyType;
-import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
-import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.validation.entity.FormPropertyDefCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
@@ -72,9 +68,6 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     @Lob
     private String enumValues;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    private JPAImplementation dropdownValueProvider;
 
     @Override
     public JPAMacroTask getMacroTask() {
@@ -157,17 +150,5 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     @Override
     public void setEnumValues(final Map<String, String> enumValues) {
         this.enumValues = Optional.ofNullable(enumValues).map(POJOHelper::serialize).orElse(null);
-    }
-
-    @Override
-    public JPAImplementation getDropdownValueProvider() {
-        return dropdownValueProvider;
-    }
-
-    @Override
-    public void setDropdownValueProvider(final Implementation dropdownValueProvider) {
-        checkType(dropdownValueProvider, JPAImplementation.class);
-        checkImplementationType(dropdownValueProvider, IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
-        this.dropdownValueProvider = (JPAImplementation) dropdownValueProvider;
     }
 }

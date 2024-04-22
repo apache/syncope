@@ -47,15 +47,6 @@ public class FormPropertyDefValidator extends AbstractValidator<FormPropertyDefC
             return false;
         }
 
-        if (formPropertyDef.getDropdownValueProvider() == null
-                && formPropertyDef.getType() == FormPropertyType.Dropdown) {
-
-            context.buildConstraintViolationWithTemplate(getTemplate(
-                    EntityViolationType.InvalidFormPropertyDef, "No dropdownValueProvider set")).
-                    addPropertyNode("dropdownValueProvider").addConstraintViolation();
-            return false;
-        }
-
         return true;
     }
 }
