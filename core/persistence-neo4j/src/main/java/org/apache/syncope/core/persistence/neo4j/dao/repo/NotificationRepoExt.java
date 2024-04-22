@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 
 public interface NotificationRepoExt {
+
+    List<Notification> findByTemplate(MailTemplate template);
 
     Notification save(Notification notification);
 

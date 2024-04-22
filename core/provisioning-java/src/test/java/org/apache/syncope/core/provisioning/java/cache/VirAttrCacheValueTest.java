@@ -16,34 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.cache;
+package org.apache.syncope.core.provisioning.java.cache;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.apache.syncope.core.provisioning.api.AbstractTest;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class VirAttrCacheKeyTest extends AbstractTest {
+public class VirAttrCacheValueTest {
 
     @Test
     public void test() {
-        String type = "type";
-        String key = "key";
-        String virSchema = "virSchema";
-        VirAttrCacheKey cacheKey = new VirAttrCacheKey(type, key, virSchema);
-        VirAttrCacheKey cacheKey2 = new VirAttrCacheKey(type, key, virSchema);
-        VirAttrCacheKey cacheKey3 = new VirAttrCacheKey(type, String.format(type, "3"), String.format(virSchema, "3"));
         Object nullObj = null;
+        VirAttrCacheValue cacheValue = VirAttrCacheValue.of(List.of("testValue"));
+        VirAttrCacheValue cacheValue2 = VirAttrCacheValue.of(List.of());
 
-        assertEquals(cacheKey.hashCode(), cacheKey2.hashCode());
-        assertFalse(cacheKey.equals(nullObj));
-        assertFalse(cacheKey.equals(String.class));
-        assertTrue(cacheKey.equals(cacheKey));
-        assertTrue(cacheKey.equals(cacheKey2));
-        assertFalse(cacheKey.equals(cacheKey3));
-
-        assertEquals(cacheKey.toString(), cacheKey2.toString());
+        assertNotEquals(cacheValue.values(), cacheValue2.values());
+        assertNotEquals(cacheValue.hashCode(), cacheValue2.hashCode());
+        assertFalse(cacheValue.equals(cacheValue2));
+        assertTrue(cacheValue.equals(cacheValue));
+        assertFalse(cacheValue2.equals(nullObj));
+        assertFalse(cacheValue2.equals(String.class));
+        assertNotEquals(cacheValue.toString(), cacheValue2.toString());
     }
 }

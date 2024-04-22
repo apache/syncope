@@ -19,16 +19,23 @@
 package org.apache.syncope.core.persistence.neo4j.outer;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
@@ -48,6 +55,9 @@ public class PolicyTest extends AbstractClientAppTest {
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Test
     public void authPolicyCanBeNull() {
@@ -126,5 +136,32 @@ public class PolicyTest extends AbstractClientAppTest {
         assertNull(rp.getAuthPolicy());
         assertNull(rp.getAccessPolicy());
         assertNull(rp.getTicketExpirationPolicy());
+    }
+
+    @Test
+    public void addAndRemoveAccountPolicyRule() {
+        Implementation implementation = entityFactory.newEntity(Implementation.class);
+        implementation.setKey(UUID.randomUUID().toString());
+        implementation.setEngine(ImplementationEngine.JAVA);
+        implementation.setType(IdRepoImplementationType.ACCOUNT_RULE);
+        implementation.setBody("TestAccountPolicyRule");
+        implementation = implementationDAO.save(implementation);
+
+        AccountPolicy policy = policyDAO.findById("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7", AccountPolicy.class).
+                orElseThrow();
+        assertEquals(1, policy.getRules().size());
+
+        policy.add(implementation);
+        policyDAO.save(policy);
+
+        policy = policyDAO.findById("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7", AccountPolicy.class).orElseThrow();
+        assertEquals(2, policy.getRules().size());
+
+        policy.getRules().clear();
+        policy = policyDAO.save(policy);
+        assertTrue(policy.getRules().isEmpty());
+
+        policy = policyDAO.findById("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7", AccountPolicy.class).orElseThrow();
+        assertTrue(policy.getRules().isEmpty());
     }
 }

@@ -53,6 +53,7 @@ public abstract class Neo4jProvisioningTask<T extends SchedTask>
     @NotNull
     private Boolean syncStatus = false;
 
+    @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Neo4jExternalResource resource;
 

@@ -83,6 +83,11 @@ under the License.
     
     <!-- TEST -->
     <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -135,6 +140,12 @@ under the License.
 
               <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
             </systemProperties>
+            <dependencies>
+              <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+              </dependency>
+            </dependencies>
           </container>
           <configuration>
             <properties>

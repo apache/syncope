@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.neo4j.driver.Driver;
@@ -49,7 +51,28 @@ CALL dbms.components() YIELD versions, name, edition WHERE name = 'Neo4j Kernel'
             result.putAll(session.run(CYPHER).next().asMap());
         }
 
-        result.put("metrics", driver.metrics().connectionPoolMetrics());
+        if (driver.isMetricsEnabled()) {
+            List<Map<String, Object>> metrics = new ArrayList<>();
+            driver.metrics().connectionPoolMetrics().forEach(m -> {
+                Map<String, Object> metric = new LinkedHashMap<>();
+                metric.put("id", m.id());
+                metric.put("inUse", m.inUse());
+                metric.put("idle", m.idle());
+                metric.put("created", m.created());
+                metric.put("failedToCreate", m.failedToCreate());
+                metric.put("closed", m.closed());
+                metric.put("acquiring", m.acquiring());
+                metric.put("acquired", m.acquired());
+                metric.put("timedOutToAcquire", m.timedOutToAcquire());
+                metric.put("totalAcquisitionTime", m.totalAcquisitionTime());
+                metric.put("totalConnectionTime", m.totalConnectionTime());
+                metric.put("totalInUseTime", m.totalInUseTime());
+                metric.put("totalInUseCount", m.totalInUseCount());
+                metrics.add(metric);
+            });
+
+            result.put("metrics", metrics);
+        }
 
         return result;
     }

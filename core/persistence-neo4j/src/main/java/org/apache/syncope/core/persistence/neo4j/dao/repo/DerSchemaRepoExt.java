@@ -20,10 +20,17 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 
 public interface DerSchemaRepoExt {
+
+    String CACHE = "derSchemaCache";
+
+    Optional<? extends DerSchema> findById(String key);
+
+    List<? extends DerSchema> findByIdLike(String keyword);
 
     List<? extends DerSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 

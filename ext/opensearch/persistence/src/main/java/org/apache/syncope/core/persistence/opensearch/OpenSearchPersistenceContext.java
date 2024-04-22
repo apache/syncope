@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchAnySearchDAO;
 import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchAuditEventDAO;
-import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchRealmDAO;
+import org.apache.syncope.core.persistence.opensearch.dao.OpenSearchRealmSearchDAO;
 import org.apache.syncope.ext.opensearch.client.OpenSearchIndexManager;
 import org.apache.syncope.ext.opensearch.client.OpenSearchProperties;
 import org.opensearch.client.opensearch.OpenSearchClient;
@@ -80,7 +80,7 @@ public class OpenSearchPersistenceContext {
             final OpenSearchClient client,
             final OpenSearchProperties props) {
 
-        return new OpenSearchRealmDAO(realmDAO, client, props.getIndexMaxResultWindow());
+        return new OpenSearchRealmSearchDAO(realmDAO, client, props.getIndexMaxResultWindow());
     }
 
     @ConditionalOnMissingBean(name = "openSearchAuditEventDAO")

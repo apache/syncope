@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
@@ -151,8 +153,11 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     @Relationship(type = RESOURCE_PROVISION_SORTER_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation provisionSorter;
 
-    @Relationship(type = RESOURCE_PROPAGATION_ACTIONS_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jImplementation> propagationActions = new ArrayList<>();
+    @Relationship(type = RESOURCE_PROPAGATION_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    private SortedSet<Neo4jImplementationRelationship> propagationActions = new TreeSet<>();
+
+    @Transient
+    private List<Neo4jImplementation> sortedPropagationActions = new SortedSetList(propagationActions);
 
     @Override
     public boolean isEnforceMandatoryCondition() {
@@ -354,13 +359,13 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     public boolean add(final Implementation propagationAction) {
         checkType(propagationAction, Neo4jImplementation.class);
         checkImplementationType(propagationAction, IdMImplementationType.PROPAGATION_ACTIONS);
-        return propagationActions.contains((Neo4jImplementation) propagationAction)
-                || propagationActions.add((Neo4jImplementation) propagationAction);
+        return sortedPropagationActions.contains((Neo4jImplementation) propagationAction)
+                || sortedPropagationActions.add((Neo4jImplementation) propagationAction);
     }
 
     @Override
     public List<? extends Implementation> getPropagationActions() {
-        return propagationActions;
+        return sortedPropagationActions;
     }
 
     protected void json2list(final boolean clearFirst) {
@@ -378,6 +383,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     @PostLoad
     public void postLoad() {
+        sortedPropagationActions = new SortedSetList(propagationActions);
         json2list(false);
     }
 

@@ -35,6 +35,8 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserRepoExt extends AnyRepoExt<User> {
 
+    String CACHE = "userCache";
+
     Optional<? extends User> findByToken(String token);
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
@@ -46,6 +48,8 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     Map<String, Long> countByStatus();
 
     UMembership findMembership(String key);
+
+    void deleteMembership(UMembership membership);
 
     List<Role> findDynRoles(String key);
 
@@ -61,7 +65,13 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     Collection<ExternalResource> findAllResources(User user);
 
+    @Override
+    <S extends User> S save(S user);
+
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
+
+    @Override
+    void delete(User user);
 
     boolean linkedAccountExists(String userKey, String connObjectKeyValue);
 

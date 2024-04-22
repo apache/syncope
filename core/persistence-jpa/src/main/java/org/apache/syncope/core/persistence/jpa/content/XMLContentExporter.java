@@ -208,12 +208,12 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
         DatabaseMetaData meta = conn.getMetaData();
 
-        Set<MultiParentNode<String>> roots = new HashSet<>();
-        Map<String, MultiParentNode<String>> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Set<MultiParentNode> roots = new HashSet<>();
+        Map<String, MultiParentNode> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         for (String tableName : tableNames) {
-            MultiParentNode<String> node = Optional.ofNullable(exploited.get(tableName)).orElseGet(() -> {
-                MultiParentNode<String> n = new MultiParentNode<>(tableName);
+            MultiParentNode node = Optional.ofNullable(exploited.get(tableName)).orElseGet(() -> {
+                MultiParentNode n = new MultiParentNode(tableName);
                 roots.add(n);
                 exploited.put(tableName, n);
                 return n;
@@ -231,9 +231,9 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                     filter(pkTableName -> !tableName.equalsIgnoreCase(pkTableName)).
                     forEach(pkTableName -> {
 
-                        MultiParentNode<String> pkNode = Optional.ofNullable(exploited.get(pkTableName)).
+                        MultiParentNode pkNode = Optional.ofNullable(exploited.get(pkTableName)).
                                 orElseGet(() -> {
-                                    MultiParentNode<String> n = new MultiParentNode<>(pkTableName);
+                                    MultiParentNode n = new MultiParentNode(pkTableName);
                                     roots.add(n);
                                     exploited.put(pkTableName, n);
                                     return n;

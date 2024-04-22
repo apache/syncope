@@ -18,17 +18,21 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
+import java.util.List;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyAbout;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jMailTemplate;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jNotification;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 public class NotificationRepoExtImpl extends AbstractDAO implements NotificationRepoExt {
 
@@ -45,6 +49,17 @@ public class NotificationRepoExtImpl extends AbstractDAO implements Notification
         super(neo4jTemplate, neo4jClient);
         this.taskDAO = taskDAO;
         this.nodeValidator = nodeValidator;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<Notification> findByTemplate(final MailTemplate template) {
+        return findByRelationship(
+                Neo4jNotification.NODE,
+                Neo4jMailTemplate.NODE,
+                template.getKey(),
+                Neo4jNotification.class,
+                null);
     }
 
     @Override
@@ -65,7 +80,7 @@ public class NotificationRepoExtImpl extends AbstractDAO implements Notification
             cascadeDelete(
                     Neo4jAnyAbout.NODE,
                     Neo4jNotification.NODE,
-                    key, Neo4jAnyAbout.class);
+                    key);
 
             neo4jTemplate.deleteById(notification.getKey(), Neo4jNotification.class);
         });

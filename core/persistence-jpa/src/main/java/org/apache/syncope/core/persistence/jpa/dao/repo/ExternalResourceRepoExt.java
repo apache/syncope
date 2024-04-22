@@ -19,19 +19,12 @@
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 
 public interface ExternalResourceRepoExt {
 
     ExternalResource authFind(String key);
-
-    List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
-
-    boolean anyItemHaving(Implementation transformer);
 
     List<ExternalResource> findByPolicy(Policy policy);
 

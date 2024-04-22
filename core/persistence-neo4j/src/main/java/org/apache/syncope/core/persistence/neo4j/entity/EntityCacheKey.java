@@ -16,36 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.cache;
+package org.apache.syncope.core.persistence.neo4j.entity;
 
-/**
- * Virtual Attribute Value cache.
- */
-public interface VirAttrCache {
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 
-    void setCacheSpec(String cacheSpec);
+public record EntityCacheKey(String domain, String entityKey) {
 
-    /**
-     * Force entry expiring.
-     *
-     * @param key cache key
-     */
-    void expire(VirAttrCacheKey key);
-
-    /**
-     * Retrieve cached value. Return null in case of virtual attribute not cached.
-     *
-     * @param key cache key
-     * @return cached values or null if virtual attribute is not cached.
-     */
-    VirAttrCacheValue get(VirAttrCacheKey key);
-
-    /**
-     * Cache virtual attribute values.
-     *
-     * @param key cache key
-     * @param value virtual attribute values
-     * @return value after caching
-     */
-    VirAttrCacheValue put(VirAttrCacheKey key, VirAttrCacheValue value);
+    public static EntityCacheKey of(final String entityKey) {
+        return new EntityCacheKey(AuthContextUtils.getDomain(), entityKey);
+    }
 }

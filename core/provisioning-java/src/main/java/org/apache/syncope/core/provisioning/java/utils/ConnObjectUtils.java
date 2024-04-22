@@ -335,7 +335,7 @@ public class ConnObjectUtils {
                 item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
         // 2. add data from defined template (if any)
-        templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
+        pullTask.getTemplate(provision.getAnyType()).ifPresent(template -> templateUtils.apply(anyTO, template.get()));
 
         return anyTO;
     }

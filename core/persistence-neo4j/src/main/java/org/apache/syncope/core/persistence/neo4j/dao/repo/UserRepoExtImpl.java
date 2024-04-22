@@ -27,10 +27,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -38,6 +41,7 @@ import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -49,6 +53,8 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
@@ -68,7 +74,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRepoExt {
+public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> implements UserRepoExt {
 
     protected final RoleDAO roleDAO;
 
@@ -84,10 +90,15 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     protected final NodeValidator nodeValidator;
 
+    protected final Cache<EntityCacheKey, Neo4jUser> userCache;
+
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
+            final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
+            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -97,11 +108,15 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final SecurityProperties securityProperties,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jUser> userCache) {
 
         super(
+                anyTypeDAO,
+                anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
+                virSchemaDAO,
                 dynRealmDAO,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 neo4jTemplate,
@@ -113,6 +128,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         this.fiqlQueryDAO = fiqlQueryDAO;
         this.securityProperties = securityProperties;
         this.nodeValidator = nodeValidator;
+        this.userCache = userCache;
+    }
+
+    @Override
+    protected Cache<EntityCacheKey, Neo4jUser> cache() {
+        return userCache;
     }
 
     @Override
@@ -120,7 +141,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return neo4jClient.query(
                 "MATCH (n:" + Neo4jUser.NODE + ") WHERE n.token = $token RETURN n.id").
                 bindAll(Map.of("token", token)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jUser.class));
+                flatMap(toOptional("n.id", Neo4jUser.class, userCache));
     }
 
     @Override
@@ -129,7 +150,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 Neo4jUser.NODE,
                 Neo4jSecurityQuestion.NODE,
                 securityQuestion.getKey(),
-                Neo4jUser.class);
+                Neo4jUser.class,
+                userCache);
     }
 
     @Transactional(readOnly = true)
@@ -153,7 +175,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 anyMatch(pair -> groups.contains(pair.getRight()));
 
         // 2. check if user is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized) {
+        if (!authorized && key != null) {
             authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
         }
 
@@ -163,6 +185,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         }
 
         if (!authorized) {
+            Optional.ofNullable(key).map(EntityCacheKey::of).ifPresent(userCache::remove);
             throw new DelegatedAdministrationException(realm, AnyTypeKind.USER.name(), key);
         }
     }
@@ -204,9 +227,47 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return neo4jTemplate.findById(key, Neo4jUMembership.class).orElse(null);
     }
 
+    @Override
+    public void deleteMembership(final UMembership membership) {
+        neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
+    }
+
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
+        checkBeforeSave(user);
+
+        // unlink any role, resource, aux class or security question that was unlinked from user
         // delete any membership, relationship or linked account that was removed from user
         neo4jTemplate.findById(user.getKey(), Neo4jUser.class).ifPresent(before -> {
+            before.getRoles().stream().filter(role -> !user.getRoles().contains(role)).
+                    forEach(role -> deleteRelationship(
+                    Neo4jUser.NODE,
+                    Neo4jRole.NODE,
+                    user.getKey(),
+                    role.getKey(),
+                    Neo4jUser.ROLE_MEMBERSHIP_REL));
+            before.getResources().stream().filter(resource -> !user.getResources().contains(resource)).
+                    forEach(resource -> deleteRelationship(
+                    Neo4jUser.NODE,
+                    Neo4jExternalResource.NODE,
+                    user.getKey(),
+                    resource.getKey(),
+                    Neo4jUser.USER_RESOURCE_REL));
+            before.getAuxClasses().stream().filter(auxClass -> !user.getAuxClasses().contains(auxClass)).
+                    forEach(auxClass -> deleteRelationship(
+                    Neo4jUser.NODE,
+                    Neo4jAnyTypeClass.NODE,
+                    user.getKey(),
+                    auxClass.getKey(),
+                    Neo4jUser.USER_AUX_CLASSES_REL));
+            if (before.getSecurityQuestion() != null && user.getSecurityQuestion() == null) {
+                deleteRelationship(
+                        Neo4jUser.NODE,
+                        Neo4jSecurityQuestion.NODE,
+                        user.getKey(),
+                        before.getSecurityQuestion().getKey(),
+                        Neo4jUser.USER_SECURITY_QUESTION_REL);
+            }
+
             Set<String> beforeMembs = before.getMemberships().stream().map(UMembership::getKey).
                     collect(Collectors.toSet());
             beforeMembs.removeAll(user.getMemberships().stream().map(UMembership::getKey).toList());
@@ -224,6 +285,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         });
 
         User merged = neo4jTemplate.save(nodeValidator.validate(user));
+
+        userCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jUser) merged);
+
         roleDAO.refreshDynMemberships(merged);
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
@@ -255,23 +319,22 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
         accessTokenDAO.findByOwner(user.getUsername()).ifPresent(accessTokenDAO::delete);
 
+        userCache.remove(EntityCacheKey.of(user.getKey()));
+
         cascadeDelete(
                 Neo4jURelationship.NODE,
                 Neo4jUser.NODE,
-                user.getKey(),
-                Neo4jURelationship.class);
+                user.getKey());
 
         cascadeDelete(
                 Neo4jUMembership.NODE,
                 Neo4jUser.NODE,
-                user.getKey(),
-                Neo4jUMembership.class);
+                user.getKey());
 
         cascadeDelete(
                 Neo4jLinkedAccount.NODE,
                 Neo4jUser.NODE,
-                user.getKey(),
-                Neo4jLinkedAccount.class);
+                user.getKey());
 
         neo4jTemplate.deleteById(user.getKey(), Neo4jUser.class);
     }
@@ -295,7 +358,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 + "(p:" + Neo4jRole.NODE + ") "
                 + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
                 "p.id",
-                Neo4jRole.class);
+                Neo4jRole.class,
+                null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -307,7 +371,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 + "(p:" + Neo4jGroup.NODE + ") "
                 + "RETURN p.id").bindAll(Map.of("id", key)).fetch().all(),
                 "p.id",
-                Neo4jGroup.class);
+                Neo4jGroup.class,
+                null);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -352,6 +417,10 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Transactional(readOnly = true)
     @Override
     public boolean linkedAccountExists(final String userKey, final String connObjectKeyValue) {
+        if (connObjectKeyValue == null) {
+            return false;
+        }
+
         return neo4jTemplate.count(
                 "MATCH (n:" + Neo4jUser.NODE + " {id: $id})-[]-(p:" + Neo4jLinkedAccount.NODE + ") "
                 + "WHERE p.connObjectKeyValue = $connObjectKeyValue "
@@ -364,13 +433,17 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final ExternalResource resource,
             final String connObjectKeyValue) {
 
+        if (connObjectKeyValue == null) {
+            return Optional.empty();
+        }
+
         return neo4jClient.query(
                 "MATCH (n:" + Neo4jLinkedAccount.NODE + ")-[]-"
                 + "(e:" + Neo4jExternalResource.NODE + " {id: $resource}) "
                 + "WHERE n.connObjectKeyValue = $connObjectKeyValue "
                 + "RETURN n.id").
                 bindAll(Map.of("resource", resource.getKey(), "connObjectKeyValue", connObjectKeyValue)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jLinkedAccount.class));
+                flatMap(toOptional("n.id", Neo4jLinkedAccount.class, null));
     }
 
     @Override
@@ -379,7 +452,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 Neo4jLinkedAccount.NODE,
                 Neo4jUser.NODE,
                 userKey,
-                Neo4jLinkedAccount.class);
+                Neo4jLinkedAccount.class,
+                null);
     }
 
     @Override
@@ -388,7 +462,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 Neo4jLinkedAccount.NODE,
                 Neo4jPrivilege.NODE,
                 privilege.getKey(),
-                Neo4jLinkedAccount.class);
+                Neo4jLinkedAccount.class,
+                null);
     }
 
     @Override
@@ -397,6 +472,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 Neo4jLinkedAccount.NODE,
                 Neo4jExternalResource.NODE,
                 resource.getKey(),
-                Neo4jLinkedAccount.class);
+                Neo4jLinkedAccount.class,
+                null);
     }
 }

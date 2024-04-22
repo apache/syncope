@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -30,9 +31,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
@@ -47,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -63,6 +67,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
@@ -105,6 +110,18 @@ public class TaskTest extends AbstractTest {
         assertFalse(taskDAO.findAll(
                 TaskType.PROPAGATION, null, null, null, null, Pageable.unpaged(Sort.by(orderByClauses))).
                 isEmpty());
+    }
+
+    @Test
+    public void findAllByResource() {
+        List<PropagationTask> tasks = taskDAO.findAll(
+                TaskType.PROPAGATION,
+                resourceDAO.findById("ws-target-resource-2").orElseThrow(),
+                null,
+                AnyTypeKind.USER,
+                null,
+                Pageable.unpaged());
+        assertEquals(3, tasks.size());
     }
 
     @Test
@@ -281,6 +298,98 @@ public class TaskTest extends AbstractTest {
 
         PullTask actual = (PullTask) taskDAO.findById(TaskType.PULL, task.getKey()).orElseThrow();
         assertEquals(task, actual);
+    }
+
+    @Test
+    public void addAndRemovePullActions() {
+        Implementation implementation = entityFactory.newEntity(Implementation.class);
+        implementation.setKey(UUID.randomUUID().toString());
+        implementation.setEngine(ImplementationEngine.JAVA);
+        implementation.setType(IdMImplementationType.PULL_ACTIONS);
+        implementation.setBody("TestPullActions");
+        implementation = implementationDAO.save(implementation);
+
+        PullTask task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").
+                orElseThrow();
+        assertTrue(task.getActions().isEmpty());
+
+        task.add(implementation);
+        taskDAO.save(task);
+
+        task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
+        assertEquals(1, task.getActions().size());
+        assertEquals(implementation, task.getActions().get(0));
+
+        task.getActions().clear();
+        task = taskDAO.save(task);
+        assertTrue(task.getActions().isEmpty());
+
+        task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
+        assertTrue(task.getActions().isEmpty());
+    }
+
+    @Test
+    public void addAndRemoveReconFilterBuilder() {
+        Implementation implementation = entityFactory.newEntity(Implementation.class);
+        implementation.setKey(UUID.randomUUID().toString());
+        implementation.setEngine(ImplementationEngine.JAVA);
+        implementation.setType(IdMImplementationType.RECON_FILTER_BUILDER);
+        implementation.setBody("TestReconFilterBuilder");
+        implementation = implementationDAO.save(implementation);
+
+        PullTask task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").
+                orElseThrow();
+        assertNull(task.getReconFilterBuilder());
+
+        task.setReconFilterBuilder(implementation);
+        taskDAO.save(task);
+
+        task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
+        assertNotNull(task.getReconFilterBuilder());
+
+        task.setReconFilterBuilder(null);
+        task = taskDAO.save(task);
+        assertNull(task.getReconFilterBuilder());
+
+        task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
+        assertNull(task.getReconFilterBuilder());
+    }
+
+    @Rollback(false)
+    @Test
+    public void macroTaskCommandsOrdering() {
+        Implementation impl1 = entityFactory.newEntity(Implementation.class);
+        impl1.setKey("impl1");
+        impl1.setEngine(ImplementationEngine.JAVA);
+        impl1.setType(IdRepoImplementationType.COMMAND);
+        impl1.setBody("TestCommand");
+        impl1 = implementationDAO.save(impl1);
+
+        Implementation impl2 = entityFactory.newEntity(Implementation.class);
+        impl2.setKey("impl2");
+        impl2.setEngine(ImplementationEngine.GROOVY);
+        impl2.setType(IdRepoImplementationType.COMMAND);
+        impl2.setBody("class GroovyCommand implements Command<CommandArgs> {}");
+        impl2 = implementationDAO.save(impl2);
+
+        MacroTask task = entityFactory.newEntity(MacroTask.class);
+        task.setName("macro");
+        task.setJobDelegate(implementationDAO.findById("MacroRunJobDelegate").orElseThrow());
+        task.setRealm(realmDAO.getRoot());
+        task.add(impl1, new CommandArgs());
+        task.add(impl2, new CommandArgs());
+
+        task = taskDAO.save(task);
+        assertEquals(2, task.getCommands().size());
+        assertEquals(2, task.getCommandArgs().size());
+        assertEquals(impl1, task.getCommands().get(0));
+        assertEquals(impl2, task.getCommands().get(1));
+
+        task = (MacroTask) taskDAO.findById(TaskType.MACRO, task.getKey()).orElseThrow();
+        assertEquals(2, task.getCommands().size());
+        assertEquals(2, task.getCommandArgs().size());
+        assertEquals(impl1, task.getCommands().get(0));
+        assertEquals(impl2, task.getCommands().get(1));
     }
 
     @Test

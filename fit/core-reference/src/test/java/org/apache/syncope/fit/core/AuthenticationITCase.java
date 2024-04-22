@@ -255,9 +255,10 @@ public class AuthenticationITCase extends AbstractITCase {
 
             UserTO user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
+            assertEquals("/even/two", user.getRealm());
             assertEquals("surname", user.getPlainAttr("surname").get().getValues().get(0));
 
-            // 5. as delegated, update user attempting to move under realm / -> fail
+            // 5. as delegated, update user attempting to move under realm /odd -> fail
             UserUR userUR = new UserUR();
             userUR.setKey(user.getKey());
             userUR.setRealm(new StringReplacePatchItem.Builder().value("/odd").build());
@@ -278,6 +279,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
+            assertEquals("/even/two", user.getRealm());
             assertEquals("surname2", user.getPlainAttr("surname").get().getValues().get(0));
 
             // 7. as delegated, delete user

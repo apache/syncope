@@ -135,7 +135,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
                 anyMatch(pair -> groups.contains(pair.getRight()));
 
         // 2. check if anyObject is in at least one DynRealm for which AuthContextUtils.getUsername() owns entitlement
-        if (!authorized) {
+        if (!authorized && key != null) {
             authorized = findDynRealms(key).stream().anyMatch(authRealms::contains);
         }
 
@@ -160,6 +160,11 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     public AMembership findMembership(final String key) {
         return entityManager.find(JPAAMembership.class, key);
+    }
+
+    @Override
+    public void deleteMembership(final AMembership membership) {
+        entityManager.remove(membership);
     }
 
     @Override

@@ -54,7 +54,6 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         formTester.setValue("content:fields:0:field:textField", name);
         formTester.setValue("content:fields:1:field:spinner", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
-        formTester.setValue("content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -86,8 +85,6 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + ":content:fields:1:field:spinner", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
-        TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
@@ -808,7 +805,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
 
         formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField", "rossini 1030");
-        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apace.org");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apache.org");
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();

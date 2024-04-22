@@ -70,6 +70,7 @@ public class AccountPolicyTO extends PolicyTO implements ComposablePolicy {
         return rules;
     }
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JacksonXmlElementWrapper(localName = "passthroughResources")
     @JacksonXmlProperty(localName = "passthroughResource")
     public List<String> getPassthroughResources() {

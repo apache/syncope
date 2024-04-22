@@ -19,9 +19,14 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface ImplementationRepoExt {
+
+    String CACHE = "implementationCache";
+
+    Optional<? extends Implementation> findById(String key);
 
     List<Implementation> findByTypeAndKeyword(String type, String keyword);
 

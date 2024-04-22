@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import java.util.List;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -116,9 +115,10 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             }
         }
 
-        for (Provision provision : resourceDAO.findProvisionsByAuxClass(anyTypeClass)) {
-            provision.getAuxClasses().remove(anyTypeClass.getKey());
-        }
+        resourceDAO.findAll().stream().
+                flatMap(resource -> resource.getProvisions().stream()).
+                filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
+                forEach(provision -> provision.getAuxClasses().remove(anyTypeClass.getKey()));
 
         entityManager.remove(anyTypeClass);
     }

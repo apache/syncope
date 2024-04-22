@@ -37,11 +37,54 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 public class TemplateUtils {
+
+    public static void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
+        SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
+
+        templates.values().forEach(value -> {
+            value.getPlainAttrs().stream().
+                    filter(attrTO -> !attrTO.getValues().isEmpty()
+                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
+                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
+
+            value.getVirAttrs().stream().
+                    filter(attrTO -> !attrTO.getValues().isEmpty()
+                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
+                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
+
+            switch (value) {
+                case UserTO template -> {
+                    if (StringUtils.isNotBlank(template.getUsername())
+                            && !JexlUtils.isExpressionValid(template.getUsername())) {
+
+                        sce.getElements().add("Invalid JEXL: " + template.getUsername());
+                    }
+                    if (StringUtils.isNotBlank(template.getPassword())
+                            && !JexlUtils.isExpressionValid(template.getPassword())) {
+
+                        sce.getElements().add("Invalid JEXL: " + template.getPassword());
+                    }
+                }
+                case GroupTO template -> {
+                    if (StringUtils.isNotBlank(template.getName())
+                            && !JexlUtils.isExpressionValid(template.getName())) {
+
+                        sce.getElements().add("Invalid JEXL: " + template.getName());
+                    }
+                }
+                default -> {
+                }
+            }
+        });
+
+        if (!sce.isEmpty()) {
+            throw sce;
+        }
+    }
 
     protected static Attr evaluateAttr(final Attr template, final MapContext jexlContext) {
         Attr result = new Attr();
@@ -136,11 +179,6 @@ public class TemplateUtils {
     }
 
     @Transactional(readOnly = true)
-    public void apply(final RealmMember realmMember, final Optional<? extends AnyTemplate> template) {
-        template.ifPresent(anyTemplate -> apply(realmMember, anyTemplate.get()));
-    }
-
-    @Transactional(readOnly = true)
     public void apply(final RealmMember realmMember, final AnyTO template) {
         fill(realmMember, template);
 
@@ -150,191 +188,146 @@ public class TemplateUtils {
         JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
-        if (template instanceof AnyObjectTO) {
-            fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
-            fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
-        } else if (template instanceof UserTO userTO) {
-            if (StringUtils.isNotBlank(userTO.getUsername())) {
-                String evaluated = JexlUtils.evaluate(userTO.getUsername(), jexlContext).toString();
-                if (StringUtils.isNotBlank(evaluated)) {
+        switch (template) {
+            case AnyObjectTO anyObjectTO -> {
+                fillRelationships((GroupableRelatableTO) realmMember, anyObjectTO);
+                fillMemberships((GroupableRelatableTO) realmMember, anyObjectTO);
+            }
+
+            case UserTO userTO -> {
+                if (StringUtils.isNotBlank(userTO.getUsername())) {
+                    String evaluated = JexlUtils.evaluate(userTO.getUsername(), jexlContext).toString();
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        switch (realmMember) {
+                            case UserTO urm ->
+                                urm.setUsername(evaluated);
+                            case UserCR urm ->
+                                urm.setUsername(evaluated);
+                            default -> {
+                            }
+                        }
+                    }
+                }
+
+                if (StringUtils.isNotBlank(userTO.getPassword())) {
+                    String evaluated = JexlUtils.evaluate(userTO.getPassword(), jexlContext).toString();
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        switch (realmMember) {
+                            case UserTO urm ->
+                                urm.setPassword(evaluated);
+                            case UserCR urm ->
+                                urm.setPassword(evaluated);
+                            default -> {
+                            }
+                        }
+                    }
+                }
+
+                if (userTO.isMustChangePassword()) {
                     switch (realmMember) {
                         case UserTO urm ->
-                            urm.setUsername(evaluated);
+                            urm.setMustChangePassword(true);
                         case UserCR urm ->
-                            urm.setUsername(evaluated);
+                            urm.setMustChangePassword(true);
                         default -> {
                         }
                     }
                 }
+
+                fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
+                fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
+
+                userTO.getRoles().forEach(role -> {
+                    if (realmMember instanceof UserTO urm && !urm.getRoles().contains(role)) {
+                        urm.getRoles().add(role);
+                    } else if (realmMember instanceof UserCR urm && !urm.getRoles().contains(role)) {
+                        urm.getRoles().add(role);
+                    }
+                });
+
+                userTO.getLinkedAccounts().forEach(account -> {
+                    if (realmMember instanceof UserTO urm && urm.getLinkedAccounts().stream().
+                            noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
+                            && Objects.equals(account.getResource(), a.getResource()))) {
+
+                        urm.getLinkedAccounts().add(account);
+                    } else if (realmMember instanceof UserCR urm && urm.getLinkedAccounts().stream().
+                            noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
+                            && Objects.equals(account.getResource(), a.getResource()))) {
+
+                        urm.getLinkedAccounts().add(account);
+                    }
+                });
             }
 
-            if (StringUtils.isNotBlank(userTO.getPassword())) {
-                String evaluated = JexlUtils.evaluate(userTO.getPassword(), jexlContext).toString();
-                if (StringUtils.isNotBlank(evaluated)) {
-                    switch (realmMember) {
-                        case UserTO urm ->
-                            urm.setPassword(evaluated);
-                        case UserCR urm ->
-                            urm.setPassword(evaluated);
-                        default -> {
+            case GroupTO groupTO -> {
+                if (StringUtils.isNotBlank(groupTO.getName())) {
+                    String evaluated = JexlUtils.evaluate(groupTO.getName(), jexlContext).toString();
+                    if (StringUtils.isNotBlank(evaluated)) {
+                        switch (realmMember) {
+                            case GroupTO grm ->
+                                grm.setName(evaluated);
+                            case GroupCR grm ->
+                                grm.setName(evaluated);
+                            default -> {
+                            }
                         }
                     }
                 }
-            }
 
-            if (userTO.isMustChangePassword()) {
-                switch (realmMember) {
-                    case UserTO urm ->
-                        urm.setMustChangePassword(true);
-                    case UserCR urm ->
-                        urm.setMustChangePassword(true);
-                    default -> {
-                    }
-                }
-            }
-
-            fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
-            fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
-
-            userTO.getRoles().forEach(role -> {
-                if (realmMember instanceof UserTO
-                        && !((UserTO) realmMember).getRoles().contains(role)) {
-
-                    ((UserTO) realmMember).getRoles().add(role);
-                } else if (realmMember instanceof UserCR
-                        && !((UserCR) realmMember).getRoles().contains(role)) {
-
-                    ((UserCR) realmMember).getRoles().add(role);
-                }
-            });
-
-            userTO.getLinkedAccounts().forEach(account -> {
-                if (realmMember instanceof UserTO && ((UserTO) realmMember).getLinkedAccounts().stream().
-                        noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
-                        && Objects.equals(account.getResource(), a.getResource()))) {
-
-                    ((UserTO) realmMember).getLinkedAccounts().add(account);
-                } else if (realmMember instanceof UserCR && ((UserCR) realmMember).getLinkedAccounts().stream().
-                        noneMatch(a -> Objects.equals(account.getConnObjectKeyValue(), a.getConnObjectKeyValue())
-                        && Objects.equals(account.getResource(), a.getResource()))) {
-
-                    ((UserCR) realmMember).getLinkedAccounts().add(account);
-                }
-            });
-        } else if (template instanceof GroupTO groupTO) {
-            if (StringUtils.isNotBlank(groupTO.getName())) {
-                String evaluated = JexlUtils.evaluate(groupTO.getName(), jexlContext).toString();
-                if (StringUtils.isNotBlank(evaluated)) {
+                Optional.ofNullable(groupTO.getUserOwner()).flatMap(userDAO::findById).ifPresent(userOwner -> {
                     switch (realmMember) {
                         case GroupTO grm ->
-                            grm.setName(evaluated);
+                            grm.setUserOwner(userOwner.getKey());
                         case GroupCR grm ->
-                            grm.setName(evaluated);
+                            grm.setUserOwner(userOwner.getKey());
                         default -> {
                         }
                     }
-                }
+                });
+                Optional.ofNullable(groupTO.getGroupOwner()).flatMap(groupDAO::findById).ifPresent(groupOwner -> {
+                    switch (realmMember) {
+                        case GroupTO grm ->
+                            grm.setGroupOwner(groupOwner.getKey());
+                        case GroupCR grm ->
+                            grm.setGroupOwner(groupOwner.getKey());
+                        default -> {
+                        }
+                    }
+                });
+
+                Optional.ofNullable(groupTO.getUDynMembershipCond()).ifPresent(udynMembershipCond -> {
+                    switch (realmMember) {
+                        case GroupTO grm ->
+                            grm.setUDynMembershipCond(udynMembershipCond);
+                        case GroupCR grm ->
+                            grm.setUDynMembershipCond(udynMembershipCond);
+                        default -> {
+                        }
+                    }
+                });
+
+                groupTO.getADynMembershipConds().forEach((anyType, cond) -> {
+                    if (realmMember instanceof GroupTO grm && grm.getADynMembershipConds().containsKey(anyType)) {
+                        grm.getADynMembershipConds().put(anyType, cond);
+                    } else if (realmMember instanceof GroupCR grm
+                            && !grm.getADynMembershipConds().containsKey(anyType)) {
+
+                        grm.getADynMembershipConds().put(anyType, cond);
+                    }
+                });
+
+                groupTO.getTypeExtensions().forEach(typeExt -> {
+                    if (realmMember instanceof GroupTO grm && !grm.getTypeExtensions().contains(typeExt)) {
+                        grm.getTypeExtensions().add(typeExt);
+                    } else if (realmMember instanceof GroupCR grm && !grm.getTypeExtensions().contains(typeExt)) {
+                        grm.getTypeExtensions().add(typeExt);
+                    }
+                });
             }
 
-            Optional.ofNullable(groupTO.getUserOwner()).flatMap(userDAO::findById).ifPresent(userOwner -> {
-                switch (realmMember) {
-                    case GroupTO grm ->
-                        grm.setUserOwner(userOwner.getKey());
-                    case GroupCR grm ->
-                        grm.setUserOwner(userOwner.getKey());
-                    default -> {
-                    }
-                }
-            });
-            Optional.ofNullable(groupTO.getGroupOwner()).flatMap(groupDAO::findById).ifPresent(groupOwner -> {
-                switch (realmMember) {
-                    case GroupTO grm ->
-                        grm.setGroupOwner(groupOwner.getKey());
-                    case GroupCR grm ->
-                        grm.setGroupOwner(groupOwner.getKey());
-                    default -> {
-                    }
-                }
-            });
-
-            Optional.ofNullable(groupTO.getUDynMembershipCond()).ifPresent(udynMembershipCond -> {
-                switch (realmMember) {
-                    case GroupTO grm ->
-                        grm.setUDynMembershipCond(udynMembershipCond);
-                    case GroupCR grm ->
-                        grm.setUDynMembershipCond(udynMembershipCond);
-                    default -> {
-                    }
-                }
-            });
-
-            groupTO.getADynMembershipConds().forEach((anyType, cond) -> {
-                if (realmMember instanceof GroupTO
-                        && !((GroupTO) realmMember).getADynMembershipConds().containsKey(anyType)) {
-
-                    ((GroupTO) realmMember).getADynMembershipConds().put(anyType, cond);
-                } else if (realmMember instanceof GroupCR
-                        && !((GroupCR) realmMember).getADynMembershipConds().containsKey(anyType)) {
-
-                    ((GroupCR) realmMember).getADynMembershipConds().put(anyType, cond);
-                }
-            });
-
-            groupTO.getTypeExtensions().forEach(typeExt -> {
-                if (realmMember instanceof GroupTO
-                        && !((GroupTO) realmMember).getTypeExtensions().contains(typeExt)) {
-
-                    ((GroupTO) realmMember).getTypeExtensions().add(typeExt);
-                } else if (realmMember instanceof GroupCR
-                        && !((GroupCR) realmMember).getTypeExtensions().contains(typeExt)) {
-
-                    ((GroupCR) realmMember).getTypeExtensions().add(typeExt);
-                }
-            });
-        }
-    }
-
-    public static void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
-        SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
-
-        templates.values().forEach(value -> {
-            value.getPlainAttrs().stream().
-                    filter(attrTO -> !attrTO.getValues().isEmpty()
-                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
-
-            value.getVirAttrs().stream().
-                    filter(attrTO -> !attrTO.getValues().isEmpty()
-                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
-
-            switch (value) {
-                case UserTO template -> {
-                    if (StringUtils.isNotBlank(template.getUsername())
-                            && !JexlUtils.isExpressionValid(template.getUsername())) {
-
-                        sce.getElements().add("Invalid JEXL: " + template.getUsername());
-                    }
-                    if (StringUtils.isNotBlank(template.getPassword())
-                            && !JexlUtils.isExpressionValid(template.getPassword())) {
-
-                        sce.getElements().add("Invalid JEXL: " + template.getPassword());
-                    }
-                }
-                case GroupTO template -> {
-                    if (StringUtils.isNotBlank(template.getName())
-                            && !JexlUtils.isExpressionValid(template.getName())) {
-
-                        sce.getElements().add("Invalid JEXL: " + template.getName());
-                    }
-                }
-                default -> {
-                }
+            default -> {
             }
-        });
-
-        if (!sce.isEmpty()) {
-            throw sce;
         }
     }
 }

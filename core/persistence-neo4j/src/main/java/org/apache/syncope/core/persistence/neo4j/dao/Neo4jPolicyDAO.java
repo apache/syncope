@@ -127,7 +127,7 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
         return neo4jClient.query(
                 "MATCH (n:" + Neo4jPolicy.NODE + ") WHERE n.id = $key RETURN n.id").
                 bindAll(Map.of("key", key)).fetch().one().
-                flatMap(toOptional("n.id", Neo4jPolicy.class));
+                flatMap(toOptional("n.id", Neo4jPolicy.class, null));
     }
 
     @SuppressWarnings("unchecked")
@@ -145,7 +145,7 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
     public List<? extends Policy> findAll() {
         return toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jPolicy.NODE + ") RETURN n.id").
-                fetch().all(), "n.id", Neo4jPolicy.class);
+                fetch().all(), "n.id", Neo4jPolicy.class, null);
     }
 
     @Override
@@ -156,36 +156,83 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
     @Override
     public List<AccountPolicy> findByAccountRule(final Implementation accountRule) {
         return findByRelationship(
-                Neo4jAccountPolicy.NODE, Neo4jImplementation.NODE, accountRule.getKey(), Neo4jAccountPolicy.class);
+                Neo4jAccountPolicy.NODE,
+                Neo4jImplementation.NODE,
+                accountRule.getKey(),
+                Neo4jAccountPolicy.class,
+                null);
     }
 
     @Override
     public List<PasswordPolicy> findByPasswordRule(final Implementation passwordRule) {
         return findByRelationship(
-                Neo4jPasswordPolicy.NODE, Neo4jImplementation.NODE, passwordRule.getKey(), Neo4jPasswordPolicy.class);
+                Neo4jPasswordPolicy.NODE,
+                Neo4jImplementation.NODE,
+                passwordRule.getKey(),
+                Neo4jPasswordPolicy.class,
+                null);
     }
 
     @Override
     public List<PullPolicy> findByPullCorrelationRule(final Implementation correlationRule) {
         return findByRelationship(
-                Neo4jPullPolicy.NODE, Neo4jImplementation.NODE, correlationRule.getKey(), Neo4jPullPolicy.class);
+                Neo4jPullPolicy.NODE,
+                Neo4jImplementation.NODE,
+                correlationRule.getKey(),
+                Neo4jPullPolicy.class,
+                null);
     }
 
     @Override
     public List<PushPolicy> findByPushCorrelationRule(final Implementation correlationRule) {
         return findByRelationship(
-                Neo4jPushPolicy.NODE, Neo4jImplementation.NODE, correlationRule.getKey(), Neo4jPushPolicy.class);
+                Neo4jPushPolicy.NODE,
+                Neo4jImplementation.NODE,
+                correlationRule.getKey(),
+                Neo4jPushPolicy.class,
+                null);
     }
 
     @Override
     public List<AccountPolicy> findByResource(final ExternalResource resource) {
         return findByRelationship(
-                Neo4jAccountPolicy.NODE, Neo4jExternalResource.NODE, resource.getKey(), Neo4jAccountPolicy.class);
+                Neo4jAccountPolicy.NODE,
+                Neo4jExternalResource.NODE,
+                resource.getKey(),
+                Neo4jAccountPolicy.class,
+                null);
     }
 
     @Override
     public <P extends Policy> P save(final P policy) {
-        return neo4jTemplate.save(nodeValidator.validate(policy));
+        P saved = neo4jTemplate.save(nodeValidator.validate(policy));
+
+        switch (saved) {
+            case Neo4jAccountPolicy accountPolicy ->
+                neo4jTemplate.findById(accountPolicy.getKey(), Neo4jAccountPolicy.class).
+                        ifPresent(t -> t.getRules().stream().filter(rule -> !accountPolicy.getRules().contains(rule)).
+                        forEach(impl -> deleteRelationship(
+                        Neo4jAccountPolicy.NODE,
+                        Neo4jImplementation.NODE,
+                        accountPolicy.getKey(),
+                        impl.getKey(),
+                        Neo4jAccountPolicy.ACCOUNT_POLICY_RULE_REL)));
+
+            case Neo4jPasswordPolicy passwordPolicy ->
+                neo4jTemplate.findById(passwordPolicy.getKey(), Neo4jPasswordPolicy.class).
+                        ifPresent(t -> t.getRules().stream().filter(rule -> !passwordPolicy.getRules().contains(rule)).
+                        forEach(impl -> deleteRelationship(
+                        Neo4jPasswordPolicy.NODE,
+                        Neo4jImplementation.NODE,
+                        passwordPolicy.getKey(),
+                        impl.getKey(),
+                        Neo4jPasswordPolicy.PASSWORD_POLICY_RULE_REL)));
+
+            default -> {
+            }
+        }
+
+        return saved;
     }
 
     @Override
@@ -204,14 +251,14 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
             cascadeDelete(
                     Neo4jPullCorrelationRuleEntity.NODE,
                     Neo4jPullPolicy.NODE,
-                    policy.getKey(), Neo4jPullCorrelationRuleEntity.class);
+                    policy.getKey());
         } else if (policy instanceof PushPolicy) {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPushPolicy(null));
 
             cascadeDelete(
                     Neo4jPushCorrelationRuleEntity.NODE,
                     Neo4jPushPolicy.NODE,
-                    policy.getKey(), Neo4jPushCorrelationRuleEntity.class);
+                    policy.getKey());
         } else if (policy instanceof AuthPolicy) {
             realmDAO.findByPolicy(policy).forEach(realm -> realm.setAuthPolicy(null));
             casSPClientAppDAO.findAllByPolicy(policy).forEach(clientApp -> clientApp.setAuthPolicy(null));

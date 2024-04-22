@@ -113,7 +113,8 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                 authenticated = false;
             }
         } else {
-            Triple<User, Boolean, String> authResult = AuthContextUtils.callAsAdmin(domainKey,
+            Triple<User, Boolean, String> authResult = AuthContextUtils.callAsAdmin(
+                    domainKey,
                     () -> dataAccessor.authenticate(domainKey, authentication));
             authenticated = authResult.getMiddle();
             if (authResult.getLeft() != null && authResult.getMiddle() != null) {

@@ -468,8 +468,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
             if (item.isEmpty()) {
                 if (anyUtils.getField(clause.getProperty()).isPresent()) {
-                    // Manage difference among external key attribute and internal JPA @Id
-                    String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
+                    String fieldName = clause.getProperty();
 
                     // Adjust field name to column name
                     if (ArrayUtils.contains(RELATIONSHIP_FIELDS, fieldName)) {

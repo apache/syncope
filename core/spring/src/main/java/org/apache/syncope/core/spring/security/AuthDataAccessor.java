@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -105,6 +106,8 @@ public class AuthDataAccessor {
 
     protected final DelegationDAO delegationDAO;
 
+    protected final ExternalResourceDAO resourceDAO;
+
     protected final ConnectorManager connectorManager;
 
     protected final AuditManager auditManager;
@@ -123,6 +126,7 @@ public class AuthDataAccessor {
             final ConfParamOps confParamOps,
             final RoleDAO roleDAO,
             final DelegationDAO delegationDAO,
+            final ExternalResourceDAO resourceDAO,
             final ConnectorManager connectorManager,
             final AuditManager auditManager,
             final MappingManager mappingManager,
@@ -137,6 +141,7 @@ public class AuthDataAccessor {
         this.confParamOps = confParamOps;
         this.roleDAO = roleDAO;
         this.delegationDAO = delegationDAO;
+        this.resourceDAO = resourceDAO;
         this.connectorManager = connectorManager;
         this.auditManager = auditManager;
         this.mappingManager = mappingManager;
@@ -280,32 +285,32 @@ public class AuthDataAccessor {
         return authenticated;
     }
 
-    protected Set<? extends ExternalResource> getPassthroughResources(final User user) {
-        Set<? extends ExternalResource> result = null;
+    protected Set<ExternalResource> getPassthroughResources(final User user) {
+        Set<ExternalResource> result = new HashSet<>();
 
         // 1. look for assigned resources, pick the ones whose account policy has authentication resources
-        for (ExternalResource resource : userDAO.findAllResources(user)) {
-            if (resource.getAccountPolicy() != null && !resource.getAccountPolicy().getResources().isEmpty()) {
-                if (result == null) {
-                    result = resource.getAccountPolicy().getResources();
-                } else {
-                    result.retainAll(resource.getAccountPolicy().getResources());
-                }
+        userDAO.findAllResources(user).stream().
+                filter(r -> r.getAccountPolicy() != null).forEach(resource -> {
+
+            if (result.isEmpty()) {
+                result.addAll(resourceDAO.findByPolicy(resource.getAccountPolicy()));
+            } else {
+                result.retainAll(resourceDAO.findByPolicy(resource.getAccountPolicy()));
             }
-        }
+        });
 
         // 2. look for realms, pick the ones whose account policy has authentication resources
-        for (Realm realm : realmSearchDAO.findAncestors(user.getRealm())) {
-            if (realm.getAccountPolicy() != null && !realm.getAccountPolicy().getResources().isEmpty()) {
-                if (result == null) {
-                    result = realm.getAccountPolicy().getResources();
-                } else {
-                    result.retainAll(realm.getAccountPolicy().getResources());
-                }
-            }
-        }
+        realmSearchDAO.findAncestors(user.getRealm()).stream().
+                filter(r -> r.getAccountPolicy() != null).forEach(realm -> {
 
-        return result == null ? Set.of() : result;
+            if (result.isEmpty()) {
+                result.addAll(resourceDAO.findByPolicy(realm.getAccountPolicy()));
+            } else {
+                result.retainAll(resourceDAO.findByPolicy(realm.getAccountPolicy()));
+            }
+        });
+
+        return result;
     }
 
     protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {

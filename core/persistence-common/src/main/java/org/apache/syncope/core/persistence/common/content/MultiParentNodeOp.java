@@ -23,16 +23,16 @@ import java.util.Set;
 
 public final class MultiParentNodeOp {
 
-    public static <T> void traverseTree(final Set<MultiParentNode<T>> roots, final Collection<T> objects) {
-        for (MultiParentNode<T> root : roots) {
+    public static void traverseTree(final Set<MultiParentNode> roots, final Collection<String> objects) {
+        for (MultiParentNode root : roots) {
             traverseTree(root, objects);
         }
     }
 
-    public static <T> void traverseTree(final MultiParentNode<T> root, final Collection<T> objects) {
+    public static void traverseTree(final MultiParentNode root, final Collection<String> objects) {
         root.setExploited(true);
 
-        for (MultiParentNode<T> child : root.getChildren()) {
+        for (MultiParentNode child : root.getChildren()) {
             if (!child.isExploited()) {
                 traverseTree(child, objects);
             }

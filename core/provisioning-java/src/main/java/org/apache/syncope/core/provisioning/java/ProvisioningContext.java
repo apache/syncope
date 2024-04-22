@@ -20,6 +20,11 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import javax.cache.Cache;
+import javax.cache.CacheManager;
+import javax.cache.configuration.MutableConfiguration;
+import javax.cache.expiry.CreatedExpiryPolicy;
+import javax.cache.expiry.Duration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -73,7 +78,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
@@ -113,7 +117,8 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.cache.CaffeineVirAttrCache;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.data.AccessTokenDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyObjectDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeClassDataBinderImpl;
@@ -382,7 +387,7 @@ public class ProvisioningContext {
     public VirAttrHandler virAttrHandler(
             final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,
-            final VirAttrCache virAttrCache,
+            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
             @Lazy final OutboundMatcher outboundMatcher) {
 
         return new DefaultVirAttrHandler(connectorManager, virAttrCache, outboundMatcher, anyUtilsFactory);
@@ -402,7 +407,7 @@ public class ProvisioningContext {
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
-            final VirAttrCache virAttrCache,
+            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
             final IntAttrNameParser intAttrNameParser) {
 
         return new DefaultMappingManager(
@@ -575,12 +580,15 @@ public class ProvisioningContext {
                 virtAttrHandler);
     }
 
-    @ConditionalOnMissingBean
-    @Bean
-    public VirAttrCache virAttrCache(final ProvisioningProperties provisioningProperties) {
-        VirAttrCache virAttrCache = new CaffeineVirAttrCache();
-        virAttrCache.setCacheSpec(provisioningProperties.getVirAttrCacheSpec());
-        return virAttrCache;
+    @ConditionalOnMissingBean(name = VirAttrHandler.CACHE)
+    @Bean(name = VirAttrHandler.CACHE)
+    public Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache(final CacheManager cacheManager) {
+        return cacheManager.createCache(VirAttrHandler.CACHE,
+                new MutableConfiguration<VirAttrCacheKey, VirAttrCacheValue>().
+                        setTypes(VirAttrCacheKey.class, VirAttrCacheValue.class).
+                        setStoreByValue(false).
+                        setReadThrough(true).
+                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.FIVE_MINUTES)));
     }
 
     @ConditionalOnMissingBean

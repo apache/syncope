@@ -19,17 +19,18 @@
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
+import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jAccountPolicy.NODE)
@@ -47,13 +48,10 @@ public class Neo4jAccountPolicy extends Neo4jPolicy implements AccountPolicy {
     private int maxAuthenticationAttempts;
 
     @Relationship(type = ACCOUNT_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING)
-    private List<Neo4jImplementation> rules = new ArrayList<>();
+    private SortedSet<Neo4jImplementationRelationship> rules = new TreeSet<>();
 
-    /**
-     * Resources for alternative user authentication: if empty, only internal storage will be used.
-     */
-    @Relationship(direction = Relationship.Direction.INCOMING)
-    private Set<Neo4jExternalResource> resources = new HashSet<>();
+    @Transient
+    private List<Neo4jImplementation> sortedRules = new SortedSetList(rules);
 
     @Override
     public boolean isPropagateSuspension() {
@@ -79,22 +77,16 @@ public class Neo4jAccountPolicy extends Neo4jPolicy implements AccountPolicy {
     public boolean add(final Implementation rule) {
         checkType(rule, Neo4jImplementation.class);
         checkImplementationType(rule, IdRepoImplementationType.ACCOUNT_RULE);
-        return rules.contains((Neo4jImplementation) rule) || rules.add((Neo4jImplementation) rule);
+        return sortedRules.contains((Neo4jImplementation) rule) || sortedRules.add((Neo4jImplementation) rule);
     }
 
     @Override
     public List<? extends Implementation> getRules() {
-        return rules;
+        return sortedRules;
     }
 
-    @Override
-    public boolean add(final ExternalResource resource) {
-        checkType(resource, Neo4jExternalResource.class);
-        return resources.contains((Neo4jExternalResource) resource) || resources.add((Neo4jExternalResource) resource);
-    }
-
-    @Override
-    public Set<? extends ExternalResource> getResources() {
-        return resources;
+    @PostLoad
+    public void postLoad() {
+        sortedRules = new SortedSetList(rules);
     }
 }

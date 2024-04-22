@@ -930,7 +930,6 @@ public class PersistenceContext {
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final PolicyDAO policyDAO,
             final VirSchemaDAO virSchemaDAO,
             final RealmDAO realmDAO,
             final EntityManager entityManager) {
@@ -940,7 +939,6 @@ public class PersistenceContext {
                 anyObjectDAO,
                 userDAO,
                 groupDAO,
-                policyDAO,
                 virSchemaDAO,
                 realmDAO,
                 entityManager);

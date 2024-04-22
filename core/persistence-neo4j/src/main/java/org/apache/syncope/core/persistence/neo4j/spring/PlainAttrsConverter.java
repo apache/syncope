@@ -28,12 +28,12 @@ import org.neo4j.driver.internal.value.StringValue;
 import org.springframework.data.neo4j.core.convert.Neo4jConversionService;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapConverter;
 
-public class PlainsAttrsConverter<PA extends AbstractPlainAttr<?>>
+public class PlainAttrsConverter<PA extends AbstractPlainAttr<?>>
         implements Neo4jPersistentPropertyToMapConverter<String, Map<String, PA>> {
 
     protected final Class<PA> reference;
 
-    public PlainsAttrsConverter(final Class<PA> reference) {
+    public PlainAttrsConverter(final Class<PA> reference) {
         this.reference = reference;
     }
 

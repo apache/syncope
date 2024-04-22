@@ -60,27 +60,35 @@ public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group, Neo4jA
 
     public static final String NODE = "SyncopeGroup";
 
+    public static final String USER_OWNER_REL = "USER_OWNER";
+
+    public static final String GROUP_OWNER_REL = "GROUP_OWNER";
+
+    public static final String GROUP_RESOURCE_REL = "GROUP_RESOURCE";
+
+    public static final String GROUP_AUX_CLASSES_REL = "GROUP_AUX_CLASSES";
+
     public static final String GROUP_TYPE_EXTENSION_REL = "GROUP_TYPE_EXTENSION";
 
     @NotNull
     private String name;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
-    protected Neo4jUser userOwner;
-
-    @Relationship(direction = Relationship.Direction.OUTGOING)
-    protected Neo4jGroup groupOwner;
-
     @CompositeProperty(converterRef = "gPlainAttrsConverter")
     protected Map<String, Neo4jGPlainAttr> plainAttrs = new HashMap<>();
+
+    @Relationship(type = USER_OWNER_REL, direction = Relationship.Direction.OUTGOING)
+    protected Neo4jUser userOwner;
+
+    @Relationship(type = GROUP_OWNER_REL, direction = Relationship.Direction.OUTGOING)
+    protected Neo4jGroup groupOwner;
 
     /**
      * Provisioning external resources.
      */
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = GROUP_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
     protected List<Neo4jExternalResource> resources = new ArrayList<>();
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = GROUP_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(direction = Relationship.Direction.INCOMING)
@@ -153,20 +161,18 @@ public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group, Neo4jA
     @Override
     public boolean add(final GPlainAttr attr) {
         checkType(attr, Neo4jGPlainAttr.class);
-        return plainAttrs.put(attr.getSchema().getKey(), (Neo4jGPlainAttr) attr) != null;
+        Neo4jGPlainAttr neo4jAttr = (Neo4jGPlainAttr) attr;
+        return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
     }
 
     @Override
     public boolean remove(final GPlainAttr attr) {
-        checkType(attr, Neo4jGPlainAttr.class);
-        return getPlainAttrs().remove((Neo4jGPlainAttr) attr);
+        return plainAttrs().remove(((Neo4jGPlainAttr) attr).getSchemaKey()) != null;
     }
 
     @Override
     public Optional<? extends GPlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrs().stream().
-                filter(plainAttr -> plainAttr != null && plainAttr.getSchema() != null
-                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
+        return Optional.ofNullable(plainAttrs.get(plainSchema));
     }
 
     @Override

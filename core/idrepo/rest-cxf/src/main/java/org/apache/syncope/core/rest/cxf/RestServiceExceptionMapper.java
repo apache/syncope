@@ -95,8 +95,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         if (ex instanceof AccessDeniedException) {
             // leaves the default exception processing to Spring Security
             builder = null;
-        } else if (ex instanceof SyncopeClientException) {
-            SyncopeClientException sce = (SyncopeClientException) ex;
+        } else if (ex instanceof SyncopeClientException sce) {
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
@@ -106,7 +105,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
                 || ((ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException)
-                && ex.getCause() instanceof EntityExistsException)) {
+                && (ex.getCause() instanceof EntityExistsException || ex.getMessage().contains("already exists")))) {
 
             builder = builder(ClientExceptionType.EntityExists,
                     getPersistenceErrorMessage(
@@ -201,8 +200,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     private static ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
         InvalidEntityException iee = null;
 
-        if (ex instanceof InvalidEntityException) {
-            iee = (InvalidEntityException) ex;
+        if (ex instanceof InvalidEntityException invalidEntityException) {
+            iee = invalidEntityException;
         }
         if (ex instanceof TransactionSystemException && ex.getCause() instanceof RollbackException
                 && ex.getCause().getCause() instanceof InvalidEntityException) {
@@ -310,12 +309,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         Throwable throwable = ExceptionUtils.getRootCause(ex);
 
         String message = null;
-        if (throwable instanceof SQLException) {
-            String messageKey = EXCEPTION_CODE_MAP.get(((SQLException) throwable).getSQLState());
+        if (throwable instanceof SQLException sqlException) {
+            String messageKey = EXCEPTION_CODE_MAP.get(sqlException.getSQLState());
             if (messageKey != null) {
                 message = env.getProperty("errMessage." + messageKey);
             }
-        } else if (throwable instanceof EntityExistsException || throwable instanceof DuplicateException) {
+        } else if (throwable instanceof EntityExistsException
+                || throwable instanceof DuplicateException
+                || ex.getMessage().contains("already exists")) {
+
             message = env.getProperty("errMessage." + UNIQUE_MSG_KEY);
         }
 

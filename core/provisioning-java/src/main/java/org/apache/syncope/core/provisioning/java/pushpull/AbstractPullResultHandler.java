@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -51,9 +52,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
@@ -61,6 +59,8 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -108,7 +108,7 @@ public abstract class AbstractPullResultHandler
     protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
-    protected VirAttrCache virAttrCache;
+    protected Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -775,13 +775,12 @@ public abstract class AbstractPullResultHandler
                             forEach(vs -> {
                                 Attribute attr = delta.getObject().getAttributeByName(vs.getExtAttrName());
                                 matches.forEach(match -> {
-                                    VirAttrCacheKey cacheKey = new VirAttrCacheKey(
-                                            provision.getAnyType(), match.getAny().getKey(),
-                                            vs.getKey());
+                                    VirAttrCacheKey cacheKey = VirAttrCacheKey.of(
+                                            provision.getAnyType(), match.getAny().getKey(), vs.getKey());
                                     if (attr == null) {
-                                        virAttrCache.expire(cacheKey);
+                                        virAttrCache.remove(cacheKey);
                                     } else {
-                                        virAttrCache.put(cacheKey, new VirAttrCacheValue(attr.getValue()));
+                                        virAttrCache.put(cacheKey, VirAttrCacheValue.of(attr.getValue()));
                                     }
                                 });
                             });

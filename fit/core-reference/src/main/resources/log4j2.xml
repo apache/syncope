@@ -75,6 +75,9 @@ under the License.
     <asyncLogger name="org.apache.syncope.core.persistence" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
     </asyncLogger>
+    <asyncLogger name="org.springframework.data" additivity="false" level="INFO">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
     <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
     </asyncLogger>
@@ -84,7 +87,13 @@ under the License.
     <asyncLogger name="org.apache.ibatis" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
     </asyncLogger>
-    
+    <asyncLogger name="org.springframework.data.neo4j.cypher.unrecognized" additivity="false" level="ERROR">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+    <asyncLogger name="org.springframework.data.neo4j.core.mapping" additivity="false" level="ERROR">
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
+
     <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="INFO">
       <appender-ref ref="rest"/>
     </asyncLogger>

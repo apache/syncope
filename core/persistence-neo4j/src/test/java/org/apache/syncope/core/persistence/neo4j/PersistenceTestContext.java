@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.neo4j;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
@@ -119,6 +121,11 @@ public class PersistenceTestContext {
     @Bean
     public ConnectorManager connectorManager() {
         return new DummyConnectorManager();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
     }
 
     @Primary

@@ -20,6 +20,8 @@ package org.apache.syncope.core.logic;
 
 import static org.mockito.Mockito.mock;
 
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -84,5 +86,10 @@ public class IdMLogicTestContext {
     @Bean
     public ServiceOps serviceOps() {
         return new DummyServiceOps();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        return Caching.getCachingProvider().getCacheManager();
     }
 }

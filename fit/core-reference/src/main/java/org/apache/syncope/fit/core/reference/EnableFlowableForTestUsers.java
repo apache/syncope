@@ -18,13 +18,16 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Date;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.DataSource;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 public class EnableFlowableForTestUsers {
@@ -41,27 +44,73 @@ public class EnableFlowableForTestUsers {
     public void init(final DataSource datasource) {
         LOG.debug("Enabling Flowable processing for test users");
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(datasource);
-        String procDef = jdbcTemplate.queryForObject(
-                "SELECT ID_ FROM ACT_RE_PROCDEF WHERE KEY_=?", String.class, "userWorkflow");
-        LOG.debug("User workflow ID_ found: {}", procDef);
+        String procDef = null;
+        try (Connection conn = datasource.getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                "SELECT ID_ FROM ACT_RE_PROCDEF WHERE KEY_=?")) {
+
+            stmt.setString(1, "userWorkflow");
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                procDef = rs.getString(1);
+            }
+        } catch (Exception e) {
+            LOG.error("While attempting to read from ACT_RE_PROCDEF", e);
+        }
+
+        if (procDef == null) {
+            LOG.error("Unable to determine Flowable process definition, aborting");
+            return;
+        }
 
         AtomicInteger counter = new AtomicInteger(0);
-        userDAO.findAll().forEach(user -> {
+        for (User user : userDAO.findAll()) {
             int value = counter.addAndGet(1);
-            jdbcTemplate.update("INSERT INTO "
-                    + "ACT_RU_EXECUTION(ID_,REV_,PROC_INST_ID_,BUSINESS_KEY_,PROC_DEF_ID_,ACT_ID_,"
-                    + "IS_ACTIVE_,IS_CONCURRENT_,IS_SCOPE_,IS_EVENT_SCOPE_,SUSPENSION_STATE_) "
-                    + "VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-                    value, 2, value, "userWorkflow:" + user.getKey(), procDef, "active",
-                    true, false, true, false, true);
+            try (Connection conn = datasource.getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                    """
+                    INSERT INTO ACT_RU_EXECUTION(ID_,REV_,PROC_INST_ID_,BUSINESS_KEY_,PROC_DEF_ID_,ACT_ID_,
+                    IS_ACTIVE_,IS_CONCURRENT_,IS_SCOPE_,IS_EVENT_SCOPE_,SUSPENSION_STATE_)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?)
+                    """)) {
+
+                stmt.setInt(1, value);
+                stmt.setInt(2, 2);
+                stmt.setInt(3, value);
+                stmt.setString(4, "userWorkflow:" + user.getKey());
+                stmt.setString(5, procDef);
+                stmt.setString(6, "active");
+                stmt.setBoolean(7, true);
+                stmt.setBoolean(8, false);
+                stmt.setBoolean(9, true);
+                stmt.setBoolean(10, false);
+                stmt.setBoolean(11, true);
+
+                stmt.executeUpdate();
+            } catch (Exception e) {
+                LOG.error("While attempting to update ACT_RU_EXECUTION", e);
+            }
 
             value = counter.addAndGet(1);
-            jdbcTemplate.update("INSERT INTO "
-                    + "ACT_RU_TASK(ID_,REV_,EXECUTION_ID_,PROC_INST_ID_,PROC_DEF_ID_,NAME_,TASK_DEF_KEY_,PRIORITY_,"
-                    + "CREATE_TIME_) "
-                    + "VALUES(?,?,?,?,?,?,?,?,?)",
-                    value, 2, value - 1, value - 1, procDef, "Active", "active", 50, new Date());
-        });
+            try (Connection conn = datasource.getConnection(); PreparedStatement stmt = conn.prepareStatement(
+                    """
+                    INSERT INTO ACT_RU_TASK(ID_,REV_,EXECUTION_ID_,PROC_INST_ID_,PROC_DEF_ID_,NAME_,TASK_DEF_KEY_,
+                    PRIORITY_,CREATE_TIME_)
+                    VALUES(?,?,?,?,?,?,?,?,?)
+                    """)) {
+
+                stmt.setInt(1, value);
+                stmt.setInt(2, 2);
+                stmt.setInt(3, value - 1);
+                stmt.setInt(4, value - 1);
+                stmt.setString(5, procDef);
+                stmt.setString(6, "Active");
+                stmt.setString(7, "active");
+                stmt.setInt(8, 50);
+                stmt.setDate(9, new Date(user.getCreationDate().toInstant().toEpochMilli()));
+
+                stmt.executeUpdate();
+            } catch (Exception e) {
+                LOG.error("While attempting to update ACT_RU_EXECUTION", e);
+            }
+        }
     }
 }

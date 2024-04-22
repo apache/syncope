@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.task;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +78,7 @@ public class Neo4jPropagationTask extends AbstractTask<PropagationTask> implemen
     /**
      * ExternalResource to which the propagation happens.
      */
+    @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Neo4jExternalResource resource;
 

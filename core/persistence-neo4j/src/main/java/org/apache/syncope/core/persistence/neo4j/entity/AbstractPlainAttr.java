@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
@@ -39,7 +41,9 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 @JsonIgnoreProperties("valuesAsStrings")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @PlainAttrCheck
-public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractProvidedKeyNode implements PlainAttr<O> {
+public abstract class AbstractPlainAttr<O extends Any<?>>
+        extends AbstractProvidedKeyNode
+        implements PlainAttr<O>, Neo4jPlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;
 
@@ -47,10 +51,18 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractProvid
     @NotNull
     protected String schemaKey;
 
+    /**
+     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
+     */
+    @JsonProperty("membership")
+    protected String membershipKey;
+
+    @Override
     public String getSchemaKey() {
         return schemaKey;
     }
 
+    @Override
     public void setSchemaKey(final String schemaKey) {
         this.schemaKey = schemaKey;
     }
@@ -71,6 +83,17 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractProvid
         if (schema != null) {
             this.schemaKey = schema.getKey();
         }
+    }
+
+    @Override
+    public String getMembershipKey() {
+        return membershipKey;
+    }
+
+    @JsonSetter("membership")
+    @Override
+    public void setMembershipKey(final String membershipKey) {
+        this.membershipKey = membershipKey;
     }
 
     protected abstract boolean addForMultiValue(PlainAttrValue attrValue);

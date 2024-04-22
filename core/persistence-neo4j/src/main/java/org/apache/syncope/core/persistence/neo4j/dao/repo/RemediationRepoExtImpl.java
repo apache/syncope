@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.text.TextStringBuilder;
+import org.apache.commons.text.matcher.StringMatcherFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -33,7 +35,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRemediation;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPullTask;
-import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -47,42 +48,39 @@ public class RemediationRepoExtImpl extends AbstractDAO implements RemediationRe
 
     protected static final Logger LOG = LoggerFactory.getLogger(RemediationRepoExt.class);
 
-    protected final NodeValidator nodeValidator;
-
     public RemediationRepoExtImpl(
             final Neo4jTemplate neo4jTemplate,
-            final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final Neo4jClient neo4jClient) {
 
         super(neo4jTemplate, neo4jClient);
-        this.nodeValidator = nodeValidator;
     }
 
     @Override
     public List<Remediation> findByAnyType(final AnyType anyType) {
-        return findByRelationship(Neo4jRemediation.NODE, Neo4jAnyType.NODE, anyType.getKey(), Neo4jRemediation.class);
+        return findByRelationship(
+                Neo4jRemediation.NODE, Neo4jAnyType.NODE, anyType.getKey(), Neo4jRemediation.class, null);
     }
 
     @Override
     public List<Remediation> findByPullTask(final PullTask pullTask) {
-        return findByRelationship(Neo4jRemediation.NODE, Neo4jPullTask.NODE, pullTask.getKey(), Neo4jRemediation.class);
+        return findByRelationship(
+                Neo4jRemediation.NODE, Neo4jPullTask.NODE, pullTask.getKey(), Neo4jRemediation.class, null);
     }
 
-    protected StringBuilder query(
+    protected TextStringBuilder query(
             final OffsetDateTime before,
             final OffsetDateTime after,
             final Map<String, Object> parameters) {
 
-        StringBuilder query = new StringBuilder("MATCH (n:").append(Neo4jRemediation.NODE).
-                append(")-[r]-(e:").append(Neo4jExternalResource.NODE).append(")");
+        TextStringBuilder query = new TextStringBuilder("MATCH (n:").append(Neo4jRemediation.NODE).append(") ");
 
         List<String> conditions = new ArrayList<>();
         if (before != null) {
-            conditions.add("e.instant <= $before");
+            conditions.add("n.instant <= $before");
             parameters.put("before", before);
         }
         if (after != null) {
-            conditions.add("AND e.instant >= $after ");
+            conditions.add("n.instant >= $after");
             parameters.put("after", after);
         }
 
@@ -97,8 +95,8 @@ public class RemediationRepoExtImpl extends AbstractDAO implements RemediationRe
     public long count(final OffsetDateTime before, final OffsetDateTime after) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = query(before, after, parameters).append(" RETURN COUNT(n)");
-        return neo4jTemplate.count(queryString.toString(), parameters);
+        TextStringBuilder query = query(before, after, parameters).append(" RETURN COUNT(n)");
+        return neo4jTemplate.count(query.toString(), parameters);
     }
 
     @Override
@@ -109,44 +107,52 @@ public class RemediationRepoExtImpl extends AbstractDAO implements RemediationRe
 
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = query(before, after, parameters).append(" RETURN n.id ");
+        TextStringBuilder query = query(before, after, parameters).append(" RETURN n.id");
 
         if (!pageable.getSort().isEmpty()) {
-            queryString.append(" ORDER BY ");
+            query.append(" ORDER BY ");
             pageable.getSort().forEach(clause -> {
                 String field = clause.getProperty().trim();
                 boolean ack = true;
                 if ("resource".equals(field)) {
-                    queryString.append("e.id");
+                    query.replace(
+                            StringMatcherFactory.INSTANCE.stringMatcher("MATCH (n:" + Neo4jRemediation.NODE + ") "),
+                            "MATCH (n:" + Neo4jRemediation.NODE + ")-[]-"
+                            + "(:" + Neo4jPullTask.NODE + ")-[]-"
+                            + "(r:" + Neo4jExternalResource.NODE + ")",
+                            0,
+                            query.length(),
+                            1);
+                    query.append("r.id");
                 } else {
                     Field beanField = ReflectionUtils.findField(Neo4jRemediation.class, field);
                     if (beanField == null) {
                         ack = false;
                         LOG.warn("Remediation sort request by {}: unsupported, ignoring", field);
                     } else {
-                        queryString.append("n.").append(field);
+                        query.append("n.").append(field);
                     }
                 }
                 if (ack) {
                     if (clause.getDirection() == Sort.Direction.ASC) {
-                        queryString.append(" ASC");
+                        query.append(" ASC");
                     } else {
-                        queryString.append(" DESC");
+                        query.append(" DESC");
                     }
-                    queryString.append(',');
+                    query.append(',');
                 }
             });
 
-            queryString.deleteCharAt(queryString.length() - 1);
+            query.deleteCharAt(query.length() - 1);
         }
 
         if (pageable.isPaged()) {
-            queryString.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
+            query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
                     append(" LIMIT ").append(pageable.getPageSize());
         }
 
         return toList(neo4jClient.query(
-                queryString.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jRemediation.class);
+                query.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jRemediation.class, null);
     }
 
     @Transactional

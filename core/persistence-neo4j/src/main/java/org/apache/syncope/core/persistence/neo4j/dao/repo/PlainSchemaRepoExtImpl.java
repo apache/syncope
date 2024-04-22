@@ -21,12 +21,15 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttr;
@@ -38,6 +41,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements PlainSchemaRepoExt {
 
@@ -45,16 +49,38 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
     protected final ExternalResourceDAO resourceDAO;
 
+    protected final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache;
+
     public PlainSchemaRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache) {
 
         super(neo4jTemplate, neo4jClient, nodeValidator);
         this.anyUtilsFactory = anyUtilsFactory;
         this.resourceDAO = resourceDAO;
+        this.plainSchemaCache = plainSchemaCache;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <S extends Schema> Cache<EntityCacheKey, S> cache() {
+        return (Cache<EntityCacheKey, S>) plainSchemaCache;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<? extends PlainSchema> findById(final String key) {
+        return findById(key, Neo4jPlainSchema.class, plainSchemaCache);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<? extends PlainSchema> findByIdLike(final String keyword) {
+        return findByIdLike(Neo4jPlainSchema.NODE, Neo4jPlainSchema.class, keyword);
     }
 
     @Override
@@ -86,14 +112,20 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
         ((Neo4jSchema) schema).map2json();
         PlainSchema saved = neo4jTemplate.save(nodeValidator.validate(schema));
         ((Neo4jSchema) saved).postSave();
+
+        plainSchemaCache.put(EntityCacheKey.of(schema.getKey()), (Neo4jPlainSchema) saved);
+
         return saved;
     }
 
     @Override
     public void deleteById(final String key) {
-        neo4jTemplate.findById(key, Neo4jPlainSchema.class).ifPresent(schema -> {
+        findById(key).ifPresent(schema -> {
             resourceDAO.deleteMapping(key);
-            Optional.ofNullable(schema.getAnyTypeClass()).ifPresent(c -> c.getPlainSchemas().remove(schema));
+
+            Optional.ofNullable(schema.getAnyTypeClass()).ifPresent(atc -> atc.getPlainSchemas().remove(schema));
+
+            plainSchemaCache.remove(EntityCacheKey.of(key));
 
             neo4jTemplate.deleteById(key, Neo4jPlainSchema.class);
         });

@@ -71,6 +71,7 @@ import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.ObjectProvider;
 
 /**
  * Static implementation providing information about the integration test environment.
@@ -198,12 +199,12 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     private final UserWorkflowAdapter uwf;
 
-    private final EnableFlowableForTestUsers enableFlowableForTestUsers;
+    private final ObjectProvider<EnableFlowableForTestUsers> enableFlowableForTestUsers;
 
     public ITImplementationLookup(
             final DomainHolder<?> domainHolder,
             final UserWorkflowAdapter uwf,
-            final EnableFlowableForTestUsers enableFlowableForTestUsers) {
+            final ObjectProvider<EnableFlowableForTestUsers> enableFlowableForTestUsers) {
 
         this.domainHolder = domainHolder;
         this.uwf = uwf;
@@ -222,12 +223,11 @@ public class ITImplementationLookup implements ImplementationLookup {
         Object v = domainHolder.getDomains().get(domain);
 
         // in case the Flowable extension is enabled, enable modifications for test users
-        if (enableFlowableForTestUsers != null
-                && AopUtils.getTargetClass(uwf).getName().contains("Flowable")
-                && v instanceof DataSource dataSource) {
-
-            AuthContextUtils.runAsAdmin(domain, () -> enableFlowableForTestUsers.init(dataSource));
-        }
+        enableFlowableForTestUsers.ifAvailable(efftu -> {
+            if (AopUtils.getTargetClass(uwf).getName().contains("Flowable") && v instanceof DataSource dataSource) {
+                AuthContextUtils.runAsAdmin(domain, () -> efftu.init(dataSource));
+            }
+        });
     }
 
     @Override

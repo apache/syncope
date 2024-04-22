@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
 public interface AnyTypeClassRepoExt {
+
+    Optional<? extends AnyTypeClass> findById(String key);
 
     AnyTypeClass save(AnyTypeClass anyTypeClass);
 

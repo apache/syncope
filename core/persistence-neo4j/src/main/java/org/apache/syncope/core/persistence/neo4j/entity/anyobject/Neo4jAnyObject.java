@@ -57,6 +57,12 @@ public class Neo4jAnyObject
 
     public static final String NODE = "AnyObject";
 
+    public static final String ANY_OBJECT_GROUP_MEMBERSHIP_REL = "ANY_OBJECT_GROUP_MEMBERSHIP";
+
+    public static final String ANY_OBJECT_RESOURCE_REL = "ANY_OBJECT_RESOURCE";
+
+    public static final String ANY_OBJECT_AUX_CLASSES_REL = "ANY_OBJECT_AUX_CLASSES";
+
     protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
     };
 
@@ -73,16 +79,16 @@ public class Neo4jAnyObject
     /**
      * Provisioning external resources.
      */
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ANY_OBJECT_RESOURCE_REL, direction = Relationship.Direction.OUTGOING)
     protected List<Neo4jExternalResource> resources = new ArrayList<>();
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = ANY_OBJECT_AUX_CLASSES_REL, direction = Relationship.Direction.OUTGOING)
     protected List<Neo4jAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Relationship(type = Neo4jARelationship.SOURCE_REL, direction = Relationship.Direction.INCOMING)
     protected List<Neo4jARelationship> relationships = new ArrayList<>();
 
-    @Relationship(direction = Relationship.Direction.INCOMING)
+    @Relationship(type = ANY_OBJECT_GROUP_MEMBERSHIP_REL, direction = Relationship.Direction.INCOMING)
     protected List<Neo4jAMembership> memberships = new ArrayList<>();
 
     @Override
@@ -123,14 +129,23 @@ public class Neo4jAnyObject
     }
 
     @Override
-    public boolean add(final APlainAttr attr) {
-        checkType(attr, Neo4jAPlainAttr.class);
-        return plainAttrs.put(attr.getSchema().getKey(), (Neo4jAPlainAttr) attr) != null;
+    public Optional<? extends APlainAttr> getPlainAttr(final String plainSchema) {
+        return Optional.ofNullable(plainAttrs.get(plainSchema));
     }
 
     @Override
-    protected Map<String, ? extends APlainAttr> internalGetPlainAttrs() {
-        return plainAttrs;
+    public boolean add(final APlainAttr attr) {
+        checkType(attr, Neo4jAPlainAttr.class);
+        Neo4jAPlainAttr neo4jAttr = (Neo4jAPlainAttr) attr;
+
+        if (neo4jAttr.getMembershipKey() == null) {
+            return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+        }
+
+        return memberships().stream().
+                filter(membership -> membership.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
+                map(membership -> membership.add(neo4jAttr)).
+                orElse(false);
     }
 
     @Override
@@ -177,7 +192,7 @@ public class Neo4jAnyObject
     }
 
     @Override
-    protected List<Neo4jAMembership> internalGetMemberships() {
+    protected List<Neo4jAMembership> memberships() {
         return memberships;
     }
 }

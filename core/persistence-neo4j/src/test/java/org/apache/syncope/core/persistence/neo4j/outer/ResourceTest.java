@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
@@ -73,6 +74,14 @@ public class ResourceTest extends AbstractTest {
 
     @Autowired
     private ImplementationDAO implementationDAO;
+
+    @Test
+    public void accountPolicy() {
+        ExternalResource resource = resourceDAO.findById("resource-testdb").orElseThrow();
+        assertEquals(
+                policyDAO.findById("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7").orElseThrow(),
+                resource.getAccountPolicy());
+    }
 
     @Test
     public void findByConnInstance() {
@@ -126,8 +135,7 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(actual);
 
         actual = resourceDAO.findById(actual.getKey()).orElseThrow();
-        assertNotNull(actual);
-        assertNotNull(actual.getPasswordPolicy());
+        assertEquals(policy, actual.getPasswordPolicy());
 
         resourceDAO.deleteById(resourceName);
         assertTrue(resourceDAO.findById(resourceName).isEmpty());
@@ -253,6 +261,33 @@ public class ResourceTest extends AbstractTest {
 
         // there must be no tasks
         propagationTasks.forEach(task -> assertTrue(taskDAO.findById(task.getKey()).isEmpty()));
+    }
+
+    @Test
+    public void addAndRemovePropagationActions() {
+        Implementation implementation = entityFactory.newEntity(Implementation.class);
+        implementation.setKey(UUID.randomUUID().toString());
+        implementation.setEngine(ImplementationEngine.JAVA);
+        implementation.setType(IdMImplementationType.PROPAGATION_ACTIONS);
+        implementation.setBody("TestPropagationActions");
+        implementation = implementationDAO.save(implementation);
+
+        ExternalResource resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
+        assertTrue(resource.getPropagationActions().isEmpty());
+
+        resource.add(implementation);
+        resourceDAO.save(resource);
+
+        resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
+        assertEquals(1, resource.getPropagationActions().size());
+        assertEquals(implementation, resource.getPropagationActions().get(0));
+
+        resource.getPropagationActions().clear();
+        resource = resourceDAO.save(resource);
+        assertTrue(resource.getPropagationActions().isEmpty());
+
+        resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
+        assertTrue(resource.getPropagationActions().isEmpty());
     }
 
     @Test
