@@ -217,7 +217,9 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             final String spEntityID,
             final String urlContext) {
 
-        return saml2ClientCache.get(idp, newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext));
+        return saml2ClientCache.get(idp.getEntityID(), spEntityID).
+                orElseGet(() -> saml2ClientCache.add(
+                idp, newSAML2Configuration(), spEntityID, getCallbackUrl(spEntityID, urlContext)));
     }
 
     protected SAML2Client getSAML2Client(

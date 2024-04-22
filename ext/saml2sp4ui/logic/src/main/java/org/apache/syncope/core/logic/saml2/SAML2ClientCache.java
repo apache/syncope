@@ -22,9 +22,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
-import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.to.Item;
@@ -113,37 +115,32 @@ public class SAML2ClientCache {
         return idpTO;
     }
 
-    protected final Cache<String, SAML2Client> cache;
+    protected final List<SAML2Client> cache = Collections.synchronizedList(new ArrayList<>());
 
-    public SAML2ClientCache(final Cache<String, SAML2Client> cache) {
-        this.cache = cache;
+    public Optional<SAML2Client> get(final String idpEntityID, final String spEntityID) {
+        return cache.stream().filter(c -> idpEntityID.equals(c.getIdentityProviderResolvedEntityId())
+                && spEntityID.equals(c.getConfiguration().getServiceProviderEntityId())).findFirst();
     }
 
-    public SAML2Client get(
-            final SAML2SP4UIIdP idp,
-            final SAML2Configuration cfg,
-            final String spEntityID,
-            final String callbackUrl) {
+    public SAML2Client add(
+            final SAML2SP4UIIdP idp, final SAML2Configuration cfg, final String spEntityID, final String callbackUrl) {
 
-        return Optional.ofNullable(cache.get(idp.getEntityID())).
-                orElseGet(() -> {
-                    cfg.setIdentityProviderEntityId(idp.getEntityID());
-                    cfg.setIdentityProviderMetadataResource(new ByteArrayResource(idp.getMetadata()));
+        cfg.setIdentityProviderEntityId(idp.getEntityID());
+        cfg.setIdentityProviderMetadataResource(new ByteArrayResource(idp.getMetadata()));
 
-                    cfg.setServiceProviderEntityId(spEntityID);
-                    getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
+        cfg.setServiceProviderEntityId(spEntityID);
+        getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);
 
-                    SAML2Client saml2Client = new SAML2Client(cfg);
-                    saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
-                    saml2Client.setCallbackUrl(callbackUrl);
-                    saml2Client.init();
+        SAML2Client saml2Client = new SAML2Client(cfg);
+        saml2Client.setCallbackUrlResolver(new NoParameterCallbackUrlResolver());
+        saml2Client.setCallbackUrl(callbackUrl);
+        saml2Client.init();
 
-                    cache.put(idp.getEntityID(), saml2Client);
-                    return saml2Client;
-                });
+        cache.add(saml2Client);
+        return saml2Client;
     }
 
     public boolean removeAll(final String idpEntityID) {
-        return cache.remove(idpEntityID);
+        return cache.removeIf(c -> idpEntityID.equals(c.getIdentityProviderResolvedEntityId()));
     }
 }

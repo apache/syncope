@@ -99,7 +99,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             final OIDCC4UIProvider op,
             final String callbackUrl) {
 
-        return oidcClientCache.get(op, callbackUrl);
+        return oidcClientCache.get(op.getName()).orElseGet(() -> oidcClientCache.add(op, callbackUrl));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
