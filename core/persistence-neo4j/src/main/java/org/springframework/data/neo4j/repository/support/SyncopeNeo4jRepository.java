@@ -18,44 +18,15 @@
  */
 package org.springframework.data.neo4j.repository.support;
 
-import java.util.List;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.data.neo4j.core.mapping.CypherGenerator;
 import org.springframework.data.neo4j.core.mapping.Neo4jPersistentEntity;
-import org.springframework.data.neo4j.repository.query.CypherAdapterUtils;
-import org.springframework.data.neo4j.repository.query.QueryFragments;
-import org.springframework.data.neo4j.repository.query.QueryFragmentsAndParameters;
-import org.springframework.data.support.PageableExecutionUtils;
 
 public class SyncopeNeo4jRepository<T, ID> extends SimpleNeo4jRepository<T, ID> {
 
     protected static final CypherGenerator CYPHER_GENERATOR = CypherGenerator.INSTANCE;
-
-    protected static QueryFragmentsAndParameters getQueryFragmentsAndParameters(
-            final Neo4jPersistentEntity<?> entityMetaData,
-            final Pageable pageable) {
-
-        QueryFragments queryFragments = new QueryFragments();
-        queryFragments.addMatchOn(CYPHER_GENERATOR.createRootNode(entityMetaData));
-        queryFragments.setCondition(null);
-        queryFragments.setReturnExpressions(CYPHER_GENERATOR.createReturnStatementForMatch(entityMetaData));
-
-        if (pageable.isPaged()) {
-            queryFragments.setSkip(pageable.getOffset());
-            queryFragments.setLimit(pageable.getPageSize());
-        }
-        Sort pageableSort = pageable.getSort();
-        if (pageableSort.isSorted()) {
-            queryFragments.setOrderBy(CypherAdapterUtils.toSortItems(entityMetaData, pageableSort));
-        }
-
-        return new QueryFragmentsAndParameters(entityMetaData, queryFragments, null, null);
-    }
 
     protected final Neo4jOperations neo4jOperations;
 
@@ -87,14 +58,5 @@ public class SyncopeNeo4jRepository<T, ID> extends SimpleNeo4jRepository<T, ID> 
     @Override
     public <S extends T> S save(final S entity) {
         return super.save(nodeValidator().validate(entity));
-    }
-
-    @Override
-    public Page<T> findAll(final Pageable pageable) {
-        List<T> allResult = neo4jOperations.toExecutableQuery(
-                entityInformation.getJavaType(),
-                getQueryFragmentsAndParameters(entityMetaData, pageable)).getResults();
-
-        return PageableExecutionUtils.getPage(allResult, pageable, this::count);
     }
 }
