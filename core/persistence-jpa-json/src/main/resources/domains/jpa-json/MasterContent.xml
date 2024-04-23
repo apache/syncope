@@ -40,7 +40,7 @@ under the License.
                   body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.BinaryValidator"/>
 
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
-                  body="org.apache.syncope.core.logic.job.MacroJobDelegate"/>
+                  body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
 
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>

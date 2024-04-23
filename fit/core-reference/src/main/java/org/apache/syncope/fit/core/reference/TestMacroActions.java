@@ -20,9 +20,9 @@ package org.apache.syncope.fit.core.reference;
 
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.syncope.core.logic.api.MacroActions;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 

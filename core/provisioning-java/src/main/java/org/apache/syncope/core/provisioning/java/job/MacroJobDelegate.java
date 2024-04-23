@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.job;
+package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Map;
 import java.util.Optional;
@@ -34,17 +34,16 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.form.MacroTaskForm;
-import org.apache.syncope.core.logic.api.Command;
-import org.apache.syncope.core.logic.api.MacroActions;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.macro.Command;
+import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -104,12 +103,10 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         }
 
         // if validator is defined, validate the provided form
-        if (actions.isPresent()) {
-            try {
-                actions.get().validate(macroTaskForm);
-            } catch (ValidationException e) {
-                throw new JobExecutionException("Invalid form submitted for task " + task.getKey(), e);
-            }
+        try {
+            actions.ifPresent(a -> a.validate(macroTaskForm));
+        } catch (ValidationException e) {
+            throw new JobExecutionException("Invalid form submitted for task " + task.getKey(), e);
         }
 
         // build the JEXL context where variables are mapped to property values, built according to the defined type

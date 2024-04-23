@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.api;
+package org.apache.syncope.core.provisioning.api.macro;
 
 import java.util.Map;
 import javax.validation.ValidationException;

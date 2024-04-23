@@ -21,8 +21,8 @@ import java.util.Map
 import javax.xml.bind.ValidationException
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.common.lib.form.MacroTaskForm
-import org.apache.syncope.core.logic.api.Command
-import org.apache.syncope.core.logic.api.MacroActions
+import org.apache.syncope.core.provisioning.api.macro.Command
+import org.apache.syncope.core.provisioning.api.macro.MacroActions
 
 @CompileStatic
 class MyMacroActions implements MacroActions {

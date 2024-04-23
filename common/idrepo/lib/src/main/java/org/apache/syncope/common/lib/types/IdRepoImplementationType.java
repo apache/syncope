@@ -49,10 +49,10 @@ public final class IdRepoImplementationType {
             Pair.of(TASKJOB_DELEGATE, "org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate"),
             Pair.of(REPORT_DELEGATE, "org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate"),
             Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.logic.api.LogicActions"),
-            Pair.of(MACRO_ACTIONS, "org.apache.syncope.core.logic.api.MacroActions"),
+            Pair.of(MACRO_ACTIONS, "org.apache.syncope.core.provisioning.api.macro.MacroActions"),
             Pair.of(ATTR_VALUE_VALIDATOR,
                     "org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator"),
-            Pair.of(COMMAND, "org.apache.syncope.core.logic.api.Command"),
+            Pair.of(COMMAND, "org.apache.syncope.core.provisioning.api.macro.Command"),
             Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
             Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.provisioning.api.data.ItemTransformer"));
 

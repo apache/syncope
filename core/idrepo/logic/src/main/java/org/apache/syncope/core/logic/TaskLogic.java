@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
-import org.apache.syncope.core.logic.job.MacroJobDelegate;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -74,6 +73,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
+import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -280,6 +280,18 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         }
 
         return binder.getTaskTO(task, taskUtilsFactory.getInstance(task), details);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
+    @Transactional(readOnly = true)
+    public MacroTaskForm getMacroTaskForm(final String key) {
+        MacroTask task = taskDAO.find(key).
+                filter(MacroTask.class::isInstance).map(MacroTask.class::cast).
+                orElseThrow(() -> new NotFoundException("MacroTask " + key));
+
+        securityChecks(IdRepoEntitlement.TASK_READ, task.getRealm().getFullPath());
+
+        return binder.getMacroTaskForm(task);
     }
 
     protected ExecTO doExecute(

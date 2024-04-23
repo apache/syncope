@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import org.apache.syncope.common.lib.form.MacroTaskForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -37,4 +39,6 @@ public interface TaskDataBinder {
     ExecTO getExecTO(TaskExec<?> execution);
 
     <T extends TaskTO> T getTaskTO(Task<?> task, TaskUtils taskUtil, boolean details);
+
+    MacroTaskForm getMacroTaskForm(MacroTask task);
 }

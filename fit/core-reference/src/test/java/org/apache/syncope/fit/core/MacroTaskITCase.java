@@ -22,6 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
@@ -60,7 +61,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-public class MacroITCase extends AbstractITCase {
+public class MacroTaskITCase extends AbstractITCase {
 
     private static String MACRO_TASK_KEY;
 
@@ -86,8 +87,8 @@ public class MacroITCase extends AbstractITCase {
                 transformer.setKey("GroovyCommand");
                 transformer.setEngine(ImplementationEngine.GROOVY);
                 transformer.setType(IdRepoImplementationType.COMMAND);
-                transformer.setBody(IOUtils.toString(
-                        MacroITCase.class.getResourceAsStream("/GroovyCommand.groovy"), StandardCharsets.UTF_8));
+                transformer.setBody(IOUtils.toString(MacroTaskITCase.class.getResourceAsStream("/GroovyCommand.groovy"),
+                        StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(transformer);
                 transformer = IMPLEMENTATION_SERVICE.read(
                         transformer.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -165,17 +166,11 @@ public class MacroITCase extends AbstractITCase {
 
     @Test
     public void execute() {
-        MacroTaskForm form = new MacroTaskForm();
-
-        FormProperty realm = new FormProperty();
-        realm.setId("realm");
-        realm.setValue("macro");
-        form.getProperties().add(realm);
-
-        FormProperty parent = new FormProperty();
-        parent.setId("parent");
+        MacroTaskForm form = TASK_SERVICE.getMacroTaskForm(MACRO_TASK_KEY);
+        form.getProperty("realm").orElseThrow().setValue("macro");
+        FormProperty parent = form.getProperty("parent").orElseThrow();
+        assertTrue(parent.getDropdownValues().stream().anyMatch(v -> "/odd".equals(v.getKey())));
         parent.setValue("/odd");
-        form.getProperties().add(parent);
 
         int preExecs = TASK_SERVICE.read(TaskType.MACRO, MACRO_TASK_KEY, true).getExecutions().size();
         ExecTO execution = TASK_SERVICE.execute(new ExecSpecs.Builder().key(MACRO_TASK_KEY).build(), form);

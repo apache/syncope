@@ -166,7 +166,18 @@ public interface TaskService extends ExecutableService {
             @QueryParam("resources") List<String> resources);
 
     /**
-     * Executes the macro task matching the given specs.
+     * Fetches the form to fill and submit for execution, for the given macro task (if defined).
+     *
+     * @param key macro task key
+     * @return the form to fill and submit for execution, for the given macro task (if defined)
+     */
+    @GET
+    @Path("MACRO/{key}/form")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    MacroTaskForm getMacroTaskForm(@NotNull @PathParam("key") String key);
+
+    /**
+     * Executes the macro task matching the given specs, with the provided form as input.
      *
      * @param specs conditions to exec
      * @param macroTaskForm macro task form

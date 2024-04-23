@@ -18,7 +18,7 @@
  */
 import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.command.CommandArgs
-import org.apache.syncope.core.logic.api.Command
+import org.apache.syncope.core.provisioning.api.macro.Command
 
 @CompileStatic
 class MyCommand implements Command<CommandArgs> {

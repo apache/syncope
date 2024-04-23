@@ -226,8 +226,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         // streaming output from a compressed byte array stream
         try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
-                ZipInputStream zis =
-                new ZipInputStream(bais)) {
+                ZipInputStream zis = new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream
             zis.getNextEntry();

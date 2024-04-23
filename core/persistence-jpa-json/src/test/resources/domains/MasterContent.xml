@@ -686,7 +686,7 @@ under the License.
              resource_id="resource-db-virattr" anyType_id="USER" extAttrName="USERNAME"/>
 
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
-                  body="org.apache.syncope.core.logic.job.MacroJobDelegate"/>
+                  body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
 
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>

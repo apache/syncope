@@ -114,6 +114,11 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
+    public MacroTaskForm getMacroTaskForm(final String key) {
+        return logic.getMacroTaskForm(key);
+    }
+
+    @Override
     public ExecTO execute(final ExecSpecs specs, final MacroTaskForm macroTaskForm) {
         return logic.execute(specs, macroTaskForm);
     }
