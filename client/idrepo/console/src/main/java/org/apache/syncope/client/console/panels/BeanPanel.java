@@ -171,7 +171,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                 Field field = item.getModelObject();
 
-                item.add(new Label("field.getName()", new ResourceModel(field.getName(), field.getName())));
+                item.add(new Label("fieldName", new ResourceModel(field.getName(), field.getName())));
 
                 Panel panel;
 

@@ -23,7 +23,6 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -198,12 +197,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration(proxyBeanMethods = false)
 public class ProvisioningContext {
 
-    @Resource(name = "MasterDataSource")
-    private DataSource masterDataSource;
-
-    @Resource(name = "MasterTransactionManager")
-    private PlatformTransactionManager masterTransactionManager;
-
     @ConditionalOnMissingBean
     @Bean
     public AsyncConnectorFacade asyncConnectorFacade() {
@@ -279,7 +272,11 @@ public class ProvisioningContext {
     }
 
     @Bean
-    public SchedulerDBInit quartzDataSourceInit(final ProvisioningProperties provisioningProperties) {
+    public SchedulerDBInit quartzDataSourceInit(
+            @Qualifier("MasterDataSource")
+            final DataSource masterDataSource,
+            final ProvisioningProperties props) {
+
         SchedulerDBInit init = new SchedulerDBInit();
         init.setDataSource(masterDataSource);
 
@@ -287,7 +284,7 @@ public class ProvisioningContext {
         databasePopulator.setContinueOnError(true);
         databasePopulator.setIgnoreFailedDrops(true);
         databasePopulator.setSqlScriptEncoding(StandardCharsets.UTF_8.name());
-        databasePopulator.setScripts(new ClassPathResource("/quartz/" + provisioningProperties.getQuartz().getSql()));
+        databasePopulator.setScripts(new ClassPathResource("/quartz/" + props.getQuartz().getSql()));
         init.setDatabasePopulator(databasePopulator);
 
         return init;
@@ -296,7 +293,14 @@ public class ProvisioningContext {
     @DependsOn("quartzDataSourceInit")
     @Lazy(false)
     @Bean
-    public SchedulerFactoryBean scheduler(final ApplicationContext ctx, final ProvisioningProperties props) {
+    public SchedulerFactoryBean scheduler(
+            @Qualifier("MasterDataSource")
+            final DataSource masterDataSource,
+            @Qualifier("MasterTransactionManager")
+            final PlatformTransactionManager masterTransactionManager,
+            final ProvisioningProperties props,
+            final ApplicationContext ctx) {
+
         SchedulerFactoryBean scheduler = new SchedulerFactoryBean();
         scheduler.setAutoStartup(true);
         scheduler.setApplicationContext(ctx);
@@ -334,7 +338,7 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public JobManager jobManager(
-            final ProvisioningProperties provisioningProperties,
+            final ProvisioningProperties props,
             final DomainHolder domainHolder,
             final SecurityProperties securityProperties,
             final SchedulerFactoryBean scheduler,
@@ -353,7 +357,7 @@ public class ProvisioningContext {
                 taskUtilsFactory,
                 confParamOps,
                 securityProperties);
-        jobManager.setDisableQuartzInstance(provisioningProperties.getQuartz().isDisableInstance());
+        jobManager.setDisableQuartzInstance(props.getQuartz().isDisableInstance());
         return jobManager;
     }
 
@@ -527,8 +531,8 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ConnIdBundleManager connIdBundleManager(final ProvisioningProperties provisioningProperties) {
-        return new DefaultConnIdBundleManager(provisioningProperties.getConnIdLocation());
+    public ConnIdBundleManager connIdBundleManager(final ProvisioningProperties props) {
+        return new DefaultConnIdBundleManager(props.getConnIdLocation());
     }
 
     @ConditionalOnMissingBean
@@ -633,9 +637,9 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public VirAttrCache virAttrCache(final ProvisioningProperties provisioningProperties) {
+    public VirAttrCache virAttrCache(final ProvisioningProperties props) {
         VirAttrCache virAttrCache = new CaffeineVirAttrCache();
-        virAttrCache.setCacheSpec(provisioningProperties.getVirAttrCacheSpec());
+        virAttrCache.setCacheSpec(props.getVirAttrCacheSpec());
         return virAttrCache;
     }
 

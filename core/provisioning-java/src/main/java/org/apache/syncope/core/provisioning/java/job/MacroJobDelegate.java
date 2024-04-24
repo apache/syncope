@@ -18,11 +18,17 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import javax.annotation.Resource;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
 import javax.validation.Validator;
@@ -48,6 +54,9 @@ import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ReflectionUtils;
 
 public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
@@ -59,6 +68,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
     @Autowired
     protected Validator validator;
+
+    @Resource(name = "batchExecutor")
+    protected ThreadPoolTaskExecutor executor;
 
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
@@ -83,7 +95,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
     protected Optional<JexlContext> check(
             final MacroTaskForm macroTaskForm,
-            final Optional<MacroActions> actions) throws JobExecutionException {
+            final Optional<MacroActions> actions,
+            final StringBuilder output) throws JobExecutionException {
 
         if (macroTaskForm == null) {
             return Optional.empty();
@@ -142,7 +155,70 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                     return Pair.of(pair.getLeft().getKey(), value);
                 }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
+
+        output.append("Form parameter values: ").append(vars).append("\n\n");
+
         return vars.isEmpty() ? Optional.empty() : Optional.of(new MapContext(vars));
+    }
+
+    protected String run(
+            final List<Pair<Command<CommandArgs>, CommandArgs>> commands,
+            final Optional<MacroActions> actions,
+            final StringBuilder output,
+            final boolean dryRun)
+            throws JobExecutionException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(() -> {
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
+            for (int i = 0; i < commands.size() && error.get() == null; i++) {
+                Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
+
+                try {
+                    String args = POJOHelper.serialize(command.getRight());
+                    output.append("Command[").append(command.getLeft().getClass().getName()).append("]: ").
+                            append(args).append("\n");
+
+                    if (!dryRun) {
+                        actions.ifPresent(a -> a.beforeCommand(command.getLeft(), command.getRight()));
+
+                        String cmdOutput = command.getLeft().run(command.getRight());
+
+                        actions.ifPresent(a -> a.afterCommand(command.getLeft(), command.getRight(), cmdOutput));
+
+                        output.append(cmdOutput);
+                    }
+                } catch (Exception e) {
+                    if (task.isContinueOnError()) {
+                        output.append("Continuing on error: <").append(e.getMessage()).append('>');
+
+                        LOG.error("While running {} with args {}, continuing on error",
+                                command.getLeft().getClass().getName(), command.getRight(), e);
+                    } else {
+                        error.set(Pair.of(command.getLeft().getClass().getName(), e));
+                    }
+                }
+                output.append("\n\n");
+            }
+
+            return error;
+        });
+
+        try {
+            AtomicReference<Pair<String, Exception>> error = future.get();
+            if (error.get() != null) {
+                throw new JobExecutionException("While running " + error.get().getLeft(), error.get().getRight());
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            throw new JobExecutionException("While waiting for macro commands completion", e);
+        }
+
+        output.append("COMPLETED");
+
+        return actions.filter(a -> !dryRun).map(a -> a.afterAll(output)).orElse(output).toString();
     }
 
     @SuppressWarnings("unchecked")
@@ -164,12 +240,16 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             }
         }
 
-        MacroTaskForm macroTaskForm = (MacroTaskForm) context.getMergedJobDataMap().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
-        Optional<JexlContext> jexlContext = check(macroTaskForm, actions);
-
-        actions.ifPresent(MacroActions::beforeAll);
-
         StringBuilder output = new StringBuilder();
+
+        MacroTaskForm macroTaskForm = (MacroTaskForm) context.getMergedJobDataMap().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
+        Optional<JexlContext> jexlContext = check(macroTaskForm, actions, output);
+
+        if (!dryRun) {
+            actions.ifPresent(MacroActions::beforeAll);
+        }
+
+        List<Pair<Command<CommandArgs>, CommandArgs>> commands = new ArrayList<>();
         for (MacroTaskCommand command : task.getMacroTaskCommands()) {
             Command<CommandArgs> runnable;
             try {
@@ -181,63 +261,43 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                 throw new JobExecutionException("Could not build " + command.getCommand().getKey(), e);
             }
 
-            String args = command.getArgs() == null
-                    ? ""
-                    : POJOHelper.serialize(command.getArgs());
-
-            output.append("Command[").append(command.getCommand().getKey()).append("]: ").
-                    append(command.getKey()).append(" ").append(args).append("\n");
-            if (dryRun) {
-                output.append(command).append(' ').append(args);
-            } else {
+            CommandArgs args;
+            if (command.getArgs() == null) {
                 try {
-                    CommandArgs actualArgs;
-                    if (command.getArgs() == null) {
-                        actualArgs = ImplementationManager.emptyArgs(command.getCommand());
-                    } else {
-                        actualArgs = command.getArgs();
-
-                        jexlContext.ifPresent(ctx -> ReflectionUtils.doWithFields(
-                                actualArgs.getClass(),
-                                field -> {
-                                    if (String.class.equals(field.getType())) {
-                                        field.setAccessible(true);
-                                        field.set(
-                                                actualArgs,
-                                                JexlUtils.evaluateTemplate(field.get(actualArgs).toString(), ctx));
-                                    }
-                                },
-                                field -> !field.isSynthetic()));
-
-                        Set<ConstraintViolation<Object>> violations = validator.validate(actualArgs);
-                        if (!violations.isEmpty()) {
-                            LOG.error("While validating {}: {}", actualArgs, violations);
-                            throw new IllegalArgumentException(actualArgs.getClass().getName());
-                        }
-                    }
-
-                    actions.ifPresent(a -> a.beforeCommand(runnable, actualArgs));
-
-                    String cmdOutput = runnable.run(actualArgs);
-
-                    actions.ifPresent(a -> a.afterCommand(runnable, actualArgs, cmdOutput));
-
-                    output.append(cmdOutput);
+                    args = ImplementationManager.emptyArgs(command.getCommand());
                 } catch (Exception e) {
-                    if (task.isContinueOnError()) {
-                        output.append("Continuing on error: <").append(e.getMessage()).append('>');
-                        LOG.error("While running {} with args {}, continuing on error", command.getKey(), args, e);
-                    } else {
-                        throw new JobExecutionException("While running " + command.getKey(), e);
-                    }
+                    throw new JobExecutionException("While getting empty args from " + command.getKey(), e);
+                }
+            } else {
+                args = command.getArgs();
+
+                jexlContext.ifPresent(ctx -> ReflectionUtils.doWithFields(
+                        args.getClass(),
+                        field -> {
+                            if (String.class.equals(field.getType())) {
+                                field.setAccessible(true);
+                                Object value = field.get(args);
+                                if (value instanceof String) {
+                                    field.set(args, JexlUtils.evaluateTemplate((String) value, ctx));
+                                }
+                            }
+                        },
+                        field -> !field.isSynthetic()));
+
+                Set<ConstraintViolation<Object>> violations = validator.validate(args);
+                if (!violations.isEmpty()) {
+                    LOG.error("While validating {}: {}", args, violations);
+
+                    throw new JobExecutionException(
+                            "While running " + command.getKey(),
+                            new IllegalArgumentException(args.getClass().getName()));
                 }
             }
-            output.append("\n\n");
+
+            commands.add(Pair.of(runnable, args));
         }
 
-        output.append("COMPLETED");
-
-        return actions.map(a -> a.afterAll(output)).orElse(output).toString();
+        return run(commands, actions, output, dryRun);
     }
 
     @Override
