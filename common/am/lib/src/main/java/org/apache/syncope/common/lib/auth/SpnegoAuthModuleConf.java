@@ -28,7 +28,7 @@ import org.apache.syncope.common.lib.to.AuthModuleTO;
  * running on Windows running under Active Directory domain credentials. There are three actors involved: the client,
  * the CAS server, and the Active Directory Domain Controller/KDC.
  */
-public class JcifsSpnegoAuthModuleConf implements AuthModuleConf {
+public class SpnegoAuthModuleConf implements LDAPDependantAuthModuleConf {
 
     private static final long serialVersionUID = -7775771400312303131L;
 
@@ -62,6 +62,11 @@ public class JcifsSpnegoAuthModuleConf implements AuthModuleConf {
      * The Kerberos kdc.
      */
     private String kerberosKdc = "172.10.1.10";
+
+    /**
+     * The Jcifs service principal.
+     */
+    private String jcifsServicePrincipal;
 
     /**
      * The Kerberos realm.
@@ -108,7 +113,7 @@ public class JcifsSpnegoAuthModuleConf implements AuthModuleConf {
     /**
      * LDAP settings for spnego to validate clients, etc.
      */
-    private LDAP ldap = new LDAP();
+    private LDAP ldap;
 
     /**
      * When validating clients, specifies the DNS timeout used to look up an address.
@@ -163,6 +168,34 @@ public class JcifsSpnegoAuthModuleConf implements AuthModuleConf {
      * The timeout of the pool used to validate SPNEGO tokens.
      */
     private String poolTimeout = "PT2S";
+
+    /**
+     * Activated attribute repository identifiers that should be used for fetching attributes if attribute resolution is
+     * enabled.
+     * The list here may include identifiers separated by comma.
+     */
+    private String attributeRepoId;
+
+    @Override
+    public AbstractLDAPConf ldapInstance() {
+        return new SpnegoAuthModuleConf.LDAP();
+    }
+
+    public String getJcifsServicePrincipal() {
+        return jcifsServicePrincipal;
+    }
+
+    public void setJcifsServicePrincipal(final String jcifsServicePrincipal) {
+        this.jcifsServicePrincipal = jcifsServicePrincipal;
+    }
+
+    public String getAttributeRepoId() {
+        return attributeRepoId;
+    }
+
+    public void setAttributeRepoId(final String attributeRepoId) {
+        this.attributeRepoId = attributeRepoId;
+    }
 
     public String getLoginConf() {
         return loginConf;
