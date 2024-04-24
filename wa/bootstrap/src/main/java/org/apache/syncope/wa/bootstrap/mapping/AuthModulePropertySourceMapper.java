@@ -33,13 +33,13 @@ import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JDBCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.JaasAuthModuleConf;
-import org.apache.syncope.common.lib.auth.JcifsSpnegoAuthModuleConf;
 import org.apache.syncope.common.lib.auth.KeycloakOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
+import org.apache.syncope.common.lib.auth.SpnegoAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.U2FAuthModuleConf;
@@ -70,6 +70,7 @@ import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGoogleOidcClie
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jKeyCloakOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
+import org.apereo.cas.configuration.model.support.spnego.SpnegoAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.spnego.SpnegoLdapProperties;
 import org.apereo.cas.configuration.model.support.spnego.SpnegoProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
@@ -471,10 +472,14 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(final AuthModuleTO authModuleTO, final JcifsSpnegoAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final SpnegoAuthModuleConf conf) {
         SpnegoProperties props = new SpnegoProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
+
+        SpnegoAuthenticationProperties jcifsProperties = new SpnegoAuthenticationProperties();
+        jcifsProperties.setJcifsServicePrincipal(conf.getJcifsServicePrincipal());
+        props.getProperties().add(jcifsProperties);
 
         props.setMixedModeAuthentication(conf.isMixedModeAuthentication());
         props.setIpsToCheckPattern(conf.getIpsToCheckPattern());
@@ -502,7 +507,11 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
             SpnegoLdapProperties ldapProps = new SpnegoLdapProperties();
             fill(ldapProps, conf.getLdap());
             props.setLdap(ldapProps);
+        } else {
+            props.setLdap(null);
         }
+
+        props.getPrincipal().setActiveAttributeRepositoryIds(conf.getAttributeRepoId());
 
         return prefix("cas.authn.spnego.", CasCoreConfigurationUtils.asMap(props));
     }

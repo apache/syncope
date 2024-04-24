@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 
-public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf {
+public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf, LDAPDependantAuthModuleConf {
 
     private static final long serialVersionUID = -7883257599139312426L;
 
@@ -76,6 +76,11 @@ public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf {
     private int windowSize = 3;
 
     private LDAP ldap;
+
+    @Override
+    public AbstractLDAPConf ldapInstance() {
+        return new GoogleMfaAuthModuleConf.LDAP();
+    }
 
     @Override
     public String getFriendlyName() {
