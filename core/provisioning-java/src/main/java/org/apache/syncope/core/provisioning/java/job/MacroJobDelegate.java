@@ -55,8 +55,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 import org.springframework.util.ReflectionUtils;
 
 public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
@@ -168,44 +167,43 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             final boolean dryRun)
             throws JobExecutionException {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(
+                new DelegatingSecurityContextCallable<>(() -> {
 
-        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(() -> {
-            SecurityContextHolder.getContext().setAuthentication(auth);
+                    AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
 
-            AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
-            for (int i = 0; i < commands.size() && error.get() == null; i++) {
-                Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
+                    for (int i = 0; i < commands.size() && error.get() == null; i++) {
+                        Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
 
-                try {
-                    String args = POJOHelper.serialize(command.getRight());
-                    output.append("Command[").append(command.getLeft().getClass().getName()).append("]: ").
-                            append(args).append("\n");
+                        try {
+                            String args = POJOHelper.serialize(command.getRight());
+                            output.append("Command[").append(command.getLeft().getClass().getName()).append("]: ").
+                                    append(args).append("\n");
 
-                    if (!dryRun) {
-                        actions.ifPresent(a -> a.beforeCommand(command.getLeft(), command.getRight()));
+                            if (!dryRun) {
+                                actions.ifPresent(a -> a.beforeCommand(command.getLeft(), command.getRight()));
 
-                        String cmdOutput = command.getLeft().run(command.getRight());
+                                String cmdOut = command.getLeft().run(command.getRight());
 
-                        actions.ifPresent(a -> a.afterCommand(command.getLeft(), command.getRight(), cmdOutput));
+                                actions.ifPresent(a -> a.afterCommand(command.getLeft(), command.getRight(), cmdOut));
 
-                        output.append(cmdOutput);
+                                output.append(cmdOut);
+                            }
+                        } catch (Exception e) {
+                            if (task.isContinueOnError()) {
+                                output.append("Continuing on error: <").append(e.getMessage()).append('>');
+
+                                LOG.error("While running {} with args {}, continuing on error",
+                                        command.getLeft().getClass().getName(), command.getRight(), e);
+                            } else {
+                                error.set(Pair.of(command.getLeft().getClass().getName(), e));
+                            }
+                        }
+                        output.append("\n\n");
                     }
-                } catch (Exception e) {
-                    if (task.isContinueOnError()) {
-                        output.append("Continuing on error: <").append(e.getMessage()).append('>');
 
-                        LOG.error("While running {} with args {}, continuing on error",
-                                command.getLeft().getClass().getName(), command.getRight(), e);
-                    } else {
-                        error.set(Pair.of(command.getLeft().getClass().getName(), e));
-                    }
-                }
-                output.append("\n\n");
-            }
-
-            return error;
-        });
+                    return error;
+                }));
 
         try {
             AtomicReference<Pair<String, Exception>> error = future.get();
