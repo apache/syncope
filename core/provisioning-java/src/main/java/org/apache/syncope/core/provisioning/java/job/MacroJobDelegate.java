@@ -55,6 +55,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ReflectionUtils;
 
 public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
@@ -166,9 +168,12 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             final boolean dryRun)
             throws JobExecutionException {
 
-        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(() -> {
-            AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
+        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(() -> {
+            SecurityContextHolder.getContext().setAuthentication(auth);
+
+            AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
             for (int i = 0; i < commands.size() && error.get() == null; i++) {
                 Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
 
