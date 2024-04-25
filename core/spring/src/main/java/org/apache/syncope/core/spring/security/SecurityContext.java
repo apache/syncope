@@ -41,6 +41,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 @EnableConfigurationProperties(SecurityProperties.class)
 @Configuration(proxyBeanMethods = false)
@@ -52,6 +54,12 @@ public class SecurityContext {
     @Bean
     public static GrantedAuthorityDefaults grantedAuthorityDefaults() {
         return new GrantedAuthorityDefaults(""); // Remove the ROLE_ prefix
+    }
+
+    @Bean
+    public static SecurityContextHolderStrategy securityContextHolderStrategy() {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+        return SecurityContextHolder.getContextHolderStrategy();
     }
 
     protected static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
