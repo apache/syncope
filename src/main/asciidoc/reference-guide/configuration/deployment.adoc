@@ -102,8 +102,8 @@ for the Master domain.
 `java:comp/env/jdbc/syncopeMasterDataSource` for the `Master` domain. +
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-10.0-doc/jdbc-pool.html[Apache Tomcat 10^]
-  * https://docs.payara.fish/community/docs/6.2022.2/Technical%20Documentation/Payara%20Server%20Documentation/Server%20Configuration%20And%20Management/JDBC%20Resource%20Management/JDBC.html[Payara Server 6^]
-  * https://docs.wildfly.org/29/Admin_Guide.html#DataSource[Wildfly 29^]
+  * https://docs.payara.fish/community/docs/Technical%20Documentation/Payara%20Server%20Documentation/Server%20Configuration%20And%20Management/JDBC%20Resource%20Management/JDBC.html[Payara Server 6^]
+  * https://docs.wildfly.org/32/Admin_Guide.html#DataSource[Wildfly 32^]
 ****
 
 ==== Apache Tomcat 10
@@ -200,7 +200,7 @@ For better performance under GNU / Linux, do not forget to include the system pr
 ....
 ====
 
-==== Wildfly 29
+==== Wildfly 32
 
 Add
 
