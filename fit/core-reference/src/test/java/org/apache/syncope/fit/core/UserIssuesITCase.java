@@ -1719,7 +1719,7 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    void issueStatusNotPropagated() {
+    void issueSYNCOPE1818() {
         UserTO rossini = USER_SERVICE.read("rossini");
         try {
             // 1. provision rossini on resource-db-pull
@@ -1785,7 +1785,8 @@ public class UserIssuesITCase extends AbstractITCase {
             assertTrue(Boolean.valueOf(enableAttr.get().getValues().get(0)));
         } finally {
             updateUser(new UserUR.Builder(rossini.getKey()).plainAttrs(attrAddReplacePatch("surname", "Rossini"),
-                            new AttrPatch.Builder(new Attr.Builder("email").build()).operation(PatchOperation.DELETE).build())
+                            new AttrPatch.Builder(new Attr.Builder("email").build())
+                                    .operation(PatchOperation.DELETE).build())
                     .resource(new StringPatchItem.Builder().value(RESOURCE_NAME_DBPULL)
                             .operation(PatchOperation.DELETE)
                             .build())

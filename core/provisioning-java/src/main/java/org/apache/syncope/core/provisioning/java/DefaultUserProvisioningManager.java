@@ -190,19 +190,16 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             User user = userDAO.find(userUR.getKey());
 
             UserWorkflowResult<String> enableUpdate = null;
-            boolean enable = updated.getResult().getRight();
             if (user.isSuspended() == null) {
                 enableUpdate = uwfAdapter.activate(userUR.getKey(), null, updater, context);
-                enable = true;
+                updated.setResult(Pair.of(updated.getResult().getLeft(), true));
             } else if (enabled && user.isSuspended()) {
                 enableUpdate = uwfAdapter.reactivate(userUR.getKey(), updater, context);
-                enable = true;
+                updated.setResult(Pair.of(updated.getResult().getLeft(), true));
             } else if (!enabled && !user.isSuspended()) {
                 enableUpdate = uwfAdapter.suspend(userUR.getKey(), updater, context);
-                enable = false;
+                updated.setResult(Pair.of(updated.getResult().getLeft(), false));
             }
-
-            updated.setResult(Pair.of(updated.getResult().getLeft(), enable));
             
             if (enableUpdate != null) {
                 if (enableUpdate.getPropByRes() != null) {
