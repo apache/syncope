@@ -1723,8 +1723,10 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO rossini = USER_SERVICE.read("rossini");
         try {
             // 1. provision rossini on resource-db-pull
-            updateUser(new UserUR.Builder(rossini.getKey()).resource(new StringPatchItem.Builder().value(
-                    RESOURCE_NAME_DBPULL).build()).build());
+            updateUser(new UserUR.Builder(rossini.getKey()).plainAttr(attrAddReplacePatch("email",
+                            "rossini@apache.org"))
+                    .resource(new StringPatchItem.Builder().value(RESOURCE_NAME_DBPULL).build())
+                    .build());
             // 2. pull users from resource-db-pull
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE,
                     TaskType.PULL,
@@ -1747,9 +1749,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
             // 4. edit (to fire a propagation towards resource-ldap) and disable rossini on resource-db-pull
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-            jdbcTemplate.update(
-                    "UPDATE TESTPULL SET SURNAME = 'rossini_upd', EMAIL ='rossini@apache.org', STATUS = 'false' WHERE "
-                            + "USERNAME = 'rossini'");
+            jdbcTemplate.update("UPDATE TESTPULL SET EMAIL ='gioacchino.rossini@apache.org', STATUS = "
+                    + "'false' WHERE USERNAME = 'rossini'");
 
             // 5. pull again rossini from resource-db-pull
             execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE,
@@ -1758,6 +1759,10 @@ public class UserIssuesITCase extends AbstractITCase {
                     MAX_WAIT_SECONDS,
                     false);
             assertEquals("SUCCESS", execution.getStatus());
+            rossini = USER_SERVICE.read("rossini");
+            assertTrue(rossini.isSuspended());
+            assertEquals("suspended", rossini.getStatus());
+            assertTrue(rossini.getPlainAttr("email").get().getValues().contains("gioacchino.rossini@apache.org"));
 
             ReconStatus onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(AnyTypeKind.USER.name(),
                     RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
@@ -1766,9 +1771,8 @@ public class UserIssuesITCase extends AbstractITCase {
             assertFalse(Boolean.valueOf(enableAttr.get().getValues().get(0)));
 
             // 6. re-enable on resource-db-pull and restore old values to fire a propagation towards resource-ldap
-            jdbcTemplate.update(
-                    "UPDATE TESTPULL SET SURNAME = 'rossini', EMAIL = 'rossini_upd@apache.org', STATUS = 'true' WHERE "
-                            + "USERNAME = 'rossini'");
+            jdbcTemplate.update("UPDATE TESTPULL SET EMAIL = 'rossini.gioacchino@apache.org', STATUS = "
+                    + "'true' WHERE USERNAME = 'rossini'");
 
             // 7. pull again rossini from resource-db-pull
             execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE,
@@ -1778,22 +1782,31 @@ public class UserIssuesITCase extends AbstractITCase {
                     false);
             assertEquals("SUCCESS", execution.getStatus());
 
-            onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(AnyTypeKind.USER.name(),
-                    RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
-            enableAttr = onLDAP.getOnResource().getAttr(OperationalAttributes.ENABLE_NAME);
-            assertTrue(enableAttr.isPresent());
-            assertTrue(Boolean.valueOf(enableAttr.get().getValues().get(0)));
+            rossini = USER_SERVICE.read("rossini");
+            assertFalse(rossini.isSuspended());
+            assertEquals("active", rossini.getStatus());
+            if (!IS_FLOWABLE_ENABLED) {
+                // we can check update only if on default workflow since flowable test workflow definition does not 
+                // support update of suspended users
+                assertTrue(rossini.getPlainAttr("email").get().getValues().contains("rossini.gioacchino@apache.org"));
+
+                onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(AnyTypeKind.USER.name(),
+                        RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
+                enableAttr = onLDAP.getOnResource().getAttr(OperationalAttributes.ENABLE_NAME);
+                assertTrue(enableAttr.isPresent());
+                assertTrue(Boolean.valueOf(enableAttr.get().getValues().get(0)));
+            }
         } finally {
+            // restore attributes and (if needed) status
             updateUser(new UserUR.Builder(rossini.getKey()).plainAttrs(attrAddReplacePatch("surname", "Rossini"),
                             new AttrPatch.Builder(new Attr.Builder("email").build())
                                     .operation(PatchOperation.DELETE).build())
-                    .resource(new StringPatchItem.Builder().value(RESOURCE_NAME_DBPULL)
-                            .operation(PatchOperation.DELETE)
-                            .build())
-                    .build());
-            USER_SERVICE.status(new StatusR.Builder(rossini.getKey(), StatusRType.REACTIVATE).onSyncope(true)
-                    .resources(rossini.getResources())
-                    .build());
+                    .resource(new StringPatchItem.Builder().value(RESOURCE_NAME_DBPULL).operation(PatchOperation.DELETE)
+                            .build()).build());
+            if (USER_SERVICE.read("rossini").isSuspended()) {
+                USER_SERVICE.status(new StatusR.Builder(rossini.getKey(), StatusRType.REACTIVATE).onSyncope(true)
+                        .resources(rossini.getResources()).build());
+            }
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
             jdbcTemplate.update("DELETE FROM TESTPULL WHERE USERNAME = 'rossini'");
         }
