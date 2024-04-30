@@ -1699,7 +1699,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.12</version>
+          <version>1.10.13</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
@@ -2163,7 +2163,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>3.1.2</version>
           </plugin>
 
           <plugin>
