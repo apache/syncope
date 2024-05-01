@@ -504,7 +504,7 @@ under the License.
     <docker.neo4j.version>5.19.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.3.0</jdbc.mysql.version>
+    <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.3.3</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.3.0.23.09</jdbc.oracle.version>
@@ -1574,7 +1574,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.12</version>
+          <version>1.10.13</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
@@ -2041,7 +2041,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
-            <version>3.1.1</version>
+            <version>3.1.2</version>
           </plugin>
 
           <plugin>
