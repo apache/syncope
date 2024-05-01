@@ -23,13 +23,17 @@ import static org.awaitility.Awaitility.await;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.authentication.attribute.AttributeDefinitionStore;
+import org.apereo.cas.authentication.attribute.DefaultAttributeDefinitionStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -57,6 +61,13 @@ public abstract class AbstractTest {
         @Bean
         public SyncopeCoreTestingServer syncopeCoreTestingServer() {
             return new SyncopeCoreTestingServer();
+        }
+
+        // This bean definition allows MacOS builds to complete successfully
+        @Bean(name = AttributeDefinitionStore.BEAN_NAME)
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public AttributeDefinitionStore attributeDefinitionStore() {
+            return new DefaultAttributeDefinitionStore();
         }
     }
 

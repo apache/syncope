@@ -59,6 +59,6 @@ jobs:
     - name: Validate
       run: mvn -T 1C checkstyle:check tools:verify-legal-files modernizer:modernizer apache-rat:check
     - name: Test
-      run: mvn clean test '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.phase=none' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Dsass.skip=true'
+      run: mvn -T 1C clean test '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.phase=none' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Dsass.skip=true'
     - name: Verify
       run: mvn -f fit/core-reference/pom.xml verify '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'
