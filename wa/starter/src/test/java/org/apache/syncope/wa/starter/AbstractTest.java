@@ -37,8 +37,12 @@ import org.apereo.cas.authentication.attribute.AttributeDefinitionStore;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.services.persondir.IPersonAttributeDao;
+import org.apereo.services.persondir.support.MergingPersonAttributeDaoImpl;
+import org.apereo.services.persondir.support.merger.IAttributeMerger;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -166,6 +170,20 @@ public abstract class AbstractTest {
                     return this;
                 }
             };
+        }
+
+        @Bean(name = "aggregatingAttributeRepository")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public IPersonAttributeDao aggregatingAttributeRepository(
+                @Qualifier("attributeRepositoryAttributeMerger")
+                final IAttributeMerger attributeRepositoryAttributeMerger) {
+
+            var aggregate = new MergingPersonAttributeDaoImpl();
+            aggregate.setMerger(attributeRepositoryAttributeMerger);
+            aggregate.setPersonAttributeDaos(List.of());
+            aggregate.setRecoverExceptions(true);
+
+            return aggregate;
         }
     }
 
