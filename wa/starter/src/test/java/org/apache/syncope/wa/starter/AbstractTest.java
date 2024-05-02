@@ -96,6 +96,11 @@ public abstract class AbstractTest {
         public int compareTo(final IPersonAttributeDao o) {
             return 0;
         }
+
+        @Override
+        public boolean equals(final Object obj) {
+            return obj instanceof IPersonAttributeDao;
+        }
     }
 
     protected static String getUUIDString() {
