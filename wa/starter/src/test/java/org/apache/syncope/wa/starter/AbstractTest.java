@@ -20,11 +20,23 @@ package org.apache.syncope.wa.starter;
 
 import static org.awaitility.Awaitility.await;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.authentication.attribute.AttributeDefinition;
+import org.apereo.cas.authentication.attribute.AttributeDefinitionResolutionContext;
 import org.apereo.cas.authentication.attribute.AttributeDefinitionStore;
-import org.apereo.cas.authentication.attribute.DefaultAttributeDefinitionStore;
+import org.apereo.cas.authentication.principal.Principal;
+import org.apereo.cas.authentication.principal.Service;
+import org.apereo.cas.services.RegisteredService;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +46,7 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.core.io.Resource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
@@ -67,7 +80,92 @@ public abstract class AbstractTest {
         @Bean(name = AttributeDefinitionStore.BEAN_NAME)
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
         public AttributeDefinitionStore attributeDefinitionStore() {
-            return new DefaultAttributeDefinitionStore();
+            return new AttributeDefinitionStore() {
+
+                @Override
+                public AttributeDefinitionStore registerAttributeDefinition(final AttributeDefinition defn) {
+                    return this;
+                }
+
+                @Override
+                public AttributeDefinitionStore registerAttributeDefinition(
+                        final String key, final AttributeDefinition defn) {
+
+                    return this;
+                }
+
+                @Override
+                public Optional<AttributeDefinition> locateAttributeDefinitionByName(final String name) {
+                    return Optional.empty();
+                }
+
+                @Override
+                public AttributeDefinitionStore removeAttributeDefinition(final String key) {
+                    return this;
+                }
+
+                @Override
+                public Optional<AttributeDefinition> locateAttributeDefinition(final String key) {
+                    return Optional.empty();
+                }
+
+                @Override
+                public <T extends AttributeDefinition> Optional<T> locateAttributeDefinition(
+                        final String key, final Class<T> clazz) {
+
+                    return Optional.empty();
+                }
+
+                @Override
+                public <T extends AttributeDefinition> Optional<T> locateAttributeDefinition(
+                        final Predicate<AttributeDefinition> predicate) {
+
+                    return Optional.empty();
+                }
+
+                @Override
+                public Collection<AttributeDefinition> getAttributeDefinitions() {
+                    return Set.of();
+                }
+
+                @Override
+                public <T extends AttributeDefinition> Stream<T> getAttributeDefinitionsBy(final Class<T> type) {
+                    return Stream.empty();
+                }
+
+                @Override
+                public Optional<Pair<AttributeDefinition, List<Object>>> resolveAttributeValues(
+                        final String key, final AttributeDefinitionResolutionContext context) {
+
+                    return Optional.empty();
+                }
+
+                @Override
+                public Map<String, List<Object>> resolveAttributeValues(
+                        final Collection<String> attributeDefinitions,
+                        final Map<String, List<Object>> availableAttributes,
+                        final Principal principal,
+                        final RegisteredService registeredService,
+                        final Service service) {
+
+                    return Map.of();
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return true;
+                }
+
+                @Override
+                public AttributeDefinitionStore store(final Resource resource) {
+                    return this;
+                }
+
+                @Override
+                public AttributeDefinitionStore importStore(final AttributeDefinitionStore definitionStore) {
+                    return this;
+                }
+            };
         }
     }
 
