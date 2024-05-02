@@ -38,7 +38,8 @@ import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.services.persondir.IPersonAttributeDao;
-import org.apereo.services.persondir.support.MergingPersonAttributeDaoImpl;
+import org.apereo.services.persondir.IPersonAttributeDaoFilter;
+import org.apereo.services.persondir.IPersonAttributes;
 import org.apereo.services.persondir.support.merger.IAttributeMerger;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,12 +179,36 @@ public abstract class AbstractTest {
                 @Qualifier("attributeRepositoryAttributeMerger")
                 final IAttributeMerger attributeRepositoryAttributeMerger) {
 
-            var aggregate = new MergingPersonAttributeDaoImpl();
-            aggregate.setMerger(attributeRepositoryAttributeMerger);
-            aggregate.setPersonAttributeDaos(List.of());
-            aggregate.setRecoverExceptions(true);
+            return new IPersonAttributeDao() {
 
-            return aggregate;
+                @Override
+                public IPersonAttributes getPerson(
+                        final String string,
+                        final Set<IPersonAttributes> set,
+                        final IPersonAttributeDaoFilter ipadf) {
+
+                    return null;
+                }
+
+                @Override
+                public Set<IPersonAttributes> getPeople(
+                        final Map<String, Object> map,
+                        final IPersonAttributeDaoFilter ipadf,
+                        final Set<IPersonAttributes> set) {
+
+                    return Set.of();
+                }
+
+                @Override
+                public Map<String, Object> getTags() {
+                    return Map.of();
+                }
+
+                @Override
+                public int compareTo(final IPersonAttributeDao o) {
+                    return 0;
+                }
+            };
         }
     }
 
