@@ -35,15 +35,14 @@ import org.apereo.cas.authentication.attribute.AttributeDefinition;
 import org.apereo.cas.authentication.attribute.AttributeDefinitionResolutionContext;
 import org.apereo.cas.authentication.attribute.AttributeDefinitionStore;
 import org.apereo.cas.authentication.principal.Principal;
+import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.services.persondir.IPersonAttributeDao;
 import org.apereo.services.persondir.IPersonAttributeDaoFilter;
 import org.apereo.services.persondir.IPersonAttributes;
-import org.apereo.services.persondir.support.merger.IAttributeMerger;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -68,6 +67,37 @@ import org.springframework.test.context.TestPropertySource;
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
 
+    private static class DummyIPersonAttributeDao implements IPersonAttributeDao {
+
+        @Override
+        public IPersonAttributes getPerson(
+                final String string,
+                final Set<IPersonAttributes> set,
+                final IPersonAttributeDaoFilter ipadf) {
+
+            return null;
+        }
+
+        @Override
+        public Set<IPersonAttributes> getPeople(
+                final Map<String, Object> map,
+                final IPersonAttributeDaoFilter ipadf,
+                final Set<IPersonAttributes> set) {
+
+            return Set.of();
+        }
+
+        @Override
+        public Map<String, Object> getTags() {
+            return Map.of();
+        }
+
+        @Override
+        public int compareTo(final IPersonAttributeDao o) {
+            return 0;
+        }
+    }
+
     protected static String getUUIDString() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
@@ -81,7 +111,7 @@ public abstract class AbstractTest {
             return new SyncopeCoreTestingServer();
         }
 
-        // This bean definition allows MacOS builds to complete successfully
+        // The following bean definitions allow for MacOS builds to complete successfully
         @Bean(name = AttributeDefinitionStore.BEAN_NAME)
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
         public AttributeDefinitionStore attributeDefinitionStore() {
@@ -173,42 +203,16 @@ public abstract class AbstractTest {
             };
         }
 
+        @Bean(name = { "cachingAttributeRepository", PrincipalResolver.BEAN_NAME_ATTRIBUTE_REPOSITORY })
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public IPersonAttributeDao cachingAttributeRepository() {
+            return new DummyIPersonAttributeDao();
+        }
+
         @Bean(name = "aggregatingAttributeRepository")
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-        public IPersonAttributeDao aggregatingAttributeRepository(
-                @Qualifier("attributeRepositoryAttributeMerger")
-                final IAttributeMerger attributeRepositoryAttributeMerger) {
-
-            return new IPersonAttributeDao() {
-
-                @Override
-                public IPersonAttributes getPerson(
-                        final String string,
-                        final Set<IPersonAttributes> set,
-                        final IPersonAttributeDaoFilter ipadf) {
-
-                    return null;
-                }
-
-                @Override
-                public Set<IPersonAttributes> getPeople(
-                        final Map<String, Object> map,
-                        final IPersonAttributeDaoFilter ipadf,
-                        final Set<IPersonAttributes> set) {
-
-                    return Set.of();
-                }
-
-                @Override
-                public Map<String, Object> getTags() {
-                    return Map.of();
-                }
-
-                @Override
-                public int compareTo(final IPersonAttributeDao o) {
-                    return 0;
-                }
-            };
+        public IPersonAttributeDao aggregatingAttributeRepository() {
+            return new DummyIPersonAttributeDao();
         }
     }
 
