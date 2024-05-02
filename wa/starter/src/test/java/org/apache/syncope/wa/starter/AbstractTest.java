@@ -98,6 +98,11 @@ public abstract class AbstractTest {
         }
 
         @Override
+        public int hashCode() {
+            return super.hashCode();
+        }
+
+        @Override
         public boolean equals(final Object obj) {
             return obj instanceof IPersonAttributeDao;
         }
