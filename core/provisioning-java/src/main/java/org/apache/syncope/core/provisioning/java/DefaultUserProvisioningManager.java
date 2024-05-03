@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
@@ -128,7 +127,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 null,
                 Set.of());
 
-        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
+        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, null, updater, context);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.getUserUpdateTasks(updated),
@@ -171,7 +170,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         UserWorkflowResult<Pair<UserUR, Boolean>> updated;
         try {
-            updated = uwfAdapter.update(userUR, updater, context);
+            updated = uwfAdapter.update(userUR, enabled, updater, context);
         } catch (Exception e) {
             LOG.error("Update of user {} failed, trying to pull its status anyway (if configured)",
                     userUR.getKey(), e);
@@ -184,30 +183,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                     new PropagationByResource<>(),
                     new PropagationByResource<>(),
                     new HashSet<>());
-        }
-
-        if (enabled != null) {
-            User user = userDAO.find(userUR.getKey());
-
-            UserWorkflowResult<String> enableUpdate = null;
-            if (user.isSuspended() == null) {
-                enableUpdate = uwfAdapter.activate(userUR.getKey(), null, updater, context);
-                updated.setResult(Pair.of(updated.getResult().getLeft(), true));
-            } else if (enabled && user.isSuspended()) {
-                enableUpdate = uwfAdapter.reactivate(userUR.getKey(), updater, context);
-                updated.setResult(Pair.of(updated.getResult().getLeft(), true));
-            } else if (!enabled && !user.isSuspended()) {
-                enableUpdate = uwfAdapter.suspend(userUR.getKey(), updater, context);
-                updated.setResult(Pair.of(updated.getResult().getLeft(), false));
-            }
-            
-            if (enableUpdate != null) {
-                if (enableUpdate.getPropByRes() != null) {
-                    updated.getPropByRes().merge(enableUpdate.getPropByRes());
-                    updated.getPropByRes().purge();
-                }
-                updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
-            }
         }
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
@@ -266,13 +241,13 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Override
     public String unlink(final UserUR userUR, final String updater, final String context) {
-        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, updater, context);
+        UserWorkflowResult<Pair<UserUR, Boolean>> updated = uwfAdapter.update(userUR, null, updater, context);
         return updated.getResult().getLeft().getKey();
     }
 
     @Override
     public String link(final UserUR userUR, final String updater, final String context) {
-        return uwfAdapter.update(userUR, updater, context).getResult().getLeft().getKey();
+        return uwfAdapter.update(userUR, null, updater, context).getResult().getLeft().getKey();
     }
 
     @Override
