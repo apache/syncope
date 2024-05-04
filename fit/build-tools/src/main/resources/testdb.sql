@@ -41,6 +41,7 @@ username VARCHAR(80),
 surname VARCHAR(80),
 mustChangePassword BOOLEAN,
 email VARCHAR(80),
+status VARCHAR(5) DEFAULT 'true',
 lastModification TIMESTAMP);
 
 DROP TABLE testPRINTER IF EXISTS;

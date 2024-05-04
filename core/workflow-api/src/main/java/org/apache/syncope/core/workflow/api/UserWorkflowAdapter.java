@@ -66,11 +66,12 @@ public interface UserWorkflowAdapter extends WorkflowAdapter {
      * Update an user.
      *
      * @param userUR modification set to be performed
+     * @param enabled whether status shall be changed or not
      * @param updater username that requested this operation
      * @param context context information
      * @return user just updated and propagations to be performed
      */
-    UserWorkflowResult<Pair<UserUR, Boolean>> update(UserUR userUR, String updater, String context);
+    UserWorkflowResult<Pair<UserUR, Boolean>> update(UserUR userUR, Boolean enabled, String updater, String context);
 
     /**
      * Suspend an user.

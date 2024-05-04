@@ -56,12 +56,14 @@ import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.ResourceAR;
 import org.apache.syncope.common.lib.request.ResourceDR;
+import org.apache.syncope.common.lib.request.StatusR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.Item;
@@ -70,7 +72,9 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -84,13 +88,18 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.StatusRType;
+import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
@@ -1706,6 +1715,109 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             // remove additional externalKey schema
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, externalKeySchemaTO.getKey());
+        }
+    }
+
+    @Test
+    void issueSYNCOPE1818() {
+        UserTO rossini = USER_SERVICE.read("rossini");
+        try {
+            // 1. provision rossini on resource-db-pull
+            updateUser(new UserUR.Builder(rossini.getKey()).
+                    plainAttr(attrAddReplacePatch("email", "rossini@apache.org")).
+                    resource(new StringPatchItem.Builder().value(RESOURCE_NAME_DBPULL).build()).
+                    build());
+
+            // 2. pull users from resource-db-pull
+            ExecTO execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE,
+                    TaskType.PULL,
+                    "7c2242f4-14af-4ab5-af31-cdae23783655",
+                    MAX_WAIT_SECONDS,
+                    false);
+            assertEquals("SUCCESS", execution.getStatus());
+            assertFalse(rossini.isSuspended());
+            assertEquals("active", rossini.getStatus());
+
+            // 3. push rossini on LDAP
+            PushTaskTO pushTaskTO = new PushTaskTO();
+            pushTaskTO.setSourceRealm(SyncopeConstants.ROOT_REALM);
+            pushTaskTO.setMatchingRule(MatchingRule.UPDATE);
+            pushTaskTO.setUnmatchingRule(UnmatchingRule.ASSIGN);
+            pushTaskTO.setPerformCreate(true);
+            pushTaskTO.setPerformUpdate(true);
+            pushTaskTO.setSyncStatus(true);
+            RECONCILIATION_SERVICE.push(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(
+                    rossini.getKey()).build(), pushTaskTO);
+
+            // 4. disable rossini on resource-db-pull to fire a propagation towards resource-ldap
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            jdbcTemplate.update("UPDATE TESTPULL SET EMAIL ='gioacchino.rossini@apache.org', STATUS = "
+                    + "'false' WHERE USERNAME = 'rossini'");
+
+            // 5. pull again rossini from resource-db-pull
+            execution = AbstractTaskITCase.execProvisioningTask(
+                    TASK_SERVICE,
+                    TaskType.PULL,
+                    "7c2242f4-14af-4ab5-af31-cdae23783655",
+                    MAX_WAIT_SECONDS,
+                    false);
+            assertEquals("SUCCESS", execution.getStatus());
+
+            rossini = USER_SERVICE.read("rossini");
+            assertTrue(rossini.isSuspended());
+            assertEquals("suspended", rossini.getStatus());
+            assertTrue(rossini.getPlainAttr("email").get().getValues().contains("gioacchino.rossini@apache.org"));
+
+            ReconStatus onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(AnyTypeKind.USER.name(),
+                    RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
+            Attr enableAttr = onLDAP.getOnResource().getAttr(OperationalAttributes.ENABLE_NAME).orElseThrow();
+            assertFalse(Boolean.parseBoolean(enableAttr.getValues().get(0)));
+
+            // 6. re-enable on resource-db-pull and restore old values to fire a propagation towards resource-ldap
+            jdbcTemplate.update("UPDATE TESTPULL SET EMAIL = 'rossini.gioacchino@apache.org', STATUS = "
+                    + "'true' WHERE USERNAME = 'rossini'");
+
+            // 7. pull again rossini from resource-db-pull
+            execution = AbstractTaskITCase.execProvisioningTask(
+                    TASK_SERVICE,
+                    TaskType.PULL,
+                    "7c2242f4-14af-4ab5-af31-cdae23783655",
+                    MAX_WAIT_SECONDS,
+                    false);
+            assertEquals("SUCCESS", execution.getStatus());
+
+            rossini = USER_SERVICE.read("rossini");
+            assertFalse(rossini.isSuspended());
+            assertEquals("active", rossini.getStatus());
+
+            if (!IS_FLOWABLE_ENABLED) {
+                // we can check update only if on default workflow since flowable test workflow definition does not 
+                // support update of suspended users
+                assertTrue(rossini.getPlainAttr("email").get().getValues().contains("rossini.gioacchino@apache.org"));
+
+                onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(
+                        AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
+                enableAttr = onLDAP.getOnResource().getAttr(OperationalAttributes.ENABLE_NAME).orElseThrow();
+                assertTrue(Boolean.parseBoolean(enableAttr.getValues().get(0)));
+            }
+        } finally {
+            // restore attributes and (if needed) status
+            updateUser(new UserUR.Builder(rossini.getKey()).
+                    plainAttrs(
+                            attrAddReplacePatch("surname", "Rossini"),
+                            new AttrPatch.Builder(
+                                    new Attr.Builder("email").build()).operation(PatchOperation.DELETE).build()).
+                    resource(new StringPatchItem.Builder().
+                            value(RESOURCE_NAME_DBPULL).operation(PatchOperation.DELETE).build()).
+                    build());
+
+            if (USER_SERVICE.read("rossini").isSuspended()) {
+                USER_SERVICE.status(new StatusR.Builder(rossini.getKey(), StatusRType.REACTIVATE).onSyncope(true)
+                        .resources(rossini.getResources()).build());
+            }
+
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            jdbcTemplate.update("DELETE FROM TESTPULL WHERE USERNAME = 'rossini'");
         }
     }
 }
