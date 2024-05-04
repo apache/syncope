@@ -667,9 +667,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             // 1. create 2 users on testpull
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + '\'' + user1OnTestPull + "', 'user1', 'Doe', false, 'mail1@apache.org', NULL)");
+                    + '\'' + user1OnTestPull + "', 'user1', 'Doe', false, 'mail1@apache.org', 'true', NULL)");
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + '\'' + user2OnTestPull + "', 'user2', 'Rossi', false, 'mail2@apache.org', NULL)");
+                    + '\'' + user2OnTestPull + "', 'user2', 'Rossi', false, 'mail2@apache.org', 'true', NULL)");
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
             ImplementationTO reconFilterBuilder = new ImplementationTO();
@@ -771,10 +771,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
             jdbcTemplate.execute("DELETE FROM testpull");
             jdbcTemplate.execute("INSERT INTO testpull VALUES "
                     + "(1040, 'syncTokenWithErrors1', 'Surname1', "
-                    + "false, 'syncTokenWithErrors1@syncope.apache.org', '2014-05-23 13:53:24.293')");
+                    + "false, 'syncTokenWithErrors1@syncope.apache.org', 'true', '2014-05-23 13:53:24.293')");
             jdbcTemplate.execute("INSERT INTO testpull VALUES "
                     + "(1041, 'syncTokenWithErrors2', 'Surname2', "
-                    + "false, 'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
+                    + "false, 'syncTokenWithErrors1@syncope.apache.org', 'true', '2015-05-23 13:53:24.293')");
 
             ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
@@ -1096,8 +1096,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         String id = "a54b3794-b231-47be-b24a-11e1a42949f6";
 
         // 1. populate the external table
-        jdbcTemplate.execute("INSERT INTO testpull VALUES"
-                + "('" + id + "', 'issuesyncope230', 'Surname230', false, 'syncope230@syncope.apache.org', NULL)");
+        jdbcTemplate.execute("INSERT INTO testpull VALUES" + "('" + id
+                + "', 'issuesyncope230', 'Surname230', false, 'syncope230@syncope.apache.org', 'true', NULL)");
 
         // 2. execute PullTask for resource-db-pull (table TESTPULL on external H2)
         execSchedTask(

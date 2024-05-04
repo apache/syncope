@@ -269,7 +269,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     @Override
     public UserWorkflowResult<Pair<UserUR, Boolean>> update(
-            final UserUR userUR, final String updater, final String context) {
+            final UserUR userUR, final Boolean enabled, final String updater, final String context) {
 
         User user = Optional.ofNullable(userDAO.authFind(userUR.getKey())).
                 orElseThrow(() -> new IllegalStateException("Could not find the User to update"));
@@ -305,6 +305,28 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                 userUR.getPassword() == null,
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null));
         user = userDAO.save(user);
+
+        if (enabled != null) {
+            UserWorkflowResult<String> enableUpdate = null;
+            if (user.isSuspended() == null) {
+                enableUpdate = activate(userUR.getKey(), null, updater, context);
+                result.setResult(Pair.of(result.getResult().getLeft(), true));
+            } else if (enabled && user.isSuspended()) {
+                enableUpdate = reactivate(userUR.getKey(), updater, context);
+                result.setResult(Pair.of(result.getResult().getLeft(), true));
+            } else if (!enabled && !user.isSuspended()) {
+                enableUpdate = suspend(userUR.getKey(), updater, context);
+                result.setResult(Pair.of(result.getResult().getLeft(), false));
+            }
+
+            Optional.ofNullable(enableUpdate).ifPresent(eu -> {
+                Optional.ofNullable(eu.getPropByRes()).ifPresent(eupbr -> {
+                    result.getPropByRes().merge(eupbr);
+                    result.getPropByRes().purge();
+                });
+                result.getPerformedTasks().addAll(eu.getPerformedTasks());
+            });
+        }
 
         if (!AuthContextUtils.getUsername().equals(user.getUsername())) {
             // ensure that requester's administration rights are still valid
