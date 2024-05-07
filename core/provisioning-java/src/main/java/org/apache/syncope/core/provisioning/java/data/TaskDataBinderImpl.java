@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyValue;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.FormPropertyDefTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
@@ -247,6 +247,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         macroTask.setRealm(Optional.ofNullable(realmDAO.findByFullPath(macroTaskTO.getRealm())).
                 orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
+        macroTask.getCommands().clear();
         macroTaskTO.getCommands().
                 forEach(command -> Optional.ofNullable(implementationDAO.find(command.getKey())).ifPresentOrElse(
                 impl -> {
@@ -276,6 +277,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         macroTask.setContinueOnError(macroTaskTO.isContinueOnError());
         macroTask.setSaveExecs(macroTaskTO.isSaveExecs());
 
+        macroTask.getFormPropertyDefs().clear();
         macroTaskTO.getFormPropertyDefs().forEach(fpdTO -> {
             FormPropertyDef fpd = entityFactory.newEntity(FormPropertyDef.class);
             fpd.setKey(fpdTO.getKey());
@@ -372,16 +374,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setActive(taskTO.isActive());
 
         if (task instanceof MacroTask) {
-            MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
-            MacroTask macroTask = (MacroTask) task;
-
-            macroTask.getMacroTaskCommands().forEach(mct -> mct.setMacroTask(null));
-            macroTask.getMacroTaskCommands().clear();
-
-            macroTask.getFormPropertyDefs().forEach(fpd -> fpd.setMacroTask(null));
-            macroTask.getFormPropertyDefs().clear();
-
-            fill(macroTask, macroTaskTO);
+            fill((MacroTask) task, (MacroTaskTO) taskTO);
         } else if (task instanceof ProvisioningTask) {
             fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
         }
@@ -509,7 +502,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 macroTaskTO.setJobDelegate(macroTask.getJobDelegate().getKey());
                 macroTaskTO.setRealm(macroTask.getRealm().getFullPath());
 
-                macroTask.getMacroTaskCommands().forEach(mct -> macroTaskTO.getCommands().add(
+                macroTask.getCommands().forEach(mct -> macroTaskTO.getCommands().add(
                         new CommandTO.Builder(mct.getCommand().getKey()).args(mct.getArgs()).build()));
 
                 macroTaskTO.setContinueOnError(macroTask.isContinueOnError());
@@ -597,7 +590,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     @Override
-    public MacroTaskForm getMacroTaskForm(final MacroTask task) {
+    public SyncopeForm getMacroTaskForm(final MacroTask task) {
         if (task.getFormPropertyDefs().isEmpty()) {
             throw new NotFoundException("No form properties defined for MacroTask " + task.getKey());
         }
@@ -620,7 +613,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             }
         }
 
-        MacroTaskForm form = new MacroTaskForm();
+        SyncopeForm form = new SyncopeForm();
 
         form.getProperties().addAll(task.getFormPropertyDefs().stream().map(fpd -> {
             FormProperty prop = new FormProperty();

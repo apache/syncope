@@ -219,8 +219,8 @@ public class TaskTest extends AbstractTest {
 
         task = (MacroTask) taskDAO.save(task);
         assertNotNull(task);
-        assertEquals(1, task.getMacroTaskCommands().size());
-        assertEquals(command, task.getMacroTaskCommands().get(0).getCommand());
+        assertEquals(1, task.getCommands().size());
+        assertEquals(command, task.getCommands().get(0).getCommand());
         assertEquals(1, task.getFormPropertyDefs().size());
         assertEquals(formPropertyDef, task.getFormPropertyDefs().get(0));
 

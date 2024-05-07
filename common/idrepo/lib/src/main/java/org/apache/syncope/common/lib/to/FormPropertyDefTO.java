@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -34,15 +34,15 @@ public class FormPropertyDefTO implements NamedEntityTO {
 
     private FormPropertyType type;
 
-    private boolean readable;
+    private boolean readable = true;
 
-    private boolean writable;
+    private boolean writable = true;
 
     private boolean required;
 
     private String datePattern;
 
-    private final Map<String, String> enumValues = new HashMap<>();
+    private final Map<String, String> enumValues = new LinkedHashMap<>();
 
     @Override
     public String getKey() {

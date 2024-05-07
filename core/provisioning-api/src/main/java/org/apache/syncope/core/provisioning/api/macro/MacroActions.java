@@ -21,14 +21,14 @@ package org.apache.syncope.core.provisioning.api.macro;
 import java.util.Map;
 import javax.validation.ValidationException;
 import org.apache.syncope.common.lib.command.CommandArgs;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 
 /**
  * Interface for actions to be performed during macro execution.
  */
 public interface MacroActions {
 
-    default void validate(MacroTaskForm macroTaskForm) throws ValidationException {
+    default void validate(SyncopeForm macroTaskForm) throws ValidationException {
         // does nothing by default
     }
 

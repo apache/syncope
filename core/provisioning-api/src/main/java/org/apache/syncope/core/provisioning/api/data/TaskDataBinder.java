@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
@@ -40,5 +40,5 @@ public interface TaskDataBinder {
 
     <T extends TaskTO> T getTaskTO(Task<?> task, TaskUtils taskUtil, boolean details);
 
-    MacroTaskForm getMacroTaskForm(MacroTask task);
+    SyncopeForm getMacroTaskForm(MacroTask task);
 }

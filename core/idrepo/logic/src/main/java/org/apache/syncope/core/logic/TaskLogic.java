@@ -32,7 +32,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
@@ -284,7 +284,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Transactional(readOnly = true)
-    public MacroTaskForm getMacroTaskForm(final String key) {
+    public SyncopeForm getMacroTaskForm(final String key) {
         MacroTask task = taskDAO.find(key).
                 filter(MacroTask.class::isInstance).map(MacroTask.class::cast).
                 orElseThrow(() -> new NotFoundException("MacroTask " + key));
@@ -396,7 +396,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_EXECUTE + "')")
-    public ExecTO execute(final ExecSpecs specs, final MacroTaskForm macroTaskForm) {
+    public ExecTO execute(final ExecSpecs specs, final SyncopeForm macroTaskForm) {
         MacroTask task = taskDAO.find(specs.getKey()).
                 filter(MacroTask.class::isInstance).map(MacroTask.class::cast).
                 orElseThrow(() -> new NotFoundException("MacroTask " + specs.getKey()));

@@ -24,7 +24,6 @@ import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -45,7 +44,7 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     public static final String TABLE = "FormPropertyDef";
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
     @NotNull

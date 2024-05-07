@@ -28,7 +28,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class MacroTaskForm implements BaseBean {
+public class SyncopeForm implements BaseBean {
 
     private static final long serialVersionUID = 8388697351958834257L;
 
@@ -63,7 +63,7 @@ public class MacroTaskForm implements BaseBean {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        MacroTaskForm other = (MacroTaskForm) obj;
+        SyncopeForm other = (SyncopeForm) obj;
         return new EqualsBuilder().
                 append(properties, other.properties).
                 build();

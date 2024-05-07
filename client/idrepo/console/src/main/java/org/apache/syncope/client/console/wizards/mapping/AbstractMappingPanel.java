@@ -22,6 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavi
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -51,6 +52,45 @@ import org.apache.wicket.model.ResourceModel;
 public abstract class AbstractMappingPanel extends Panel {
 
     private static final long serialVersionUID = -8295587900937040104L;
+
+    protected static final Comparator<Item> ITEM_COMPARATOR = (left, right) -> {
+        int compared;
+        if (left == null && right == null) {
+            compared = 0;
+        } else if (left == null) {
+            compared = 1;
+        } else if (right == null) {
+            compared = -1;
+        } else if (left.isConnObjectKey()) {
+            compared = -1;
+        } else if (right.isConnObjectKey()) {
+            compared = 1;
+        } else if (left.isPassword()) {
+            compared = -1;
+        } else if (right.isPassword()) {
+            compared = 1;
+        } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
+            compared = -1;
+        } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
+            compared = 1;
+        } else if (left.getPurpose() == MappingPurpose.PROPAGATION
+                && (right.getPurpose() == MappingPurpose.PULL
+                || right.getPurpose() == MappingPurpose.NONE)) {
+            compared = -1;
+        } else if (left.getPurpose() == MappingPurpose.PULL
+                && right.getPurpose() == MappingPurpose.PROPAGATION) {
+            compared = 1;
+        } else if (left.getPurpose() == MappingPurpose.PULL
+                && right.getPurpose() == MappingPurpose.NONE) {
+            compared = -1;
+        } else if (left.getPurpose() == MappingPurpose.NONE
+                && right.getPurpose() != MappingPurpose.NONE) {
+            compared = 1;
+        } else {
+            compared = left.getIntAttrName().compareTo(right.getIntAttrName());
+        }
+        return compared;
+    };
 
     protected final Label connObjectKeyLabel;
 
@@ -131,44 +171,7 @@ public abstract class AbstractMappingPanel extends Panel {
         mandatoryHeader.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
         mappingContainer.add(mandatoryHeader);
 
-        model.getObject().sort((left, right) -> {
-            int compared;
-            if (left == null && right == null) {
-                compared = 0;
-            } else if (left == null) {
-                compared = 1;
-            } else if (right == null) {
-                compared = -1;
-            } else if (left.isConnObjectKey()) {
-                compared = -1;
-            } else if (right.isConnObjectKey()) {
-                compared = 1;
-            } else if (left.isPassword()) {
-                compared = -1;
-            } else if (right.isPassword()) {
-                compared = 1;
-            } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
-                compared = -1;
-            } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
-                compared = 1;
-            } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                    && (right.getPurpose() == MappingPurpose.PULL
-                    || right.getPurpose() == MappingPurpose.NONE)) {
-                compared = -1;
-            } else if (left.getPurpose() == MappingPurpose.PULL
-                    && right.getPurpose() == MappingPurpose.PROPAGATION) {
-                compared = 1;
-            } else if (left.getPurpose() == MappingPurpose.PULL
-                    && right.getPurpose() == MappingPurpose.NONE) {
-                compared = -1;
-            } else if (left.getPurpose() == MappingPurpose.NONE
-                    && right.getPurpose() != MappingPurpose.NONE) {
-                compared = 1;
-            } else {
-                compared = left.getIntAttrName().compareTo(right.getIntAttrName());
-            }
-            return compared;
-        });
+        model.getObject().sort(ITEM_COMPARATOR);
 
         mappings = new ListView<>("mappings", model) {
 
@@ -289,7 +292,6 @@ public abstract class AbstractMappingPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         model.getObject().remove(item.getIndex());
-
                         item.getParent().removeAll();
                         target.add(AbstractMappingPanel.this);
                     }
@@ -424,7 +426,7 @@ public abstract class AbstractMappingPanel extends Panel {
      * @param connObjectKey connObjectKey checkbox.
      * @param password password checkbox.
      */
-    private static void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
+    protected void setConnObjectKey(final AjaxCheckBoxPanel connObjectKey, final AjaxCheckBoxPanel password) {
         if (password.getModelObject()) {
             connObjectKey.setReadOnly(true);
             connObjectKey.setModelObject(false);

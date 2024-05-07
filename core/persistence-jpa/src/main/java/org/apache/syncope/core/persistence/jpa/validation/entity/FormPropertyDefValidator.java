@@ -38,6 +38,15 @@ public class FormPropertyDefValidator extends AbstractValidator<FormPropertyDefC
             return false;
         }
 
+        if (!formPropertyDef.getEnumValues().isEmpty()
+                && formPropertyDef.getType() != FormPropertyType.Enum) {
+
+            context.buildConstraintViolationWithTemplate(getTemplate(
+                    EntityViolationType.InvalidFormPropertyDef, "Enum values found but type not set to Enum")).
+                    addPropertyNode("enumValues").addConstraintViolation();
+            return false;
+        }
+
         if (formPropertyDef.getEnumValues().isEmpty()
                 && formPropertyDef.getType() == FormPropertyType.Enum) {
 

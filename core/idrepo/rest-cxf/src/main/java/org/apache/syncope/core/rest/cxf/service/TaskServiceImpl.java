@@ -24,7 +24,7 @@ import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
@@ -114,12 +114,12 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public MacroTaskForm getMacroTaskForm(final String key) {
+    public SyncopeForm getMacroTaskForm(final String key) {
         return logic.getMacroTaskForm(key);
     }
 
     @Override
-    public ExecTO execute(final ExecSpecs specs, final MacroTaskForm macroTaskForm) {
+    public ExecTO execute(final ExecSpecs specs, final SyncopeForm macroTaskForm) {
         return logic.execute(specs, macroTaskForm);
     }
 }

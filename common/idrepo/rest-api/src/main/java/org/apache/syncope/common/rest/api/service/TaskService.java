@@ -44,7 +44,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
@@ -174,7 +174,7 @@ public interface TaskService extends ExecutableService {
     @GET
     @Path("MACRO/{key}/form")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    MacroTaskForm getMacroTaskForm(@NotNull @PathParam("key") String key);
+    SyncopeForm getMacroTaskForm(@NotNull @PathParam("key") String key);
 
     /**
      * Executes the macro task matching the given specs, with the provided form as input.
@@ -187,5 +187,5 @@ public interface TaskService extends ExecutableService {
     @Path("MACRO/{key}/execute")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    ExecTO execute(@BeanParam ExecSpecs specs, MacroTaskForm macroTaskForm);
+    ExecTO execute(@BeanParam ExecSpecs specs, SyncopeForm macroTaskForm);
 }

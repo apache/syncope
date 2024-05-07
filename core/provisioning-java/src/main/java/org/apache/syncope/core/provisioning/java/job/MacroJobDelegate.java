@@ -39,7 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
@@ -93,7 +93,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
     }
 
     protected Optional<JexlContext> check(
-            final MacroTaskForm macroTaskForm,
+            final SyncopeForm macroTaskForm,
             final Optional<MacroActions> actions,
             final StringBuilder output) throws JobExecutionException {
 
@@ -240,7 +240,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
         StringBuilder output = new StringBuilder();
 
-        MacroTaskForm macroTaskForm = (MacroTaskForm) context.getMergedJobDataMap().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
+        SyncopeForm macroTaskForm = (SyncopeForm) context.getMergedJobDataMap().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
         Optional<JexlContext> jexlContext = check(macroTaskForm, actions, output);
 
         if (!dryRun) {
@@ -248,7 +248,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         }
 
         List<Pair<Command<CommandArgs>, CommandArgs>> commands = new ArrayList<>();
-        for (MacroTaskCommand command : task.getMacroTaskCommands()) {
+        for (MacroTaskCommand command : task.getCommands()) {
             Command<CommandArgs> runnable;
             try {
                 runnable = (Command<CommandArgs>) ImplementationManager.build(

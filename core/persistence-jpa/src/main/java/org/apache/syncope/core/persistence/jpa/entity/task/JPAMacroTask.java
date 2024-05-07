@@ -56,11 +56,10 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     @NotNull
     private Boolean saveExecs = true;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "macroTask")
-    @Valid
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
     private List<JPAMacroTaskCommand> macroTaskCommands = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "macroTask")
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
     @Valid
     private List<JPAFormPropertyDef> formPropertyDefs = new ArrayList<>();
 
@@ -119,7 +118,7 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     }
 
     @Override
-    public List<? extends MacroTaskCommand> getMacroTaskCommands() {
+    public List<? extends MacroTaskCommand> getCommands() {
         return macroTaskCommands;
     }
 

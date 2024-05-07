@@ -212,6 +212,20 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     }
 
     @Override
+    public IModel<List<String>> getMacroActions() {
+        return new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return implementationRestClient.list(IdRepoImplementationType.MACRO_ACTIONS).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+            }
+        };
+    }
+
+    @Override
     public IModel<List<String>> getPullActions() {
         return new LoadableDetachableModel<>() {
 

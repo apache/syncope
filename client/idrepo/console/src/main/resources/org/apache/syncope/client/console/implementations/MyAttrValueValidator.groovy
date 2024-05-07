@@ -17,12 +17,12 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator
+import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.persistence.api.entity.PlainSchema
 
 @CompileStatic
-class MyAttrValueValidator implements Validator {
+class MyAttrValueValidator implements PlainAttrValueValidator {
   
   @Override
   void setSchema(PlainSchema schema) {

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.ext.client.common.ui.panels;
+package org.apache.syncope.client.ui.commons.panels;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -34,11 +34,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyValue;
-import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -48,17 +44,13 @@ import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class UserRequestFormPanel extends Panel {
+public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
 
     private static final long serialVersionUID = -8847854414429745216L;
 
-    protected static final Logger LOG = LoggerFactory.getLogger(UserRequestFormPanel.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeFormPanel.class);
 
-    public UserRequestFormPanel(final String id, final UserRequestForm form) {
-        this(id, form, true);
-    }
-
-    public UserRequestFormPanel(final String id, final UserRequestForm form, final boolean showDetails) {
+    public SyncopeFormPanel(final String id, final F form) {
         super(id);
 
         IModel<List<FormProperty>> formProps = new LoadableDetachableModel<>() {
@@ -193,23 +185,6 @@ public abstract class UserRequestFormPanel extends Panel {
             }
         };
 
-        AjaxLink<String> userDetails = new AjaxLink<>("userDetails") {
-
-            private static final long serialVersionUID = -4804368561204623354L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target) {
-                viewDetails(target);
-            }
-        };
-        MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, IdRepoEntitlement.USER_READ);
-
-        boolean enabled = form.getUserTO() != null;
-        userDetails.setVisible(enabled && showDetails).setEnabled(enabled);
-
         add(propView);
-        add(userDetails);
     }
-
-    protected abstract void viewDetails(AjaxRequestTarget target);
 }

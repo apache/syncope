@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyType;
-import org.apache.syncope.common.lib.form.MacroTaskForm;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -166,7 +166,7 @@ public class MacroTaskITCase extends AbstractITCase {
 
     @Test
     public void execute() {
-        MacroTaskForm form = TASK_SERVICE.getMacroTaskForm(MACRO_TASK_KEY);
+        SyncopeForm form = TASK_SERVICE.getMacroTaskForm(MACRO_TASK_KEY);
         form.getProperty("realm").orElseThrow().setValue("macro");
         FormProperty parent = form.getProperty("parent").orElseThrow();
         assertTrue(parent.getDropdownValues().stream().anyMatch(v -> "/odd".equals(v.getKey())));
@@ -192,6 +192,49 @@ public class MacroTaskITCase extends AbstractITCase {
         assertEquals("/odd/macro", printer.getRealm());
         assertFalse(REALM_SERVICE.search(
                 new RealmQuery.Builder().base(printer.getRealm()).build()).getResult().isEmpty());
+    }
+
+    @Test
+    public void saveSameCommandMultipleOccurrencies() {
+        TestCommandArgs tca1 = new TestCommandArgs();
+        tca1.setParentRealm("parent1");
+        tca1.setRealmName("realm1");
+        tca1.setPrinterName("printer1");
+
+        MacroTaskTO task = new MacroTaskTO();
+        task.setName("saveSameCommandMultipleOccurrencies");
+        task.setActive(true);
+        task.setRealm("/");
+        task.getCommands().add(new CommandTO.Builder("GroovyCommand").build());
+        task.getCommands().add(new CommandTO.Builder(TestCommand.class.getSimpleName()).args(tca1).build());
+        task.getCommands().add(new CommandTO.Builder("GroovyCommand").build());
+
+        Response response = TASK_SERVICE.create(TaskType.MACRO, task);
+        String newTaskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+
+        task = TASK_SERVICE.<MacroTaskTO>read(TaskType.MACRO, newTaskKey, false);
+        assertEquals(3, task.getCommands().size());
+        assertEquals("GroovyCommand", task.getCommands().get(0).getKey());
+        assertEquals(TestCommand.class.getSimpleName(), task.getCommands().get(1).getKey());
+        assertEquals(tca1, task.getCommands().get(1).getArgs());
+        assertEquals("GroovyCommand", task.getCommands().get(2).getKey());
+
+        TestCommandArgs tca2 = new TestCommandArgs();
+        tca2.setParentRealm("parent2");
+        tca2.setRealmName("realm2");
+        tca2.setPrinterName("printer2");
+        task.getCommands().add(new CommandTO.Builder(TestCommand.class.getSimpleName()).args(tca2).build());
+
+        TASK_SERVICE.update(TaskType.MACRO, task);
+
+        task = TASK_SERVICE.<MacroTaskTO>read(TaskType.MACRO, newTaskKey, false);
+        assertEquals(4, task.getCommands().size());
+        assertEquals("GroovyCommand", task.getCommands().get(0).getKey());
+        assertEquals(TestCommand.class.getSimpleName(), task.getCommands().get(1).getKey());
+        assertEquals(tca1, task.getCommands().get(1).getArgs());
+        assertEquals("GroovyCommand", task.getCommands().get(2).getKey());
+        assertEquals(TestCommand.class.getSimpleName(), task.getCommands().get(3).getKey());
+        assertEquals(tca2, task.getCommands().get(3).getArgs());
     }
 
     @Test

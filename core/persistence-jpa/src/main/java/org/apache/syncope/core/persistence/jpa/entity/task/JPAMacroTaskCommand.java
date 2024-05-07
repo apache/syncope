@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.Optional;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -42,10 +41,10 @@ public class JPAMacroTaskCommand extends AbstractGeneratedKeyEntity implements M
 
     public static final String TABLE = "MacroTaskCommand";
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
-    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @OneToOne(optional = false)
     private JPAImplementation command;
 
     @Lob

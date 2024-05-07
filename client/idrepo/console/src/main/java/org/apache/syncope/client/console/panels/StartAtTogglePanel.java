@@ -53,18 +53,13 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
         form = new Form<>("startAtForm");
         addInnerObject(form);
 
-        final AjaxDateTimeFieldPanel startAtDate = new AjaxDateTimeFieldPanel(
+        AjaxDateTimeFieldPanel startAtDate = new AjaxDateTimeFieldPanel(
                 "startAtDate", "startAtDate", startAtDateModel,
                 FastDateFormat.getInstance(SyncopeConstants.DATE_PATTERNS[3]));
+        form.add(startAtDate.setReadOnly(true).hideLabel());
 
-        startAtDate.setReadOnly(true).hideLabel();
-        form.add(startAtDate);
-
-        final AjaxCheckBoxPanel startAtCheck = new AjaxCheckBoxPanel(
+        AjaxCheckBoxPanel startAtCheck = new AjaxCheckBoxPanel(
                 "startAtCheck", "startAtCheck", new Model<>(false), false);
-
-        form.add(startAtCheck);
-
         startAtCheck.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -74,6 +69,7 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
                 target.add(startAtDate.setModelObject(null).setReadOnly(!startAtCheck.getModelObject()));
             }
         });
+        form.add(startAtCheck);
 
         form.add(new AjaxSubmitLink("startAt", form) {
 

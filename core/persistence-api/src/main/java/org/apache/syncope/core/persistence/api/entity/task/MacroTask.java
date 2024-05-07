@@ -30,7 +30,7 @@ public interface MacroTask extends SchedTask {
 
     void add(MacroTaskCommand macroTaskCommand);
 
-    List<? extends MacroTaskCommand> getMacroTaskCommands();
+    List<? extends MacroTaskCommand> getCommands();
 
     void add(FormPropertyDef formPropertyDef);
 
