@@ -41,6 +41,10 @@ public class MacroTaskTO extends SchedTaskTO {
 
     private boolean saveExecs = true;
 
+    private final List<FormPropertyDefTO> formPropertyDefs = new ArrayList<>();
+
+    private String macroActions;
+
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
@@ -80,6 +84,20 @@ public class MacroTaskTO extends SchedTaskTO {
         this.saveExecs = saveExecs;
     }
 
+    @JacksonXmlElementWrapper(localName = "formPropertyDefs")
+    @JacksonXmlProperty(localName = "formPropertyDef")
+    public List<FormPropertyDefTO> getFormPropertyDefs() {
+        return formPropertyDefs;
+    }
+
+    public String getMacroActions() {
+        return macroActions;
+    }
+
+    public void setMacroActions(final String macroActions) {
+        this.macroActions = macroActions;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -88,6 +106,8 @@ public class MacroTaskTO extends SchedTaskTO {
                 append(commands).
                 append(continueOnError).
                 append(saveExecs).
+                append(formPropertyDefs).
+                append(macroActions).
                 build();
     }
 
@@ -109,6 +129,8 @@ public class MacroTaskTO extends SchedTaskTO {
                 append(commands, other.commands).
                 append(continueOnError, other.continueOnError).
                 append(saveExecs, other.saveExecs).
+                append(formPropertyDefs, other.formPropertyDefs).
+                append(macroActions, other.macroActions).
                 build();
     }
 }

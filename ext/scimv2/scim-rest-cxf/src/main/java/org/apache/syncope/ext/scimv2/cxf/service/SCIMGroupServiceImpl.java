@@ -151,7 +151,7 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
                 if (CollectionUtils.isEmpty(op.getValue())) {
                     members(id).stream().filter(member -> op.getPath().getFilter() == null
                             ? true
-                            : BooleanUtils.toBoolean(JexlUtils.evaluate(
+                            : BooleanUtils.toBoolean(JexlUtils.evaluateExpr(
                                     SCIMDataBinder.filter2JexlExpression(op.getPath().getFilter()),
                                     new MapContext(Map.of("value", member))).toString())).
                             forEach(member -> changeMembership(member, id, op.getOp()));

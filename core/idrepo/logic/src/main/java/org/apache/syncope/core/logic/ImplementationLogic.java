@@ -219,7 +219,7 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 inUse = !policyDAO.findByPushCorrelationRule(implementation).isEmpty();
                 break;
 
-            case IdRepoImplementationType.VALIDATOR:
+            case IdRepoImplementationType.ATTR_VALUE_VALIDATOR:
                 inUse = !plainSchemaDAO.findByValidator(implementation).isEmpty();
                 break;
 

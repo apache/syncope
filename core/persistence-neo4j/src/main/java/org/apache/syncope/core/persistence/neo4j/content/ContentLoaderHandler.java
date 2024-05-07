@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommandRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jProvisioningTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPullTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPushTask;
@@ -281,8 +282,9 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                 rightId,
                 rel.getType(),
                 Optional.ofNullable(rel.getRelationshipPropertiesEntity()).
-                        filter(rpe -> Neo4jImplementationRelationship.class.getSimpleName().
-                        equals(rpe.getPrimaryLabel())).map(rpe -> indexValue).orElse(null)));
+                        filter(e -> Neo4jImplementationRelationship.class.getSimpleName().equals(e.getPrimaryLabel())
+                        || Neo4jMacroTaskCommandRelationship.class.getSimpleName().equals(e.getPrimaryLabel())).
+                        map(e -> indexValue).orElse(null)));
     }
 
     @Override

@@ -102,7 +102,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
         }
         jexlContext.set("value", oValue);
 
-        Object tValue = JexlUtils.evaluate(propagationJEXL, jexlContext);
+        Object tValue = JexlUtils.evaluateExpr(propagationJEXL, jexlContext);
 
         value.setBinaryValue(null);
         value.setBooleanValue(null);
@@ -183,7 +183,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
                     JexlUtils.addAttrsToContext(((AnyTO) entityTO).getVirAttrs(), jexlContext);
                 }
 
-                newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
+                newValues.add(JexlUtils.evaluateExpr(pullJEXL, jexlContext));
             });
 
             return newValues;

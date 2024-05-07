@@ -35,7 +35,7 @@ under the License.
     <section name="Prerequisites">
       <p>
         <ul>
-          <li>JDK 8 or higher for &le; 2.1; JDK 11 or higher for later versions</li>
+          <li>JDK 8 for &le; 2.1; JDK 11 for 3.0; JDK 21 for later versions</li>
           <li>
             Latest <a href="https://maven.apache.org/download.html">Apache Maven</a>
           </li>
@@ -65,7 +65,7 @@ under the License.
           On Windows you can find it in several distributions including
           <a href="http://gnuwin32.sourceforge.net/packages/patch.htm">GNUWin32</a>
         </p>        
-      </subsection>      
+      </subsection>
     </section>   
 
     <section name="Building Syncope">
@@ -73,11 +73,11 @@ under the License.
         Before building Syncope, you need to setup an environment variable to give Maven more memory.
       </p>
       <p>
-        On Unix with JDK 8 or later
+        On Unix
         <source>export MAVEN_OPTS="-Xms512m -Xmx1024m"</source>
       </p>
       <p>
-        On Windows with JDK 8 or later
+        On Windows
         <source>set MAVEN_OPTS=-Xms512m -Xmx1024m</source>
       </p>
       <p>
@@ -144,9 +144,7 @@ under the License.
         </p>
 
         <h4>HotSwapAgent</h4>
-        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
-        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
-        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled.
         <source>$ mvn -Photswap,all</source>
 
         <h4>DBMSes</h4>
@@ -155,20 +153,32 @@ under the License.
         </div>
 
         <h5>PostgreSQL</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
         Perform the full test suite against a real <a href="https://www.postgresql.org/">PostgreSQL</a> database via
         <source>$ mvn -Ppostgres-it</source> or <source>$ mvn -Ppgjsonb-it</source> (for JSONB support)
 
         <h5>MySQL</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
         Perform the full test suite against a real <a href="https://www.mysql.com/">MySQL</a> database via
         <source>$ mvn -Pmysql-it</source> or <source>$ mvn -Pmyjson-it</source> (for JSON support)
 
         <h5>MariaDB</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
         Perform the full test suite against a real <a href="https://mariadb.org/">MariaDB</a> database via
         <source>$ mvn -Pmariadb-it</source>
 
         <h5>Oracle database</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
         Perform the full test suite against a real <a href="https://www.oracle.com/products/database/">Oracle</a> database via
-        <source>$ mvn -Poracle-it</source>
+        <source>$ mvn -Poracle-it</source> or <source>$ mvn -Pojson-it</source> (for JSON support)
 
         <h5>MS SQL Server</h5>
         Prform the full test suite against a real <a href="https://www.microsoft.com/en-us/sql-server/">MS SQL Server</a> database via
@@ -186,13 +196,21 @@ under the License.
         <a href="http://www.wildfly.org">Wildfly</a> via
         <source>$ mvn -Pwildfly-it</source>
         
-        <h4>Elasticsearch</h4>
-        <div class="alert alert-warning">
-          <p>This build profile require <a href="https://www.docker.com/">Docker</a> to work.</p>
-        </div>
+        <h4>External search engines</h4>
 
+        <h5>Elasticsearch</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
         Perform the full test suite relying on a real <a href="https://www.elastic.co/">Elasticsearch</a> instance via
         <source>$ mvn -Pelasticsearch-it</source>
+
+        <h5>OpenSearch</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
+        Perform the full test suite relying on a real <a href="https://opensearch.org/">OpenSearch</a> instance via
+        <source>$ mvn -Popensearch-it</source>
       </subsection>
 
       <subsection name="fit/console-reference">
@@ -203,9 +221,7 @@ under the License.
         <source>$ mvn -Pdebug</source>
 
         <h4>HotSwapAgent</h4>
-        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
-        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
-        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled.
         <source>$ mvn -Photswap</source>
       </subsection>
       
@@ -217,9 +233,7 @@ under the License.
         <source>$ mvn -Pdebug</source>
 
         <h4>HotSwapAgent</h4>
-        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
-        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
-        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled.
         <source>$ mvn -Photswap</source>
       </subsection>
 
@@ -231,9 +245,7 @@ under the License.
         <source>$ mvn -Pdebug</source>
 
         <h4>HotSwapAgent</h4>
-        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled (requires
-        <a href="https://github.com/dcevm/dcevm">DCEVM Java</a> installed as "alternative JVM" and IDE of choice
-        <a href="http://hotswapagent.org/mydoc_setup_netbeans.html">set up properly</a>).
+        Similar to Debug, but with <a href="http://hotswapagent.org/">HotSwapAgent</a> features enabled.
         <source>$ mvn -Photswap</source>
       </subsection>
     </section>

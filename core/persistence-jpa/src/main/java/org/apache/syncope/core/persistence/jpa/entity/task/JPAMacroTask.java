@@ -18,37 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PostPersist;
-import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAMacroTask.TABLE)
@@ -57,9 +46,6 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     private static final long serialVersionUID = 8261850094316787406L;
 
     public static final String TABLE = "MacroTask";
-
-    protected static final TypeReference<List<CommandArgs>> TYPEREF = new TypeReference<List<CommandArgs>>() {
-    };
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm realm;
@@ -70,21 +56,15 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     @NotNull
     private Boolean saveExecs = true;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE + "Commands",
-            joinColumns =
-            @JoinColumn(name = "task_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "implementation_id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "task_id", "implementation_id" }))
-    private List<JPAImplementation> commands = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
+    private List<JPAMacroTaskCommand> macroTaskCommands = new ArrayList<>();
 
-    @Lob
-    private String commandArgs;
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
+    @Valid
+    private List<JPAFormPropertyDef> formPropertyDefs = new ArrayList<>();
 
-    @Transient
-    private final List<CommandArgs> commandArgsList = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAImplementation macroActions;
 
     @OneToMany(targetEntity = JPAMacroTaskExec.class,
             cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
@@ -99,25 +79,6 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     public void setRealm(final Realm realm) {
         checkType(realm, JPARealm.class);
         this.realm = (JPARealm) realm;
-    }
-
-    @Override
-    public void add(final Implementation command, final CommandArgs args) {
-        checkType(command, JPAImplementation.class);
-        checkImplementationType(command, IdRepoImplementationType.COMMAND);
-        commands.add((JPAImplementation) command);
-
-        getCommandArgs().add(args);
-    }
-
-    @Override
-    public List<JPAImplementation> getCommands() {
-        return commands;
-    }
-
-    @Override
-    public List<CommandArgs> getCommandArgs() {
-        return commandArgsList;
     }
 
     @Override
@@ -150,29 +111,37 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
         return executions;
     }
 
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getCommandArgs().clear();
-        }
-        if (commandArgs != null) {
-            getCommandArgs().addAll(POJOHelper.deserialize(commandArgs, TYPEREF));
-        }
+    @Override
+    public void add(final MacroTaskCommand macroTaskCommand) {
+        checkType(macroTaskCommand, JPAMacroTaskCommand.class);
+        this.macroTaskCommands.add((JPAMacroTaskCommand) macroTaskCommand);
     }
 
-    @PostLoad
-    public void postLoad() {
-        json2list(false);
+    @Override
+    public List<? extends MacroTaskCommand> getCommands() {
+        return macroTaskCommands;
     }
 
-    @PostPersist
-    @PostUpdate
-    public void postSave() {
-        json2list(true);
+    @Override
+    public void add(final FormPropertyDef formPropertyDef) {
+        checkType(formPropertyDef, JPAFormPropertyDef.class);
+        this.formPropertyDefs.add((JPAFormPropertyDef) formPropertyDef);
     }
 
-    @PrePersist
-    @PreUpdate
-    public void list2json() {
-        commandArgs = POJOHelper.serialize(getCommandArgs(), TYPEREF);
+    @Override
+    public List<? extends FormPropertyDef> getFormPropertyDefs() {
+        return formPropertyDefs;
+    }
+
+    @Override
+    public Implementation getMacroActions() {
+        return macroActions;
+    }
+
+    @Override
+    public void setMacroAction(final Implementation macroActions) {
+        checkType(macroActions, JPAImplementation.class);
+        checkImplementationType(macroActions, IdRepoImplementationType.MACRO_ACTIONS);
+        this.macroActions = (JPAImplementation) macroActions;
     }
 }

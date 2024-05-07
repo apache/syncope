@@ -476,8 +476,8 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ConnIdBundleManager connIdBundleManager(final ProvisioningProperties provisioningProperties) {
-        return new DefaultConnIdBundleManager(provisioningProperties.getConnIdLocation());
+    public ConnIdBundleManager connIdBundleManager(final ProvisioningProperties props) {
+        return new DefaultConnIdBundleManager(props.getConnIdLocation());
     }
 
     @ConditionalOnMissingBean

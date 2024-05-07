@@ -157,7 +157,8 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     private SortedSet<Neo4jImplementationRelationship> propagationActions = new TreeSet<>();
 
     @Transient
-    private List<Neo4jImplementation> sortedPropagationActions = new SortedSetList(propagationActions);
+    private List<Neo4jImplementation> sortedPropagationActions = new SortedSetList<>(
+            propagationActions, Neo4jImplementationRelationship.builder());
 
     @Override
     public boolean isEnforceMandatoryCondition() {
@@ -383,7 +384,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     @PostLoad
     public void postLoad() {
-        sortedPropagationActions = new SortedSetList(propagationActions);
+        sortedPropagationActions = new SortedSetList<>(propagationActions, Neo4jImplementationRelationship.builder());
         json2list(false);
     }
 

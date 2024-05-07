@@ -106,7 +106,8 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient
-    private List<Neo4jImplementation> sortedActions = new SortedSetList(actions);
+    private List<Neo4jImplementation> sortedActions = new SortedSetList<>(
+            actions, Neo4jImplementationRelationship.builder());
 
     @Relationship(type = Neo4jAnyTemplateRealm.REALM_ANY_TEMPLATE_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jAnyTemplateRealm> templates = new ArrayList<>();
@@ -258,6 +259,6 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
 
     @PostLoad
     public void postLoad() {
-        sortedActions = new SortedSetList(actions);
+        sortedActions = new SortedSetList<>(actions, Neo4jImplementationRelationship.builder());
     }
 }

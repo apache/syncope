@@ -27,9 +27,11 @@ import java.io.StringWriter;
 import java.util.Date;
 import java.util.UUID;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.form.FormProperty;
+import org.apache.syncope.common.lib.form.FormPropertyType;
+import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 import org.junit.jupiter.api.Test;
 
 public abstract class SerializationTest {
@@ -54,14 +56,14 @@ public abstract class SerializationTest {
         userUR.getPlainAttrs().add(new AttrPatch.Builder(new Attr.Builder("schema1").value("value1").build()).build());
         form.setUserUR(userUR);
 
-        UserRequestFormProperty property = new UserRequestFormProperty();
+        FormProperty property = new FormProperty();
         property.setId("printMode");
         property.setName("Preferred print mode");
-        property.setType(UserRequestFormPropertyType.Dropdown);
+        property.setType(FormPropertyType.Dropdown);
         property.getDropdownValues().add(
-                new UserRequestFormPropertyValue("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", "value1"));
+                new FormPropertyValue("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", "value1"));
         property.getDropdownValues().add(
-                new UserRequestFormPropertyValue(UUID.randomUUID().toString(), "value2 / value3"));
+                new FormPropertyValue(UUID.randomUUID().toString(), "value2 / value3"));
         form.getProperties().add(property);
 
         PagedResult<UserRequestForm> original = new PagedResult<>();
@@ -72,9 +74,8 @@ public abstract class SerializationTest {
         StringWriter writer = new StringWriter();
         objectMapper().writeValue(writer, original);
 
-        PagedResult<UserRequestForm> actual = objectMapper().readValue(writer.toString(),
-            new TypeReference<>() {
-            });
+        PagedResult<UserRequestForm> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
+        });
         assertEquals(original, actual);
     }
 }

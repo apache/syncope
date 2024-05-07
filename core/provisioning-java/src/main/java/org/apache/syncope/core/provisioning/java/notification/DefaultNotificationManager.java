@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.notification;
 
-import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -231,6 +231,7 @@ public class DefaultNotificationManager implements NotificationManager {
         jexlVars.put("recipients", recipientTOs);
         jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
         jexlVars.put("events", notification.getEvents());
+        JexlContext ctx = new MapContext(jexlVars);
 
         NotificationTask task = entityFactory.newEntity(NotificationTask.class);
         task.setNotification(notification);
@@ -244,21 +245,13 @@ public class DefaultNotificationManager implements NotificationManager {
         task.setSubject(notification.getSubject());
 
         if (StringUtils.isNotBlank(notification.getTemplate().getTextTemplate())) {
-            task.setTextBody(evaluate(notification.getTemplate().getTextTemplate(), jexlVars));
+            task.setTextBody(JexlUtils.evaluateTemplate(notification.getTemplate().getTextTemplate(), ctx));
         }
         if (StringUtils.isNotBlank(notification.getTemplate().getHTMLTemplate())) {
-            task.setHtmlBody(evaluate(notification.getTemplate().getHTMLTemplate(), jexlVars));
+            task.setHtmlBody(JexlUtils.evaluateTemplate(notification.getTemplate().getHTMLTemplate(), ctx));
         }
 
         return task;
-    }
-
-    protected static String evaluate(final String template, final Map<String, Object> jexlVars) {
-        StringWriter writer = new StringWriter();
-        JexlUtils.newJxltEngine().
-                createTemplate(template).
-                evaluate(new MapContext(jexlVars), writer);
-        return writer.toString();
     }
 
     @Override

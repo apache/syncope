@@ -115,17 +115,18 @@ public class BeanPanel<T extends Serializable> extends Panel {
         this.excluded.add("serialVersionUID");
         this.excluded.add("class");
 
-        LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<>() {
+        LoadableDetachableModel<List<Field>> model = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<String> load() {
-                List<String> result = new ArrayList<>();
+            protected List<Field> load() {
+                List<Field> result = new ArrayList<>();
 
                 if (BeanPanel.this.getDefaultModelObject() != null) {
-                    ReflectionUtils.doWithFields(BeanPanel.this.getDefaultModelObject().getClass(),
-                            field -> result.add(field.getName()),
+                    ReflectionUtils.doWithFields(
+                            BeanPanel.this.getDefaultModelObject().getClass(),
+                            result::add,
                             field -> !field.isSynthetic() && !BeanPanel.this.excluded.contains(field.getName()));
                 }
 
@@ -137,7 +138,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
-            private void setRequired(final ListItem<String> item, final boolean required) {
+            private void setRequired(final ListItem<Field> item, final boolean required) {
                 if (required) {
                     Fragment fragment = new Fragment("required", "requiredFragment", this);
                     fragment.add(new Label("requiredLabel", "*"));
@@ -145,7 +146,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                 }
             }
 
-            private void setDescription(final ListItem<String> item, final String description) {
+            private void setDescription(final ListItem<Field> item, final String description) {
                 Fragment fragment = new Fragment("description", "descriptionFragment", this);
                 fragment.add(new Label("descriptionLabel", Model.of()).add(new PopoverBehavior(
                         Model.<String>of(),
@@ -164,25 +165,20 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             @SuppressWarnings({ "unchecked", "rawtypes" })
             @Override
-            protected void populateItem(final ListItem<String> item) {
+            protected void populateItem(final ListItem<Field> item) {
                 item.add(new Fragment("required", "emptyFragment", this));
                 item.add(new Fragment("description", "emptyFragment", this));
 
-                String fieldName = item.getModelObject();
+                Field field = item.getModelObject();
 
-                item.add(new Label("fieldName", new ResourceModel(fieldName, fieldName)));
-
-                Field field = ReflectionUtils.findField(bean.getObject().getClass(), fieldName);
-                if (field == null) {
-                    return;
-                }
+                item.add(new Label("fieldName", new ResourceModel(field.getName(), field.getName())));
 
                 Panel panel;
 
                 SearchCondition scondAnnot = field.getAnnotation(SearchCondition.class);
                 if (scondAnnot != null) {
                     BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(bean.getObject());
-                    String fiql = (String) wrapper.getPropertyValue(fieldName);
+                    String fiql = (String) wrapper.getPropertyValue(field.getName());
 
                     List<SearchClause> clauses = Optional.ofNullable(fiql).
                             map(f -> SearchUtils.getSearchClauses(f.replaceAll(
@@ -211,7 +207,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     }
 
                     Optional.ofNullable(BeanPanel.this.sCondWrapper).
-                            ifPresent(scw -> scw.put(fieldName, Pair.of(builder, clauses)));
+                            ifPresent(scw -> scw.put(field.getName(), Pair.of(builder, clauses)));
                 } else if (List.class.equals(field.getType())) {
                     Class<?> listItemType = field.getGenericType() instanceof ParameterizedType
                             ? (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]
@@ -243,15 +239,15 @@ public class BeanPanel<T extends Serializable> extends Panel {
                             }
                         }
 
-                        panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
+                        panel = new AjaxPalettePanel.Builder<>().setName(field.getName()).build(
                                 "value",
-                                new PropertyModel<>(bean.getObject(), fieldName),
+                                new PropertyModel<>(bean.getObject(), field.getName()),
                                 new ListModel<>(choices.stream().map(SchemaTO::getKey).collect(Collectors.toList()))).
                                 hideLabel();
                     } else if (listItemType.isEnum()) {
-                        panel = new AjaxPalettePanel.Builder<>().setName(fieldName).build(
+                        panel = new AjaxPalettePanel.Builder<>().setName(field.getName()).build(
                                 "value",
-                                new PropertyModel<>(bean.getObject(), fieldName),
+                                new PropertyModel<>(bean.getObject(), field.getName()),
                                 new ListModel(List.of(listItemType.getEnumConstants()))).hideLabel();
                     } else {
                         Triple<FieldPanel, Boolean, Optional<String>> single =
@@ -262,14 +258,14 @@ public class BeanPanel<T extends Serializable> extends Panel {
                         single.getRight().ifPresent(description -> setDescription(item, description));
 
                         panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<>(bean.getObject(), fieldName)).build(
+                                new PropertyModel<>(bean.getObject(), field.getName())).build(
                                 "value",
-                                fieldName,
+                                field.getName(),
                                 single.getLeft()).hideLabel();
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
-                            "value", fieldName, new PropertyModel<>(bean, fieldName)).hideLabel();
+                            "value", field.getName(), new PropertyModel<>(bean, field.getName())).hideLabel();
                     Optional.ofNullable(field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class)).
                             ifPresent(annot -> setDescription(item, annot.description()));
                 } else {

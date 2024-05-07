@@ -71,7 +71,8 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient
-    private List<Neo4jImplementation> sortedActions = new SortedSetList(actions);
+    private List<Neo4jImplementation> sortedActions = new SortedSetList<>(
+            actions, Neo4jImplementationRelationship.builder());
 
     @Relationship(type = PUSH_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jPushTaskExec> executions = new ArrayList<>();
@@ -135,7 +136,7 @@ public class Neo4jPushTask extends Neo4jProvisioningTask<PushTask> implements Pu
 
     @PostLoad
     public void postLoad() {
-        sortedActions = new SortedSetList(actions);
+        sortedActions = new SortedSetList<>(actions, Neo4jImplementationRelationship.builder());
         json2map(false);
     }
 

@@ -92,7 +92,7 @@ public class TemplateUtils {
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             template.getValues().forEach(value -> {
-                String evaluated = JexlUtils.evaluate(value, jexlContext).toString();
+                String evaluated = JexlUtils.evaluateExpr(value, jexlContext).toString();
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
@@ -110,7 +110,7 @@ public class TemplateUtils {
         JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
         if (template.getRealm() != null) {
-            String evaluated = JexlUtils.evaluate(template.getRealm(), jexlContext).toString();
+            String evaluated = JexlUtils.evaluateExpr(template.getRealm(), jexlContext).toString();
             if (StringUtils.isNotBlank(evaluated)) {
                 realmMember.setRealm(evaluated);
             }
@@ -196,7 +196,7 @@ public class TemplateUtils {
 
             case UserTO userTO -> {
                 if (StringUtils.isNotBlank(userTO.getUsername())) {
-                    String evaluated = JexlUtils.evaluate(userTO.getUsername(), jexlContext).toString();
+                    String evaluated = JexlUtils.evaluateExpr(userTO.getUsername(), jexlContext).toString();
                     if (StringUtils.isNotBlank(evaluated)) {
                         switch (realmMember) {
                             case UserTO urm ->
@@ -210,7 +210,7 @@ public class TemplateUtils {
                 }
 
                 if (StringUtils.isNotBlank(userTO.getPassword())) {
-                    String evaluated = JexlUtils.evaluate(userTO.getPassword(), jexlContext).toString();
+                    String evaluated = JexlUtils.evaluateExpr(userTO.getPassword(), jexlContext).toString();
                     if (StringUtils.isNotBlank(evaluated)) {
                         switch (realmMember) {
                             case UserTO urm ->
@@ -262,7 +262,7 @@ public class TemplateUtils {
 
             case GroupTO groupTO -> {
                 if (StringUtils.isNotBlank(groupTO.getName())) {
-                    String evaluated = JexlUtils.evaluate(groupTO.getName(), jexlContext).toString();
+                    String evaluated = JexlUtils.evaluateExpr(groupTO.getName(), jexlContext).toString();
                     if (StringUtils.isNotBlank(evaluated)) {
                         switch (realmMember) {
                             case GroupTO grm ->

@@ -38,11 +38,6 @@ under the License.
   </properties>
   
   <dependencies>
-     <dependency>
-      <groupId>org.apache.syncope.ext.flowable</groupId>
-      <artifactId>syncope-ext-flowable-client-common-ui</artifactId>
-      <version>${project.version}</version>
-    </dependency>
     <dependency>
       <groupId>org.apache.syncope.ext.flowable</groupId>
       <artifactId>syncope-ext-flowable-rest-api</artifactId>

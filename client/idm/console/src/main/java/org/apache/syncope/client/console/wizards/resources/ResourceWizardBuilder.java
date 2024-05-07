@@ -87,7 +87,6 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
             protected void onComponentTag(final ComponentTag tag) {
                 tag.append("class", "scrollable-tab-content", " ");
             }
-
         };
 
         if (createFlag && resourceDetailsPanel.getConnector() != null) {
@@ -100,8 +99,7 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
                 protected void onUpdate(final AjaxRequestTarget target) {
                     resourceTO.setConnector(resourceDetailsPanel.getConnector().getModelObject());
 
-                    LoadableDetachableModel<List<ConnConfProperty>> model =
-                            new LoadableDetachableModel<>() {
+                    LoadableDetachableModel<List<ConnConfProperty>> model = new LoadableDetachableModel<>() {
 
                         private static final long serialVersionUID = -2965284931860212687L;
 

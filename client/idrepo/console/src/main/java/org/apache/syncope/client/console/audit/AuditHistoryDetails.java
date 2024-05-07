@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.audit;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -214,21 +215,21 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                AuditEventTO beforeEntry = beforeVersionsPanel.getModelObject() == null
+                AuditEventTO beforeEvent = beforeVersionsPanel.getModelObject() == null
                         ? latestAuditEventTO
                         : beforeVersionsPanel.getModelObject();
-                AuditEventTO afterEntry = afterVersionsPanel.getModelObject() == null
+                AuditEventTO afterEvent = afterVersionsPanel.getModelObject() == null
                         ? after
-                        : buildAfterAuditEventTO(beforeEntry);
+                        : buildAfterAuditEventTO(beforeEvent);
                 AuditHistoryDetails.this.addOrReplace(
-                        new JsonDiffPanel(toJSON(beforeEntry, reference), toJSON(afterEntry, reference)));
+                        new JsonDiffPanel(toJSON(beforeEvent, reference), toJSON(afterEvent, reference)));
                 // change after audit entries in order to match only the ones newer than the current after one
                 afterVersionsPanel.setChoices(auditEntries.stream().
-                        filter(ae -> ae.getWhen().isAfter(beforeEntry.getWhen())
-                        || ae.getWhen().isEqual(beforeEntry.getWhen())).
+                        filter(ae -> ae.getWhen().isAfter(beforeEvent.getWhen())
+                        || ae.getWhen().isEqual(beforeEvent.getWhen())).
                         collect(Collectors.toList()));
                 // set the new after entry
-                afterVersionsPanel.setModelObject(afterEntry);
+                afterVersionsPanel.setModelObject(afterEvent);
                 target.add(AuditHistoryDetails.this);
             }
         });
@@ -323,30 +324,36 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
         return output;
     }
 
-    protected Model<String> toJSON(final AuditEventTO auditEntry, final Class<T> reference) {
+    protected Model<String> toJSON(final AuditEventTO auditEvent, final Class<T> reference) {
+        if (auditEvent == null) {
+            return Model.of();
+        }
+
         try {
-            if (auditEntry == null) {
-                return Model.of();
+            String content;
+            if (auditEvent.getBefore() == null) {
+                JsonNode output = MAPPER.readTree(auditEvent.getOutput());
+                if (output.has("entity")) {
+                    content = output.get("entity").toPrettyString();
+                } else {
+                    content = output.toPrettyString();
+                }
+            } else {
+                content = auditEvent.getBefore();
             }
-            String content = auditEntry.getBefore() == null
-                    ? MAPPER.readTree(auditEntry.getOutput()).get("entity") == null
-                    ? MAPPER.readTree(auditEntry.getOutput()).toPrettyString()
-                    : MAPPER.readTree(auditEntry.getOutput()).get("entity").toPrettyString()
-                    : auditEntry.getBefore();
 
             T entity = MAPPER.reader().
                     with(StreamReadFeature.STRICT_DUPLICATE_DETECTION).
                     readValue(content, reference);
-            if (entity instanceof UserTO) {
-                UserTO userTO = (UserTO) entity;
+            if (entity instanceof UserTO userTO) {
                 userTO.setPassword(null);
                 userTO.setSecurityAnswer(null);
             }
 
             return Model.of(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(entity));
         } catch (Exception e) {
-            LOG.error("While (de)serializing entity {}", auditEntry, e);
-            throw new WicketRuntimeException(e);
+            LOG.error("While (de)serializing entity {}", auditEvent, e);
+            return Model.of();
         }
     }
 }

@@ -25,16 +25,18 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.SortedSet;
 import java.util.Spliterator;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public class SortedSetList implements List<Neo4jImplementation> {
+public class SortedSetList<E extends Entity, R extends Neo4jSortedRelationsihip<E>> implements List<E> {
 
-    private static class SortedSetListIterator implements Iterator<Neo4jImplementation> {
+    private class SortedSetListIterator implements Iterator<E> {
 
-        private final Iterator<Neo4jImplementationRelationship> ditor;
+        private final Iterator<R> ditor;
 
-        SortedSetListIterator(final Iterator<Neo4jImplementationRelationship> ditor) {
+        SortedSetListIterator(final Iterator<R> ditor) {
             this.ditor = ditor;
         }
 
@@ -44,8 +46,8 @@ public class SortedSetList implements List<Neo4jImplementation> {
         }
 
         @Override
-        public Neo4jImplementation next() {
-            return ditor.next().getImplementation();
+        public E next() {
+            return ditor.next().getEntity();
         }
 
         @Override
@@ -54,21 +56,21 @@ public class SortedSetList implements List<Neo4jImplementation> {
         }
     }
 
-    private static class SortedSetListSplitIterator implements Spliterator<Neo4jImplementation> {
+    private class SortedSetListSplitIterator implements Spliterator<E> {
 
-        private final Spliterator<Neo4jImplementationRelationship> ditor;
+        private final Spliterator<R> ditor;
 
-        SortedSetListSplitIterator(final Spliterator<Neo4jImplementationRelationship> ditor) {
+        SortedSetListSplitIterator(final Spliterator<R> ditor) {
             this.ditor = ditor;
         }
 
         @Override
-        public boolean tryAdvance(final Consumer<? super Neo4jImplementation> action) {
-            return ditor.tryAdvance(t -> action.accept(t.getImplementation()));
+        public boolean tryAdvance(final Consumer<? super E> action) {
+            return ditor.tryAdvance(t -> action.accept(t.getEntity()));
         }
 
         @Override
-        public Spliterator<Neo4jImplementation> trySplit() {
+        public Spliterator<E> trySplit() {
             return new SortedSetListSplitIterator(ditor.trySplit());
         }
 
@@ -83,15 +85,21 @@ public class SortedSetList implements List<Neo4jImplementation> {
         }
 
         @Override
-        public Comparator<? super Neo4jImplementation> getComparator() {
+        public Comparator<? super E> getComparator() {
             throw new UnsupportedOperationException("NOT FOR NOW");
         }
     }
 
-    private final SortedSet<Neo4jImplementationRelationship> delegate;
+    private final SortedSet<R> delegate;
 
-    public SortedSetList(final SortedSet<Neo4jImplementationRelationship> delegate) {
+    private final BiFunction<Integer, E, R> builder;
+
+    public SortedSetList(
+            final SortedSet<R> delegate,
+            final BiFunction<Integer, E, R> builder) {
+
         this.delegate = delegate;
+        this.builder = builder;
     }
 
     @Override
@@ -106,47 +114,44 @@ public class SortedSetList implements List<Neo4jImplementation> {
 
     @Override
     public boolean contains(final Object o) {
-        return delegate.stream().anyMatch(e -> e.getImplementation().equals(o));
+        return delegate.stream().anyMatch(e -> e.getEntity().equals(o));
     }
 
     @Override
-    public Iterator<Neo4jImplementation> iterator() {
+    public Iterator<E> iterator() {
         return new SortedSetListIterator(delegate.iterator());
     }
 
     @Override
-    public Spliterator<Neo4jImplementation> spliterator() {
+    public Spliterator<E> spliterator() {
         return new SortedSetListSplitIterator(delegate.spliterator());
     }
 
     @Override
     public Object[] toArray() {
         return delegate.stream().
-                sorted(Comparator.comparing(Neo4jImplementationRelationship::getIndex)).
-                map(Neo4jImplementationRelationship::getImplementation).toList().toArray();
+                sorted(Comparator.comparing(Neo4jSortedRelationsihip::getIndex)).
+                map(Neo4jSortedRelationsihip::getEntity).toList().toArray();
     }
 
     @Override
     public <T> T[] toArray(final T[] a) {
         return delegate.stream().
-                sorted(Comparator.comparing(Neo4jImplementationRelationship::getIndex)).
-                map(Neo4jImplementationRelationship::getImplementation).toList().toArray(a);
+                sorted(Comparator.comparing(Neo4jSortedRelationsihip::getIndex)).
+                map(Neo4jSortedRelationsihip::getEntity).toList().toArray(a);
     }
 
     @Override
-    public boolean add(final Neo4jImplementation e) {
-        return delegate.add(new Neo4jImplementationRelationship(
-                delegate.stream().map(Neo4jImplementationRelationship::getIndex).
+    public boolean add(final E e) {
+        return delegate.add(builder.apply(
+                delegate.stream().map(Neo4jSortedRelationsihip::getIndex).
                         max(Comparator.naturalOrder()).orElse(0) + 1,
                 e));
     }
 
     @Override
     public boolean remove(final Object o) {
-        if (o instanceof Neo4jImplementation impl) {
-            return delegate.removeIf(impl::equals);
-        }
-        return false;
+        return delegate.removeIf(o::equals);
     }
 
     @Override
@@ -155,12 +160,12 @@ public class SortedSetList implements List<Neo4jImplementation> {
     }
 
     @Override
-    public boolean addAll(final Collection<? extends Neo4jImplementation> c) {
+    public boolean addAll(final Collection<? extends E> c) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean addAll(final int index, final Collection<? extends Neo4jImplementation> c) {
+    public boolean addAll(final int index, final Collection<? extends E> c) {
         throw new UnsupportedOperationException();
     }
 
@@ -180,19 +185,18 @@ public class SortedSetList implements List<Neo4jImplementation> {
     }
 
     @Override
-    public Neo4jImplementation get(final int index) {
+    public E get(final int index) {
         if (index < 0 || index >= delegate.size()) {
             throw new IndexOutOfBoundsException();
         }
 
         int idx = 0;
-        for (Iterator<Neo4jImplementationRelationship> itor = delegate.iterator();
-                idx <= index && itor.hasNext();
-                idx++) {
+        for (Iterator<R> itor = delegate.iterator();
+                idx <= index && itor.hasNext(); idx++) {
 
-            Neo4jImplementationRelationship next = itor.next();
+            Neo4jSortedRelationsihip<E> next = itor.next();
             if (idx == index) {
-                return next.getImplementation();
+                return next.getEntity();
             }
         }
 
@@ -200,8 +204,8 @@ public class SortedSetList implements List<Neo4jImplementation> {
     }
 
     @Override
-    public Stream<Neo4jImplementation> stream() {
-        return delegate.stream().map(Neo4jImplementationRelationship::getImplementation);
+    public Stream<E> stream() {
+        return delegate.stream().map(Neo4jSortedRelationsihip::getEntity);
     }
 
     @Override
@@ -210,17 +214,17 @@ public class SortedSetList implements List<Neo4jImplementation> {
     }
 
     @Override
-    public Neo4jImplementation set(final int index, final Neo4jImplementation element) {
+    public E set(final int index, final E element) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void add(final int index, final Neo4jImplementation element) {
+    public void add(final int index, final E element) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Neo4jImplementation remove(final int index) {
+    public E remove(final int index) {
         throw new UnsupportedOperationException();
     }
 
@@ -235,17 +239,17 @@ public class SortedSetList implements List<Neo4jImplementation> {
     }
 
     @Override
-    public ListIterator<Neo4jImplementation> listIterator() {
+    public ListIterator<E> listIterator() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public ListIterator<Neo4jImplementation> listIterator(final int index) {
+    public ListIterator<E> listIterator(final int index) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public List<Neo4jImplementation> subList(final int fromIndex, final int toIndex) {
+    public List<E> subList(final int fromIndex, final int toIndex) {
         throw new UnsupportedOperationException();
     }
 }

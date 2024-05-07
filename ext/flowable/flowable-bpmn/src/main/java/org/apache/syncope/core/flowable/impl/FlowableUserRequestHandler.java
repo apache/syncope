@@ -28,16 +28,16 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.form.FormProperty;
+import org.apache.syncope.common.lib.form.FormPropertyType;
+import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.common.lib.to.UserRequestFormProperty;
-import org.apache.syncope.common.lib.to.UserRequestFormPropertyValue;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.UserRequestFormPropertyType;
 import org.apache.syncope.core.flowable.api.DropdownValueProvider;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
@@ -56,7 +56,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.flowable.common.engine.api.FlowableException;
 import org.flowable.common.engine.api.FlowableIllegalArgumentException;
-import org.flowable.engine.form.FormProperty;
 import org.flowable.engine.form.FormType;
 import org.flowable.engine.form.TaskFormData;
 import org.flowable.engine.history.HistoricActivityInstance;
@@ -275,33 +274,33 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         }
     }
 
-    protected static UserRequestFormPropertyType fromFlowableFormType(final FormType flowableFormType) {
-        UserRequestFormPropertyType result = UserRequestFormPropertyType.String;
+    protected static FormPropertyType fromFlowableFormType(final FormType flowableFormType) {
+        FormPropertyType result = FormPropertyType.String;
 
         if (null != flowableFormType.getName()) {
             switch (flowableFormType.getName()) {
                 case "long":
-                    result = UserRequestFormPropertyType.Long;
+                    result = FormPropertyType.Long;
                     break;
 
                 case "enum":
-                    result = UserRequestFormPropertyType.Enum;
+                    result = FormPropertyType.Enum;
                     break;
 
                 case "date":
-                    result = UserRequestFormPropertyType.Date;
+                    result = FormPropertyType.Date;
                     break;
 
                 case "boolean":
-                    result = UserRequestFormPropertyType.Boolean;
+                    result = FormPropertyType.Boolean;
                     break;
 
                 case "dropdown":
-                    result = UserRequestFormPropertyType.Dropdown;
+                    result = FormPropertyType.Dropdown;
                     break;
 
                 case "password":
-                    result = UserRequestFormPropertyType.Password;
+                    result = FormPropertyType.Password;
                     break;
 
                 case "string":
@@ -389,7 +388,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 getVariable(procInstId, FlowableRuntimeUtils.USER_UR, UserUR.class));
 
         formTO.getProperties().addAll(props.stream().map(prop -> {
-            UserRequestFormProperty propertyTO = new UserRequestFormProperty();
+            FormProperty propertyTO = new FormProperty();
             propertyTO.setId(prop.getPropertyId());
             propertyTO.setName(prop.getPropertyId());
             propertyTO.setValue(prop.getPropertyValue());
@@ -404,7 +403,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
             final String procInstId,
             final String taskId,
             final String formKey,
-            final List<FormProperty> props) {
+            final List<org.flowable.engine.form.FormProperty> props) {
 
         UserRequestForm formTO = new UserRequestForm();
 
@@ -424,7 +423,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                 getVariable(procInstId, FlowableRuntimeUtils.USER_UR, UserUR.class));
 
         formTO.getProperties().addAll(props.stream().map(fProp -> {
-            UserRequestFormProperty propertyTO = new UserRequestFormProperty();
+            FormProperty propertyTO = new FormProperty();
             propertyTO.setId(fProp.getId());
             propertyTO.setName(fProp.getName());
             propertyTO.setReadable(fProp.isReadable());
@@ -438,8 +437,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
 
                 case Enum ->
                     ((Map<String, String>) fProp.getType().getInformation("values")).
-                            forEach((key, value) -> propertyTO.getEnumValues().add(
-                            new UserRequestFormPropertyValue(key, value)));
+                            forEach((key, value) -> propertyTO.getEnumValues().add(new FormPropertyValue(key, value)));
 
                 case Dropdown -> {
                     String valueProviderBean = (String) fProp.getType().getInformation(DropdownValueProvider.NAME);
@@ -447,7 +445,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
                         DropdownValueProvider valueProvider = ApplicationContextProvider.getApplicationContext().
                                 getBean(valueProviderBean, DropdownValueProvider.class);
                         valueProvider.getValues().forEach((key, value) -> propertyTO.getDropdownValues().add(
-                                new UserRequestFormPropertyValue(key, value)));
+                                new FormPropertyValue(key, value)));
                     } catch (Exception e) {
                         LOG.error("Could not find bean {} of type {} for form property {}",
                                 valueProviderBean, DropdownValueProvider.class.getName(), propertyTO.getId(), e);
@@ -623,7 +621,7 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     protected Map<String, String> getPropertiesForSubmit(final UserRequestForm form) {
         Map<String, String> props = new HashMap<>();
         form.getProperties().stream().
-                filter(UserRequestFormProperty::isWritable).
+                filter(FormProperty::isWritable).
                 forEach(prop -> props.put(prop.getId(), prop.getValue()));
         return Collections.unmodifiableMap(props);
     }

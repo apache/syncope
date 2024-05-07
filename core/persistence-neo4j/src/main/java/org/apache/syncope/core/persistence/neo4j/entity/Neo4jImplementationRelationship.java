@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
+import java.util.function.BiFunction;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.data.neo4j.core.schema.RelationshipId;
@@ -25,7 +26,13 @@ import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
 @RelationshipProperties
-public class Neo4jImplementationRelationship implements Comparable<Neo4jImplementationRelationship> {
+public class Neo4jImplementationRelationship
+        extends Neo4jSortedRelationsihip<Neo4jImplementation>
+        implements Comparable<Neo4jImplementationRelationship> {
+
+    public static BiFunction<Integer, Neo4jImplementation, Neo4jImplementationRelationship> builder() {
+        return (Integer i, Neo4jImplementation e) -> new Neo4jImplementationRelationship(i, e);
+    }
 
     @RelationshipId
     private Long id;
@@ -40,11 +47,13 @@ public class Neo4jImplementationRelationship implements Comparable<Neo4jImplemen
         this.implementation = implementation;
     }
 
+    @Override
     public int getIndex() {
         return index;
     }
 
-    public Neo4jImplementation getImplementation() {
+    @Override
+    public Neo4jImplementation getEntity() {
         return implementation;
     }
 

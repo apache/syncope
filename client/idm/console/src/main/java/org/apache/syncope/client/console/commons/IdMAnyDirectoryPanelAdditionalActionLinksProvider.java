@@ -192,8 +192,7 @@ public class IdMAnyDirectoryPanelAdditionalActionLinksProvider
 
             @Override
             public void onClick(final AjaxRequestTarget target, final GroupTO ignore) {
-                IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(
-                        new GroupWrapper(modelObject));
+                IModel<AnyWrapper<GroupTO>> formModel = new CompoundPropertyModel<>(new GroupWrapper(modelObject));
                 modal.setFormModel(formModel);
 
                 target.add(modal.setContent(new AnyStatusModal<>(

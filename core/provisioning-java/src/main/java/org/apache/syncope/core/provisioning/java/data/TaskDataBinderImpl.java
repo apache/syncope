@@ -19,12 +19,20 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.command.CommandTO;
+import org.apache.syncope.common.lib.form.FormProperty;
+import org.apache.syncope.common.lib.form.FormPropertyValue;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.FormPropertyDefTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -49,7 +57,9 @@ import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -62,6 +72,8 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.api.macro.MacroActions;
+import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
@@ -74,8 +86,6 @@ import org.slf4j.LoggerFactory;
 public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements TaskDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TaskDataBinder.class);
-
-    protected static final String MACRO_RUN_JOB_DELEGATE = "org.apache.syncope.core.logic.job.MacroRunJobDelegate";
 
     protected final RealmSearchDAO realmSearchDAO;
 
@@ -92,6 +102,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     protected final SyncopeTaskScheduler scheduler;
 
     protected final TaskUtilsFactory taskUtilsFactory;
+
+    protected final Map<String, MacroActions> perContextMacroActions = new ConcurrentHashMap<>();
 
     public TaskDataBinderImpl(
             final RealmSearchDAO realmSearchDAO,
@@ -225,6 +237,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         macroTask.setRealm(realmSearchDAO.findByFullPath(macroTaskTO.getRealm()).
                 orElseThrow(() -> new NotFoundException("Realm " + macroTaskTO.getRealm())));
 
+        macroTask.getCommands().clear();
         macroTaskTO.getCommands().
                 forEach(command -> implementationDAO.findById(command.getKey()).ifPresentOrElse(
                 impl -> {
@@ -234,7 +247,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                             args = ImplementationManager.emptyArgs(impl);
                         }
 
-                        macroTask.add(impl, args);
+                        MacroTaskCommand macroTaskCommand = entityFactory.newEntity(MacroTaskCommand.class);
+                        macroTaskCommand.setCommand(impl);
+                        macroTaskCommand.setArgs(args);
+
+                        macroTaskCommand.setMacroTask(macroTask);
+                        macroTask.add(macroTaskCommand);
                     } catch (Exception e) {
                         LOG.error("While adding Command {} to Macro", impl.getKey(), e);
 
@@ -248,6 +266,30 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
         macroTask.setContinueOnError(macroTaskTO.isContinueOnError());
         macroTask.setSaveExecs(macroTaskTO.isSaveExecs());
+
+        macroTask.getFormPropertyDefs().clear();
+        macroTaskTO.getFormPropertyDefs().forEach(fpdTO -> {
+            FormPropertyDef fpd = entityFactory.newEntity(FormPropertyDef.class);
+            fpd.setKey(fpdTO.getKey());
+            fpd.setName(fpdTO.getName());
+            fpd.setType(fpdTO.getType());
+            fpd.setReadable(fpdTO.isReadable());
+            fpd.setWritable(fpdTO.isWritable());
+            fpd.setRequired(fpdTO.isRequired());
+            fpd.setDatePattern(fpdTO.getDatePattern());
+            fpd.setEnumValues(fpdTO.getEnumValues());
+
+            fpd.setMacroTask(macroTask);
+            macroTask.add(fpd);
+        });
+
+        if (macroTaskTO.getMacroActions() == null) {
+            macroTask.setMacroAction(null);
+        } else {
+            implementationDAO.findById(macroTaskTO.getMacroActions()).ifPresentOrElse(
+                    macroTask::setMacroAction,
+                    () -> LOG.debug("Invalid Implementation {}, ignoring...", macroTaskTO.getMacroActions()));
+        }
     }
 
     @Override
@@ -272,16 +314,16 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
             Implementation jobDelegate = (macroTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                            filter(impl -> MACRO_RUN_JOB_DELEGATE.equals(impl.getBody())).
+                            filter(impl -> MacroJobDelegate.class.getName().equals(impl.getBody())).
                             findFirst()
                     : implementationDAO.findById(macroTaskTO.getJobDelegate())).
                     orElse(null);
             if (jobDelegate == null) {
                 jobDelegate = entityFactory.newEntity(Implementation.class);
-                jobDelegate.setKey(StringUtils.substringAfterLast(MACRO_RUN_JOB_DELEGATE, "."));
+                jobDelegate.setKey(MacroJobDelegate.class.getSimpleName());
                 jobDelegate.setEngine(ImplementationEngine.JAVA);
                 jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
-                jobDelegate.setBody(MACRO_RUN_JOB_DELEGATE);
+                jobDelegate.setBody(MacroJobDelegate.class.getName());
                 jobDelegate = implementationDAO.save(jobDelegate);
             }
             macroTask.setJobDelegate(jobDelegate);
@@ -320,21 +362,10 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setCronExpression(taskTO.getCronExpression());
         task.setActive(taskTO.isActive());
 
-        switch (task) {
-            case MacroTask macroTask -> {
-                MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
-
-                macroTask.getCommands().clear();
-                macroTask.getCommandArgs().clear();
-
-                fill(macroTask, macroTaskTO);
-            }
-
-            case ProvisioningTask<?> provisioningTask ->
-                fill(provisioningTask, (ProvisioningTaskTO) taskTO);
-
-            default -> {
-            }
+        if (task instanceof MacroTask) {
+            fill((MacroTask) task, (MacroTaskTO) taskTO);
+        } else if (task instanceof ProvisioningTask) {
+            fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
         }
     }
 
@@ -450,17 +481,33 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 MacroTask macroTask = (MacroTask) task;
                 MacroTaskTO macroTaskTO = (MacroTaskTO) taskTO;
 
+                fill(macroTaskTO, macroTask);
+
                 macroTaskTO.setJobDelegate(macroTask.getJobDelegate().getKey());
                 macroTaskTO.setRealm(macroTask.getRealm().getFullPath());
-                for (int i = 0; i < macroTask.getCommands().size(); i++) {
-                    macroTaskTO.getCommands().add(
-                            new CommandTO.Builder(macroTask.getCommands().get(i).getKey()).
-                                    args(macroTask.getCommandArgs().get(i)).build());
-                }
+
+                macroTask.getCommands().forEach(mct -> macroTaskTO.getCommands().add(
+                        new CommandTO.Builder(mct.getCommand().getKey()).args(mct.getArgs()).build()));
+
                 macroTaskTO.setContinueOnError(macroTask.isContinueOnError());
                 macroTaskTO.setSaveExecs(macroTask.isSaveExecs());
 
-                fill(macroTaskTO, macroTask);
+                macroTask.getFormPropertyDefs().forEach(fpd -> {
+                    FormPropertyDefTO fpdTO = new FormPropertyDefTO();
+                    fpdTO.setKey(fpd.getKey());
+                    fpdTO.setName(fpd.getName());
+                    fpdTO.setType(fpd.getType());
+                    fpdTO.setReadable(fpd.isReadable());
+                    fpdTO.setWritable(fpd.isWritable());
+                    fpdTO.setRequired(fpd.isRequired());
+                    fpdTO.setDatePattern(fpd.getDatePattern());
+                    fpdTO.getEnumValues().putAll(fpd.getEnumValues());
+
+                    macroTaskTO.getFormPropertyDefs().add(fpdTO);
+                });
+
+                Optional.ofNullable(macroTask.getMacroActions()).
+                        ifPresent(fv -> macroTaskTO.setMacroActions(fv.getKey()));
             }
 
             case PULL -> {
@@ -476,9 +523,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         ? UnmatchingRule.PROVISION : pullTask.getUnmatchingRule());
                 pullTaskTO.setPullMode(pullTask.getPullMode());
 
-                if (pullTask.getReconFilterBuilder() != null) {
-                    pullTaskTO.setReconFilterBuilder(pullTask.getReconFilterBuilder().getKey());
-                }
+                Optional.ofNullable(pullTask.getReconFilterBuilder()).
+                        ifPresent(rfb -> pullTaskTO.setReconFilterBuilder(rfb.getKey()));
 
                 pullTask.getTemplates().
                         forEach(template -> pullTaskTO.getTemplates().
@@ -526,5 +572,60 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         }
 
         return taskTO;
+    }
+
+    @Override
+    public SyncopeForm getMacroTaskForm(final MacroTask task) {
+        if (task.getFormPropertyDefs().isEmpty()) {
+            throw new NotFoundException("No form properties defined for MacroTask " + task.getKey());
+        }
+
+        Optional<MacroActions> actions;
+        if (task.getMacroActions() == null) {
+            actions = Optional.empty();
+        } else {
+            try {
+                actions = Optional.of(ImplementationManager.build(
+                        task.getMacroActions(),
+                        () -> perContextMacroActions.get(task.getMacroActions().getKey()),
+                        instance -> perContextMacroActions.put(task.getMacroActions().getKey(), instance)));
+            } catch (Exception e) {
+                LOG.error("Could not build {}", task.getMacroActions().getKey(), e);
+
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
+                sce.getElements().add("Could not build " + task.getMacroActions().getKey());
+                throw sce;
+            }
+        }
+
+        SyncopeForm form = new SyncopeForm();
+
+        form.getProperties().addAll(task.getFormPropertyDefs().stream().map(fpd -> {
+            FormProperty prop = new FormProperty();
+            prop.setId(fpd.getKey());
+            prop.setName(fpd.getName());
+            prop.setReadable(fpd.isReadable());
+            prop.setRequired(fpd.isRequired());
+            prop.setWritable(fpd.isWritable());
+            prop.setType(fpd.getType());
+            switch (prop.getType()) {
+                case Date ->
+                    prop.setDatePattern(fpd.getDatePattern());
+
+                case Enum ->
+                    fpd.getEnumValues().
+                            forEach((key, value) -> prop.getEnumValues().add(new FormPropertyValue(key, value)));
+
+                case Dropdown ->
+                    actions.ifPresent(a -> a.getDropdownValues(fpd.getKey()).
+                            forEach((key, value) -> prop.getDropdownValues().add(new FormPropertyValue(key, value))));
+
+                default -> {
+                }
+            }
+            return prop;
+        }).collect(Collectors.toList()));
+
+        return form;
     }
 }

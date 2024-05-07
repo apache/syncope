@@ -70,7 +70,8 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient
-    private List<Neo4jImplementation> sortedActions = new SortedSetList(actions);
+    private List<Neo4jImplementation> sortedActions = new SortedSetList<>(
+            actions, Neo4jImplementationRelationship.builder());
 
     @Relationship(type = PULL_TASK_TEMPLATE_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jAnyTemplatePullTask> templates = new ArrayList<>();
@@ -171,6 +172,6 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
 
     @PostLoad
     public void postLoad() {
-        sortedActions = new SortedSetList(actions);
+        sortedActions = new SortedSetList<>(actions, Neo4jImplementationRelationship.builder());
     }
 }

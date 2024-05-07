@@ -22,20 +22,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
@@ -61,6 +73,12 @@ public class TaskTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Test
     public void findByName() {
@@ -145,6 +163,62 @@ public class TaskTest extends AbstractTest {
         assertNotNull(task);
 
         PropagationTask actual = (PropagationTask) taskDAO.findById(TaskType.PROPAGATION, task.getKey()).orElseThrow();
+        assertEquals(task, actual);
+    }
+
+    @Test
+    public void saveMacroTask() throws Exception {
+        MacroTask task = entityFactory.newEntity(MacroTask.class);
+        task.setRealm(realmDAO.getRoot());
+        task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
+        task.setName("Macro test");
+        task.setContinueOnError(true);
+
+        Implementation command = entityFactory.newEntity(Implementation.class);
+        command.setKey("command");
+        command.setType(IdRepoImplementationType.COMMAND);
+        command.setEngine(ImplementationEngine.JAVA);
+        command.setBody("clazz");
+        command = implementationDAO.save(command);
+        assertNotNull(command);
+
+        MacroTaskCommand macroTaskCommand = entityFactory.newEntity(MacroTaskCommand.class);
+        macroTaskCommand.setCommand(command);
+        macroTaskCommand.setMacroTask(task);
+        task.add(macroTaskCommand);
+
+        FormPropertyDef formPropertyDef = entityFactory.newEntity(FormPropertyDef.class);
+        formPropertyDef.setKey("one");
+        formPropertyDef.setName("One");
+        formPropertyDef.setType(FormPropertyType.Enum);
+        formPropertyDef.setMacroTask(task);
+        task.add(formPropertyDef);
+
+        Implementation macroActions = entityFactory.newEntity(Implementation.class);
+        macroActions.setKey("macroActions");
+        macroActions.setType(IdRepoImplementationType.MACRO_ACTIONS);
+        macroActions.setEngine(ImplementationEngine.JAVA);
+        macroActions.setBody("clazz");
+        macroActions = implementationDAO.save(macroActions);
+        assertNotNull(macroActions);
+        task.setMacroAction(macroActions);
+
+        try {
+            taskDAO.save(task);
+            fail();
+        } catch (InvalidEntityException e) {
+            assertNotNull(e);
+        }
+        formPropertyDef.setEnumValues(Map.of("key", "value"));
+
+        task = taskDAO.save(task);
+        assertNotNull(task);
+        assertEquals(1, task.getCommands().size());
+        assertEquals(command, task.getCommands().get(0).getCommand());
+        assertEquals(1, task.getFormPropertyDefs().size());
+        assertEquals(formPropertyDef, task.getFormPropertyDefs().get(0));
+
+        MacroTask actual = (MacroTask) taskDAO.findById(TaskType.MACRO, task.getKey()).orElseThrow();
         assertEquals(task, actual);
     }
 

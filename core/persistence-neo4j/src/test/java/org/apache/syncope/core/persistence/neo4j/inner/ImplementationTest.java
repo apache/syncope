@@ -71,7 +71,7 @@ public class ImplementationTest extends AbstractTest {
         implementations = implementationDAO.findByType(IdRepoImplementationType.PASSWORD_RULE);
         assertEquals(3, implementations.size());
 
-        implementations = implementationDAO.findByType(IdRepoImplementationType.VALIDATOR);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         assertEquals(2, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PULL_CORRELATION_RULE);
@@ -86,7 +86,7 @@ public class ImplementationTest extends AbstractTest {
         Implementation impl = entityFactory.newEntity(Implementation.class);
         impl.setKey("new");
         impl.setEngine(ImplementationEngine.GROOVY);
-        impl.setType(IdRepoImplementationType.VALIDATOR);
+        impl.setType(IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         impl.setBody("");
 
         Implementation actual = implementationDAO.save(impl);
