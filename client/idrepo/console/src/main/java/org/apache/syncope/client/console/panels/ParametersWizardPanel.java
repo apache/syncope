@@ -47,11 +47,6 @@ public class ParametersWizardPanel extends BaseAjaxWizardBuilder<ParametersWizar
     }
 
     @Override
-    protected void onCancelInternal(final ParametersForm modelObject) {
-        //do nothing
-    }
-
-    @Override
     protected Serializable onApplyInternal(final ParametersForm modelObject) {
         modelObject.getParam().setMultivalue(modelObject.getSchema().isMultivalue());
         try {

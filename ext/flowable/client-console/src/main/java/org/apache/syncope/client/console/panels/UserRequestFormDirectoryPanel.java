@@ -214,8 +214,8 @@ public class UserRequestFormDirectoryPanel
             public void onClick(final AjaxRequestTarget target, final UserRequestForm ignore) {
                 manageFormModal.setFormModel(new CompoundPropertyModel<>(model.getObject()));
 
-                target.add(manageFormModal.setContent(new UserRequestFormModal(manageFormModal, pageRef, model.
-                        getObject()) {
+                target.add(manageFormModal.setContent(
+                        new UserRequestFormModal(manageFormModal, pageRef, model.getObject()) {
 
                     private static final long serialVersionUID = 5546519445061007248L;
 

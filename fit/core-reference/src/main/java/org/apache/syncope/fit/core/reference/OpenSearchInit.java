@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -68,6 +69,6 @@ public class OpenSearchInit {
         task.setName("OpenSearch Reindex");
         task = taskLogic.createSchedTask(TaskType.SCHEDULED, task);
 
-        taskLogic.execute(task.getKey(), null, false);
+        taskLogic.execute(new ExecSpecs.Builder().key(task.getKey()).dryRun(false).build());
     }
 }

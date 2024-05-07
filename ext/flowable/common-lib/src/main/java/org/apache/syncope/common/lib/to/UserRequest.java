@@ -18,25 +18,15 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.Date;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
-@JsonPropertyOrder(value = { "_class", "bpmnProcess" })
 public class UserRequest implements BaseBean {
 
     private static final long serialVersionUID = -8430826310789942133L;
-
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
-    @JsonProperty("_class")
-    private final String clazz = "org.apache.syncope.common.lib.to.UserRequest";
 
     private String bpmnProcess;
 

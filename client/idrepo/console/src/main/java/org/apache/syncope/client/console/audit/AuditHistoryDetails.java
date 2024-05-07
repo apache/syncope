@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.audit;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.json.JsonMapper;
@@ -325,15 +326,22 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
     }
 
     protected Model<String> toJSON(final AuditEntry auditEntry, final Class<T> reference) {
+        if (auditEntry == null) {
+            return Model.of();
+        }
+
         try {
-            if (auditEntry == null) {
-                return Model.of();
+            String content;
+            if (auditEntry.getBefore() == null) {
+                JsonNode output = MAPPER.readTree(auditEntry.getOutput());
+                if (output.has("entity")) {
+                    content = output.get("entity").toPrettyString();
+                } else {
+                    content = output.toPrettyString();
+                }
+            } else {
+                content = auditEntry.getBefore();
             }
-            String content = auditEntry.getBefore() == null
-                    ? MAPPER.readTree(auditEntry.getOutput()).get("entity") == null
-                    ? MAPPER.readTree(auditEntry.getOutput()).toPrettyString()
-                    : MAPPER.readTree(auditEntry.getOutput()).get("entity").toPrettyString()
-                    : auditEntry.getBefore();
 
             T entity = MAPPER.reader().
                     with(StreamReadFeature.STRICT_DUPLICATE_DETECTION).
@@ -347,7 +355,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
             return Model.of(MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(entity));
         } catch (Exception e) {
             LOG.error("While (de)serializing entity {}", auditEntry, e);
-            throw new WicketRuntimeException(e);
+            return Model.of();
         }
     }
 }

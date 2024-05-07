@@ -120,12 +120,11 @@ and presents several advantages and more features, if compared to the default us
 
 . Besides mandatory statuses, which are modeled as BPMN `userTask` instances, more can be freely added
 at runtime, provided that adequate transitions and conditions are also inserted; more details about available BPMN
-constructs are available in the https://www.flowable.org/docs/userguide/index.html#bpmnConstructs[Flowable User Guide^]. +
+constructs are available in the https://www.flowable.com/open-source/docs/bpmn/ch07b-BPMN-Constructs[Flowable User Guide^]. +
 Additional statuses and transitions allow the internal processes of Apache Syncope to better adapt to suit organizational flows.
 . Custom logic can be injected into the workflow process by providing BPMN `serviceTask` instances.
-. https://www.flowable.org/docs/userguide/index.html#forms[Flowable forms^] are used for implementing <<approval,approval>>.
-. The https://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^] is available with the
-<<admin-console,admin console>>, thus allowing web-based graphical modeling of the workflow definition.
+. Flowable forms are used for implementing <<approval,approval>>.
+. <<admin-console,admin console>> supports web-based graphical modeling of the workflow definition.
 
 [.text-center]
 image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 
@@ -139,7 +138,7 @@ might not be allowed to 'plain' Users, as there could be conditions which requir
 Managers could also be asked to complete the information provided before the requested operation is finished.
 
 In order to define an approval form, a dedicated BPMN `userTask` needs to be defined, following the rules established
-for https://www.flowable.org/docs/userguide/index.html#forms[Flowable forms^].
+for Flowable forms.
 
 [NOTE]
 .What is required for administrators to manage approval?
@@ -153,7 +152,7 @@ The following conditions must be met, for an User `U` to act as administrator fo
 .. `USER_READ`
 . The BPMN `userTask` must either indicate `U` among `candidateUsers` or at least one of the groups assigned to `U`
 among `candidateGroups`, as required by
-https://www.flowable.org/docs/userguide/index.html#bpmnUserTaskUserAssignmentExtension[Flowable's task assignment rules^]
+https://www.flowable.com/open-source/docs/bpmn/ch07b-BPMN-Constructs#flowable-extensions-for-task-assignment[Flowable's task assignment rules^]
 
 The special super-user `admin` is entitled to manage all approvals, even those not specifying any
 `candidateUsers` or `candidateGroups`.
@@ -162,8 +161,8 @@ The special super-user `admin` is entitled to manage all approvals, even those n
 [[sample-selfreg-approval]]
 .Approving self-registration
 ====
-The snippet below shows how to define an approval form in XML; the same operation can be performed via the
-https://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^].
+The snippet below shows how to define an approval form in XML; the same operation can be performed via the GUI editor
+provided by <<admin-console,admin console>>.
 
 [source,xml]
 ----
@@ -209,8 +208,8 @@ which might also include one or more <<approval,approval>> steps.
 [[sample-user-request]]
 .Assigning printer to user
 ====
-The BPMN process below shows how to define an user request in XML; the same operation can be performed via the
-https://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^].
+The BPMN process below shows how to define an user request in XML; the same operation can be performed via the GUI
+editor provided by <<admin-console,admin console>>.
 
 In this user request definition:
 
@@ -258,8 +257,7 @@ In this user request definition:
 </process>
 ----
 <1> the first form defined is self-assigned to the user which has started this request
-<2> the `dropdown` type is a Syncope extension of the
-https://www.flowable.org/docs/userguide/index.html#formProperties[form property types supported by Flowable^]
+<2> the `dropdown` type is a Syncope extension of the form property types supported by Flowable
 and allows to inject a list of elements via the `dropdownValueProvider` value (with name `printersValueProvider` in this
 sample), which must be a Spring bean implementing the
 ifeval::["{snapshotOrRelease}" == "release"]

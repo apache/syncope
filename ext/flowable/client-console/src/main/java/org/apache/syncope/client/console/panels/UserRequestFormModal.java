@@ -26,7 +26,6 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.SubmitableModalPanel;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
 import org.apache.syncope.common.lib.to.UserRequestForm;
-import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;

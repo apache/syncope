@@ -45,7 +45,6 @@ under the License.
     <module>flowable-bpmn</module>
     <module>client-console</module>
     <module>client-enduser</module>
-    <module>client-common-ui</module>
   </modules>
 
 </project>

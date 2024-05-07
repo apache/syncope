@@ -253,7 +253,7 @@ public class DefaultMappingManager implements MappingManager {
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext).toString();
+            evalConnObjectLink = JexlUtils.evaluateExpr(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);
@@ -281,7 +281,7 @@ public class DefaultMappingManager implements MappingManager {
         if (StringUtils.isNotBlank(connObjectLink)) {
             JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(realm, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext).toString();
+            evalConnObjectLink = JexlUtils.evaluateExpr(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);

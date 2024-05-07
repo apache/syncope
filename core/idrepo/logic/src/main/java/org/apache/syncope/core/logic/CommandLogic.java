@@ -37,11 +37,11 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -134,7 +134,7 @@ public class CommandLogic extends AbstractLogic<EntityTO> {
         }
 
         try {
-            return runnable.run(command.getArgs());
+            return runnable.run(command.getArgs() == null ? ImplementationManager.emptyArgs(impl) : command.getArgs());
         } catch (Exception e) {
             LOG.error("While running {} on {}", command.getKey(), command.getArgs(), e);
 

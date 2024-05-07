@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AbstractOIDCAuthModuleConf;
@@ -501,7 +502,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.getSystem().setKerberosKdc(conf.getKerberosKdc());
         props.getSystem().setKerberosRealm(conf.getKerberosRealm());
         props.getSystem().setKerberosConf(conf.getKerberosConf());
-        props.getSystem().setKerberosDebug(conf.isKerberosDebug() ? Boolean.TRUE.toString() : Boolean.FALSE.toString());
+        props.getSystem().setKerberosDebug(BooleanUtils.toStringTrueFalse(conf.isKerberosDebug()));
 
         if (conf.getLdap() != null) {
             SpnegoLdapProperties ldapProps = new SpnegoLdapProperties();

@@ -715,7 +715,7 @@ public class SCIMDataBinder {
             final SCIMPatchOperation op) {
 
         confs.stream().
-                filter(conf -> BooleanUtils.toBoolean(JexlUtils.evaluate(
+                filter(conf -> BooleanUtils.toBoolean(JexlUtils.evaluateExpr(
                 filter2JexlExpression(op.getPath().getFilter()),
                 new MapContext(Map.of("type", conf.getType().name()))).toString())).findFirst().
                 ifPresent(conf -> {
@@ -947,7 +947,7 @@ public class SCIMDataBinder {
                             ifPresent(addressConf -> setAttribute(userUR.getPlainAttrs(), addressConf, op)));
                 } else if (op.getPath().getFilter() != null) {
                     conf.getUserConf().getAddresses().stream().
-                            filter(addressConf -> BooleanUtils.toBoolean(JexlUtils.evaluate(
+                            filter(addressConf -> BooleanUtils.toBoolean(JexlUtils.evaluateExpr(
                             filter2JexlExpression(op.getPath().getFilter()),
                             new MapContext(Map.of("type", addressConf.getType().name()))).toString())).findFirst().
                             ifPresent(addressConf -> setAttribute(userUR.getPlainAttrs(), addressConf, op));
@@ -1026,8 +1026,8 @@ public class SCIMDataBinder {
         SearchCond searchCond = SearchCond.getLeaf(membCond);
 
         if (output(attributes, excludedAttributes, "members")) {
-            int count = userLogic.search(searchCond,
-                    1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
+            int count = userLogic.search(
+                    searchCond, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
 
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<UserTO> users = userLogic.search(
