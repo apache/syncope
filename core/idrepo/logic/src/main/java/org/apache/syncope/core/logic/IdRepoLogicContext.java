@@ -209,6 +209,7 @@ public class IdRepoLogicContext {
             final AuditEventDAO auditEventDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
+            final ImplementationLookup implementationLookup,
             final AuditDataBinder binder,
             final AuditManager auditManager) {
 
@@ -217,6 +218,7 @@ public class IdRepoLogicContext {
                 auditEventDAO,
                 resourceDAO,
                 entityFactory,
+                implementationLookup,
                 binder,
                 auditManager);
     }

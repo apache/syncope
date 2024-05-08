@@ -34,10 +34,12 @@ import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 @EnableConfigurationProperties(SecurityProperties.class)
@@ -46,17 +48,13 @@ public class SecurityContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityContext.class);
 
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     @Bean
-    public CipherAlgorithm adminPasswordAlgorithm(final SecurityProperties props) {
-        return props.getAdminPasswordAlgorithm();
+    public static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+        return new GrantedAuthorityDefaults(""); // Remove the ROLE_ prefix
     }
 
-    @Bean
-    public JWSAlgorithm jwsAlgorithm(final SecurityProperties props) {
-        return JWSAlgorithm.parse(props.getJwsAlgorithm().toUpperCase());
-    }
-
-    private static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
+    protected static String jwsKey(final JWSAlgorithm jwsAlgorithm, final SecurityProperties props) {
         String jwsKey = props.getJwsKey();
         if (jwsKey == null) {
             throw new IllegalArgumentException("No JWS key provided");
@@ -77,6 +75,16 @@ public class SecurityContext {
         }
 
         return jwsKey;
+    }
+
+    @Bean
+    public CipherAlgorithm adminPasswordAlgorithm(final SecurityProperties props) {
+        return props.getAdminPasswordAlgorithm();
+    }
+
+    @Bean
+    public JWSAlgorithm jwsAlgorithm(final SecurityProperties props) {
+        return JWSAlgorithm.parse(props.getJwsAlgorithm().toUpperCase());
     }
 
     @ConditionalOnMissingBean
@@ -132,11 +140,6 @@ public class SecurityContext {
     @Bean
     public RuleEnforcer ruleEnforcer(final RealmSearchDAO realmSearchDAO) {
         return new DefaultRuleEnforcer(realmSearchDAO);
-    }
-
-    @Bean
-    public GrantedAuthorityDefaults grantedAuthorityDefaults() {
-        return new GrantedAuthorityDefaults(""); // Remove the ROLE_ prefix
     }
 
     @Bean

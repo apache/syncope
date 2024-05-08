@@ -18,30 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.request.UserUR;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
-@JsonPropertyOrder(value = { "_class", "bpmnProcess" })
-public class UserRequestForm implements BaseBean {
+public class UserRequestForm extends SyncopeForm {
 
     private static final long serialVersionUID = -7044543391316529128L;
-
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
-    @JsonProperty("_class")
-    private final String clazz = "org.apache.syncope.common.lib.to.UserRequestForm";
 
     private String bpmnProcess;
 
@@ -62,8 +48,6 @@ public class UserRequestForm implements BaseBean {
     private UserTO userTO;
 
     private UserUR userUR;
-
-    private final List<UserRequestFormProperty> properties = new ArrayList<>();
 
     public String getBpmnProcess() {
         return bpmnProcess;
@@ -145,20 +129,10 @@ public class UserRequestForm implements BaseBean {
         this.userUR = userUR;
     }
 
-    @JsonIgnore
-    public Optional<UserRequestFormProperty> getProperty(final String id) {
-        return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "properties")
-    @JacksonXmlProperty(localName = "property")
-    public List<UserRequestFormProperty> getProperties() {
-        return properties;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                appendSuper(super.hashCode()).
                 append(bpmnProcess).
                 append(username).
                 append(executionId).
@@ -169,7 +143,6 @@ public class UserRequestForm implements BaseBean {
                 append(assignee).
                 append(userTO).
                 append(userUR).
-                append(properties).
                 build();
     }
 
@@ -186,6 +159,7 @@ public class UserRequestForm implements BaseBean {
         }
         UserRequestForm other = (UserRequestForm) obj;
         return new EqualsBuilder().
+                appendSuper(super.equals(obj)).
                 append(bpmnProcess, other.bpmnProcess).
                 append(username, other.username).
                 append(executionId, other.executionId).
@@ -196,7 +170,6 @@ public class UserRequestForm implements BaseBean {
                 append(assignee, other.assignee).
                 append(userTO, other.userTO).
                 append(userUR, other.userUR).
-                append(properties, other.properties).
                 build();
     }
 }

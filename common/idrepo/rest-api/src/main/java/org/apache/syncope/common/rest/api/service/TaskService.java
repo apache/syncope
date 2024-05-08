@@ -44,12 +44,15 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.apache.syncope.common.lib.form.SyncopeForm;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 /**
@@ -161,4 +164,28 @@ public interface TaskService extends ExecutableService {
             @QueryParam("since") OffsetDateTime since,
             @QueryParam("statuses") List<ExecStatus> statuses,
             @QueryParam("resources") List<String> resources);
+
+    /**
+     * Fetches the form to fill and submit for execution, for the given macro task (if defined).
+     *
+     * @param key macro task key
+     * @return the form to fill and submit for execution, for the given macro task (if defined)
+     */
+    @GET
+    @Path("MACRO/{key}/form")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    SyncopeForm getMacroTaskForm(@NotNull @PathParam("key") String key);
+
+    /**
+     * Executes the macro task matching the given specs, with the provided form as input.
+     *
+     * @param specs conditions to exec
+     * @param macroTaskForm macro task form
+     * @return execution report for the macro task matching the given specs
+     */
+    @POST
+    @Path("MACRO/{key}/execute")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    ExecTO execute(@BeanParam ExecSpecs specs, SyncopeForm macroTaskForm);
 }

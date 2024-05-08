@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.api.jexl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -34,7 +33,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -54,12 +52,6 @@ public class JexlUtilsTest extends AbstractTest {
     private JexlContext context;
 
     @Test
-    public void newJxltEngine() {
-        JxltEngine engine = JexlUtils.newJxltEngine();
-        assertNotNull(engine);
-    }
-
-    @Test
     public void isExpressionValid() {
         String expression = "6 * 12 + 5 / 2.6";
         assertTrue(JexlUtils.isExpressionValid(expression));
@@ -71,11 +63,11 @@ public class JexlUtilsTest extends AbstractTest {
     @Test
     public void evaluate() {
         String expression = null;
-        assertEquals(StringUtils.EMPTY, JexlUtils.evaluate(expression, context));
+        assertEquals(StringUtils.EMPTY, JexlUtils.evaluateExpr(expression, context));
 
         expression = "6 * 12 + 5 / 2.6";
         double result = 73.92307692307692;
-        assertEquals(result, JexlUtils.evaluate(expression, context));
+        assertEquals(result, JexlUtils.evaluateExpr(expression, context));
     }
 
     @Test

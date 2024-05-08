@@ -155,7 +155,7 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Override
     public void setValidator(final Implementation validator) {
         checkType(validator, JPAImplementation.class);
-        checkImplementationType(validator, IdRepoImplementationType.VALIDATOR);
+        checkImplementationType(validator, IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         this.validator = (JPAImplementation) validator;
     }
 

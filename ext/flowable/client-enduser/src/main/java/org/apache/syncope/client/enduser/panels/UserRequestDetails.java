@@ -21,13 +21,13 @@ package org.apache.syncope.client.enduser.panels;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.rest.UserRequestRestClient;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
+import org.apache.syncope.client.ui.commons.panels.SyncopeFormPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequest;
 import org.apache.syncope.common.lib.to.UserRequestForm;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.ext.client.common.ui.panels.UserRequestFormPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -72,15 +72,7 @@ public class UserRequestDetails extends Panel {
         } else {
             Form<Void> form = new Form<>("userRequestWrapForm");
 
-            form.add(new UserRequestFormPanel("userRequestFormPanel", formTO, false) {
-
-                private static final long serialVersionUID = 3617895525072546591L;
-
-                @Override
-                protected void viewDetails(final AjaxRequestTarget target) {
-                    // do nothing
-                }
-            });
+            form.add(new SyncopeFormPanel<>("userRequestFormPanel", formTO));
 
             form.add(new AjaxButton("submit") {
 

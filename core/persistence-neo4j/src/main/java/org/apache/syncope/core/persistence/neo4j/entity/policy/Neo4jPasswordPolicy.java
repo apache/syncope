@@ -51,7 +51,8 @@ public class Neo4jPasswordPolicy extends Neo4jPolicy implements PasswordPolicy {
     private SortedSet<Neo4jImplementationRelationship> rules = new TreeSet<>();
 
     @Transient
-    private List<Neo4jImplementation> sortedRules = new SortedSetList(rules);
+    private List<Neo4jImplementation> sortedRules = new SortedSetList<>(
+            rules, Neo4jImplementationRelationship.builder());
 
     @Override
     public boolean isAllowNullPassword() {
@@ -87,6 +88,6 @@ public class Neo4jPasswordPolicy extends Neo4jPolicy implements PasswordPolicy {
 
     @PostLoad
     public void postLoad() {
-        sortedRules = new SortedSetList(rules);
+        sortedRules = new SortedSetList<>(rules, Neo4jImplementationRelationship.builder());
     }
 }

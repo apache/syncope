@@ -74,8 +74,8 @@ public abstract class AbstractExecutableService extends AbstractService implemen
     }
 
     @Override
-    public ExecTO execute(final ExecSpecs query) {
-        return getExecutableLogic().execute(query.getKey(), query.getStartAt(), query.getDryRun());
+    public ExecTO execute(final ExecSpecs execSpecs) {
+        return getExecutableLogic().execute(execSpecs);
     }
 
     @Override

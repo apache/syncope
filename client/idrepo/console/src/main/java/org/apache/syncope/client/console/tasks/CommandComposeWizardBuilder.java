@@ -83,6 +83,10 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
 
     @Override
     protected Serializable onApplyInternal(final CommandWrapper modelObject) {
+        if (modelObject.getCommand().getArgs() == null) {
+            throw new IllegalArgumentException("Incorrect Command definition");
+        }
+
         MacroTaskTO taskTO = taskRestClient.readTask(TaskType.MACRO, task);
         if (modelObject.isNew()) {
             taskTO.getCommands().add(modelObject.getCommand());
@@ -112,7 +116,6 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
 
         public Profile(final CommandWrapper command) {
             this.command = command;
-            MacroTaskTO taskTO = taskRestClient.readTask(TaskType.MACRO, task);
 
             AutoCompleteSettings settings = new AutoCompleteSettings();
             settings.setShowCompleteListOnFocusGain(false);
@@ -127,8 +130,7 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
                 protected Iterator<String> getChoices(final String input) {
                     return commands.getObject().stream().
                             map(ImplementationTO::getKey).
-                            filter(cmd -> cmd.contains(input)
-                            && taskTO.getCommands().stream().noneMatch(c -> c.getKey().equals(cmd))).
+                            filter(cmd -> cmd.contains(input)).
                             sorted().iterator();
                 }
             };
@@ -140,8 +142,12 @@ public class CommandComposeWizardBuilder extends BaseAjaxWizardBuilder<CommandWr
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    CommandTO cmd = commandRestClient.read(command.getCommand().getKey());
-                    command.getCommand().setArgs(cmd.getArgs());
+                    try {
+                        CommandTO cmd = commandRestClient.read(command.getCommand().getKey());
+                        command.getCommand().setArgs(cmd.getArgs());
+                    } catch (Exception e) {
+                        LOG.error("While attempting to read Command {}", command.getCommand().getKey(), e);
+                    }
                 }
             });
             add(args);

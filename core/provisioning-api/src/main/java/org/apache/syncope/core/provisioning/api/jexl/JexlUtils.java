@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.jexl;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlContext;
@@ -70,7 +72,9 @@ public final class JexlUtils {
 
     private static JexlEngine JEXL_ENGINE;
 
-    private static JexlEngine getEngine() {
+    private static JxltEngine JXTL_ENGINE;
+
+    private static JexlEngine getJexlEngine() {
         synchronized (LOG) {
             if (JEXL_ENGINE == null) {
                 JEXL_ENGINE = new JexlBuilder().
@@ -87,29 +91,35 @@ public final class JexlUtils {
         return JEXL_ENGINE;
     }
 
-    public static JxltEngine newJxltEngine() {
-        return getEngine().createJxltEngine(false);
+    private static JxltEngine getJxltEngine() {
+        synchronized (LOG) {
+            if (JXTL_ENGINE == null) {
+                JXTL_ENGINE = getJexlEngine().createJxltEngine(false);
+            }
+        }
+
+        return JXTL_ENGINE;
     }
 
     public static boolean isExpressionValid(final String expression) {
         boolean result;
         try {
-            getEngine().createExpression(expression);
+            getJexlEngine().createExpression(expression);
             result = true;
         } catch (JexlException e) {
-            LOG.error("Invalid jexl expression: " + expression, e);
+            LOG.error("Invalid JEXL expression: " + expression, e);
             result = false;
         }
 
         return result;
     }
 
-    public static Object evaluate(final String expression, final JexlContext jexlContext) {
+    public static Object evaluateExpr(final String expression, final JexlContext jexlContext) {
         Object result = null;
 
         if (StringUtils.isNotBlank(expression) && jexlContext != null) {
             try {
-                JexlExpression jexlExpression = getEngine().createExpression(expression);
+                JexlExpression jexlExpression = getJexlEngine().createExpression(expression);
                 result = jexlExpression.evaluate(jexlContext);
             } catch (Exception e) {
                 LOG.error("Error while evaluating JEXL expression: " + expression, e);
@@ -118,7 +128,25 @@ public final class JexlUtils {
             LOG.debug("Expression not provided or invalid context");
         }
 
-        return result == null ? StringUtils.EMPTY : result;
+        return Optional.ofNullable(result).orElse(StringUtils.EMPTY);
+    }
+
+    public static String evaluateTemplate(final String template, final JexlContext jexlContext) {
+        String result = null;
+
+        if (StringUtils.isNotBlank(template) && jexlContext != null) {
+            try {
+                StringWriter writer = new StringWriter();
+                getJxltEngine().createTemplate(template).evaluate(jexlContext, writer);
+                result = writer.toString();
+            } catch (Exception e) {
+                LOG.error("Error while evaluating JEXL template: " + template, e);
+            }
+        } else {
+            LOG.debug("Template not provided or invalid context");
+        }
+
+        return Optional.ofNullable(result).orElse(template);
     }
 
     public static void addFieldsToContext(final Object object, final JexlContext jexlContext) {
@@ -256,7 +284,7 @@ public final class JexlUtils {
         addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
         addDerAttrsToContext(any, derAttrHandler, jexlContext);
 
-        return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext).toString());
+        return Boolean.parseBoolean(evaluateExpr(mandatoryCondition, jexlContext).toString());
     }
 
     /**

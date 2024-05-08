@@ -33,6 +33,7 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
@@ -47,6 +48,8 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -290,6 +293,56 @@ public class TaskTest extends AbstractTest {
         assertNotNull(task);
 
         PullTask actual = (PullTask) taskDAO.findById(TaskType.PULL, task.getKey()).orElseThrow();
+        assertEquals(task, actual);
+    }
+
+    @Test
+    public void saveMacroTaskSameCommandMultipleOccurrencies() {
+        MacroTask task = entityFactory.newEntity(MacroTask.class);
+        task.setRealm(realmDAO.getRoot());
+        task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
+        task.setName("saveMacroTaskSameCommandMultipleOccurrencies");
+        task.setContinueOnError(true);
+
+        Implementation command1 = entityFactory.newEntity(Implementation.class);
+        command1.setKey("command1");
+        command1.setType(IdRepoImplementationType.COMMAND);
+        command1.setEngine(ImplementationEngine.JAVA);
+        command1.setBody("clazz1");
+        command1 = implementationDAO.save(command1);
+        assertNotNull(command1);
+
+        Implementation command2 = entityFactory.newEntity(Implementation.class);
+        command2.setKey("command2");
+        command2.setType(IdRepoImplementationType.COMMAND);
+        command2.setEngine(ImplementationEngine.JAVA);
+        command2.setBody("clazz2");
+        command2 = implementationDAO.save(command2);
+        assertNotNull(command2);
+
+        MacroTaskCommand macroTaskCommand1 = entityFactory.newEntity(MacroTaskCommand.class);
+        macroTaskCommand1.setCommand(command1);
+        macroTaskCommand1.setMacroTask(task);
+        task.add(macroTaskCommand1);
+
+        MacroTaskCommand macroTaskCommand2 = entityFactory.newEntity(MacroTaskCommand.class);
+        macroTaskCommand2.setCommand(command2);
+        macroTaskCommand2.setMacroTask(task);
+        task.add(macroTaskCommand2);
+
+        MacroTaskCommand macroTaskCommand3 = entityFactory.newEntity(MacroTaskCommand.class);
+        macroTaskCommand3.setCommand(command1);
+        macroTaskCommand3.setMacroTask(task);
+        task.add(macroTaskCommand3);
+
+        task = (MacroTask) taskDAO.save(task);
+        assertNotNull(task);
+        assertEquals(3, task.getCommands().size());
+        assertEquals(command1, task.getCommands().get(0).getCommand());
+        assertEquals(command2, task.getCommands().get(1).getCommand());
+        assertEquals(command1, task.getCommands().get(2).getCommand());
+
+        MacroTask actual = (MacroTask) taskDAO.findById(TaskType.MACRO, task.getKey()).orElseThrow();
         assertEquals(task, actual);
     }
 

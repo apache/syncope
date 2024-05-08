@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,17 +64,9 @@ public class MailTemplateTest extends AbstractTest {
             + " $$ for(membership : user.memberships) {\n   <li>${membership.groupName}</li>\n $$ }\n"
             + " </ul>\n $$ }\n </body> </html>";
 
-    private static String evaluate(final String template, final Map<String, Object> jexlVars) {
-        StringWriter writer = new StringWriter();
-        JexlUtils.newJxltEngine().
-                createTemplate(template).
-                evaluate(new MapContext(jexlVars), writer);
-        return writer.toString();
-    }
-
     @Test
     public void confirmPasswordReset() throws IOException {
-        String htmlBody = evaluate(CONFIRM_PASSWORD_RESET_TEMPLATE, new HashMap<>());
+        String htmlBody = JexlUtils.evaluateTemplate(CONFIRM_PASSWORD_RESET_TEMPLATE, new MapContext());
         assertNotNull(htmlBody);
     }
 
@@ -93,7 +84,7 @@ public class MailTemplateTest extends AbstractTest {
         input.add(token);
         ctx.put("input", input);
 
-        String textBody = evaluate(REQUEST_PASSWORD_RESET_TEMPLATE, ctx);
+        String textBody = JexlUtils.evaluateTemplate(REQUEST_PASSWORD_RESET_TEMPLATE, new MapContext(ctx));
 
         assertNotNull(textBody);
         assertTrue(textBody.contains("a password reset was requested for " + username + "."));
@@ -129,7 +120,7 @@ public class MailTemplateTest extends AbstractTest {
 
         ctx.put("events", List.of("event1"));
 
-        String htmlBody = evaluate(OPTIN_TEMPLATE, ctx);
+        String htmlBody = JexlUtils.evaluateTemplate(OPTIN_TEMPLATE, new MapContext(ctx));
 
         assertNotNull(htmlBody);
 

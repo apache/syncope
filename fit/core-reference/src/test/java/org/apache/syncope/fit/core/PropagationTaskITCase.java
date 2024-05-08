@@ -581,10 +581,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE741() {
         for (int i = 0; i < 3; i++) {
-            TASK_SERVICE.execute(new ExecSpecs.Builder().
-                    key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").build());
-            TASK_SERVICE.execute(new ExecSpecs.Builder().
-                    key("316285cc-ae52-4ea2-a33b-7355e189ac3f").build());
+            TASK_SERVICE.execute(new ExecSpecs.Builder().key("1e697572-b896-484c-ae7f-0c8f63fcbc6c").build());
+            TASK_SERVICE.execute(new ExecSpecs.Builder().key("316285cc-ae52-4ea2-a33b-7355e189ac3f").build());
         }
         try {
             Thread.sleep(3000);

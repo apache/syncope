@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.logic.job.MacroRunJobDelegate;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.attrvalue.AlwaysTrueValidator;
 import org.apache.syncope.core.persistence.common.attrvalue.BasicValidator;
@@ -50,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
 import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
+import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -134,7 +134,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(MacroRunJobDelegate.class.getName());
+            classNames.add(MacroJobDelegate.class.getName());
             classNames.add(PullJobDelegate.class.getName());
             classNames.add(PushJobDelegate.class.getName());
             classNames.add(ExpiredAccessTokenCleanup.class.getName());
@@ -147,6 +147,9 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             put(IdRepoImplementationType.LOGIC_ACTIONS, classNames);
+            classNames = new HashSet<>();
+            classNames.add(TestMacroActions.class.getName());
+            put(IdRepoImplementationType.MACRO_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             classNames.add(LDAPMembershipPropagationActions.class.getName());
@@ -179,7 +182,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(EmailAddressValidator.class.getName());
             classNames.add(AlwaysTrueValidator.class.getName());
             classNames.add(BinaryValidator.class.getName());
-            put(IdRepoImplementationType.VALIDATOR, classNames);
+            put(IdRepoImplementationType.ATTR_VALUE_VALIDATOR, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestNotificationRecipientsProvider.class.getName());

@@ -68,9 +68,8 @@ external data.
 The Workflow layer is responsible for managing the internal lifecycle of Users, Groups and Any Objects.
 
 Besides the default engine, another engine is available based on https://www.flowable.org/[Flowable^], the 
-reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such
-as approval management and new statuses definitions; a web-based GUI editor, the
-https://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^], is also available.
+reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such as approval
+management and new statuses definitions; a web-based GUI editor to model workflows and user requests is also available.
 
 [.text-center]
 image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 

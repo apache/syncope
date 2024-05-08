@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.RealmLogic;
-import org.apache.syncope.core.logic.api.Command;
+import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

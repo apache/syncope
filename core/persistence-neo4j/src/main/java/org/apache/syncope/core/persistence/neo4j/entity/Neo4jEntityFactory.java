@@ -88,7 +88,9 @@ import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -143,7 +145,9 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushCorrelat
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jAnyTemplatePullTask;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jFormPropertyDef;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommand;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jNotificationTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPropagationTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPullTask;
@@ -280,6 +284,10 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jSchedTask();
         } else if (reference.equals(AnyTemplatePullTask.class)) {
             result = (E) new Neo4jAnyTemplatePullTask();
+        } else if (reference.equals(MacroTaskCommand.class)) {
+            result = (E) new Neo4jMacroTaskCommand();
+        } else if (reference.equals(FormPropertyDef.class)) {
+            result = (E) new Neo4jFormPropertyDef();
         } else if (reference.equals(SecurityQuestion.class)) {
             result = (E) new Neo4jSecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {

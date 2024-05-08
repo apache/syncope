@@ -18,24 +18,23 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.task;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
@@ -48,12 +47,13 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
 
     public static final String NODE = "MacroTask";
 
+    public static final String MACRO_TASK_FORM_PROPERTY_DEF_REL = "MACRO_TASK_FORM_PROPERTY_DEF_REL";
+
+    public static final String MACRO_TASK_MACRO_ACTIONS_REL = "MACRO_TASK_MACRO_ACTIONS";
+
     public static final String MACRO_TASK_EXEC_REL = "MACRO_TASK_EXEC";
 
     public static final String MACRO_TASK_COMMANDS_REL = "MACRO_TASK_COMMANDS";
-
-    protected static final TypeReference<List<CommandArgs>> TYPEREF = new TypeReference<List<CommandArgs>>() {
-    };
 
     @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING)
@@ -66,15 +66,18 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     private Boolean saveExecs = true;
 
     @Relationship(type = MACRO_TASK_COMMANDS_REL, direction = Relationship.Direction.OUTGOING)
-    private SortedSet<Neo4jImplementationRelationship> commands = new TreeSet<>();
+    private SortedSet<Neo4jMacroTaskCommandRelationship> commands = new TreeSet<>();
 
     @Transient
-    private List<Neo4jImplementation> sortedCommands = new SortedSetList(commands);
+    private List<Neo4jMacroTaskCommand> sortedCommands = new SortedSetList<>(
+            commands, Neo4jMacroTaskCommandRelationship.builder());
 
-    private String commandArgs;
+    @Relationship(type = MACRO_TASK_FORM_PROPERTY_DEF_REL, direction = Relationship.Direction.INCOMING)
+    @Valid
+    private List<Neo4jFormPropertyDef> formPropertyDefs = new ArrayList<>();
 
-    @Transient
-    private final List<CommandArgs> commandArgsList = new ArrayList<>();
+    @Relationship(type = MACRO_TASK_MACRO_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    private Neo4jImplementation macroActions;
 
     @Relationship(type = MACRO_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jMacroTaskExec> executions = new ArrayList<>();
@@ -88,24 +91,6 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     public void setRealm(final Realm realm) {
         checkType(realm, Neo4jRealm.class);
         this.realm = (Neo4jRealm) realm;
-    }
-
-    @Override
-    public void add(final Implementation command, final CommandArgs args) {
-        checkType(command, Neo4jImplementation.class);
-        checkImplementationType(command, IdRepoImplementationType.COMMAND);
-        sortedCommands.add((Neo4jImplementation) command);
-        getCommandArgs().add(args);
-    }
-
-    @Override
-    public List<Neo4jImplementation> getCommands() {
-        return sortedCommands;
-    }
-
-    @Override
-    public List<CommandArgs> getCommandArgs() {
-        return commandArgsList;
     }
 
     @Override
@@ -143,26 +128,42 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
         return executions;
     }
 
-    protected void json2list(final boolean clearFirst) {
-        if (clearFirst) {
-            getCommandArgs().clear();
-        }
-        if (commandArgs != null) {
-            getCommandArgs().addAll(POJOHelper.deserialize(commandArgs, TYPEREF));
-        }
+    @Override
+    public void add(final MacroTaskCommand macroTaskCommand) {
+        checkType(macroTaskCommand, Neo4jMacroTaskCommand.class);
+        sortedCommands.add((Neo4jMacroTaskCommand) macroTaskCommand);
+    }
+
+    @Override
+    public List<? extends MacroTaskCommand> getCommands() {
+        return sortedCommands;
+    }
+
+    @Override
+    public void add(final FormPropertyDef formPropertyDef) {
+        checkType(formPropertyDef, Neo4jFormPropertyDef.class);
+        this.formPropertyDefs.add((Neo4jFormPropertyDef) formPropertyDef);
+    }
+
+    @Override
+    public List<? extends FormPropertyDef> getFormPropertyDefs() {
+        return formPropertyDefs;
+    }
+
+    @Override
+    public Implementation getMacroActions() {
+        return macroActions;
+    }
+
+    @Override
+    public void setMacroAction(final Implementation macroActions) {
+        checkType(macroActions, Neo4jImplementation.class);
+        checkImplementationType(macroActions, IdRepoImplementationType.MACRO_ACTIONS);
+        this.macroActions = (Neo4jImplementation) macroActions;
     }
 
     @PostLoad
     public void postLoad() {
-        sortedCommands = new SortedSetList(commands);
-        json2list(false);
-    }
-
-    public void postSave() {
-        json2list(true);
-    }
-
-    public void list2json() {
-        commandArgs = POJOHelper.serialize(getCommandArgs(), TYPEREF);
+        sortedCommands = new SortedSetList<>(commands, Neo4jMacroTaskCommandRelationship.builder());
     }
 }

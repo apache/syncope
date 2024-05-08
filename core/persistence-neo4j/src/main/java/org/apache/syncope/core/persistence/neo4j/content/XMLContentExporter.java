@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommandRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jProvisioningTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jSchedTask;
 import org.neo4j.driver.Driver;
@@ -169,16 +170,16 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 rattrs.addAttribute("", "", "right", "CDATA", rightId);
 
                 Optional.ofNullable(relDesc.get().getRelationshipPropertiesEntity()).
-                        filter(rpe -> Neo4jImplementationRelationship.class.getSimpleName().
-                        equals(rpe.getPrimaryLabel())).ifPresent(rpe -> {
-
-                    String index = String.valueOf(session.run(
-                            "MATCH (n {id: $left})-[r:" + relDesc.get().getType() + "]-" + "(m {id: $right}) "
-                            + "RETURN r.index",
-                            Map.of("left", node.get("id").asString(), "right", rightId)).
-                            single().get("r.index").asInt());
-                    rattrs.addAttribute("", "", "index", "CDATA", index);
-                });
+                        filter(e -> Neo4jImplementationRelationship.class.getSimpleName().equals(e.getPrimaryLabel())
+                        || Neo4jMacroTaskCommandRelationship.class.getSimpleName().equals(e.getPrimaryLabel())).
+                        ifPresent(rpe -> {
+                            String index = String.valueOf(session.run(
+                                    "MATCH (n {id: $left})-[r:" + relDesc.get().getType() + "]-" + "(m {id: $right}) "
+                                    + "RETURN r.index",
+                                    Map.of("left", node.get("id").asString(), "right", rightId)).
+                                    single().get("r.index").asInt());
+                            rattrs.addAttribute("", "", "index", "CDATA", index);
+                        });
 
                 String elementName = entity.getPrimaryLabel()
                         + "_"

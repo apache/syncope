@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core.reference;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import java.util.Objects;
 import org.apache.syncope.common.lib.command.CommandArgs;
 
 public class TestCommandArgs extends CommandArgs {
@@ -61,6 +62,36 @@ public class TestCommandArgs extends CommandArgs {
 
     public void setPrinterName(final String printerName) {
         this.printerName = printerName;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + Objects.hashCode(this.parentRealm);
+        hash = 89 * hash + Objects.hashCode(this.realmName);
+        hash = 89 * hash + Objects.hashCode(this.printerName);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TestCommandArgs other = (TestCommandArgs) obj;
+        if (!Objects.equals(this.parentRealm, other.parentRealm)) {
+            return false;
+        }
+        if (!Objects.equals(this.realmName, other.realmName)) {
+            return false;
+        }
+        return Objects.equals(this.printerName, other.printerName);
     }
 
     @Override

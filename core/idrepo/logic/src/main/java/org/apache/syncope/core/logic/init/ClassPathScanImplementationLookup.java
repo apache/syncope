@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
-import org.apache.syncope.core.logic.api.Command;
 import org.apache.syncope.core.logic.api.LogicActions;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValueValidator;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -44,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.job.report.ReportConfClass;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
+import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -199,7 +199,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 } else if (PushActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 } else if (PlainAttrValueValidator.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.VALIDATOR).add(bd.getBeanClassName());
+                    classNames.get(IdRepoImplementationType.ATTR_VALUE_VALIDATOR).add(bd.getBeanClassName());
                 } else if (RecipientsProvider.class.isAssignableFrom(clazz)) {
                     classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 } else if (ProvisionSorter.class.isAssignableFrom(clazz)) {

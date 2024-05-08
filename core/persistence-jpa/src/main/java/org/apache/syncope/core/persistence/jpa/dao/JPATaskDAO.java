@@ -504,8 +504,6 @@ public class JPATaskDAO implements TaskDAO {
                 jpaNotificationTask.list2json();
             case JPAPushTask jpaPushTask ->
                 jpaPushTask.map2json();
-            case JPAMacroTask macroTask ->
-                macroTask.list2json();
             default -> {
             }
         }

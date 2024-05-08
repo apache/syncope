@@ -26,12 +26,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -44,9 +46,8 @@ import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.AuditManager;
+import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
-import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -84,6 +85,8 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
 
     protected final EntityFactory entityFactory;
 
+    protected final ImplementationLookup implementationLookup;
+
     protected final AuditDataBinder binder;
 
     protected final AuditManager auditManager;
@@ -93,6 +96,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
             final AuditEventDAO auditEventDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
+            final ImplementationLookup implementationLookup,
             final AuditDataBinder binder,
             final AuditManager auditManager) {
 
@@ -100,6 +104,7 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
         this.auditEventDAO = auditEventDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
+        this.implementationLookup = implementationLookup;
         this.binder = binder;
         this.auditManager = auditManager;
     }
@@ -153,19 +158,13 @@ public class AuditLogic extends AbstractTransactionalLogic<AuditConfTO> {
                 null,
                 OpEvent.LOGIN_OP);
 
-        addForOutcomes(
+        implementationLookup.getClassNames(IdRepoImplementationType.TASKJOB_DELEGATE).
+                forEach(clazz -> addForOutcomes(
                 events,
                 OpEvent.CategoryType.TASK,
-                PullJobDelegate.class.getSimpleName(),
+                StringUtils.substringAfterLast(clazz, '.'),
                 null,
-                null);
-
-        addForOutcomes(
-                events,
-                OpEvent.CategoryType.TASK,
-                PushJobDelegate.class.getSimpleName(),
-                null,
-                null);
+                null));
 
         addForOutcomes(
                 events,
