@@ -19,15 +19,26 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface DelegationRepoExt {
 
+    String CACHE = "delegationCache";
+
+    Optional<? extends Delegation> findById(String key);
+
     List<Delegation> findByDelegating(User user);
 
     List<Delegation> findByDelegated(User user);
 
     List<Delegation> findByRoles(Role role);
+
+    Delegation save(Delegation delegation);
+
+    void delete(Delegation delegation);
+
+    void deleteById(String key);
 }

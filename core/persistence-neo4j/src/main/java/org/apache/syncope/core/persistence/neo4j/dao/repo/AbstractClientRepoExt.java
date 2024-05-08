@@ -61,7 +61,7 @@ public abstract class AbstractClientRepoExt<C extends ClientApp>
             final String clientAppNode,
             final Class<? extends C> clientAppClass) {
 
-        return findByRelationship(clientAppNode, Neo4jPolicy.NODE, policy.getKey(), toDomainType(clientAppClass));
+        return findByRelationship(clientAppNode, Neo4jPolicy.NODE, policy.getKey(), toDomainType(clientAppClass), null);
     }
 
     protected List<C> findAllByRealm(
@@ -69,6 +69,6 @@ public abstract class AbstractClientRepoExt<C extends ClientApp>
             final String clientAppNode,
             final Class<? extends C> clientAppClass) {
 
-        return findByRelationship(clientAppNode, Neo4jRealm.NODE, realm.getKey(), toDomainType(clientAppClass));
+        return findByRelationship(clientAppNode, Neo4jRealm.NODE, realm.getKey(), toDomainType(clientAppClass), null);
     }
 }

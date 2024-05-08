@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
-import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
@@ -29,11 +28,17 @@ public interface MacroTask extends SchedTask {
 
     void setRealm(Realm realm);
 
-    void add(Implementation command, CommandArgs args);
+    void add(MacroTaskCommand macroTaskCommand);
 
-    List<? extends Implementation> getCommands();
+    List<? extends MacroTaskCommand> getCommands();
 
-    List<CommandArgs> getCommandArgs();
+    void add(FormPropertyDef formPropertyDef);
+
+    List<? extends FormPropertyDef> getFormPropertyDefs();
+
+    Implementation getMacroActions();
+
+    void setMacroAction(Implementation macroActions);
 
     boolean isContinueOnError();
 

@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.neo4j.entity.anyobject;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -47,12 +46,6 @@ public class Neo4jAPlainAttr extends AbstractPlainAttr<AnyObject> implements APl
     private Neo4jAnyObject owner;
 
     /**
-     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
-     */
-    @JsonProperty("membership")
-    private String membershipKey;
-
-    /**
      * Values of this attribute (if schema is not UNIQUE).
      */
     private final List<Neo4jAPlainAttrValue> values = new ArrayList<>();
@@ -72,15 +65,6 @@ public class Neo4jAPlainAttr extends AbstractPlainAttr<AnyObject> implements APl
     public void setOwner(final AnyObject owner) {
         checkType(owner, Neo4jAnyObject.class);
         this.owner = (Neo4jAnyObject) owner;
-    }
-
-    public String getMembershipKey() {
-        return membershipKey;
-    }
-
-    @JsonSetter("membership")
-    public void setMembershipKey(final String membershipKey) {
-        this.membershipKey = membershipKey;
     }
 
     @JsonIgnore

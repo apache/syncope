@@ -106,47 +106,6 @@ When defining a virtual schema, the following information must be provided:
 * Any Type - reference <<anytype,any type>> on the external resource
 * Read-only flag - whether the external attribute value(s) for this schema can only be read, or whether they can be written to as well
 
-[[virtual-attribute-cache]]
-.Virtual Attribute Cache
-****
-For performance optimization, virtual attributes are managed by an internal cache to control the actual access to 
-the linked Identity Stores.
-
-The internal cache implements the 
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/cache/VirAttrCache.java[VirAttrCache^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/cache/VirAttrCache.java[VirAttrCache^]
-endif::[]
-interface, and is configurable.
-
-Some implementations are provided by default - see table below - custom ones can be provided.
-
-[cols="1,2"]
-|===
-
-| 
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/CaffeineVirAttrCache.java[CaffeineVirAttrCache^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/CaffeineVirAttrCache.java[CaffeineVirAttrCache^]
-endif::[]
-| In-memory cache based on https://github.com/ben-manes/caffeine[Caffeine Cache^].
-
-| 
-ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/DisabledVirAttrCache.java[DisabledVirAttrCache^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/DisabledVirAttrCache.java[DisabledVirAttrCache^]
-endif::[]
-| Pass-through cache which actually does not provide any caching: use when direct access to the Identity Store is required.
-
-|===
-****
-
 ==== AnyTypeClass
 
 Any type classes are aggregations of plain, derived and virtual schemas, provided with unique identifiers.

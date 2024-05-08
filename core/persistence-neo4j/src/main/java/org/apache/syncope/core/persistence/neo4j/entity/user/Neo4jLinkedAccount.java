@@ -37,6 +37,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode
 import org.apache.syncope.core.persistence.neo4j.entity.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAttributable;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -180,13 +181,13 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     @Override
     public boolean add(final LAPlainAttr attr) {
         checkType(attr, Neo4jLAPlainAttr.class);
-        return plainAttrs.put(attr.getSchema().getKey(), (Neo4jLAPlainAttr) attr) != null;
+        return plainAttrs.put(((Neo4jPlainAttr<User>) attr).getSchemaKey(), (Neo4jLAPlainAttr) attr) != null;
     }
 
     @Override
     public boolean remove(final LAPlainAttr attr) {
         checkType(attr, Neo4jLAPlainAttr.class);
-        return plainAttrs.remove(attr.getSchema().getKey()) != null;
+        return plainAttrs.remove(((Neo4jPlainAttr<User>) attr).getSchemaKey()) != null;
     }
 
     @Override

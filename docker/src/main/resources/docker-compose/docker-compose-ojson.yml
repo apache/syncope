@@ -17,8 +17,6 @@
 
 # Full deployment (Core, Console, Enduser) on Oracle with JSON support
 
-version: '3.3'
-
 services:
    db:
      image: gvenzl/oracle-xe:21-slim
@@ -37,7 +35,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,ojson
+       SPRING_PROFILES_ACTIVE: docker,ojson,saml2
        DB_URL: jdbc:oracle:thin:@db:1521/XEPDB1
        DB_SCHEMA: SYNCOPE
        DB_USER: syncope

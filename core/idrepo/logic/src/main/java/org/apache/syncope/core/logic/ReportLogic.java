@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.batch.BatchResponseItem;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -149,22 +150,28 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_EXECUTE + "')")
     @Override
-    public ExecTO execute(final String key, final OffsetDateTime startAt, final boolean dryRun) {
-        Report report = reportDAO.findById(key).
-                orElseThrow(() -> new NotFoundException("Report " + key));
+    public ExecTO execute(final ExecSpecs specs) {
+        Report report = reportDAO.findById(specs.getKey()).
+                orElseThrow(() -> new NotFoundException("Report " + specs.getKey()));
 
         if (!report.isActive()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
-            sce.getElements().add("Report " + key + " is not active");
+            sce.getElements().add("Report " + specs.getKey() + " is not active");
+            throw sce;
+        }
+
+        if (specs.getStartAt() != null && specs.getStartAt().isBefore(OffsetDateTime.now())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add("Cannot schedule in the past");
             throw sce;
         }
 
         try {
             jobManager.register(
                     report,
-                    Optional.ofNullable(startAt).orElseGet(() -> OffsetDateTime.now()),
+                    Optional.ofNullable(specs.getStartAt()).orElseGet(() -> OffsetDateTime.now()),
                     AuthContextUtils.getUsername(),
-                    dryRun);
+                    specs.getDryRun());
         } catch (Exception e) {
             LOG.error("While executing report {}", report, e);
 
@@ -213,8 +220,8 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
 
         // streaming output from a compressed byte array stream
-        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult()); ZipInputStream zis =
-                new ZipInputStream(bais)) {
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(reportExec.getExecResult());
+                ZipInputStream zis = new ZipInputStream(bais)) {
 
             // a single ZipEntry in the ZipInputStream
             zis.getNextEntry();

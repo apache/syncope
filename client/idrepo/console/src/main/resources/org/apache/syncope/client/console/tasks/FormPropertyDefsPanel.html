@@ -1,0 +1,84 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div class="table-responsive no-padding">
+      <table id="mappings"
+             class="table table-hover"
+             style="font-size: 1em;margin-top:2px;"
+             wicket:id="propertyDefContainer">
+        <tbody>
+          <tr>
+            <th><wicket:message key="key"/></th>
+            <th><wicket:message key="name"/></th>
+            <th><wicket:message key="type"/></th>
+            <th><wicket:message key="readable"/></th>
+            <th><wicket:message key="writable"/></th>
+            <th><wicket:message key="required"/></th>
+            <th><wicket:message key="datePattern"/></th>
+            <th><wicket:message key="enumValues"/></th>
+            <th></th>
+          </tr>
+
+          <tr wicket:id="propertyDefs">
+            <td>
+              <span wicket:id="key"/>
+            </td>
+            <td>
+              <span wicket:id="name"/>
+            </td>
+            <td>
+              <span wicket:id="type"/>
+            </td>
+            <td>
+              <span wicket:id="readable"/>
+            </td>
+            <td>
+              <span wicket:id="writable"/>
+            </td>
+            <td>
+              <span wicket:id="required"/>
+            </td>
+            <td>
+              <span wicket:id="datePattern"/>
+            </td>
+            <td>
+              <span wicket:id="enumValues"/>
+            </td>
+            <td>
+              <div id="inline-actions">
+                <span wicket:id="toRemove"/>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <td colspan="10" style="padding: 5px; text-align: right">
+              <button type="submit" class="btn btn-success btn-circle btn-lg" wicket:id="addPropertyDef">
+                <i class="fa fa-plus"></i>
+              </button>
+            </td>
+          </tr>
+        </tfoot>        
+      </table>
+    </div>
+  </wicket:extend>
+</html>

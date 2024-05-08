@@ -21,10 +21,16 @@ package org.apache.syncope.core.persistence.neo4j.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.UUID;
+import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -43,10 +49,16 @@ public class RealmTest extends AbstractTest {
     private RealmSearchDAO realmSearchDAO;
 
     @Autowired
+    private ExternalResourceDAO resourceDAO;
+
+    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Test
     public void test() {
@@ -66,5 +78,32 @@ public class RealmTest extends AbstractTest {
 
         role = roleDAO.findById("User reviewer").orElseThrow();
         assertEquals(beforeSize - 1, role.getRealms().size());
+    }
+
+    @Test
+    public void addAndRemoveLogicActions() {
+        Implementation implementation = entityFactory.newEntity(Implementation.class);
+        implementation.setKey(UUID.randomUUID().toString());
+        implementation.setEngine(ImplementationEngine.JAVA);
+        implementation.setType(IdRepoImplementationType.LOGIC_ACTIONS);
+        implementation.setBody("TestLogicActions");
+        implementation = implementationDAO.save(implementation);
+
+        Realm realm = realmDAO.findById("722f3d84-9c2b-4525-8f6e-e4b82c55a36c").orElseThrow();
+        assertTrue(realm.getActions().isEmpty());
+
+        realm.add(implementation);
+        realmDAO.save(realm);
+
+        realm = realmDAO.findById("722f3d84-9c2b-4525-8f6e-e4b82c55a36c").orElseThrow();
+        assertEquals(1, realm.getActions().size());
+        assertEquals(implementation, realm.getActions().get(0));
+
+        realm.getActions().clear();
+        realm = realmDAO.save(realm);
+        assertTrue(realm.getActions().isEmpty());
+
+        realm = realmDAO.findById("722f3d84-9c2b-4525-8f6e-e4b82c55a36c").orElseThrow();
+        assertTrue(realm.getActions().isEmpty());
     }
 }

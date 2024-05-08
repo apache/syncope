@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.types.X509RevocationCheckerType;
 import org.apache.syncope.common.lib.types.X509RevocationFetcherType;
 import org.apache.syncope.common.lib.types.X509SubjectDnFormat;
 
-public class X509AuthModuleConf implements AuthModuleConf {
+public class X509AuthModuleConf implements LDAPDependantAuthModuleConf {
 
     private static final long serialVersionUID = 1915254775199296906L;
 
@@ -223,6 +223,11 @@ public class X509AuthModuleConf implements AuthModuleConf {
     private String sslHeaderName = "ssl_client_cert";
 
     private LDAP ldap;
+
+    @Override
+    public AbstractLDAPConf ldapInstance() {
+        return new X509AuthModuleConf.LDAP();
+    }
 
     public String getName() {
         return name;

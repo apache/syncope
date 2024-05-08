@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.TransformerHandler;
@@ -36,11 +37,13 @@ import org.apache.syncope.core.persistence.common.content.AbstractXMLContentExpo
 import org.apache.syncope.core.persistence.common.content.MultiParentNode;
 import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAuditEvent;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jJobStatus;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommandRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jProvisioningTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jSchedTask;
 import org.neo4j.driver.Driver;
@@ -80,15 +83,16 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 filter(e -> !LABELS_TO_BE_EXCLUDED.contains(e.getPrimaryLabel())
                 && !e.getPrimaryLabel().startsWith("Abstract")
                 && !e.getPrimaryLabel().contains("PlainAttr")).
-                collect(Collectors.toMap(Neo4jPersistentEntity::getPrimaryLabel, e -> e));
+                collect(Collectors.toMap(
+                        Neo4jPersistentEntity::getPrimaryLabel, Function.identity(), (first, second) -> first));
 
-        Set<MultiParentNode<String>> roots = new HashSet<>();
-        Map<String, MultiParentNode<String>> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        Set<MultiParentNode> roots = new HashSet<>();
+        Map<String, MultiParentNode> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         entities.forEach((label, entity) -> {
-            MultiParentNode<String> node = Optional.ofNullable(exploited.get(label)).
+            MultiParentNode node = Optional.ofNullable(exploited.get(label)).
                     orElseGet(() -> {
-                        MultiParentNode<String> n = new MultiParentNode<>(label);
+                        MultiParentNode n = new MultiParentNode(label);
                         roots.add(n);
                         exploited.put(label, n);
                         return n;
@@ -102,9 +106,9 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                     filter(refEntityLabel -> !label.equalsIgnoreCase(refEntityLabel)).
                     forEach(refEntityLabel -> {
 
-                        MultiParentNode<String> pkNode = Optional.ofNullable(exploited.get(refEntityLabel)).
+                        MultiParentNode pkNode = Optional.ofNullable(exploited.get(refEntityLabel)).
                                 orElseGet(() -> {
-                                    MultiParentNode<String> n = new MultiParentNode<>(refEntityLabel);
+                                    MultiParentNode n = new MultiParentNode(refEntityLabel);
                                     roots.add(n);
                                     exploited.put(refEntityLabel, n);
                                     return n;
@@ -164,6 +168,18 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                         Map.of("endNodeElementId", rel.endNodeElementId())).
                         single().get("n.id").asString();
                 rattrs.addAttribute("", "", "right", "CDATA", rightId);
+
+                Optional.ofNullable(relDesc.get().getRelationshipPropertiesEntity()).
+                        filter(e -> Neo4jImplementationRelationship.class.getSimpleName().equals(e.getPrimaryLabel())
+                        || Neo4jMacroTaskCommandRelationship.class.getSimpleName().equals(e.getPrimaryLabel())).
+                        ifPresent(rpe -> {
+                            String index = String.valueOf(session.run(
+                                    "MATCH (n {id: $left})-[r:" + relDesc.get().getType() + "]-" + "(m {id: $right}) "
+                                    + "RETURN r.index",
+                                    Map.of("left", node.get("id").asString(), "right", rightId)).
+                                    single().get("r.index").asInt());
+                            rattrs.addAttribute("", "", "index", "CDATA", index);
+                        });
 
                 String elementName = entity.getPrimaryLabel()
                         + "_"

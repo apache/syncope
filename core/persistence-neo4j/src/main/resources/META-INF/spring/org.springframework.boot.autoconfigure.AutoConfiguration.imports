@@ -15,4 +15,4 @@
 # specific language governing permissions and limitations
 # under the License.
 org.apache.syncope.core.persistence.neo4j.PersistenceContext
-
+org.apache.syncope.core.persistence.neo4j.MasterDomain

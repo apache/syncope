@@ -19,16 +19,23 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
 public interface AnyTypeRepoExt {
+
+    String CACHE = "anyTypeCache";
+
+    Optional<? extends AnyType> findById(String key);
 
     List<AnyType> findByClassesContaining(AnyTypeClass anyTypeClass);
 
     AnyType getUser();
 
     AnyType getGroup();
+
+    AnyType save(AnyType anyType);
 
     void deleteById(String key);
 }

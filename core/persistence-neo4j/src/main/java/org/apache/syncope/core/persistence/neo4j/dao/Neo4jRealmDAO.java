@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.dao;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.ProvisioningPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTemplateRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
@@ -67,6 +69,8 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDAO.class);
 
+    public static final String CACHE = "realmCache";
+
     protected final RoleDAO roleDAO;
 
     protected final RealmSearchDAO realmSearchDAO;
@@ -75,28 +79,38 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     protected final NodeValidator nodeValidator;
 
+    protected final Cache<EntityCacheKey, Neo4jRealm> cache;
+
     public Neo4jRealmDAO(
             final RoleDAO roleDAO,
             final RealmSearchDAO realmSearchDAO,
             final ApplicationEventPublisher publisher,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jRealm> cache) {
 
         super(neo4jTemplate, neo4jClient);
         this.roleDAO = roleDAO;
         this.realmSearchDAO = realmSearchDAO;
         this.publisher = publisher;
         this.nodeValidator = nodeValidator;
+        this.cache = cache;
     }
 
     @Override
     public Realm getRoot() {
-        return neo4jClient.query("MATCH (n:" + Neo4jRealm.NODE + ") WHERE n.fullPath = '/' RETURN n.id").fetch().one().
-                flatMap(super.<Realm, Neo4jRealm>toOptional("n.id", Neo4jRealm.class)).orElseGet(() -> {
-            LOG.debug("Root realm not found");
-            return null;
-        });
+        Realm root = cache.get(EntityCacheKey.of(SyncopeConstants.ROOT_REALM));
+        if (root == null) {
+            root = neo4jClient.query(
+                    "MATCH (n:" + Neo4jRealm.NODE + ") WHERE n.fullPath = '/' RETURN n.id").fetch().one().
+                    flatMap(super.<Realm, Neo4jRealm>toOptional("n.id", Neo4jRealm.class, cache)).orElseGet(() -> {
+                LOG.debug("Root realm not found");
+                return null;
+            });
+        }
+
+        return root;
     }
 
     @Override
@@ -107,7 +121,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
     @Transactional(readOnly = true)
     @Override
     public Optional<? extends Realm> findById(final String key) {
-        return neo4jTemplate.findById(key, Neo4jRealm.class);
+        return findById(key, Neo4jRealm.class, cache);
     }
 
     protected <T extends Policy> List<Realm> findSamePolicyChildren(final Realm realm, final T policy) {
@@ -159,7 +173,8 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
                 label,
                 policy.getKey(),
                 relationship,
-                Neo4jRealm.class);
+                Neo4jRealm.class,
+                cache);
 
         List<Realm> result = new ArrayList<>();
         found.forEach(realm -> {
@@ -172,12 +187,14 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     @Override
     public List<Realm> findByActionsContaining(final Implementation logicActions) {
-        return findByRelationship(Neo4jRealm.NODE, Neo4jImplementation.NODE, logicActions.getKey(), Neo4jRealm.class);
+        return findByRelationship(
+                Neo4jRealm.NODE, Neo4jImplementation.NODE, logicActions.getKey(), Neo4jRealm.class, cache);
     }
 
     @Override
     public List<Realm> findByResources(final ExternalResource resource) {
-        return findByRelationship(Neo4jRealm.NODE, Neo4jExternalResource.NODE, resource.getKey(), Neo4jRealm.class);
+        return findByRelationship(
+                Neo4jRealm.NODE, Neo4jExternalResource.NODE, resource.getKey(), Neo4jRealm.class, cache);
     }
 
     @Override
@@ -187,7 +204,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
 
     @Override
     public List<? extends Realm> findAll() {
-        throw new UnsupportedOperationException();
+        return findAll(Pageable.unpaged()).getContent();
     }
 
     @Override
@@ -202,7 +219,8 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         List<? extends Realm> result = toList(
                 neo4jClient.query(query.toString()).fetch().all(),
                 "n.id",
-                Neo4jRealm.class);
+                Neo4jRealm.class,
+                cache);
         return new SyncopePage<>(result, pageable, count());
     }
 
@@ -225,6 +243,8 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, merged, AuthContextUtils.getDomain()));
 
+        cache.put(EntityCacheKey.of(realm.getKey()), (Neo4jRealm) merged);
+
         return merged;
     }
 
@@ -245,9 +265,11 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
             cascadeDelete(
                     Neo4jAnyTemplateRealm.NODE,
                     Neo4jRealm.NODE,
-                    toBeDeleted.getKey(), Neo4jAnyTemplateRealm.class);
+                    toBeDeleted.getKey());
 
             toBeDeleted.setParent(null);
+
+            cache.remove(EntityCacheKey.of(realm.getKey()));
 
             neo4jTemplate.deleteById(toBeDeleted.getKey(), Neo4jRealm.class);
 

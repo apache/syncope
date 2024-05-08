@@ -59,8 +59,8 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
@@ -420,29 +420,48 @@ public class JobWidget extends BaseWidget {
                             break;
 
                         case TASK:
-                            ProvisioningTaskTO schedTaskTO;
-                            try {
-                                schedTaskTO = taskRestClient.readTask(TaskType.PULL, jobTO.getRefKey());
-                            } catch (Exception e) {
-                                LOG.debug("Failed to read {} as {}, attempting {}",
-                                        jobTO.getRefKey(), TaskType.PULL, TaskType.PUSH, e);
-                                schedTaskTO = taskRestClient.readTask(TaskType.PUSH, jobTO.getRefKey());
+                            TaskType taskType = null;
+                            if (jobTO.getRefDesc().startsWith("SCHEDULED")) {
+                                taskType = TaskType.SCHEDULED;
+                            } else if (jobTO.getRefDesc().startsWith("PULL")) {
+                                taskType = TaskType.PULL;
+                            } else if (jobTO.getRefDesc().startsWith("PUSH")) {
+                                taskType = TaskType.PUSH;
+                            } else if (jobTO.getRefDesc().startsWith("MACRO")) {
+                                taskType = TaskType.MACRO;
+                            }
+                            if (taskType == null) {
+                                break;
                             }
 
-                            SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
-                                    new SchedTaskWizardBuilder<>(schedTaskTO instanceof PullTaskTO
-                                            ? TaskType.PULL : TaskType.PUSH, schedTaskTO,
-                                            realmRestClient, taskRestClient, pageRef);
-                            swb.setEventSink(AvailableJobsPanel.this);
+                            TaskTO taskTO = null;
+                            try {
+                                taskTO = taskRestClient.readTask(taskType, jobTO.getRefKey());
+                            } catch (Exception e) {
+                                LOG.debug("Failed to read {} as {}", jobTO.getRefKey(), taskType, e);
+                            }
+                            if (taskTO == null) {
+                                break;
+                            }
 
-                            target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                            if (taskTO instanceof ProvisioningTaskTO) {
+                                SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
+                                        new SchedTaskWizardBuilder<>(taskType, (ProvisioningTaskTO) taskTO,
+                                                realmRestClient, taskRestClient, pageRef);
+                                swb.setEventSink(AvailableJobsPanel.this);
 
-                            jobModal.header(new StringResourceModel(
-                                    "any.edit",
-                                    AvailableJobsPanel.this,
-                                    new Model<>(schedTaskTO)));
+                                target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                            jobModal.show(true);
+                                jobModal.header(new StringResourceModel(
+                                        "any.edit",
+                                        AvailableJobsPanel.this,
+                                        new Model<>(taskTO)));
+
+                                jobModal.show(true);
+                            } else {
+                                SyncopeConsoleSession.get().info("Unsupported task type: " + taskType.name());
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                            }
                             break;
 
                         default:

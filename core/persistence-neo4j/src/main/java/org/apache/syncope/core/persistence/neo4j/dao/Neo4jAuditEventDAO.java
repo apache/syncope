@@ -69,7 +69,8 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
 
             query.append(andIfNeeded()).
                     append("n.opEvent =~ '").
-                    append(OpEvent.toString(type, category, subcategory, op, outcome).replace("[]", "\\[.*\\]")).
+                    append(OpEvent.toString(type, category, subcategory, op, outcome).
+                            replace("[", "\\[").replace("]", "\\]").replace("\\[\\]", "\\[.*\\]")).
                     append("'");
 
             return this;
@@ -161,7 +162,7 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
         Map<String, Object> parameters = new HashMap<>();
 
         StringBuilder query = new StringBuilder("MATCH (n:" + Neo4jAuditEvent.NODE + ") "
-                + " WHERE " + criteriaBuilder(entityKey).
+                + "WHERE " + criteriaBuilder(entityKey).
                         opEvent(type, category, subcategory, op, outcome).
                         before(before, parameters).
                         after(after, parameters).

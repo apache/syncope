@@ -55,7 +55,7 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void findByIdLike() {
-        List<? extends VirSchema> schemas = virSchemaDAO.findByIdLike("rvirtuald*");
+        List<? extends VirSchema> schemas = virSchemaDAO.findByIdLike("rvirtuald%");
         assertEquals(1, schemas.size());
     }
 

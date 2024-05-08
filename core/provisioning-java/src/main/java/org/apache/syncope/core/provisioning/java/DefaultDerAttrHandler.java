@@ -47,7 +47,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addFieldsToContext(any, jexlContext);
 
-            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext).toString());
+            result.put(schema, JexlUtils.evaluateExpr(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
@@ -61,9 +61,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public String getValue(final Any<?> any, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).dao().
-                findAllowedSchemas(any, DerSchema.class).forSelfContains(schema)) {
-
+        if (!anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).forSelfContains(schema)) {
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
         }
@@ -100,7 +98,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(membership), jexlContext);
             JexlUtils.addFieldsToContext(any, jexlContext);
 
-            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext).toString());
+            result.put(schema, JexlUtils.evaluateExpr(schema.getExpression(), jexlContext).toString());
         });
 
         return result;
@@ -113,8 +111,8 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
         return getValues(
                 any,
                 membership,
-                anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).
-                        getForMembership(membership.getRightEnd()));
+                anyUtilsFactory.getInstance(any).dao().
+                        findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()));
     }
 
 }

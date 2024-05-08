@@ -138,7 +138,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         return wizardModel;
     }
 
-    public class Profile extends WizardStep {
+    protected class Profile extends WizardStep {
 
         private static final long serialVersionUID = -3043839139187792810L;
 
@@ -192,7 +192,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         }
     }
 
-    public class Configuration extends WizardStep implements WizardModel.ICondition {
+    protected class Configuration extends WizardStep implements WizardModel.ICondition {
 
         private static final long serialVersionUID = -785981096328637758L;
 
@@ -219,7 +219,7 @@ public class ReportWizardBuilder extends BaseAjaxWizardBuilder<ReportTO> {
         }
     }
 
-    public class Schedule extends WizardStep {
+    protected class Schedule extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 

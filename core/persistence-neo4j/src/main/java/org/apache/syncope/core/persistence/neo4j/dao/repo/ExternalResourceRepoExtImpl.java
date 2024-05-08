@@ -19,19 +19,18 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.syncope.common.lib.to.Provision;
+import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -41,12 +40,16 @@ import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -66,40 +69,46 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
 
     protected final GroupDAO groupDAO;
 
-    protected final PolicyDAO policyDAO;
-
     protected final VirSchemaDAO virSchemaDAO;
 
     protected final RealmDAO realmDAO;
 
     protected final NodeValidator nodeValidator;
 
+    protected final Cache<EntityCacheKey, Neo4jExternalResource> cache;
+
     public ExternalResourceRepoExtImpl(
             final TaskDAO taskDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final PolicyDAO policyDAO,
             final VirSchemaDAO virSchemaDAO,
             final RealmDAO realmDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jExternalResource> cache) {
 
         super(neo4jTemplate, neo4jClient);
         this.taskDAO = taskDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-        this.policyDAO = policyDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.realmDAO = realmDAO;
         this.nodeValidator = nodeValidator;
+        this.cache = cache;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<? extends ExternalResource> findById(final String key) {
+        return findById(key, Neo4jExternalResource.class, cache);
     }
 
     @Override
     public ExternalResource authFind(final String key) {
-        ExternalResource resource = neo4jTemplate.findById(key, Neo4jExternalResource.class).orElse(null);
+        ExternalResource resource = findById(key).orElse(null);
         if (resource == null) {
             return null;
         }
@@ -121,7 +130,7 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
     @Override
     public List<ExternalResource> findByConnInstance(final String connInstance) {
         return findByRelationship(
-                Neo4jExternalResource.NODE, Neo4jConnInstance.NODE, connInstance, Neo4jExternalResource.class);
+                Neo4jExternalResource.NODE, Neo4jConnInstance.NODE, connInstance, Neo4jExternalResource.class, cache);
     }
 
     @Override
@@ -131,7 +140,8 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 Neo4jImplementation.NODE,
                 provisionSorter.getKey(),
                 Neo4jExternalResource.RESOURCE_PROVISION_SORTER_REL,
-                Neo4jExternalResource.class);
+                Neo4jExternalResource.class,
+                cache);
     }
 
     @Override
@@ -141,24 +151,8 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 Neo4jImplementation.NODE,
                 propagationActions.getKey(),
                 Neo4jExternalResource.RESOURCE_PROPAGATION_ACTIONS_REL,
-                Neo4jExternalResource.class);
-    }
-
-    @Override
-    public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
-        return findAll().stream().
-                flatMap(resource -> resource.getProvisions().stream()).
-                filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
-                toList();
-    }
-
-    @Override
-    public boolean anyItemHaving(final Implementation transformer) {
-        return findAll().stream().
-                flatMap(resource -> resource.getProvisions().stream()).
-                flatMap(provision -> provision.getMapping().getItems().stream()).
-                filter(item -> item.getTransformers().contains(transformer.getKey())).
-                count() > 0;
+                Neo4jExternalResource.class,
+                cache);
     }
 
     @Override
@@ -172,14 +166,14 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
             relationship = Neo4jExternalResource.RESOURCE_PASSWORD_POLICY_REL;
             label = Neo4jPasswordPolicy.NODE + ":" + Neo4jPolicy.NODE;
         } else if (policy instanceof PropagationPolicy) {
-            relationship = Neo4jExternalResource.RESOURCE_PASSWORD_POLICY_REL;
-            label = Neo4jPasswordPolicy.NODE + ":" + Neo4jPolicy.NODE;
+            relationship = Neo4jExternalResource.RESOURCE_PROPAGATION_POLICY_REL;
+            label = Neo4jPropagationPolicy.NODE + ":" + Neo4jPolicy.NODE;
         } else if (policy instanceof PushPolicy) {
-            relationship = Neo4jExternalResource.RESOURCE_PASSWORD_POLICY_REL;
-            label = Neo4jPasswordPolicy.NODE + ":" + Neo4jPolicy.NODE;
+            relationship = Neo4jExternalResource.RESOURCE_PUSH_POLICY_REL;
+            label = Neo4jPushPolicy.NODE + ":" + Neo4jPolicy.NODE;
         } else if (policy instanceof PullPolicy) {
-            relationship = Neo4jExternalResource.RESOURCE_PASSWORD_POLICY_REL;
-            label = Neo4jPasswordPolicy.NODE + ":" + Neo4jPolicy.NODE;
+            relationship = Neo4jExternalResource.RESOURCE_PULL_POLICY_REL;
+            label = Neo4jPullPolicy.NODE + ":" + Neo4jPolicy.NODE;
         }
 
         return findByRelationship(
@@ -187,7 +181,8 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 label,
                 policy.getKey(),
                 relationship,
-                Neo4jExternalResource.class);
+                Neo4jExternalResource.class,
+                cache);
     }
 
     @Transactional(readOnly = true)
@@ -198,7 +193,12 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
             return List.of();
         }
 
-        return neo4jTemplate.findAll(Neo4jExternalResource.class).stream().filter(resource -> authRealms.stream().
+        List<Neo4jExternalResource> all = toList(neo4jClient.query(
+                "MATCH (n:" + Neo4jExternalResource.NODE + ") RETURN n.id").fetch().all(),
+                "n.id",
+                Neo4jExternalResource.class,
+                cache);
+        return all.stream().filter(resource -> authRealms.stream().
                 anyMatch(realm -> resource.getConnector() != null
                 && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))).
                 toList();
@@ -210,6 +210,7 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
         ((Neo4jExternalResource) resource).list2json();
         ExternalResource saved = neo4jTemplate.save(nodeValidator.validate(resource));
         ((Neo4jExternalResource) saved).postSave();
+        cache.put(EntityCacheKey.of(resource.getKey()), (Neo4jExternalResource) saved);
         return saved;
     }
 
@@ -227,13 +228,14 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 ((Neo4jExternalResource) resource).list2json();
                 ExternalResource saved = neo4jTemplate.save(resource);
                 ((Neo4jExternalResource) saved).postSave();
+                cache.put(EntityCacheKey.of(resource.getKey()), (Neo4jExternalResource) saved);
             }
         });
     }
 
     @Override
     public void deleteById(final String key) {
-        ExternalResource resource = neo4jTemplate.findById(key, Neo4jExternalResource.class).orElse(null);
+        ExternalResource resource = findById(key).orElse(null);
         if (resource == null) {
             return;
         }
@@ -254,8 +256,6 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 forEach(user -> user.getResources().remove(resource));
         groupDAO.findByResourcesContaining(resource).
                 forEach(group -> group.getResources().remove(resource));
-        policyDAO.findByResource(resource).
-                forEach(policy -> policy.getResources().remove(resource));
 
         virSchemaDAO.findByResource(resource).forEach(virSchemaDAO::delete);
 
@@ -266,6 +266,8 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
             resource.getConnector().getResources().remove(resource);
         }
         resource.setConnector(null);
+
+        cache.remove(EntityCacheKey.of(key));
 
         neo4jTemplate.deleteById(key, Neo4jExternalResource.class);
     }

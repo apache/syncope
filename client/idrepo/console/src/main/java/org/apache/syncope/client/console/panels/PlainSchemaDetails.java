@@ -257,7 +257,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return implementationRestClient.list(IdRepoImplementationType.VALIDATOR).stream().
+                return implementationRestClient.list(IdRepoImplementationType.ATTR_VALUE_VALIDATOR).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };

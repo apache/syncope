@@ -19,6 +19,7 @@
 package org.apache.syncope.core.logic;
 
 import java.util.Collection;
+import java.util.List;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 
@@ -35,8 +36,8 @@ public abstract class AbstractResourceAssociator<A extends AnyTO> extends Abstra
             String key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<A> deprovision(
-            String key, Collection<String> resources, boolean nullPriorityAsync);
+            String key, List<String> resources, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<A> provision(
-            String key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
+            String key, List<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
 }

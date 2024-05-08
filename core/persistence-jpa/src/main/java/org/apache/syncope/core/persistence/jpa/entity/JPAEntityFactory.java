@@ -88,7 +88,9 @@ import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
+import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
+import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -143,7 +145,9 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationR
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAFormPropertyDef;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTaskCommand;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
@@ -280,6 +284,10 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPASchedTask();
         } else if (reference.equals(AnyTemplatePullTask.class)) {
             result = (E) new JPAAnyTemplatePullTask();
+        } else if (reference.equals(MacroTaskCommand.class)) {
+            result = (E) new JPAMacroTaskCommand();
+        } else if (reference.equals(FormPropertyDef.class)) {
+            result = (E) new JPAFormPropertyDef();
         } else if (reference.equals(SecurityQuestion.class)) {
             result = (E) new JPASecurityQuestion();
         } else if (reference.equals(AuditConf.class)) {

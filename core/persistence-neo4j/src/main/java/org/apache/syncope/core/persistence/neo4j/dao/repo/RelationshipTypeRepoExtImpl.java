@@ -44,9 +44,9 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
         List<Relationship<?, ?>> result = new ArrayList<>();
 
         result.addAll(findByRelationship(
-                Neo4jURelationship.NODE, Neo4jRelationshipType.NODE, type.getKey(), Neo4jURelationship.class));
+                Neo4jURelationship.NODE, Neo4jRelationshipType.NODE, type.getKey(), Neo4jURelationship.class, null));
         result.addAll(findByRelationship(
-                Neo4jARelationship.NODE, Neo4jRelationshipType.NODE, type.getKey(), Neo4jARelationship.class));
+                Neo4jARelationship.NODE, Neo4jRelationshipType.NODE, type.getKey(), Neo4jARelationship.class, null));
 
         return result;
     }

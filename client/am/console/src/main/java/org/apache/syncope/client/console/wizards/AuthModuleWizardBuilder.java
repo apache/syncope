@@ -33,8 +33,9 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
-import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
+import org.apache.syncope.common.lib.auth.LDAPDependantAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.wicket.PageReference;
@@ -90,7 +91,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
     protected WizardModel buildModelSteps(final AuthModuleTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject, authModuleConfs, authModuleConfClass));
         wizardModel.add(new Configuration(modelObject));
-        wizardModel.add(new GoogleMfaAuthModuleConfLDAP(modelObject, authModuleConfClass));
+        wizardModel.add(new AuthModuleConfLDAP(modelObject, authModuleConfClass));
         wizardModel.add(new Mapping(modelObject));
         return wizardModel;
     }
@@ -174,19 +175,19 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         }
     }
 
-    protected class GoogleMfaAuthModuleConfLDAP extends WizardStep implements WizardModel.ICondition {
+    protected class AuthModuleConfLDAP extends WizardStep implements WizardModel.ICondition {
 
         private static final long serialVersionUID = 5328049907748683944L;
 
         private final Model<Class<? extends AuthModuleConf>> authModuleConfClass;
 
-        GoogleMfaAuthModuleConfLDAP(
+        AuthModuleConfLDAP(
                 final AuthModuleTO authModule,
                 final Model<Class<? extends AuthModuleConf>> authModuleConfClass) {
 
             this.authModuleConfClass = authModuleConfClass;
 
-            PropertyModel<GoogleMfaAuthModuleConf.LDAP> beanPanelModel = new PropertyModel<>(authModule, "conf.ldap");
+            PropertyModel<AbstractLDAPConf> beanPanelModel = new PropertyModel<>(authModule, "conf.ldap");
 
             AjaxCheckBoxPanel enable = new AjaxCheckBoxPanel("enable", "enableLDAP", new IModel<Boolean>() {
 
@@ -209,11 +210,16 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
                     if (beanPanelModel.getObject() == null) {
-                        beanPanelModel.setObject(new GoogleMfaAuthModuleConf.LDAP());
+                        try {
+                            beanPanelModel.setObject((AbstractLDAPConf) authModuleConfClass.getObject().
+                                    getMethod("ldapInstance", new Class<?>[] {}).invoke(authModule.getConf()));
+                        } catch (Exception e) {
+                            LOG.warn("Error instantiating beanPanel model object", e);
+                        }
                     } else {
                         beanPanelModel.setObject(null);
                     }
-                    target.add(GoogleMfaAuthModuleConfLDAP.this);
+                    target.add(AuthModuleConfLDAP.this);
                 }
             });
             add(enable);
@@ -224,7 +230,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
 
         @Override
         public boolean evaluate() {
-            return GoogleMfaAuthModuleConf.class.equals(authModuleConfClass.getObject());
+            return LDAPDependantAuthModuleConf.class.isAssignableFrom(authModuleConfClass.getObject());
         }
     }
 

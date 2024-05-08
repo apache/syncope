@@ -22,6 +22,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -31,8 +33,12 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
+import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jPullTask.NODE)
@@ -41,6 +47,8 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     private static final long serialVersionUID = -4141057723006682563L;
 
     public static final String NODE = "PullTask";
+
+    public static final String PULL_TASK_RECON_FILTER_BUIDER_REL = "PULL_TASK_RECON_FILTER_BUIDER";
 
     public static final String PULL_TASK_PULL_ACTIONS_REL = "PULL_TASK_PULL_ACTIONS";
 
@@ -51,7 +59,7 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     @NotNull
     private PullMode pullMode;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PULL_TASK_RECON_FILTER_BUIDER_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation reconFilterBuilder;
 
     @NotNull
@@ -59,7 +67,11 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     private Neo4jRealm destinationRealm;
 
     @Relationship(type = PULL_TASK_PULL_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
-    private List<Neo4jImplementation> actions = new ArrayList<>();
+    private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
+
+    @Transient
+    private List<Neo4jImplementation> sortedActions = new SortedSetList<>(
+            actions, Neo4jImplementationRelationship.builder());
 
     @Relationship(type = PULL_TASK_TEMPLATE_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jAnyTemplatePullTask> templates = new ArrayList<>();
@@ -107,12 +119,12 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     public boolean add(final Implementation action) {
         checkType(action, Neo4jImplementation.class);
         checkImplementationType(action, IdMImplementationType.PULL_ACTIONS);
-        return actions.contains((Neo4jImplementation) action) || actions.add((Neo4jImplementation) action);
+        return sortedActions.contains((Neo4jImplementation) action) || sortedActions.add((Neo4jImplementation) action);
     }
 
     @Override
     public List<? extends Implementation> getActions() {
-        return actions;
+        return sortedActions;
     }
 
     @Override
@@ -156,5 +168,10 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     @Override
     protected List<? extends AbstractTaskExec<SchedTask>> executions() {
         return executions;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        sortedActions = new SortedSetList<>(actions, Neo4jImplementationRelationship.builder());
     }
 }

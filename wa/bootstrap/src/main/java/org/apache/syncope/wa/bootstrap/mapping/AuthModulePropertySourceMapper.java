@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AbstractOIDCAuthModuleConf;
@@ -39,6 +40,7 @@ import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
+import org.apache.syncope.common.lib.auth.SpnegoAuthModuleConf;
 import org.apache.syncope.common.lib.auth.StaticAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf;
 import org.apache.syncope.common.lib.auth.X509AuthModuleConf;
@@ -66,6 +68,9 @@ import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jGoogleOidcClie
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jKeyCloakOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.saml.Pac4jSamlClientProperties;
+import org.apereo.cas.configuration.model.support.spnego.SpnegoAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.spnego.SpnegoLdapProperties;
+import org.apereo.cas.configuration.model.support.spnego.SpnegoProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopeAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.x509.SubjectDnPrincipalResolverProperties.SubjectDnFormat;
 import org.apereo.cas.configuration.model.support.x509.X509LdapProperties;
@@ -442,5 +447,49 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         }
 
         return prefix("cas.authn.mfa.simple.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final SpnegoAuthModuleConf conf) {
+        SpnegoProperties props = new SpnegoProperties();
+        props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
+
+        SpnegoAuthenticationProperties jcifsProperties = new SpnegoAuthenticationProperties();
+        jcifsProperties.setJcifsServicePrincipal(conf.getJcifsServicePrincipal());
+        props.getProperties().add(jcifsProperties);
+
+        props.setMixedModeAuthentication(conf.isMixedModeAuthentication());
+        props.setIpsToCheckPattern(conf.getIpsToCheckPattern());
+        props.setSend401OnAuthenticationFailure(conf.isSend401OnAuthenticationFailure());
+        props.setAlternativeRemoteHostAttribute(conf.getAlternativeRemoteHostAttribute());
+        props.setDnsTimeout(conf.getDnsTimeout());
+        props.setHostNameClientActionStrategy(conf.getHostNameClientActionStrategy());
+        props.setHostNamePatternString(conf.getHostNamePatternString());
+        props.setNtlmAllowed(conf.isNtlmAllowed());
+        props.setPoolSize(conf.getPoolSize());
+        props.setPoolTimeout(conf.getPoolTimeout());
+        props.setPrincipalWithDomainName(conf.isPrincipalWithDomainName());
+        props.setSpnegoAttributeName(conf.getSpnegoAttributeName());
+        props.setSupportedBrowsers(conf.getSupportedBrowsers());
+
+        props.getSystem().setUseSubjectCredsOnly(conf.isUseSubjectCredsOnly());
+        props.getSystem().setLoginConf(conf.getLoginConf());
+        props.getSystem().setKerberosKdc(conf.getKerberosKdc());
+        props.getSystem().setKerberosRealm(conf.getKerberosRealm());
+        props.getSystem().setKerberosConf(conf.getKerberosConf());
+        props.getSystem().setKerberosDebug(BooleanUtils.toStringTrueFalse(conf.isKerberosDebug()));
+
+        if (conf.getLdap() != null) {
+            SpnegoLdapProperties ldapProps = new SpnegoLdapProperties();
+            fill(ldapProps, conf.getLdap());
+            props.setLdap(ldapProps);
+        } else {
+            props.setLdap(null);
+        }
+
+        props.getPrincipal().setActiveAttributeRepositoryIds(conf.getAttributeRepoId());
+
+        return prefix("cas.authn.spnego.", WAConfUtils.asMap(props));
     }
 }

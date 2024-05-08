@@ -25,6 +25,7 @@ public enum EntityViolationType {
     InvalidADynMemberships,
     InvalidConnInstanceLocation,
     InvalidConnPoolConf,
+    InvalidFormPropertyDef,
     InvalidMapping,
     InvalidKey,
     InvalidName,

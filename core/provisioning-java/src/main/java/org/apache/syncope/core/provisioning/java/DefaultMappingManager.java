@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.cache.Cache;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
@@ -87,10 +88,10 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -131,7 +132,7 @@ public class DefaultMappingManager implements MappingManager {
 
     protected final VirAttrHandler virAttrHandler;
 
-    protected final VirAttrCache virAttrCache;
+    protected final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
@@ -148,7 +149,7 @@ public class DefaultMappingManager implements MappingManager {
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
-            final VirAttrCache virAttrCache,
+            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
             final AnyUtilsFactory anyUtilsFactory,
             final IntAttrNameParser intAttrNameParser) {
 
@@ -253,7 +254,7 @@ public class DefaultMappingManager implements MappingManager {
             JexlUtils.addFieldsToContext(any, jexlContext);
             JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
             JexlUtils.addDerAttrsToContext(any, derAttrHandler, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext).toString();
+            evalConnObjectLink = JexlUtils.evaluateExpr(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);
@@ -281,7 +282,7 @@ public class DefaultMappingManager implements MappingManager {
         if (StringUtils.isNotBlank(connObjectLink)) {
             JexlContext jexlContext = new MapContext();
             JexlUtils.addFieldsToContext(realm, jexlContext);
-            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext).toString();
+            evalConnObjectLink = JexlUtils.evaluateExpr(connObjectLink, jexlContext).toString();
         }
 
         return getName(evalConnObjectLink, connObjectKey);
@@ -631,9 +632,7 @@ public class DefaultMappingManager implements MappingManager {
                 && intAttrName.getRelatedUser() == null) {
             references.add(any);
         }
-        if (any instanceof GroupableRelatable) {
-            GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable = (GroupableRelatable<?, ?, ?, ?, ?>) any;
-
+        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable) {
             if (intAttrName.getEnclosingGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup()).orElse(null);
                 if (group == null
@@ -815,9 +814,9 @@ public class DefaultMappingManager implements MappingManager {
                         // virtual attributes don't get transformed
                         transform = false;
 
-                        VirAttrCacheKey cacheKey = new VirAttrCacheKey(
+                        VirAttrCacheKey cacheKey = VirAttrCacheKey.of(
                                 ref.getType().getKey(), ref.getKey(), intAttrName.getSchema().getKey());
-                        virAttrCache.expire(cacheKey);
+                        virAttrCache.remove(cacheKey);
                         LOG.debug("Evicted from cache: {}", cacheKey);
 
                         VirSchema virSchema = (VirSchema) intAttrName.getSchema();

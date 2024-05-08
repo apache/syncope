@@ -255,7 +255,7 @@ Besides replacing existing classes as explained <<override-behavior,above>>, new
 be provided - in the source tree under `core/src/main/java` when Java or via REST services if Groovy - for the following
 components:
 
-* <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>> and <<logicactions,logic>> actions
+* <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>>,  <<macroactions,macro>> and <<logicactions,logic>> actions
 * <<push-correlation-rules,push>> / <<pull-correlation-rules,pull>> correlation rules
 * <<pull-mode,reconciliation filter builders>>
 * <<commands,commands>>
@@ -265,7 +265,6 @@ components:
 * <<account-rules,account>> and <<password-rules,password>> rules for policies
 * <<plain,plain schema validators>>
 * <<mapping,mapping item transformers>>
-* <<virtual-attribute-cache,virtual attribute cache>>
 * <<workflow-adapters,workflow adapters>>
 * <<provisioning-managers,provisioning managers>>
 * <<notifications,notification recipient providers>>

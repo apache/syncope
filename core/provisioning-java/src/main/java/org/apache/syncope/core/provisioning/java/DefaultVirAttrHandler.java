@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.cache.Cache;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
@@ -36,9 +37,8 @@ import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheKey;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
+import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -53,7 +53,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
 
     protected final ConnectorManager connectorManager;
 
-    protected final VirAttrCache virAttrCache;
+    protected final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
 
     protected final OutboundMatcher outboundMatcher;
 
@@ -61,7 +61,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
 
     public DefaultVirAttrHandler(
             final ConnectorManager connectorManager,
-            final VirAttrCache virAttrCache,
+            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
             final OutboundMatcher outboundMatcher,
             final AnyUtilsFactory anyUtilsFactory) {
 
@@ -84,14 +84,14 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
                 schemas.getForSelf().stream(),
                 schemas.getForMemberships().values().stream().flatMap(Set::stream)).forEach(schema -> {
 
-            VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
+            VirAttrCacheKey cacheKey = VirAttrCacheKey.of(any.getType().getKey(), any.getKey(), schema.getKey());
 
             Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
             if (attr == null) {
-                virAttrCache.expire(cacheKey);
+                virAttrCache.remove(cacheKey);
                 LOG.debug("Evicted from cache: {}", cacheKey);
             } else {
-                VirAttrCacheValue cacheValue = new VirAttrCacheValue(attr.getValue());
+                VirAttrCacheValue cacheValue = VirAttrCacheValue.of(attr.getValue());
                 virAttrCache.put(cacheKey, cacheValue);
                 LOG.debug("Set in cache: {}={}", cacheKey, cacheValue);
             }
@@ -106,12 +106,12 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
         Map<Pair<ExternalResource, Provision>, Set<VirSchema>> toRead = new HashMap<>();
 
         schemas.stream().filter(schema -> resources.contains(schema.getResource())).forEach(schema -> {
-            VirAttrCacheKey cacheKey = new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
+            VirAttrCacheKey cacheKey = VirAttrCacheKey.of(any.getType().getKey(), any.getKey(), schema.getKey());
             VirAttrCacheValue cacheValue = virAttrCache.get(cacheKey);
 
             if (cacheValue != null) {
                 LOG.debug("Found in cache: {}={}", cacheKey, cacheValue);
-                result.put(schema, cacheValue.getValues());
+                result.put(schema, cacheValue.values());
             } else if (schema.getAnyType().equals(any.getType())) {
                 schema.getResource().getProvisionByAnyType(schema.getAnyType().getKey()).ifPresent(provision -> {
                     Set<VirSchema> schemasToRead = toRead.get(Pair.of(schema.getResource(), provision));
@@ -139,11 +139,12 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
                 Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
                 if (attr != null) {
                     VirAttrCacheKey cacheKey =
-                            new VirAttrCacheKey(any.getType().getKey(), any.getKey(), schema.getKey());
-                    VirAttrCacheValue cacheValue = virAttrCache.put(cacheKey, new VirAttrCacheValue(attr.getValue()));
+                            VirAttrCacheKey.of(any.getType().getKey(), any.getKey(), schema.getKey());
+                    VirAttrCacheValue cacheValue = VirAttrCacheValue.of(attr.getValue());
+                    virAttrCache.put(cacheKey, cacheValue);
                     LOG.debug("Set in cache: {}={}", cacheKey, cacheValue);
 
-                    result.put(schema, cacheValue.getValues());
+                    result.put(schema, cacheValue.values());
                 }
             }));
         });

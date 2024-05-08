@@ -19,7 +19,7 @@
 
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.logic.SyncopeLogic
-import org.apache.syncope.core.logic.api.Command
+import org.apache.syncope.core.provisioning.api.macro.Command
 import org.springframework.beans.factory.annotation.Autowired
 
 class GroovyCommand implements Command<CommandArgs> {

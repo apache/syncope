@@ -207,16 +207,18 @@ public class IdRepoLogicContext {
     public AuditLogic auditLogic(
             final AuditConfDAO auditConfDAO,
             final AuditEventDAO auditEventDAO,
-            final ExternalResourceDAO externalResourceDAO,
+            final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
+            final ImplementationLookup implementationLookup,
             final AuditDataBinder binder,
             final AuditManager auditManager) {
 
         return new AuditLogic(
                 auditConfDAO,
                 auditEventDAO,
-                externalResourceDAO,
+                resourceDAO,
                 entityFactory,
+                implementationLookup,
                 binder,
                 auditManager);
     }
@@ -303,7 +305,7 @@ public class IdRepoLogicContext {
             final PolicyDAO policyDAO,
             final ReportDAO reportDAO,
             final TaskDAO taskDAO,
-            final ExternalResourceDAO externalResourceDAO,
+            final ExternalResourceDAO resourceDAO,
             final ImplementationDAO implementationDAO,
             final NotificationDAO notificationDAO) {
 
@@ -312,7 +314,7 @@ public class IdRepoLogicContext {
                 implementationDAO,
                 reportDAO,
                 policyDAO,
-                externalResourceDAO,
+                resourceDAO,
                 taskDAO,
                 realmDAO,
                 plainSchemaDAO,
@@ -469,7 +471,7 @@ public class IdRepoLogicContext {
             final TaskDAO taskDAO,
             final SyncopeTaskScheduler scheduler,
             final JobStatusDAO jobStatusDAO,
-            final ExternalResourceDAO externalResourceDAO,
+            final ExternalResourceDAO resourceDAO,
             final NotificationJobDelegate notificationJobDelegate,
             final TaskDataBinder taskDataBinder,
             final TaskUtilsFactory taskUtilsFactory,
@@ -481,7 +483,7 @@ public class IdRepoLogicContext {
                 jobStatusDAO,
                 taskDAO,
                 taskExecDAO,
-                externalResourceDAO,
+                resourceDAO,
                 notificationDAO,
                 taskDataBinder,
                 taskExecutor,

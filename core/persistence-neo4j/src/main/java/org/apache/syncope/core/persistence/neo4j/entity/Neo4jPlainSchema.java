@@ -196,7 +196,7 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     @Override
     public void setValidator(final Implementation validator) {
         checkType(validator, Neo4jImplementation.class);
-        checkImplementationType(validator, IdRepoImplementationType.VALIDATOR);
+        checkImplementationType(validator, IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         this.validator = (Neo4jImplementation) validator;
     }
 }

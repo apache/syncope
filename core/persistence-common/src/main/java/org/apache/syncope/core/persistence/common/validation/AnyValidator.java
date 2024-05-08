@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Optional;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -30,8 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
-@SuppressWarnings("rawtypes")
-public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
+public class AnyValidator extends AbstractValidator<AnyCheck, Any<?>> {
 
     private static boolean raiseNotAllowedViolation(
             final ConstraintValidatorContext context,
@@ -53,26 +53,27 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
     }
 
     @Override
-    public boolean isValid(final Any any, final ConstraintValidatorContext context) {
+    public boolean isValid(final Any<?> any, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         AllowedSchemas<PlainSchema> allowedPlainSchemas =
                 ApplicationContextProvider.getApplicationContext().getBean(AnyUtilsFactory.class).
                         getInstance(any.getType().getKind()).dao().findAllowedSchemas(any, PlainSchema.class);
 
-        for (PlainAttr<?> attr : ((Any<?>) any).getPlainAttrs()) {
-            if (attr != null && !allowedPlainSchemas.forSelfContains(attr.getSchema().getKey())) {
-                return raiseNotAllowedViolation(context, attr.getSchema().getKey(), null);
+        for (PlainAttr<?> attr : any.getPlainAttrs()) {
+            String plainSchema = Optional.ofNullable(attr).map(a -> a.getSchema().getKey()).orElse(null);
+            if (plainSchema != null && !allowedPlainSchemas.forSelfContains(plainSchema)) {
+                return raiseNotAllowedViolation(context, plainSchema, null);
             }
         }
-        if (any instanceof GroupableRelatable) {
-            for (Membership<?> membership : ((GroupableRelatable<?, ?, ?, ?, ?>) any).getMemberships()) {
-                for (PlainAttr<?> attr : ((GroupableRelatable<?, ?, ?, ?, ?>) any).getPlainAttrs(membership)) {
-                    if (attr != null && !allowedPlainSchemas.forMembershipsContains(
-                            membership.getRightEnd(), attr.getSchema().getKey())) {
+        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable) {
+            for (Membership<?> membership : groupableRelatable.getMemberships()) {
+                for (PlainAttr<?> attr : groupableRelatable.getPlainAttrs(membership)) {
+                    String plainSchema = Optional.ofNullable(attr).map(a -> a.getSchema().getKey()).orElse(null);
+                    if (plainSchema != null
+                            && !allowedPlainSchemas.forMembershipsContains(membership.getRightEnd(), plainSchema)) {
 
-                        return raiseNotAllowedViolation(
-                                context, attr.getSchema().getKey(), membership.getRightEnd());
+                        return raiseNotAllowedViolation(context, plainSchema, membership.getRightEnd());
                     }
                 }
             }

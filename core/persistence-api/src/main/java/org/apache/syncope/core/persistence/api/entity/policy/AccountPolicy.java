@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity.policy;
 
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface AccountPolicy extends Policy {
@@ -36,8 +34,4 @@ public interface AccountPolicy extends Policy {
     boolean add(Implementation rule);
 
     List<? extends Implementation> getRules();
-
-    boolean add(ExternalResource resource);
-
-    Set<? extends ExternalResource> getResources();
 }

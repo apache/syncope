@@ -119,8 +119,12 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
                 templateClassName = "MyLogicActions";
                 break;
 
-            case IdRepoImplementationType.VALIDATOR:
-                templateClassName = "MyValidator";
+            case IdRepoImplementationType.MACRO_ACTIONS:
+                templateClassName = "MyMacroActions";
+                break;
+
+            case IdRepoImplementationType.ATTR_VALUE_VALIDATOR:
+                templateClassName = "MyAttrValueValidator";
                 break;
 
             case IdRepoImplementationType.RECIPIENTS_PROVIDER:
@@ -203,6 +207,20 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
             @Override
             protected List<String> load() {
                 return List.of();
+            }
+        };
+    }
+
+    @Override
+    public IModel<List<String>> getMacroActions() {
+        return new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return implementationRestClient.list(IdRepoImplementationType.MACRO_ACTIONS).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
     }

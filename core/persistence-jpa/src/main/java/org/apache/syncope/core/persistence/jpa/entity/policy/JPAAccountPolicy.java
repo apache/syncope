@@ -27,14 +27,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 
 @Entity
@@ -59,18 +55,6 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
             uniqueConstraints =
             @UniqueConstraint(columnNames = { "policy_id", "implementation_id" }))
     private List<JPAImplementation> rules = new ArrayList<>();
-
-    /**
-     * Resources for alternative user authentication: if empty, only internal storage will be used.
-     */
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "accountPolicy_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "resource_id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "accountPolicy_id", "resource_id" }))
-    private Set<JPAExternalResource> resources = new HashSet<>();
 
     @Override
     public boolean isPropagateSuspension() {
@@ -102,16 +86,5 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     @Override
     public List<? extends Implementation> getRules() {
         return rules;
-    }
-
-    @Override
-    public boolean add(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
-    }
-
-    @Override
-    public Set<? extends ExternalResource> getResources() {
-        return resources;
     }
 }

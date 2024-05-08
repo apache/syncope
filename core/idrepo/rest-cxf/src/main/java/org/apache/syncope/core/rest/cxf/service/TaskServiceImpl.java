@@ -23,12 +23,15 @@ import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.apache.syncope.common.lib.form.SyncopeForm;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
@@ -106,5 +109,15 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
         }
 
         return Response.ok(logic.purgePropagations(since, statuses, resources)).build();
+    }
+
+    @Override
+    public SyncopeForm getMacroTaskForm(final String key) {
+        return logic.getMacroTaskForm(key);
+    }
+
+    @Override
+    public ExecTO execute(final ExecSpecs specs, final SyncopeForm macroTaskForm) {
+        return logic.execute(specs, macroTaskForm);
     }
 }

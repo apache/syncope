@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.neo4j.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -47,12 +46,6 @@ public class Neo4jUPlainAttr extends AbstractPlainAttr<User> implements UPlainAt
     private Neo4jUser owner;
 
     /**
-     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
-     */
-    @JsonProperty("membership")
-    private String membershipKey;
-
-    /**
      * Values of this attribute (if schema is not UNIQUE).
      */
     private final List<Neo4jUPlainAttrValue> values = new ArrayList<>();
@@ -72,15 +65,6 @@ public class Neo4jUPlainAttr extends AbstractPlainAttr<User> implements UPlainAt
     public void setOwner(final User owner) {
         checkType(owner, Neo4jUser.class);
         this.owner = (Neo4jUser) owner;
-    }
-
-    public String getMembershipKey() {
-        return membershipKey;
-    }
-
-    @JsonSetter("membership")
-    public void setMembershipKey(final String membershipKey) {
-        this.membershipKey = membershipKey;
     }
 
     @JsonIgnore

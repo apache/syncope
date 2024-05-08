@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TaskTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -52,21 +51,6 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     protected static final String PULL_TASK_KEY = "c41b9b71-9bfa-4f90-89f2-84787def4c5c";
 
     protected static final String SCHED_TASK_KEY = "e95555d2-1b09-42c8-b25b-f4c4ec597979";
-
-    /**
-     * Remove initial and synchronized users to make test re-runnable.
-     */
-    protected void removeTestUsers() {
-        for (int i = 0; i < 10; i++) {
-            String cUserName = "test" + i;
-            try {
-                UserTO cUserTO = USER_SERVICE.read(cUserName);
-                USER_SERVICE.delete(cUserTO.getKey());
-            } catch (Exception e) {
-                // Ignore
-            }
-        }
-    }
 
     /**
      * Clean Syncope and LDAP resource status.

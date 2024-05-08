@@ -38,7 +38,7 @@ public class CaptchaPanel<T> extends Panel {
     private static final RandomStringGenerator RANDOM_LETTERS = new RandomStringGenerator.Builder().
             usingRandom(RANDOM::nextInt).
             withinRange('a', 'z').
-            build();
+            get();
 
     private final Model<String> captchaText = new Model<>();
 

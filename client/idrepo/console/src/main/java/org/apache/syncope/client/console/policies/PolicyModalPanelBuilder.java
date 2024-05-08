@@ -33,7 +33,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
@@ -55,7 +54,6 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.util.ListModel;
 
 public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPanelBuilder<T> {
 
@@ -172,11 +170,6 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             "propagateSuspension",
                             new PropertyModel<>(policyTO, "propagateSuspension"),
                             false));
-
-                    fields.add(new AjaxPalettePanel.Builder<String>().setName("passthroughResources").build(
-                            "field",
-                            new PropertyModel<>(policyTO, "passthroughResources"),
-                            new ListModel<>(resources.getObject())));
                     break;
 
                 case PASSWORD:

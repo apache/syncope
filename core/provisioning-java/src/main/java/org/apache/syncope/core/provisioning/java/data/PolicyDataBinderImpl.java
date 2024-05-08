@@ -85,13 +85,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     protected <T extends Policy> T getPolicy(final T policy, final PolicyTO policyTO) {
         T result = policy;
 
-        if (policyTO instanceof PasswordPolicyTO) {
+        if (policyTO instanceof PasswordPolicyTO passwordPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PasswordPolicy.class);
             }
 
             PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(result);
-            PasswordPolicyTO passwordPolicyTO = PasswordPolicyTO.class.cast(policyTO);
 
             passwordPolicy.setAllowNullPassword(passwordPolicyTO.isAllowNullPassword());
             passwordPolicy.setHistoryLength(passwordPolicyTO.getHistoryLength());
@@ -102,13 +101,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             // remove all implementations not contained in the TO
             passwordPolicy.getRules().
                     removeIf(implementation -> !passwordPolicyTO.getRules().contains(implementation.getKey()));
-        } else if (policyTO instanceof AccountPolicyTO) {
+        } else if (policyTO instanceof AccountPolicyTO accountPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AccountPolicy.class);
             }
 
             AccountPolicy accountPolicy = AccountPolicy.class.cast(result);
-            AccountPolicyTO accountPolicyTO = AccountPolicyTO.class.cast(policyTO);
 
             accountPolicy.setMaxAuthenticationAttempts(accountPolicyTO.getMaxAuthenticationAttempts());
             accountPolicy.setPropagateSuspension(accountPolicyTO.isPropagateSuspension());
@@ -119,31 +117,24 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             // remove all implementations not contained in the TO
             accountPolicy.getRules().
                     removeIf(implementation -> !accountPolicyTO.getRules().contains(implementation.getKey()));
-
-            accountPolicy.getResources().clear();
-            accountPolicyTO.getPassthroughResources().forEach(r -> resourceDAO.findById(r).ifPresentOrElse(
-                    accountPolicy::add,
-                    () -> LOG.debug("Ignoring invalid resource {} ", r)));
-        } else if (policyTO instanceof PropagationPolicyTO) {
+        } else if (policyTO instanceof PropagationPolicyTO propagationPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PropagationPolicy.class);
             }
 
             PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(result);
-            PropagationPolicyTO propagationPolicyTO = PropagationPolicyTO.class.cast(policyTO);
 
             propagationPolicy.setFetchAroundProvisioning(propagationPolicyTO.isFetchAroundProvisioning());
             propagationPolicy.setUpdateDelta(propagationPolicyTO.isUpdateDelta());
             propagationPolicy.setBackOffStrategy(propagationPolicyTO.getBackOffStrategy());
             propagationPolicy.setBackOffParams(propagationPolicyTO.getBackOffParams());
             propagationPolicy.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
-        } else if (policyTO instanceof PullPolicyTO) {
+        } else if (policyTO instanceof PullPolicyTO pullPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PullPolicy.class);
             }
 
             PullPolicy pullPolicy = PullPolicy.class.cast(result);
-            PullPolicyTO pullPolicyTO = PullPolicyTO.class.cast(policyTO);
 
             pullPolicy.setConflictResolutionAction(pullPolicyTO.getConflictResolutionAction());
 
@@ -166,13 +157,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             // remove all rules not contained in the TO
             pullPolicy.getCorrelationRules().removeIf(anyFilter -> !pullPolicyTO.getCorrelationRules().
                     containsKey(anyFilter.getAnyType().getKey()));
-        } else if (policyTO instanceof PushPolicyTO) {
+        } else if (policyTO instanceof PushPolicyTO pushPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PushPolicy.class);
             }
 
             PushPolicy pushPolicy = PushPolicy.class.cast(result);
-            PushPolicyTO pushPolicyTO = PushPolicyTO.class.cast(policyTO);
 
             pushPolicy.setConflictResolutionAction(pushPolicyTO.getConflictResolutionAction());
 
@@ -193,47 +183,44 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     },
                     () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
             // remove all rules not contained in the TO
-            pushPolicy.getCorrelationRules().removeIf(anyFilter
-                    -> !pushPolicyTO.getCorrelationRules().containsKey(anyFilter.getAnyType().getKey()));
-        } else if (policyTO instanceof AuthPolicyTO) {
+            pushPolicy.getCorrelationRules().
+                    removeIf(anyFilter -> !pushPolicyTO.getCorrelationRules().
+                    containsKey(anyFilter.getAnyType().getKey()));
+        } else if (policyTO instanceof AuthPolicyTO authPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AuthPolicy.class);
             }
 
             AuthPolicy authPolicy = AuthPolicy.class.cast(result);
-            AuthPolicyTO authPolicyTO = AuthPolicyTO.class.cast(policyTO);
 
             authPolicy.setName(authPolicyTO.getKey());
             authPolicy.setConf(authPolicyTO.getConf());
-        } else if (policyTO instanceof AccessPolicyTO) {
+        } else if (policyTO instanceof AccessPolicyTO accessPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AccessPolicy.class);
             }
 
             AccessPolicy accessPolicy = AccessPolicy.class.cast(result);
-            AccessPolicyTO accessPolicyTO = AccessPolicyTO.class.cast(policyTO);
 
             accessPolicy.setName(accessPolicyTO.getKey());
             accessPolicy.setConf(accessPolicyTO.getConf());
-        } else if (policyTO instanceof AttrReleasePolicyTO) {
+        } else if (policyTO instanceof AttrReleasePolicyTO attrReleasePolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AttrReleasePolicy.class);
             }
 
             AttrReleasePolicy attrReleasePolicy = AttrReleasePolicy.class.cast(result);
-            AttrReleasePolicyTO attrReleasePolicyTO = AttrReleasePolicyTO.class.cast(policyTO);
 
             attrReleasePolicy.setName(attrReleasePolicyTO.getKey());
             attrReleasePolicy.setOrder(attrReleasePolicyTO.getOrder());
             attrReleasePolicy.setStatus(attrReleasePolicyTO.getStatus());
             attrReleasePolicy.setConf(attrReleasePolicyTO.getConf());
-        } else if (policyTO instanceof TicketExpirationPolicyTO) {
+        } else if (policyTO instanceof TicketExpirationPolicyTO ticketExpirationPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(TicketExpirationPolicy.class);
             }
 
             TicketExpirationPolicy ticketExpirationPolicy = TicketExpirationPolicy.class.cast(result);
-            TicketExpirationPolicyTO ticketExpirationPolicyTO = TicketExpirationPolicyTO.class.cast(policyTO);
 
             ticketExpirationPolicy.setConf(ticketExpirationPolicyTO.getConf());
         }
@@ -282,7 +269,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     accountPolicy.getRules().stream().map(Implementation::getKey).toList());
 
             accountPolicyTO.getPassthroughResources().addAll(
-                    accountPolicy.getResources().stream().map(ExternalResource::getKey).toList());
+                    resourceDAO.findByPolicy(accountPolicy).stream().map(ExternalResource::getKey).toList());
         } else if (policy instanceof PropagationPolicy) {
             PropagationPolicy propagationPolicy = PropagationPolicy.class.cast(policy);
             PropagationPolicyTO propagationPolicyTO = new PropagationPolicyTO();
@@ -345,13 +332,10 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     && !(policy instanceof TicketExpirationPolicy)) {
 
                 policyTO.getUsedByResources().addAll(
-                        resourceDAO.findByPolicy(policy).stream().
-                                map(ExternalResource::getKey).toList());
+                        resourceDAO.findByPolicy(policy).stream().map(ExternalResource::getKey).toList());
             }
 
-            policyTO.getUsedByRealms().addAll(
-                    realmDAO.findByPolicy(policy).stream().
-                            map(Realm::getFullPath).toList());
+            policyTO.getUsedByRealms().addAll(realmDAO.findByPolicy(policy).stream().map(Realm::getFullPath).toList());
         }
 
         return policyTO;

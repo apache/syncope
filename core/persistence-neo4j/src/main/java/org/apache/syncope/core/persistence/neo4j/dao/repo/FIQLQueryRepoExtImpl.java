@@ -52,6 +52,7 @@ public class FIQLQueryRepoExtImpl extends AbstractDAO implements FIQLQueryRepoEx
         return toList(
                 neo4jClient.query(queryString.toString()).bindAll(parameters).fetch().all(),
                 "n.id",
-                Neo4jFIQLQuery.class);
+                Neo4jFIQLQuery.class,
+                null);
     }
 }

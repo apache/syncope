@@ -46,7 +46,7 @@ public class DerSchemaTest extends AbstractTest {
 
     @Test
     public void findByIdLike() {
-        List<? extends DerSchema> schemas = derSchemaDAO.findByIdLike("mderivedd*");
+        List<? extends DerSchema> schemas = derSchemaDAO.findByIdLike("mderivedd%");
         assertEquals(1, schemas.size());
     }
 

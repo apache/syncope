@@ -221,6 +221,18 @@ list, update or execute the given macro task
 ** when to start
 ** https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
+===== MacroActions
+
+Macro task execution can be decorated with custom logic to be invoked around task execution, by associating
+macro tasks to one or more <<implementations,implementations>> of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/3_0_X/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
+endif::[]
+interface.
+
 [[tasks-scheduled]]
 ==== Scheduled
 

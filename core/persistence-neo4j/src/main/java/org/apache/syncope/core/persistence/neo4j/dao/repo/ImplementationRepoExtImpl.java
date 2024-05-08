@@ -21,39 +21,68 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
-public class ImplementationRepoExtImpl implements ImplementationRepoExt {
-
-    protected final Neo4jTemplate neo4jTemplate;
+public class ImplementationRepoExtImpl extends AbstractDAO implements ImplementationRepoExt {
 
     protected final NodeValidator nodeValidator;
 
-    public ImplementationRepoExtImpl(final Neo4jTemplate neo4jTemplate, final NodeValidator nodeValidator) {
-        this.neo4jTemplate = neo4jTemplate;
+    protected final Cache<EntityCacheKey, Neo4jImplementation> cache;
+
+    public ImplementationRepoExtImpl(
+            final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jImplementation> cache) {
+
+        super(neo4jTemplate, neo4jClient);
         this.nodeValidator = nodeValidator;
+        this.cache = cache;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<? extends Implementation> findById(final String key) {
+        EntityCacheKey cacheKey = EntityCacheKey.of(key);
+        return Optional.ofNullable(cache.get(cacheKey)).
+                or(() -> neo4jTemplate.findById(key, Neo4jImplementation.class).
+                map(value -> {
+                    cache.put(cacheKey, value);
+                    return value;
+                }));
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public List<Implementation> findByTypeAndKeyword(final String type, final String keyword) {
-        StringBuilder queryString = new StringBuilder("MATCH (n) WHERE n.type = $type ");
+        StringBuilder query = new StringBuilder("MATCH (n:" + Neo4jImplementation.NODE + " {type: $type}) ");
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("type", type);
 
         if (StringUtils.isNotBlank(keyword)) {
-            queryString.append("AND n.keyword =~ $keyword ");
-            parameters.put("keyword", keyword);
+            query.append("WHERE n.id =~ $keyword ");
+            parameters.put("keyword", keyword.replace("%", ".*").replaceAll("_", "\\\\_") + ".*");
         }
 
-        queryString.append("RETURN n");
+        query.append("RETURN n.id");
 
-        return neo4jTemplate.findAll(queryString.toString(), parameters, Implementation.class);
+        return toList(
+                neo4jClient.query(query.toString()).bindAll(parameters).fetch().all(),
+                "n.id",
+                Neo4jImplementation.class,
+                cache);
     }
 
     @Override
@@ -62,13 +91,18 @@ public class ImplementationRepoExtImpl implements ImplementationRepoExt {
 
         ImplementationManager.purge(saved.getKey());
 
+        cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jImplementation) saved);
+
         return saved;
     }
 
     @Override
     public void deleteById(final String key) {
         neo4jTemplate.findById(key, Neo4jImplementation.class).ifPresent(implementation -> {
+            cache.remove(EntityCacheKey.of(key));
+
             neo4jTemplate.deleteById(key, Neo4jImplementation.class);
+
             ImplementationManager.purge(key);
         });
     }

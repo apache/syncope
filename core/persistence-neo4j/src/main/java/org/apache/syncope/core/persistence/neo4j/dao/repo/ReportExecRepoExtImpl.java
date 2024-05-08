@@ -56,9 +56,10 @@ public class ReportExecRepoExtImpl extends AbstractDAO implements ReportExecRepo
                 + "[:" + Neo4jReport.REPORT_EXEC_REL + "]-"
                 + "(p:" + Neo4jReport.NODE + " {id: $id}) "
                 + "WHERE n.endDate IS NOT NULL "
-                + "ORDER BY n.end DateDESC LIMIT " + max + " RETURN n.id").fetch().all(),
+                + "RETURN n.id ORDER BY n.end DateDESC LIMIT " + max).fetch().all(),
                 "n.id",
-                Neo4jReportExec.class);
+                Neo4jReportExec.class,
+                null);
     }
 
     protected ReportExec findLatest(final Report report, final String field) {
@@ -66,9 +67,9 @@ public class ReportExecRepoExtImpl extends AbstractDAO implements ReportExecRepo
                 "MATCH (n:" + Neo4jReportExec.NODE + ")-"
                 + "[:" + Neo4jReport.REPORT_EXEC_REL + "]-"
                 + "(p:" + Neo4jReport.NODE + " {id: $id}) "
-                + "ORDER BY n." + field + " DESC LIMIT 1 RETURN n.id").
+                + "RETURN n.id ORDER BY n." + field + " DESC LIMIT 1").
                 bindAll(Map.of("id", report.getKey())).fetch().one().
-                flatMap(super.<ReportExec, Neo4jReportExec>toOptional("n.id", Neo4jReportExec.class)).
+                flatMap(super.<ReportExec, Neo4jReportExec>toOptional("n.id", Neo4jReportExec.class, null)).
                 orElse(null);
     }
 
@@ -154,7 +155,7 @@ public class ReportExecRepoExtImpl extends AbstractDAO implements ReportExecRepo
         }
 
         return toList(neo4jClient.query(
-                queryString.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jReportExec.class);
+                queryString.toString()).bindAll(parameters).fetch().all(), "n.id", Neo4jReportExec.class, null);
     }
 
     @Override

@@ -19,13 +19,17 @@
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
 import java.util.List;
+import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,35 +38,62 @@ public class AnyTypeRepoExtImpl extends AbstractDAO implements AnyTypeRepoExt {
 
     protected final RemediationDAO remediationDAO;
 
+    protected final NodeValidator nodeValidator;
+
+    protected final Cache<EntityCacheKey, Neo4jAnyType> cache;
+
     public AnyTypeRepoExtImpl(
             final RemediationDAO remediationDAO,
             final Neo4jTemplate neo4jTemplate,
-            final Neo4jClient neo4jClient) {
+            final Neo4jClient neo4jClient,
+            final NodeValidator nodeValidator,
+            final Cache<EntityCacheKey, Neo4jAnyType> cache) {
 
         super(neo4jTemplate, neo4jClient);
         this.remediationDAO = remediationDAO;
+        this.nodeValidator = nodeValidator;
+        this.cache = cache;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<? extends AnyType> findById(final String key) {
+        return findById(key, Neo4jAnyType.class, cache);
     }
 
     @Transactional(readOnly = true)
     @Override
     public AnyType getUser() {
-        return neo4jTemplate.findById(AnyTypeKind.USER.name(), Neo4jAnyType.class).orElseThrow();
+        return findById(AnyTypeKind.USER.name()).orElseThrow();
     }
 
     @Transactional(readOnly = true)
     @Override
     public AnyType getGroup() {
-        return neo4jTemplate.findById(AnyTypeKind.GROUP.name(), Neo4jAnyType.class).orElseThrow();
+        return findById(AnyTypeKind.GROUP.name()).orElseThrow();
     }
 
     @Override
     public List<AnyType> findByClassesContaining(final AnyTypeClass anyTypeClass) {
-        return findByRelationship(Neo4jAnyType.NODE, Neo4jAnyTypeClass.NODE, anyTypeClass.getKey(), Neo4jAnyType.class);
+        return findByRelationship(
+                Neo4jAnyType.NODE,
+                Neo4jAnyTypeClass.NODE,
+                anyTypeClass.getKey(),
+                Neo4jAnyType.class,
+                cache);
+    }
+
+    @Transactional
+    @Override
+    public AnyType save(final AnyType anyType) {
+        AnyType saved = neo4jTemplate.save(nodeValidator.validate(anyType));
+        cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jAnyType) saved);
+        return saved;
     }
 
     @Override
     public void deleteById(final String key) {
-        AnyType anyType = neo4jTemplate.findById(key, Neo4jAnyType.class).orElse(null);
+        AnyType anyType = findById(key).orElse(null);
         if (anyType == null) {
             return;
         }
@@ -75,6 +106,8 @@ public class AnyTypeRepoExtImpl extends AbstractDAO implements AnyTypeRepoExt {
             remediation.setAnyType(null);
             remediationDAO.delete(remediation);
         });
+
+        cache.remove(EntityCacheKey.of(key));
 
         neo4jTemplate.deleteById(key, Neo4jAnyType.class);
     }

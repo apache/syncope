@@ -72,22 +72,22 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
     @SpringBean
     protected CommandRestClient commandRestClient;
 
-    protected final BaseModal<MacroTaskTO> baseModal;
-
     protected final String task;
 
+    protected final BaseModal<MacroTaskTO> baseModal;
+
     public CommandComposeDirectoryPanel(
+            final String task,
             final CommandRestClient restClient,
             final BaseModal<MacroTaskTO> baseModal,
-            final String task,
             final PageReference pageRef) {
 
         super(BaseModal.CONTENT_ID, restClient, pageRef, false);
 
         disableCheckBoxes();
 
-        this.baseModal = baseModal;
         this.task = task;
+        this.baseModal = baseModal;
 
         enableUtilityButton();
 

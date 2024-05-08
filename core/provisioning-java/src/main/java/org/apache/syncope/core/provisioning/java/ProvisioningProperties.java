@@ -25,8 +25,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("provisioning")
 public class ProvisioningProperties {
 
-    private String virAttrCacheSpec = "maximumSize=5000,expireAfterAccess=1m";
-
     private final ExecutorProperties asyncConnectorFacadeExecutor = new ExecutorProperties();
 
     private final ExecutorProperties propagationTaskExecutorAsyncExecutor = new ExecutorProperties();
@@ -34,14 +32,6 @@ public class ProvisioningProperties {
     private final ExecutorProperties scheduling = new ExecutorProperties();
 
     private final List<String> connIdLocation = new ArrayList<>();
-
-    public String getVirAttrCacheSpec() {
-        return virAttrCacheSpec;
-    }
-
-    public void setVirAttrCacheSpec(final String virAttrCacheSpec) {
-        this.virAttrCacheSpec = virAttrCacheSpec;
-    }
 
     public ExecutorProperties getAsyncConnectorFacadeExecutor() {
         return asyncConnectorFacadeExecutor;
@@ -58,5 +48,4 @@ public class ProvisioningProperties {
     public List<String> getConnIdLocation() {
         return connIdLocation;
     }
-
 }

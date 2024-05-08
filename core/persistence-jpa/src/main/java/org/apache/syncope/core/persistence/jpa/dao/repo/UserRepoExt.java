@@ -39,6 +39,8 @@ public interface UserRepoExt extends AnyRepoExt<User> {
 
     UMembership findMembership(String key);
 
+    void deleteMembership(UMembership membership);
+
     List<Role> findDynRoles(String key);
 
     Collection<Role> findAllRoles(User user);

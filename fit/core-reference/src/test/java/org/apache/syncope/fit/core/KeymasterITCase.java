@@ -43,6 +43,7 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
+import org.apache.syncope.common.keymaster.client.api.model.Neo4jDomain;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -213,6 +214,7 @@ public class KeymasterITCase extends AbstractITCase {
         List<Domain> initial = domainOps.list();
         assertNotNull(initial);
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
+        assumeTrue(initial.get(0) instanceof JPADomain);
 
         // 1. create new domain
         String newDomain = UUID.randomUUID().toString();
@@ -300,9 +302,17 @@ public class KeymasterITCase extends AbstractITCase {
 
     @Test
     public void domainCreateDuplicateKey() {
-        assumeTrue(domainOps.list().stream().anyMatch(d -> "Two".equals(d.getKey())));
+        List<Domain> initial = domainOps.list();
+        assertNotNull(initial);
+        assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
-        assertThrows(KeymasterException.class, () -> domainOps.create(new JPADomain.Builder("Two").build()));
+        if (initial.get(0) instanceof JPADomain) {
+            assertThrows(KeymasterException.class, () -> domainOps.create(new JPADomain.Builder("Two").build()));
+        } else if (initial.get(0) instanceof Neo4jDomain) {
+            assertThrows(KeymasterException.class, () -> domainOps.create(new Neo4jDomain.Builder("Two").build()));
+        } else {
+            throw new IllegalStateException("Unsupported Domain class: " + initial.get(0).getClass().getName());
+        }
     }
 
     @Test

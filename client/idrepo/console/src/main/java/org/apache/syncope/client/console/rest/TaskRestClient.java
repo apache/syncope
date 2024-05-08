@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.DateOps;
+import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -192,6 +193,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return getService(TaskService.class).read(type, taskKey, false);
     }
 
+    public SyncopeForm getMacroTaskForm(final String taskKey) {
+        return getService(TaskService.class).getMacroTaskForm(taskKey);
+    }
+
     public void delete(final TaskType type, final String taskKey) {
         getService(TaskService.class).delete(type, taskKey);
     }
@@ -202,8 +207,19 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public void startExecution(final String taskKey, final Date startAt, final boolean dryRun) {
-        getService(TaskService.class).execute(new ExecSpecs.Builder().key(taskKey).
-                startAt(DateOps.toOffsetDateTime(startAt)).dryRun(dryRun).build());
+        getService(TaskService.class).execute(
+                new ExecSpecs.Builder().key(taskKey).startAt(DateOps.toOffsetDateTime(startAt)).dryRun(dryRun).build());
+    }
+
+    public void startExecution(
+            final String taskKey,
+            final Date startAt,
+            final boolean dryRun,
+            final SyncopeForm macroTaskForm) {
+
+        getService(TaskService.class).execute(
+                new ExecSpecs.Builder().key(taskKey).startAt(DateOps.toOffsetDateTime(startAt)).dryRun(dryRun).build(),
+                macroTaskForm);
     }
 
     @Override
