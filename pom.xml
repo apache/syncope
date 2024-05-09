@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>3.6.3</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.38</nimbus-jose-jwt.version>
 
     <spring-framework.version>5.3.34</spring-framework.version>
     <spring-security.version>5.8.12</spring-security.version>
@@ -432,7 +432,7 @@ under the License.
 
     <elasticsearch.version>8.13.3</elasticsearch.version>
     <opensearch.version>2.13.0</opensearch.version>
-    <opensearch-java.version>2.10.1</opensearch-java.version>
+    <opensearch-java.version>2.10.2</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
