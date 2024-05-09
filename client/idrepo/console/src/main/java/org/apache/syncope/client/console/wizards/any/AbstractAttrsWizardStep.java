@@ -403,19 +403,18 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 final boolean setReadOnly) {
 
             Attr attr = item.getModelObject();
-            final boolean isMultivalue = mode != AjaxWizard.Mode.TEMPLATE
-                    && schemas.get(attr.getSchema()).isMultivalue();
+            PlainSchemaTO schema = schemas.get(attr.getSchema());
 
-            AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attr.getSchema()));
-            if (isMultivalue) {
+            AbstractFieldPanel<?> panel = getFieldPanel(schema);
+            if (mode != AjaxWizard.Mode.TEMPLATE && schema.isMultivalue()) {
                 // SYNCOPE-1476 set form as multipart to properly manage membership attributes
                 panel = new MultiFieldPanel.Builder<>(
                         new PropertyModel<>(attr, "values")).build(
                         "panel",
-                        attr.getSchema(),
+                        schema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         FieldPanel.class.cast(panel)).setFormAsMultipart(true);
                 // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                MultiFieldPanel.class.cast(panel).setReadOnly(schemas.get(attr.getSchema()).isReadonly());
+                MultiFieldPanel.class.cast(panel).setReadOnly(schema.isReadonly());
                 MultiFieldPanel.class.cast(panel).setFormReadOnly(setReadOnly);
             } else {
                 FieldPanel.class.cast(panel).setNewModel(attr.getValues()).setReadOnly(setReadOnly);

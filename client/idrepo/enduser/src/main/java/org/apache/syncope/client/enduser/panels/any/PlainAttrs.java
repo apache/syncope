@@ -354,23 +354,26 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 @Override
                 @SuppressWarnings({ "unchecked", "rawtypes" })
                 protected void populateItem(final ListItem<Attr> item) {
-                    Attr attrTO = item.getModelObject();
-                    PlainSchemaTO schema = schemas.get(attrTO.getSchema());
+                    Attr attr = item.getModelObject();
+                    PlainSchemaTO schema = schemas.get(attr.getSchema());
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
-                        attrTO.getValues().clear();
-                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
+                    if (attr.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
+                        attr.getValues().clear();
+                        attr.getValues().addAll(getDefaultValues(attr.getSchema(), groupName));
                     }
 
-                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (schemas.get(attrTO.getSchema()).isMultivalue()) {
-                        panel = new MultiFieldPanel.Builder<>(new PropertyModel<>(attrTO, "values")).
-                                build("panel", attrTO.getSchema(), FieldPanel.class.cast(panel));
+                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attr.getSchema()));
+                    if (schemas.get(attr.getSchema()).isMultivalue()) {
+                        panel = new MultiFieldPanel.Builder<>(
+                                new PropertyModel<>(attr, "values")).build(
+                                "panel",
+                                schemas.get(attr.getSchema()).getLabel(SyncopeEnduserSession.get().getLocale()),
+                                FieldPanel.class.cast(panel));
                         // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
+                        panel.setReadOnly(schema == null ? false : schema.isReadonly());
                     } else {
-                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues()).
+                        FieldPanel.class.cast(panel).setNewModel(attr.getValues()).
                                 setReadOnly(schema == null ? false : schema.isReadonly());
                     }
 
