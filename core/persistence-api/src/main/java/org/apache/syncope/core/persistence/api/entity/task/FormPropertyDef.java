@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
@@ -48,6 +49,10 @@ public interface FormPropertyDef extends ProvidedKeyEntity {
 
     void setRequired(boolean required);
 
+    Pattern getStringRegEx();
+
+    void setStringRegExp(Pattern stringRegEx);
+
     String getDatePattern();
 
     void setDatePattern(String datePattern);
@@ -55,4 +60,12 @@ public interface FormPropertyDef extends ProvidedKeyEntity {
     Map<String, String> getEnumValues();
 
     void setEnumValues(Map<String, String> enumValues);
+
+    boolean isDropdownSingleSelection();
+
+    void setDropdownSingleSelection(boolean dropdownSingleSelection);
+
+    boolean isDropdownFreeForm();
+
+    void setDropdownFreeForm(boolean dropdownFreeForm);
 }

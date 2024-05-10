@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
+import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
@@ -53,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
@@ -74,23 +78,6 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
     protected final Map<String, Command<?>> perContextCommands = new ConcurrentHashMap<>();
-
-    protected boolean validate(final FormPropertyDef fpd, final String value, final Optional<MacroActions> actions) {
-        if (!fpd.isWritable()) {
-            return false;
-        }
-
-        switch (fpd.getType()) {
-            case Enum:
-                return fpd.getEnumValues().containsKey(value);
-
-            case Dropdown:
-                return actions.map(a -> a.getDropdownValues(fpd.getKey()).containsKey(value)).orElse(false);
-
-            default:
-                return value != null;
-        }
-    }
 
     protected Optional<JexlContext> check(
             final SyncopeForm macroTaskForm,
@@ -114,46 +101,82 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             throw new JobExecutionException("Required form properties missing: " + missingFormProperties);
         }
 
+        // build the JEXL context where variables are mapped to property values, built according to the defined type
+        Map<String, Object> vars = new HashMap<>();
+        for (FormPropertyDef fpd : task.getFormPropertyDefs()) {
+            String value = macroTaskForm.getProperty(fpd.getKey()).map(FormProperty::getValue).orElse(null);
+            if (value == null) {
+                continue;
+            }
+
+            switch (fpd.getType()) {
+                case String:
+                    if (Optional.ofNullable(fpd.getStringRegEx()).
+                            map(pattern -> !pattern.matcher(value).matches()).
+                            orElse(false)) {
+
+                        throw new JobExecutionException("RegEx not matching for " + fpd.getKey() + ": " + value);
+                    }
+
+                    vars.put(fpd.getKey(), value);
+                    break;
+
+                case Password:
+                    vars.put(fpd.getKey(), value);
+                    break;
+
+                case Boolean:
+                    vars.put(fpd.getKey(), BooleanUtils.toBoolean(value));
+                    break;
+
+                case Date:
+                    try {
+                        vars.put(fpd.getKey(), StringUtils.isBlank(fpd.getDatePattern())
+                                ? FormatUtils.parseDate(value)
+                                : FormatUtils.parseDate(value, fpd.getDatePattern()));
+                    } catch (DateTimeParseException e) {
+                        throw new JobExecutionException("Unparseable date " + fpd.getKey() + ": " + value, e);
+                    }
+                    break;
+
+                case Long:
+                    vars.put(fpd.getKey(), NumberUtils.toLong(value));
+                    break;
+
+                case Enum:
+                    if (!fpd.getEnumValues().containsKey(value)) {
+                        throw new JobExecutionException("Not allowed for " + fpd.getKey() + ": " + value);
+                    }
+
+                    vars.put(fpd.getKey(), value);
+                    break;
+
+                case Dropdown:
+                    if (!fpd.isDropdownFreeForm()) {
+                        List<String> values = fpd.isDropdownSingleSelection()
+                                ? List.of(value)
+                                : List.of(value.split(";"));
+
+                        if (!actions.map(a -> a.getDropdownValues(fpd.getKey()).keySet()).
+                                orElse(Set.of()).containsAll(values)) {
+
+                            throw new JobExecutionException("Not allowed for " + fpd.getKey() + ": " + values);
+                        }
+                    }
+
+                    vars.put(fpd.getKey(), value);
+                    break;
+
+                default:
+            }
+        }
+
         // if validator is defined, validate the provided form
         try {
-            actions.ifPresent(a -> a.validate(macroTaskForm));
+            actions.ifPresent(a -> a.validate(macroTaskForm, vars));
         } catch (ValidationException e) {
             throw new JobExecutionException("Invalid form submitted for task " + task.getKey(), e);
         }
-
-        // build the JEXL context where variables are mapped to property values, built according to the defined type
-        Map<String, Object> vars = macroTaskForm.getProperties().stream().
-                map(p -> task.getFormPropertyDefs().stream().
-                filter(fpd -> fpd.getKey().equals(p.getId()) && validate(fpd, p.getValue(), actions)).findFirst().
-                map(fpd -> Pair.of(fpd, p.getValue()))).
-                filter(Optional::isPresent).map(Optional::get).
-                map(pair -> {
-                    Object value;
-                    switch (pair.getLeft().getType()) {
-                        case Boolean:
-                            value = BooleanUtils.toBoolean(pair.getRight());
-                            break;
-
-                        case Date:
-                            value = StringUtils.isBlank(pair.getLeft().getDatePattern())
-                                    ? FormatUtils.parseDate(pair.getRight())
-                                    : FormatUtils.parseDate(pair.getRight(), pair.getLeft().getDatePattern());
-                            break;
-
-                        case Long:
-                            value = NumberUtils.toLong(pair.getRight());
-                            break;
-
-                        case Enum:
-                        case Dropdown:
-                        case String:
-                        case Password:
-                        default:
-                            value = pair.getRight();
-                    }
-
-                    return Pair.of(pair.getLeft().getKey(), value);
-                }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
         output.append("Form parameter values: ").append(vars).append("\n\n");
 
@@ -196,7 +219,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 LOG.error("While running {} with args {}, continuing on error",
                                         command.getLeft().getClass().getName(), command.getRight(), e);
                             } else {
-                                error.set(Pair.of(command.getLeft().getClass().getName(), e));
+                                error.set(Pair.of(AopUtils.getTargetClass(command.getLeft()).getName(), e));
                             }
                         }
                         output.append("\n\n");

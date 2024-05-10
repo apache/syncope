@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -44,6 +45,9 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     public static final String TABLE = "FormPropertyDef";
 
+    protected static final TypeReference<Map<String, String>> TYPEREF = new TypeReference<Map<String, String>>() {
+    };
+
     @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
@@ -63,10 +67,18 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     @NotNull
     private Boolean required = Boolean.FALSE;
 
+    private String stringRegEx;
+
     private String datePattern;
 
     @Lob
     private String enumValues;
+
+    @NotNull
+    private Boolean dropdownSingleSelection = Boolean.TRUE;
+
+    @NotNull
+    private Boolean dropdownFreeForm = Boolean.FALSE;
 
     @Override
     public JPAMacroTask getMacroTask() {
@@ -130,6 +142,16 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     }
 
     @Override
+    public Pattern getStringRegEx() {
+        return Optional.ofNullable(stringRegEx).map(Pattern::compile).orElse(null);
+    }
+
+    @Override
+    public void setStringRegExp(final Pattern stringRegEx) {
+        this.stringRegEx = Optional.ofNullable(stringRegEx).map(Pattern::pattern).orElse(null);
+    }
+
+    @Override
     public String getDatePattern() {
         return datePattern;
     }
@@ -141,13 +163,31 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<Map<String, String>>() {
-        })).orElse(Map.of());
+        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElse(Map.of());
     }
 
     @Override
     public void setEnumValues(final Map<String, String> enumValues) {
         this.enumValues = Optional.ofNullable(enumValues).map(POJOHelper::serialize).orElse(null);
+    }
+
+    @Override
+    public boolean isDropdownSingleSelection() {
+        return dropdownSingleSelection == null ? false : dropdownSingleSelection;
+    }
+
+    @Override
+    public void setDropdownSingleSelection(final boolean dropdownSingleSelection) {
+        this.dropdownSingleSelection = dropdownSingleSelection;
+    }
+
+    @Override
+    public boolean isDropdownFreeForm() {
+        return dropdownFreeForm == null ? false : dropdownFreeForm;
+    }
+
+    @Override
+    public void setDropdownFreeForm(final boolean dropdownFreeForm) {
+        this.dropdownFreeForm = dropdownFreeForm;
     }
 }

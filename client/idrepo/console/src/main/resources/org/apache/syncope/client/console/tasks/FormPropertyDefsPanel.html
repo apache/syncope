@@ -27,12 +27,11 @@ under the License.
           <tr>
             <th><wicket:message key="key"/></th>
             <th><wicket:message key="name"/></th>
-            <th><wicket:message key="type"/></th>
             <th><wicket:message key="readable"/></th>
             <th><wicket:message key="writable"/></th>
             <th><wicket:message key="required"/></th>
-            <th><wicket:message key="datePattern"/></th>
-            <th><wicket:message key="enumValues"/></th>
+            <th><wicket:message key="type"/></th>
+            <th><wicket:message key="conf"/></th>
             <th></th>
           </tr>
 
@@ -44,9 +43,6 @@ under the License.
               <span wicket:id="name"/>
             </td>
             <td>
-              <span wicket:id="type"/>
-            </td>
-            <td>
               <span wicket:id="readable"/>
             </td>
             <td>
@@ -56,10 +52,16 @@ under the License.
               <span wicket:id="required"/>
             </td>
             <td>
-              <span wicket:id="datePattern"/>
+              <span wicket:id="type"/>
             </td>
             <td>
+              <span wicket:id="stringRegEx"/>
+              <span wicket:id="datePattern"/>
               <span wicket:id="enumValues"/>
+              <div wicket:id="dropdownConf">
+                <span wicket:id="dropdownSingleSelection"/>
+                <span wicket:id="dropdownFreeForm"/>
+              </div>
             </td>
             <td>
               <div id="inline-actions">

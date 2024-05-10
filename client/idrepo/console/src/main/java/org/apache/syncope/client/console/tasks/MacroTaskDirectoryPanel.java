@@ -138,6 +138,7 @@ public class MacroTaskDirectoryPanel extends SchedTaskDirectoryPanel<MacroTaskTO
 
             @Override
             public void onClick(final AjaxRequestTarget target, final MacroTaskTO ignore) {
+                model.setObject(restClient.readTask(TaskType.MACRO, model.getObject().getKey()));
                 MacroTaskExecWizardBuilder wb = new MacroTaskExecWizardBuilder(model.getObject(), restClient, pageRef);
                 wb.setEventSink(new ExecModalEventSink());
 
@@ -164,6 +165,7 @@ public class MacroTaskDirectoryPanel extends SchedTaskDirectoryPanel<MacroTaskTO
 
             @Override
             public void onClick(final AjaxRequestTarget target, final MacroTaskTO ignore) {
+                model.setObject(restClient.readTask(TaskType.MACRO, model.getObject().getKey()));
                 target.add(modal.setContent(new CommandComposeDirectoryPanel(
                         model.getObject().getKey(), commandRestClient, modal, pageRef)));
 

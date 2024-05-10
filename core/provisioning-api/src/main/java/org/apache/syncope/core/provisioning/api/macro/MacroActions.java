@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.macro;
 
 import java.util.Map;
+import java.util.Optional;
 import javax.validation.ValidationException;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.form.SyncopeForm;
@@ -28,12 +29,16 @@ import org.apache.syncope.common.lib.form.SyncopeForm;
  */
 public interface MacroActions {
 
-    default void validate(SyncopeForm macroTaskForm) throws ValidationException {
-        // does nothing by default
+    default Optional<String> getDefaultValue(String formProperty) {
+        return Optional.empty();
     }
 
     default Map<String, String> getDropdownValues(String formProperty) {
         return Map.of();
+    }
+
+    default void validate(SyncopeForm form, Map<String, Object> vars) throws ValidationException {
+        // does nothing by default
     }
 
     default void beforeAll() {

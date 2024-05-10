@@ -18,9 +18,10 @@
  */
 import groovy.transform.CompileStatic
 import java.util.Map
-import javax.xml.bind.ValidationException
+import java.util.Optional
+import javax.validation.ValidationException
 import org.apache.syncope.common.lib.command.CommandArgs
-import org.apache.syncope.common.lib.form.MacroTaskForm
+import org.apache.syncope.common.lib.form.SyncopeForm
 import org.apache.syncope.core.provisioning.api.macro.Command
 import org.apache.syncope.core.provisioning.api.macro.MacroActions
 
@@ -28,14 +29,19 @@ import org.apache.syncope.core.provisioning.api.macro.MacroActions
 class MyMacroActions implements MacroActions {
 
   @Override
-  void validate(MacroTaskForm macroTaskForm) throws ValidationException {
+  Optional<String> getDefaultValue(String formProperty) {
+    return Optional.empty();
+  }
+
+  @Override
+  Map<String, String> getDropdownValues(String formProperty) {
+    return Map.of()
   }
   
   @Override
-  Map<String, String> getDropdownValues(String formProperty) {
-    return Map.of();
+  void validate(SyncopeForm form, Map<String, Object> vars) throws ValidationException {
   }
-  
+
   @Override
   void beforeAll() {
   }
@@ -50,6 +56,6 @@ class MyMacroActions implements MacroActions {
 
   @Override
   StringBuilder afterAll(StringBuilder output) {
-    return output;
+    return output
   }
 }
