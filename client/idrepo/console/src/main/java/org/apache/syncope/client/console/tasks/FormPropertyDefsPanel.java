@@ -82,8 +82,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
         model = new ListModel<>(new ArrayList<>());
         model.getObject().addAll(task.getFormPropertyDefs());
 
-        ListView<FormPropertyDefTO> propertyDefs =
-                new ListView<>("propertyDefs", model) {
+        ListView<FormPropertyDefTO> propertyDefs = new ListView<>("propertyDefs", model) {
 
             private static final long serialVersionUID = 1814616131938968887L;
 
@@ -323,7 +322,6 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
     }
 
     @Override
-
     public void onSubmit(final AjaxRequestTarget target) {
         task.getFormPropertyDefs().clear();
         task.getFormPropertyDefs().addAll(model.getObject());
