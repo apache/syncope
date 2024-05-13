@@ -82,7 +82,8 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
         model = new ListModel<>(new ArrayList<>());
         model.getObject().addAll(task.getFormPropertyDefs());
 
-        ListView<FormPropertyDefTO> propertyDefs = new ListView<>("propertyDefs", model) {
+        ListView<FormPropertyDefTO> propertyDefs =
+                new ListView<>("propertyDefs", model) {
 
             private static final long serialVersionUID = 1814616131938968887L;
 
@@ -214,6 +215,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
 
                             case Date:
                                 stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
                                 datePattern.setVisible(true);
                                 enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
@@ -222,6 +224,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
 
                             case Enum:
                                 stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
                                 datePattern.setVisible(false);
                                 enumValues.setVisible(true);
                                 dropdownConf.setVisible(false);
@@ -229,13 +232,16 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
 
                             case Dropdown:
                                 stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
                                 datePattern.setVisible(false);
                                 enumValues.setVisible(false);
+                                fpd.getEnumValues().clear();
                                 dropdownConf.setVisible(true);
                                 break;
 
                             default:
                                 stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
                                 datePattern.setVisible(false);
                                 enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
@@ -249,7 +255,8 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                     }
                 });
 
-                ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
+                ActionsPanel<Serializable> actions = new ActionsPanel<>("actions", null);
+                item.add(actions);
                 actions.add(new ActionLink<>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -257,11 +264,45 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         model.getObject().remove(item.getIndex());
+
                         item.getParent().removeAll();
                         target.add(propertyDefContainer);
                     }
                 }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true).hideLabel();
-                item.add(actions);
+                if (model.getObject().size() > 1) {
+                    if (item.getIndex() > 0) {
+                        actions.add(new ActionLink<>() {
+
+                            private static final long serialVersionUID = 2041211756396714619L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                                FormPropertyDefTO pre = model.getObject().get(item.getIndex() - 1);
+                                model.getObject().set(item.getIndex(), pre);
+                                model.getObject().set(item.getIndex() - 1, fpd);
+
+                                item.getParent().removeAll();
+                                target.add(propertyDefContainer);
+                            }
+                        }, ActionLink.ActionType.UP, StringUtils.EMPTY).hideLabel();
+                    }
+                    if (item.getIndex() < model.getObject().size() - 1) {
+                        actions.add(new ActionLink<>() {
+
+                            private static final long serialVersionUID = 2041211756396714619L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                                FormPropertyDefTO post = model.getObject().get(item.getIndex() + 1);
+                                model.getObject().set(item.getIndex(), post);
+                                model.getObject().set(item.getIndex() + 1, fpd);
+
+                                item.getParent().removeAll();
+                                target.add(propertyDefContainer);
+                            }
+                        }, ActionLink.ActionType.DOWN, StringUtils.EMPTY).hideLabel();
+                    }
+                }
             }
         };
         propertyDefs.setReuseItems(true);
@@ -282,6 +323,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
     }
 
     @Override
+
     public void onSubmit(final AjaxRequestTarget target) {
         task.getFormPropertyDefs().clear();
         task.getFormPropertyDefs().addAll(model.getObject());

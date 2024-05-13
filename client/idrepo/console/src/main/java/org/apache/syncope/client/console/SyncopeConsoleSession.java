@@ -162,7 +162,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
 
         message = getApplication().getResourceSettings().getLocalizer().
                 getString(message, null, null, null, null, message);
-        error(message);
+        error(message.replace("\n", "<br/>"));
     }
 
     public MediaType getMediaType() {

@@ -203,7 +203,8 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                         break;
 
                     case Password:
-                        field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
+                        field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false).
+                                setResetPassword(false);
                         break;
 
                     case String:
