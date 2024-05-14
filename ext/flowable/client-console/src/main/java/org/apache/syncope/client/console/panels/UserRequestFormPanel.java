@@ -44,9 +44,7 @@ public abstract class UserRequestFormPanel extends SyncopeFormPanel<UserRequestF
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, IdRepoEntitlement.USER_READ);
 
         boolean enabled = form.getUserTO() != null;
-        userDetails.setVisible(enabled).setEnabled(enabled);
-
-        add(userDetails);
+        add(userDetails.setVisible(enabled).setEnabled(enabled));
     }
 
     protected abstract void viewDetails(AjaxRequestTarget target);

@@ -190,10 +190,10 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             final boolean dryRun)
             throws JobExecutionException {
 
-        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(
+        Future<AtomicReference<Pair<String, Throwable>>> future = executor.submit(
                 new DelegatingSecurityContextCallable<>(() -> {
 
-                    AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
+                    AtomicReference<Pair<String, Throwable>> error = new AtomicReference<>();
 
                     for (int i = 0; i < commands.size() && error.get() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
@@ -212,14 +212,14 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                                 output.append(cmdOut);
                             }
-                        } catch (Exception e) {
+                        } catch (Throwable t) {
                             if (task.isContinueOnError()) {
-                                output.append("Continuing on error: <").append(e.getMessage()).append('>');
+                                output.append("Continuing on error: <").append(t.getMessage()).append('>');
 
                                 LOG.error("While running {} with args {}, continuing on error",
-                                        command.getLeft().getClass().getName(), command.getRight(), e);
+                                        command.getLeft().getClass().getName(), command.getRight(), t);
                             } else {
-                                error.set(Pair.of(AopUtils.getTargetClass(command.getLeft()).getName(), e));
+                                error.set(Pair.of(AopUtils.getTargetClass(command.getLeft()).getName(), t));
                             }
                         }
                         output.append("\n\n");
@@ -229,7 +229,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                 }));
 
         try {
-            AtomicReference<Pair<String, Exception>> error = future.get();
+            AtomicReference<Pair<String, Throwable>> error = future.get();
             if (error.get() != null) {
                 throw new JobExecutionException("While running " + error.get().getLeft(), error.get().getRight());
             }

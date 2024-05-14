@@ -76,8 +76,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
         this.task = task;
 
         WebMarkupContainer propertyDefContainer = new WebMarkupContainer("propertyDefContainer");
-        propertyDefContainer.setOutputMarkupId(true);
-        add(propertyDefContainer);
+        add(propertyDefContainer.setOutputMarkupId(true));
 
         model = new ListModel<>(new ArrayList<>());
         model.getObject().addAll(task.getFormPropertyDefs());
@@ -159,7 +158,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                         try {
                             Pattern.compile(validatable.getValue());
                         } catch (PatternSyntaxException e) {
-                            validatable.error(new ValidationError("Invalid RegEx"));
+                            validatable.error(new ValidationError(fpd.getKey() + ": invalid RegEx"));
                         }
                     }
                 });
@@ -304,8 +303,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                 }
             }
         };
-        propertyDefs.setReuseItems(true);
-        propertyDefContainer.add(propertyDefs);
+        propertyDefContainer.add(propertyDefs.setReuseItems(true));
 
         IndicatingAjaxButton addPropertyDef = new IndicatingAjaxButton("addPropertyDef") {
 

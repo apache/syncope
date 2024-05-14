@@ -19,6 +19,7 @@
 package org.apache.syncope.client.ui.commons.panels;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +44,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.validation.validator.PatternValidator;
@@ -59,22 +59,14 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
     public SyncopeFormPanel(final String id, final F form) {
         super(id);
 
-        IModel<List<FormProperty>> formProps = new LoadableDetachableModel<>() {
+        ListModel<FormProperty> model = new ListModel<>(new ArrayList<>());
+        model.getObject().addAll(form.getProperties());
 
-            private static final long serialVersionUID = 3169142472626817508L;
-
-            @Override
-            protected List<FormProperty> load() {
-                return form.getProperties();
-            }
-        };
-
-        ListView<FormProperty> propView = new ListView<>("propView", formProps) {
+        ListView<FormProperty> propView = new ListView<>("propView", model) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<FormProperty> item) {
                 FormProperty prop = item.getModelObject();
 
@@ -96,7 +88,6 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                             public void setObject(final Boolean object) {
                                 prop.setValue(BooleanUtils.toStringTrueFalse(object));
                             }
-
                         }, false);
                         break;
 
@@ -126,7 +117,7 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                         break;
 
                     case Enum:
-                        field = new AjaxDropDownChoicePanel(
+                        field = new AjaxDropDownChoicePanel<>(
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
                                 setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues().stream().
                                         collect(Collectors.toMap(
@@ -142,7 +133,7 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                             ((AjaxTextFieldPanel) field).setChoices(prop.getDropdownValues().stream().
                                     map(FormPropertyValue::getKey).collect(Collectors.toList()));
                         } else if (prop.isDropdownSingleSelection()) {
-                            field = new AjaxDropDownChoicePanel(
+                            field = new AjaxDropDownChoicePanel<>(
                                     "value", label, new PropertyModel<String>(prop, "value"), false).
                                     setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
                                             collect(Collectors.toMap(
@@ -211,7 +202,7 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                     default:
                         field = new AjaxTextFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
                         Optional.ofNullable(prop.getStringRegEx()).
-                                ifPresent(re -> ((AjaxTextFieldPanel) field).getField().add(new PatternValidator(re)));
+                                ifPresent(re -> ((AjaxTextFieldPanel) field).addValidator(new PatternValidator(re)));
                         break;
                 }
 
@@ -223,7 +214,6 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                 item.add(field);
             }
         };
-
-        add(propView);
+        add(propView.setReuseItems(true));
     }
 }
