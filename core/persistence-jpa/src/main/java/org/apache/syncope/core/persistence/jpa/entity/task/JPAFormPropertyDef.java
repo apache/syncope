@@ -48,6 +48,8 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     protected static final TypeReference<Map<String, String>> TYPEREF = new TypeReference<Map<String, String>>() {
     };
 
+    private int idx;
+
     @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
@@ -79,6 +81,10 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     @NotNull
     private Boolean dropdownFreeForm = Boolean.FALSE;
+
+    public void setIdx(final int idx) {
+        this.idx = idx;
+    }
 
     @Override
     public JPAMacroTask getMacroTask() {

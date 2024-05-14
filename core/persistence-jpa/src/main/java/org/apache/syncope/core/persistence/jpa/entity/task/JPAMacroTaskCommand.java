@@ -41,6 +41,8 @@ public class JPAMacroTaskCommand extends AbstractGeneratedKeyEntity implements M
 
     public static final String TABLE = "MacroTaskCommand";
 
+    private int idx;
+
     @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
@@ -49,6 +51,10 @@ public class JPAMacroTaskCommand extends AbstractGeneratedKeyEntity implements M
 
     @Lob
     private String args;
+
+    public void setIdx(final int idx) {
+        this.idx = idx;
+    }
 
     @Override
     public JPAMacroTask getMacroTask() {
