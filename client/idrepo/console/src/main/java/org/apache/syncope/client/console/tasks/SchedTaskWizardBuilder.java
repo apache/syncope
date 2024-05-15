@@ -124,26 +124,26 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 getResult().stream().map(RealmTO::getFullPath).collect(Collectors.toList());
     }
 
-    public class Profile extends WizardStep {
+    protected class Profile extends WizardStep {
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        private final IModel<List<String>> taskJobDelegates = SyncopeWebApplication.get().
+        protected final IModel<List<String>> taskJobDelegates = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getTaskJobDelegates();
 
-        private final IModel<List<String>> reconFilterBuilders = SyncopeWebApplication.get().
+        protected final IModel<List<String>> reconFilterBuilders = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getReconFilterBuilders();
 
-        private final IModel<List<String>> macroActions = SyncopeWebApplication.get().
+        protected final IModel<List<String>> macroActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getMacroActions();
 
-        private final IModel<List<String>> pullActions = SyncopeWebApplication.get().
+        protected final IModel<List<String>> pullActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getPullActions();
 
-        private final IModel<List<String>> pushActions = SyncopeWebApplication.get().
+        protected final IModel<List<String>> pushActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getPushActions();
 
-        public Profile(final SchedTaskTO taskTO) {
+        protected Profile(final SchedTaskTO taskTO) {
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                     Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
                     new PropertyModel<>(taskTO, Constants.NAME_FIELD_NAME),
@@ -468,11 +468,11 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
         }
     }
 
-    public class Schedule extends WizardStep {
+    protected class Schedule extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
-        public Schedule(final SchedTaskTO taskTO) {
+        protected Schedule(final SchedTaskTO taskTO) {
             crontabPanel = new CrontabPanel(
                     "schedule", new PropertyModel<>(taskTO, "cronExpression"), taskTO.getCronExpression());
             add(crontabPanel);
