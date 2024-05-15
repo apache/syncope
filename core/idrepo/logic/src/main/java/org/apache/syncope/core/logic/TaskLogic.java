@@ -430,7 +430,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
         if (TaskType.SCHEDULED == taskUtils.getType()
                 || TaskType.PULL == taskUtils.getType()
-                || TaskType.PUSH == taskUtils.getType()) {
+                || TaskType.PUSH == taskUtils.getType()
+                || TaskType.MACRO == taskUtils.getType()) {
 
             jobManager.unregister(task);
         }
