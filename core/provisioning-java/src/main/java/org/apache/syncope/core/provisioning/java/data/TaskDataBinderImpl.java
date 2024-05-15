@@ -275,9 +275,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             fpd.setType(fpdTO.getType());
             fpd.setReadable(fpdTO.isReadable());
             fpd.setWritable(fpdTO.isWritable());
+            fpd.setStringRegExp(fpdTO.getStringRegEx());
             fpd.setRequired(fpdTO.isRequired());
             fpd.setDatePattern(fpdTO.getDatePattern());
             fpd.setEnumValues(fpdTO.getEnumValues());
+            fpd.setDropdownSingleSelection(fpdTO.isDropdownSingleSelection());
+            fpd.setDropdownFreeForm(fpdTO.isDropdownFreeForm());
 
             fpd.setMacroTask(macroTask);
             macroTask.add(fpd);
@@ -500,8 +503,11 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     fpdTO.setReadable(fpd.isReadable());
                     fpdTO.setWritable(fpd.isWritable());
                     fpdTO.setRequired(fpd.isRequired());
+                    fpdTO.setStringRegEx(fpd.getStringRegEx());
                     fpdTO.setDatePattern(fpd.getDatePattern());
                     fpdTO.getEnumValues().putAll(fpd.getEnumValues());
+                    fpdTO.setDropdownSingleSelection(fpd.isDropdownSingleSelection());
+                    fpdTO.setDropdownFreeForm(fpd.isDropdownFreeForm());
 
                     macroTaskTO.getFormPropertyDefs().add(fpdTO);
                 });
@@ -608,7 +614,11 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             prop.setRequired(fpd.isRequired());
             prop.setWritable(fpd.isWritable());
             prop.setType(fpd.getType());
+            actions.flatMap(a -> a.getDefaultValue(fpd.getKey())).ifPresent(v -> prop.setValue(v));
             switch (prop.getType()) {
+                case String ->
+                    prop.setStringRegEx(fpd.getStringRegEx());
+
                 case Date ->
                     prop.setDatePattern(fpd.getDatePattern());
 
@@ -616,9 +626,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     fpd.getEnumValues().
                             forEach((key, value) -> prop.getEnumValues().add(new FormPropertyValue(key, value)));
 
-                case Dropdown ->
+                case Dropdown -> {
                     actions.ifPresent(a -> a.getDropdownValues(fpd.getKey()).
                             forEach((key, value) -> prop.getDropdownValues().add(new FormPropertyValue(key, value))));
+                    prop.setDropdownSingleSelection(fpd.isDropdownSingleSelection());
+                    prop.setDropdownFreeForm(fpd.isDropdownFreeForm());
+                }
 
                 default -> {
                 }

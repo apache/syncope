@@ -23,6 +23,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -42,11 +43,17 @@ public class FormProperty implements Serializable {
 
     private boolean required;
 
+    private Pattern stringRegEx;
+
     private String datePattern;
 
     private final List<FormPropertyValue> enumValues = new ArrayList<>();
 
     private final List<FormPropertyValue> dropdownValues = new ArrayList<>();
+
+    private boolean dropdownSingleSelection = true;
+
+    private boolean dropdownFreeForm;
 
     private String value;
 
@@ -80,6 +87,14 @@ public class FormProperty implements Serializable {
 
     public void setRequired(final boolean required) {
         this.required = required;
+    }
+
+    public Pattern getStringRegEx() {
+        return stringRegEx;
+    }
+
+    public void setStringRegEx(final Pattern stringRegEx) {
+        this.stringRegEx = stringRegEx;
     }
 
     public FormPropertyType getType() {
@@ -118,6 +133,22 @@ public class FormProperty implements Serializable {
         return dropdownValues;
     }
 
+    public boolean isDropdownSingleSelection() {
+        return dropdownSingleSelection;
+    }
+
+    public void setDropdownSingleSelection(final boolean dropdownSingleSelection) {
+        this.dropdownSingleSelection = dropdownSingleSelection;
+    }
+
+    public boolean isDropdownFreeForm() {
+        return dropdownFreeForm;
+    }
+
+    public void setDropdownFreeForm(final boolean dropdownFreeForm) {
+        this.dropdownFreeForm = dropdownFreeForm;
+    }
+
     public String getValue() {
         return value;
     }
@@ -135,9 +166,12 @@ public class FormProperty implements Serializable {
                 append(readable).
                 append(writable).
                 append(required).
+                append(stringRegEx).
                 append(datePattern).
                 append(enumValues).
                 append(dropdownValues).
+                append(dropdownSingleSelection).
+                append(dropdownFreeForm).
                 append(value).
                 build();
     }
@@ -161,9 +195,12 @@ public class FormProperty implements Serializable {
                 append(readable, other.readable).
                 append(writable, other.writable).
                 append(required, other.required).
+                append(stringRegEx, other.stringRegEx).
                 append(datePattern, other.datePattern).
                 append(enumValues, other.enumValues).
                 append(dropdownValues, other.dropdownValues).
+                append(dropdownSingleSelection, other.dropdownSingleSelection).
+                append(dropdownFreeForm, other.dropdownFreeForm).
                 append(value, other.value).
                 build();
     }

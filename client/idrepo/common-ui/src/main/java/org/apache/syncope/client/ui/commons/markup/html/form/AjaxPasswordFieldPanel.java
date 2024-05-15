@@ -66,6 +66,11 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
         }
     }
 
+    public AjaxPasswordFieldPanel setResetPassword(final boolean resetPassword) {
+        ((PasswordTextField) field).setResetPassword(resetPassword);
+        return this;
+    }
+
     @Override
     public FieldPanel<String> addRequiredLabel() {
         if (!isRequired()) {

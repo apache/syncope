@@ -23,6 +23,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -57,9 +58,11 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     private Boolean saveExecs = true;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
+    @OrderBy("idx")
     private List<JPAMacroTaskCommand> macroTaskCommands = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, orphanRemoval = true, mappedBy = "macroTask")
+    @OrderBy("idx")
     @Valid
     private List<JPAFormPropertyDef> formPropertyDefs = new ArrayList<>();
 
@@ -114,7 +117,8 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     @Override
     public void add(final MacroTaskCommand macroTaskCommand) {
         checkType(macroTaskCommand, JPAMacroTaskCommand.class);
-        this.macroTaskCommands.add((JPAMacroTaskCommand) macroTaskCommand);
+        ((JPAMacroTaskCommand) macroTaskCommand).setIdx(macroTaskCommands.size());
+        macroTaskCommands.add((JPAMacroTaskCommand) macroTaskCommand);
     }
 
     @Override
@@ -125,7 +129,8 @@ public class JPAMacroTask extends JPASchedTask implements MacroTask {
     @Override
     public void add(final FormPropertyDef formPropertyDef) {
         checkType(formPropertyDef, JPAFormPropertyDef.class);
-        this.formPropertyDefs.add((JPAFormPropertyDef) formPropertyDef);
+        ((JPAFormPropertyDef) formPropertyDef).setIdx(formPropertyDefs.size());
+        formPropertyDefs.add((JPAFormPropertyDef) formPropertyDef);
     }
 
     @Override

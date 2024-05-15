@@ -23,7 +23,7 @@ import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 
 /**
- * An {@link AjaxFormComponentUpdatingBehavior} not showin veil.
+ * An {@link AjaxFormComponentUpdatingBehavior} not showing veil.
  */
 public abstract class IndicatorAjaxFormComponentUpdatingBehavior
         extends AjaxFormComponentUpdatingBehavior implements IAjaxIndicatorAware {

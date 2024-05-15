@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.form.FormPropertyType;
@@ -40,9 +41,15 @@ public class FormPropertyDefTO implements NamedEntityTO {
 
     private boolean required;
 
+    private Pattern stringRegEx;
+
     private String datePattern;
 
     private final Map<String, String> enumValues = new LinkedHashMap<>();
+
+    private boolean dropdownSingleSelection = true;
+
+    private boolean dropdownFreeForm;
 
     @Override
     public String getKey() {
@@ -96,6 +103,14 @@ public class FormPropertyDefTO implements NamedEntityTO {
         this.required = required;
     }
 
+    public Pattern getStringRegEx() {
+        return stringRegEx;
+    }
+
+    public void setStringRegEx(final Pattern stringRegEx) {
+        this.stringRegEx = stringRegEx;
+    }
+
     public String getDatePattern() {
         return datePattern;
     }
@@ -108,6 +123,22 @@ public class FormPropertyDefTO implements NamedEntityTO {
         return enumValues;
     }
 
+    public boolean isDropdownSingleSelection() {
+        return dropdownSingleSelection;
+    }
+
+    public void setDropdownSingleSelection(final boolean dropdownSingleSelection) {
+        this.dropdownSingleSelection = dropdownSingleSelection;
+    }
+
+    public boolean isDropdownFreeForm() {
+        return dropdownFreeForm;
+    }
+
+    public void setDropdownFreeForm(final boolean dropdownFreeForm) {
+        this.dropdownFreeForm = dropdownFreeForm;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -117,8 +148,11 @@ public class FormPropertyDefTO implements NamedEntityTO {
                 append(readable).
                 append(writable).
                 append(required).
+                append(stringRegEx).
                 append(datePattern).
                 append(enumValues).
+                append(dropdownSingleSelection).
+                append(dropdownFreeForm).
                 build();
     }
 
@@ -141,8 +175,11 @@ public class FormPropertyDefTO implements NamedEntityTO {
                 append(readable, other.readable).
                 append(writable, other.writable).
                 append(required, other.required).
+                append(stringRegEx, other.stringRegEx).
                 append(datePattern, other.datePattern).
                 append(enumValues, other.enumValues).
+                append(dropdownSingleSelection, other.dropdownSingleSelection).
+                append(dropdownFreeForm, other.dropdownFreeForm).
                 build();
     }
 }
