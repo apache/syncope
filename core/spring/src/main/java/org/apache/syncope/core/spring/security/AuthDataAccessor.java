@@ -73,7 +73,7 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Domain-sensible (via {@code @Transactional}) access to authentication / authorization data.
  *
- * @see JWTAuthenticationProvider
+ * @see JWTAuthenticationFilter
  * @see UsernamePasswordAuthenticationProvider
  * @see SyncopeAuthenticationDetails
  */
