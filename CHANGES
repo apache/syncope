@@ -2,6 +2,32 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.7
+================================================================================
+
+** Bug
+    * [SYNCOPE-1798] - Incorrect descendant Realms found by Elasticsearch / OpenSearch
+    * [SYNCOPE-1800] - FIQL comparison espressions with single quote cause JSONB search to fail
+    * [SYNCOPE-1803] - Can't remove multivalue membership plain schema value from console
+    * [SYNCOPE-1806] - Overlapping dynamic realms don't get updated
+    * [SYNCOPE-1808] - Wrong location for group in ResourceTypes SCIM service
+    * [SYNCOPE-1812] - Can't perform case-sensitive search using MariaDB
+    * [SYNCOPE-1813] - Wrong provisioning result shown after batch operation
+    * [SYNCOPE-1817] - Standalone: components not available
+    * [SYNCOPE-1818] - Wrong status value propagated to external resources if changed while pulling
+    * [SYNCOPE-1820] - Console label not working with multivalue schema
+
+** Improvement
+    * [SYNCOPE-1802] - Missing delegated SAML2 IdP configuration parameters
+    * [SYNCOPE-1807] - Status propagation on resource doesn't happen from the SCIM extension
+    * [SYNCOPE-1809] - Cleanup of uid-on-create attribute on resource unassignment
+    * [SYNCOPE-1811] - Missing Bypass MFA properties
+    * [SYNCOPE-1815] - Macro improvements
+    * [SYNCOPE-1816] - Provide the possibility to add a JcifsSpnegoAuthenticationHandler
+
+** Task
+    * [SYNCOPE-1805] - Upgrade Spring Framework and Security versions
+
 Release Notes - Syncope - Version 3.0.6
 ================================================================================
 
