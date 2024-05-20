@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.core</groupId>
     <artifactId>syncope-core-am</artifactId>
-    <version>3.0.7</version>
+    <version>3.0.8-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core AM REST CXF</name>
