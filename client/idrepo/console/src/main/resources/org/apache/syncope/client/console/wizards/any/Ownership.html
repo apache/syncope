@@ -27,9 +27,11 @@ under the License.
     </div>
 
     <wicket:fragment wicket:id="userSearchFragment">
-      <div class="form-group input-group">
+      <div class="input-group">
         <span wicket:id="userOwner"/>
-        <a href="#" wicket:id="userOwnerReset" class="input-group-append input-group-text"><i class="fas fa-minus-circle" alt="reset user owner" title="Reset"></i></a>
+        <div class="input-group-addon">
+          <a href="#" wicket:id="userOwnerReset"><i class="fas fa-minus-circle" alt="reset user owner" title="Reset"></i></a>
+        </div>
       </div>
       <span wicket:id="usersearch">[USER SEARCH]</span>
       <div class="searchResult">
@@ -38,9 +40,11 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="groupSearchFragment">
-      <div class="form-group input-group">
+      <div class="input-group">
         <span wicket:id="groupOwner"/>
-        <a href="#" wicket:id="groupOwnerReset" class="input-group-append input-group-text"><i class="fas fa-minus-circle" alt="reset group owner" title="Reset"></i></a>
+        <div class="input-group-addon">
+          <a href="#" wicket:id="groupOwnerReset"><i class="fas fa-minus-circle" alt="reset group owner" title="Reset"></i></a>
+        </div>
       </div>
       <span wicket:id="groupsearch">[GROUP SEARCH]</span>
       <div class="searchResult">
