@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.13.4</elasticsearch.version>
+    <elasticsearch.version>8.14.0</elasticsearch.version>
     <opensearch.version>2.14.0</opensearch.version>
     <opensearch-java.version>2.10.3</opensearch-java.version>
 
@@ -1754,7 +1754,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.4.0</version>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
