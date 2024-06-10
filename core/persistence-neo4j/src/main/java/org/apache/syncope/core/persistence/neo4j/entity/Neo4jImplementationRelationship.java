@@ -93,7 +93,7 @@ public class Neo4jImplementationRelationship
         return "Neo4jImplementationRelationship{"
                 + "id=" + id
                 + ", index=" + index
-                + ", command=" + implementation
+                + ", implementation=" + implementation
                 + '}';
     }
 }

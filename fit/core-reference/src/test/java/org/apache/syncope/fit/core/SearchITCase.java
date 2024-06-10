@@ -337,9 +337,10 @@ public class SearchITCase extends AbstractITCase {
             }
         }
 
-        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
+                        is("creationDate").lexicalNotBefore("2009-03-02 15:21:22").
                         and("username").equalTo("bellini").query()).
                 build());
         assertNotNull(users);
@@ -350,7 +351,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> issueSYNCOPE1321 = USER_SERVICE.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("lastLoginDate").lexicalNotBefore("2016-03-02T15:21:22+0300").
+                        is("creationDate").lexicalNotBefore("2009-03-02 15:21:22").
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
@@ -363,9 +364,7 @@ public class SearchITCase extends AbstractITCase {
                         is("userOwner").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals(
-                "ebf97068-aa4b-4a85-9f01-680e8c4cf227",
-                groups.getResult().iterator().next().getKey());
+        assertEquals("ebf97068-aa4b-4a85-9f01-680e8c4cf227", groups.getResult().get(0).getKey());
     }
 
     @Test
@@ -470,10 +469,9 @@ public class SearchITCase extends AbstractITCase {
         assertTrue(groups.getResult().stream().anyMatch(group -> "root".equals(group.getName())));
         assertTrue(groups.getResult().stream().anyMatch(group -> "otherchild".equals(group.getName())));
 
-        AnyObjectCR anyObjectCR = new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, getUUIDString()).
+        String printer = createAnyObject(new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, getUUIDString()).
                 membership(new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build()).
-                build();
-        String printer = createAnyObject(anyObjectCR).getEntity().getKey();
+                build()).getEntity().getKey();
 
         if (IS_EXT_SEARCH_ENABLED) {
             try {
@@ -549,7 +547,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").equalTo("pullFromLDAP").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("givenName").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -558,7 +556,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("mail").equalTo("pullFromLDAP*").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("cn").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -567,7 +565,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("mail").equalTo("*@syncope.apache.org").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("cn").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -576,7 +574,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").equalToIgnoreCase("pullfromldap").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("givenName").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -585,7 +583,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is(Name.NAME).equalTo("uid=pullFromLDAP%252Cou=people%252Co=isp").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("cn").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -594,7 +592,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").notEqualTo("pullFromLDAP").query()).build());
         assertFalse(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("givenName").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -796,7 +794,7 @@ public class SearchITCase extends AbstractITCase {
                 new Attr.Builder("loginDate").value("2009-05-26").build()).build());
         rossini = updateUser(req).getEntity();
         assertNotNull(rossini);
-        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").get().getValues().get(0));
+        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").orElseThrow().getValues().get(0));
 
         PagedResult<UserTO> total = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
@@ -849,7 +847,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(realm.getKey());
         assertEquals("syncope1727", realm.getName());
         assertEquals("/even/two/syncope1727", realm.getFullPath());
-        assertEquals(realm.getParent(), getRealm("/even/two").get().getKey());
+        assertEquals(realm.getParent(), getRealm("/even/two").orElseThrow().getKey());
 
         // 2. create user
         UserCR userCR = UserITCase.getUniqueSample("syncope1727@syncope.apache.org");
@@ -872,9 +870,9 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(user.getKey(), users.getResult().get(0).getKey());
 
         // 4. update parent Realm
-        realm.setParent(getRealm("/odd").get().getKey());
+        realm.setParent(getRealm("/odd").orElseThrow().getKey());
         REALM_SERVICE.update(realm);
-        realm = getRealm("/odd/syncope1727").get();
+        realm = getRealm("/odd/syncope1727").orElseThrow();
 
         // 5. search again for user
         users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).

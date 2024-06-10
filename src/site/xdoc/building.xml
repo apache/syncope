@@ -184,6 +184,10 @@ under the License.
         Prform the full test suite against a real <a href="https://www.microsoft.com/en-us/sql-server/">MS SQL Server</a> database via
         <source>$ mvn -Psqlserver-it</source>
 
+        <h5>Neo4j</h5>
+        Prform the full test suite against a real <a href="https://neo4j.com/">Neo4j</a> instance via
+        <source>$ mvn -Pneo4j-it</source>
+
         <h4>Java EE containers</h4>
 
         <h5>Payara</h5>

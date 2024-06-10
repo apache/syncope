@@ -967,14 +967,17 @@ public class DefaultMappingManager implements MappingManager {
                 }
 
                 case "name" -> {
-                    if (anyTO instanceof GroupTO groupTO) {
-                        groupTO.setName(values.isEmpty() || values.get(0) == null
-                                ? null
-                                : values.get(0).toString());
-                    } else if (anyTO instanceof AnyObjectTO anyObjectTO) {
-                        anyObjectTO.setName(values.isEmpty() || values.get(0) == null
-                                ? null
-                                : values.get(0).toString());
+                    switch (anyTO) {
+                        case GroupTO groupTO ->
+                            groupTO.setName(values.isEmpty() || values.get(0) == null
+                                    ? null
+                                    : values.get(0).toString());
+                        case AnyObjectTO anyObjectTO ->
+                            anyObjectTO.setName(values.isEmpty() || values.get(0) == null
+                                    ? null
+                                    : values.get(0).toString());
+                        default -> {
+                        }
                     }
                 }
 

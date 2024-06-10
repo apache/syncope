@@ -208,7 +208,7 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
             } else if (!matches && existing) {
                 neo4jClient.query(
                         "MATCH (n {id: $aid})-"
-                        + "[:" + DYN_ROLE_MEMBERSHIP_REL + "]-"
+                        + "[r:" + DYN_ROLE_MEMBERSHIP_REL + "]-"
                         + "(p:" + Neo4jRole.NODE + " {id: $rid}) "
                         + "DETACH DELETE r").bindAll(Map.of("aid", user.getKey(), "rid", role.getKey())).run();
             }

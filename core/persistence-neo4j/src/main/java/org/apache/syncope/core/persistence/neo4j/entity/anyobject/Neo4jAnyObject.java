@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.anyobject;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,9 +61,6 @@ public class Neo4jAnyObject
     public static final String ANY_OBJECT_RESOURCE_REL = "ANY_OBJECT_RESOURCE";
 
     public static final String ANY_OBJECT_AUX_CLASSES_REL = "ANY_OBJECT_AUX_CLASSES";
-
-    protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
-    };
 
     @CompositeProperty(converterRef = "aPlainAttrsConverter")
     protected Map<String, Neo4jAPlainAttr> plainAttrs = new HashMap<>();

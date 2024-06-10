@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,8 +52,7 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
     }
 
     public ProvisioningResult<UserTO> create(final UserCR createReq) {
-        Response response = getService(UserService.class).create(createReq);
-        return response.readEntity(new GenericType<>() {
+        return getService(UserService.class).create(createReq).readEntity(new GenericType<>() {
         });
     }
 

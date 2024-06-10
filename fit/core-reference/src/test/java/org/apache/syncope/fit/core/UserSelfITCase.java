@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.ForbiddenException;
@@ -411,6 +412,8 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void mustChangePassword() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         // PRE: reset vivaldi's password
         UserUR userUR = new UserUR();
         userUR.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");

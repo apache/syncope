@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -189,8 +190,9 @@ public class ExceptionMapperITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidRequest, e.getType());
         }
 
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        assertTrue(ldap.getProvisions().get(0).getMapping().getConnObjectKeyItem().isPresent());
         try {
-            ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             Item mapping = ldap.getProvisions().get(0).getMapping().getItems().get(0);
             mapping.setIntAttrName("memberships.cn");
             RESOURCE_SERVICE.update(ldap);
@@ -198,5 +200,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidMapping, e.getType());
         }
+        ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        assertTrue(ldap.getProvisions().get(0).getMapping().getConnObjectKeyItem().isPresent());
     }
 }

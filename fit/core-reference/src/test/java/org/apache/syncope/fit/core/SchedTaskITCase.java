@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -56,7 +57,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void getJobClasses() {
         Set<String> jobClasses = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).get().getClasses();
+                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).orElseThrow().getClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
@@ -122,12 +123,14 @@ public class SchedTaskITCase extends AbstractTaskITCase {
             }
         });
 
-        PagedResult<ExecTO> execs =
-                TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
-        assertEquals(1, execs.getTotalCount());
-        assertTrue(execs.getResult().get(0).getStart().isAfter(initial));
+        PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
+        assertEquals(preSyncSize + 1, execs.getTotalCount());
+
+        ExecTO exec = execs.getResult().stream().
+                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow();
+        assertTrue(exec.getStart().isAfter(initial));
         // round 1 sec for safety
-        assertTrue(execs.getResult().get(0).getStart().plusSeconds(1).isAfter(later));
+        assertTrue(exec.getStart().plusSeconds(1).isAfter(later));
     }
 
     @Test

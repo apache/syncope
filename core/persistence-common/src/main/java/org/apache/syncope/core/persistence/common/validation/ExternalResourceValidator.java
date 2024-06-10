@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.ItemContainer;
@@ -100,9 +101,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
         Set<String> objectClasses = new HashSet<>();
         boolean validMappings = resource.getProvisions().stream().allMatch(provision -> {
             anyTypes.add(provision.getAnyType());
-            if (provision.getObjectClass() != null) {
-                objectClasses.add(provision.getObjectClass());
-            }
+            Optional.ofNullable(provision.getObjectClass()).ifPresent(objectClasses::add);
             return isValid(provision.getMapping(), context);
         });
         validMappings &= isValid(resource.getOrgUnit(), context);

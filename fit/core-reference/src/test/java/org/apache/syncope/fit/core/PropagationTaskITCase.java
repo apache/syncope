@@ -221,23 +221,23 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        Provision provision = resource.getProvision(PRINTER).get();
+        Provision provision = resource.getProvision(PRINTER).orElseThrow();
         assertNotNull(provision);
 
         Optional<Item> mappingItem = provision.getMapping().getItems().stream().
                 filter(item -> "location".equals(item.getIntAttrName())).findFirst();
         assertTrue(mappingItem.isPresent());
-        assertTrue(mappingItem.get().getTransformers().isEmpty());
+        assertTrue(mappingItem.orElseThrow().getTransformers().isEmpty());
 
         String suffix = getUUIDString();
-        mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + '\'');
+        mappingItem.orElseThrow().setPropagationJEXLTransformer("value + '" + suffix + '\'');
 
         try {
             RESOURCE_SERVICE.update(resource);
 
             // 1. create printer on external resource
             AnyObjectCR anyObjectCR = AnyObjectITCase.getSample("propagationJEXLTransformer");
-            String originalLocation = anyObjectCR.getPlainAttr("location").get().getValues().get(0);
+            String originalLocation = anyObjectCR.getPlainAttr("location").orElseThrow().getValues().get(0);
             assertFalse(originalLocation.endsWith(suffix));
 
             AnyObjectTO anyObjectTO = createAnyObject(anyObjectCR).getEntity();
@@ -247,8 +247,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             // (location ends with given suffix on external resource)
             ConnObject connObjectTO = RESOURCE_SERVICE.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
-            assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).endsWith(suffix));
-            assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).endsWith(suffix));
+            assertFalse(anyObjectTO.getPlainAttr("location").orElseThrow().getValues().get(0).endsWith(suffix));
+            assertTrue(connObjectTO.getAttr("LOCATION").orElseThrow().getValues().get(0).endsWith(suffix));
         } finally {
             RESOURCE_SERVICE.update(originalResource);
         }
@@ -412,10 +412,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ReconStatus status = RECONCILIATION_SERVICE.status(
                     new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
                             anyKey(created.getEntity().getKey()).moreAttrsToGet("ldapGroups").build());
-            assertEquals(List.of("title1"), status.getOnResource().getAttr("title").get().getValues());
+            assertEquals(List.of("title1"), status.getOnResource().getAttr("title").orElseThrow().getValues());
             assertEquals(
                     List.of("cn=" + group1.getName() + ",ou=groups,o=isp"),
-                    status.getOnResource().getAttr("ldapGroups").get().getValues());
+                    status.getOnResource().getAttr("ldapGroups").orElseThrow().getValues());
 
             // 1c. check the generated propagation data
             PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
@@ -444,11 +444,11 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                             anyKey(created.getEntity().getKey()).moreAttrsToGet("ldapGroups").build());
             assertEquals(
                     Set.of("title1", "title2"),
-                    new HashSet<>(status.getOnResource().getAttr("title").get().getValues()));
+                    new HashSet<>(status.getOnResource().getAttr("title").orElseThrow().getValues()));
             assertEquals(
                     Set.of("cn=" + group1.getName() + ",ou=groups,o=isp",
                             "cn=" + group2.getName() + ",ou=groups,o=isp"),
-                    new HashSet<>(status.getOnResource().getAttr("ldapGroups").get().getValues()));
+                    new HashSet<>(status.getOnResource().getAttr("ldapGroups").orElseThrow().getValues()));
 
             // 2c. check the generated propagation data
             tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
@@ -490,7 +490,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         paperformatItem.setPurpose(MappingPurpose.PROPAGATION);
         paperformatItem.setIntAttrName("paperformat");
         paperformatItem.setExtAttrName("paperformat");
-        db.getProvision(PRINTER).get().getMapping().add(paperformatItem);
+        db.getProvision(PRINTER).orElseThrow().getMapping().add(paperformatItem);
         RESOURCE_SERVICE.update(db);
 
         ProvisioningResult<AnyObjectTO> created = null;
@@ -757,7 +757,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                         tasks.getResult().get(0).getPropagationData(), PropagationData.class).getAttributes());
             }
 
-            OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").get().getValues().get(0)).
+            OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").orElseThrow().getValues().get(0)).
                     atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
 
             Attribute employeeNumber = AttributeUtil.find("employeeNumber", propagationAttrs);
@@ -872,7 +872,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("ldapGroups").isPresent());
-            assertEquals(2, connObject.getAttr("ldapGroups").get().getValues().size());
+            assertEquals(2, connObject.getAttr("ldapGroups").orElseThrow().getValues().size());
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());
@@ -936,7 +936,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
             assertTrue(connObject.getAttr("l").isPresent());
-            assertEquals("Canon MFC8030", connObject.getAttr("l").get().getValues().get(0));
+            assertEquals("Canon MFC8030", connObject.getAttr("l").orElseThrow().getValues().get(0));
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());
@@ -1009,9 +1009,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             ConnObject afterConnObject =
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.GROUP.name(), groupTO.getKey());
-            assertNotEquals(afterConnObject.getAttr(Name.NAME).get().getValues().get(0),
-                    beforeConnObject.getAttr(Name.NAME).get().getValues().get(0));
-            assertTrue(afterConnObject.getAttr(Name.NAME).get().getValues().get(0).contains("new" + originalName));
+            assertNotEquals(afterConnObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
+                    beforeConnObject.getAttr(Name.NAME).orElseThrow().getValues().get(0));
+            assertTrue(afterConnObject.getAttr(Name.NAME).orElseThrow().getValues().get(0).
+                    contains("new" + originalName));
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());

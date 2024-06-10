@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
@@ -62,7 +61,7 @@ public class LDAPPasswordPullActions implements PullActions {
         return PullActions.super.moreAttrsToGet(profile, provision);
     }
 
-    private static Optional<Pair<String, CipherAlgorithm>> parseEncodedPassword(final String password) {
+    protected Optional<Pair<String, CipherAlgorithm>> parseEncodedPassword(final String password) {
         if (password != null && password.startsWith("{")) {
             String digest = Optional.ofNullable(
                     password.substring(1, password.indexOf('}'))).map(String::toUpperCase).
@@ -88,15 +87,16 @@ public class LDAPPasswordPullActions implements PullActions {
 
         if (entity instanceof UserTO) {
             userDAO.findById(entity.getKey()).ifPresent(user -> {
-                GuardedString passwordAttr = AttributeUtil.getPasswordValue(delta.getObject().getAttributes());
-                if (passwordAttr != null) {
-                    parseEncodedPassword(SecurityUtil.decrypt(passwordAttr)).ifPresent(encoded -> {
-                        byte[] encodedPasswordBytes = Base64.getDecoder().decode(encoded.getLeft().getBytes());
-                        String encodedHexStr = DatatypeConverter.printHexBinary(encodedPasswordBytes).toUpperCase();
+                Optional.ofNullable(AttributeUtil.getPasswordValue(delta.getObject().getAttributes())).
+                        flatMap(attr -> parseEncodedPassword(SecurityUtil.decrypt(attr))).
+                        ifPresent(encoded -> {
+                            String encodedHexStr = DatatypeConverter.printHexBinary(
+                                    Base64.getDecoder().decode(encoded.getLeft().getBytes())).
+                                    toUpperCase();
 
-                        user.setEncodedPassword(encodedHexStr, encoded.getRight());
-                    });
-                }
+                            user.setEncodedPassword(encodedHexStr, encoded.getRight());
+                            userDAO.save(user);
+                        });
             });
         }
     }

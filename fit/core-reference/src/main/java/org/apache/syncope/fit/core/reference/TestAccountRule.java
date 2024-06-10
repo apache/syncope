@@ -33,8 +33,8 @@ public class TestAccountRule implements AccountRule {
 
     @Override
     public void setConf(final AccountRuleConf conf) {
-        if (conf instanceof TestAccountRuleConf) {
-            this.conf = TestAccountRuleConf.class.cast(conf);
+        if (conf instanceof TestAccountRuleConf testAccountRuleConf) {
+            this.conf = testAccountRuleConf;
         } else {
             throw new IllegalArgumentException(
                     AccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());

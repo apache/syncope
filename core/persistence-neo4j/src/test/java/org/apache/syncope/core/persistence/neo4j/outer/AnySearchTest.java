@@ -21,12 +21,15 @@ package org.apache.syncope.core.persistence.neo4j.outer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -174,10 +177,12 @@ public class AnySearchTest extends AbstractTest {
         orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "surname"));
         orderByClauses.add(new Sort.Order(Sort.Direction.ASC, "firstname"));
 
-        List<User> result = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
-        assertEquals(2, result.size());
-        assertTrue(result.stream().anyMatch(u -> "rossini".equals(u.getUsername())));
-        assertTrue(result.stream().anyMatch(u -> "verdi".equals(u.getUsername())));
+        try {
+            searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSearchParameters, e.getType());
+        }
     }
 
     @Test

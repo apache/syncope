@@ -73,7 +73,6 @@ import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
@@ -84,6 +83,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
 /**
  * Note that this controller does not extend {@link AbstractTransactionalLogic}, hence does not provide any
@@ -111,7 +111,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     protected final SyncopeLogic syncopeLogic;
 
-    protected final RuleEnforcer ruleEnforcer;
+    protected final RuleProvider ruleEnforcer;
 
     public UserLogic(
             final RealmSearchDAO realmSearchDAO,
@@ -127,7 +127,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleEnforcer ruleEnforcer) {
+            final RuleProvider ruleEnforcer) {
 
         super(realmSearchDAO, anyTypeDAO, templateUtils);
 

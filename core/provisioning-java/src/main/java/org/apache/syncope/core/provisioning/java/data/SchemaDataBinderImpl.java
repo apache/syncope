@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -126,25 +128,32 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                             schemaTO.getValidator()));
         }
 
-        PlainSchema merged = plainSchemaDAO.save(schema);
+        PlainSchema saved = plainSchemaDAO.save(schema);
 
+        AtomicReference<AnyTypeClass> atc = new AtomicReference<>();
         if (schemaTO.getAnyTypeClass() != null
-                && (merged.getAnyTypeClass() == null
-                || !schemaTO.getAnyTypeClass().equals(merged.getAnyTypeClass().getKey()))) {
+                && (saved.getAnyTypeClass() == null
+                || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
 
             anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
                     anyTypeClass -> {
-                        anyTypeClass.add(merged);
-                        merged.setAnyTypeClass(anyTypeClass);
+                        anyTypeClass.add(saved);
+                        saved.setAnyTypeClass(anyTypeClass);
+
+                        atc.set(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
                             schemaTO.getAnyTypeClass()));
-        } else if (schemaTO.getAnyTypeClass() == null && merged.getAnyTypeClass() != null) {
-            merged.getAnyTypeClass().getPlainSchemas().remove(merged);
-            merged.setAnyTypeClass(null);
+        } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
+            saved.getAnyTypeClass().getPlainSchemas().remove(saved);
+            saved.setAnyTypeClass(null);
+
+            atc.set(saved.getAnyTypeClass());
         }
 
-        return merged;
+        PlainSchema filled = plainSchemaDAO.save(saved);
+        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
+        return filled;
     }
 
     @Override
@@ -238,25 +247,32 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schema.getLabels().clear();
         schema.getLabels().putAll(schemaTO.getLabels());
 
-        DerSchema merged = derSchemaDAO.save(schema);
+        DerSchema saved = derSchemaDAO.save(schema);
 
+        AtomicReference<AnyTypeClass> atc = new AtomicReference<>();
         if (schemaTO.getAnyTypeClass() != null
-                && (merged.getAnyTypeClass() == null
-                || !schemaTO.getAnyTypeClass().equals(merged.getAnyTypeClass().getKey()))) {
+                && (saved.getAnyTypeClass() == null
+                || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
 
             anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
                     anyTypeClass -> {
-                        anyTypeClass.add(merged);
-                        merged.setAnyTypeClass(anyTypeClass);
+                        anyTypeClass.add(saved);
+                        saved.setAnyTypeClass(anyTypeClass);
+
+                        atc.set(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
                             schemaTO.getAnyTypeClass()));
-        } else if (schemaTO.getAnyTypeClass() == null && merged.getAnyTypeClass() != null) {
-            merged.getAnyTypeClass().getDerSchemas().remove(merged);
-            merged.setAnyTypeClass(null);
+        } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
+            saved.getAnyTypeClass().getDerSchemas().remove(saved);
+            saved.setAnyTypeClass(null);
+
+            atc.set(saved.getAnyTypeClass());
         }
 
-        return merged;
+        DerSchema filled = derSchemaDAO.save(saved);
+        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
+        return filled;
     }
 
     @Override
@@ -282,7 +298,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         return schemaTO;
     }
 
-    // --------------- VIRTUAL -----------------
+    // --------------- VIRTUAL -----------------    
     protected VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
         schema.setKey(schemaTO.getKey());
         schema.setExtAttrName(schemaTO.getExtAttrName());
@@ -290,22 +306,6 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
         schema.getLabels().clear();
         schema.getLabels().putAll(schemaTO.getLabels());
-
-        if (schemaTO.getAnyTypeClass() != null
-                && (schema.getAnyTypeClass() == null
-                || !schemaTO.getAnyTypeClass().equals(schema.getAnyTypeClass().getKey()))) {
-
-            anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
-                    anyTypeClass -> {
-                        anyTypeClass.add(schema);
-                        schema.setAnyTypeClass(anyTypeClass);
-                    },
-                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
-                            schemaTO.getAnyTypeClass()));
-        } else if (schemaTO.getAnyTypeClass() == null && schema.getAnyTypeClass() != null) {
-            schema.getAnyTypeClass().getVirSchemas().remove(schema);
-            schema.setAnyTypeClass(null);
-        }
 
         ExternalResource resource = resourceDAO.findById(schemaTO.getResource()).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(
@@ -327,7 +327,32 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schema.setResource(resource);
         schema.setAnyType(anyType);
 
-        return virSchemaDAO.save(schema);
+        VirSchema saved = virSchemaDAO.save(schema);
+
+        AtomicReference<AnyTypeClass> atc = new AtomicReference<>();
+        if (schemaTO.getAnyTypeClass() != null
+                && (saved.getAnyTypeClass() == null
+                || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
+
+            anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
+                    anyTypeClass -> {
+                        anyTypeClass.add(saved);
+                        saved.setAnyTypeClass(anyTypeClass);
+
+                        atc.set(anyTypeClass);
+                    },
+                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
+                            schemaTO.getAnyTypeClass()));
+        } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
+            saved.getAnyTypeClass().getVirSchemas().remove(saved);
+            saved.setAnyTypeClass(null);
+
+            atc.set(saved.getAnyTypeClass());
+        }
+
+        VirSchema filled = virSchemaDAO.save(saved);
+        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
+        return filled;
     }
 
     @Override

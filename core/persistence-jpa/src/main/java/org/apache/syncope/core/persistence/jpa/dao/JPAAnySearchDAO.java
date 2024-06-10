@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -479,12 +478,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
                     parseOrderByForField(svs, item, fieldName, clause);
                 } else {
-                    Optional<? extends PlainSchema> schema = plainSchemaDAO.findById(clause.getProperty());
-                    if (schema.isPresent()) {
-                        if (schema.get().isUniqueConstraint()) {
-                            orderByUniquePlainSchemas.add(schema.get().getKey());
+                    plainSchemaDAO.findById(clause.getProperty()).ifPresent(schema -> {
+                        if (schema.isUniqueConstraint()) {
+                            orderByUniquePlainSchemas.add(schema.getKey());
                         } else {
-                            orderByNonUniquePlainSchemas.add(schema.get().getKey());
+                            orderByNonUniquePlainSchemas.add(schema.getKey());
                         }
                         if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
                             SyncopeClientException invalidSearch =
@@ -494,8 +492,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                                     ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
                             throw invalidSearch;
                         }
-                        parseOrderByForPlainSchema(svs, obs, item, clause, schema.get(), clause.getProperty());
-                    }
+                        parseOrderByForPlainSchema(svs, obs, item, clause, schema, clause.getProperty());
+                    });
                 }
             }
 

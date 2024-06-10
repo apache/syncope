@@ -93,7 +93,6 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -103,6 +102,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
 @EnableAspectJAutoProxy(proxyTargetClass = false)
 @Configuration(proxyBeanMethods = false)
@@ -507,7 +507,7 @@ public class IdRepoLogicContext {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleEnforcer ruleEnforcer) {
+            final RuleProvider ruleProvider) {
 
         return new UserLogic(
                 realmSearchDAO,
@@ -523,6 +523,6 @@ public class IdRepoLogicContext {
                 binder,
                 provisioningManager,
                 syncopeLogic,
-                ruleEnforcer);
+                ruleProvider);
     }
 }

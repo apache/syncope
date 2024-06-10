@@ -444,7 +444,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttr("USERNAME").get().getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttr("USERNAME").orElseThrow().getValues().get(0));
         // ----------------------------------
 
         userTO = USER_SERVICE.read(userTO.getKey());
@@ -502,7 +502,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         ConnObject userOnDb = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        Attr pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow();
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
@@ -510,7 +510,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         ConnObject userOnDb2 = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        Attr pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow();
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
         assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
@@ -535,7 +535,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3c. verify that password *has* changed on testdb
         userOnDb = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        Attr pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow();
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
@@ -543,7 +543,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        Attr pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).get();
+        Attr pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow();
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
@@ -640,7 +640,7 @@ public class UserIssuesITCase extends AbstractITCase {
             userUR.setKey(userKey);
             userUR.getPlainAttrs().add(attrAddReplacePatch("ctype", "a type"));
             UserTO userTO = updateUser(userUR).getEntity();
-            assertEquals("a type", userTO.getPlainAttr("ctype").get().getValues().get(0));
+            assertEquals("a type", userTO.getPlainAttr("ctype").orElseThrow().getValues().get(0));
         }
     }
 
@@ -648,7 +648,7 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE354() {
         // change resource-ldap group mapping for including uniqueMember (need for assertions below)
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
+        ldap.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping().getItems().stream().
                 filter(item -> ("description".equals(item.getExtAttrName()))).
                 forEach(item -> item.setExtAttrName("uniqueMember"));
         RESOURCE_SERVICE.update(ldap);
@@ -675,7 +675,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObj);
-        assertTrue(connObj.getAttr("uniqueMember").get().getValues().
+        assertTrue(connObj.getAttr("uniqueMember").orElseThrow().getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 4. remove membership
@@ -690,7 +690,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. read group on resource, check that user DN was removed from uniqueMember
         connObj = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObj);
-        assertFalse(connObj.getAttr("uniqueMember").get().getValues().
+        assertFalse(connObj.getAttr("uniqueMember").orElseThrow().getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 6. user has still the LDAP resource assigned - SYNCOPE-1222
@@ -699,7 +699,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey()));
 
         // 7. restore original resource-ldap group mapping
-        ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
+        ldap.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping().getItems().stream().
                 filter(item -> "uniqueMember".equals(item.getExtAttrName())).
                 forEach(item -> item.setExtAttrName("description"));
         RESOURCE_SERVICE.update(ldap);
@@ -732,12 +732,14 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObj);
-        Attr registeredAddress = connObj.getAttr("registeredAddress").get();
+        Attr registeredAddress = connObj.getAttr("registeredAddress").orElseThrow();
         assertNotNull(registeredAddress);
-        assertEquals(userTO.getPlainAttr("obscure").get().getValues(), registeredAddress.getValues());
+        assertEquals(userTO.getPlainAttr("obscure").orElseThrow().getValues(), registeredAddress.getValues());
         Optional<Attr> jpegPhoto = connObj.getAttr("jpegPhoto");
         assertTrue(jpegPhoto.isPresent());
-        assertEquals(userTO.getPlainAttr("photo").get().getValues().get(0), jpegPhoto.get().getValues().get(0));
+        assertEquals(
+                userTO.getPlainAttr("photo").orElseThrow().getValues().get(0),
+                jpegPhoto.orElseThrow().getValues().get(0));
 
         // 4. remove group
         GROUP_SERVICE.delete(groupTO.getKey());
@@ -851,14 +853,14 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getPlainAttrs().add(attr("makeItDouble", "3"));
 
         UserTO userTO = createUser(userCR).getEntity();
-        assertEquals("6", userTO.getPlainAttr("makeItDouble").get().getValues().get(0));
+        assertEquals("6", userTO.getPlainAttr("makeItDouble").orElseThrow().getValues().get(0));
 
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         userUR.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
 
         userTO = updateUser(userUR).getEntity();
-        assertEquals("14", userTO.getPlainAttr("makeItDouble").get().getValues().get(0));
+        assertEquals("14", userTO.getPlainAttr("makeItDouble").orElseThrow().getValues().get(0));
     }
 
     @Test
@@ -913,9 +915,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttr(Name.NAME).get().getValues().get(0),
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
                 "password123",
-                connObject.getAttr(Name.NAME).get().getValues().get(0)));
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0)));
 
         // 4. update user without any password change request
         UserUR userUR = new UserUR();
@@ -927,9 +929,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttr(Name.NAME).get().getValues().get(0),
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
                 "password123",
-                connObject.getAttr(Name.NAME).get().getValues().get(0)));
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0)));
     }
 
     @Test
@@ -953,20 +955,20 @@ public class UserIssuesITCase extends AbstractITCase {
         ResourceTO ws1 = RESOURCE_SERVICE.read(RESOURCE_NAME_WS1);
         assertNotNull(ws1);
 
-        Mapping ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).get().getMapping();
+        Mapping ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping();
         // change purpose from NONE to BOTH
         ws1NewUMapping.getItems().stream().
                 filter(itemTO -> "firstname".equals(itemTO.getIntAttrName())).
                 forEach(itemTO -> itemTO.setPurpose(MappingPurpose.BOTH));
 
-        ws1.getProvision(AnyTypeKind.USER.name()).get().setMapping(ws1NewUMapping);
+        ws1.getProvision(AnyTypeKind.USER.name()).orElseThrow().setMapping(ws1NewUMapping);
 
         RESOURCE_SERVICE.update(ws1);
         ResourceTO newWs1 = RESOURCE_SERVICE.read(ws1.getKey());
         assertNotNull(newWs1);
 
         // check for existence
-        Collection<Item> mapItems = newWs1.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems();
+        Collection<Item> mapItems = newWs1.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().getItems();
         assertNotNull(mapItems);
         assertEquals(7, mapItems.size());
 
@@ -986,10 +988,10 @@ public class UserIssuesITCase extends AbstractITCase {
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
 
         assertNotNull(newUser.getAttr("NAME"));
-        assertEquals("firstnameNew", newUser.getAttr("NAME").get().getValues().get(0));
+        assertEquals("firstnameNew", newUser.getAttr("NAME").orElseThrow().getValues().get(0));
 
         // 4.  restore resource ws-target-resource-1 mapping
-        ws1NewUMapping = newWs1.getProvision(AnyTypeKind.USER.name()).get().getMapping();
+        ws1NewUMapping = newWs1.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping();
         // restore purpose from BOTH to NONE
         for (Item itemTO : ws1NewUMapping.getItems()) {
             if ("firstname".equals(itemTO.getIntAttrName())) {
@@ -997,7 +999,7 @@ public class UserIssuesITCase extends AbstractITCase {
             }
         }
 
-        newWs1.getProvision(AnyTypeKind.USER.name()).get().setMapping(ws1NewUMapping);
+        newWs1.getProvision(AnyTypeKind.USER.name()).orElseThrow().setMapping(ws1NewUMapping);
 
         RESOURCE_SERVICE.update(newWs1);
     }
@@ -1085,9 +1087,9 @@ public class UserIssuesITCase extends AbstractITCase {
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
 
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttr(Name.NAME).get().getValues().get(0),
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
                 "security123",
-                connObject.getAttr(Name.NAME).get().getValues().get(0)));
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0)));
 
         // 5. Remove LDAPPasswordPropagationActions
         resourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
@@ -1133,7 +1135,9 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // check if password has not changed
-        assertEquals("password0", connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).get().getValues().get(0));
+        assertEquals(
+                "password0",
+                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().get(0));
         assertNull(userTO.getPassword());
 
         // 3. create user with not null password and propagate onto resource-csv, specify not to save password on
@@ -1155,7 +1159,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // check if password has been propagated and that saved userTO's password is null
         assertEquals(
                 "passwordTESTNULL1",
-                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).get().getValues().get(0));
+                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().get(0));
         assertNull(userTO.getPassword());
 
         // 4. create user and propagate password on resource-csv and on Syncope local storage
@@ -1175,7 +1179,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // check if password has been correctly propagated on Syncope and resource-csv as usual
         assertEquals(
                 "passwordTESTNULL1",
-                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).get().getValues().get(0));
+                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().get(0));
         Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                 CLIENT_FACTORY.create(userTO.getUsername(), "passwordTESTNULL1").self();
         assertNotNull(self);
@@ -1228,7 +1232,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("postalAddress", connObjectTO.getAttr("postalAddress").get().getValues().get(0));
+        assertEquals("postalAddress", connObjectTO.getAttr("postalAddress").orElseThrow().getValues().get(0));
 
         UserUR userUR = new UserUR();
         userUR.setKey(actual.getKey());
@@ -1238,7 +1242,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("newPostalAddress", connObjectTO.getAttr("postalAddress").get().getValues().get(0));
+        assertEquals("newPostalAddress", connObjectTO.getAttr("postalAddress").orElseThrow().getValues().get(0));
     }
 
     @Test
@@ -1338,6 +1342,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE710() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         // 1. create groups for indirect resource assignment
         GroupCR ldapGroupCR = GroupITCase.getBasicSample("syncope710.ldap");
         ldapGroupCR.getResources().add(RESOURCE_NAME_LDAP);
@@ -1391,7 +1397,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObject =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
         assertNotNull(connObject);
-        Attr userDn = connObject.getAttr(Name.NAME).get();
+        Attr userDn = connObject.getAttr(Name.NAME).orElseThrow();
         assertNotNull(userDn);
         assertEquals(1, userDn.getValues().size());
         assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
@@ -1416,7 +1422,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 2. create user matching the condition above
         UserCR userCR = UserITCase.getUniqueSample("syncope1099U@apache.org");
-        userCR.getPlainAttr("firstname").get().getValues().set(0, "issueSYNCOPE1099");
+        userCR.getPlainAttr("firstname").orElseThrow().getValues().set(0, "issueSYNCOPE1099");
 
         ProvisioningResult<UserTO> created = createUser(userCR);
         assertNotNull(created);
@@ -1434,6 +1440,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1166() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         UserCR userCR = UserITCase.getUniqueSample("syncope1166@apache.org");
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
@@ -1498,11 +1506,19 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1337() {
-        // 1. save current cipher algorithm and set it to something salted
-        String original = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
-                "password.cipher.algorithm", null, String.class);
+        // 0. save current cipher algorithm and set it to something salted
+        String original =
+                confParamOps.get(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", null, String.class);
 
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", CipherAlgorithm.SSHA512.name());
+
+        // 1. ensure that password policy is properly set for /even/two
+        PasswordPolicyTO pwdPolicy = POLICY_SERVICE.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
+        assertEquals(1, pwdPolicy.getHistoryLength());
+
+        RealmTO evenTwo = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
+        evenTwo.setPasswordPolicy(pwdPolicy.getKey());
+        REALM_SERVICE.update(evenTwo);
 
         try {
             // 2. create user under /even/two to get password policy with history length 1
@@ -1675,11 +1691,11 @@ public class UserIssuesITCase extends AbstractITCase {
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
-            assertEquals("surname", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
+            assertEquals("surname", result.getEntity().getPlainAttr("surname").orElseThrow().getValues().get(0));
             // externalKey is going to be populated on create
             assertTrue(result.getEntity().getPlainAttr("externalKey").isPresent());
             assertEquals(result.getEntity().getKey(),
-                    result.getEntity().getPlainAttr("externalKey").get().getValues().get(0));
+                    result.getEntity().getPlainAttr("externalKey").orElseThrow().getValues().get(0));
             // 3. remove resource from the user
             result = updateUser(new UserUR.Builder(result.getEntity()
                     .getKey()).resource(new StringPatchItem.Builder().value(RESOURCE_NAME_REST)
@@ -1729,12 +1745,13 @@ public class UserIssuesITCase extends AbstractITCase {
                     build());
 
             // 2. pull users from resource-db-pull
-            ExecTO execution = AbstractTaskITCase.execSchedTask(TASK_SERVICE,
+            ExecTO execution = AbstractTaskITCase.execSchedTask(
+                    TASK_SERVICE,
                     TaskType.PULL,
                     "7c2242f4-14af-4ab5-af31-cdae23783655",
                     MAX_WAIT_SECONDS,
                     false);
-            assertEquals("SUCCESS", execution.getStatus());
+            assertEquals(ExecStatus.SUCCESS.name(), execution.getStatus());
             assertFalse(rossini.isSuspended());
             assertEquals("active", rossini.getStatus());
 
@@ -1746,8 +1763,8 @@ public class UserIssuesITCase extends AbstractITCase {
             pushTaskTO.setPerformCreate(true);
             pushTaskTO.setPerformUpdate(true);
             pushTaskTO.setSyncStatus(true);
-            RECONCILIATION_SERVICE.push(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(
-                    rossini.getKey()).build(), pushTaskTO);
+            RECONCILIATION_SERVICE.push(new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).
+                    anyKey(rossini.getKey()).build(), pushTaskTO);
 
             // 4. disable rossini on resource-db-pull to fire a propagation towards resource-ldap
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -1761,12 +1778,13 @@ public class UserIssuesITCase extends AbstractITCase {
                     "7c2242f4-14af-4ab5-af31-cdae23783655",
                     MAX_WAIT_SECONDS,
                     false);
-            assertEquals("SUCCESS", execution.getStatus());
+            assertEquals(ExecStatus.SUCCESS.name(), execution.getStatus());
 
             rossini = USER_SERVICE.read("rossini");
             assertTrue(rossini.isSuspended());
             assertEquals("suspended", rossini.getStatus());
-            assertTrue(rossini.getPlainAttr("email").get().getValues().contains("gioacchino.rossini@apache.org"));
+            assertTrue(rossini.getPlainAttr("email").orElseThrow().
+                    getValues().contains("gioacchino.rossini@apache.org"));
 
             ReconStatus onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(AnyTypeKind.USER.name(),
                     RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
@@ -1784,7 +1802,7 @@ public class UserIssuesITCase extends AbstractITCase {
                     "7c2242f4-14af-4ab5-af31-cdae23783655",
                     MAX_WAIT_SECONDS,
                     false);
-            assertEquals("SUCCESS", execution.getStatus());
+            assertEquals(ExecStatus.SUCCESS.name(), execution.getStatus());
 
             rossini = USER_SERVICE.read("rossini");
             assertFalse(rossini.isSuspended());
@@ -1793,7 +1811,8 @@ public class UserIssuesITCase extends AbstractITCase {
             if (!IS_FLOWABLE_ENABLED) {
                 // we can check update only if on default workflow since flowable test workflow definition does not 
                 // support update of suspended users
-                assertTrue(rossini.getPlainAttr("email").get().getValues().contains("rossini.gioacchino@apache.org"));
+                assertTrue(rossini.getPlainAttr("email").orElseThrow().
+                        getValues().contains("rossini.gioacchino@apache.org"));
 
                 onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(
                         AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());

@@ -32,15 +32,15 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
-public class DefaultRuleEnforcer implements RuleEnforcer {
+public class DefaultRuleProvider implements RuleProvider {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(RuleEnforcer.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(RuleProvider.class);
 
     protected final RealmSearchDAO realmSearchDAO;
 
@@ -48,7 +48,7 @@ public class DefaultRuleEnforcer implements RuleEnforcer {
 
     protected final Map<String, PasswordRule> perContextPasswordRules = new ConcurrentHashMap<>();
 
-    public DefaultRuleEnforcer(final RealmSearchDAO realmSearchDAO) {
+    public DefaultRuleProvider(final RealmSearchDAO realmSearchDAO) {
         this.realmSearchDAO = realmSearchDAO;
     }
 
@@ -65,7 +65,8 @@ public class DefaultRuleEnforcer implements RuleEnforcer {
         // add realm policies
         if (realm != null) {
             realmSearchDAO.findAncestors(realm).
-                    forEach(r -> Optional.ofNullable(r.getAccountPolicy()).
+                    forEach(a -> realmSearchDAO.findByFullPath(a.getFullPath()).
+                    flatMap(r -> Optional.ofNullable(r.getAccountPolicy())).
                     filter(p -> !policies.contains(p)).
                     ifPresent(policies::add));
         }
@@ -106,7 +107,8 @@ public class DefaultRuleEnforcer implements RuleEnforcer {
         // add realm policies
         if (realm != null) {
             realmSearchDAO.findAncestors(realm).
-                    forEach(r -> Optional.ofNullable(r.getPasswordPolicy()).
+                    forEach(a -> realmSearchDAO.findByFullPath(a.getFullPath()).
+                    flatMap(r -> Optional.ofNullable(r.getPasswordPolicy())).
                     filter(p -> !policies.contains(p)).
                     ifPresent(policies::add));
         }

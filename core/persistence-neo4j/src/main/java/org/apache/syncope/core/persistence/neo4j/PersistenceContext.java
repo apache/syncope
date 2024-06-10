@@ -219,6 +219,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jTaskUtilsFacto
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
+import org.apache.syncope.core.persistence.neo4j.spring.CacheCleaningTransactionExecutionListener;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.persistence.neo4j.spring.PlainAttrsConverter;
@@ -309,15 +310,49 @@ public class PersistenceContext {
         return new Neo4jTemplate(neo4jClient, mappingContext);
     }
 
+    @ConditionalOnMissingBean
+    @Bean
+    public CacheCleaningTransactionExecutionListener cacheCleaningTransactionExecutionListener(
+            final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
+            final Cache<EntityCacheKey, Neo4jDelegation> delegationCache,
+            final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache,
+            final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache,
+            final Cache<EntityCacheKey, Neo4jImplementation> implementationCache,
+            final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
+            final Cache<EntityCacheKey, Neo4jRealm> realmCache,
+            final Cache<EntityCacheKey, Neo4jRole> roleCache,
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+
+        return new CacheCleaningTransactionExecutionListener(
+                anyTypeCache,
+                anyObjectCache,
+                delegationCache,
+                derSchemaCache,
+                externalResourceCache,
+                groupCache,
+                implementationCache,
+                plainSchemaCache,
+                realmCache,
+                roleCache,
+                userCache,
+                virSchemaCache);
+    }
+
     @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_TRANSACTION_MANAGER_BEAN_NAME)
     public PlatformTransactionManager transactionManager(
             final DomainRoutingDriver driver,
-            final Neo4jBookmarkManager bookmarkManager) {
+            final Neo4jBookmarkManager bookmarkManager,
+            final CacheCleaningTransactionExecutionListener cacheCleaningTransactionExecutionListener) {
 
-        return Neo4jTransactionManager.
+        Neo4jTransactionManager transactionManager = Neo4jTransactionManager.
                 with(driver).
                 withBookmarkManager(bookmarkManager).
                 build();
+        transactionManager.addListener(cacheCleaningTransactionExecutionListener);
+        return transactionManager;
     }
 
     @Bean(name = "uPlainAttrsConverter")
@@ -553,6 +588,7 @@ public class PersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
             final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache,
             final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
@@ -566,6 +602,7 @@ public class PersistenceContext {
                 groupDAO,
                 resourceDAO,
                 neo4jTemplate,
+                neo4jClient,
                 nodeValidator,
                 anyTypeCache,
                 externalResourceCache,
@@ -845,8 +882,33 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public EntityCacheDAO entityCacheDAO() {
-        return new Neo4jEntityCacheDAO();
+    public EntityCacheDAO entityCacheDAO(
+            final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
+            final Cache<EntityCacheKey, Neo4jDelegation> delegationCache,
+            final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache,
+            final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache,
+            final Cache<EntityCacheKey, Neo4jImplementation> implementationCache,
+            final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
+            final Cache<EntityCacheKey, Neo4jRealm> realmCache,
+            final Cache<EntityCacheKey, Neo4jRole> roleCache,
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+
+        return new Neo4jEntityCacheDAO(
+                anyTypeCache,
+                anyObjectCache,
+                delegationCache,
+                derSchemaCache,
+                externalResourceCache,
+                groupCache,
+                implementationCache,
+                plainSchemaCache,
+                realmCache,
+                roleCache,
+                userCache,
+                virSchemaCache);
     }
 
     @ConditionalOnMissingBean
@@ -942,12 +1004,15 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public ImplementationRepoExt implementationRepoExt(
+            final ExternalResourceDAO resourceDAO,
+            final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
             final Cache<EntityCacheKey, Neo4jImplementation> implementationCache) {
 
-        return new ImplementationRepoExtImpl(neo4jTemplate, neo4jClient, nodeValidator, implementationCache);
+        return new ImplementationRepoExtImpl(
+                resourceDAO, entityCacheDAO, neo4jTemplate, neo4jClient, nodeValidator, implementationCache);
     }
 
     @ConditionalOnMissingBean
@@ -1075,6 +1140,7 @@ public class PersistenceContext {
             final @Lazy CASSPClientAppDAO casSPClientAppDAO,
             final @Lazy OIDCRPClientAppDAO oidcRPClientAppDAO,
             final @Lazy SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
@@ -1085,6 +1151,7 @@ public class PersistenceContext {
                 casSPClientAppDAO,
                 oidcRPClientAppDAO,
                 saml2SPClientAppDAO,
+                entityCacheDAO,
                 neo4jTemplate,
                 neo4jClient,
                 nodeValidator);

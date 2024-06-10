@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
@@ -36,6 +35,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
 @Configuration(proxyBeanMethods = false)
 public class WorkflowContext {
@@ -49,7 +49,7 @@ public class WorkflowContext {
             final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
-            final RuleEnforcer ruleEnforcer,
+            final RuleProvider ruleProvider,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher) {
 
@@ -60,7 +60,7 @@ public class WorkflowContext {
                 groupDAO,
                 entityFactory,
                 securityProperties,
-                ruleEnforcer,
+                ruleProvider,
                 confParamOps,
                 publisher);
     }

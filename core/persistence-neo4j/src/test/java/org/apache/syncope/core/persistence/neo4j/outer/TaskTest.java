@@ -118,7 +118,7 @@ public class TaskTest extends AbstractTest {
                 TaskType.PROPAGATION,
                 resourceDAO.findById("ws-target-resource-2").orElseThrow(),
                 null,
-                AnyTypeKind.USER,
+                null,
                 null,
                 Pageable.unpaged());
         assertEquals(3, tasks.size());

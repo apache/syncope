@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
-public interface RuleEnforcer {
+public interface RuleProvider {
 
     List<AccountPolicy> getAccountPolicies(Realm realm, Collection<ExternalResource> resources);
 

@@ -45,8 +45,8 @@ public class TestPasswordRule implements PasswordRule {
 
     @Override
     public void setConf(final PasswordRuleConf conf) {
-        if (conf instanceof TestPasswordRuleConf) {
-            this.conf = TestPasswordRuleConf.class.cast(conf);
+        if (conf instanceof TestPasswordRuleConf testPasswordRuleConf) {
+            this.conf = testPasswordRuleConf;
         } else {
             throw new IllegalArgumentException(
                     PasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
@@ -63,9 +63,7 @@ public class TestPasswordRule implements PasswordRule {
     @Transactional(readOnly = true)
     @Override
     public void enforce(final User user, final String clearPassword) {
-        if (clearPassword != null && !clearPassword.endsWith(conf.getMustEndWith())) {
-            throw new PasswordPolicyException("Password not ending with " + conf.getMustEndWith());
-        }
+        enforce(user.getUsername(), clearPassword);
     }
 
     @Transactional(readOnly = true)

@@ -407,6 +407,8 @@ public abstract class AbstractITCase {
 
     protected static boolean IS_EXT_SEARCH_ENABLED = false;
 
+    protected static boolean IS_NEO4J_PERSISTENCE = false;
+
     private static void initExtSearch(
             final ImplementationService implementationService,
             final TaskService taskService,
@@ -493,6 +495,8 @@ public abstract class AbstractITCase {
         IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
         IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
+
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asText().contains("Neo4j");
 
         if (!IS_EXT_SEARCH_ENABLED) {
             return;

@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -276,7 +277,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected String getQuery(
-            final AnyTypeKind kind,
             final MembershipCond cond,
             final boolean not,
             final Map<String, Object> parameters) {
@@ -284,49 +284,43 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         cond.setGroup(cond.getGroup().replace("%", ".*"));
         List<String> groupKeys = check(cond);
 
-        String membershipTypeNode = kind == AnyTypeKind.ANY_OBJECT
-                ? Neo4jAMembership.NODE
-                : Neo4jUMembership.NODE;
-        String dynMembRelType = kind == AnyTypeKind.ANY_OBJECT
-                ? GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL
-                : GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL;
-
         String param = setParameter(parameters, groupKeys);
         return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "") + "EXISTS { "
-                + "MATCH (n)-[]-(:" + membershipTypeNode + ")-[]-"
+                + "MATCH (n)-[]-(:" + Neo4jUMembership.NODE + ")-[]-"
                 + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + dynMembRelType + "]-"
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
+                + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } "
+                + (not ? "AND NOT" : "OR") + " EXISTS { "
+                + "MATCH (n)-[]-(:" + Neo4jAMembership.NODE + ")-[]-"
+                + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } "
+                + (not ? "AND NOT" : "OR") + " EXISTS { "
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
                 + "(g:" + Neo4jGroup.NODE + ") WHERE g.id IN $" + param + " } ";
     }
 
     protected String getQuery(
-            final AnyTypeKind kind,
             final MemberCond cond,
             final boolean not,
             final Map<String, Object> parameters) {
 
         Set<String> memberKeys = check(cond);
 
-        String membershipTypeNode = kind == AnyTypeKind.ANY_OBJECT
-                ? Neo4jAMembership.NODE
-                : Neo4jUMembership.NODE;
-        String memberTypeNode = kind == AnyTypeKind.ANY_OBJECT
-                ? Neo4jAnyObject.NODE
-                : Neo4jUser.NODE;
-        String dynMembRelType = kind == AnyTypeKind.ANY_OBJECT
-                ? GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL
-                : GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL;
-
         String param = setParameter(parameters, memberKeys);
         return "MATCH (n) "
                 + "WHERE " + (not ? "NOT " : "") + "EXISTS { "
-                + "MATCH (n)-[]-(:" + membershipTypeNode + ")-[]-"
-                + "(m:" + memberTypeNode + ") WHERE m.id IN $" + param + " } "
+                + "MATCH (n)-[]-(:" + Neo4jUMembership.NODE + ")-[]-"
+                + "(m:" + Neo4jUser.NODE + ") WHERE m.id IN $" + param + " } "
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + dynMembRelType + "]-"
-                + "(m:" + memberTypeNode + ") WHERE m.id IN $" + param + " } ";
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_USER_MEMBERSHIP_REL + "]-"
+                + "(m:" + Neo4jUser.NODE + ") WHERE m.id IN $" + param + " }  "
+                + (not ? "AND NOT" : "OR") + " EXISTS { "
+                + "MATCH (n)-[]-(:" + Neo4jAMembership.NODE + ")-[]-"
+                + "(m:" + Neo4jAnyObject.NODE + ") WHERE m.id IN $" + param + " } "
+                + (not ? "AND NOT" : "OR") + " EXISTS { "
+                + "MATCH (n)-[:" + GroupRepoExt.DYN_GROUP_ANY_OBJECT_MEMBERSHIP_REL + "]-"
+                + "(m:" + Neo4jAnyObject.NODE + ") WHERE m.id IN $" + param + " } ";
     }
 
     protected String getQuery(
@@ -654,7 +648,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         if (JAXRSService.PARAM_REALM.equals(cond.getSchema())) {
             if (!SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
-
                 Realm realm = realmSearchDAO.findByFullPath(cond.getExpression()).
                         orElseThrow(() -> new IllegalArgumentException(
                         "Invalid Realm full path: " + cond.getExpression()));
@@ -668,6 +661,33 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         }
 
         Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, kind);
+
+        if (ArrayUtils.contains(
+                RELATIONSHIP_FIELDS,
+                StringUtils.substringBefore(checked.getRight().getSchema(), "_id"))) {
+
+            String field = StringUtils.substringBefore(checked.getRight().getSchema(), "_id");
+            switch (field) {
+                case "userOwner" -> {
+                    return Pair.of(
+                            "MATCH (n)-[:" + Neo4jGroup.USER_OWNER_REL + "]-"
+                            + "(:" + Neo4jUser.NODE + " "
+                            + "{id: $" + setParameter(parameters, cond.getExpression()) + "})",
+                            null);
+                }
+
+                case "groupOwner" -> {
+                    return Pair.of(
+                            "MATCH (n)-[:" + Neo4jGroup.GROUP_OWNER_REL + "]-"
+                            + "(:" + Neo4jGroup.NODE + " "
+                            + "{id: $" + setParameter(parameters, cond.getExpression()) + "})",
+                            null);
+                }
+
+                default ->
+                    throw new IllegalArgumentException("Unsupported relationship: " + field);
+            }
+        }
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) WHERE ");
 
@@ -756,11 +776,11 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
                 cond.getLeaf(MembershipCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
-                        ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
                 cond.getLeaf(MemberCond.class).
                         filter(leaf -> AnyTypeKind.GROUP == kind).
-                        ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
+                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
                 cond.getLeaf(RoleCond.class).
                         filter(leaf -> AnyTypeKind.USER == kind).
@@ -902,12 +922,29 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         List<String> clauses = new ArrayList<>();
 
+        Set<String> orderByUniquePlainSchemas = new HashSet<>();
+        Set<String> orderByNonUniquePlainSchemas = new HashSet<>();
         orderBy.forEach(clause -> {
             if (anyUtils.getField(clause.getProperty()).isPresent()) {
                 clauses.add(clause.getProperty() + " " + clause.getDirection().name());
             } else {
-                plainSchemaDAO.findById(clause.getProperty()).
-                        ifPresent(schema -> clauses.add(schema.getKey() + " " + clause.getDirection().name()));
+                plainSchemaDAO.findById(clause.getProperty()).ifPresent(schema -> {
+                    if (schema.isUniqueConstraint()) {
+                        orderByUniquePlainSchemas.add(schema.getKey());
+                    } else {
+                        orderByNonUniquePlainSchemas.add(schema.getKey());
+                    }
+                    if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
+                        SyncopeClientException invalidSearch =
+                                SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
+                        invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
+                                + "remove one from " + (orderByUniquePlainSchemas.size() > 1
+                                ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
+                        throw invalidSearch;
+                    }
+
+                    clauses.add(schema.getKey() + " " + clause.getDirection().name());
+                });
             }
         });
 

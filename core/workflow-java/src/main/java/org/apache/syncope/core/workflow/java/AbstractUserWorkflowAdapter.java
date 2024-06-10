@@ -46,7 +46,6 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -59,6 +58,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
 public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapter implements UserWorkflowAdapter {
@@ -73,7 +73,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     protected final SecurityProperties securityProperties;
 
-    protected final RuleEnforcer ruleEnforcer;
+    protected final RuleProvider ruleProvider;
 
     public AbstractUserWorkflowAdapter(
             final UserDataBinder dataBinder,
@@ -82,7 +82,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
             final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
-            final RuleEnforcer ruleEnforcer,
+            final RuleProvider ruleEnforcer,
             final ApplicationEventPublisher publisher) {
 
         super(groupDAO, entityFactory, publisher);
@@ -91,7 +91,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         this.userDAO = userDAO;
         this.realmDAO = realmDAO;
         this.securityProperties = securityProperties;
-        this.ruleEnforcer = ruleEnforcer;
+        this.ruleProvider = ruleEnforcer;
     }
 
     @Override
@@ -112,14 +112,14 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
             try {
                 int maxPPSpecHistory = 0;
-                for (PasswordPolicy policy : ruleEnforcer.getPasswordPolicies(
+                for (PasswordPolicy policy : ruleProvider.getPasswordPolicies(
                         user.getRealm(), userDAO.findAllResources(user))) {
 
                     if (clearPassword == null && !policy.isAllowNullPassword()) {
                         throw new PasswordPolicyException("Password mandatory");
                     }
 
-                    ruleEnforcer.getPasswordRules(policy).forEach(rule -> {
+                    ruleProvider.getPasswordRules(policy).forEach(rule -> {
                         rule.enforce(user, clearPassword);
 
                         user.getLinkedAccounts().stream().
@@ -184,7 +184,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
             }
 
             List<AccountPolicy> accountPolicies =
-                    ruleEnforcer.getAccountPolicies(user.getRealm(), userDAO.findAllResources(user));
+                    ruleProvider.getAccountPolicies(user.getRealm(), userDAO.findAllResources(user));
             if (accountPolicies.isEmpty()) {
                 if (!Entity.ID_PATTERN.matcher(user.getUsername()).matches()) {
                     throw new AccountPolicyException("Character(s) not allowed: " + user.getUsername());
@@ -198,7 +198,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                         });
             } else {
                 for (AccountPolicy policy : accountPolicies) {
-                    ruleEnforcer.getAccountRules(policy).forEach(rule -> {
+                    ruleProvider.getAccountRules(policy).forEach(rule -> {
                         rule.enforce(user);
 
                         user.getLinkedAccounts().stream().

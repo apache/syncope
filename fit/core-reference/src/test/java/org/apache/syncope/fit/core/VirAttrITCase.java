@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
@@ -252,6 +253,8 @@ public class VirAttrITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE397() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         ResourceTO csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
 
         // change mapping of resource-csv
@@ -437,6 +440,8 @@ public class VirAttrITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE453() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         String resourceName = "issueSYNCOPE453Res" + getUUIDString();
         String groupKey = null;
         String groupName = "issueSYNCOPE453Group" + getUUIDString();

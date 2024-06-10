@@ -167,7 +167,7 @@ public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group, Neo4jA
 
     @Override
     public boolean remove(final GPlainAttr attr) {
-        return plainAttrs().remove(((Neo4jGPlainAttr) attr).getSchemaKey()) != null;
+        return plainAttrs.put(((Neo4jGPlainAttr) attr).getSchemaKey(), null) != null;
     }
 
     @Override
@@ -178,6 +178,7 @@ public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group, Neo4jA
     @Override
     public List<? extends GPlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
+                filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(Map.Entry::getValue).toList();
     }
