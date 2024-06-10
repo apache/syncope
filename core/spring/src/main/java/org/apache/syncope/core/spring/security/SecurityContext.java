@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.policy.DefaultRuleProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
@@ -40,7 +41,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
 @EnableConfigurationProperties(SecurityProperties.class)
 @Configuration(proxyBeanMethods = false)

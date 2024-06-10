@@ -32,11 +32,11 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 
 public class DefaultRuleProvider implements RuleProvider {
 
