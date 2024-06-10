@@ -224,9 +224,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
     @Override
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
-        if (event.getPayload() instanceof AjaxPalettePanel.UpdateActionEvent) {
+        if (event.getPayload() instanceof AjaxPalettePanel.UpdateActionEvent updateActionEvent) {
             evaluate();
-            AjaxPalettePanel.UpdateActionEvent updateEvent = (AjaxPalettePanel.UpdateActionEvent) event.getPayload();
+            AjaxPalettePanel.UpdateActionEvent updateEvent = updateActionEvent;
             updateEvent.getTarget().add(this);
         }
     }

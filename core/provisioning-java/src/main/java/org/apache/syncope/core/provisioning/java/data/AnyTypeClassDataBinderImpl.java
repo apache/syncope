@@ -75,7 +75,10 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             anyTypeClass.setKey(anyTypeClassTO.getKey());
         }
 
-        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
+        plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
+            schema.setAnyTypeClass(null);
+            plainSchemaDAO.save(schema);
+        });
 
         anyTypeClass.getPlainSchemas().clear();
         anyTypeClassTO.getPlainSchemas().forEach(key -> {
@@ -85,10 +88,14 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             } else {
                 anyTypeClass.add(schema);
                 schema.setAnyTypeClass(anyTypeClass);
+                plainSchemaDAO.save(schema);
             }
         });
 
-        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
+        derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
+            schema.setAnyTypeClass(null);
+            derSchemaDAO.save(schema);
+        });
 
         anyTypeClass.getDerSchemas().clear();
         anyTypeClassTO.getDerSchemas().forEach(key -> {
@@ -98,10 +105,14 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             } else {
                 anyTypeClass.add(schema);
                 schema.setAnyTypeClass(anyTypeClass);
+                derSchemaDAO.save(schema);
             }
         });
 
-        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> schema.setAnyTypeClass(null));
+        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
+            schema.setAnyTypeClass(null);
+            virSchemaDAO.save(schema);
+        });
 
         anyTypeClass.getVirSchemas().clear();
         anyTypeClassTO.getVirSchemas().forEach(key -> {
@@ -111,6 +122,7 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
             } else {
                 anyTypeClass.add(schema);
                 schema.setAnyTypeClass(anyTypeClass);
+                virSchemaDAO.save(schema);
             }
         });
     }

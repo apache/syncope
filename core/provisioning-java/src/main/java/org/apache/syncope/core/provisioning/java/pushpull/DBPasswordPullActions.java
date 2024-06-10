@@ -22,7 +22,6 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -67,8 +66,7 @@ public class DBPasswordPullActions implements PullActions {
             final AnyCR anyCR) throws JobExecutionException {
 
         if (anyCR instanceof UserCR userCR) {
-            String password = userCR.getPassword();
-            parseEncodedPassword(password, profile.getConnector());
+            parseEncodedPassword(userCR.getPassword(), profile.getConnector());
         }
     }
 
@@ -81,9 +79,8 @@ public class DBPasswordPullActions implements PullActions {
             final AnyUR anyUR) throws JobExecutionException {
 
         if (anyUR instanceof UserUR userUR) {
-            PasswordPatch modPassword = userUR.getPassword();
-            parseEncodedPassword(Optional.ofNullable(modPassword)
-                    .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
+            parseEncodedPassword(Optional.ofNullable(userUR.getPassword()).
+                    map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
         }
     }
 
@@ -121,8 +118,10 @@ public class DBPasswordPullActions implements PullActions {
             final ProvisioningReport result) throws JobExecutionException {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            userDAO.findById(any.getKey()).
-                    ifPresent(user -> user.setEncodedPassword(encodedPassword.toUpperCase(), cipher));
+            userDAO.findById(any.getKey()).ifPresent(user -> {
+                user.setEncodedPassword(encodedPassword.toUpperCase(), cipher);
+                userDAO.save(user);
+            });
             encodedPassword = null;
             cipher = null;
         }

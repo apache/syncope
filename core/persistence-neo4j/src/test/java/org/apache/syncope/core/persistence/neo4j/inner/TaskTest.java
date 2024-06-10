@@ -97,7 +97,7 @@ public class TaskTest extends AbstractTest {
     @Test
     public void findPaginated() {
         List<PropagationTask> tasks = taskDAO.findAll(
-                TaskType.PROPAGATION, null, null, AnyTypeKind.USER, null, PageRequest.of(0, 2));
+                TaskType.PROPAGATION, null, null, null, null, PageRequest.of(0, 2));
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -105,7 +105,7 @@ public class TaskTest extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, AnyTypeKind.USER, null, PageRequest.of(1, 2));
+        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, PageRequest.of(1, 2));
         assertNotNull(tasks);
         assertEquals(2, tasks.size());
 
@@ -113,11 +113,11 @@ public class TaskTest extends AbstractTest {
             assertNotNull(task);
         }
 
-        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, AnyTypeKind.USER, null, PageRequest.of(1000, 2));
+        tasks = taskDAO.findAll(TaskType.PROPAGATION, null, null, null, null, PageRequest.of(1000, 2));
         assertNotNull(tasks);
         assertTrue(tasks.isEmpty());
 
-        assertEquals(6, taskDAO.count(TaskType.PROPAGATION, null, null, AnyTypeKind.USER, null));
+        assertEquals(6, taskDAO.count(TaskType.PROPAGATION, null, null, null, null));
     }
 
     @Test

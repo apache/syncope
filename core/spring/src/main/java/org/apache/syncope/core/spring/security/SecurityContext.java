@@ -27,9 +27,9 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.policy.DefaultRuleEnforcer;
+import org.apache.syncope.core.spring.policy.DefaultRuleProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
@@ -138,8 +138,8 @@ public class SecurityContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RuleEnforcer ruleEnforcer(final RealmSearchDAO realmSearchDAO) {
-        return new DefaultRuleEnforcer(realmSearchDAO);
+    public RuleProvider ruleProvider(final RealmSearchDAO realmSearchDAO) {
+        return new DefaultRuleProvider(realmSearchDAO);
     }
 
     @Bean

@@ -80,7 +80,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TaskDAO.class);
 
-    protected static String execRelationship(final TaskType type) {
+    public static String execRelationship(final TaskType type) {
         String result = null;
 
         switch (type) {
@@ -279,7 +279,20 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         List<Pair<String, String>> relationships = new ArrayList<>();
         List<String> properties = new ArrayList<>();
 
-        relationships.add(Pair.of("OPTIONAL MATCH (n)-[]-(p:" + taskUtils.getTaskExecTable() + ")", null));
+        boolean optionalMatch = true;
+        if (anyTypeKind != null) {
+            properties.add("n.anyTypeKind = $anyTypeKind");
+            parameters.put("anyTypeKind", anyTypeKind.name());
+            optionalMatch = false;
+        }
+        if (entityKey != null) {
+            properties.add("n.entityKey = $entityKey");
+            parameters.put("entityKey", entityKey);
+            optionalMatch = false;
+        }
+
+        relationships.add(Pair.of(
+                (optionalMatch ? "OPTIONAL " : "") + "MATCH (n)-[]-(p:" + taskUtils.getTaskExecTable() + ")", null));
 
         if (resource != null) {
             relationships.add(Pair.of("MATCH (n)-[]-(e:" + Neo4jExternalResource.NODE + " {id: $eid})", null));
@@ -289,14 +302,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             relationships.add(Pair.of("MATCH (n)-[]-(s:" + Neo4jNotification.NODE + " {id: $nid})", null));
             parameters.put("nid", notification.getKey());
         }
-        if (anyTypeKind != null) {
-            properties.add("n.anyTypeKind = $anyTypeKind");
-            parameters.put("anyTypeKind", anyTypeKind.name());
-        }
-        if (entityKey != null) {
-            properties.add("n.entityKey = $entityKey");
-            parameters.put("entityKey", entityKey);
-        }
+
         if (type == TaskType.MACRO
                 && !AuthContextUtils.getUsername().equals(securityProperties.getAdminUser())) {
 
@@ -360,7 +366,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 anyTypeKind,
                 entityKey,
                 parameters).
-                append(" RETURN COUNT(n)");
+                append(" RETURN COUNT(DISTINCT n)");
 
         return neo4jTemplate.count(query.toString(), parameters);
     }
@@ -428,7 +434,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                 entityKey,
                 parameters);
 
-        query.append(" RETURN n.id ");
+        query.append(" WITH n ");
 
         query.append(toOrderByStatement(taskUtils.getTaskEntity(), pageable.getSort().get()));
 
@@ -436,6 +442,8 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
                     append(" LIMIT ").append(pageable.getPageSize());
         }
+
+        query.append(" RETURN DISTINCT n.id");
 
         return toList(neo4jClient.query(
                 query.toString()).bindAll(parameters).fetch().all(),

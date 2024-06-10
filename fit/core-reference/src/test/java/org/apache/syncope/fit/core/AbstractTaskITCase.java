@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -95,7 +96,8 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             }
         });
 
-        return taskTO.get().getExecutions().get(taskTO.get().getExecutions().size() - 1);
+        return taskTO.get().getExecutions().stream().
+                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow();
     }
 
     public static ExecTO execSchedTask(

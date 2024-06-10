@@ -158,7 +158,8 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
         parameters.put("id", task.getKey());
 
         StringBuilder query = new StringBuilder(
-                "MATCH (n:").append(taskUtils.getTaskExecTable()).append(")-[]-").
+                "MATCH (n:").append(taskUtils.getTaskExecTable()).append(")-").
+                append("[:").append(Neo4jTaskDAO.execRelationship(taskUtils.getType())).append("]-").
                 append("(p:").append(taskUtils.getTaskTable()).append(" {id: $id}) ").
                 append("WHERE 1=1 ");
 

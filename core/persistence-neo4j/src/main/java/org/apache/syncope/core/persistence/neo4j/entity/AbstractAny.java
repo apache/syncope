@@ -160,17 +160,16 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGenera
     protected void doComplete(final Map<String, ? extends Neo4jPlainAttr<? extends Any<P>>> plainAttrs) {
         for (var itor = plainAttrs.entrySet().iterator(); itor.hasNext();) {
             var entry = itor.next();
-            String schema = entry.getKey();
-            Neo4jPlainAttr<? extends Any<P>> attr = entry.getValue();
-
-            attr.setSchemaKey(schema);
-            if (attr.getSchema() == null) {
-                itor.remove();
-            } else {
-                ((Neo4jPlainAttr) attr).setOwner(this);
-                attr.getValues().forEach(value -> value.setAttr(attr));
-                Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-            }
+            Optional.ofNullable(entry.getValue()).ifPresent(attr -> {
+                attr.setSchemaKey(entry.getKey());
+                if (attr.getSchema() == null) {
+                    itor.remove();
+                } else {
+                    ((Neo4jPlainAttr) attr).setOwner(this);
+                    attr.getValues().forEach(value -> value.setAttr(attr));
+                    Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
+                }
+            });
         }
     }
 

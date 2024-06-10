@@ -73,7 +73,7 @@ public class ReportITCase extends AbstractITCase {
     @Test
     public void getReportDelegates() {
         Set<String> reportDelegates = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdRepoImplementationType.REPORT_DELEGATE).get().getClasses();
+                getJavaImplInfo(IdRepoImplementationType.REPORT_DELEGATE).orElseThrow().getClasses();
         assertNotNull(reportDelegates);
         assertFalse(reportDelegates.isEmpty());
         assertTrue(reportDelegates.contains(SampleReportJobDelegate.class.getName()));

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -95,6 +96,8 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
 
     protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
 
+    protected final EntityCacheDAO entityCacheDAO;
+
     protected final NodeValidator nodeValidator;
 
     public Neo4jPolicyDAO(
@@ -103,6 +106,7 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
             final SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
@@ -113,6 +117,7 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
         this.casSPClientAppDAO = casSPClientAppDAO;
         this.oidcRPClientAppDAO = oidcRPClientAppDAO;
         this.saml2SPClientAppDAO = saml2SPClientAppDAO;
+        this.entityCacheDAO = entityCacheDAO;
         this.nodeValidator = nodeValidator;
     }
 
@@ -230,6 +235,16 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
 
             default -> {
             }
+        }
+
+        if (policy instanceof AccountPolicy
+                || policy instanceof PasswordPolicy
+                || policy instanceof PropagationPolicy
+                || policy instanceof PullPolicy
+                || policy instanceof PushPolicy) {
+
+            resourceDAO.findByPolicy(policy).
+                    forEach(resource -> entityCacheDAO.evict(Neo4jExternalResource.class, resource.getKey()));
         }
 
         return saved;

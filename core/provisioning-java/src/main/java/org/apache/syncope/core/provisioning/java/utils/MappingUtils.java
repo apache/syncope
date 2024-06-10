@@ -53,14 +53,10 @@ public final class MappingUtils {
     private static final Map<String, ItemTransformer> PER_CONTEXT_ITEM_TRANSFORMERS = new ConcurrentHashMap<>();
 
     public static Optional<Item> getConnObjectKeyItem(final Provision provision) {
-        Mapping mapping = null;
-        if (provision != null) {
-            mapping = provision.getMapping();
-        }
-
-        return mapping == null
-                ? Optional.empty()
-                : mapping.getConnObjectKeyItem();
+        return Optional.ofNullable(provision).
+                flatMap(p -> Optional.ofNullable(p.getMapping())).
+                map(Mapping::getConnObjectKeyItem).
+                orElse(Optional.empty());
     }
 
     public static Stream<Item> getPropagationItems(final Stream<Item> items) {

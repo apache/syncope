@@ -187,7 +187,7 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     @Override
     public boolean remove(final LAPlainAttr attr) {
         checkType(attr, Neo4jLAPlainAttr.class);
-        return plainAttrs.remove(((Neo4jPlainAttr<User>) attr).getSchemaKey()) != null;
+        return plainAttrs.put(((Neo4jPlainAttr<User>) attr).getSchemaKey(), null) != null;
     }
 
     @Override
@@ -198,6 +198,7 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     @Override
     public List<? extends LAPlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
+                filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(Map.Entry::getValue).toList();
     }
@@ -217,18 +218,17 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     public void completePlainAttrs() {
         for (var itor = plainAttrs.entrySet().iterator(); itor.hasNext();) {
             var entry = itor.next();
-            String schema = entry.getKey();
-            Neo4jLAPlainAttr attr = entry.getValue();
-
-            attr.setSchemaKey(schema);
-            if (attr.getSchema() == null) {
-                itor.remove();
-            } else {
-                attr.setOwner(getOwner());
-                attr.setAccount(this);
-                attr.getValues().forEach(value -> value.setAttr(attr));
-                Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-            }
+            Optional.ofNullable(entry.getValue()).ifPresent(attr -> {
+                attr.setSchemaKey(entry.getKey());
+                if (attr.getSchema() == null) {
+                    itor.remove();
+                } else {
+                    ((Neo4jLAPlainAttr) attr).setOwner(getOwner());
+                    ((Neo4jLAPlainAttr) attr).setAccount(this);
+                    attr.getValues().forEach(value -> value.setAttr(attr));
+                    Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
+                }
+            });
         }
     }
 }

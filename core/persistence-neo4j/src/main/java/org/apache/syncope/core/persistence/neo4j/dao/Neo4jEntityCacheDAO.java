@@ -18,11 +18,59 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDelegation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
+import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 
 public class Neo4jEntityCacheDAO implements EntityCacheDAO {
+
+    protected final Map<Class<? extends Entity>, Cache<EntityCacheKey, ? extends Entity>> caches;
+
+    public Neo4jEntityCacheDAO(
+            final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache,
+            final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
+            final Cache<EntityCacheKey, Neo4jDelegation> delegationCache,
+            final Cache<EntityCacheKey, Neo4jDerSchema> derSchemaCache,
+            final Cache<EntityCacheKey, Neo4jExternalResource> externalResourceCache,
+            final Cache<EntityCacheKey, Neo4jGroup> groupCache,
+            final Cache<EntityCacheKey, Neo4jImplementation> implementationCache,
+            final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
+            final Cache<EntityCacheKey, Neo4jRealm> realmCache,
+            final Cache<EntityCacheKey, Neo4jRole> roleCache,
+            final Cache<EntityCacheKey, Neo4jUser> userCache,
+            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+
+        caches = new HashMap<>();
+        caches.put(Neo4jAnyTypeClass.class, anyTypeCache);
+        caches.put(Neo4jAnyObject.class, anyObjectCache);
+        caches.put(Neo4jDelegation.class, delegationCache);
+        caches.put(Neo4jDerSchema.class, derSchemaCache);
+        caches.put(Neo4jExternalResource.class, externalResourceCache);
+        caches.put(Neo4jGroup.class, groupCache);
+        caches.put(Neo4jImplementation.class, implementationCache);
+        caches.put(Neo4jPlainSchema.class, plainSchemaCache);
+        caches.put(Neo4jRealm.class, realmCache);
+        caches.put(Neo4jRole.class, roleCache);
+        caches.put(Neo4jUser.class, userCache);
+        caches.put(Neo4jVirSchema.class, virSchemaCache);
+    }
 
     @Override
     public Map<String, Object> getStatistics() {
@@ -46,11 +94,11 @@ public class Neo4jEntityCacheDAO implements EntityCacheDAO {
 
     @Override
     public void evict(final Class<? extends Entity> entityClass, final String key) {
-        // not supported
+        Optional.ofNullable(caches.get(entityClass)).ifPresent(c -> c.remove(EntityCacheKey.of(key)));
     }
 
     @Override
     public void clearCache() {
-        // not supported
+        caches.values().forEach(Cache::removeAll);
     }
 }

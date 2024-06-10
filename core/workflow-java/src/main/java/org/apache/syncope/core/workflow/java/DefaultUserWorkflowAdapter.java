@@ -33,7 +33,7 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -54,11 +54,11 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             final GroupDAO groupDAO,
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
-            final RuleEnforcer ruleEnforcer,
+            final RuleProvider ruleProvider,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher) {
 
-        super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleEnforcer, publisher);
+        super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleProvider, publisher);
         this.confParamOps = confParamOps;
     }
 

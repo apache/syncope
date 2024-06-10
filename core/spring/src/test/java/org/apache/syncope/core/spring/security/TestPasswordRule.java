@@ -37,8 +37,8 @@ public class TestPasswordRule implements PasswordRule {
 
     @Override
     public void setConf(final PasswordRuleConf conf) {
-        if (conf instanceof DefaultPasswordRuleConf) {
-            this.conf = (DefaultPasswordRuleConf) conf;
+        if (conf instanceof DefaultPasswordRuleConf defaultPasswordRuleConf) {
+            this.conf = defaultPasswordRuleConf;
         } else {
             throw new IllegalArgumentException(
                     DefaultPasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());

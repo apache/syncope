@@ -24,9 +24,12 @@ import java.util.Map;
 import java.util.Optional;
 import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
@@ -36,17 +39,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class ImplementationRepoExtImpl extends AbstractDAO implements ImplementationRepoExt {
 
+    protected final ExternalResourceDAO resourceDAO;
+
+    protected final EntityCacheDAO entityCacheDAO;
+
     protected final NodeValidator nodeValidator;
 
     protected final Cache<EntityCacheKey, Neo4jImplementation> cache;
 
     public ImplementationRepoExtImpl(
+            final ExternalResourceDAO resourceDAO,
+            final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
             final Cache<EntityCacheKey, Neo4jImplementation> cache) {
 
         super(neo4jTemplate, neo4jClient);
+        this.resourceDAO = resourceDAO;
+        this.entityCacheDAO = entityCacheDAO;
         this.nodeValidator = nodeValidator;
         this.cache = cache;
     }
@@ -92,6 +103,9 @@ public class ImplementationRepoExtImpl extends AbstractDAO implements Implementa
         ImplementationManager.purge(saved.getKey());
 
         cache.put(EntityCacheKey.of(saved.getKey()), (Neo4jImplementation) saved);
+
+        resourceDAO.findByProvisionSorter(saved).
+                forEach(resource -> entityCacheDAO.evict(Neo4jExternalResource.class, resource.getKey()));
 
         return saved;
     }

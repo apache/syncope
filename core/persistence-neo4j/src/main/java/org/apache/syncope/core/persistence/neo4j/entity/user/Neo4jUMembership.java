@@ -93,6 +93,7 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     @Override
     public List<? extends Neo4jUPlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
+                filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(Map.Entry::getValue).toList();
     }
@@ -112,6 +113,6 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
 
     @Override
     public boolean remove(final String plainSchema) {
-        return plainAttrs.remove(plainSchema) != null;
+        return plainAttrs.put(plainSchema, null) != null;
     }
 }

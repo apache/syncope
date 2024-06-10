@@ -370,10 +370,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         if (resourceTO.getProvisionSorter() == null) {
             resource.setProvisionSorter(null);
         } else {
-            implementationDAO.findById(resourceTO.getProvisionSorter()).
-                    ifPresentOrElse(resource::setProvisionSorter,
-                            () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                    resourceTO.getProvisionSorter()));
+            implementationDAO.findById(resourceTO.getProvisionSorter()).ifPresentOrElse(
+                    resource::setProvisionSorter,
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                            Implementation.class.getSimpleName(), resourceTO.getProvisionSorter()));
         }
 
         resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
@@ -384,7 +384,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         resourceTO.getPropagationActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 resource::add,
-                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key)));
         // remove all implementations not contained in the TO
         resource.getPropagationActions().
                 removeIf(propActions -> !resourceTO.getPropagationActions().contains(propActions.getKey()));

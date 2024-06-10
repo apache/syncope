@@ -23,26 +23,26 @@ under the License.
                   historyLength="1" allowNullPassword="1"/>
   <Implementation id="DefaultPasswordRuleConf1" type="PASSWORD_RULE" engine="JAVA"
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
-  <PasswordPolicy_Implementation index="1" left="ce93fcda-dc3a-4369-a7b0-a6108c261c85" right="DefaultPasswordRuleConf1"/>
+  <PasswordPolicy_Implementation left="ce93fcda-dc3a-4369-a7b0-a6108c261c85" right="DefaultPasswordRuleConf1"/>
   <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
                   name="sample password policy" historyLength="0" allowNullPassword="1"/> 
   <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"digit":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
-  <PasswordPolicy_Implementation index="1" left="986d1236-3ac5-4a19-810c-5ab21d79cba1" right="DefaultPasswordRuleConf2"/>
+  <PasswordPolicy_Implementation left="986d1236-3ac5-4a19-810c-5ab21d79cba1" right="DefaultPasswordRuleConf2"/>
   <AccountPolicy id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" name="an account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="0"/>
   <Implementation id="DefaultAccountRuleConf1" type="ACCOUNT_RULE" engine="JAVA"
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
-  <AccountPolicy_Implementation index="1" left="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" right="DefaultAccountRuleConf1"/>
+  <AccountPolicy_Implementation left="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" right="DefaultAccountRuleConf1"/>
   <AccountPolicy id="06e2ed52-6966-44aa-a177-a0ca7434201f" name="sample account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="3"/>
   <Implementation id="DefaultAccountRuleConf2" type="ACCOUNT_RULE"  engine="JAVA"
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
-  <AccountPolicy_Implementation index="1" left="06e2ed52-6966-44aa-a177-a0ca7434201f" right="DefaultAccountRuleConf2"/>
+  <AccountPolicy_Implementation left="06e2ed52-6966-44aa-a177-a0ca7434201f" right="DefaultAccountRuleConf2"/>
   <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" name="sample password policy" historyLength="0" allowNullPassword="0"/> 
   <Implementation id="DefaultPasswordRuleConf3" type="PASSWORD_RULE" engine="JAVA"
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"special":1,"specialChars":["@","!"],"digit":1,"lowercase":1,"uppercase":1,"wordsNotPermitted":["notpermitted1","notpermitted2"]}'/>
-  <PasswordPolicy_Implementation index="1" left="55e5de0b-c79c-4e66-adda-251b6fb8579a" right="DefaultPasswordRuleConf3"/>
+  <PasswordPolicy_Implementation left="55e5de0b-c79c-4e66-adda-251b6fb8579a" right="DefaultPasswordRuleConf3"/>
   <PropagationPolicy id="89d322db-9878-420c-b49c-67be13df9a12" name="sample propagation policy"
                      fetchAroundProvisioning="1" updateDelta="0" maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
 
@@ -622,7 +622,7 @@ under the License.
   <ExternalResource_Implementation index="1" type="RESOURCE_PROPAGATION_ACTIONS" left="resource-ldap" right="GenerateRandomPasswordPropagationActions"/>
   <Implementation id="LDAPMembershipPropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
-  <ExternalResource_Implementation index="1" type="RESOURCE_PROPAGATION_ACTIONS" left="resource-ldap" right="LDAPMembershipPropagationActions"/>
+  <ExternalResource_Implementation index="2" type="RESOURCE_PROPAGATION_ACTIONS" left="resource-ldap" right="LDAPMembershipPropagationActions"/>
   <ExternalResource id="resource-ldap-orgunit" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"

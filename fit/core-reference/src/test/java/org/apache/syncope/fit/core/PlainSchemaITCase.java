@@ -180,10 +180,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         createSchema(SchemaType.PLAIN, schemaTOjson2);
 
-        UserCR userCR = UserITCase.getUniqueSample("test@syncope.apache.org");
-
-        UserTO userTO = createUser(userCR).getEntity();
-        assertNotNull(userTO);
+        UserTO userTO = createUser(UserITCase.getUniqueSample("test@syncope.apache.org")).getEntity();
         try {
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());
