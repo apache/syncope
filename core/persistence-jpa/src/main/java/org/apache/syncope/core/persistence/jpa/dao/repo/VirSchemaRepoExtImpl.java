@@ -62,7 +62,10 @@ public class VirSchemaRepoExtImpl extends AbstractSchemaRepoExt implements VirSc
     @Override
     public VirSchema save(final VirSchema schema) {
         ((JPAVirSchema) schema).map2json();
-        return entityManager.merge(schema);
+        VirSchema merged = entityManager.merge(schema);
+        ((JPAVirSchema) merged).postSave();
+        return merged;
+
     }
 
     @Override

@@ -496,7 +496,8 @@ public final class AnyOperations {
         // 1. relationships
         anyObjectUR.getRelationships().forEach(relPatch -> {
             if (relPatch.getRelationshipTO() == null) {
-                LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
+                LOG.warn("Invalid {} specified, no {} provided",
+                        RelationshipUR.class.getName(), RelationshipTO.class.getName());
             } else {
                 result.getRelationships().remove(relPatch.getRelationshipTO());
                 if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {

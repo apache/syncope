@@ -98,7 +98,9 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
     @Override
     public PlainSchema save(final PlainSchema schema) {
         ((JPAPlainSchema) schema).map2json();
-        return entityManager.merge(schema);
+        PlainSchema merged = entityManager.merge(schema);
+        ((JPAPlainSchema) merged).postSave();
+        return merged;
     }
 
     protected <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
