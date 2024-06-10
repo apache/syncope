@@ -340,7 +340,6 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             query.append(" WHERE ").append(properties.stream().collect(Collectors.joining(" AND ")));
         }
 
-        LOG.error("NNNNNNNNNNNNN {}", query);
         return query;
     }
 

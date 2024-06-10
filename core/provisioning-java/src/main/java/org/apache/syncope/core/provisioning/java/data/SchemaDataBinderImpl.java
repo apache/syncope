@@ -298,7 +298,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         return schemaTO;
     }
 
-    // --------------- VIRTUAL -----------------    
+    // --------------- VIRTUAL -----------------
     protected VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
         schema.setKey(schemaTO.getKey());
         schema.setExtAttrName(schemaTO.getExtAttrName());
