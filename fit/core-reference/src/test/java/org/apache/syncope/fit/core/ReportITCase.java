@@ -29,6 +29,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.OffsetDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +66,9 @@ public class ReportITCase extends AbstractITCase {
                 return false;
             }
         });
-        ExecTO exec = reportTO.get().getExecutions().get(reportTO.get().getExecutions().size() - 1);
+
+        ExecTO exec = reportTO.get().getExecutions().stream().
+                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow();
         assertEquals(ReportJob.Status.SUCCESS.name(), exec.getStatus());
         return exec.getKey();
     }
