@@ -427,7 +427,7 @@ under the License.
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.14.0</elasticsearch.version>
+    <elasticsearch.version>8.14.1</elasticsearch.version>
     <opensearch.version>2.14.0</opensearch.version>
     <opensearch-java.version>2.10.4</opensearch-java.version>
 
