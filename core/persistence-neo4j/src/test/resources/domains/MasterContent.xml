@@ -150,8 +150,13 @@ under the License.
   <PlainSchema id="cool" type="Boolean" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <PlainSchema_AnyTypeClass left="cool" right="other"/>
   <PlainSchema id="gender" type="Enum" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               enumerationValues="M;F"/>
+               enumValues='{"M":"Male","F":"Female"}'/>
   <PlainSchema_AnyTypeClass left="gender" right="other"/>
+  <Implementation id="TestDropdownValueProvider" type="DROPDOWN_VALUE_PROVIDER" engine="GROOVY"
+                  body='import groovy.transform.CompileStatic&#13;&#10;import java.util.List&#13;&#10;import org.apache.syncope.common.lib.to.AnyTO&#13;&#10;import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider&#13;&#10;&#13;&#10;@CompileStatic&#13;&#10;class TestDropdownValueProvider implements DropdownValueProvider {&#13;&#10;List&lt;String&gt; getChoices(AnyTO anyTO) {&#13;&#10;return ["A", "B"]&#13;&#10;}&#13;&#10;}'/>
+  <PlainSchema id="dd" type="Dropdown" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="dd" right="other"/>
+  <PlainSchema_Implementation left="dd" right="TestDropdownValueProvider"/>
   <PlainSchema id="aLong" type="Long" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <PlainSchema_AnyTypeClass left="aLong" right="other"/>
   <PlainSchema id="makeItDouble" type="Long" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>

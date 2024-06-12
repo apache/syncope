@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.attrvalue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
+@FunctionalInterface
 public interface PlainAttrValueValidator {
 
     void validate(PlainSchema schema, String value, PlainAttrValue attrValue);

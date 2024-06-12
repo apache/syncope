@@ -20,19 +20,18 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.PropertyList;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -60,10 +59,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     @SpringBean
     protected ImplementationRestClient implementationRestClient;
-
-    protected final MultiFieldPanel<String> enumerationValues;
-
-    protected final MultiFieldPanel<String> enumerationKeys;
 
     protected final AjaxDropDownChoicePanel<String> validator;
 
@@ -95,91 +90,12 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         typeParams.setOutputMarkupPlaceholderTag(true);
 
         // enum
-        AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel",
-                "enumerationValues", new Model<>(null));
-
-        enumerationValues = new MultiFieldPanel.Builder<>(
-                new PropertyModel<List<String>>(schemaTO, "enumerationValues") {
-
-            private static final long serialVersionUID = -4953564762272833993L;
-
-            @Override
-            public PropertyList<PlainSchemaTO> getObject() {
-                return new PropertyList<>() {
-
-                    @Override
-                    public String getValues() {
-                        return schemaTO.getEnumerationValues();
-                    }
-
-                    @Override
-                    public void setValues(final List<String> list) {
-                        schemaTO.setEnumerationValues(getEnumValuesAsString(list));
-                    }
-                };
-            }
-
-            @Override
-            public void setObject(final List<String> object) {
-                schemaTO.setEnumerationValues(PropertyList.getEnumValuesAsString(object));
-            }
-        }) {
-
-            private static final long serialVersionUID = -8752965211744734798L;
-
-            @Override
-            protected String newModelObject() {
-                return StringUtils.EMPTY;
-            }
-
-        }.build(
-                "enumerationValues",
-                "enumerationValues",
-                enumerationValuesPanel);
-
-        enumerationKeys = new MultiFieldPanel.Builder<String>(
-                new PropertyModel<List<String>>(schemaTO, "enumerationKeys") {
-
-            private static final long serialVersionUID = -4953564762272833993L;
-
-            @Override
-            public PropertyList<PlainSchemaTO> getObject() {
-                return new PropertyList<PlainSchemaTO>() {
-
-                    @Override
-                    public String getValues() {
-                        return schemaTO.getEnumerationKeys();
-                    }
-
-                    @Override
-                    public void setValues(final List<String> list) {
-                        schemaTO.setEnumerationKeys(PropertyList.getEnumValuesAsString(list));
-                    }
-                };
-            }
-
-            @Override
-            public void setObject(final List<String> object) {
-                schemaTO.setEnumerationKeys(PropertyList.getEnumValuesAsString(object));
-            }
-        }) {
-
-            private static final long serialVersionUID = -8752965211744734798L;
-
-            @Override
-            protected String newModelObject() {
-                return StringUtils.EMPTY;
-            }
-
-        }.build(
-                "enumerationKeys",
-                "enumerationKeys",
-                new AjaxTextFieldPanel("panel", "enumerationKeys", new Model<>(null)));
+        AjaxGridFieldPanel<String, String> enumValues = new AjaxGridFieldPanel<>(
+                "enumValues", "enumValues", new PropertyModel<>(schemaTO, "enumValues"));
 
         WebMarkupContainer enumParams = new WebMarkupContainer("enumParams");
         enumParams.setOutputMarkupPlaceholderTag(true);
-        enumParams.add(enumerationValues);
-        enumParams.add(enumerationKeys);
+        enumParams.add(enumValues);
         typeParams.add(enumParams);
 
         // encrypted
@@ -230,7 +146,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         // show or hide
         showHide(schemaTO, type,
                 conversionParams, conversionPattern,
-                enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
+                enumParams, enumValues,
                 encryptedParams, secretKey, cipherAlgorithm,
                 binaryParams, mimeType);
 
@@ -242,7 +158,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             protected void onUpdate(final AjaxRequestTarget target) {
                 PlainSchemaDetails.this.showHide(schemaTO, type,
                         conversionParams, conversionPattern,
-                        enumParams, enumerationValuesPanel, enumerationValues, enumerationKeys,
+                        enumParams, enumValues,
                         encryptedParams, secretKey, cipherAlgorithm,
                         binaryParams, mimeType);
                 target.add(conversionParams);
@@ -313,8 +229,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private void showHide(final PlainSchemaTO schema, final AjaxDropDownChoicePanel<AttrSchemaType> type,
             final WebMarkupContainer conversionParams, final AjaxTextFieldPanel conversionPattern,
-            final WebMarkupContainer enumParams, final AjaxTextFieldPanel enumerationValuesPanel,
-            final MultiFieldPanel<String> enumerationValues, final MultiFieldPanel<String> enumerationKeys,
+            final WebMarkupContainer enumParams, final AjaxGridFieldPanel<String, String> enumValues,
             final WebMarkupContainer encryptedParams,
             final AjaxTextFieldPanel secretKey, final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm,
             final WebMarkupContainer binaryParams, final AjaxTextFieldPanel mimeType) {
@@ -332,11 +247,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             conversionParams.setVisible(true);
 
             enumParams.setVisible(false);
-            if (enumerationValuesPanel.isRequired()) {
-                enumerationValuesPanel.removeRequiredLabel();
-            }
-            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumValues.setModelObject(new HashMap<>());
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -356,11 +267,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             conversionPattern.setModelObject(null);
 
             enumParams.setVisible(true);
-            if (!enumerationValuesPanel.isRequired()) {
-                enumerationValuesPanel.addRequiredLabel();
-            }
-            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(schema.getEnumerationValues()));
-            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(schema.getEnumerationKeys()));
+            enumValues.setModelObject(schema.getEnumValues());
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -379,11 +286,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             conversionParams.setVisible(false);
 
             enumParams.setVisible(false);
-            if (enumerationValuesPanel.isRequired()) {
-                enumerationValuesPanel.removeRequiredLabel();
-            }
-            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumValues.setModelObject(new HashMap<>());
 
             encryptedParams.setVisible(true);
             if (!secretKey.isRequired()) {
@@ -401,11 +304,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             conversionPattern.setModelObject(null);
 
             enumParams.setVisible(false);
-            if (enumerationValuesPanel.isRequired()) {
-                enumerationValuesPanel.removeRequiredLabel();
-            }
-            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumValues.setModelObject(new HashMap<>());
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {
@@ -426,11 +325,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             conversionPattern.setModelObject(null);
 
             enumParams.setVisible(false);
-            if (enumerationValuesPanel.isRequired()) {
-                enumerationValuesPanel.removeRequiredLabel();
-            }
-            enumerationValues.setModelObject(PropertyList.getEnumValuesAsList(null));
-            enumerationKeys.setModelObject(PropertyList.getEnumValuesAsList(null));
+            enumValues.setModelObject(new HashMap<>());
 
             encryptedParams.setVisible(false);
             if (secretKey.isRequired()) {

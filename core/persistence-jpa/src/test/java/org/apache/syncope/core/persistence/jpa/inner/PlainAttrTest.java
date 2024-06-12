@@ -110,38 +110,6 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithEnum() throws ClassNotFoundException {
-        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
-
-        PlainSchema gender = plainSchemaDAO.findById("gender").orElseThrow();
-        assertNotNull(gender.getType());
-        assertNotNull(gender.getEnumerationValues());
-
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setOwner(user);
-        attribute.setSchema(gender);
-        user.add(attribute);
-
-        Exception thrown = null;
-        try {
-            attribute.add(validator, "A", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        } catch (ValidationException e) {
-            thrown = e;
-        }
-        assertNotNull(thrown);
-
-        attribute.add(validator, "M", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-
-        InvalidEntityException iee = null;
-        try {
-            userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            iee = e;
-        }
-        assertNull(iee);
-    }
-
-    @Test
     public void invalidValueList() {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
@@ -217,7 +185,7 @@ public class PlainAttrTest extends AbstractTest {
 
         userDAO.save(user);
 
-        UPlainAttr obscure = user.getPlainAttr("obscure").get();
+        UPlainAttr obscure = user.getPlainAttr("obscure").orElseThrow();
         assertNotNull(obscure);
         assertEquals(1, obscure.getValues().size());
         assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
@@ -292,7 +260,7 @@ public class PlainAttrTest extends AbstractTest {
 
         userDAO.save(user);
 
-        UPlainAttr photo = user.getPlainAttr("photo").get();
+        UPlainAttr photo = user.getPlainAttr("photo").orElseThrow();
         assertNotNull(photo);
         assertEquals(1, photo.getValues().size());
         assertTrue(Arrays.equals(bytes, photo.getValues().get(0).getBinaryValue()));

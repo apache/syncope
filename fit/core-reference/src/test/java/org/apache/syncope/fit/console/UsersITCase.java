@@ -369,8 +369,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
                 + "actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form");
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
@@ -398,27 +397,27 @@ public class UsersITCase extends AbstractConsoleITCase {
         // edit multivalue text field, set 2 elements in total
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
-                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field",
+                + "body:content:schemas:6:panel:multiValueContainer:innerForm:content:view:0:panel:field",
                 TextField.class);
         formTester.setValue("view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
-                + "schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field", "2019-03-05");
+                + "schemas:6:panel:multiValueContainer:innerForm:content:view:0:panel:field", "2019-03-05");
 
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
-                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panelPlus:add"));
+                + "body:content:schemas:6:panel:multiValueContainer:innerForm:content:view:0:panelPlus:add"));
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
-                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field",
+                + "body:content:schemas:6:panel:multiValueContainer:innerForm:content:view:1:panel:field",
                 TextField.class);
         formTester.setValue("view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
-                + "schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field", "2019-03-06");
+                + "schemas:6:panel:multiValueContainer:innerForm:content:view:1:panel:field", "2019-03-06");
 
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(TAB_PANEL
                 + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
-                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panelPlus:add"));
+                + "body:content:schemas:6:panel:multiValueContainer:innerForm:content:view:1:panelPlus:add"));
 
         formTester.submit("buttons:next");
 
@@ -474,12 +473,12 @@ public class UsersITCase extends AbstractConsoleITCase {
         // ... check multivalue field values has been saved
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
-                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field",
+                + "body:content:schemas:6:panel:multiValueContainer:innerForm:content:view:0:panel:field",
                 TextField.class);
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:"
-                + "body:content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field",
+                + "body:content:schemas:6:panel:multiValueContainer:innerForm:content:view:1:panel:field",
                 TextField.class);
 
         Calendar cal = Calendar.getInstance();
@@ -490,19 +489,19 @@ public class UsersITCase extends AbstractConsoleITCase {
         cal2.set(Calendar.MILLISECOND, 0);
         TESTER.assertModelValue(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
-                + "schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field", cal.getTime());
+                + "schemas:6:panel:multiValueContainer:innerForm:content:view:0:panel:field", cal.getTime());
         TESTER.assertModelValue(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
-                + "schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field", cal2.getTime());
+                + "schemas:6:panel:multiValueContainer:innerForm:content:view:1:panel:field", cal2.getTime());
 
         // ... remove all values from multivalue field
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
-                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:drop",
+                + "content:schemas:6:panel:multiValueContainer:innerForm:content:view:1:drop",
                 Constants.ON_CLICK);
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
-                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:drop",
+                + "content:schemas:6:panel:multiValueContainer:innerForm:content:view:0:drop",
                 Constants.ON_CLICK);
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
@@ -557,13 +556,13 @@ public class UsersITCase extends AbstractConsoleITCase {
         // ... check multivalue field is now empty
         TESTER.assertModelValue(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
-                + "schemas:5:panel:multiValueContainer:innerForm:content:view:0:panel:field", null);
+                + "schemas:6:panel:multiValueContainer:innerForm:content:view:0:panel:field", null);
         component = findComponentByProp("syncope-path", TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
-                + "content:schemas:5:panel:multiValueContainer:innerForm",
+                + "content:schemas:6:panel:multiValueContainer:innerForm",
                 TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
-                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panel:field");
+                + "content:schemas:6:panel:multiValueContainer:innerForm:content:view:1:panel:field");
         assertNull(component);
 
         // close the wizard

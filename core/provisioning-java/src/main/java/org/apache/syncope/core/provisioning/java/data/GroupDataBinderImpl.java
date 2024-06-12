@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
@@ -152,6 +154,9 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
     @Override
     public void create(final Group group, final GroupCR groupCR) {
+        GroupTO anyTO = new GroupTO();
+        EntityTOUtils.toAnyTO(groupCR, anyTO);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // name
@@ -174,7 +179,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         group.setRealm(realm);
 
         // attributes and resources
-        fill(group, groupCR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
+        fill(anyTO, group, groupCR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         // owner
         if (groupCR.getUserOwner() != null) {
@@ -225,6 +230,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     public PropagationByResource<String> update(final Group toBeUpdated, final GroupUR groupUR) {
         // Re-merge any pending change from workflow tasks
         Group group = groupDAO.save(toBeUpdated);
+
+        GroupTO anyTO = AnyOperations.patch(getGroupTO(group, true), groupUR);
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
@@ -280,7 +287,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // attributes and resources
-        fill(group, groupUR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
+        fill(anyTO, group, groupUR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         group = groupDAO.save(group);
 

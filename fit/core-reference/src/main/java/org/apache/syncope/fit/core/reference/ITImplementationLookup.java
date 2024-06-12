@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.attrvalue.AlwaysTrueValidator;
-import org.apache.syncope.core.persistence.common.attrvalue.BasicValidator;
 import org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator;
 import org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -178,7 +177,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdMImplementationType.PUSH_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(BasicValidator.class.getName());
             classNames.add(EmailAddressValidator.class.getName());
             classNames.add(AlwaysTrueValidator.class.getName());
             classNames.add(BinaryValidator.class.getName());

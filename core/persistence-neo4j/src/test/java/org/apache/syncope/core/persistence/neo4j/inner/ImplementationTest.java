@@ -51,7 +51,7 @@ public class ImplementationTest extends AbstractTest {
         List<? extends Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
-        assertEquals(20, implementations.size());
+        assertEquals(21, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PULL_ACTIONS);
         assertEquals(1, implementations.size());
@@ -74,6 +74,8 @@ public class ImplementationTest extends AbstractTest {
         implementations = implementationDAO.findByType(IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         assertEquals(2, implementations.size());
 
+        implementations = implementationDAO.findByType(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
+        assertEquals(1, implementations.size());
         implementations = implementationDAO.findByType(IdMImplementationType.PULL_CORRELATION_RULE);
         assertEquals(1, implementations.size());
 

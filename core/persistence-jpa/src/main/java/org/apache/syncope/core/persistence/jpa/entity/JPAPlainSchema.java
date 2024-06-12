@@ -18,16 +18,26 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -35,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
@@ -45,6 +56,10 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     private static final long serialVersionUID = -8621028596062054739L;
 
     public static final String TABLE = "PlainSchema";
+
+    protected static final TypeReference<HashMap<String, String>> ENUMVALUES_TYPEREF =
+            new TypeReference<HashMap<String, String>>() {
+    };
 
     @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
@@ -65,13 +80,14 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Column(nullable = true)
     private String conversionPattern;
 
-    @Column(nullable = true)
     @Lob
-    private String enumerationValues;
+    private String enumValues;
 
-    @Column(nullable = true)
-    @Lob
-    private String enumerationKeys;
+    @Transient
+    private Map<String, String> enumValuesMap = new HashMap<>();
+
+    @ManyToOne
+    private JPAImplementation dropdownValueProvider;
 
     @Column(nullable = true)
     private String secretKey;
@@ -83,7 +99,7 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Column(nullable = true)
     private String mimeType;
 
-    @OneToOne
+    @ManyToOne
     private JPAImplementation validator;
 
     @Override
@@ -160,26 +176,6 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     }
 
     @Override
-    public String getEnumerationValues() {
-        return enumerationValues;
-    }
-
-    @Override
-    public void setEnumerationValues(final String enumerationValues) {
-        this.enumerationValues = enumerationValues;
-    }
-
-    @Override
-    public String getEnumerationKeys() {
-        return enumerationKeys;
-    }
-
-    @Override
-    public void setEnumerationKeys(final String enumerationKeys) {
-        this.enumerationKeys = enumerationKeys;
-    }
-
-    @Override
     public String getConversionPattern() {
         return conversionPattern;
     }
@@ -187,6 +183,18 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Override
     public void setConversionPattern(final String conversionPattern) {
         this.conversionPattern = conversionPattern;
+    }
+
+    @Override
+    public Implementation getDropdownValueProvider() {
+        return dropdownValueProvider;
+    }
+
+    @Override
+    public void setDropdownValueProvider(final Implementation dropdownValueProvider) {
+        checkType(dropdownValueProvider, JPAImplementation.class);
+        checkImplementationType(dropdownValueProvider, IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
+        this.dropdownValueProvider = (JPAImplementation) dropdownValueProvider;
     }
 
     @Override
@@ -217,5 +225,43 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
     @Override
     public void setMimeType(final String mimeType) {
         this.mimeType = mimeType;
+    }
+
+    @Override
+    public Map<String, String> getEnumValues() {
+        return enumValuesMap;
+    }
+
+    @Override
+    protected void json2map(final boolean clearFirst) {
+        super.json2map(clearFirst);
+
+        if (clearFirst) {
+            getEnumValues().clear();
+        }
+        if (enumValues != null) {
+            getEnumValues().putAll(POJOHelper.deserialize(enumValues, ENUMVALUES_TYPEREF));
+        }
+    }
+
+    @PostLoad
+    @Override
+    public void postLoad() {
+        json2map(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    @Override
+    public void postSave() {
+        json2map(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    @Override
+    public void map2json() {
+        super.map2json();
+        enumValues = POJOHelper.serialize(getEnumValues());
     }
 }

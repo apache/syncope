@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Locale;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
@@ -53,7 +52,7 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void findAll() {
         List<? extends PlainSchema> schemas = plainSchemaDAO.findAll();
-        assertEquals(27, schemas.size());
+        assertEquals(28, schemas.size());
     }
 
     @Test
@@ -124,14 +123,36 @@ public class PlainSchemaTest extends AbstractTest {
             assertNotNull(e);
         }
 
-        schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
-        schema.setEnumerationKeys('1' + SyncopeConstants.ENUM_VALUES_SEPARATOR + '2');
+        schema.getEnumValues().put("1", "read");
+        schema.getEnumValues().put("2", "yellow");
 
         plainSchemaDAO.save(schema);
 
         PlainSchema actual = plainSchemaDAO.findById(schema.getKey()).orElseThrow();
-        assertNotNull(actual.getEnumerationKeys());
-        assertFalse(actual.getEnumerationKeys().isEmpty());
+        assertNotNull(actual.getEnumValues());
+        assertEquals(2, actual.getEnumValues().size());
+    }
+
+    @Test
+    public void checkForDropdownType() {
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
+        schema.setType(AttrSchemaType.Dropdown);
+        schema.setKey("dropdown");
+
+        try {
+            plainSchemaDAO.save(schema);
+            fail("This should not happen");
+        } catch (Exception e) {
+            assertNotNull(e);
+        }
+
+        schema.setDropdownValueProvider(implementationDAO.findById("TestDropdownValueProvider").orElseThrow());
+
+        plainSchemaDAO.save(schema);
+
+        PlainSchema actual = plainSchemaDAO.findById(schema.getKey()).orElseThrow();
+        assertNotNull(actual.getEnumValues());
+        assertEquals("TestDropdownValueProvider", actual.getDropdownValueProvider().getKey());
     }
 
     @Test

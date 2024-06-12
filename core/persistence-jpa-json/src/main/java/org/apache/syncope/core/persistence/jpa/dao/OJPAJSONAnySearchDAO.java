@@ -184,7 +184,7 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     ? BooleanUtils.toStringTrueFalse(attrValue.getBooleanValue())
                     : cond.getExpression());
 
-            boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+            boolean lower = schema.getType().isStringClass()
                     && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
             query.append("plainSchema=?").append(setParameter(parameters, cond.getSchema())).

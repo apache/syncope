@@ -159,7 +159,13 @@ under the License.
   <SyncopeSchema id="gender"/>
   <PlainSchema id="gender" type="Enum" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               enumerationValues="M;F"/>
+               enumValues='{"M":"Male","F":"Female"}'/>
+  <Implementation id="TestDropdownValueProvider" type="DROPDOWN_VALUE_PROVIDER" engine="GROOVY"
+                  body='import groovy.transform.CompileStatic&#13;&#10;import java.util.List&#13;&#10;import org.apache.syncope.common.lib.to.AnyTO&#13;&#10;import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider&#13;&#10;&#13;&#10;@CompileStatic&#13;&#10;class TestDropdownValueProvider implements DropdownValueProvider {&#13;&#10;List&lt;String&gt; getChoices(AnyTO anyTO) {&#13;&#10;return ["A", "B"]&#13;&#10;}&#13;&#10;}'/>
+  <SyncopeSchema id="dd"/>
+  <PlainSchema id="dd" type="Dropdown" anyTypeClass_id="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               dropdownValueProvider_id="TestDropdownValueProvider"/>
   <SyncopeSchema id="aLong"/>
   <PlainSchema id="aLong" type="Long" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>

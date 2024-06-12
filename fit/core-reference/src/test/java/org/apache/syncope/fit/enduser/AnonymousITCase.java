@@ -62,15 +62,15 @@ public class AnonymousITCase extends AbstractEnduserITCase {
                 "Password123");
 
         formTester.setValue(
-                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:6:panel:textField",
+                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:7:panel:textField",
                 "Fullname");
 
         formTester.setValue(
-                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:12:panel:textField",
+                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:13:panel:textField",
                 "Surname");
 
         formTester.setValue(
-                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:14:panel:textField",
+                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:15:panel:textField",
                 username + "@syncope.apache.org");
 
         try {

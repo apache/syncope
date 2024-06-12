@@ -16,17 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.common.attrvalue;
+package org.apache.syncope.core.persistence.api.attrvalue;
 
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import java.util.List;
+import org.apache.syncope.common.lib.to.AnyTO;
 
-public class BasicValidator extends AbstractValidator {
+@FunctionalInterface
+public interface DropdownValueProvider {
 
-    private static final long serialVersionUID = -2606728447694223607L;
-
-    @Override
-    protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
-        // nothing to do
-    }
+    List<String> getChoices(AnyTO anyTO);
 }

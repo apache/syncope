@@ -313,6 +313,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             try {
                 validator.validate(schema, computed.getExpression(), attrValue);
             } catch (ValidationException e) {
+                LOG.error("Could not validate expression {}", computed.getExpression(), e);
                 throw new IllegalArgumentException("Could not validate expression " + computed.getExpression());
             }
         }

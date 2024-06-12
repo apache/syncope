@@ -36,7 +36,6 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.ui.commons.SchemaUtils;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -235,14 +234,14 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel",
                         plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
-                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(
+                        plainSchema.getEnumValues().keySet().stream().sorted().toList());
 
-                if (StringUtils.isNotBlank(plainSchema.getEnumerationKeys())) {
+                if (!plainSchema.getEnumValues().isEmpty()) {
+                    Map<String, String> valueMap = plainSchema.getEnumValues();
                     ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
-
-                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchema);
 
                         @Override
                         public String getDisplayValue(final String value) {

@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
@@ -28,34 +26,50 @@ public class PlainSchemaValidator extends AbstractValidator<PlainSchemaCheck, Pl
 
     @Override
     public boolean isValid(final PlainSchema schema, final ConstraintValidatorContext context) {
-        boolean isValid = schema.getType() != AttrSchemaType.Enum
-                || StringUtils.isNotBlank(schema.getEnumerationValues());
-        if (!isValid) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidSchemaEnum, "Enumeration values missing")).
-                    addPropertyNode("enumerationValues").addConstraintViolation();
-        } else {
-            isValid = schema.getType() != AttrSchemaType.Encrypted
-                    || (schema.getSecretKey() != null && schema.getCipherAlgorithm() != null);
-            if (!isValid) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidSchemaEncrypted,
-                                "SecretKey or CipherAlgorithm missing")).
-                        addPropertyNode("secretKey").addPropertyNode("cipherAlgorithm").addConstraintViolation();
-            } else {
-                isValid = !schema.isMultivalue() || !schema.isUniqueConstraint();
-                if (!isValid) {
+        switch (schema.getType()) {
+            case Enum -> {
+                if (schema.getEnumValues().isEmpty()) {
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidSchemaMultivalueUnique,
-                                    "Cannot contemporary be multivalue and have unique constraint")).
-                            addPropertyNode("multiValue").addConstraintViolation();
+                            getTemplate(EntityViolationType.InvalidSchema, "Enumeration values missing")).
+                            addPropertyNode("enumValues").addConstraintViolation();
+                    return false;
                 }
+            }
+
+            case Dropdown -> {
+                if (schema.getDropdownValueProvider() == null) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidSchema, "DropdownValueProvider missing")).
+                            addPropertyNode("dropdownValueProvider").addConstraintViolation();
+                    return false;
+                }
+            }
+
+            case Encrypted -> {
+                if (schema.getSecretKey() == null || schema.getCipherAlgorithm() == null) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidSchema, "SecretKey or CipherAlgorithm missing")).
+                            addPropertyNode("secretKey").addPropertyNode("cipherAlgorithm").addConstraintViolation();
+                    return false;
+                }
+            }
+
+            default -> {
             }
         }
 
-        return isValid;
+        if (schema.isMultivalue() && schema.isUniqueConstraint()) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidSchema,
+                            "Cannot be multivalue and have unique constraint at the same time")).
+                    addPropertyNode("multiValue").addConstraintViolation();
+            return false;
+        }
+
+        return true;
     }
 }

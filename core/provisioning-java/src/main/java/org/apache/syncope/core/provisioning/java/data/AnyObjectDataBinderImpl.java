@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -190,6 +192,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 });
         anyObject.setType(type);
 
+        AnyObjectTO anyTO = new AnyObjectTO();
+        EntityTOUtils.toAnyTO(anyObjectCR, anyTO);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // name
@@ -280,12 +285,13 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 anyObject.add(membership);
 
                 // membership attributes
-                fill(anyObject, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+                fill(anyTO, anyObject, membership, membershipTO,
+                        anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
             }
         });
 
         // attributes and resources
-        fill(anyObject, anyObjectCR, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+        fill(anyTO, anyObject, anyObjectCR, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -297,6 +303,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     public PropagationByResource<String> update(final AnyObject toBeUpdated, final AnyObjectUR anyObjectUR) {
         // Re-merge any pending change from workflow tasks
         AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
+
+        AnyObjectTO anyTO = AnyOperations.patch(getAnyObjectTO(anyObject, true), anyObjectUR);
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
 
@@ -317,7 +325,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // attributes and resources
-        fill(anyObject, anyObjectUR, anyUtils, scce);
+        fill(anyTO, anyObject, anyObjectUR, anyUtils, scce);
 
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
@@ -439,6 +447,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 anyObject.add(newAttr);
 
                                 processAttrPatch(
+                                        anyTO,
                                         anyObject,
                                         new AttrPatch.Builder(attrTO).build(),
                                         schema,

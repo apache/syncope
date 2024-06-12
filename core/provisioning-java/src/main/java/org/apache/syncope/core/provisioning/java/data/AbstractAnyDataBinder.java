@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
@@ -85,6 +87,7 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -184,6 +187,8 @@ abstract class AbstractAnyDataBinder {
     protected final OutboundMatcher outboundMatcher;
 
     protected final PlainAttrValidationManager validator;
+
+    protected final Map<String, DropdownValueProvider> dropdownValueProviders = new ConcurrentHashMap<>();
 
     protected AbstractAnyDataBinder(
             final AnyTypeDAO anyTypeDAO,
@@ -287,6 +292,7 @@ abstract class AbstractAnyDataBinder {
     }
 
     protected void fillAttr(
+            final AnyTO anyTO,
             final List<String> values,
             final AnyUtils anyUtils,
             final PlainSchema schema,
@@ -306,6 +312,38 @@ abstract class AbstractAnyDataBinder {
                 LOG.debug("Null value for {}, ignoring", schema.getKey());
             } else {
                 try {
+                    switch (schema.getType()) {
+                        case Enum -> {
+                            if (!schema.getEnumValues().containsKey(value)) {
+                                throw new InvalidPlainAttrValueException(
+                                        '\'' + value + "' is not one of: " + schema.getEnumValues().keySet());
+                            }
+                        }
+
+                        case Dropdown -> {
+                            List<String> dropdownValues = List.of();
+                            try {
+                                DropdownValueProvider provider = ImplementationManager.build(
+                                        schema.getDropdownValueProvider(),
+                                        () -> dropdownValueProviders.get(
+                                                schema.getDropdownValueProvider().getKey()),
+                                        instance -> dropdownValueProviders.put(
+                                                schema.getDropdownValueProvider().getKey(), instance));
+                                dropdownValues = provider.getChoices(anyTO);
+                            } catch (Exception e) {
+                                LOG.error("While getting dropdown values for {}", schema.getKey(), e);
+                            }
+
+                            if (!dropdownValues.contains(value)) {
+                                throw new InvalidPlainAttrValueException(
+                                        '\'' + value + "' is not one of: " + dropdownValues);
+                            }
+                        }
+
+                        default -> {
+                        }
+                    }
+
                     attr.add(validator, value, anyUtils);
                 } catch (InvalidPlainAttrValueException e) {
                     LOG.warn("Invalid value for attribute {}: {}",
@@ -413,6 +451,7 @@ abstract class AbstractAnyDataBinder {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void processAttrPatch(
+            final AnyTO anyTO,
             final Any any,
             final AttrPatch patch,
             final PlainSchema schema,
@@ -440,7 +479,7 @@ abstract class AbstractAnyDataBinder {
                         && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
                         || !valuesToBeAdded.get(0).equals(attr.getUniqueValue().getValueAsString()))) {
 
-                    fillAttr(valuesToBeAdded, anyUtils, schema, attr, invalidValues);
+                    fillAttr(anyTO, valuesToBeAdded, anyUtils, schema, attr, invalidValues);
                 }
 
                 // if no values are in, the attribute can be safely removed
@@ -458,6 +497,7 @@ abstract class AbstractAnyDataBinder {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void fill(
+            final AnyTO anyTO,
             final Any any,
             final AnyUR anyUR,
             final AnyUtils anyUtils,
@@ -521,7 +561,7 @@ abstract class AbstractAnyDataBinder {
                     }
                 }
                 if (attr != null) {
-                    processAttrPatch(any, patch, schema, attr, anyUtils, invalidValues);
+                    processAttrPatch(anyTO, any, patch, schema, attr, anyUtils, invalidValues);
                 }
             }
         });
@@ -567,6 +607,7 @@ abstract class AbstractAnyDataBinder {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void fill(
+            final AnyTO anyTO,
             final Any any,
             final AnyCR anyCR,
             final AnyUtils anyUtils,
@@ -599,7 +640,7 @@ abstract class AbstractAnyDataBinder {
                             ((PlainAttr) attr).setOwner(any);
                             attr.setSchema(schema);
                         }
-                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+                        fillAttr(anyTO, attrTO.getValues(), anyUtils, schema, attr, invalidValues);
 
                         if (attr.getValuesAsStrings().isEmpty()) {
                             attr.setOwner(null);
@@ -631,6 +672,7 @@ abstract class AbstractAnyDataBinder {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void fill(
+            final AnyTO anyTO,
             final Any any,
             final Membership membership,
             final MembershipTO membershipTO,
@@ -652,7 +694,7 @@ abstract class AbstractAnyDataBinder {
                         gpa.setSchema(schema);
                         return gpa;
                     });
-            fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+            fillAttr(anyTO, attrTO.getValues(), anyUtils, schema, attr, invalidValues);
 
             if (attr.getValuesAsStrings().isEmpty()) {
                 attr.setOwner(null);
