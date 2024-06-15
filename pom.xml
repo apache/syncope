@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.14.0</elasticsearch.version>
+    <elasticsearch.version>8.14.1</elasticsearch.version>
     <opensearch.version>2.14.0</opensearch.version>
     <opensearch-java.version>2.10.4</opensearch-java.version>
 
@@ -471,7 +471,7 @@ under the License.
 
     <antlr4.version>4.13.1</antlr4.version>
 
-    <curator.version>5.6.0</curator.version>
+    <curator.version>5.7.0</curator.version>
     <zookeeper.version>3.9.1</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
@@ -1726,7 +1726,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.3.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1736,7 +1736,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.3.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
