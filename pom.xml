@@ -427,7 +427,7 @@ under the License.
 
     <disruptor.version>3.4.4</disruptor.version>
 
-    <elasticsearch.version>8.14.0</elasticsearch.version>
+    <elasticsearch.version>8.14.1</elasticsearch.version>
     <opensearch.version>2.14.0</opensearch.version>
     <opensearch-java.version>2.10.4</opensearch-java.version>
 
@@ -458,7 +458,7 @@ under the License.
     <chartjs.version>4.1.2</chartjs.version>
 
     <wicket.version>10.1.0</wicket.version>
-    <wicketstuff.version>10.1.0</wicketstuff.version>
+    <wicketstuff.version>10.1.1</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.5</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
@@ -466,7 +466,7 @@ under the License.
 
     <antlr4.version>4.13.1</antlr4.version>
 
-    <curator.version>5.6.0</curator.version>
+    <curator.version>5.7.0</curator.version>
     <zookeeper.version>3.9.2</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
@@ -1601,7 +1601,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.3.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1611,7 +1611,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.2.5</version>
+          <version>3.3.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
