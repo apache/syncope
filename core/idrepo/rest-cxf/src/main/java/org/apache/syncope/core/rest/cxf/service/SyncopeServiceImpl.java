@@ -143,7 +143,14 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
 
         BatchProcess batchProcess = ApplicationContextProvider.getBeanFactory().createBean(BatchProcess.class);
         batchProcess.setBoundary(boundary);
-        batchProcess.setBasePath(uriInfo.getBaseUri().toASCIIString());
+        batchProcess.setScheme(messageContext.getHttpServletRequest().getScheme());
+        batchProcess.setServerName(messageContext.getHttpServletRequest().getServerName());
+        batchProcess.setServerPort(messageContext.getHttpServletRequest().getServerPort());
+        batchProcess.setContextPath(messageContext.getHttpServletRequest().getContextPath());
+        batchProcess.setServletPath(messageContext.getHttpServletRequest().getServletPath());
+        batchProcess.setPathInfo(messageContext.getHttpServletRequest().getPathInfo());
+        batchProcess.setCharacterEncoding(messageContext.getHttpServletRequest().getCharacterEncoding());
+        batchProcess.setBaseURI(uriInfo.getBaseUri().toASCIIString());
         batchProcess.setBatchRequestItems(batchRequestItems);
         batchProcess.setDestinationRegistry(getDestinationRegistryFromBusOrDefault());
         batchProcess.setServletConfig(messageContext.getServletConfig());
