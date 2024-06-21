@@ -432,7 +432,7 @@ under the License.
 
     <elasticsearch.version>8.14.1</elasticsearch.version>
     <opensearch.version>2.14.0</opensearch.version>
-    <opensearch-java.version>2.10.4</opensearch-java.version>
+    <opensearch-java.version>2.11.0</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
