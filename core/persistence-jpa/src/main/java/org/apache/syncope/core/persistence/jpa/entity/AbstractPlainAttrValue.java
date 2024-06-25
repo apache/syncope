@@ -187,6 +187,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 break;
 
             case String:
+            case Dropdown:
             case Enum:
             default:
                 this.setStringValue(value);
@@ -240,6 +241,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
             case String:
             case Enum:
+            case Dropdown:
             case Encrypted:
                 value = getStringValue();
                 break;
@@ -305,8 +307,9 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 }
                 break;
 
-            case String:
+            case Dropdown:
             case Enum:
+            case String:
             default:
                 result = getStringValue();
         }

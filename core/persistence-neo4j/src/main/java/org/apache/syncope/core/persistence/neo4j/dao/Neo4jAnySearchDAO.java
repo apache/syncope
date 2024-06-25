@@ -431,7 +431,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         boolean isStr = true;
         boolean lower = false;
-        if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+        if (schema.getType().isStringClass()) {
             lower = (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
         } else if (schema.getType() != AttrSchemaType.Date) {
             lower = false;
@@ -469,7 +469,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 query.append(schema.getKey()).append(" IS NOT NULL");
 
             case ILIKE, LIKE -> {
-                if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                if (schema.getType().isStringClass()) {
                     appendPlainAttrCond(
                             query,
                             schema,
@@ -551,11 +551,11 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             return;
         }
 
-        boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+        boolean lower = schema.getType().isStringClass()
                 && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
         String property = "n." + cond.getSchema();
-        if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && lower) {
+        if (lower) {
             property = "toLower (" + property + ')';
         }
 
@@ -568,7 +568,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 query.append(property).append(" IS NOT NULL");
 
             case ILIKE, LIKE -> {
-                if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                if (schema.getType().isStringClass()) {
                     query.append(property).append(" =~ ");
                     if (lower) {
                         query.append("toLower($").
@@ -586,9 +586,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             case IEQ, EQ -> {
                 query.append(property).append('=');
 
-                if (lower
-                        && (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)) {
-
+                if (lower) {
                     query.append("toLower($").append(setParameter(parameters, attrValue.getValue())).append(')');
                 } else {
                     query.append('$').append(setParameter(parameters, attrValue.getValue()));

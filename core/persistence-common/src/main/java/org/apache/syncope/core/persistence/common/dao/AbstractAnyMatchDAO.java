@@ -302,16 +302,16 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 }
 
                 case IEQ -> {
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                    if (schema.getType().isStringClass()) {
                         return attrValue.getStringValue().equalsIgnoreCase(item.getStringValue());
-                    } else {
-                        LOG.error("IEQ is only compatible with string or enum schemas");
-                        return false;
                     }
+
+                    LOG.error("IEQ is only compatible with string or enum schemas");
+                    return false;
                 }
 
                 case LIKE, ILIKE -> {
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                    if (schema.getType().isStringClass()) {
                         StringBuilder output = new StringBuilder();
                         for (char c : cond.getExpression().toLowerCase().toCharArray()) {
                             if (c == '%') {

@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttr;
@@ -109,6 +110,26 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
     @Override
     public PlainSchema save(final PlainSchema schema) {
+        // unlink any implementation that was unlinked from plain schema
+        neo4jTemplate.findById(schema.getKey(), Neo4jPlainSchema.class).ifPresent(before -> {
+            if (before.getDropdownValueProvider() != null && schema.getDropdownValueProvider() == null) {
+                deleteRelationship(
+                        Neo4jPlainSchema.NODE,
+                        Neo4jImplementation.NODE,
+                        schema.getKey(),
+                        before.getDropdownValueProvider().getKey(),
+                        Neo4jPlainSchema.PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL);
+            }
+            if (before.getValidator() != null && schema.getValidator() == null) {
+                deleteRelationship(
+                        Neo4jPlainSchema.NODE,
+                        Neo4jImplementation.NODE,
+                        schema.getKey(),
+                        before.getValidator().getKey(),
+                        Neo4jPlainSchema.PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL);
+            }
+        });
+
         ((Neo4jSchema) schema).map2json();
         PlainSchema saved = neo4jTemplate.save(nodeValidator.validate(schema));
         ((Neo4jSchema) saved).postSave();

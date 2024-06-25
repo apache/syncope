@@ -21,6 +21,8 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -46,9 +48,9 @@ public class PlainSchemaTO extends SchemaTO {
 
     private String validator;
 
-    private String enumerationValues;
+    private Map<String, String> enumValues = new HashMap<>();
 
-    private String enumerationKeys;
+    private String dropdownValueProvider;
 
     private String secretKey;
 
@@ -123,20 +125,16 @@ public class PlainSchemaTO extends SchemaTO {
         this.validator = validator;
     }
 
-    public String getEnumerationValues() {
-        return enumerationValues;
+    public Map<String, String> getEnumValues() {
+        return enumValues;
     }
 
-    public void setEnumerationValues(final String enumerationValues) {
-        this.enumerationValues = enumerationValues;
+    public String getDropdownValueProvider() {
+        return dropdownValueProvider;
     }
 
-    public String getEnumerationKeys() {
-        return enumerationKeys;
-    }
-
-    public void setEnumerationKeys(final String enumerationKeys) {
-        this.enumerationKeys = enumerationKeys;
+    public void setDropdownValueProvider(final String dropdownValueProvider) {
+        this.dropdownValueProvider = dropdownValueProvider;
     }
 
     public String getSecretKey() {
@@ -174,8 +172,8 @@ public class PlainSchemaTO extends SchemaTO {
                 append(readonly).
                 append(conversionPattern).
                 append(validator).
-                append(enumerationKeys).
-                append(enumerationValues).
+                append(enumValues).
+                append(dropdownValueProvider).
                 append(secretKey).
                 append(cipherAlgorithm).
                 append(mimeType).
@@ -203,8 +201,8 @@ public class PlainSchemaTO extends SchemaTO {
                 append(readonly, other.readonly).
                 append(conversionPattern, other.conversionPattern).
                 append(validator, other.validator).
-                append(enumerationKeys, other.enumerationKeys).
-                append(enumerationValues, other.enumerationValues).
+                append(enumValues, other.enumValues).
+                append(dropdownValueProvider, other.dropdownValueProvider).
                 append(secretKey, other.secretKey).
                 append(cipherAlgorithm, other.cipherAlgorithm).
                 append(mimeType, other.mimeType).

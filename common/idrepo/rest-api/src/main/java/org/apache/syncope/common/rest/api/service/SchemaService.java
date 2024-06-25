@@ -41,6 +41,8 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -133,4 +135,10 @@ public interface SchemaService extends JAXRSService {
     @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
+
+    @POST
+    @Path("PLAIN/{key}/dropdownValues")
+    @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    Attr getDropdownValues(@NotNull @PathParam("key") String key, @NotNull AnyTO anyTO);
 }

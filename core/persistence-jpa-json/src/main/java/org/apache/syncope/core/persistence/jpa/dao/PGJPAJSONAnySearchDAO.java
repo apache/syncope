@@ -168,7 +168,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
             boolean isStr = true;
             boolean lower = false;
-            if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+            if (schema.getType().isStringClass()) {
                 lower = (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
             } else if (schema.getType() != AttrSchemaType.Date) {
                 lower = false;
@@ -205,7 +205,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
                 case ILIKE, LIKE -> {
                     // jsonb_path_exists(Nome, '$[*] ? (@.stringValue like_regex "EL.*" flag "i")')
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                    if (schema.getType().isStringClass()) {
                         query.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*] ? ").
                                 append("(@.").append(key).append(" like_regex \"").
                                 append(escapeForLikeRegex(value).replace("%", ".*")).
@@ -768,11 +768,11 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             cond.setType(AttrCond.Type.ISNOTNULL);
             fillAttrQuery(query, attrValue, schema, cond, true, parameters, svs);
         } else {
-            boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+            boolean lower = schema.getType().isStringClass()
                     && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
             String column = cond.getSchema();
-            if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && lower) {
+            if (lower) {
                 column = "LOWER (" + column + ')';
             }
 
@@ -785,7 +785,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                     query.append(column).append(" IS NOT NULL");
 
                 case ILIKE, LIKE -> {
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                    if (schema.getType().isStringClass()) {
                         query.append(column).append(" LIKE ");
                         if (lower) {
                             query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
@@ -801,9 +801,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 case IEQ, EQ -> {
                     query.append(column).append('=');
 
-                    if (lower
-                            && (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)) {
-
+                    if (lower) {
                         query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
                     } else {
                         query.append('?').append(setParameter(parameters, attrValue.getValue()));

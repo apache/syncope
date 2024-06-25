@@ -30,12 +30,12 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.enduser.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.enduser.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.client.ui.commons.SchemaUtils;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
@@ -43,7 +43,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
@@ -59,7 +58,6 @@ import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -68,6 +66,8 @@ import org.apache.wicket.model.util.ListModel;
 public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     private static final long serialVersionUID = 552437609667518888L;
+
+    protected final AnyTO anyTO;
 
     protected final AnyTO previousObject;
 
@@ -81,11 +81,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         super(id, modelObject, anyTypeClasses, whichPlainAttrs);
 
-        fileKey = modelObject.getInnerObject().getUsername();
-
+        anyTO = modelObject.getInnerObject();
         previousObject = modelObject.getPreviousUserTO();
 
-        add(new PlainSchemasOwn("plainSchemas", schemas, attrs).setOutputMarkupId(true));
+        fileKey = modelObject.getInnerObject().getUsername();
+
+        add(new PlainSchemas("plainSchemas", null, schemas, attrs).setOutputMarkupId(true));
         add(new ListView<>("membershipsPlainSchemas", membershipTOs) {
 
             private static final long serialVersionUID = 6741044372185745296L;
@@ -103,20 +104,13 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new PlainSchemasMemberships(
+                        return new PlainSchemas(
                                 panelId,
                                 membershipTO.getGroupName(),
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new LoadableDetachableModel<>() { // SYNCOPE-1439
-
-                            private static final long serialVersionUID = 526768546610546553L;
-
-                            @Override
-                            protected Attributable load() {
-                                return membershipTO;
-                            }
-
-                        });
+                                new ListModel<>(membershipTO.getPlainAttrs().stream().
+                                        sorted(attrComparator).
+                                        collect(Collectors.toList())));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -180,19 +174,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         membershipTO.getPlainAttrs().addAll(plainAttrs);
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
-        return getFieldPanel(schemaTO, null);
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected FieldPanel getFieldPanel(final PlainSchemaTO plainSchema, final String groupName) {
+    @SuppressWarnings("unchecked")
+    protected AbstractFieldPanel<?> getFieldPanel(final PlainSchemaTO plainSchema) {
         boolean required = plainSchema.getMandatoryCondition().equalsIgnoreCase("true");
-        boolean readOnly = plainSchema.isReadonly() || renderAsReadonly(plainSchema.getKey(), groupName);
+        boolean readOnly = plainSchema.isReadonly() || renderAsReadonly(plainSchema.getKey(), null);
         AttrSchemaType type = plainSchema.getType();
         boolean jexlHelp = false;
 
-        FieldPanel panel;
+        AbstractFieldPanel<?> panel;
         switch (type) {
             case Boolean:
                 panel = new AjaxCheckBoxPanel(
@@ -231,14 +220,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             case Enum:
                 panel = new AjaxDropDownChoicePanel<>("panel",
                         plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
-                ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
+                ((AjaxDropDownChoicePanel<String>) panel).setChoices(
+                        plainSchema.getEnumValues().keySet().stream().sorted().toList());
 
-                if (StringUtils.isNotBlank(plainSchema.getEnumerationKeys())) {
-                    ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
+                if (!plainSchema.getEnumValues().isEmpty()) {
+                    Map<String, String> valueMap = plainSchema.getEnumValues();
+                    ((AjaxDropDownChoicePanel<String>) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
-
-                        private final Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchema);
 
                         @Override
                         public String getDisplayValue(final String value) {
@@ -256,6 +245,23 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                             return id;
                         }
                     });
+                }
+
+                if (required) {
+                    panel.addRequiredLabel();
+                }
+                break;
+
+            case Dropdown:
+                List<String> dropdownValues = schemaRestClient.getDropdownValues(plainSchema.getKey(), anyTO);
+                if (plainSchema.isMultivalue()) {
+                    panel = new AjaxPalettePanel.Builder<String>().
+                            setName(plainSchema.getLabel(SyncopeEnduserSession.get().getLocale())).
+                            build("panel", new ListModel<>(), new ListModel<>(dropdownValues));
+                } else {
+                    panel = new AjaxDropDownChoicePanel<>("panel",
+                            plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()), new Model<>(), true);
+                    ((AjaxDropDownChoicePanel<String>) panel).setChoices(dropdownValues);
                 }
 
                 if (required) {
@@ -322,32 +328,27 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
 
         panel.setReadOnly(readOnly);
-        panel.setMarkupId(StringUtils.isBlank(groupName)
-                ? plainSchema.getKey() : groupName + '.' + plainSchema.getKey());
+        panel.setMarkupId(plainSchema.getKey());
 
         Label label = (Label) panel.get(AbstractFieldPanel.LABEL);
-        label.add(new AttributeModifier("for", FORM_SUFFIX
-                + (StringUtils.isBlank(groupName) ? plainSchema.getKey() : groupName + '.' + plainSchema.getKey())));
+        label.add(new AttributeModifier("for", FORM_SUFFIX + plainSchema.getKey()));
 
         return panel;
     }
 
-    protected class PlainSchemasMemberships extends Schemas {
+    protected class PlainSchemas extends Schemas {
 
         private static final long serialVersionUID = 456754923340249215L;
 
-        public PlainSchemasMemberships(
+        protected PlainSchemas(
                 final String id,
                 final String groupName,
                 final Map<String, PlainSchemaTO> schemas,
-                final IModel<Attributable> attributableTO) {
+                final IModel<List<Attr>> attrs) {
 
             super(id);
 
-            add(new ListView<>("schemas",
-                    new ListModel<>(new ArrayList<>(
-                            attributableTO.getObject().getPlainAttrs().stream().sorted(attrComparator).
-                                    collect(Collectors.toList())))) {
+            add(new ListView<>("schemas", attrs) {
 
                 private static final long serialVersionUID = 5306618783986001008L;
 
@@ -363,66 +364,20 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         attr.getValues().addAll(getDefaultValues(attr.getSchema(), groupName));
                     }
 
-                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attr.getSchema()));
-                    if (schemas.get(attr.getSchema()).isMultivalue()) {
+                    AbstractFieldPanel<?> panel = getFieldPanel(schema);
+                    panel.setReadOnly(schema.isReadonly());
+                    if (schema.isMultivalue() && schema.getType() != AttrSchemaType.Dropdown) {
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<>(attr, "values")).build(
                                 "panel",
-                                schemas.get(attr.getSchema()).getLabel(SyncopeEnduserSession.get().getLocale()),
+                                schema.getLabel(SyncopeEnduserSession.get().getLocale()),
                                 FieldPanel.class.cast(panel));
-                        // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        panel.setReadOnly(schema == null ? false : schema.isReadonly());
+                    } else if (panel instanceof AjaxPalettePanel ajaxPalettePanel) {
+                        ajaxPalettePanel.setModelObject(attr.getValues());
                     } else {
-                        FieldPanel.class.cast(panel).setNewModel(attr.getValues()).
-                                setReadOnly(schema == null ? false : schema.isReadonly());
+                        FieldPanel.class.cast(panel).setNewModel(attr.getValues());
                     }
 
-                    item.add(panel);
-                }
-            });
-        }
-    }
-
-    protected class PlainSchemasOwn extends Schemas {
-
-        private static final long serialVersionUID = -4730563859116024676L;
-
-        public PlainSchemasOwn(
-                final String id,
-                final Map<String, PlainSchemaTO> schemas,
-                final IModel<List<Attr>> attrTOs) {
-
-            super(id);
-
-            add(new ListView<>("schemas", attrTOs) {
-
-                private static final long serialVersionUID = 9101744072914090143L;
-
-                @Override
-                @SuppressWarnings({ "unchecked", "rawtypes" })
-                protected void populateItem(final ListItem<Attr> item) {
-                    Attr attrTO = item.getModelObject();
-                    PlainSchemaTO schema = schemas.get(attrTO.getSchema());
-
-                    // set default values, if any
-                    if (attrTO.getValues().stream().noneMatch(StringUtils::isNotBlank)) {
-                        attrTO.getValues().clear();
-                        attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema()));
-                    }
-
-                    AbstractFieldPanel<?> panel = getFieldPanel(schemas.get(attrTO.getSchema()));
-                    if (schemas.get(attrTO.getSchema()).isMultivalue()) {
-                        panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<>(attrTO, "values")).build(
-                                "panel",
-                                attrTO.getSchema(),
-                                FieldPanel.class.cast(panel));
-                        // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                        ((MultiFieldPanel) panel).setReadOnly(schema == null ? false : schema.isReadonly());
-                    } else {
-                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues()).
-                                setReadOnly(schema == null ? false : schema.isReadonly());
-                    }
                     item.add(panel);
                 }
             });

@@ -804,8 +804,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
-        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField", "rossini 1030");
-        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apache.org");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:7:panel:textField", "rossini 1030");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:15:panel:textField", "ross1030@apache.org");
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();

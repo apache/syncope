@@ -52,6 +52,14 @@ public class Sidebar extends Panel {
 
     private static final long serialVersionUID = 8091307811313529503L;
 
+    protected static String getLIContainerId(final String linkId) {
+        return linkId + "LI";
+    }
+
+    protected static String getULContainerId(final String linkId) {
+        return linkId + "UL";
+    }
+
     protected WebMarkupContainer dashboardLIContainer;
 
     protected WebMarkupContainer profileULContainer;
@@ -100,8 +108,7 @@ public class Sidebar extends Panel {
 
                     @Override
                     public void renderHead(final Component component, final IHeaderResponse response) {
-                        response.render(OnDomReadyHeaderItem.forScript(
-                                "$('#profileLink').addClass('active')"));
+                        response.render(OnDomReadyHeaderItem.forScript("$('#profileLink').addClass('active')"));
                     }
 
                     @Override
@@ -203,13 +210,5 @@ public class Sidebar extends Panel {
         liContainer.setOutputMarkupPlaceholderTag(true);
         liContainer.setVisible(layout.isSecurityQuestionManagementEnabled()
                 && SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions());
-    }
-
-    protected String getLIContainerId(final String linkId) {
-        return linkId + "LI";
-    }
-
-    protected String getULContainerId(final String linkId) {
-        return linkId + "UL";
     }
 }

@@ -107,8 +107,18 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schema.setType(schemaTO.getType());
         schema.setCipherAlgorithm(schemaTO.getCipherAlgorithm());
         schema.setConversionPattern(schemaTO.getConversionPattern());
-        schema.setEnumerationKeys(schemaTO.getEnumerationKeys());
-        schema.setEnumerationValues(schemaTO.getEnumerationValues());
+        schema.getEnumValues().clear();
+        schema.getEnumValues().putAll(schemaTO.getEnumValues());
+
+        if (schemaTO.getDropdownValueProvider() == null) {
+            schema.setDropdownValueProvider(null);
+        } else {
+            implementationDAO.findById(schemaTO.getDropdownValueProvider()).ifPresentOrElse(
+                    schema::setDropdownValueProvider,
+                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                            schemaTO.getDropdownValueProvider()));
+        }
+
         schema.setMandatoryCondition(schemaTO.getMandatoryCondition());
         schema.setMimeType(schemaTO.getMimeType());
         schema.setMultivalue(schemaTO.isMultivalue());
@@ -203,8 +213,9 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schemaTO.setType(schema.getType());
         schemaTO.setCipherAlgorithm(schema.getCipherAlgorithm());
         schemaTO.setConversionPattern(schema.getConversionPattern());
-        schemaTO.setEnumerationKeys(schema.getEnumerationKeys());
-        schemaTO.setEnumerationValues(schema.getEnumerationValues());
+        schemaTO.getEnumValues().putAll(schema.getEnumValues());
+        Optional.ofNullable(schema.getDropdownValueProvider()).
+                ifPresent(v -> schemaTO.setDropdownValueProvider(v.getKey()));
         schemaTO.setMandatoryCondition(schema.getMandatoryCondition());
         schemaTO.setMimeType(schema.getMimeType());
         schemaTO.setMultivalue(schema.isMultivalue());
@@ -212,10 +223,10 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schemaTO.setSecretKey(schema.getSecretKey());
         schemaTO.setUniqueConstraint(schema.isUniqueConstraint());
         schemaTO.getLabels().putAll(schema.getLabels());
-        schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
-        if (schema.getValidator() != null) {
-            schemaTO.setValidator(schema.getValidator().getKey());
-        }
+        Optional.ofNullable(schema.getAnyTypeClass()).
+                ifPresent(v -> schemaTO.setAnyTypeClass(v.getKey()));
+        Optional.ofNullable(schema.getValidator()).
+                ifPresent(v -> schemaTO.setValidator(v.getKey()));
 
         return schemaTO;
     }

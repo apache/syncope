@@ -608,6 +608,29 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
+    public void dropdown() {
+        List<String> values = SCHEMA_SERVICE.getDropdownValues("dd", new GroupTO()).getValues();
+        assertEquals(List.of("A", "B"), values);
+
+        GroupCR groupCR = getSample("dropdown");
+        groupCR.getAuxClasses().add("other");
+        groupCR.getPlainAttrs().add(attr("dd", "M"));
+
+        try {
+            createGroup(groupCR);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidValues, e.getType());
+        }
+
+        groupCR.getPlainAttrs().removeIf(a -> "dd".equals(a.getSchema()));
+        groupCR.getPlainAttrs().add(attr("dd", "A"));
+
+        GroupTO group = createGroup(groupCR).getEntity();
+        assertEquals("A", group.getPlainAttr("dd").orElseThrow().getValues().get(0));
+    }
+
+    @Test
     public void encrypted() throws Exception {
         // 1. create encrypted schema with secret key as system property
         PlainSchemaTO encrypted = new PlainSchemaTO();

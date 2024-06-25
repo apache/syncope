@@ -422,13 +422,14 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SchemaLogic schemaLogic(
-            final SchemaDataBinder binder,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final DerSchemaDAO derSchemaDAO,
-            final PlainSchemaDAO plainSchemaDAO) {
+            final ImplementationDAO implementationDAO,
+            final SchemaDataBinder binder) {
 
-        return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, binder);
+        return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, implementationDAO, binder);
     }
 
     @ConditionalOnMissingBean

@@ -100,7 +100,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
         String form = "body:contentWrapper:content:editUserPanel:form";
         FormTester formTester = TESTER.newFormTester(form);
         formTester.setValue(
-                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:4:panel:textField",
+                "plainAttrsPanelCard:contentPanel:plainSchemas:schemas:5:panel:textField",
                 newEmail);
 
         // check required fields were correctly set

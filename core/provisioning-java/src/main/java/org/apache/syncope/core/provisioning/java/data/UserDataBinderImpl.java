@@ -30,7 +30,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -230,6 +232,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     }
 
     protected void linkedAccount(
+            final UserTO anyTO,
             final User user,
             final LinkedAccountTO accountTO,
             final AnyUtils anyUtils,
@@ -283,7 +286,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             attr.setOwner(user);
                             attr.setAccount(account);
                         }
-                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+                        fillAttr(anyTO, attrTO.getValues(), anyUtils, schema, attr, invalidValues);
 
                         if (attr.getValuesAsStrings().isEmpty()) {
                             attr.setOwner(null);
@@ -300,6 +303,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Override
     public void create(final User user, final UserCR userCR) {
+        UserTO anyTO = new UserTO();
+        EntityTOUtils.toAnyTO(userCR, anyTO);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // set username
@@ -399,20 +405,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.add(membership);
 
                 // membership attributes
-                fill(user, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
+                fill(anyTO, user, membership, membershipTO,
+                        anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
             }
         });
 
         // linked accounts
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
-        userCR.getLinkedAccounts().
-                forEach(acct -> linkedAccount(user, acct, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
+        userCR.getLinkedAccounts().forEach(
+                acct -> linkedAccount(anyTO, user, acct, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
 
         // attributes and resources
-        fill(user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
+        fill(anyTO, user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -433,6 +440,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // Re-merge any pending change from workflow tasks
         User user = userDAO.save(toBeUpdated);
+
+        UserTO anyTO = AnyOperations.patch(getUserTO(user, true), userUR);
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
@@ -518,7 +527,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // attributes and resources
-        fill(user, userUR, anyUtils, scce);
+        fill(anyTO, user, userUR, anyUtils, scce);
 
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
@@ -633,6 +642,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                 user.add(attr);
 
                                 processAttrPatch(
+                                        anyTO,
                                         user,
                                         new AttrPatch.Builder(attrTO).build(),
                                         schema,
@@ -687,6 +697,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                 linkedAccount(
+                        anyTO,
                         user,
                         patch.getLinkedAccountTO(),
                         anyUtilsFactory.getLinkedAccountInstance(),

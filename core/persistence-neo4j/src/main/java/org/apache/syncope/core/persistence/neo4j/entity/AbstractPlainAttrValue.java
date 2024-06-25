@@ -187,6 +187,7 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
                 break;
 
             case String:
+            case Dropdown:
             case Enum:
             default:
                 this.setStringValue(value);
@@ -239,6 +240,7 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
                 break;
 
             case String:
+            case Dropdown:
             case Enum:
             case Encrypted:
                 value = getStringValue();
@@ -305,8 +307,9 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
                 }
                 break;
 
-            case String:
             case Enum:
+            case Dropdown:
+            case String:
             default:
                 result = getStringValue();
         }

@@ -21,21 +21,28 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -45,6 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,19 +66,25 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
     protected final AnyTypeClassDAO anyTypeClassDAO;
 
+    protected final ImplementationDAO implementationDAO;
+
     protected final SchemaDataBinder binder;
+
+    protected final Map<String, DropdownValueProvider> perContextDropdownValueProviders = new ConcurrentHashMap<>();
 
     public SchemaLogic(
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
+            final ImplementationDAO implementationDAO,
             final SchemaDataBinder binder) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
+        this.implementationDAO = implementationDAO;
         this.binder = binder;
     }
 
@@ -236,6 +250,28 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
             default -> {
             }
+        }
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public Attr getDropdownValues(final String key, final AnyTO anyTO) {
+        PlainSchema schema = plainSchemaDAO.findById(key).
+                filter(s -> s.getType() == AttrSchemaType.Dropdown).
+                orElseThrow(() -> new NotFoundException(AttrSchemaType.Dropdown.name() + " PlainSchema " + key));
+
+        try {
+            DropdownValueProvider provider = ImplementationManager.build(
+                    schema.getDropdownValueProvider(),
+                    () -> perContextDropdownValueProviders.get(schema.getDropdownValueProvider().getKey()),
+                    instance -> perContextDropdownValueProviders.put(
+                            schema.getDropdownValueProvider().getKey(), instance));
+            return new Attr.Builder(schema.getKey()).values(provider.getChoices(anyTO)).build();
+        } catch (Exception e) {
+            LOG.error("While getting dropdown values for {}", key, e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidImplementation);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
     }
 

@@ -43,7 +43,6 @@ import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBehavior;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.SchemaUtils;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -959,10 +958,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         "value",
                         new PropertyModel(searchClause, "value"),
                         true);
-                ((AjaxDropDownChoicePanel<String>) value).setChoices(SchemaUtils.getEnumeratedValues(plainSchema));
+                ((AjaxDropDownChoicePanel<String>) value).setChoices(
+                        plainSchema.getEnumValues().keySet().stream().sorted().toList());
 
-                if (StringUtils.isNotBlank(plainSchema.getEnumerationKeys())) {
-                    Map<String, String> valueMap = SchemaUtils.getEnumeratedKeyValues(plainSchema);
+                if (!plainSchema.getEnumValues().isEmpty()) {
+                    Map<String, String> valueMap = plainSchema.getEnumValues();
                     ((AjaxDropDownChoicePanel) value).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;

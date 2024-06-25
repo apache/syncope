@@ -97,7 +97,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         found = plainSchemaDAO.findByAnyTypeClasses(
                 List.of(anyTypeClassDAO.findById("other").orElseThrow()));
-        assertEquals(10, found.size());
+        assertEquals(11, found.size());
     }
 
     @Test

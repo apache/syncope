@@ -29,7 +29,8 @@ public enum AttrSchemaType {
     Double(Double.class),
     Boolean(Boolean.class),
     Date(OffsetDateTime.class),
-    Enum(Enum.class),
+    Enum(String.class),
+    Dropdown(String.class),
     Binary(byte[].class),
     Encrypted(byte[].class);
 
@@ -49,11 +50,23 @@ public enum AttrSchemaType {
                 || this == AttrSchemaType.Long;
     }
 
+    public boolean isStringClass() {
+        return type == String.class;
+    }
+
     public static AttrSchemaType getAttrSchemaTypeByClass(final Class<?> type) {
+        if (type == String.class) {
+            return AttrSchemaType.String;
+        }
+        if (Enum.class.isAssignableFrom(type)) {
+            return AttrSchemaType.Enum;
+        }
+
         return Stream.of(AttrSchemaType.values()).
                 filter(item -> type.isArray()
                 ? ClassUtils.isAssignable(type.getComponentType(), item.getType().getComponentType(), true)
                 : ClassUtils.isAssignable(type, item.getType(), true)).
-                findFirst().orElse(AttrSchemaType.String);
+                findFirst().
+                orElse(AttrSchemaType.String);
     }
 }

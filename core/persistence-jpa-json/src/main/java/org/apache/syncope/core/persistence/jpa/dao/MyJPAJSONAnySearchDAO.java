@@ -26,7 +26,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
@@ -192,7 +191,7 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                         orElse(cond.getExpression());
 
-                boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+                boolean lower = schema.getType().isStringClass()
                         && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
                 query.append("plainSchema=?").append(setParameter(parameters, cond.getSchema())).

@@ -39,7 +39,6 @@ import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -947,7 +946,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             boolean ignoreCase = AttrCond.Type.ILIKE == cond.getType() || AttrCond.Type.IEQ == cond.getType();
 
             String column = (cond instanceof AnyCond) ? cond.getSchema() : key(schema.getType());
-            if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
+            if (schema.getType().isStringClass() && ignoreCase) {
                 column = "LOWER (" + column + ')';
             }
             if (!(cond instanceof AnyCond)) {
@@ -967,7 +966,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                             : " IS NOT NULL");
 
                 case ILIKE, LIKE -> {
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                    if (schema.getType().isStringClass()) {
                         query.append(column);
                         if (not) {
                             query.append(" NOT ");
@@ -998,8 +997,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     } else {
                         query.append('=');
                     }
-                    if ((schema.getType() == AttrSchemaType.String
-                            || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
+                    if (schema.getType().isStringClass() && ignoreCase) {
                         query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
                     } else {
                         query.append('?').append(setParameter(parameters, attrValue.getValue()));
