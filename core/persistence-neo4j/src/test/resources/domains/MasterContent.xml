@@ -126,7 +126,7 @@ under the License.
                   body="org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator"/>
   <PlainSchema id="userId" type="String" mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
   <PlainSchema_AnyTypeClass left="userId" right="minimal user"/>
-  <PlainSchema_Implementation left="userId" right="EmailAddressValidator"/>
+  <PlainSchema_Implementation type="PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR" left="userId" right="EmailAddressValidator"/>
   <PlainSchema id="loginDate" type="Date" mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
                conversionPattern="yyyy-MM-dd"/>
   <PlainSchema_AnyTypeClass left="loginDate" right="other"/>
@@ -140,7 +140,7 @@ under the License.
   <PlainSchema_AnyTypeClass left="ctype" right="other"/>
   <PlainSchema id="email" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <PlainSchema_AnyTypeClass left="email" right="minimal user"/>
-  <PlainSchema_Implementation left="email" right="EmailAddressValidator"/>
+  <PlainSchema_Implementation type="PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR" left="email" right="EmailAddressValidator"/>
   <PlainSchema id="activationDate" type="Date" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                conversionPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
   <PlainSchema_AnyTypeClass left="activationDate" right="other"/>
@@ -156,7 +156,7 @@ under the License.
                   body='import groovy.transform.CompileStatic&#13;&#10;import java.util.List&#13;&#10;import org.apache.syncope.common.lib.to.AnyTO&#13;&#10;import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider&#13;&#10;&#13;&#10;@CompileStatic&#13;&#10;class TestDropdownValueProvider implements DropdownValueProvider {&#13;&#10;List&lt;String&gt; getChoices(AnyTO anyTO) {&#13;&#10;return ["A", "B"]&#13;&#10;}&#13;&#10;}'/>
   <PlainSchema id="dd" type="Dropdown" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <PlainSchema_AnyTypeClass left="dd" right="other"/>
-  <PlainSchema_Implementation left="dd" right="TestDropdownValueProvider"/>
+  <PlainSchema_Implementation type="PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER" left="dd" right="TestDropdownValueProvider"/>
   <PlainSchema id="aLong" type="Long" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <PlainSchema_AnyTypeClass left="aLong" right="other"/>
   <PlainSchema id="makeItDouble" type="Long" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>

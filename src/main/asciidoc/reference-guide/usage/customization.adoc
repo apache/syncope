@@ -263,7 +263,7 @@ components:
 * <<tasks-scheduled,scheduled tasks>>
 * <<reports,reports>>
 * <<account-rules,account>> and <<password-rules,password>> rules for policies
-* <<plain,plain schema validators>>
+* <<plain,plain schema validators and dropdown value providers>>
 * <<mapping,mapping item transformers>>
 * <<workflow-adapters,workflow adapters>>
 * <<provisioning-managers,provisioning managers>>

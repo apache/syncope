@@ -609,6 +609,9 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void dropdown() {
+        List<String> values = SCHEMA_SERVICE.getDropdownValues("dd", new GroupTO()).getValues();
+        assertEquals(List.of("A", "B"), values);
+
         GroupCR groupCR = getSample("dropdown");
         groupCR.getAuxClasses().add("other");
         groupCR.getPlainAttrs().add(attr("dd", "M"));

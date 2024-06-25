@@ -39,6 +39,8 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.head.HeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.PriorityHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -51,15 +53,15 @@ public class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
+    protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
+
     @SpringBean
     private ClassPathScanImplementationLookup lookup;
-
-    protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
     protected final Sidebar sidebar;
 
     protected final WebMarkupContainer contentWrapper;
-    
+
     protected final WebMarkupContainer navbar;
 
     protected final AjaxLink<Void> collapse;
@@ -146,6 +148,12 @@ public class BasePage extends BaseWebPage {
                 }
             });
         }
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(new PriorityHeaderItem(META_IE_EDGE));
     }
 
     protected void addPageTitle(final String title) {

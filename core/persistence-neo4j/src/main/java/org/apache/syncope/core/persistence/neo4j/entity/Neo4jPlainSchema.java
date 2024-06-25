@@ -43,6 +43,10 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
 
     public static final String NODE = "PlainSchema";
 
+    public static final String PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL = "PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER";
+
+    public static final String PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL = "PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR";
+
     protected static final TypeReference<HashMap<String, String>> ENUMVALUES_TYPEREF =
             new TypeReference<HashMap<String, String>>() {
     };
@@ -66,7 +70,7 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     @Transient
     private Map<String, String> enumValuesMap = new HashMap<>();
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation dropdownValueProvider;
 
     private String secretKey;
@@ -78,7 +82,7 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     @Relationship(type = Neo4jAnyTypeClass.ANY_TYPE_CLASS_PLAIN_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jAnyTypeClass anyTypeClass;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation validator;
 
     @Override

@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -253,7 +254,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    public List<String> getDropdownValues(final String key, final AnyTO anyTO) {
+    public Attr getDropdownValues(final String key, final AnyTO anyTO) {
         PlainSchema schema = plainSchemaDAO.findById(key).
                 filter(s -> s.getType() == AttrSchemaType.Dropdown).
                 orElseThrow(() -> new NotFoundException(AttrSchemaType.Dropdown.name() + " PlainSchema " + key));
@@ -264,7 +265,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                     () -> perContextDropdownValueProviders.get(schema.getDropdownValueProvider().getKey()),
                     instance -> perContextDropdownValueProviders.put(
                             schema.getDropdownValueProvider().getKey(), instance));
-            return provider.getChoices(anyTO);
+            return new Attr.Builder(schema.getKey()).values(provider.getChoices(anyTO)).build();
         } catch (Exception e) {
             LOG.error("While getting dropdown values for {}", key, e);
 

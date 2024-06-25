@@ -42,6 +42,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
@@ -172,12 +173,12 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
     public PageReference getPageReference() {
         // SYNCOPE-1213
-        // default implementation does not require to pass page reference, override this method of want otherwise
+        // default implementation does not require to pass page reference, override this method if want otherwise
         return null;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected FieldPanel getFieldPanel(final PlainSchemaTO plainSchema) {
+    @SuppressWarnings("unchecked")
+    protected AbstractFieldPanel<?> getFieldPanel(final PlainSchemaTO plainSchema) {
         final boolean required;
         final boolean readOnly;
         final AttrSchemaType type;
@@ -195,7 +196,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             jexlHelp = false;
         }
 
-        FieldPanel panel;
+        AbstractFieldPanel<?> panel;
         switch (type) {
             case Boolean:
                 panel = new AjaxCheckBoxPanel(
@@ -239,7 +240,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
                 if (!plainSchema.getEnumValues().isEmpty()) {
                     Map<String, String> valueMap = plainSchema.getEnumValues();
-                    ((AjaxDropDownChoicePanel) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
+                    ((AjaxDropDownChoicePanel<String>) panel).setChoiceRenderer(new IChoiceRenderer<String>() {
 
                         private static final long serialVersionUID = -3724971416312135885L;
 
@@ -259,6 +260,23 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                             return id;
                         }
                     });
+                }
+
+                if (required) {
+                    panel.addRequiredLabel();
+                }
+                break;
+
+            case Dropdown:
+                List<String> dropdownValues = schemaRestClient.getDropdownValues(plainSchema.getKey(), anyTO);
+                if (plainSchema.isMultivalue()) {
+                    panel = new AjaxPalettePanel.Builder<String>().
+                            setName(plainSchema.getLabel(SyncopeConsoleSession.get().getLocale())).
+                            build("panel", new ListModel<>(), new ListModel<>(dropdownValues));
+                } else {
+                    panel = new AjaxDropDownChoicePanel<>("panel",
+                            plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()), new Model<>(), true);
+                    ((AjaxDropDownChoicePanel<String>) panel).setChoices(dropdownValues);
                 }
 
                 if (required) {
@@ -405,7 +423,11 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
             PlainSchemaTO schema = schemas.get(attr.getSchema());
 
             AbstractFieldPanel<?> panel = getFieldPanel(schema);
-            if (mode != AjaxWizard.Mode.TEMPLATE && schema.isMultivalue()) {
+            panel.setReadOnly(setReadOnly);
+            if (mode != AjaxWizard.Mode.TEMPLATE
+                    && schema.isMultivalue()
+                    && schema.getType() != AttrSchemaType.Dropdown) {
+
                 // SYNCOPE-1476 set form as multipart to properly manage membership attributes
                 panel = new MultiFieldPanel.Builder<>(
                         new PropertyModel<>(attr, "values")).build(
@@ -413,10 +435,11 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         schema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         FieldPanel.class.cast(panel)).setFormAsMultipart(true);
                 // SYNCOPE-1215 the entire multifield panel must be readonly, not only its field
-                MultiFieldPanel.class.cast(panel).setReadOnly(schema.isReadonly());
                 MultiFieldPanel.class.cast(panel).setFormReadOnly(setReadOnly);
+            } else if (panel instanceof AjaxPalettePanel ajaxPalettePanel) {
+                ajaxPalettePanel.setModelObject(attr.getValues());
             } else {
-                FieldPanel.class.cast(panel).setNewModel(attr.getValues()).setReadOnly(setReadOnly);
+                FieldPanel.class.cast(panel).setNewModel(attr.getValues());
             }
             item.add(panel);
 
