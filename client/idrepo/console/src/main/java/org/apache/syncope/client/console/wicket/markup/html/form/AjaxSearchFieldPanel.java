@@ -24,6 +24,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAutoCompleteBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.TextFieldPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
@@ -31,9 +32,8 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTe
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.validation.IValidator;
 
-public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneable {
+public class AjaxSearchFieldPanel extends TextFieldPanel implements Cloneable {
 
     private static final long serialVersionUID = 6890905510177974519L;
 
@@ -75,11 +75,12 @@ public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneabl
 
             @Override
             protected AutoCompleteBehavior<String> newAutoCompleteBehavior(
-                final IAutoCompleteRenderer<String> renderer, final AutoCompleteSettings settings) {
+                    final IAutoCompleteRenderer<String> renderer,
+                    final AutoCompleteSettings settings) {
 
                 return new IndicatorAutoCompleteBehavior<>(
-                    AjaxSearchFieldPanel.this.renderer != null ? AjaxSearchFieldPanel.this.renderer : renderer,
-                    AjaxSearchFieldPanel.this.settings != null ? AjaxSearchFieldPanel.this.settings : settings) {
+                        AjaxSearchFieldPanel.this.renderer != null ? AjaxSearchFieldPanel.this.renderer : renderer,
+                        AjaxSearchFieldPanel.this.settings != null ? AjaxSearchFieldPanel.this.settings : settings) {
 
                     private static final long serialVersionUID = 1070808433195962931L;
 
@@ -90,6 +91,7 @@ public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneabl
                 };
             }
         };
+        setHTMLInputNotAllowed();
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (!isReadOnly()) {
@@ -105,17 +107,8 @@ public class AjaxSearchFieldPanel extends FieldPanel<String> implements Cloneabl
         }
     }
 
-    @Override
-    public FieldPanel<String> setRequired(final boolean required) {
-        return super.setRequired(required);
-    }
-
     public List<String> getChoices() {
         return choices;
-    }
-
-    public void addValidator(final IValidator<String> validator) {
-        this.field.add(validator);
     }
 
     public void onUpdateBehavior() {
