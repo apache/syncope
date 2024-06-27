@@ -449,7 +449,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>6.0.0</bootbox.version>
-    <bootstrap5-toggle.version>5.0.6</bootstrap5-toggle.version>
+    <bootstrap5-toggle.version>5.1.1</bootstrap5-toggle.version>
     <font-awesome.version>6.5.2</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <codemirror.version>5.62.2</codemirror.version>
