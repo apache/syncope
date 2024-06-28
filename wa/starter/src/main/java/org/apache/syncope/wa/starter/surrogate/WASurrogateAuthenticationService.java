@@ -40,7 +40,11 @@ public class WASurrogateAuthenticationService implements SurrogateAuthentication
     }
 
     @Override
-    public boolean canImpersonate(final String surrogate, final Principal principal, final Optional<Service> service) {
+    public boolean canImpersonate(
+            final String surrogate,
+            final Principal principal,
+            final Optional<? extends Service> service) {
+
         try {
             LOG.debug("Checking impersonation attempt by {} for {}", principal, surrogate);
 
@@ -53,7 +57,10 @@ public class WASurrogateAuthenticationService implements SurrogateAuthentication
     }
 
     @Override
-    public Collection<String> getImpersonationAccounts(final String username) {
+    public Collection<String> getImpersonationAccounts(
+            final String username,
+            final Optional<? extends Service> service) {
+
         return waRestClient.getService(ImpersonationService.class).read(username).
                 stream().
                 map(ImpersonationAccount::getImpersonated).

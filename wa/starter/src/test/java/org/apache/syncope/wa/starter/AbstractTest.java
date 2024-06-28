@@ -37,10 +37,10 @@ import org.apereo.cas.authentication.attribute.AttributeDefinitionStore;
 import org.apereo.cas.authentication.principal.Principal;
 import org.apereo.cas.authentication.principal.PrincipalResolver;
 import org.apereo.cas.authentication.principal.Service;
+import org.apereo.cas.authentication.principal.attribute.PersonAttributeDao;
+import org.apereo.cas.authentication.principal.attribute.PersonAttributeDaoFilter;
+import org.apereo.cas.authentication.principal.attribute.PersonAttributes;
 import org.apereo.cas.services.RegisteredService;
-import org.apereo.services.persondir.IPersonAttributeDao;
-import org.apereo.services.persondir.IPersonAttributeDaoFilter;
-import org.apereo.services.persondir.IPersonAttributes;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -67,22 +67,22 @@ import org.springframework.test.context.TestPropertySource;
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
 
-    private static class DummyIPersonAttributeDao implements IPersonAttributeDao {
+    private static class DummyIPersonAttributeDao implements PersonAttributeDao {
 
         @Override
-        public IPersonAttributes getPerson(
-                final String string,
-                final Set<IPersonAttributes> set,
-                final IPersonAttributeDaoFilter ipadf) {
+        public PersonAttributes getPerson(
+                final String uid,
+                final Set<PersonAttributes> resultPeople,
+                final PersonAttributeDaoFilter filter) {
 
             return null;
         }
 
         @Override
-        public Set<IPersonAttributes> getPeople(
-                final Map<String, Object> map,
-                final IPersonAttributeDaoFilter ipadf,
-                final Set<IPersonAttributes> set) {
+        public Set<PersonAttributes> getPeople(
+                final Map<String, Object> query,
+                final PersonAttributeDaoFilter filter,
+                final Set<PersonAttributes> resultPeople) {
 
             return Set.of();
         }
@@ -93,7 +93,7 @@ public abstract class AbstractTest {
         }
 
         @Override
-        public int compareTo(final IPersonAttributeDao o) {
+        public int compareTo(final PersonAttributeDao o) {
             return 0;
         }
 
@@ -104,7 +104,7 @@ public abstract class AbstractTest {
 
         @Override
         public boolean equals(final Object obj) {
-            return obj instanceof IPersonAttributeDao;
+            return obj instanceof PersonAttributeDao;
         }
     }
 
@@ -215,13 +215,13 @@ public abstract class AbstractTest {
 
         @Bean(name = { "cachingAttributeRepository", PrincipalResolver.BEAN_NAME_ATTRIBUTE_REPOSITORY })
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-        public IPersonAttributeDao cachingAttributeRepository() {
+        public PersonAttributeDao cachingAttributeRepository() {
             return new DummyIPersonAttributeDao();
         }
 
         @Bean(name = "aggregatingAttributeRepository")
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-        public IPersonAttributeDao aggregatingAttributeRepository() {
+        public PersonAttributeDao aggregatingAttributeRepository() {
             return new DummyIPersonAttributeDao();
         }
     }

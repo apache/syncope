@@ -23,7 +23,6 @@ import java.util.Map;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.config.WARefreshContextJob;
-import org.apereo.cas.config.GoogleAuthenticatorLdapConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
@@ -56,12 +55,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication(exclude = {
-    /*
-     * List of CAS-specific classes that we want to exclude from auto-configuration.
-     * This is required when there is a competing option/implementation available in Syncope that needs to be
-     * conditionally activated.
-     */
-    GoogleAuthenticatorLdapConfiguration.class,
     /*
      * List of Spring Boot classes that we want to disable and remove from auto-configuration.
      */
