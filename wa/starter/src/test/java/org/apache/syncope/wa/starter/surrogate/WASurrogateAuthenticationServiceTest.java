@@ -50,7 +50,7 @@ public class WASurrogateAuthenticationServiceTest extends AbstractTest {
 
         impersonationService.create(owner, account);
 
-        assertFalse(surrogateService.getImpersonationAccounts(owner).isEmpty());
+        assertFalse(surrogateService.getImpersonationAccounts(owner, Optional.empty()).isEmpty());
 
         Principal principal = PrincipalFactoryUtils.newPrincipalFactory().createPrincipal(owner);
         assertFalse(surrogateService.canImpersonate("unknown", principal, Optional.empty()));

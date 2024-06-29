@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -29,8 +30,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -91,13 +94,18 @@ public abstract class AbstractUIITCase {
         assertNotNull(ANONYMOUS_UNAME);
         assertNotNull(ANONYMOUS_KEY);
 
-        JsonNode beans = JSON_MAPPER.readTree(
-                (InputStream) WebClient.create(
-                        StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans",
+        String beansJSON = await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                return WebClient.create(StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans",
                         ANONYMOUS_UNAME,
                         ANONYMOUS_KEY,
                         null).
-                        accept(MediaType.APPLICATION_JSON).get().getEntity());
+                        accept(MediaType.APPLICATION_JSON).get().readEntity(String.class);
+            } catch (Exception e) {
+                return null;
+            }
+        }, Objects::nonNull);
+        JsonNode beans = JSON_MAPPER.readTree(beansJSON);
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");

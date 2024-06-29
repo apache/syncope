@@ -53,7 +53,7 @@ public abstract class JPAJSONEntityListener<A extends Any<?>> {
 
     protected void list2json(final JSONAttributable<A> entity) {
         entity.setPlainAttrsJSON(entity.getPlainAttrList().isEmpty()
-                ? "[{}]"
+                ? "[]"
                 : POJOHelper.serialize(entity.getPlainAttrList()));
     }
 }
