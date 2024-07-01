@@ -23,7 +23,9 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbed
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.ITabComponent;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.scim.SCIMConf;
@@ -72,7 +74,13 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                scimConfRestClient.set(SCIMConfPanel.this.scimConfTO);
+                try {
+                    scimConfRestClient.set(SCIMConfPanel.this.scimConfTO);
+                } catch (Exception e) {
+                    LOG.error("While setting SCIM configuration", e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         addInnerObject(saveButton);
@@ -135,6 +143,22 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
         tabs.add(new ITabComponent(
                 new Model<>(getString("tab4")), getString("tab4")) {
+
+            private static final long serialVersionUID = 6645614456650987567L;
+
+            @Override
+            public WebMarkupContainer getPanel(final String panelId) {
+                return new SCIMConfExtensionUserPanel(panelId, scimConfTO);
+            }
+
+            @Override
+            public boolean isVisible() {
+                return true;
+            }
+        });
+
+        tabs.add(new ITabComponent(
+                new Model<>(getString("tab5")), getString("tab5")) {
 
             private static final long serialVersionUID = 1998052474181916792L;
 

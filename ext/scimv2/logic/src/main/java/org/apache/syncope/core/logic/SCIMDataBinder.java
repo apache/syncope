@@ -64,6 +64,7 @@ import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.Meta;
 import org.apache.syncope.ext.scimv2.api.data.SCIMComplexValue;
 import org.apache.syncope.ext.scimv2.api.data.SCIMEnterpriseInfo;
+import org.apache.syncope.ext.scimv2.api.data.SCIMExtensionInfo;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOperation;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
@@ -194,6 +195,9 @@ public class SCIMDataBinder {
         schemas.add(Resource.User.schema());
         if (conf.getEnterpriseUserConf() != null) {
             schemas.add(Resource.EnterpriseUser.schema());
+        }
+        if (conf.getExtensionUserConf() != null) {
+            schemas.add(conf.getExtensionUserConf().getId());
         }
 
         SCIMUser user = new SCIMUser(
@@ -444,6 +448,13 @@ public class SCIMDataBinder {
             }
         }
 
+        if (conf.getExtensionUserConf() != null) {
+            SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) ->
+                    extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0)));
+            user.setExtensionInfo(extensionInfo);
+        }
+
         if (output(attributes, excludedAttributes, "groups")) {
             userTO.getMemberships().forEach(membership -> user.getGroups().add(new Group(
                     membership.getGroupKey(),
@@ -500,9 +511,22 @@ public class SCIMDataBinder {
     }
 
     public UserTO toUserTO(final SCIMUser user, final boolean checkSchemas) {
+        SCIMConf conf = confManager.get();
+        List<String> enterpriseExtensionSchemas = new ArrayList<>();
+        List<String> extensionUserSchemas = new ArrayList<>();
+        if (conf.getExtensionUserConf() != null) {
+            enterpriseExtensionSchemas =
+                    List.of(Resource.User.schema(),
+                            Resource.EnterpriseUser.schema(),
+                            conf.getExtensionUserConf().getId());
+            extensionUserSchemas = List.of(Resource.User.schema(), conf.getExtensionUserConf().getId());
+        }
         if (checkSchemas
                 && !USER_SCHEMAS.equals(user.getSchemas())
-                && !ENTERPRISE_USER_SCHEMAS.equals(user.getSchemas())) {
+                && !ENTERPRISE_USER_SCHEMAS.equals(user.getSchemas())
+                && conf.getExtensionUserConf() != null
+                && !enterpriseExtensionSchemas.equals(user.getSchemas())
+                && !extensionUserSchemas.equals(user.getSchemas())) {
 
             throw new BadRequestException(ErrorType.invalidValue);
         }
@@ -512,8 +536,6 @@ public class SCIMDataBinder {
         userTO.setKey(user.getId());
         userTO.setPassword(user.getPassword());
         userTO.setUsername(user.getUserName());
-
-        SCIMConf conf = confManager.get();
 
         if (conf.getUserConf() != null) {
             setAttribute(
@@ -676,6 +698,11 @@ public class SCIMDataBinder {
                             map(SCIMManagerConf::getKey).orElse(null),
                     Optional.ofNullable(user.getEnterpriseInfo().getManager()).
                             map(SCIMUserManager::getValue).orElse(null));
+        }
+
+        if (conf.getExtensionUserConf() != null && user.getExtensionInfo() != null) {
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) ->
+                    setAttribute(userTO, syncopeAttr, user.getExtensionInfo().getAttributes().get(scimAttr)));
         }
 
         userTO.getMemberships().addAll(user.getGroups().stream().
@@ -985,6 +1012,11 @@ public class SCIMDataBinder {
                 break;
 
             default:
+                if (conf.getExtensionUserConf() != null
+                        && conf.getExtensionUserConf().asMap().containsKey(op.getPath().getAttribute())) {
+                    setAttribute(userUR.getPlainAttrs(), Optional.ofNullable(conf.getExtensionUserConf()).
+                            map(extConf -> extConf.asMap().get(op.getPath().getAttribute())).orElse(null), op);
+                }
         }
 
         return Pair.of(userUR, statusR);

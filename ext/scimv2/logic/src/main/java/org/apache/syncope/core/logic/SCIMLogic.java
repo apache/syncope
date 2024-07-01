@@ -74,6 +74,11 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             }
 
             ArrayNode schemaArray = (ArrayNode) tree;
+            SCIMConf conf = confManager.get();
+            if (conf.getExtensionUserConf() != null) {
+                JsonNode extension = mapper.valueToTree(conf.getExtensionUserConf());
+                schemaArray.add(extension);
+            }
             SCHEMAS = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
             for (JsonNode schema : schemaArray) {
@@ -164,22 +169,14 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     public String schemas() {
-        synchronized (MONITOR) {
-            if (SCHEMAS == null) {
-                init();
-            }
-        }
+        init();
 
         return SCHEMAS;
     }
 
     @PreAuthorize("isAuthenticated()")
     public String schema(final String schema) {
-        synchronized (MONITOR) {
-            if (SCHEMAS == null) {
-                init();
-            }
-        }
+        init();
 
         String found = SCHEMA_MAP.get(schema);
         if (found == null) {

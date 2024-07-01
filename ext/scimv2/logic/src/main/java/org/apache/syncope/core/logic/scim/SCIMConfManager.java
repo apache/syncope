@@ -22,11 +22,13 @@ import java.time.OffsetDateTime;
 import java.util.Base64;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.logic.SchemaLogic;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -81,6 +83,28 @@ public class SCIMConfManager {
         }
         conf.setGeneralConf(new SCIMGeneralConf());
         conf.getGeneralConf().setLastChangeDate(OffsetDateTime.now());
+
+        if (conf.getExtensionUserConf() != null) {
+            conf.getExtensionUserConf().getAttributes().forEach(scimItem -> {
+                try {
+                    PlainSchemaTO schema = schemaLogic.read(SchemaType.PLAIN, scimItem.getExtAttrName());
+                    if (!scimItem.getRequired().equals(schema.getMandatoryCondition())
+                            || !scimItem.getMultiValued().equals(Boolean.toString(schema.isMultivalue()))
+                            || !((scimItem.getMutability().equals("readOnly") && schema.isReadonly())
+                                || (!scimItem.getMutability().equals("readOnly") && !schema.isReadonly()))
+                            || !((!scimItem.getUniqueness().equals("none") && schema.isUniqueConstraint())
+                                || (scimItem.getUniqueness().equals("none") && !schema.isUniqueConstraint()))) {
+                        throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+                    }
+                } catch (NotFoundException e) {
+                    PlainSchemaTO schema = schemaLogic.read(SchemaType.VIRTUAL, scimItem.getExtAttrName());
+                    if (!((scimItem.getMutability().equals("readOnly") && schema.isReadonly())
+                            || (!scimItem.getMutability().equals("readOnly") && !schema.isReadonly()))) {
+                        throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+                    }
+                }
+            });
+        }
 
         confParamOps.set(AuthContextUtils.getDomain(),
                 SCIMConf.KEY, Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes()));
