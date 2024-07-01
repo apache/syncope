@@ -68,8 +68,9 @@ public class SCIMExtensionUserConf implements Serializable {
     }
 
     public boolean add(final SCIMItem item) {
-        return Optional.ofNullable(item)
-                .filter(itemTO -> attributes.contains(itemTO) || attributes.add(itemTO)).isPresent();
+        return Optional.ofNullable(item).
+                filter(itemTO -> attributes.contains(itemTO) || attributes.add(itemTO)).
+                isPresent();
     }
 
     @JsonIgnore

@@ -55,9 +55,9 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected static ResourceType GROUP;
 
-    protected static String SCHEMAS;
+    protected String schemas;
 
-    protected static final Map<String, String> SCHEMA_MAP = new HashMap<>();
+    protected final Map<String, String> schemaMap = new HashMap<>();
 
     protected final SCIMConfManager confManager;
 
@@ -79,10 +79,11 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
                 JsonNode extension = mapper.valueToTree(conf.getExtensionUserConf());
                 schemaArray.add(extension);
             }
-            SCHEMAS = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+            schemas = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
+            schemaMap.clear();
             for (JsonNode schema : schemaArray) {
-                SCHEMA_MAP.put(schema.get("id").asText(), mapper.writeValueAsString(schema));
+                schemaMap.put(schema.get("id").asText(), mapper.writeValueAsString(schema));
             }
         } catch (IOException e) {
             LOG.error("Could not parse the default schema definitions", e);
@@ -91,11 +92,9 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     public ServiceProviderConfig serviceProviderConfig(final UriBuilder uriBuilder) {
-        synchronized (MONITOR) {
-            if (SCHEMAS == null) {
-                init();
-            }
+        init();
 
+        synchronized (MONITOR) {
             if (SERVICE_PROVIDER_CONFIG == null) {
                 SCIMConf conf = confManager.get();
 
@@ -171,14 +170,14 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
     public String schemas() {
         init();
 
-        return SCHEMAS;
+        return schemas;
     }
 
     @PreAuthorize("isAuthenticated()")
     public String schema(final String schema) {
         init();
 
-        String found = SCHEMA_MAP.get(schema);
+        String found = schemaMap.get(schema);
         if (found == null) {
             throw new NotFoundException("Schema " + schema + " not found");
         }

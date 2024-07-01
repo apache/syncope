@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -83,11 +84,6 @@ import org.springframework.util.CollectionUtils;
 public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
-
-    protected static final List<String> USER_SCHEMAS = List.of(Resource.User.schema());
-
-    protected static final List<String> ENTERPRISE_USER_SCHEMAS =
-            List.of(Resource.User.schema(), Resource.EnterpriseUser.schema());
 
     protected static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
 
@@ -450,8 +446,8 @@ public class SCIMDataBinder {
 
         if (conf.getExtensionUserConf() != null) {
             SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
-            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) ->
-                    extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0)));
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) -> extensionInfo.getAttributes().put(
+                    scimAttr, attrs.get(syncopeAttr).getValues().get(0)));
             user.setExtensionInfo(extensionInfo);
         }
 
@@ -512,21 +508,18 @@ public class SCIMDataBinder {
 
     public UserTO toUserTO(final SCIMUser user, final boolean checkSchemas) {
         SCIMConf conf = confManager.get();
-        List<String> enterpriseExtensionSchemas = new ArrayList<>();
-        List<String> extensionUserSchemas = new ArrayList<>();
+
+        Set<String> expectedSchemas = new HashSet<>();
+        expectedSchemas.add(Resource.User.schema());
+        if (conf.getEnterpriseUserConf() != null) {
+            expectedSchemas.add(Resource.EnterpriseUser.schema());
+        }
         if (conf.getExtensionUserConf() != null) {
-            enterpriseExtensionSchemas =
-                    List.of(Resource.User.schema(),
-                            Resource.EnterpriseUser.schema(),
-                            conf.getExtensionUserConf().getId());
-            extensionUserSchemas = List.of(Resource.User.schema(), conf.getExtensionUserConf().getId());
+            expectedSchemas.add(conf.getExtensionUserConf().getId());
         }
         if (checkSchemas
-                && !USER_SCHEMAS.equals(user.getSchemas())
-                && !ENTERPRISE_USER_SCHEMAS.equals(user.getSchemas())
-                && conf.getExtensionUserConf() != null
-                && !enterpriseExtensionSchemas.equals(user.getSchemas())
-                && !extensionUserSchemas.equals(user.getSchemas())) {
+                && (!user.getSchemas().containsAll(expectedSchemas)
+                || !expectedSchemas.containsAll(user.getSchemas()))) {
 
             throw new BadRequestException(ErrorType.invalidValue);
         }
@@ -701,8 +694,8 @@ public class SCIMDataBinder {
         }
 
         if (conf.getExtensionUserConf() != null && user.getExtensionInfo() != null) {
-            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) ->
-                    setAttribute(userTO, syncopeAttr, user.getExtensionInfo().getAttributes().get(scimAttr)));
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) -> setAttribute(
+                    userTO, syncopeAttr, user.getExtensionInfo().getAttributes().get(scimAttr)));
         }
 
         userTO.getMemberships().addAll(user.getGroups().stream().
@@ -1012,11 +1005,9 @@ public class SCIMDataBinder {
                 break;
 
             default:
-                if (conf.getExtensionUserConf() != null
-                        && conf.getExtensionUserConf().asMap().containsKey(op.getPath().getAttribute())) {
-                    setAttribute(userUR.getPlainAttrs(), Optional.ofNullable(conf.getExtensionUserConf()).
-                            map(extConf -> extConf.asMap().get(op.getPath().getAttribute())).orElse(null), op);
-                }
+                Optional.ofNullable(conf.getExtensionUserConf()).
+                        flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute()))).
+                        ifPresent(schema -> setAttribute(userUR.getPlainAttrs(), schema, op));
         }
 
         return Pair.of(userUR, statusR);

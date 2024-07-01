@@ -91,9 +91,9 @@ public class SCIMConfManager {
                     if (!scimItem.getRequired().equals(schema.getMandatoryCondition())
                             || !scimItem.getMultiValued().equals(Boolean.toString(schema.isMultivalue()))
                             || !((scimItem.getMutability().equals("readOnly") && schema.isReadonly())
-                                || (!scimItem.getMutability().equals("readOnly") && !schema.isReadonly()))
+                            || (!scimItem.getMutability().equals("readOnly") && !schema.isReadonly()))
                             || !((!scimItem.getUniqueness().equals("none") && schema.isUniqueConstraint())
-                                || (scimItem.getUniqueness().equals("none") && !schema.isUniqueConstraint()))) {
+                            || (scimItem.getUniqueness().equals("none") && !schema.isUniqueConstraint()))) {
                         throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                     }
                 } catch (NotFoundException e) {

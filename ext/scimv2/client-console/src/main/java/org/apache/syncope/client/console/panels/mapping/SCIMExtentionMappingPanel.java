@@ -272,10 +272,10 @@ public class SCIMExtentionMappingPanel extends Panel {
 
         anyTypeClassRestClient.list(anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses()).
                 forEach(anyTypeClassTO -> {
-            choices.addAll(anyTypeClassTO.getPlainSchemas());
-            choices.addAll(anyTypeClassTO.getDerSchemas());
-            choices.addAll(anyTypeClassTO.getVirSchemas());
-        });
+                    choices.addAll(anyTypeClassTO.getPlainSchemas());
+                    choices.addAll(anyTypeClassTO.getDerSchemas());
+                    choices.addAll(anyTypeClassTO.getVirSchemas());
+                });
 
         Collections.sort(choices);
         return Model.ofList(choices);

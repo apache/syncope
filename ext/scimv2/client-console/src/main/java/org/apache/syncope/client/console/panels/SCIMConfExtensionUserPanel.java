@@ -41,62 +41,57 @@ public class SCIMConfExtensionUserPanel extends SCIMConfTabPanel {
         }
         scimExtensionUserConf = scimConf.getExtensionUserConf();
 
-        AjaxTextFieldPanel idPanel =
-                new AjaxTextFieldPanel("id", "id",
-                        new PropertyModel<>("id", "id") {
+        AjaxTextFieldPanel idPanel = new AjaxTextFieldPanel("id", "id", new PropertyModel<>("id", "id") {
 
-                            private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                            @Override
-                            public String getObject() {
-                                return scimExtensionUserConf.getId();
-                            }
+            @Override
+            public String getObject() {
+                return scimExtensionUserConf.getId();
+            }
 
-                            @Override
-                            public void setObject(final String object) {
-                                scimExtensionUserConf.setId(object);
-                            }
-                        });
+            @Override
+            public void setObject(final String object) {
+                scimExtensionUserConf.setId(object);
+            }
+        });
         add(idPanel);
 
-        AjaxTextFieldPanel namePanel =
-                new AjaxTextFieldPanel("name", "name",
-                        new PropertyModel<>("name", "name") {
+        AjaxTextFieldPanel namePanel = new AjaxTextFieldPanel("name", "name", new PropertyModel<>("name", "name") {
 
-                            private static final long serialVersionUID = 7389942851813193481L;
+            private static final long serialVersionUID = 7389942851813193481L;
 
-                            @Override
-                            public String getObject() {
-                                return scimExtensionUserConf.getName();
-                            }
+            @Override
+            public String getObject() {
+                return scimExtensionUserConf.getName();
+            }
 
-                            @Override
-                            public void setObject(final String object) {
-                                scimExtensionUserConf.setName(object);
-                            }
-                        });
+            @Override
+            public void setObject(final String object) {
+                scimExtensionUserConf.setName(object);
+            }
+        });
         add(namePanel);
 
-        AjaxTextFieldPanel descriptionPanel =
-                new AjaxTextFieldPanel("description", "description",
-                        new PropertyModel<>("description", "description") {
+        AjaxTextFieldPanel descriptionPanel = new AjaxTextFieldPanel("description", "description",
+                new PropertyModel<>("description", "description") {
 
-                            private static final long serialVersionUID = -5911179251497048661L;
+            private static final long serialVersionUID = -5911179251497048661L;
 
-                            @Override
-                            public String getObject() {
-                                return scimExtensionUserConf.getDescription();
-                            }
+            @Override
+            public String getObject() {
+                return scimExtensionUserConf.getDescription();
+            }
 
-                            @Override
-                            public void setObject(final String object) {
-                                scimExtensionUserConf.setDescription(object);
-                            }
-                        });
+            @Override
+            public void setObject(final String object) {
+                scimExtensionUserConf.setDescription(object);
+            }
+        });
         add(descriptionPanel);
 
-        SCIMExtentionMappingPanel extentionMappingPanel =
-                new SCIMExtentionMappingPanel("mapping", new ListModel<>(scimExtensionUserConf.getAttributes()));
+        SCIMExtentionMappingPanel extentionMappingPanel = new SCIMExtentionMappingPanel(
+                "mapping", new ListModel<>(scimExtensionUserConf.getAttributes()));
         Form<SCIMExtensionUserConf> form = new Form<>("form", new Model<>(scimExtensionUserConf));
         form.add(extentionMappingPanel);
         add(form);
