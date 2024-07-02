@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -78,18 +79,14 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             SCIMConf conf = confManager.get();
             if (conf.getExtensionUserConf() != null) {
                 JsonNode extension = MAPPER.valueToTree(conf.getExtensionUserConf());
+                ((ObjectNode) extension).put("id", Resource.ExtensionUser.schema());
                 schemaArray.add(extension);
             }
             schemas = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
             schemaMap.clear();
             for (JsonNode schema : schemaArray) {
-                if (schema.has("id")) {
-                    schemaMap.put(schema.get("id").asText(), MAPPER.writeValueAsString(schema));
-                }
-                if (schema.has("urn")) {
-                    schemaMap.put(schema.get("urn").asText(), MAPPER.writeValueAsString(schema));
-                }
+                schemaMap.put(schema.get("id").asText(), MAPPER.writeValueAsString(schema));
             }
         } catch (IOException e) {
             LOG.error("Could not parse the default schema definitions", e);

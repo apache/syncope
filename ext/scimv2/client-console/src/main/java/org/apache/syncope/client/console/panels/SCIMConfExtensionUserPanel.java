@@ -41,22 +41,6 @@ public class SCIMConfExtensionUserPanel extends SCIMConfTabPanel {
         }
         scimExtensionUserConf = scimConf.getExtensionUserConf();
 
-        AjaxTextFieldPanel urnPanel = new AjaxTextFieldPanel("urn", "urn", new PropertyModel<>("urn", "urn") {
-
-            private static final long serialVersionUID = -6427731218492117883L;
-
-            @Override
-            public String getObject() {
-                return scimExtensionUserConf.getUrn();
-            }
-
-            @Override
-            public void setObject(final String object) {
-                scimExtensionUserConf.setUrn(object);
-            }
-        });
-        add(urnPanel);
-
         AjaxTextFieldPanel namePanel = new AjaxTextFieldPanel("name", "name", new PropertyModel<>("name", "name") {
 
             private static final long serialVersionUID = 7389942851813193481L;

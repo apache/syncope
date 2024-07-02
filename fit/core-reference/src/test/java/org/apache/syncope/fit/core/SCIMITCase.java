@@ -200,7 +200,6 @@ public class SCIMITCase extends AbstractITCase {
     @Test
     public void schemas() {
         SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
-        extensionUserConf.setUrn("urn:ietf:params:scim:schemas:extension:syncope:2.0:User");
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -230,12 +229,12 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(enterpriseUser);
         assertEquals(Resource.EnterpriseUser.schema(), enterpriseUser.get("id").textValue());
 
-        response = webClient().path("Schemas").path("urn:ietf:params:scim:schemas:extension:syncope:2.0:User").get();
+        response = webClient().path("Schemas").path(Resource.ExtensionUser.schema()).get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
 
         ObjectNode extensionUser = response.readEntity(ObjectNode.class);
         assertNotNull(extensionUser);
-        assertEquals(CONF.getExtensionUserConf().getUrn(), extensionUser.get("urn").textValue());
+        assertEquals(Resource.ExtensionUser.schema(), extensionUser.get("id").textValue());
 
         CONF.setExtensionUserConf(null);
         SCIM_CONF_SERVICE.set(CONF);
@@ -298,7 +297,6 @@ public class SCIMITCase extends AbstractITCase {
     @Test
     void invalidConf() {
         SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
-        extensionUserConf.setUrn("urn:ietf:params:scim:schemas:extension:syncope:2.0:User");
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -448,7 +446,7 @@ public class SCIMITCase extends AbstractITCase {
         SCIM_CONF_SERVICE.set(CONF);
 
         SCIMUser user = getSampleUser(
-                UUID.randomUUID().toString(), List.of(Resource.User.schema(), extensionUserConf.getUrn()));
+                UUID.randomUUID().toString(), List.of(Resource.User.schema(), Resource.ExtensionUser.schema()));
         SCIMExtensionInfo scimExtensionInfo = new SCIMExtensionInfo();
         scimExtensionInfo.getAttributes().put("gender", "M");
         user.setExtensionInfo(scimExtensionInfo);
@@ -477,33 +475,6 @@ public class SCIMITCase extends AbstractITCase {
 
         response = webClient().path("Users").path(user.getId()).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
-        CONF.setExtensionUserConf(null);
-        SCIM_CONF_SERVICE.set(CONF);
-    }
-
-    @Test
-    void distinctExtensionUrn() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
-        extensionUserConf.setUrn("syncope");
-        CONF.setExtensionUserConf(extensionUserConf);
-        SCIM_CONF_SERVICE.set(CONF);
-
-        SCIMUser user = getSampleUser(
-                UUID.randomUUID().toString(), List.of(Resource.User.schema(), extensionUserConf.getUrn()));
-
-        Response response = webClient().path("Users").post(user);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
-
-        user = response.readEntity(SCIMUser.class);
-        assertNotNull(user.getId());
-        assertTrue(response.getLocation().toASCIIString().endsWith(user.getId()));
-
-        UserTO userTO = USER_SERVICE.read(user.getId());
-        assertEquals(user.getUserName(), userTO.getUsername());
-
-        response = webClient().path("Users").path(user.getId()).delete();
-        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-
         CONF.setExtensionUserConf(null);
         SCIM_CONF_SERVICE.set(CONF);
     }
