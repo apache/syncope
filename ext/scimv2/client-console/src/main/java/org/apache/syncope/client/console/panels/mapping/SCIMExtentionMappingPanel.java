@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels.mapping;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
