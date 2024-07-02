@@ -96,7 +96,6 @@ public class SCIMExtentionMappingPanel extends Panel {
 
         mandatoryHeader = new WebMarkupContainer("mandatoryHeader");
         mandatoryHeader.setOutputMarkupId(true);
-        mandatoryHeader.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
         mappingContainer.add(mandatoryHeader);
 
         caseExactLabel = new Label("caseExactLabel", Model.of());
