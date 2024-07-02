@@ -193,7 +193,7 @@ public class SCIMDataBinder {
             schemas.add(Resource.EnterpriseUser.schema());
         }
         if (conf.getExtensionUserConf() != null) {
-            schemas.add(conf.getExtensionUserConf().getId());
+            schemas.add(conf.getExtensionUserConf().getUrn());
         }
 
         SCIMUser user = new SCIMUser(
@@ -515,7 +515,7 @@ public class SCIMDataBinder {
             expectedSchemas.add(Resource.EnterpriseUser.schema());
         }
         if (conf.getExtensionUserConf() != null) {
-            expectedSchemas.add(conf.getExtensionUserConf().getId());
+            expectedSchemas.add(conf.getExtensionUserConf().getUrn());
         }
         if (checkSchemas
                 && (!user.getSchemas().containsAll(expectedSchemas)

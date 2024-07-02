@@ -88,18 +88,15 @@ public class SCIMConfManager {
             conf.getExtensionUserConf().getAttributes().forEach(scimItem -> {
                 try {
                     PlainSchemaTO schema = schemaLogic.read(SchemaType.PLAIN, scimItem.getExtAttrName());
-                    if (!scimItem.getRequired().equals(schema.getMandatoryCondition())
+                    if (!scimItem.getMandatoryCondition().equals(schema.getMandatoryCondition())
                             || !scimItem.getMultiValued().equals(Boolean.toString(schema.isMultivalue()))
-                            || !((scimItem.getMutability().equals("readOnly") && schema.isReadonly())
-                            || (!scimItem.getMutability().equals("readOnly") && !schema.isReadonly()))
-                            || !((!scimItem.getUniqueness().equals("none") && schema.isUniqueConstraint())
-                            || (scimItem.getUniqueness().equals("none") && !schema.isUniqueConstraint()))) {
+                            || !scimItem.getMutability().equals(Boolean.toString(schema.isReadonly()))
+                            || !scimItem.getUniqueness().equals(Boolean.toString(schema.isUniqueConstraint()))) {
                         throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                     }
                 } catch (NotFoundException e) {
                     PlainSchemaTO schema = schemaLogic.read(SchemaType.VIRTUAL, scimItem.getExtAttrName());
-                    if (!((scimItem.getMutability().equals("readOnly") && schema.isReadonly())
-                            || (!scimItem.getMutability().equals("readOnly") && !schema.isReadonly()))) {
+                    if (!scimItem.getMutability().equals(Boolean.toString(schema.isReadonly()))) {
                         throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                     }
                 }

@@ -49,6 +49,8 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected static final Object MONITOR = new Object();
 
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+
     protected static ServiceProviderConfig SERVICE_PROVIDER_CONFIG;
 
     protected static ResourceType USER;
@@ -67,8 +69,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected void init() {
         try {
-            JsonMapper mapper = JsonMapper.builder().findAndAddModules().build();
-            JsonNode tree = mapper.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));
+            JsonNode tree = MAPPER.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));
             if (!tree.isArray()) {
                 throw new IOException("JSON node is not a tree");
             }
@@ -76,14 +77,19 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             ArrayNode schemaArray = (ArrayNode) tree;
             SCIMConf conf = confManager.get();
             if (conf.getExtensionUserConf() != null) {
-                JsonNode extension = mapper.valueToTree(conf.getExtensionUserConf());
+                JsonNode extension = MAPPER.valueToTree(conf.getExtensionUserConf());
                 schemaArray.add(extension);
             }
-            schemas = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+            schemas = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
             schemaMap.clear();
             for (JsonNode schema : schemaArray) {
-                schemaMap.put(schema.get("id").asText(), mapper.writeValueAsString(schema));
+                if (schema.has("id")) {
+                    schemaMap.put(schema.get("id").asText(), MAPPER.writeValueAsString(schema));
+                }
+                if (schema.has("urn")) {
+                    schemaMap.put(schema.get("urn").asText(), MAPPER.writeValueAsString(schema));
+                }
             }
         } catch (IOException e) {
             LOG.error("Could not parse the default schema definitions", e);

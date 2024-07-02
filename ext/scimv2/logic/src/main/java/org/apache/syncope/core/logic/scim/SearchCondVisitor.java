@@ -126,11 +126,11 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
                 if (conf.getExtensionUserConf() != null) {
                     for (Map.Entry<String, String> entry : conf.getExtensionUserConf().asMap().entrySet()) {
-                        if (conf.getExtensionUserConf().getId().isBlank()
+                        if (conf.getExtensionUserConf().getUrn().isBlank()
                                 ? entry.getKey().contains(":")
                                 ? StringUtils.substringAfterLast(entry.getKey(), ":").equalsIgnoreCase(schema)
                                 : entry.getKey().equalsIgnoreCase(schema)
-                                : entry.getKey().equalsIgnoreCase(schema) || (conf.getExtensionUserConf().getId()
+                                : entry.getKey().equalsIgnoreCase(schema) || (conf.getExtensionUserConf().getUrn()
                                 + ":" + entry.getKey()).equalsIgnoreCase(schema)) {
                             attrCond = new AttrCond();
                             attrCond.setSchema(entry.getValue());

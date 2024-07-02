@@ -18,53 +18,21 @@
  */
 package org.apache.syncope.common.lib.scim;
 
-import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.to.Item;
 
-public class SCIMItem implements Serializable {
-
-    private static final long serialVersionUID = -5280546918760080971L;
-
-    private String intAttrName;
-
-    private String extAttrName;
-
-    private String required = "false";
+public class SCIMItem extends Item {
 
     private String caseExact = "false";
 
-    private String mutability = "readWrite";
+    private String mutability = "false";
 
     private String returned = "default";
 
-    private String uniqueness = "none";
+    private String uniqueness = "false";
 
     private String multiValued = "false";
-
-    public String getIntAttrName() {
-        return intAttrName;
-    }
-
-    public void setIntAttrName(final String intAttrName) {
-        this.intAttrName = intAttrName;
-    }
-
-    public String getExtAttrName() {
-        return extAttrName;
-    }
-
-    public void setExtAttrName(final String extAttrName) {
-        this.extAttrName = extAttrName;
-    }
-
-    public String getRequired() {
-        return required;
-    }
-
-    public void setRequired(final String required) {
-        this.required = required;
-    }
 
     public String getCaseExact() {
         return caseExact;
@@ -121,7 +89,7 @@ public class SCIMItem implements Serializable {
         return new EqualsBuilder().
                 append(intAttrName, other.intAttrName).
                 append(extAttrName, other.extAttrName).
-                append(required, other.required).
+                append(mandatoryCondition, other.mandatoryCondition).
                 append(caseExact, other.caseExact).
                 append(mutability, other.mutability).
                 append(returned, other.returned).
@@ -135,7 +103,7 @@ public class SCIMItem implements Serializable {
         return new HashCodeBuilder().
                 append(intAttrName).
                 append(extAttrName).
-                append(required).
+                append(mandatoryCondition).
                 append(caseExact).
                 append(mutability).
                 append(returned).

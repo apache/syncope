@@ -31,7 +31,7 @@ public class SCIMExtensionUserConf implements Serializable {
 
     private static final long serialVersionUID = -9091596628402547645L;
 
-    private String id = "urn:ietf:params:scim:schemas:extension:syncope:2.0:User";
+    private String urn = "urn:ietf:params:scim:schemas:extension:syncope:2.0:User";
 
     private String name;
 
@@ -39,12 +39,12 @@ public class SCIMExtensionUserConf implements Serializable {
 
     private final List<SCIMItem> attributes = new ArrayList<>();
 
-    public String getId() {
-        return id;
+    public String getUrn() {
+        return urn;
     }
 
-    public void setId(final String id) {
-        this.id = id;
+    public void setUrn(final String urn) {
+        this.urn = urn;
     }
 
     public String getName() {

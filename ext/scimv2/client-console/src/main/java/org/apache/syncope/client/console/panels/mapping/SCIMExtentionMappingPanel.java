@@ -143,16 +143,16 @@ public class SCIMExtentionMappingPanel extends Panel {
                 // -------------------------------
 
                 //--------------------------------
-                // Required
+                // mandatoryCondition
                 // -------------------------------
-                AjaxTextFieldPanel required = new AjaxTextFieldPanel(
-                        "required",
-                        "required",
-                        new PropertyModel<>(itemTO, "required"));
-                required.hideLabel();
-                required.setChoices(List.of("true", "false"));
-                required.setEnabled(true);
-                item.add(required);
+                AjaxTextFieldPanel mandatoryCondition = new AjaxTextFieldPanel(
+                        "mandatoryCondition",
+                        "mandatoryCondition",
+                        new PropertyModel<>(itemTO, "mandatoryCondition"));
+                mandatoryCondition.hideLabel();
+                mandatoryCondition.setChoices(List.of("true", "false"));
+                mandatoryCondition.setEnabled(true);
+                item.add(mandatoryCondition);
                 // -------------------------------
 
                 //--------------------------------
@@ -176,7 +176,7 @@ public class SCIMExtentionMappingPanel extends Panel {
                         "mutability",
                         new PropertyModel<>(itemTO, "mutability"));
                 mutability.hideLabel();
-                mutability.setChoices(List.of("readOnly", "readWrite", "immutable", "writeOnly"));
+                mutability.setChoices(List.of("true", "false"));
                 mutability.setEnabled(true);
                 item.add(mutability);
                 // -------------------------------
@@ -202,7 +202,7 @@ public class SCIMExtentionMappingPanel extends Panel {
                         "uniqueness",
                         new PropertyModel<>(itemTO, "uniqueness"));
                 uniqueness.hideLabel();
-                uniqueness.setChoices(List.of("none", "server", "global"));
+                uniqueness.setChoices(List.of("true", "false"));
                 uniqueness.setEnabled(true);
                 item.add(uniqueness);
                 // -------------------------------
