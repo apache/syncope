@@ -24,53 +24,53 @@ import org.apache.syncope.common.lib.to.Item;
 
 public class SCIMItem extends Item {
 
-    private String caseExact = "false";
+    private boolean caseExact = false;
 
-    private String mutability = "false";
+    private boolean mutability = false;
 
-    private String returned = "default";
+    private SCIMReturned returned = SCIMReturned.DEFAULT;
 
-    private String uniqueness = "false";
+    private boolean uniqueness = false;
 
-    private String multiValued = "false";
+    private boolean multiValued = false;
 
-    public String getCaseExact() {
+    public boolean isCaseExact() {
         return caseExact;
     }
 
-    public void setCaseExact(final String caseExact) {
+    public void setCaseExact(final boolean caseExact) {
         this.caseExact = caseExact;
     }
 
-    public String getMutability() {
+    public boolean isMutability() {
         return mutability;
     }
 
-    public void setMutability(final String mutability) {
+    public void setMutability(final boolean mutability) {
         this.mutability = mutability;
     }
 
-    public String getReturned() {
+    public SCIMReturned getReturned() {
         return returned;
     }
 
-    public void setReturned(final String returned) {
+    public void setReturned(final SCIMReturned returned) {
         this.returned = returned;
     }
 
-    public String getUniqueness() {
+    public boolean isUniqueness() {
         return uniqueness;
     }
 
-    public void setUniqueness(final String uniqueness) {
+    public void setUniqueness(final boolean uniqueness) {
         this.uniqueness = uniqueness;
     }
 
-    public String getMultiValued() {
+    public boolean isMultiValued() {
         return multiValued;
     }
 
-    public void setMultiValued(final String multiValued) {
+    public void setMultiValued(final boolean multiValued) {
         this.multiValued = multiValued;
     }
 

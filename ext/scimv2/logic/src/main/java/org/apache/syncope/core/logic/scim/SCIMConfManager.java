@@ -89,14 +89,14 @@ public class SCIMConfManager {
                 try {
                     PlainSchemaTO schema = schemaLogic.read(SchemaType.PLAIN, scimItem.getExtAttrName());
                     if (!scimItem.getMandatoryCondition().equals(schema.getMandatoryCondition())
-                            || !scimItem.getMultiValued().equals(Boolean.toString(schema.isMultivalue()))
-                            || !scimItem.getMutability().equals(Boolean.toString(schema.isReadonly()))
-                            || !scimItem.getUniqueness().equals(Boolean.toString(schema.isUniqueConstraint()))) {
+                            || scimItem.isMultiValued() != schema.isMultivalue()
+                            || scimItem.isMutability() != schema.isReadonly()
+                            || scimItem.isUniqueness() != schema.isUniqueConstraint()) {
                         throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                     }
                 } catch (NotFoundException e) {
                     PlainSchemaTO schema = schemaLogic.read(SchemaType.VIRTUAL, scimItem.getExtAttrName());
-                    if (!scimItem.getMutability().equals(Boolean.toString(schema.isReadonly()))) {
+                    if (scimItem.isMutability() != schema.isReadonly()) {
                         throw SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                     }
                 }

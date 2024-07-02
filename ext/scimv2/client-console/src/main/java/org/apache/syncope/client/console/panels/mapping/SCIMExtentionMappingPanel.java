@@ -31,8 +31,11 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.scim.SCIMItem;
+import org.apache.syncope.common.lib.scim.SCIMReturned;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -145,12 +148,11 @@ public class SCIMExtentionMappingPanel extends Panel {
                 //--------------------------------
                 // mandatoryCondition
                 // -------------------------------
-                AjaxTextFieldPanel mandatoryCondition = new AjaxTextFieldPanel(
+                AjaxCheckBoxPanel mandatoryCondition = new AjaxCheckBoxPanel(
                         "mandatoryCondition",
                         "mandatoryCondition",
                         new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatoryCondition.hideLabel();
-                mandatoryCondition.setChoices(List.of("true", "false"));
                 mandatoryCondition.setEnabled(true);
                 item.add(mandatoryCondition);
                 // -------------------------------
@@ -158,12 +160,11 @@ public class SCIMExtentionMappingPanel extends Panel {
                 //--------------------------------
                 // CaseExact
                 // -------------------------------
-                AjaxTextFieldPanel caseExact = new AjaxTextFieldPanel(
+                AjaxCheckBoxPanel caseExact = new AjaxCheckBoxPanel(
                         "caseExact",
                         "caseExact",
                         new PropertyModel<>(itemTO, "caseExact"));
                 caseExact.hideLabel();
-                caseExact.setChoices(List.of("true", "false"));
                 caseExact.setEnabled(true);
                 item.add(caseExact);
                 // -------------------------------
@@ -171,12 +172,11 @@ public class SCIMExtentionMappingPanel extends Panel {
                 //--------------------------------
                 // Mutability
                 // -------------------------------
-                AjaxTextFieldPanel mutability = new AjaxTextFieldPanel(
+                AjaxCheckBoxPanel mutability = new AjaxCheckBoxPanel(
                         "mutability",
                         "mutability",
                         new PropertyModel<>(itemTO, "mutability"));
                 mutability.hideLabel();
-                mutability.setChoices(List.of("true", "false"));
                 mutability.setEnabled(true);
                 item.add(mutability);
                 // -------------------------------
@@ -184,12 +184,12 @@ public class SCIMExtentionMappingPanel extends Panel {
                 //--------------------------------
                 // Returned
                 // -------------------------------
-                AjaxTextFieldPanel returned = new AjaxTextFieldPanel(
+                AjaxDropDownChoicePanel<SCIMReturned> returned = new AjaxDropDownChoicePanel<>(
                         "returned",
                         "returned",
                         new PropertyModel<>(itemTO, "returned"));
                 returned.hideLabel();
-                returned.setChoices(List.of("always", "never", "default", "request"));
+                returned.setChoices(List.of(SCIMReturned.values()));
                 returned.setEnabled(true);
                 item.add(returned);
                 // -------------------------------
@@ -197,12 +197,11 @@ public class SCIMExtentionMappingPanel extends Panel {
                 //--------------------------------
                 // Uniqueness
                 // -------------------------------
-                AjaxTextFieldPanel uniqueness = new AjaxTextFieldPanel(
+                AjaxCheckBoxPanel uniqueness = new AjaxCheckBoxPanel(
                         "uniqueness",
                         "uniqueness",
                         new PropertyModel<>(itemTO, "uniqueness"));
                 uniqueness.hideLabel();
-                uniqueness.setChoices(List.of("true", "false"));
                 uniqueness.setEnabled(true);
                 item.add(uniqueness);
                 // -------------------------------
@@ -210,12 +209,11 @@ public class SCIMExtentionMappingPanel extends Panel {
                 //--------------------------------
                 // MultiValued
                 // -------------------------------
-                AjaxTextFieldPanel multiValued = new AjaxTextFieldPanel(
+                AjaxCheckBoxPanel multiValued = new AjaxCheckBoxPanel(
                         "multiValued",
                         "multiValued",
                         new PropertyModel<>(itemTO, "multiValued"));
                 multiValued.hideLabel();
-                multiValued.setChoices(List.of("true", "false"));
                 multiValued.setEnabled(true);
                 item.add(multiValued);
                 // -------------------------------

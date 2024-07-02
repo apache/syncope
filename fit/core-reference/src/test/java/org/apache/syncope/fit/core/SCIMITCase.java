@@ -304,7 +304,7 @@ public class SCIMITCase extends AbstractITCase {
         SCIMItem scimItem = new SCIMItem();
         scimItem.setIntAttrName("gender");
         scimItem.setExtAttrName("gender");
-        scimItem.setMultiValued("true");
+        scimItem.setMultiValued(true);
         extensionUserConf.add(scimItem);
         CONF.setExtensionUserConf(extensionUserConf);
         try {
