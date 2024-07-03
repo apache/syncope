@@ -25,6 +25,7 @@ public enum Resource {
     Schema("urn:ietf:params:scim:schemas:core:2.0:Schema"),
     User("urn:ietf:params:scim:schemas:core:2.0:User"),
     EnterpriseUser("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"),
+    ExtensionUser("urn:ietf:params:scim:schemas:extension:syncope:2.0:User"),
     Group("urn:ietf:params:scim:schemas:core:2.0:Group"),
     SearchRequest("urn:ietf:params:scim:api:messages:2.0:SearchRequest"),
     ListResponse("urn:ietf:params:scim:api:messages:2.0:ListResponse"),

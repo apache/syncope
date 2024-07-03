@@ -123,6 +123,15 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                         attrCond.setSchema(conf.getEnterpriseUserConf().getManager().getKey());
                     }
                 }
+
+                if (conf.getExtensionUserConf() != null) {
+                    for (Map.Entry<String, String> entry : conf.getExtensionUserConf().asMap().entrySet()) {
+                        if (schemaEquals(Resource.ExtensionUser, entry.getKey(), schema)) {
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
+                        }
+                    }
+                }
                 break;
 
             case Group:
