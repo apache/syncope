@@ -986,7 +986,7 @@ under the License.
               <images>
                 <image>
                   <alias>mysql</alias>
-                  <name>mysql/mysql-server:${docker.mysql.version}</name>
+                  <name>mysql:${docker.mysql.version}</name>
                   <run>
                     <cmd>--skip-log-bin --server-id=1 --sort_buffer_size=348M</cmd>
                     <env>
@@ -1090,7 +1090,7 @@ under the License.
               <images>
                 <image>
                   <alias>mysql</alias>
-                  <name>mysql/mysql-server:${docker.mysql.version}</name>
+                  <name>mysql:${docker.mysql.version}</name>
                   <run>
                     <cmd>--skip-log-bin --server-id=1 --sort_buffer_size=348M</cmd>
                     <env>

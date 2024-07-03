@@ -499,7 +499,7 @@ under the License.
     <jakarta.faces.version>4.1.0</jakarta.faces.version>
 
     <docker.postgresql.version>16</docker.postgresql.version>
-    <docker.mysql.version>8.0</docker.mysql.version>
+    <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.neo4j.version>5.21.0</docker.neo4j.version>
 
