@@ -78,9 +78,27 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             ArrayNode schemaArray = (ArrayNode) tree;
             SCIMConf conf = confManager.get();
             if (conf.getExtensionUserConf() != null) {
-                JsonNode extension = MAPPER.valueToTree(conf.getExtensionUserConf());
-                ((ObjectNode) extension).put("id", Resource.ExtensionUser.schema());
-                schemaArray.add(extension);
+                ObjectNode extensionObject = MAPPER.createObjectNode();
+                extensionObject.put("id", Resource.ExtensionUser.schema());
+                extensionObject.put("name", conf.getExtensionUserConf().getName());
+                extensionObject.put("description", conf.getExtensionUserConf().getDescription());
+                ArrayNode attributes = MAPPER.createArrayNode();
+                conf.getExtensionUserConf().getAttributes().forEach(scimItem -> {
+                    ObjectNode attribute = MAPPER.createObjectNode();
+                    attribute.put("name", scimItem.getIntAttrName());
+                    attribute.put("type", "string");
+                    attribute.put("multiValued", scimItem.isMultiValued());
+                    attribute.put("required", scimItem.getMandatoryCondition());
+                    attribute.put("caseExact", scimItem.isCaseExact());
+                    attribute.put("mutability", scimItem.isMutability());
+                    attribute.put("returned", scimItem.getReturned().getReturned());
+                    attribute.put("uniqueness", scimItem.isUniqueness());
+                    attributes.add(attribute);
+                });
+                extensionObject.putIfAbsent("attributes", attributes);
+                extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
+                        + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:User\"}"));
+                schemaArray.add(extensionObject);
             }
             schemas = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 

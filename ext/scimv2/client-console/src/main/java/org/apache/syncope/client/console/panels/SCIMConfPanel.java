@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -76,6 +77,7 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     scimConfRestClient.set(SCIMConfPanel.this.scimConfTO);
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While setting SCIM configuration", e);
                     SyncopeConsoleSession.get().onException(e);
