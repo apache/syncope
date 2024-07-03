@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,6 +65,7 @@ import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.Meta;
 import org.apache.syncope.ext.scimv2.api.data.SCIMComplexValue;
 import org.apache.syncope.ext.scimv2.api.data.SCIMEnterpriseInfo;
+import org.apache.syncope.ext.scimv2.api.data.SCIMExtensionInfo;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOperation;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
@@ -82,11 +84,6 @@ import org.springframework.util.CollectionUtils;
 public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
-
-    protected static final List<String> USER_SCHEMAS = List.of(Resource.User.schema());
-
-    protected static final List<String> ENTERPRISE_USER_SCHEMAS =
-            List.of(Resource.User.schema(), Resource.EnterpriseUser.schema());
 
     protected static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
 
@@ -194,6 +191,9 @@ public class SCIMDataBinder {
         schemas.add(Resource.User.schema());
         if (conf.getEnterpriseUserConf() != null) {
             schemas.add(Resource.EnterpriseUser.schema());
+        }
+        if (conf.getExtensionUserConf() != null) {
+            schemas.add(Resource.ExtensionUser.schema());
         }
 
         SCIMUser user = new SCIMUser(
@@ -444,6 +444,13 @@ public class SCIMDataBinder {
             }
         }
 
+        if (conf.getExtensionUserConf() != null) {
+            SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) -> extensionInfo.getAttributes().put(
+                    scimAttr, attrs.get(syncopeAttr).getValues().get(0)));
+            user.setExtensionInfo(extensionInfo);
+        }
+
         if (output(attributes, excludedAttributes, "groups")) {
             userTO.getMemberships().forEach(membership -> user.getGroups().add(new Group(
                     membership.getGroupKey(),
@@ -500,9 +507,19 @@ public class SCIMDataBinder {
     }
 
     public UserTO toUserTO(final SCIMUser user, final boolean checkSchemas) {
+        SCIMConf conf = confManager.get();
+
+        Set<String> expectedSchemas = new HashSet<>();
+        expectedSchemas.add(Resource.User.schema());
+        if (conf.getEnterpriseUserConf() != null) {
+            expectedSchemas.add(Resource.EnterpriseUser.schema());
+        }
+        if (conf.getExtensionUserConf() != null) {
+            expectedSchemas.add(Resource.ExtensionUser.schema());
+        }
         if (checkSchemas
-                && !USER_SCHEMAS.equals(user.getSchemas())
-                && !ENTERPRISE_USER_SCHEMAS.equals(user.getSchemas())) {
+                && (!user.getSchemas().containsAll(expectedSchemas)
+                || !expectedSchemas.containsAll(user.getSchemas()))) {
 
             throw new BadRequestException(ErrorType.invalidValue);
         }
@@ -512,8 +529,6 @@ public class SCIMDataBinder {
         userTO.setKey(user.getId());
         userTO.setPassword(user.getPassword());
         userTO.setUsername(user.getUserName());
-
-        SCIMConf conf = confManager.get();
 
         if (conf.getUserConf() != null) {
             setAttribute(
@@ -676,6 +691,11 @@ public class SCIMDataBinder {
                             map(SCIMManagerConf::getKey).orElse(null),
                     Optional.ofNullable(user.getEnterpriseInfo().getManager()).
                             map(SCIMUserManager::getValue).orElse(null));
+        }
+
+        if (conf.getExtensionUserConf() != null && user.getExtensionInfo() != null) {
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) -> setAttribute(
+                    userTO, syncopeAttr, user.getExtensionInfo().getAttributes().get(scimAttr)));
         }
 
         userTO.getMemberships().addAll(user.getGroups().stream().
@@ -985,6 +1005,9 @@ public class SCIMDataBinder {
                 break;
 
             default:
+                Optional.ofNullable(conf.getExtensionUserConf()).
+                        flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute()))).
+                        ifPresent(schema -> setAttribute(userUR.getPlainAttrs(), schema, op));
         }
 
         return Pair.of(userUR, statusR);

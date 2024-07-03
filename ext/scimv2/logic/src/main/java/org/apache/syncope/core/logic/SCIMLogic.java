@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -49,15 +50,17 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected static final Object MONITOR = new Object();
 
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+
     protected static ServiceProviderConfig SERVICE_PROVIDER_CONFIG;
 
     protected static ResourceType USER;
 
     protected static ResourceType GROUP;
 
-    protected static String SCHEMAS;
+    protected String schemas;
 
-    protected static final Map<String, String> SCHEMA_MAP = new HashMap<>();
+    protected final Map<String, String> schemaMap = new HashMap<>();
 
     protected final SCIMConfManager confManager;
 
@@ -67,17 +70,41 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     protected void init() {
         try {
-            JsonMapper mapper = JsonMapper.builder().findAndAddModules().build();
-            JsonNode tree = mapper.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));
+            JsonNode tree = MAPPER.readTree(SCIMLogic.class.getResourceAsStream('/' + SCHEMAS_JSON));
             if (!tree.isArray()) {
                 throw new IOException("JSON node is not a tree");
             }
 
             ArrayNode schemaArray = (ArrayNode) tree;
-            SCHEMAS = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
+            SCIMConf conf = confManager.get();
+            if (conf.getExtensionUserConf() != null) {
+                ObjectNode extensionObject = MAPPER.createObjectNode();
+                extensionObject.put("id", Resource.ExtensionUser.schema());
+                extensionObject.put("name", conf.getExtensionUserConf().getName());
+                extensionObject.put("description", conf.getExtensionUserConf().getDescription());
+                ArrayNode attributes = MAPPER.createArrayNode();
+                conf.getExtensionUserConf().getAttributes().forEach(scimItem -> {
+                    ObjectNode attribute = MAPPER.createObjectNode();
+                    attribute.put("name", scimItem.getIntAttrName());
+                    attribute.put("type", "string");
+                    attribute.put("multiValued", scimItem.isMultiValued());
+                    attribute.put("required", scimItem.getMandatoryCondition());
+                    attribute.put("caseExact", scimItem.isCaseExact());
+                    attribute.put("mutability", scimItem.isMutability());
+                    attribute.put("returned", scimItem.getReturned().getReturned());
+                    attribute.put("uniqueness", scimItem.isUniqueness());
+                    attributes.add(attribute);
+                });
+                extensionObject.putIfAbsent("attributes", attributes);
+                extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
+                        + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:User\"}"));
+                schemaArray.add(extensionObject);
+            }
+            schemas = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
+            schemaMap.clear();
             for (JsonNode schema : schemaArray) {
-                SCHEMA_MAP.put(schema.get("id").asText(), mapper.writeValueAsString(schema));
+                schemaMap.put(schema.get("id").asText(), MAPPER.writeValueAsString(schema));
             }
         } catch (IOException e) {
             LOG.error("Could not parse the default schema definitions", e);
@@ -86,11 +113,9 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     public ServiceProviderConfig serviceProviderConfig(final UriBuilder uriBuilder) {
-        synchronized (MONITOR) {
-            if (SCHEMAS == null) {
-                init();
-            }
+        init();
 
+        synchronized (MONITOR) {
             if (SERVICE_PROVIDER_CONFIG == null) {
                 SCIMConf conf = confManager.get();
 
@@ -164,24 +189,16 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("isAuthenticated()")
     public String schemas() {
-        synchronized (MONITOR) {
-            if (SCHEMAS == null) {
-                init();
-            }
-        }
+        init();
 
-        return SCHEMAS;
+        return schemas;
     }
 
     @PreAuthorize("isAuthenticated()")
     public String schema(final String schema) {
-        synchronized (MONITOR) {
-            if (SCHEMAS == null) {
-                init();
-            }
-        }
+        init();
 
-        String found = SCHEMA_MAP.get(schema);
+        String found = schemaMap.get(schema);
         if (found == null) {
             throw new NotFoundException("Schema " + schema + " not found");
         }
