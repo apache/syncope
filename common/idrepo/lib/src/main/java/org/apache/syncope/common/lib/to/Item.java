@@ -35,44 +35,44 @@ public class Item implements Serializable {
      * Attribute schema to be mapped. Consider other we can associate tha same attribute schema more than once, with
      * different aliases, to different resource attributes.
      */
-    private String intAttrName;
+    protected String intAttrName;
 
     /**
      * External resource's field to be mapped.
      */
-    private String extAttrName;
+    protected String extAttrName;
 
     /**
      * Specify if the mapped target resource's field is the key.
      */
-    private boolean connObjectKey;
+    protected boolean connObjectKey;
 
     /**
      * Specify if the mapped target resource's field is the password.
      */
-    private boolean password;
+    protected boolean password;
 
     /**
      * Specify if the mapped target resource's field is nullable.
      */
-    private String mandatoryCondition = "false";
+    protected String mandatoryCondition = "false";
 
     /**
      * Mapping purposes.
      */
-    private MappingPurpose purpose;
+    protected MappingPurpose purpose;
 
     /**
      * (Optional) JEXL expression to apply to values before propagation.
      */
-    private String propagationJEXLTransformer;
+    protected String propagationJEXLTransformer;
 
     /**
      * (Optional) JEXL expression to apply to values before pull.
      */
-    private String pullJEXLTransformer;
+    protected String pullJEXLTransformer;
 
-    private final List<String> transformers = new ArrayList<>();
+    protected final List<String> transformers = new ArrayList<>();
 
     public boolean isConnObjectKey() {
         return connObjectKey;

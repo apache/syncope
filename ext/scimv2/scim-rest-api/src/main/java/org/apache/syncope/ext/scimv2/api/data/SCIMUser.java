@@ -31,7 +31,7 @@ import java.util.Optional;
     "name", "displayName", "nickName", "profileUrl", "title", "userType", "preferredLanguage", "locale", "timezone",
     "emails", "phoneNumbers", "ims", "photos", "addresses", "x509Certificates",
     "groups", "entitlements", "roles",
-    "enterpriseInfo",
+    "enterpriseInfo", "extensionInfo",
     "meta" })
 public class SCIMUser extends SCIMResource {
 
@@ -79,6 +79,9 @@ public class SCIMUser extends SCIMResource {
 
     @JsonProperty("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User")
     private SCIMEnterpriseInfo enterpriseInfo;
+
+    @JsonProperty("urn:ietf:params:scim:schemas:extension:syncope:2.0:User")
+    private SCIMExtensionInfo extensionInfo;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public SCIMUser(
@@ -220,5 +223,13 @@ public class SCIMUser extends SCIMResource {
 
     public void setEnterpriseInfo(final SCIMEnterpriseInfo enterpriseInfo) {
         this.enterpriseInfo = enterpriseInfo;
+    }
+
+    public SCIMExtensionInfo getExtensionInfo() {
+        return extensionInfo;
+    }
+
+    public void setExtensionInfo(final SCIMExtensionInfo extensionInfo) {
+        this.extensionInfo = extensionInfo;
     }
 }
