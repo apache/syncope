@@ -504,7 +504,7 @@ under the License.
     <docker.neo4j.version>5.21.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
-    <jdbc.mysql.version>8.4.0</jdbc.mysql.version>
+    <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.4.0</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.4.0.24.05</jdbc.oracle.version>
@@ -1417,7 +1417,7 @@ under the License.
         <plugin>
           <groupId>io.github.git-commit-id</groupId>
           <artifactId>git-commit-id-maven-plugin</artifactId>
-          <version>9.0.0</version>
+          <version>9.0.1</version>
           <executions>
             <execution>
               <goals>
@@ -1579,7 +1579,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.13</version>
+          <version>1.10.14</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
