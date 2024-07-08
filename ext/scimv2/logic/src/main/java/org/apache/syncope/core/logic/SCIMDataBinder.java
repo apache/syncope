@@ -446,9 +446,15 @@ public class SCIMDataBinder {
 
         if (conf.getExtensionUserConf() != null) {
             SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
-            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) -> extensionInfo.getAttributes().put(
-                    scimAttr, attrs.get(syncopeAttr).getValues().get(0)));
-            user.setExtensionInfo(extensionInfo);
+            conf.getExtensionUserConf().asMap().forEach((scimAttr, syncopeAttr) -> {
+                if (output(attributes, excludedAttributes, scimAttr) && attrs.containsKey(syncopeAttr)) {
+                    extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0));
+                }
+            });
+
+            if (!extensionInfo.isEmpty()) {
+                user.setExtensionInfo(extensionInfo);
+            }
         }
 
         if (output(attributes, excludedAttributes, "groups")) {
