@@ -322,6 +322,7 @@ public class SCIMITCase extends AbstractITCase {
 
         response = webClient().path("Groups").
                 query("sortBy", "displayName").
+                query("startIndex", 2).
                 query("count", 11).
                 get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -333,6 +334,7 @@ public class SCIMITCase extends AbstractITCase {
         });
         assertNotNull(result);
         assertTrue(result.getTotalResults() > 0);
+        assertEquals(2, result.getStartIndex());
         assertEquals(11, result.getItemsPerPage());
 
         assertFalse(result.getResources().isEmpty());
