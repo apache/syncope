@@ -155,9 +155,10 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
         SearchCondVisitor visitor = new SearchCondVisitor(type, confManager.get());
 
-        int startIndex = request.getStartIndex() <= 1
+        int page = request.getStartIndex() <= 1
                 ? 1
                 : (request.getStartIndex() / AnyDAO.DEFAULT_PAGE_SIZE) + 1;
+        int startIndex = request.getStartIndex() <= 1 ? 1 : request.getStartIndex();
 
         int itemsPerPage = request.getCount() <= 1 ? AnyDAO.DEFAULT_PAGE_SIZE : request.getCount();
 
@@ -177,7 +178,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                 StringUtils.isBlank(request.getFilter())
                 ? null
                 : SearchCondConverter.convert(visitor, request.getFilter()),
-                startIndex,
+                page,
                 itemsPerPage,
                 sort,
                 SyncopeConstants.ROOT_REALM,
@@ -188,8 +189,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
         }
 
-        ListResponse<R> response = new ListResponse<>(
-                result.getLeft(), startIndex == 1 ? 1 : startIndex - 1, itemsPerPage);
+        ListResponse<R> response = new ListResponse<>(result.getLeft(), startIndex, itemsPerPage);
 
         result.getRight().forEach(anyTO -> {
             SCIMResource resource = null;
