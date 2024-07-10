@@ -414,7 +414,7 @@ under the License.
     <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.3.1</spring-boot.version>
-    <spring-cloud-gateway.version>4.1.4</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.1.5</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0</openjpa.version>
 
