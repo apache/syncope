@@ -493,7 +493,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.25</tomcat.version>
+    <tomcat.version>10.1.26</tomcat.version>
     <wildfly.version>32.0.1.Final</wildfly.version>
     <payara.version>6.2024.6</payara.version>
     <jakarta.faces.version>4.1.0</jakarta.faces.version>
