@@ -21,10 +21,12 @@ package org.apache.syncope.core.logic.scim;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionUserConf;
+import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.common.lib.scim.SCIMUserNameConf;
 import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
@@ -59,6 +61,17 @@ public class SCIMFilterTest {
         email.setType(EmailCanonicalType.home);
         conf.getUserConf().getEmails().add(email);
 
+        SCIMEnterpriseUserConf entConf = new SCIMEnterpriseUserConf();
+        entConf.setOrganization("org");
+        conf.setEnterpriseUserConf(entConf);
+
+        SCIMExtensionUserConf extConf = new SCIMExtensionUserConf();
+        SCIMItem item = new SCIMItem();
+        item.setIntAttrName("realm");
+        item.setExtAttrName("realm");
+        extConf.add(item);
+        conf.setExtensionUserConf(extConf);
+
         VISITOR = new SearchCondVisitor(Resource.User, conf);
     }
 
@@ -66,20 +79,18 @@ public class SCIMFilterTest {
     public void eq() {
         SearchCond cond = SearchCondConverter.convert(VISITOR, "userName eq \"bjensen\"");
         assertNotNull(cond);
-        assertTrue(cond.getLeaf(AnyCond.class).isPresent());
-        assertEquals("username", cond.getLeaf(AnyCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.IEQ, cond.getLeaf(AnyCond.class).get().getType());
-        assertEquals("bjensen", cond.getLeaf(AnyCond.class).get().getExpression());
+        assertEquals("username", cond.getLeaf(AnyCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.IEQ, cond.getLeaf(AnyCond.class).orElseThrow().getType());
+        assertEquals("bjensen", cond.getLeaf(AnyCond.class).orElseThrow().getExpression());
     }
 
     @Test
     public void sw() {
         SearchCond cond = SearchCondConverter.convert(VISITOR, "userName sw \"J\"");
         assertNotNull(cond);
-        assertTrue(cond.getLeaf(AnyCond.class).isPresent());
-        assertEquals("username", cond.getLeaf(AnyCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ILIKE, cond.getLeaf(AnyCond.class).get().getType());
-        assertEquals("J%", cond.getLeaf(AnyCond.class).get().getExpression());
+        assertEquals("username", cond.getLeaf(AnyCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, cond.getLeaf(AnyCond.class).orElseThrow().getType());
+        assertEquals("J%", cond.getLeaf(AnyCond.class).orElseThrow().getExpression());
 
         SearchCond fqn = SearchCondConverter.convert(
                 VISITOR, "urn:ietf:params:scim:schemas:core:2.0:User:userName sw \"J\"");
@@ -90,30 +101,27 @@ public class SCIMFilterTest {
     public void pr() {
         SearchCond cond = SearchCondConverter.convert(VISITOR, "title pr");
         assertNotNull(cond);
-        assertTrue(cond.getLeaf(AttrCond.class).isPresent());
-        assertEquals("title", cond.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ISNOTNULL, cond.getLeaf(AttrCond.class).get().getType());
-        assertNull(cond.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("title", cond.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ISNOTNULL, cond.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertNull(cond.getLeaf(AttrCond.class).orElseThrow().getExpression());
     }
 
     @Test
     public void gt() {
         SearchCond cond = SearchCondConverter.convert(VISITOR, "meta.lastModified gt \"2011-05-13T04:42:34Z\"");
         assertNotNull(cond);
-        assertTrue(cond.getLeaf(AnyCond.class).isPresent());
-        assertEquals("lastChangeDate", cond.getLeaf(AnyCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.GT, cond.getLeaf(AnyCond.class).get().getType());
-        assertEquals("2011-05-13T04:42:34Z", cond.getLeaf(AnyCond.class).get().getExpression());
+        assertEquals("lastChangeDate", cond.getLeaf(AnyCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.GT, cond.getLeaf(AnyCond.class).orElseThrow().getType());
+        assertEquals("2011-05-13T04:42:34Z", cond.getLeaf(AnyCond.class).orElseThrow().getExpression());
     }
 
     @Test
     public void not() {
         SearchCond cond = SearchCondConverter.convert(VISITOR, "not (title pr)");
         assertNotNull(cond);
-        assertTrue(cond.getLeaf(AttrCond.class).isPresent());
-        assertEquals("title", cond.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ISNULL, cond.getLeaf(AttrCond.class).get().getType());
-        assertNull(cond.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("title", cond.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ISNULL, cond.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertNull(cond.getLeaf(AttrCond.class).orElseThrow().getExpression());
     }
 
     @Test
@@ -124,17 +132,15 @@ public class SCIMFilterTest {
 
         SearchCond left = cond.getLeft();
         assertNotNull(left);
-        assertTrue(left.getLeaf(AttrCond.class).isPresent());
-        assertEquals("title", left.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ISNOTNULL, left.getLeaf(AttrCond.class).get().getType());
-        assertNull(left.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("title", left.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ISNOTNULL, left.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertNull(left.getLeaf(AttrCond.class).orElseThrow().getExpression());
 
         SearchCond right = cond.getRight();
         assertNotNull(right);
-        assertTrue(right.getLeaf(AnyCond.class).isPresent());
-        assertEquals("username", right.getLeaf(AnyCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ILIKE, right.getLeaf(AnyCond.class).get().getType());
-        assertEquals("J%", right.getLeaf(AnyCond.class).get().getExpression());
+        assertEquals("username", right.getLeaf(AnyCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, right.getLeaf(AnyCond.class).orElseThrow().getType());
+        assertEquals("J%", right.getLeaf(AnyCond.class).orElseThrow().getExpression());
     }
 
     @Test
@@ -145,17 +151,15 @@ public class SCIMFilterTest {
 
         SearchCond left = cond.getLeft();
         assertNotNull(left);
-        assertTrue(left.getLeaf(AttrCond.class).isPresent());
-        assertEquals("title", left.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ISNOTNULL, left.getLeaf(AttrCond.class).get().getType());
-        assertNull(left.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("title", left.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ISNOTNULL, left.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertNull(left.getLeaf(AttrCond.class).orElseThrow().getExpression());
 
         SearchCond right = cond.getRight();
         assertNotNull(right);
-        assertTrue(right.getLeaf(AttrCond.class).isPresent());
-        assertEquals("cn", right.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.IEQ, right.getLeaf(AttrCond.class).get().getType());
-        assertEquals("Other", right.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("cn", right.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.IEQ, right.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("Other", right.getLeaf(AttrCond.class).orElseThrow().getExpression());
     }
 
     @Test
@@ -167,16 +171,14 @@ public class SCIMFilterTest {
 
         SearchCond left = cond.getLeft();
         assertNotNull(left);
-        assertTrue(left.getLeaf(AttrCond.class).isPresent());
-        assertEquals("userType", left.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.IEQ, left.getLeaf(AttrCond.class).get().getType());
-        assertEquals("Employee", left.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("userType", left.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.IEQ, left.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("Employee", left.getLeaf(AttrCond.class).orElseThrow().getExpression());
 
         SearchCond right = cond.getRight();
         assertNotNull(right);
-        assertTrue(right.getLeaf(AttrCond.class).isPresent());
-        assertEquals("email", right.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ISNOTNULL, right.getLeaf(AttrCond.class).get().getType());
+        assertEquals("email", right.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ISNOTNULL, right.getLeaf(AttrCond.class).orElseThrow().getType());
     }
 
     @Test
@@ -185,7 +187,7 @@ public class SCIMFilterTest {
         assertNotNull(cond);
         assertEquals(SearchCond.Type.LEAF, cond.getType());
 
-        AttrCond leaf = cond.getLeaf(AttrCond.class).get();
+        AttrCond leaf = cond.getLeaf(AttrCond.class).orElseThrow();
         assertNotNull(leaf);
         assertEquals("surname", leaf.getSchema());
         assertEquals(AttrCond.Type.ILIKE, leaf.getType());
@@ -205,17 +207,15 @@ public class SCIMFilterTest {
 
         SearchCond left1 = left.getLeft();
         assertNotNull(left1);
-        assertTrue(left1.getLeaf(AttrCond.class).isPresent());
-        assertEquals("email", left1.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ILIKE, left1.getLeaf(AttrCond.class).get().getType());
-        assertEquals("%example.com%", left1.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("email", left1.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, left1.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("%example.com%", left1.getLeaf(AttrCond.class).orElseThrow().getExpression());
 
         SearchCond left2 = left.getRight();
         assertNotNull(left2);
-        assertTrue(left2.getLeaf(AttrCond.class).isPresent());
-        assertEquals("gmail", left2.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ILIKE, left2.getLeaf(AttrCond.class).get().getType());
-        assertEquals("%example.com%", left2.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("gmail", left2.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, left2.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("%example.com%", left2.getLeaf(AttrCond.class).orElseThrow().getExpression());
 
         SearchCond right = cond.getRight();
         assertNotNull(right);
@@ -223,16 +223,34 @@ public class SCIMFilterTest {
 
         SearchCond right1 = right.getLeft();
         assertNotNull(right1);
-        assertTrue(right1.getLeaf(AttrCond.class).isPresent());
-        assertEquals("email", right1.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ILIKE, right1.getLeaf(AttrCond.class).get().getType());
-        assertEquals("%example.org%", right1.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("email", right1.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, right1.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("%example.org%", right1.getLeaf(AttrCond.class).orElseThrow().getExpression());
 
         SearchCond right2 = right.getRight();
         assertNotNull(right2);
-        assertTrue(right2.getLeaf(AttrCond.class).isPresent());
-        assertEquals("gmail", right2.getLeaf(AttrCond.class).get().getSchema());
-        assertEquals(AttrCond.Type.ILIKE, right2.getLeaf(AttrCond.class).get().getType());
-        assertEquals("%example.org%", right2.getLeaf(AttrCond.class).get().getExpression());
+        assertEquals("gmail", right2.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, right2.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("%example.org%", right2.getLeaf(AttrCond.class).orElseThrow().getExpression());
+    }
+
+    @Test
+    public void enterpriseUserAttr() {
+        SearchCond cond = SearchCondConverter.convert(VISITOR,
+                "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:organization eq \"The ASF\"");
+        assertNotNull(cond);
+        assertEquals("org", cond.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.IEQ, cond.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("The ASF", cond.getLeaf(AttrCond.class).orElseThrow().getExpression());
+    }
+
+    @Test
+    public void extensionUserAttr() {
+        SearchCond cond = SearchCondConverter.convert(VISITOR,
+                "urn:ietf:params:scim:schemas:extension:syncope:2.0:User:realm sw \"/\"");
+        assertNotNull(cond);
+        assertEquals("realm", cond.getLeaf(AttrCond.class).orElseThrow().getSchema());
+        assertEquals(AttrCond.Type.ILIKE, cond.getLeaf(AttrCond.class).orElseThrow().getType());
+        assertEquals("/%", cond.getLeaf(AttrCond.class).orElseThrow().getExpression());
     }
 }
