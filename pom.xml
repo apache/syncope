@@ -440,7 +440,7 @@ under the License.
     <cas.version>7.1.0-RC5</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <h2.version>2.2.224</h2.version>
+    <h2.version>2.3.230</h2.version>
 
     <swagger-core.version>2.2.22</swagger-core.version>
     <swagger-ui.version>5.17.14</swagger-ui.version>
@@ -496,7 +496,7 @@ under the License.
     <tomcat.version>10.1.26</tomcat.version>
     <wildfly.version>32.0.1.Final</wildfly.version>
     <payara.version>6.2024.6</payara.version>
-    <jakarta.faces.version>4.1.0</jakarta.faces.version>
+    <jakarta.faces.version>4.1.1</jakarta.faces.version>
 
     <docker.postgresql.version>16</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
@@ -881,7 +881,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.0.0-BETA</version>
+        <version>3.0.0-BETA2</version>
       </dependency>
 
       <dependency>
@@ -1950,7 +1950,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.6.1</version>
+        <version>3.6.2</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
