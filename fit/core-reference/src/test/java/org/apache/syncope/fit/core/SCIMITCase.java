@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
 import org.apache.syncope.common.lib.scim.SCIMExtensionUserConf;
 import org.apache.syncope.common.lib.scim.SCIMGroupConf;
 import org.apache.syncope.common.lib.scim.SCIMItem;
@@ -414,6 +415,57 @@ public class SCIMITCase extends AbstractITCase {
 
         SCIMUser newSCIMUser = users.getResources().get(0);
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
+
+        SCIMEnterpriseUserConf beforeEntConf = CONF.getEnterpriseUserConf();
+        SCIMExtensionUserConf beforeExtConf = CONF.getExtensionUserConf();
+        try {
+            SCIMEnterpriseUserConf entConf = new SCIMEnterpriseUserConf();
+            entConf.setOrganization("userId");
+            CONF.setEnterpriseUserConf(entConf);
+
+            SCIMExtensionUserConf extConf = new SCIMExtensionUserConf();
+            SCIMItem item = new SCIMItem();
+            item.setIntAttrName("email");
+            item.setExtAttrName("email");
+            extConf.add(item);
+            CONF.setExtensionUserConf(extConf);
+
+            SCIM_CONF_SERVICE.set(CONF);
+
+            // Enterprise User
+            response = webClient().path("Users").query(
+                    "filter",
+                    "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:organization eq \"verdi@apache.org\"").
+                    get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            assertEquals(
+                    SCIMConstants.APPLICATION_SCIM_JSON,
+                    StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+            users = response.readEntity(new GenericType<>() {
+            });
+            assertNotNull(users);
+            assertEquals(1, users.getTotalResults());
+
+            // Extension User
+            response = webClient().path("Users").query(
+                    "filter",
+                    "urn:ietf:params:scim:schemas:extension:syncope:2.0:User:email sw \"verdi\"").
+                    get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            assertEquals(
+                    SCIMConstants.APPLICATION_SCIM_JSON,
+                    StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+            users = response.readEntity(new GenericType<>() {
+            });
+            assertNotNull(users);
+            assertEquals(1, users.getTotalResults());
+        } finally {
+            CONF.setEnterpriseUserConf(beforeEntConf);
+            CONF.setExtensionUserConf(beforeExtConf);
+            SCIM_CONF_SERVICE.set(CONF);
+        }
     }
 
     @Test

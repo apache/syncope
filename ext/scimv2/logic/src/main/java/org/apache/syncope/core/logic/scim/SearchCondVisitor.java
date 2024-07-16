@@ -40,6 +40,120 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     private static final List<String> MULTIVALUE = List.of(
             "emails", "phoneNumbers", "ims", "photos", "addresses");
 
+    private static boolean schemaEquals(final Resource resource, final String value, final String schema) {
+        return resource == null
+                ? value.contains(":")
+                ? StringUtils.substringAfterLast(value, ":").equalsIgnoreCase(schema)
+                : value.equalsIgnoreCase(schema)
+                : value.equalsIgnoreCase(schema) || (resource.schema() + ":" + value).equalsIgnoreCase(schema);
+    }
+
+    private static SearchCond setOperator(final AttrCond attrCond, final String operator) {
+        switch (operator) {
+            case "eq":
+            default:
+                attrCond.setType(AttrCond.Type.IEQ);
+                break;
+
+            case "ne":
+                attrCond.setType(AttrCond.Type.IEQ);
+                break;
+
+            case "sw":
+                attrCond.setType(AttrCond.Type.ILIKE);
+                attrCond.setExpression(attrCond.getExpression() + "%");
+                break;
+
+            case "co":
+                attrCond.setType(AttrCond.Type.ILIKE);
+                attrCond.setExpression("%" + attrCond.getExpression() + "%");
+                break;
+
+            case "ew":
+                attrCond.setType(AttrCond.Type.ILIKE);
+                attrCond.setExpression("%" + attrCond.getExpression());
+                break;
+
+            case "gt":
+                attrCond.setType(AttrCond.Type.GT);
+                break;
+
+            case "ge":
+                attrCond.setType(AttrCond.Type.GE);
+                break;
+
+            case "lt":
+                attrCond.setType(AttrCond.Type.LT);
+                break;
+
+            case "le":
+                attrCond.setType(AttrCond.Type.LE);
+                break;
+        }
+
+        return "ne".equals(operator)
+                ? SearchCond.getNotLeaf(attrCond)
+                : SearchCond.getLeaf(attrCond);
+    }
+
+    private static <E extends Enum<?>> SearchCond complex(
+            final String operator, final String left, final String right, final List<SCIMComplexConf<E>> items) {
+
+        if (left.endsWith(".type") && "eq".equals(operator)) {
+            Optional<SCIMComplexConf<E>> item = items.stream().
+                    filter(object -> object.getType().name().equals(StringUtils.strip(right, "\""))).findFirst();
+            if (item.isPresent()) {
+                AttrCond attrCond = new AttrCond();
+                attrCond.setSchema(item.get().getValue());
+                attrCond.setType(AttrCond.Type.ISNOTNULL);
+                return SearchCond.getLeaf(attrCond);
+            }
+        } else if (MULTIVALUE.contains(left) || left.endsWith(".value")) {
+            List<SearchCond> orConds = items.stream().
+                    filter(item -> item.getValue() != null).
+                    map(item -> {
+                        AttrCond cond = new AttrCond();
+                        cond.setSchema(item.getValue());
+                        cond.setExpression(StringUtils.strip(right, "\""));
+                        return setOperator(cond, operator);
+                    }).collect(Collectors.toList());
+            if (!orConds.isEmpty()) {
+                return SearchCond.getOr(orConds);
+            }
+        }
+
+        return null;
+    }
+
+    private static SearchCond addresses(
+            final String operator, final String left, final String right, final List<SCIMUserAddressConf> items) {
+
+        if (left.endsWith(".type") && "eq".equals(operator)) {
+            Optional<SCIMUserAddressConf> item = items.stream().
+                    filter(object -> object.getType().name().equals(StringUtils.strip(right, "\""))).findFirst();
+            if (item.isPresent()) {
+                AttrCond attrCond = new AttrCond();
+                attrCond.setSchema(item.get().getFormatted());
+                attrCond.setType(AttrCond.Type.ISNOTNULL);
+                return SearchCond.getLeaf(attrCond);
+            }
+        } else if (MULTIVALUE.contains(left) || left.endsWith(".value")) {
+            List<SearchCond> orConds = items.stream().
+                    filter(item -> item.getFormatted() != null).
+                    map(item -> {
+                        AttrCond cond = new AttrCond();
+                        cond.setSchema(item.getFormatted());
+                        cond.setExpression(StringUtils.strip(right, "\""));
+                        return setOperator(cond, operator);
+                    }).collect(Collectors.toList());
+            if (!orConds.isEmpty()) {
+                return SearchCond.getOr(orConds);
+            }
+        }
+
+        return null;
+    }
+
     private final Resource resource;
 
     private final SCIMConf conf;
@@ -52,14 +166,6 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     @Override
     public SearchCond visitScimFilter(final SCIMFilterParser.ScimFilterContext ctx) {
         return visit(ctx.expression(0));
-    }
-
-    private static boolean schemaEquals(final Resource resource, final String value, final String schema) {
-        return resource == null
-                ? value.contains(":")
-                ? StringUtils.substringAfterLast(value, ":").equalsIgnoreCase(schema)
-                : value.equalsIgnoreCase(schema)
-                : value.equalsIgnoreCase(schema) || (resource.schema() + ":" + value).equalsIgnoreCase(schema);
     }
 
     public AttrCond createAttrCond(final String schema) {
@@ -153,112 +259,6 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         }
 
         return attrCond;
-    }
-
-    private static SearchCond setOperator(final AttrCond attrCond, final String operator) {
-        switch (operator) {
-            case "eq":
-            default:
-                attrCond.setType(AttrCond.Type.IEQ);
-                break;
-
-            case "ne":
-                attrCond.setType(AttrCond.Type.IEQ);
-                break;
-
-            case "sw":
-                attrCond.setType(AttrCond.Type.ILIKE);
-                attrCond.setExpression(attrCond.getExpression() + "%");
-                break;
-
-            case "co":
-                attrCond.setType(AttrCond.Type.ILIKE);
-                attrCond.setExpression("%" + attrCond.getExpression() + "%");
-                break;
-
-            case "ew":
-                attrCond.setType(AttrCond.Type.ILIKE);
-                attrCond.setExpression("%" + attrCond.getExpression());
-                break;
-
-            case "gt":
-                attrCond.setType(AttrCond.Type.GT);
-                break;
-
-            case "ge":
-                attrCond.setType(AttrCond.Type.GE);
-                break;
-
-            case "lt":
-                attrCond.setType(AttrCond.Type.LT);
-                break;
-
-            case "le":
-                attrCond.setType(AttrCond.Type.LE);
-                break;
-        }
-
-        return "ne".equals(operator)
-                ? SearchCond.getNotLeaf(attrCond)
-                : SearchCond.getLeaf(attrCond);
-    }
-
-    private <E extends Enum<?>> SearchCond complex(
-            final String operator, final String left, final String right, final List<SCIMComplexConf<E>> items) {
-
-        if (left.endsWith(".type") && "eq".equals(operator)) {
-            Optional<SCIMComplexConf<E>> item = items.stream().
-                    filter(object -> object.getType().name().equals(StringUtils.strip(right, "\""))).findFirst();
-            if (item.isPresent()) {
-                AttrCond attrCond = new AttrCond();
-                attrCond.setSchema(item.get().getValue());
-                attrCond.setType(AttrCond.Type.ISNOTNULL);
-                return SearchCond.getLeaf(attrCond);
-            }
-        } else if (MULTIVALUE.contains(left) || left.endsWith(".value")) {
-            List<SearchCond> orConds = items.stream().
-                    filter(item -> item.getValue() != null).
-                    map(item -> {
-                        AttrCond cond = new AttrCond();
-                        cond.setSchema(item.getValue());
-                        cond.setExpression(StringUtils.strip(right, "\""));
-                        return setOperator(cond, operator);
-                    }).collect(Collectors.toList());
-            if (!orConds.isEmpty()) {
-                return SearchCond.getOr(orConds);
-            }
-        }
-
-        return null;
-    }
-
-    private SearchCond addresses(
-            final String operator, final String left, final String right, final List<SCIMUserAddressConf> items) {
-
-        if (left.endsWith(".type") && "eq".equals(operator)) {
-            Optional<SCIMUserAddressConf> item = items.stream().
-                    filter(object -> object.getType().name().equals(StringUtils.strip(right, "\""))).findFirst();
-            if (item.isPresent()) {
-                AttrCond attrCond = new AttrCond();
-                attrCond.setSchema(item.get().getFormatted());
-                attrCond.setType(AttrCond.Type.ISNOTNULL);
-                return SearchCond.getLeaf(attrCond);
-            }
-        } else if (MULTIVALUE.contains(left) || left.endsWith(".value")) {
-            List<SearchCond> orConds = items.stream().
-                    filter(item -> item.getFormatted() != null).
-                    map(item -> {
-                        AttrCond cond = new AttrCond();
-                        cond.setSchema(item.getFormatted());
-                        cond.setExpression(StringUtils.strip(right, "\""));
-                        return setOperator(cond, operator);
-                    }).collect(Collectors.toList());
-            if (!orConds.isEmpty()) {
-                return SearchCond.getOr(orConds);
-            }
-        }
-
-        return null;
     }
 
     private SearchCond transform(final String operator, final String left, final String right) {
