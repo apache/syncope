@@ -142,6 +142,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         List<PropagationTaskInfo> tasks = propagationManager.setAttributeDeltas(
                 propagationManager.getUpdateTasks(
+                        updated.getResult(),
                         AnyTypeKind.GROUP,
                         updated.getResult().getKey(),
                         false,
@@ -150,8 +151,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                         null,
                         groupUR.getVirAttrs(),
                         excludedResources),
-                beforeAttrs,
-                updated.getResult());
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
@@ -230,6 +230,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+                null,
                 AnyTypeKind.GROUP,
                 key,
                 false,

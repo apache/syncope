@@ -185,6 +185,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
     @Override
     public List<PropagationTaskInfo> getUpdateTasks(
+            final AnyUR anyUR,
             final AnyTypeKind kind,
             final String key,
             final boolean changePwd,
@@ -195,6 +196,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Collection<String> excludedResources) {
 
         return getUpdateTasks(
+                anyUR,
                 anyUtilsFactory.getInstance(kind).dao().authFind(key),
                 null,
                 changePwd,
@@ -212,6 +214,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final Collection<String> excludedResources) {
 
         return getUpdateTasks(
+                wfResult.getResult().getLeft(),
                 anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(wfResult.getResult().getLeft().getKey()),
                 Optional.ofNullable(wfResult.getResult().getLeft().getPassword()).
                         map(PasswordPatch::getValue).orElse(null),
@@ -278,12 +281,14 @@ public class DefaultPropagationManager implements PropagationManager {
             }
 
             tasks = tasks.stream().distinct().toList();
+            tasks.forEach(task -> task.setUpdateRequest(wfResult.getResult().getLeft()));
         }
 
         return tasks;
     }
 
     protected List<PropagationTaskInfo> getUpdateTasks(
+            final AnyUR anyUR,
             final Any<?> any,
             final String password,
             final boolean changePwd,
@@ -308,7 +313,7 @@ public class DefaultPropagationManager implements PropagationManager {
             }
         }
 
-        return createTasks(
+        List<PropagationTaskInfo> tasks = createTasks(
                 any,
                 password,
                 changePwd,
@@ -316,6 +321,8 @@ public class DefaultPropagationManager implements PropagationManager {
                 Optional.ofNullable(propByRes).orElseGet(PropagationByResource::new),
                 propByLinkedAccount,
                 vAttrs);
+        tasks.forEach(task -> task.setUpdateRequest(anyUR));
+        return tasks;
     }
 
     @Override
@@ -704,8 +711,7 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> setAttributeDeltas(
             final List<PropagationTaskInfo> tasks,
-            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs,
-            final AnyUR updateRequest) {
+            final Map<Pair<String, String>, Set<Attribute>> beforeAttrs) {
 
         if (beforeAttrs.isEmpty()) {
             return tasks;
@@ -794,7 +800,6 @@ public class DefaultPropagationManager implements PropagationManager {
 
             if (!attributeDeltas.isEmpty()) {
                 propagationData.setAttributeDeltas(attributeDeltas);
-                task.setUpdateRequest(updateRequest);
             }
         }
 

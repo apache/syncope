@@ -124,6 +124,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+                null,
                 any.getType().getKind(),
                 any.getKey(),
                 true,
