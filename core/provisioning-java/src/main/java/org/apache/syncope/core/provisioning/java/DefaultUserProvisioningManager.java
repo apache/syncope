@@ -131,8 +131,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.getUserUpdateTasks(updated),
-                beforeAttrs,
-                updated.getResult().getLeft());
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
@@ -190,8 +189,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                         updated,
                         updated.getResult().getLeft().getPassword() != null,
                         excludedResources),
-                beforeAttrs,
-                updated.getResult().getLeft());
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
@@ -289,6 +287,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         propByRes.addAll(ResourceOperation.UPDATE, statusR.getResources());
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+                null,
                 AnyTypeKind.USER,
                 statusR.getKey(),
                 false,

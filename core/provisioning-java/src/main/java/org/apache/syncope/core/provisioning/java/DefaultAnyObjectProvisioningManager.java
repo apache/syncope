@@ -123,6 +123,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.getUpdateTasks(
+                        updated.getResult(),
                         AnyTypeKind.ANY_OBJECT,
                         updated.getResult().getKey(),
                         false,
@@ -131,8 +132,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                         null,
                         anyObjectUR.getVirAttrs(),
                         excludedResources),
-                beforeAttrs,
-                updated.getResult());
+                beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
 
         return Pair.of(updated.getResult(), propagationReporter.getStatuses());
@@ -196,6 +196,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+                null,
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 false,

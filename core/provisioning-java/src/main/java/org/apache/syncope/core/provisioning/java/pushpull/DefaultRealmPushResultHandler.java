@@ -114,8 +114,7 @@ public class DefaultRealmPushResultHandler
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.createTasks(realm, propByRes, null),
-                beforeAttrs,
-                null);
+                beforeAttrs);
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();

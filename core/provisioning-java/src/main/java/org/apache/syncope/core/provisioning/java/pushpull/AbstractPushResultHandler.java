@@ -108,6 +108,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         propByRes.addOldConnObjectKey(profile.getTask().getResource().getKey(), beforeObj.getUid().getUidValue());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+                null,
                 any.getType().getKind(),
                 any.getKey(),
                 changepwd,
