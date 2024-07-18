@@ -431,7 +431,7 @@ under the License.
     <opensearch.version>2.15.0</opensearch.version>
     <opensearch-java.version>2.11.1</opensearch-java.version>
 
-    <commons-lang3.version>3.14.0</commons-lang3.version>
+    <commons-lang3.version>3.15.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
     <commons-text.version>1.12.0</commons-text.version>
 
@@ -505,7 +505,7 @@ under the License.
 
     <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
     <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.4.0</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.4.1</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.4.0.24.05</jdbc.oracle.version>
 
