@@ -2257,6 +2257,26 @@ under the License.
       </modules>
     </profile>
 
+    <!-- TMP until Spring Boot 3.3.2 -->
+    <profile>
+      <id>jdk23-plus</id>
+
+      <activation>
+        <jdk>[23,)</jdk>
+      </activation>
+
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
+
     <profile>
       <activation>
         <os>
