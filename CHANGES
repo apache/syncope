@@ -2,6 +2,13 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.8
+================================================================================
+
+** Improvement
+    * [SYNCOPE-1822] - SCIM: support user extension
+    * [SYNCOPE-1823] - SCIM: support search by extension attributes
+
 Release Notes - Syncope - Version 3.0.7
 ================================================================================
 
