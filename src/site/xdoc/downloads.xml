@@ -36,8 +36,8 @@ under the License.
         It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
 
-      <subsection name="3.0.7 Maggiore">
-        <p>Release date: May 20th 2024</p>
+      <subsection name="3.0.8 Maggiore">
+        <p>Release date: July 19th 2024</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore">Release notes</a>
         </p>
@@ -61,20 +61,20 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.7/syncope-3.0.7-source-release.zip">syncope-3.0.7-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.8/syncope-3.0.8-source-release.zip">syncope-3.0.8-source-release.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.7/syncope-3.0.7-source-release.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.7/syncope-3.0.7-source-release.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.8/syncope-3.0.8-source-release.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.8/syncope-3.0.8-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.7/syncope-standalone-3.0.7-distribution.zip">syncope-standalone-3.0.7-distribution.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.8/syncope-standalone-3.0.8-distribution.zip">syncope-standalone-3.0.8-distribution.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.7/syncope-standalone-3.0.7-distribution.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.7/syncope-standalone-3.0.7-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.8/syncope-standalone-3.0.8-distribution.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.8/syncope-standalone-3.0.8-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
