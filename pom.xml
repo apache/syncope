@@ -2288,6 +2288,26 @@ under the License.
         </plugins>
       </build>
     </profile>
+
+    <!-- TMP until CAS 7.1.0-RC6 -->
+    <profile>
+      <id>jdk23-plus</id>
+
+      <activation>
+        <jdk>[23,)</jdk>
+      </activation>
+
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+            <scope>test</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+    </profile>
   </profiles>
 
   <modules>
