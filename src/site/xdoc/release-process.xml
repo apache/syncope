@@ -523,7 +523,7 @@ svn commit -m "Promoting the staging site"]]></source>
           </li>
           <li>
             Deploy the updated Docker images to <a href="https://hub.docker.com/">DockerHub</a> by adjusting the GIT tag
-            name then running the <a href="https://ci-builds.apache.org./job/Syncope/job/Syncope-Release-Docker/">dedicated Jenkins job</a>.
+            name then running the <a href="https://ci-builds.apache.org/job/Syncope/job/Syncope-Release-Docker/">dedicated Jenkins job</a>.
           </li>
         </ol>
       </subsection>

@@ -28,7 +28,7 @@ under the License.
   <body>    
     <section name="Jenkins">
       <p>
-        <source><a href="https://ci-builds.apache.org./job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a></source>
+        <source><a href="https://ci-builds.apache.org/job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a></source>
       </p>
     </section>
 
