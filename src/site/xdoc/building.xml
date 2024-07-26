@@ -171,7 +171,7 @@ under the License.
           <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
         </div>
         Perform the full test suite against a real <a href="https://mariadb.org/">MariaDB</a> database via
-        <source>$ mvn -Pmariadb-it</source>
+        <source>$ mvn -Pmariadb-it</source> or <source>$ mvn -Pmajson-it</source> (for JSON support)
 
         <h5>Oracle database</h5>
         <div class="alert alert-warning">
