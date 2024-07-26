@@ -50,16 +50,11 @@ public class MyJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
         Pair<String, Boolean> schemaInfo = schemaInfo(schema.getType(), ignoreCaseMatch);
         if (schemaInfo.getRight()) {
             return "plainSchema = ? "
-                    + "AND "
-                    + (schemaInfo.getRight() ? "LOWER(" : "")
+                    + "AND LOWER("
                     + (schema.isUniqueConstraint()
                     ? "attrUniqueValue ->> '$." + schemaInfo.getLeft() + '\''
                     : schemaInfo.getLeft())
-                    + (schemaInfo.getRight() ? ")" : "")
-                    + " = "
-                    + (schemaInfo.getRight() ? "LOWER(" : "")
-                    + '?'
-                    + (schemaInfo.getRight() ? ")" : "");
+                    + ") = LOWER(?)";
         } else {
             PlainAttr<?> container = anyUtils.newPlainAttr();
             container.setSchema(schema);

@@ -208,11 +208,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         query.setParameter("schemaKey", schema.getKey());
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue());
-        if (attrValue.getDateValue() == null) {
-            query.setParameter("dateValue", null);
-        } else {
-            query.setParameter("dateValue", attrValue.getDateValue().toInstant());
-        }
+        query.setParameter("dateValue", Optional.ofNullable(attrValue.getDateValue()).
+                map(OffsetDateTime::toInstant).orElse(null));
         query.setParameter("longValue", attrValue.getLongValue());
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 

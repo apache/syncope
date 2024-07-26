@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Additional indexes (in respect to JPA's)</comment>
+
+  <entry key="Realm_parent_id">CREATE INDEX Realm_parent_id ON Realm(parent_id)</entry>
+
+  <entry key="SyncopeUser_realm_id">CREATE INDEX SyncopeUser_realm_id ON SyncopeUser(realm_id)</entry>
+  <entry key="SyncopeUser_username">CREATE UNIQUE INDEX SyncopeUser_username ON SyncopeUser(username)</entry>
+
+  <entry key="SyncopeGroup_realm_id">CREATE INDEX SyncopeGroup_realm_id ON SyncopeGroup(realm_id)</entry>
+  <entry key="SyncopeGroup_name">CREATE UNIQUE INDEX SyncopeGroup_name ON SyncopeGroup(name)</entry>
+
+  <entry key="AnyObject_realm_id">CREATE INDEX AnyObject_realm_id ON AnyObject(realm_id)</entry>
+  <entry key="AnyObject_name">CREATE UNIQUE INDEX AnyObject_name ON AnyObject(type_id,name)</entry>
+
+  <entry key="UDynGroupMembers_any_id">CREATE INDEX UDynGroupMembers_any_id ON UDynGroupMembers(any_id)</entry>
+  <entry key="UDynGroupMembers_group_id">CREATE INDEX UDynGroupMembers_group_id ON UDynGroupMembers(group_id)</entry>
+  <entry key="ADynGroupMembers_any_id">CREATE INDEX ADynGroupMembers_any_id ON ADynGroupMembers(any_id)</entry>
+  <entry key="ADynGroupMembers_group_id">CREATE INDEX ADynGroupMembers_group_id ON ADynGroupMembers(group_id)</entry>
+
+  <entry key="DynRoleMembers_any_id">CREATE INDEX DynRoleMembers_any_id ON DynRoleMembers(any_id)</entry>
+  <entry key="DynRoleMembers_role_id">CREATE INDEX DynRoleMembers_role_id ON DynRoleMembers(role_id)</entry>
+
+  <entry key="DynRealmMembers_any_id">CREATE INDEX DynRealmMembers_any_id ON DynRealmMembers(any_id)</entry>
+  <entry key="DynRealmMembers_realm_id">CREATE INDEX DynRealmMembers_dynRealm_id ON DynRealmMembers(dynRealm_id)</entry>
+
+  <entry key="UMembership_GroupIndex">CREATE INDEX UMembership_GroupIndex ON UMembership(group_id)</entry>
+  <entry key="UMembership_UserIndex">CREATE INDEX UMembership_UserIndex ON UMembership(user_id)</entry>
+  <entry key="AMembership_GroupIndex">CREATE INDEX AMembership_GroupIndex ON AMembership(group_id)</entry>
+  <entry key="AMembership_AnyObjectIndex">CREATE INDEX AMembership_AnyObjectIndex ON AMembership(anyObject_id)</entry>
+
+  <entry key="URelationship_RightIndex">CREATE INDEX URelationship_RightIndex ON URelationship(anyObject_id)</entry>
+  <entry key="URelationship_LeftIndex">CREATE INDEX URelationship_LeftIndex ON URelationship(user_id)</entry>
+  <entry key="ARelationship_RightIndex">CREATE INDEX ARelationship_RightIndex ON ARelationship(right_anyObject_id)</entry>
+  <entry key="ARelationship_AnyObjectIndex">CREATE INDEX ARelationship_AnyObjectIndex ON ARelationship(left_anyObject_id)</entry>
+
+  <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON NotificationTask(executed)</entry>
+  <entry key="TaskExec1_TaskIdIndex">CREATE INDEX TaskExec1_TaskIdIndex ON PropagationTaskExec(task_id)</entry>
+  <entry key="TaskExec2_TaskIdIndex">CREATE INDEX TaskExec2_TaskIdIndex ON PullTaskExec(task_id)</entry>
+  <entry key="TaskExec3_TaskIdIndex">CREATE INDEX TaskExec3_TaskIdIndex ON PushTaskExec(task_id)</entry>
+  <entry key="TaskExec4_TaskIdIndex">CREATE INDEX TaskExec4_TaskIdIndex ON NotificationTaskExec(task_id)</entry>
+  <entry key="TaskExec5_TaskIdIndex">CREATE INDEX TaskExec5_TaskIdIndex ON SchedTaskExec(task_id)</entry>
+  <entry key="ATPullTask_PullTaskIndex">CREATE INDEX ATPullTask_PullTaskIndex ON AnyTemplatePullTask(pullTask_id)</entry>
+</properties>
