@@ -165,7 +165,7 @@ under the License.
         <!-- possible values: sql | schema -->
         <action>sql</action>
 
-        <!-- possible values: pgjsonb | myjson | ojson -->
+        <!-- possible values: pgjsonb | myjson | majson | ojson -->
         <orm>ojson</orm>
 
         <skipTests>true</skipTests>
@@ -403,6 +403,120 @@ under the License.
               </execution>
               <execution>
                 <id>stop-mysql</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+        
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+
+    <profile>
+      <id>majson</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.mariadb.jdbc</groupId>
+          <artifactId>mariadb-java-client</artifactId>
+          <version>${jdbc.mariadb.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>add-test-source</id>
+                <phase>generate-test-sources</phase>
+                <goals>
+                  <goal>add-test-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${basedir}/../persistence-jpa/src/test/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+      
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*Test.java</include>
+              </includes>
+              <excludedGroups>multitenancy,plainAttrTable</excludedGroups>
+              <systemPropertyVariables>
+                <profileId>${project.activeProfiles[0].id}</profileId>
+                <CORE_PROPERTIES>classpath:core-majson.properties,classpath:core-majson-test.properties</CORE_PROPERTIES>
+                <DB_CONTAINER_IP>${docker.container.mariadb.ip}</DB_CONTAINER_IP>
+                <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>mariadb</alias>
+                  <name>mariadb:${docker.mariadb.version}</name>
+                  <run>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <tmpfs>
+                      <mount>/var/lib/mysql:rw</mount>
+                    </tmpfs>
+                    <wait>
+                      <log>MariaDB init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mariadb</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mariadb</id>
                 <phase>post-integration-test</phase>
                 <goals>
                   <goal>stop</goal>

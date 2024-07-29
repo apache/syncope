@@ -64,7 +64,7 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
      * @param literals literals/tokens
      * @return split value
      */
-    protected static List<String> split(final String attrValue, final List<String> literals) {
+    private static List<String> split(final String attrValue, final List<String> literals) {
         List<String> attrValues = new ArrayList<>();
 
         if (literals.isEmpty()) {
@@ -154,6 +154,20 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
         return result;
     }
 
+    protected String plainAttrQuery(
+            final String table,
+            final AnyUtils anyUtils,
+            final PlainSchema schema,
+            final PlainAttrValue attrValue,
+            final boolean ignoreCaseMatch,
+            final List<Object> queryParams) {
+
+        queryParams.add(schema.getKey());
+        queryParams.add(getAttrValue(schema, attrValue, ignoreCaseMatch));
+
+        return queryBegin(table) + "WHERE " + attrValueMatch(anyUtils, schema, attrValue, ignoreCaseMatch);
+    }
+
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
     @Override
@@ -169,11 +183,12 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
             return List.of();
         }
 
+        List<Object> queryParams = new ArrayList<>();
         Query query = entityManager.createNativeQuery(
-                queryBegin(table)
-                + "WHERE " + attrValueMatch(anyUtils, schema, attrValue, ignoreCaseMatch));
-        query.setParameter(1, schema.getKey());
-        query.setParameter(2, getAttrValue(schema, attrValue, ignoreCaseMatch));
+                plainAttrQuery(table, anyUtils, schema, attrValue, ignoreCaseMatch, queryParams));
+        for (int i = 0; i < queryParams.size(); i++) {
+            query.setParameter(i + 1, queryParams.get(i));
+        }
 
         return buildResult(anyUtils, query.getResultList());
     }
@@ -203,7 +218,7 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
     }
 
     @SuppressWarnings("unchecked")
-    protected List<Object> findByDerAttrValue(
+    private List<Object> findByDerAttrValue(
             final String table,
             final Map<String, List<Object>> clauses) {
 
@@ -305,25 +320,17 @@ abstract class AbstractJPAJSONAnyDAO implements JPAJSONAnyDAO {
                     // clear builder
                     bld.delete(0, bld.length());
 
-                    PlainAttrValue attrValue;
-                    if (schema.isUniqueConstraint()) {
-                        attrValue = anyUtils.newPlainAttrUniqueValue();
-                    } else {
-                        attrValue = anyUtils.newPlainAttrValue();
-                    }
+                    PlainAttrValue attrValue = schema.isUniqueConstraint()
+                            ? anyUtils.newPlainAttrUniqueValue()
+                            : anyUtils.newPlainAttrValue();
                     attrValue.setStringValue(attrValues.get(i));
 
+                    List<Object> queryParams = new ArrayList<>();
                     bld.append('(').
-                            append(queryBegin(table)).
-                            append("WHERE ").
-                            append(attrValueMatch(anyUtils, schema, attrValue, ignoreCaseMatch)).
+                            append(plainAttrQuery(table, anyUtils, schema, attrValue, ignoreCaseMatch, queryParams)).
                             append(')');
 
                     used.add(identifiers.get(i));
-
-                    List<Object> queryParams = new ArrayList<>();
-                    queryParams.add(schema.getKey());
-                    queryParams.add(getAttrValue(schema, attrValue, ignoreCaseMatch));
 
                     clauses.put(bld.toString(), queryParams);
                 }

@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-# Full deployment (Core, Console, Enduser) on MariaDB
+# Full deployment (Core, Console, Enduser) on MariaDB with JSON_TABLE support
 
 services:
    db:
@@ -36,10 +36,10 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,mariadb,saml2
+       SPRING_PROFILES_ACTIVE: docker,majson,saml2
        DB_URL: jdbc:mariadb://db:3306/syncope?characterEncoding=UTF-8&relaxAutoCommit=true&useSSL=false
-       DB_USER: syncope
-       DB_PASSWORD: syncope
+       DB_USER: root
+       DB_PASSWORD: password
        DB_POOL_MAX: 20
        DB_POOL_MIN: 5
        OPENJPA_REMOTE_COMMIT: sjvm

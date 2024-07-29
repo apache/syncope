@@ -224,6 +224,70 @@ https://mariadb.com/kb/en/configuring-mariadb-with-option-files/[option file^].
 This assumes that you have a MariaDB instance running on localhost, listening on its default port 3306 with a database
 `syncope` fully accessible by user `syncope` with password `syncope`.
 
+==== MariaDB (JSON)
+
+[NOTE]
+With the configurations reported below, Apache Syncope will leverage the
+https://mariadb.com/kb/en/json_table/[JSON_TABLE^] function.
+
+[NOTE]
+Apache Syncope {docVersion} is verified with MariaDB server >= {mariadb} and JDBC driver >= {mariadbJDBC}.
+
+Add the following dependency to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-persistence-jpa-json</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Create
+
+[source]
+....
+persistence.indexesXML=classpath:majson/indexes.xml
+persistence.viewsXML=classpath:majson/views.xml
+persistence.domain[0].key=Master
+persistence.domain[0].jdbcDriver=org.mariadb.jdbc.Driver
+persistence.domain[0].jdbcURL=jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8
+persistence.domain[0].dbUsername=root
+persistence.domain[0].dbPassword=password
+persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,dateFractionDigits=3)
+persistence.domain[0].orm=META-INF/spring-orm-majson.xml
+persistence.domain[0].poolMaxActive=10
+persistence.domain[0].poolMinIdle=2
+provisioning.quartz.delegate=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+provisioning.quartz.sql=tables_mariadb.sql
+....
+
+as `core/src/main/resources/core-majson.properties`.
+
+Do not forget to include `majson` as
+https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
+[CAUTION]
+It is important to set the collation to `utf8_general_ci` after creation of `syncope` database.
+
+[WARNING]
+====
+It is necessary to use `utf8mb4_unicode_ci` instead of `utf8mb4_general_ci` if case-sensitive queries are required.
+In this case, set
+....
+init_connect = "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
+....
+under either the `[mysqld]` section or the `[mariadb]` section of your
+https://mariadb.com/kb/en/configuring-mariadb-with-option-files/[option file^].
+====
+
+[WARNING]
+This assumes that you have a MariaDB instance running on localhost, listening on its default port 3306 with a database
+`syncope` and super-admin user `root` with password `password`.
+Super-admin user is required until https://jira.mariadb.org/browse/MDEV-27898[this bug^] is fixed.
+
 ==== Oracle Database
 
 [NOTE]
