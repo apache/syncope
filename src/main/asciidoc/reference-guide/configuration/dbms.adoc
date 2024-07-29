@@ -252,7 +252,7 @@ This assumes that you have a MariaDB instance running on localhost, listening on
 
 [NOTE]
 With the configurations reported below, Apache Syncope will leverage the
-https://mariadb.com/kb/en/json_table/^] function.
+https://mariadb.com/kb/en/json_table/[JSON_TABLE^] function.
 
 [NOTE]
 Apache Syncope {docVersion} is verified with MariaDB server >= {mariadb} and JDBC driver >= {mariadbJDBC}.
@@ -327,7 +327,7 @@ Create
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=oracle.jdbc.OracleDriver
 persistence.domain[0].jdbcURL=jdbc:oracle:thin:@localhost:1521:XE
-persistence.domain[0].schema=SYNCOPE
+persistence.domain[0].dbSchema=SYNCOPE
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
@@ -382,7 +382,7 @@ persistence.viewsXML=classpath:ojson/views.xml
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=oracle.jdbc.OracleDriver
 persistence.domain[0].jdbcURL=jdbc:postgresql://${DB_CONTAINER_IP}:5432/syncope?stringtype=unspecified
-persistence.domain[0].schema=SYNCOPE
+persistence.domain[0].dbSchema=SYNCOPE
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
@@ -417,7 +417,7 @@ Create
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=com.microsoft.sqlserver.jdbc.SQLServerDriver
 persistence.domain[0].jdbcURL=jdbc:sqlserver://localhost:1433;databaseName=syncope
-persistence.domain[0].schema=dbo
+persistence.domain[0].dbSchema=dbo
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=Syncope123
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.SQLServerDictionary
