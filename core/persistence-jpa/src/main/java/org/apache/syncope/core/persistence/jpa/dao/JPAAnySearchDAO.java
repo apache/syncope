@@ -932,13 +932,11 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 && !(cond instanceof AnyCond)
                 && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
 
-            query.append("any_id NOT IN (SELECT DISTINCT any_id FROM ");
-            if (schema.isUniqueConstraint()) {
-                query.append(svs.asSearchViewSupport().uniqueAttr().name());
-            } else {
-                query.append(svs.asSearchViewSupport().attr().name());
-            }
-            query.append(" WHERE schema_id='").append(schema.getKey());
+            query.append("any_id NOT IN (SELECT DISTINCT any_id FROM ").
+                    append((schema.isUniqueConstraint()
+                            ? svs.asSearchViewSupport().uniqueAttr().name()
+                            : svs.asSearchViewSupport().attr().name())).
+                    append(" WHERE schema_id='").append(schema.getKey());
             fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
             query.append(')');
         } else {
@@ -1082,12 +1080,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
                     query.append(svs.field().name()).append(" WHERE ");
                 } else {
-                    if (checked.getLeft().isUniqueConstraint()) {
-                        query.append(svs.asSearchViewSupport().uniqueAttr().name());
-                    } else {
-                        query.append(svs.asSearchViewSupport().attr().name());
-                    }
-                    query.append(" WHERE schema_id='").append(checked.getLeft().getKey());
+                    query.append((checked.getLeft().isUniqueConstraint()
+                            ? svs.asSearchViewSupport().uniqueAttr().name()
+                            : svs.asSearchViewSupport().attr().name())).
+                            append(" WHERE schema_id='").append(checked.getLeft().getKey());
                 }
                 fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
         }

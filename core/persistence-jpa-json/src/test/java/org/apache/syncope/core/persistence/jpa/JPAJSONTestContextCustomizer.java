@@ -42,6 +42,7 @@ public class JPAJSONTestContextCustomizer implements ContextCustomizer {
         AnnotatedBeanDefinitionReader reader = new AnnotatedBeanDefinitionReader(getBeanDefinitionRegistry(ctx));
         reader.registerBean(PGJPAJSONPersistenceContext.class, "PGJPAJSONPersistenceContext");
         reader.registerBean(MyJPAJSONPersistenceContext.class, "MyJPAJSONPersistenceContext");
+        reader.registerBean(MaJPAJSONPersistenceContext.class, "MaJPAJSONPersistenceContext");
         reader.registerBean(OJPAJSONPersistenceContext.class, "OJPAJSONPersistenceContext");
     }
 }

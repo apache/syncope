@@ -1144,7 +1144,124 @@ under the License.
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>majson-it</id>
+
+      <properties>
+        <jdbcdriver.groupId>org.mariadb.jdbc</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>mariadb-java-client</jdbcdriver.artifactId>
+
+        <spring.profiles.active>embedded,majson</spring.profiles.active>
+      </properties>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa-json</artifactId>
+          <version>${project.version}</version>
+        </dependency>
     
+        <dependency>
+          <groupId>org.mariadb.jdbc</groupId>
+          <artifactId>mariadb-java-client</artifactId>
+          <version>${jdbc.mariadb.version}</version>
+          <scope>test</scope>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <packagingExcludes>WEB-INF/classes/domains/Two*</packagingExcludes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <includes>
+                <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>mariadb</alias>
+                  <name>mariadb:${docker.mariadb.version}</name>
+                  <run>
+                    <env>
+                      <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
+                      <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
+                      <MYSQL_USER>syncope</MYSQL_USER>
+                      <MYSQL_PASSWORD>syncope</MYSQL_PASSWORD>
+                    </env>
+                    <tmpfs>
+                      <mount>/var/lib/mysql:rw</mount>
+                    </tmpfs>
+                    <wait>
+                      <log>MariaDB init process done. Ready for start up.</log>
+                      <time>30000</time>
+                    </wait>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-mariadb</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-mariadb</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <systemProperties>
+                  <DB_CONTAINER_IP>${docker.container.mariadb.ip}</DB_CONTAINER_IP>
+                </systemProperties>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/../../core/persistence-jpa-json/src/test/resources/domains</directory>
+            <targetPath>${project.build.outputDirectory}/domains</targetPath>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
+    </profile>
+
     <profile>
       <id>mariadb-it</id>
 
