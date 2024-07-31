@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -267,6 +269,20 @@ public class LinkedAccountITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(user.getKey());
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
+        
+        // 4.1 SYNCOPE-1824 update with a wrong password, a error must be raised
+        account.setPassword("password");
+        try {
+            updateUser(userUR);
+            fail("Should not arrive here due to wrong linked account password");
+        } catch (SyncopeClientException sce) {
+            assertEquals(ClientExceptionType.InvalidUser, sce.getType());
+            assertEquals("InvalidUser [InvalidPassword: Password must be 10 or more characters in length.]",
+                    sce.getMessage());
+        }
+        
+        // set a correct password
+        account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().get(0).getPassword());
 
