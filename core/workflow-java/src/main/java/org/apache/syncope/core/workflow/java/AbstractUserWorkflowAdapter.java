@@ -297,7 +297,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         // enforce password and account policies
         enforcePolicies(
                 user,
-                userUR.getPassword() == null,
+                userUR.getPassword() == null && userUR.getLinkedAccounts().stream()
+                        .allMatch(linkedAccountUR -> linkedAccountUR.getLinkedAccountTO().getPassword() == null),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null));
         user = userDAO.save(user);
 
