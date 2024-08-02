@@ -22,8 +22,8 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.openjpa.ConnectorManagerRemoteCommitListener;
@@ -101,22 +101,25 @@ public class MasterDomain {
         vendorAdapter.setGenerateDdl(true);
         vendorAdapter.setDatabasePlatform(props.getDomain().get(0).getDatabasePlatform());
 
-        DomainEntityManagerFactoryBean masterEntityManagerFactory = new DomainEntityManagerFactoryBean();
-        masterEntityManagerFactory.setMappingResources(props.getDomain().get(0).getOrm());
-        masterEntityManagerFactory.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
-        masterEntityManagerFactory.setDataSource(Objects.requireNonNull((DataSource) masterDataSource.getObject()));
-        masterEntityManagerFactory.setJpaVendorAdapter(vendorAdapter);
-        masterEntityManagerFactory.setCommonEntityManagerFactoryConf(commonEMFConf);
-        masterEntityManagerFactory.setConnectorManagerRemoteCommitListener(
+        DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
+        emf.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
+        emf.setMappingResources(props.getDomain().get(0).getOrm());
+        emf.setDataSource(Objects.requireNonNull((DataSource) masterDataSource.getObject()));
+        emf.setJpaVendorAdapter(vendorAdapter);
+        emf.setCommonEntityManagerFactoryConf(commonEMFConf);
+        emf.setConnectorManagerRemoteCommitListener(
                 new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
 
-        if (props.getMetaDataFactory() != null) {
-            masterEntityManagerFactory.setJpaPropertyMap(Map.of(
-                    "openjpa.MetaDataFactory",
-                    props.getMetaDataFactory().replace("##orm##", props.getDomain().get(0).getOrm())));
-        }
+        emf.getJpaPropertyMap().putAll(vendorAdapter.getJpaPropertyMap());
 
-        return masterEntityManagerFactory;
+        Optional.ofNullable(props.getDomain().get(0).getDbSchema()).
+                ifPresent(s -> emf.getJpaPropertyMap().put("openjpa.jdbc.Schema", s));
+
+        Optional.ofNullable(props.getMetaDataFactory()).
+                ifPresent(m -> emf.getJpaPropertyMap().put(
+                "openjpa.MetaDataFactory", m.replace("##orm##", props.getDomain().get(0).getOrm())));
+
+        return emf;
     }
 
     @ConditionalOnMissingBean(name = "MasterTransactionManager")
