@@ -22,8 +22,10 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -129,18 +131,27 @@ public class DomainConfFactory implements DomainRegistry {
                 new ConnectorManagerRemoteCommitListener(domain.getKey());
 
         BeanDefinitionBuilder emf = BeanDefinitionBuilder.rootBeanDefinition(DomainEntityManagerFactoryBean.class).
-                addPropertyValue("mappingResources", domain.getOrm()).
                 addPropertyValue("persistenceUnitName", domain.getKey()).
+                addPropertyValue("mappingResources", domain.getOrm()).
                 addPropertyReference("dataSource", domain.getKey() + "DataSource").
                 addPropertyValue("jpaVendorAdapter", vendorAdapter).
                 addPropertyReference("commonEntityManagerFactoryConf", "commonEMFConf").
                 addPropertyValue("connectorManagerRemoteCommitListener", connectorManagerRemoteCommitListener);
+
+        Map<String, Object> jpaPropertyMap = new HashMap<>();
+        jpaPropertyMap.putAll(vendorAdapter.getJpaPropertyMap());
+        Optional.ofNullable(domain.getDbSchema()).
+                ifPresent(s -> jpaPropertyMap.put("openjpa.jdbc.Schema", s));
         if (ctx.getEnvironment().containsProperty("openjpaMetaDataFactory")) {
-            emf.addPropertyValue("jpaPropertyMap", Map.of(
+            jpaPropertyMap.put(
                     "openjpa.MetaDataFactory",
                     Objects.requireNonNull(ctx.getEnvironment().getProperty("openjpaMetaDataFactory")).
-                            replace("##orm##", domain.getOrm())));
+                            replace("##orm##", domain.getOrm()));
         }
+        if (!jpaPropertyMap.isEmpty()) {
+            emf.addPropertyValue("jpaPropertyMap", jpaPropertyMap);
+        }
+
         registerBeanDefinition(domain.getKey() + "EntityManagerFactory", emf.getBeanDefinition());
         beanFactory().getBean(domain.getKey() + "EntityManagerFactory");
 
