@@ -377,6 +377,13 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertEquals(1, task.getExecutions().size());
             assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
 
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
             tasks = TASK_SERVICE.search(
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
                             anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
