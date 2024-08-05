@@ -98,6 +98,7 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -1818,6 +1819,37 @@ public class UserIssuesITCase extends AbstractITCase {
 
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
             jdbcTemplate.update("DELETE FROM TESTPULL WHERE USERNAME = 'rossini'");
+        }
+    }
+
+    @Test
+    void issueSYNCOPE1826() {
+        try {
+            UserCR userCR = UserITCase.getUniqueSample("issueSearch1@syncope.apache.org");
+            userCR.setUsername("user test 1826");
+            createUser(userCR);
+
+            userCR = UserITCase.getUniqueSample("issueSearch2@syncope.apache.org");
+            userCR.setUsername("user 1826 test");
+            createUser(userCR);
+
+            userCR = UserITCase.getUniqueSample("issueSearch3@syncope.apache.org");
+            userCR.setUsername("user test 182");
+            createUser(userCR);
+
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user test 1826").query()).build()).getResult().isEmpty());
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user 1826 test").query()).build()).getResult().isEmpty());
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user test 182").query()).build()).getResult().isEmpty());
+        } finally {
+            deleteUser("user test 1826");
+            deleteUser("user 1826 test");
+            deleteUser("user test 182");
         }
     }
 }

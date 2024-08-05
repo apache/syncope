@@ -50,7 +50,8 @@ public final class SearchCondConverter {
             if (realms != null && realms.length > 0) {
                 visitor.setRealm(realms[0]);
             }
-            SearchCondition<SearchBean> sc = parser.parse(URLDecoder.decode(fiql, StandardCharsets.UTF_8));
+            SearchCondition<SearchBean> sc =
+                    parser.parse(URLDecoder.decode(fiql.replaceAll("\\+", "%2B"), StandardCharsets.UTF_8));
             sc.accept(visitor);
 
             return visitor.getQuery();
