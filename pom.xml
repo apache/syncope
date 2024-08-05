@@ -464,7 +464,7 @@ under the License.
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
     <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
 
-    <antlr4.version>4.13.1</antlr4.version>
+    <antlr4.version>4.13.2</antlr4.version>
 
     <curator.version>5.7.0</curator.version>
     <zookeeper.version>3.9.2</zookeeper.version>
