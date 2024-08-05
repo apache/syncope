@@ -73,7 +73,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     protected static String getValue(final SearchCondition<SearchBean> sc) {
         String value = SearchUtils.toSqlWildcardString(URLDecoder.decode(sc.getStatement().getValue().toString()
-                .replaceAll("\\+", "%2B"), StandardCharsets.UTF_8), false);
+                .replace("\\+", "%2B"), StandardCharsets.UTF_8), false);
         if (value.indexOf('%') == -1) {
             value = value.replaceAll("\\\\_", "_");
         }
