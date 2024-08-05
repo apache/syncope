@@ -139,7 +139,7 @@ under the License.
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/core"/>
                 </copy>
-                <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" overwrite="true"/>
+                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" overwrite="true"/>
                 <copy file="../fit/core-reference/target/test-classes/saml.keystore.jks" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true"/>
 
                 <!-- Syncope console -->

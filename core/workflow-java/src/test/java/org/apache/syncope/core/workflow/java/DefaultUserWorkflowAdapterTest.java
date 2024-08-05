@@ -41,12 +41,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringJUnitConfig(classes = { WorkflowTestContext.class })
 @Transactional
-public class DefaultUserWorkflowAdapterTest {
+public class DefaultUserWorkflowAdapterTest extends AbstractTest {
 
     @BeforeAll
     public static void setAuthContext() {

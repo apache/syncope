@@ -59,8 +59,10 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
 public class UserTest extends AbstractTest {
 

@@ -63,23 +63,9 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-maven-plugin</artifactId>
         <inherited>true</inherited>
-        <dependencies>
-          <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile>
           <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
-          <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
-          <connectionProperties>
-            driverClassName=org.h2.Driver,
-            url=jdbc:h2:mem:syncopedb
-            username=sa,
-            password=
-          </connectionProperties>
         </configuration>
         <executions>
           <execution>
@@ -108,35 +94,6 @@ under the License.
   
   <profiles>
     <profile>
-      <id>sqlgen</id>
-
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.openjpa</groupId>
-            <artifactId>openjpa-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>sqlgen</id>
-                <phase>process-classes</phase>
-                <goals>
-                  <goal>sql</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
       <id>debug</id>
 
       <properties>
@@ -151,20 +108,50 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
         </dependency>
       </dependencies>
 
       <build>
-        <defaultGoal>clean package</defaultGoal>
+        <defaultGoal>clean io.fabric8:docker-maven-plugin:start package</defaultGoal>
 
         <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>postgres</alias>
+                  <name>postgres:${docker.postgresql.version}</name>
+                  <run>
+                    <env>
+                      <POSTGRES_DB>syncope</POSTGRES_DB>
+                      <POSTGRES_USER>syncope</POSTGRES_USER>
+                      <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
+                    </env>
+                    <wait>
+                      <log>database system is ready to accept connections</log>
+                      <time>30000</time>
+                    </wait>
+                    <tmpfs>
+                      <mount>/var/lib/postgresql/data:rw</mount>
+                    </tmpfs>
+                  </run>
+                </image>
+              </images>
+            </configuration>
+          </plugin>
+          
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
             <configuration>
               <mainClass>org.apache.syncope.core.starter.SyncopeCoreApplication</mainClass>
+              <environmentVariables>
+                <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
+              </environmentVariables>
               <jvmArguments>
                 -Dsyncope.connid.location=file:${basedir}/../provisioning-java/target/bundles
                 -XX:HotswapAgent=fatjar

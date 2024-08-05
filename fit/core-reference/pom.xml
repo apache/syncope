@@ -38,8 +38,8 @@ under the License.
 
     <ianal.phase>none</ianal.phase>
 
-    <jdbcdriver.groupId>com.h2database</jdbcdriver.groupId>
-    <jdbcdriver.artifactId>h2</jdbcdriver.artifactId>
+    <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
+    <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
 
     <obscureSecretKey>obscureSecretKeyValue</obscureSecretKey>
 
@@ -76,17 +76,18 @@ under the License.
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>persistence-embedded</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
     <!-- TEST -->
     <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
       <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -183,6 +184,16 @@ under the License.
       <groupId>org.apache.syncope.ext.oidcc4ui</groupId>
       <artifactId>syncope-ext-oidcc4ui-client-enduser</artifactId>
       <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -296,8 +307,6 @@ under the License.
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
-
-              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
 
               <obscureSecretKey>${obscureSecretKey}</obscureSecretKey>
             </systemProperties>
@@ -838,100 +847,6 @@ under the License.
     </profile>
 
     <profile>
-      <id>postgres-it</id>
-
-      <properties>
-        <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
-
-        <spring.profiles.active>embedded,postgres</spring.profiles.active>
-      </properties>
-
-      <dependencies>
-        <dependency>
-          <groupId>org.postgresql</groupId>
-          <artifactId>postgresql</artifactId>
-          <version>${jdbc.postgresql.version}</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <includes>
-                <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-maven-plugin</artifactId>
-            <configuration>
-              <images>
-                <image>
-                  <alias>postgres</alias>
-                  <name>postgres:${docker.postgresql.version}</name>
-                  <run>
-                    <env>
-                      <POSTGRES_DB>syncope</POSTGRES_DB>
-                      <POSTGRES_USER>syncope</POSTGRES_USER>
-                      <POSTGRES_PASSWORD>syncope</POSTGRES_PASSWORD>
-                    </env>
-                    <wait>
-                      <log>database system is ready to accept connections</log>
-                      <time>30000</time>
-                    </wait>
-                    <tmpfs>
-                      <mount>/var/lib/postgresql/data:rw</mount>
-                    </tmpfs>
-                  </run>
-                </image>
-              </images>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-postgres</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-postgres</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                  <goal>remove</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven3-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <container>
-                <systemProperties>
-                  <DB_CONTAINER_IP>${docker.container.postgres.ip}</DB_CONTAINER_IP>
-                </systemProperties>
-              </container>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
       <id>myjson-it</id>
 
       <properties>
@@ -1102,6 +1017,11 @@ under the License.
                     <tmpfs>
                       <mount>/var/lib/mysql:rw</mount>
                     </tmpfs>
+                    <volumes>
+                      <bind>
+                        <volume>${basedir}/src/test/resources/mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql:ro</volume>
+                      </bind>
+                    </volumes>                   
                     <wait>
                       <log>MySQL init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -1314,6 +1234,11 @@ under the License.
                     <tmpfs>
                       <mount>/var/lib/mysql:rw</mount>
                     </tmpfs>
+                    <volumes>
+                      <bind>
+                        <volume>${basedir}/src/test/resources/mysql_init.sql:/docker-entrypoint-initdb.d/mysql_init.sql:ro</volume>
+                      </bind>
+                    </volumes>                   
                     <wait>
                       <log>MariaDB init process done. Ready for start up.</log>
                       <time>30000</time>
@@ -1405,7 +1330,7 @@ under the License.
               <images>
                 <image>
                   <alias>oracle</alias>
-                  <name>gvenzl/oracle-xe:21-slim</name>
+                  <name>gvenzl/oracle-free:${docker.oracle.version}</name>
                   <run>
                     <env>
                       <ORACLE_PASSWORD>password</ORACLE_PASSWORD>
@@ -1512,13 +1437,19 @@ under the License.
               <images>
                 <image>
                   <alias>oracle</alias>
-                  <name>gvenzl/oracle-xe:21-slim</name>
+                  <name>gvenzl/oracle-free:${docker.oracle.version}</name>
                   <run>
                     <env>
                       <ORACLE_PASSWORD>password</ORACLE_PASSWORD>
                       <APP_USER>syncope</APP_USER>
                       <APP_USER_PASSWORD>syncope</APP_USER_PASSWORD>
                     </env>
+                    <volumes>
+                      <bind>
+                        <volume>${basedir}/src/test/resources/1_oracle_init.sql:/container-entrypoint-initdb.d/1_oracle_init.sql:ro</volume>
+                        <volume>${basedir}/src/test/resources/2_oracle_init.sql:/container-entrypoint-initdb.d/2_oracle_init.sql:ro</volume>
+                      </bind>
+                    </volumes>                    
                     <wait>
                       <log>DATABASE IS READY TO USE</log>
                       <time>120000</time>
@@ -1561,99 +1492,6 @@ under the License.
               <container>
                 <systemProperties>
                   <DB_CONTAINER_IP>${docker.container.oracle.ip}</DB_CONTAINER_IP>
-                </systemProperties>
-              </container>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>sqlserver-it</id>
-      
-      <properties>
-        <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>mssql-jdbc</jdbcdriver.artifactId>
-
-        <spring.profiles.active>embedded,sqlserver</spring.profiles.active>
-      </properties>
-
-      <dependencies>
-        <dependency>
-          <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>mssql-jdbc</artifactId>
-          <version>${jdbc.mssql.version}</version>
-          <scope>test</scope>
-        </dependency>
-      </dependencies>
-
-      <build>
-        <defaultGoal>clean verify</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <includes>
-                <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-
-          <plugin>
-            <groupId>io.fabric8</groupId>
-            <artifactId>docker-maven-plugin</artifactId>
-            <configuration>
-              <images>
-                <image>
-                  <alias>sqlserver</alias>
-                  <name>mcmoe/mssqldocker:latest</name>
-                  <run>
-                    <env>
-                      <ACCEPT_EULA>Y</ACCEPT_EULA>
-                      <SA_PASSWORD>2astazeY</SA_PASSWORD>
-                      <MSSQL_DB>syncope</MSSQL_DB>
-                      <MSSQL_USER>syncope</MSSQL_USER>
-                      <MSSQL_PASSWORD>Syncope123</MSSQL_PASSWORD>
-                    </env>
-                    <wait>
-                      <log>MSSQL CONFIG COMPLETE</log>
-                      <time>30000</time>
-                    </wait>
-                  </run>
-                </image>
-              </images>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-sqlserver</id>
-                <phase>pre-integration-test</phase>
-                <goals>
-                  <goal>start</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>stop-sqlserver</id>
-                <phase>post-integration-test</phase>
-                <goals>
-                  <goal>stop</goal>
-                  <goal>remove</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven3-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <container>
-                <systemProperties>
-                  <DB_CONTAINER_IP>${docker.container.sqlserver.ip}</DB_CONTAINER_IP>
                 </systemProperties>
               </container>
             </configuration>
@@ -1933,8 +1771,8 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
+          <groupId>org.postgresql</groupId>
+          <artifactId>postgresql</artifactId>
         </dependency>
       </dependencies>
 
@@ -1948,7 +1786,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly31x</containerId>
+                <containerId>wildfly33x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
@@ -2017,7 +1855,6 @@ under the License.
       </build>
     </profile>
 
-    <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
     <profile>
       <id>hotswap</id>
       

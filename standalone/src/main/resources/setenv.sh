@@ -13,4 +13,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djavax.net.ssl.trustStore=$CATALINA_HOME/conf/keystore.jks -Djavax.net.ssl.trustStorePassword=password -Dsyncope.conf.dir=$CATALINA_HOME/webapps/syncope/WEB-INF/classes -Dsyncope.connid.location=connid://${testconnectorserver.key}@localhost:${testconnectorserver.port} -Dsyncope.log.dir=$CATALINA_HOME/logs -Dspring.profiles.active=embedded,all -server -Xms2048m -Xmx2048m -XX:NewSize=256m -XX:MaxNewSize=256m -DCATALINA_HOME=$CATALINA_HOME -Dh2.returnOffsetDateTime=true"
+JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djavax.net.ssl.trustStore=$CATALINA_HOME/conf/keystore.jks -Djavax.net.ssl.trustStorePassword=password -Dsyncope.conf.dir=$CATALINA_HOME/webapps/syncope/WEB-INF/classes -Dsyncope.connid.location=connid://${testconnectorserver.key}@localhost:${testconnectorserver.port} -Dsyncope.log.dir=$CATALINA_HOME/logs -Dspring.profiles.active=embedded,all -server -Xms2048m -Xmx2048m -XX:NewSize=256m -XX:MaxNewSize=256m -DCATALINA_HOME=$CATALINA_HOME"

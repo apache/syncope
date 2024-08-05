@@ -78,13 +78,18 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -126,6 +131,9 @@ under the License.
       <testResource>
         <directory>${basedir}/../../persistence-jpa/src/test/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>core-test.properties</exclude>
+        </excludes>
       </testResource>
       <testResource>
         <directory>${basedir}/../../provisioning-java/src/test/resources</directory>
@@ -140,6 +148,7 @@ under the License.
         <configuration>
           <systemPropertyVariables>
             <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
+            <TESTCONTAINERS_REUSE_ENABLE>true</TESTCONTAINERS_REUSE_ENABLE>
           </systemPropertyVariables>
         </configuration>
       </plugin>

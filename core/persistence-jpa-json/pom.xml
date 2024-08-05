@@ -67,11 +67,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
@@ -94,23 +89,9 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-maven-plugin</artifactId>
         <inherited>true</inherited>
-        <dependencies>
-          <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <persistenceXmlFile>${project.build.directory}/classes/persistence-enhance.xml</persistenceXmlFile> 
           <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
-          <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
-          <connectionProperties>
-            driverClassName=org.h2.Driver,
-            url=jdbc:h2:mem:syncopedb
-            username=sa,
-            password=
-          </connectionProperties>
         </configuration>
         <executions>
           <execution>

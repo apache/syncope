@@ -70,9 +70,9 @@ public class MaJPAJSONAnyDAO extends AbstractJPAJSONAnyDAO {
                 + (schema.isUniqueConstraint() ? svs.uniqueAttr().name() : svs.attr().name())
                 + " WHERE schema_id = ? AND ((stringValue IS NOT NULL"
                 + " AND "
-                + (ignoreCaseMatch ? "LOWER(" : "BINARY ") + "stringValue" + (ignoreCaseMatch ? ")" : "")
+                + (ignoreCaseMatch ? "LOWER(" : "") + "stringValue" + (ignoreCaseMatch ? ")" : "")
                 + " = "
-                + (ignoreCaseMatch ? "LOWER(" : "") + "?" + (ignoreCaseMatch ? ")" : "") + ')'
+                + (ignoreCaseMatch ? "LOWER(" : "BINARY ") + "?" + (ignoreCaseMatch ? ")" : "") + ')'
                 + " OR (booleanValue IS NOT NULL AND booleanValue = ?)"
                 + " OR (dateValue IS NOT NULL AND dateValue = ?)"
                 + " OR (longValue IS NOT NULL AND longValue = ?)"

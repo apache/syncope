@@ -136,12 +136,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
-      <version>${jdbc.mssql.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>com.oracle.database.jdbc</groupId>
       <artifactId>ojdbc11</artifactId>
       <version>${jdbc.oracle.version}</version>
@@ -182,7 +176,6 @@ under the License.
                 <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/com/mysql/mysql-connector-j/${jdbc.mysql.version}/mysql-connector-j-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
-                <copy file="${settings.localRepository}/com/microsoft/sqlserver/mssql-jdbc/${jdbc.mssql.version}/mssql-jdbc-${jdbc.mssql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/com/oracle/database/jdbc/ojdbc11/${jdbc.oracle.version}/ojdbc11-${jdbc.oracle.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
 
                 <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.outputDirectory}/jpa-json" overwrite="true"/>

@@ -54,7 +54,6 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             "org.postgresql.Driver",
             "com.mysql.cj.jdbc.Driver",
             "org.mariadb.jdbc.Driver",
-            "com.microsoft.sqlserver.jdbc.SQLServerDriver",
             "oracle.jdbc.OracleDriver",
             "org.h2.Driver");
 
@@ -64,7 +63,6 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             + "(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)",
             "org.apache.openjpa.jdbc.sql.MariaDBDictionary"
             + "(blobTypeName=LONGBLOB,dateFractionDigits=3)",
-            "org.apache.openjpa.jdbc.sql.SQLServerDictionary",
             "org.apache.openjpa.jdbc.sql.OracleDictionary",
             "org.apache.openjpa.jdbc.sql.H2Dictionary");
 

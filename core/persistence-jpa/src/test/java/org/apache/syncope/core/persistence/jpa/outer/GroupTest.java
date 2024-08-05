@@ -62,8 +62,10 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMemb
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
 public class GroupTest extends AbstractTest {
 

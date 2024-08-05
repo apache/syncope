@@ -291,7 +291,7 @@ Super-admin user is required until https://jira.mariadb.org/browse/MDEV-27898[th
 ==== Oracle Database
 
 [NOTE]
-Apache Syncope {docVersion} is verified with Oracle database >= 19c and JDBC driver >= ojdbc11 {oracleJDBC}.
+Apache Syncope {docVersion} is verified with Oracle database >= {oracle} and JDBC driver >= ojdbc11 {oracleJDBC}.
 
 Create
 
@@ -300,7 +300,7 @@ Create
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=oracle.jdbc.OracleDriver
 persistence.domain[0].jdbcURL=jdbc:oracle:thin:@localhost:1521:XE
-persistence.domain[0].schema=SYNCOPE
+persistence.domain[0].dbSchema=SYNCOPE
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
@@ -328,7 +328,7 @@ With the configurations reported below, Apache Syncope will leverage the
 https://docs.oracle.com/en/database/oracle/oracle-database/19/adjsn/[JSON^] features.
 
 [NOTE]
-Apache Syncope {docVersion} is verified with Oracle database >= 19c and JDBC driver >= ojdbc11 {oracleJDBC}.
+Apache Syncope {docVersion} is verified with Oracle database >= {oracle} and JDBC driver >= ojdbc11 {oracleJDBC}.
 
 Add the following dependency to `core/pom.xml`:
 
@@ -351,7 +351,7 @@ persistence.viewsXML=classpath:ojson/views.xml
 persistence.domain[0].key=Master
 persistence.domain[0].jdbcDriver=oracle.jdbc.OracleDriver
 persistence.domain[0].jdbcURL=jdbc:postgresql://${DB_CONTAINER_IP}:5432/syncope?stringtype=unspecified
-persistence.domain[0].schema=SYNCOPE
+persistence.domain[0].dbSchema=SYNCOPE
 persistence.domain[0].dbUsername=syncope
 persistence.domain[0].dbPassword=syncope
 persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary
@@ -369,36 +369,3 @@ for the Core application.
 [WARNING]
 This assumes that you have an Oracle instance running on localhost, listening on its default port 1521 with a database
 `syncope` under tablespace `SYNCOPE`, fully accessible by user `syncope` with password `syncope`.
-
-==== MS SQL Server
-
-[NOTE]
-Apache Syncope {docVersion} is verified with MS SQL server >= 2017 and JDBC driver >= {sqlserverJDBC}11.
-
-Create
-
-[source]
-....
-persistence.domain[0].key=Master
-persistence.domain[0].jdbcDriver=com.microsoft.sqlserver.jdbc.SQLServerDriver
-persistence.domain[0].jdbcURL=jdbc:sqlserver://localhost:1433;databaseName=syncope
-persistence.domain[0].schema=dbo
-persistence.domain[0].dbUsername=syncope
-persistence.domain[0].dbPassword=Syncope123
-persistence.domain[0].databasePlatform=org.apache.openjpa.jdbc.sql.SQLServerDictionary
-persistence.domain[0].orm=META-INF/spring-orm-sqlserver.xml
-persistence.domain[0].poolMaxActive=20
-persistence.domain[0].poolMinIdle=5
-
-persistence.viewsXML=classpath:sqlserver_views.xml
-....
-
-as `core/src/main/resources/core-sqlserver.properties`.
-
-Do not forget to include `sqlserver` as 
-https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
-for the Core application.
-
-[WARNING]
-This assumes that you have a MS SQL Server instance running on localhost, listening on its default port 1433 with a
-database `syncope` fully accessible by user `syncope` with password `syncope`.
