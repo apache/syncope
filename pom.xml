@@ -431,7 +431,7 @@ under the License.
     <slf4j.version>1.7.36</slf4j.version>
 
     <elasticsearch.version>8.14.3</elasticsearch.version>
-    <opensearch.version>2.15.0</opensearch.version>
+    <opensearch.version>2.13.0</opensearch.version>
     <opensearch-java.version>2.12.0</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
@@ -1438,8 +1438,18 @@ under the License.
 
   <repositories>
     <repository>
-      <id>sonatype</id>
+      <id>sonatype-nexus-snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>s01</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
         <enabled>false</enabled>
       </releases>
@@ -1458,27 +1468,7 @@ under the License.
 
   <pluginRepositories>
     <pluginRepository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/releases</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>apache.snapshots</id>
-      <url>https://repository.apache.org/snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>sonatype.snapshots</id>
+      <id>sonatype-nexus-snapshots</id>
       <url>https://oss.sonatype.org/content/repositories/snapshots</url>
       <releases>
         <enabled>false</enabled>
@@ -1486,13 +1476,6 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>spring</id>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
     </pluginRepository>
   </pluginRepositories>
 
