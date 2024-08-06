@@ -363,7 +363,7 @@ public class SearchCondConverterTest {
 
         assertEquals(SearchCond.getLeaf(anyCond), SearchCondConverter.convert(VISITOR, fiql));
 
-        fiql = "lastLoginDate==2016-03-02T15:21:22+0300";
+        fiql = "lastLoginDate==2016-03-02T15:21:22%2B0300";
         
         AnyCond lastLoginDateCond = new AnyCond(AttrCond.Type.EQ);
         lastLoginDateCond.setSchema("lastLoginDate");
