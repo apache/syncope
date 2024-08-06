@@ -350,7 +350,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> issueSYNCOPE1321 = USER_SERVICE.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("lastLoginDate").lexicalNotBefore("2016-03-02T15:21:22+0300").
+                        is("lastLoginDate").lexicalNotBefore("2016-03-02T15:21:22%2B0300").
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
@@ -1004,4 +1004,52 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(1, users.getResult().size());
         assertEquals(user.getKey(), users.getResult().get(0).getKey());
     }
+
+    @Test
+    void issueSYNCOPE1826() {
+        UserCR userCR = UserITCase.getUniqueSample("issueSearch1@syncope.apache.org");
+        userCR.setUsername("user test 1826");
+        createUser(userCR);
+
+        AnyObjectTO anotherPrinter = createAnyObject(new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM,
+                PRINTER,
+                "obj test 1826").build()).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issueSearch2@syncope.apache.org");
+        userCR.setUsername("user 1826 test");
+        createUser(userCR);
+
+        userCR = UserITCase.getUniqueSample("issueSearch3@syncope.apache.org");
+        userCR.setUsername("user test 182");
+        createUser(userCR);
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        
+        try {
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user test 1826").query()).build()).getResult().isEmpty());
+            assertFalse(ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
+                    .details(false).fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("name")
+                            .equalToIgnoreCase("obj test 1826").query()).build()).getResult().isEmpty());
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user 1826 test").query()).build()).getResult().isEmpty());
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user test 182").query()).build()).getResult().isEmpty());
+        } finally {
+            deleteUser("user test 1826");
+            deleteAnyObject(anotherPrinter.getKey());
+            deleteUser("user 1826 test");
+            deleteUser("user test 182");
+        }
+    }
+    
 }
