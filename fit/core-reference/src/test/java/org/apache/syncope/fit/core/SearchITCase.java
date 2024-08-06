@@ -1023,6 +1023,14 @@ public class SearchITCase extends AbstractITCase {
         userCR.setUsername("user test 182");
         createUser(userCR);
 
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+        
         try {
             assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
                     .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
