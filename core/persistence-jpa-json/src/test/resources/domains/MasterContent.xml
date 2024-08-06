@@ -333,7 +333,8 @@ under the License.
                password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                username="bellini" creator="admin" lastModifier="admin"
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+               lastLoginDate="2016-03-03 15:21:22" suspended="0"
                plainAttrs='[{"values":[{"stringValue":"Vincenzo"}],"schema":"firstname"},{"values":[{"stringValue":"Bellini"}],"schema":"surname"},{"values":[{"dateValue":"2009-06-24T00:00:00+02:00"}],"schema":"loginDate"},{"values":[{"booleanValue":true}],"schema":"cool"},{"values":[{"stringValue":"M"}],"schema":"gender"},{"uniqueValue":{"stringValue":"Vincenzo Bellini"},"schema":"fullname"},{"uniqueValue":{"stringValue":"bellini@apache.org"},"schema":"userId"}]'/>
   <SyncopeUser_SyncopeRole user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" role_id="User reviewer"/>
   <SyncopeUser_SyncopeRole user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" role_id="User manager"/>

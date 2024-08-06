@@ -23,7 +23,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -52,8 +51,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
  */
 public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean, SearchCond> {
 
-    protected static final Pattern TIMEZONE = Pattern.compile(".* [0-9]{4}$");
-
     protected static final ThreadLocal<String> REALM = new ThreadLocal<>();
 
     protected static final ThreadLocal<SearchCond> SEARCH_COND = new ThreadLocal<>();
@@ -75,16 +72,10 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     }
 
     protected static String getValue(final SearchCondition<SearchBean> sc) {
-        String value = SearchUtils.toSqlWildcardString(
-                URLDecoder.decode(sc.getStatement().getValue().toString(), StandardCharsets.UTF_8), false);
+        String value = SearchUtils.toSqlWildcardString(URLDecoder.decode(sc.getStatement().getValue().toString()
+                .replace("+", "%2B"), StandardCharsets.UTF_8), false);
         if (value.indexOf('%') == -1) {
             value = value.replaceAll("\\\\_", "_");
-        }
-
-        if (TIMEZONE.matcher(value).matches()) {
-            char[] valueAsArray = value.toCharArray();
-            valueAsArray[valueAsArray.length - 5] = '+';
-            value = new String(valueAsArray);
         }
 
         return value;
