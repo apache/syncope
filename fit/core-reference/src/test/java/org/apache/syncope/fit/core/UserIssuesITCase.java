@@ -1820,5 +1820,4 @@ public class UserIssuesITCase extends AbstractITCase {
             jdbcTemplate.update("DELETE FROM TESTPULL WHERE USERNAME = 'rossini'");
         }
     }
-
 }
