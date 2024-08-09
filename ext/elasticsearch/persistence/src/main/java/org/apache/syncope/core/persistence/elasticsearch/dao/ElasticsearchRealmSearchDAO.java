@@ -51,8 +51,8 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
     protected static final List<SortOptions> REALM_SORT_OPTIONS = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
-                    script(t -> t.inline(i -> i.lang(ScriptLanguage.Painless).
-                    source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
+                    script(t -> t.lang(ScriptLanguage.Painless).
+                    source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()")).
                     order(SortOrder.Asc)).
                     build());
 
