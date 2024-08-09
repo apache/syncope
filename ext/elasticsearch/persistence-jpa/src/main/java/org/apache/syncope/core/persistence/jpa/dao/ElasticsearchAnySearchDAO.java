@@ -28,6 +28,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.DisMaxQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
@@ -585,26 +586,30 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             case GE:
-                query = new Query.Builder().range(QueryBuilders.range().
-                        field(schema.getKey()).gte(JsonData.of(value)).build()).
+                query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
+                        field(schema.getKey()).
+                        gte(JsonData.of(value))))).
                         build();
                 break;
 
             case GT:
-                query = new Query.Builder().range(QueryBuilders.range().
-                        field(schema.getKey()).gt(JsonData.of(value)).build()).
+                query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
+                        field(schema.getKey()).
+                        gt(JsonData.of(value))))).
                         build();
                 break;
 
             case LE:
-                query = new Query.Builder().range(QueryBuilders.range().
-                        field(schema.getKey()).lte(JsonData.of(value)).build()).
+                query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
+                        field(schema.getKey()).
+                        lte(JsonData.of(value))))).
                         build();
                 break;
 
             case LT:
-                query = new Query.Builder().range(QueryBuilders.range().
-                        field(schema.getKey()).lt(JsonData.of(value)).build()).
+                query = new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
+                        field(schema.getKey()).
+                        lt(JsonData.of(value))))).
                         build();
                 break;
 

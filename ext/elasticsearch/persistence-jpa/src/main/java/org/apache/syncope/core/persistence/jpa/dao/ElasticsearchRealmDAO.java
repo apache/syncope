@@ -46,8 +46,8 @@ public class ElasticsearchRealmDAO extends JPARealmDAO {
     protected static final List<SortOptions> ES_SORT_OPTIONS_REALM = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
-                    script(t -> t.inline(i -> i.lang(ScriptLanguage.Painless).
-                    source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
+                    script(t -> t.lang(ScriptLanguage.Painless).
+                    source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()")).
                     order(SortOrder.Asc)).
                     build());
 
