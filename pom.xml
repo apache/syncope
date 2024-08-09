@@ -1130,7 +1130,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.2</version>
+        <version>3.0.3</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
