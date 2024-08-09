@@ -25,11 +25,11 @@ import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
+import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.json.JsonData;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -110,16 +110,16 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
                 build());
 
         if (before != null) {
-            queries.add(new Query.Builder().
-                    range(QueryBuilders.range().
-                            field("when").lte(JsonData.of(before.toInstant().toEpochMilli())).build()).
+            queries.add(new Query.Builder().range(RangeQuery.of(r -> r.number(n -> n.
+                    field("when").
+                    lte((Double.valueOf(before.toInstant().toEpochMilli())))))).
                     build());
         }
 
         if (after != null) {
-            queries.add(new Query.Builder().
-                    range(QueryBuilders.range().
-                            field("when").gte(JsonData.of(after.toInstant().toEpochMilli())).build()).
+            queries.add(new Query.Builder().range(RangeQuery.of(r -> r.number(n -> n.
+                    field("when").
+                    gte((Double.valueOf(after.toInstant().toEpochMilli())))))).
                     build());
         }
 
