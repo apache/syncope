@@ -30,6 +30,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.json.JsonData;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -110,16 +111,16 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
                 build());
 
         if (before != null) {
-            queries.add(new Query.Builder().range(RangeQuery.of(r -> r.number(n -> n.
+            queries.add(new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
                     field("when").
-                    lte((Double.valueOf(before.toInstant().toEpochMilli())))))).
+                    lte(JsonData.of(before.toInstant().toEpochMilli()))))).
                     build());
         }
 
         if (after != null) {
-            queries.add(new Query.Builder().range(RangeQuery.of(r -> r.number(n -> n.
+            queries.add(new Query.Builder().range(RangeQuery.of(r -> r.untyped(n -> n.
                     field("when").
-                    gte((Double.valueOf(after.toInstant().toEpochMilli())))))).
+                    gte(JsonData.of(after.toInstant().toEpochMilli()))))).
                     build());
         }
 
