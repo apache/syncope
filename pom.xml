@@ -440,7 +440,7 @@ under the License.
     <cas.version>7.1.0-RC6</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <h2.version>2.3.230</h2.version>
+    <h2.version>2.3.232</h2.version>
 
     <swagger-core.version>2.2.22</swagger-core.version>
     <swagger-ui.version>5.17.14</swagger-ui.version>
