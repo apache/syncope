@@ -435,12 +435,12 @@ under the License.
     <commons-jexl.version>3.4.0</commons-jexl.version>
     <commons-text.version>1.12.0</commons-text.version>
 
-    <pac4j.version>6.0.5</pac4j.version>
+    <pac4j.version>6.0.6</pac4j.version>
 
     <cas.version>7.1.0-RC6</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <h2.version>2.3.230</h2.version>
+    <h2.version>2.3.232</h2.version>
 
     <swagger-core.version>2.2.22</swagger-core.version>
     <swagger-ui.version>5.17.14</swagger-ui.version>
@@ -1662,7 +1662,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.4.1</version>
         </plugin>
 
         <plugin>
@@ -2058,7 +2058,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.5</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
