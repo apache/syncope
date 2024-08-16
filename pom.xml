@@ -406,7 +406,7 @@ under the License.
     <connid.azure.version>2.0.2</connid.azure.version>
     <connid.scim.version>1.0.4</connid.scim.version>
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
-    <connid.okta.version>3.0.4</connid.okta.version>
+    <connid.okta.version>3.0.5</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>4.1.0-SNAPSHOT</cxf.version>
@@ -495,7 +495,7 @@ under the License.
 
     <tomcat.version>10.1.28</tomcat.version>
     <wildfly.version>33.0.0.Final</wildfly.version>
-    <payara.version>6.2024.7</payara.version>
+    <payara.version>6.2024.8</payara.version>
     <jakarta.faces.version>4.1.1</jakarta.faces.version>
 
     <docker.postgresql.version>16</docker.postgresql.version>
