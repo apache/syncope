@@ -406,7 +406,7 @@ under the License.
     <connid.azure.version>2.0.2</connid.azure.version>
     <connid.scim.version>1.0.4</connid.scim.version>
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
-    <connid.okta.version>3.0.4</connid.okta.version>
+    <connid.okta.version>3.0.5</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>3.6.4</cxf.version>
