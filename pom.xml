@@ -406,7 +406,7 @@ under the License.
     <connid.azure.version>2.0.2</connid.azure.version>
     <connid.scim.version>1.0.4</connid.scim.version>
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
-    <connid.okta.version>3.0.4</connid.okta.version>
+    <connid.okta.version>3.0.5</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>4.1.0-SNAPSHOT</cxf.version>
@@ -435,7 +435,7 @@ under the License.
     <commons-jexl.version>3.4.0</commons-jexl.version>
     <commons-text.version>1.12.0</commons-text.version>
 
-    <pac4j.version>6.0.5</pac4j.version>
+    <pac4j.version>6.0.6</pac4j.version>
 
     <cas.version>7.1.0-RC6</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
@@ -496,7 +496,7 @@ under the License.
 
     <tomcat.version>10.1.28</tomcat.version>
     <wildfly.version>33.0.0.Final</wildfly.version>
-    <payara.version>6.2024.7</payara.version>
+    <payara.version>6.2024.8</payara.version>
     <jakarta.faces.version>4.1.1</jakarta.faces.version>
 
     <docker.postgresql.version>16-alpine</docker.postgresql.version>
@@ -1131,7 +1131,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.2</version>
+        <version>3.0.3</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -1655,7 +1655,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.4.1</version>
         </plugin>
 
         <plugin>
@@ -2051,7 +2051,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.5</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
