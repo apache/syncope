@@ -29,18 +29,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Pattern;
 import javax.sql.DataSource;
-import org.apache.commons.jexl3.parser.Parser;
-import org.apache.commons.jexl3.parser.ParserConstants;
-import org.apache.commons.jexl3.parser.Token;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -54,6 +48,12 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -64,54 +64,44 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
 
-    /**
-     * Split an attribute value recurring on provided literals/tokens.
-     *
-     * @param attrValue value to be split
-     * @param literals literals/tokens
-     * @return split value
-     */
-    protected static List<String> split(final String attrValue, final List<String> literals) {
-        final List<String> attrValues = new ArrayList<>();
-
-        if (literals.isEmpty()) {
-            attrValues.add(attrValue);
-        } else {
-            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
-                if (!token.isEmpty()) {
-                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
-                }
-            }
-        }
-
-        return attrValues;
-    }
-
-    protected final PlainSchemaDAO plainSchemaDAO;
-
-    protected final DerSchemaDAO derSchemaDAO;
-
     protected final DynRealmDAO dynRealmDAO;
 
     protected final EntityManager entityManager;
 
+    protected final AnyFinder anyFinder;
+
     protected final AnyUtils anyUtils;
 
+    protected final String table;
+
     protected AbstractAnyRepoExt(
-            final PlainSchemaDAO plainSchemaDAO,
-            final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final EntityManager entityManager,
+            final AnyFinder anyFinder,
             final AnyUtils anyUtils) {
 
-        this.plainSchemaDAO = plainSchemaDAO;
-        this.derSchemaDAO = derSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.entityManager = entityManager;
+        this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
+        switch (anyUtils.anyTypeKind()) {
+            case ANY_OBJECT:
+                table = JPAAnyObject.TABLE;
+                break;
+
+            case GROUP:
+                table = JPAGroup.TABLE;
+                break;
+
+            case USER:
+            default:
+                table = JPAUser.TABLE;
+        }
     }
 
-    protected Optional<OffsetDateTime> findLastChange(final String key, final String table) {
+    @Transactional(readOnly = true)
+    @Override
+    public Optional<OffsetDateTime> findLastChange(final String key) {
         OpenJPAEntityManagerFactorySPI emf = entityManager.getEntityManagerFactory().
                 unwrap(OpenJPAEntityManagerFactorySPI.class);
         return new JdbcTemplate((DataSource) emf.getConfiguration().getConnectionFactory()).query(
@@ -149,20 +139,6 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         return any;
     }
 
-    private Query findByPlainAttrValueQuery(final String entityName, final boolean ignoreCaseMatch) {
-        String query = "SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.id = :schemaKey AND ((e.stringValue IS NOT NULL"
-                + " AND "
-                + (ignoreCaseMatch ? "LOWER(" : "") + "e.stringValue" + (ignoreCaseMatch ? ")" : "")
-                + " = "
-                + (ignoreCaseMatch ? "LOWER(" : "") + ":stringValue" + (ignoreCaseMatch ? ")" : "") + ')'
-                + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
-                + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
-                + " OR (e.longValue IS NOT NULL AND e.longValue = :longValue)"
-                + " OR (e.doubleValue IS NOT NULL AND e.doubleValue = :doubleValue))";
-        return entityManager.createQuery(query);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public List<A> findByPlainAttrValue(
@@ -170,32 +146,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             final PlainAttrValue attrValue,
             final boolean ignoreCaseMatch) {
 
-        if (schema == null) {
-            LOG.error("No PlainSchema");
-            return List.of();
-        }
-
-        String entityName = schema.isUniqueConstraint()
-                ? anyUtils.plainAttrUniqueValueClass().getName()
-                : anyUtils.plainAttrValueClass().getName();
-        Query query = findByPlainAttrValueQuery(entityName, ignoreCaseMatch);
-        query.setParameter("schemaKey", schema.getKey());
-        query.setParameter("stringValue", attrValue.getStringValue());
-        query.setParameter("booleanValue", attrValue.getBooleanValue());
-        query.setParameter("dateValue", Optional.ofNullable(attrValue.getDateValue()).
-                map(OffsetDateTime::toInstant).orElse(null));
-        query.setParameter("longValue", attrValue.getLongValue());
-        query.setParameter("doubleValue", attrValue.getDoubleValue());
-
-        List<A> result = new ArrayList<>();
-        ((List<PlainAttrValue>) query.getResultList()).stream().forEach(value -> {
-            A any = (A) value.getAttr().getOwner();
-            if (!result.contains(any)) {
-                result.add(any);
-            }
-        });
-
-        return result;
+        return anyFinder.findByPlainAttrValue(table, anyUtils, schema, attrValue, ignoreCaseMatch);
     }
 
     @Override
@@ -204,171 +155,12 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             final PlainAttrUniqueValue attrUniqueValue,
             final boolean ignoreCaseMatch) {
 
-        if (schema == null) {
-            LOG.error("No PlainSchema");
-            return Optional.empty();
-        }
-        if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
-            return Optional.empty();
-        }
-
-        List<A> result = findByPlainAttrValue(schema, attrUniqueValue, ignoreCaseMatch);
-        return result.isEmpty()
-                ? Optional.empty()
-                : Optional.of(result.get(0));
-    }
-
-    private Set<String> getWhereClause(final String expression, final String value, final boolean ignoreCaseMatch) {
-        Parser parser = new Parser(expression);
-
-        // Schema keys
-        List<String> identifiers = new ArrayList<>();
-
-        // Literals
-        List<String> literals = new ArrayList<>();
-
-        // Get schema keys and literals
-        for (Token token = parser.getNextToken(); token != null && StringUtils.isNotBlank(token.toString());
-                token = parser.getNextToken()) {
-
-            if (token.kind == ParserConstants.STRING_LITERAL) {
-                literals.add(token.toString().substring(1, token.toString().length() - 1));
-            }
-
-            if (token.kind == ParserConstants.IDENTIFIER) {
-                identifiers.add(token.toString());
-            }
-        }
-
-        // Sort literals in order to process later literals included into others
-        literals.sort((l1, l2) -> {
-            if (l1 == null && l2 == null) {
-                return 0;
-            } else if (l1 != null && l2 == null) {
-                return -1;
-            } else if (l1 == null) {
-                return 1;
-            } else if (l1.length() == l2.length()) {
-                return 0;
-            } else if (l1.length() > l2.length()) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
-
-        // Split value on provided literals
-        List<String> attrValues = split(value, literals);
-
-        if (attrValues.size() != identifiers.size()) {
-            LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
-            return Set.of();
-        }
-
-        // clauses to be used with INTERSECTed queries
-        Set<String> clauses = new HashSet<>();
-
-        // builder to build the clauses
-        StringBuilder bld = new StringBuilder();
-
-        // Contains used identifiers in order to avoid replications
-        Set<String> used = new HashSet<>();
-
-        // Create several clauses: one for each identifiers
-        for (int i = 0; i < identifiers.size(); i++) {
-            if (!used.contains(identifiers.get(i))) {
-                // verify schema existence and get schema type
-                PlainSchema schema = plainSchemaDAO.findById(identifiers.get(i)).orElse(null);
-                if (schema == null) {
-                    LOG.error("Invalid schema '{}', ignoring", identifiers.get(i));
-                } else {
-                    // clear builder
-                    bld.delete(0, bld.length());
-
-                    bld.append('(');
-
-                    // set schema key
-                    bld.append("s.id = '").append(identifiers.get(i)).append('\'').
-                            append(" AND ").
-                            append("s.id = a.schema_id").
-                            append(" AND ").
-                            append("a.id = v.attribute_id").
-                            append(" AND ");
-
-                    // use a value clause different for each different schema type
-                    switch (schema.getType()) {
-                        case Boolean ->
-                            bld.append("v.booleanValue = '").append(attrValues.get(i)).append('\'');
-                        case Long ->
-                            bld.append("v.longValue = ").append(attrValues.get(i));
-                        case Double ->
-                            bld.append("v.doubleValue = ").append(attrValues.get(i));
-                        case Date ->
-                            bld.append("v.dateValue = '").append(attrValues.get(i)).append('\'');
-                        default -> {
-                            if (ignoreCaseMatch) {
-                                bld.append("LOWER(v.stringValue) = '").
-                                        append(attrValues.get(i).toLowerCase()).append('\'');
-                            } else {
-                                bld.append("v.stringValue = '").
-                                        append(attrValues.get(i)).append('\'');
-                            }
-                        }
-                    }
-
-                    bld.append(')');
-
-                    used.add(identifiers.get(i));
-
-                    clauses.add(bld.toString());
-                }
-            }
-        }
-
-        LOG.debug("Generated where clauses {}", clauses);
-
-        return clauses;
+        return anyFinder.findByPlainAttrUniqueValue(table, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
     }
 
     @Override
-    public List<A> findByDerAttrValue(final DerSchema schema, final String value, final boolean ignoreCaseMatch) {
-        if (schema == null) {
-            LOG.error("No DerSchema");
-            return List.of();
-        }
-
-        // query string
-        StringBuilder querystring = new StringBuilder();
-
-        boolean subquery = false;
-        for (String clause : getWhereClause(schema.getExpression(), value, ignoreCaseMatch)) {
-            if (querystring.length() > 0) {
-                subquery = true;
-                querystring.append(" AND a.owner_id IN ( ");
-            }
-
-            querystring.append("SELECT a.owner_id ").
-                    append("FROM ").append(anyUtils.plainAttrClass().getSimpleName().substring(3)).append(" a, ").
-                    append(anyUtils.plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
-                    append(PlainSchema.class.getSimpleName()).append(" s ").
-                    append("WHERE ").append(clause);
-
-            if (subquery) {
-                querystring.append(')');
-            }
-        }
-
-        List<A> result = new ArrayList<>();
-        if (querystring.length() > 0) {
-            Query query = entityManager.createNativeQuery(querystring.toString());
-
-            for (Object anyKey : query.getResultList()) {
-                findById(anyKey.toString()).filter(any -> !result.contains(any)).ifPresent(result::add);
-            }
-        }
-
-        return result;
+    public List<A> findByDerAttrValue(final DerSchema derSchema, final String value, final boolean ignoreCaseMatch) {
+        return anyFinder.findByDerAttrValue(table, anyUtils, derSchema, value, ignoreCaseMatch);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -440,6 +232,29 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
                 map(DynRealm::getKey).
                 distinct().
                 toList();
+    }
+
+    protected void checkBeforeSave(final A any) {
+        // check UNIQUE constraints
+        new ArrayList<>(((AbstractAttributable<?>) any).getPlainAttrsList()).stream().
+                filter(attr -> attr.getUniqueValue() != null).
+                forEach(attr -> {
+                    Optional<A> other = findByPlainAttrUniqueValue(attr.getSchema(), attr.getUniqueValue(), false);
+                    if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
+                        LOG.debug("No duplicate value found for {}={}",
+                                attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
+                    } else {
+                        throw new DuplicateException("Duplicate value found for "
+                                + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+                    }
+                });
+
+        // update sysInfo
+        OffsetDateTime now = OffsetDateTime.now();
+        String who = AuthContextUtils.getWho();
+        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+        any.setLastModifier(who);
+        any.setLastChangeDate(now);
     }
 
     @Override

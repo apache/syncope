@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -34,7 +35,8 @@ public class JPAUDynGroupMembership extends AbstractDynMembership<User> implemen
 
     public static final String TABLE = "UDynGroupMembership";
 
-    private Group group;
+    @OneToOne
+    private JPAGroup group;
 
     @Override
     public Group getGroup() {

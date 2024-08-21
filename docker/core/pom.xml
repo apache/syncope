@@ -177,8 +177,6 @@ under the License.
                 <copy file="${settings.localRepository}/com/mysql/mysql-connector-j/${jdbc.mysql.version}/mysql-connector-j-${jdbc.mysql.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/org/mariadb/jdbc/mariadb-java-client/${jdbc.mariadb.version}/mariadb-java-client-${jdbc.mariadb.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
                 <copy file="${settings.localRepository}/com/oracle/database/jdbc/ojdbc11/${jdbc.oracle.version}/ojdbc11-${jdbc.oracle.version}.jar" todir="${project.build.outputDirectory}/lib" overwrite="true"/>
-
-                <copy file="${basedir}/../../core/persistence-jpa-json/target/syncope-core-persistence-jpa-json-${project.version}.jar" todir="${project.build.outputDirectory}/jpa-json" overwrite="true"/>
               </target>
             </configuration>
             <goals>

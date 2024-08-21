@@ -83,7 +83,6 @@ under the License.
     <module>persistence-api</module>
     <module>persistence-common</module>
     <module>persistence-jpa</module>
-    <module>persistence-jpa-json</module>
     <module>persistence-neo4j</module>
     <module>spring</module>
     <module>provisioning-api</module>

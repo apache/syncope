@@ -23,6 +23,7 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -33,12 +34,14 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -67,6 +70,7 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 @Entity
 @Table(name = JPAUser.TABLE)
+@EntityListeners({ JSONUserListener.class })
 @Cacheable
 public class JPAUser
         extends AbstractGroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship>
@@ -93,9 +97,10 @@ public class JPAUser
             @UniqueConstraint(columnNames = { "user_id", "role_id" }))
     protected List<JPARole> roles = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    protected List<JPAUPlainAttr> plainAttrs = new ArrayList<>();
+    private String plainAttrs;
+
+    @Transient
+    private final List<JSONUPlainAttr> plainAttrsList = new ArrayList<>();
 
     @Lob
     protected String token;
@@ -254,14 +259,31 @@ public class JPAUser
     }
 
     @Override
-    public boolean add(final UPlainAttr attr) {
-        checkType(attr, JPAUPlainAttr.class);
-        return plainAttrs.add((JPAUPlainAttr) attr);
+    public List<? extends UPlainAttr> getPlainAttrsList() {
+        return plainAttrsList;
     }
 
     @Override
-    protected List<? extends UPlainAttr> internalGetPlainAttrs() {
+    public String getPlainAttrsJSON() {
         return plainAttrs;
+    }
+
+    @Override
+    public void setPlainAttrsJSON(final String plainAttrs) {
+        this.plainAttrs = plainAttrs;
+    }
+
+    @Override
+    public boolean add(final UPlainAttr attr) {
+        checkType(attr, JSONUPlainAttr.class);
+        return plainAttrsList.add((JSONUPlainAttr) attr);
+    }
+
+    @Override
+    public boolean remove(final UPlainAttr attr) {
+        checkType(attr, JSONUPlainAttr.class);
+        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey())
+                && Objects.equals(jsonAttr.getMembershipKey(), attr.getMembershipKey()));
     }
 
     @Override
@@ -451,6 +473,8 @@ public class JPAUser
     @Override
     public boolean remove(final UMembership membership) {
         checkType(membership, JPAUMembership.class);
+        plainAttrsList.removeIf(attr -> attr.getMembershipKey() != null
+                && attr.getMembershipKey().equals(membership.getKey()));
         return this.memberships.remove((JPAUMembership) membership);
     }
 

@@ -707,22 +707,16 @@ public class UserSelfITCase extends AbstractITCase {
         // Users with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval
         userCR.getMemberships().add(new MembershipTO.Builder("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
-        // 1. create user with group 9 (and verify that no propagation occurred)
-        UserTO userTO = createUser(userCR).getEntity();
-        assertNotNull(userTO);
-        assertNotEquals(0L, userTO.getKey());
-        assertNotNull(userTO.getCreationDate());
-        assertNotNull(userTO.getCreator());
-        assertNotNull(userTO.getLastChangeDate());
-        assertNotNull(userTO.getLastModifier());
-        assertEquals(userTO.getCreationDate(), userTO.getLastChangeDate());
+        // 1. create user with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f (and verify that no propagation occurred)
+        ProvisioningResult<UserTO> userTO = createUser(userCR);
+        assertTrue(userTO.getPropagationStatuses().isEmpty());
 
         // 2. request if there is any pending form for user just created
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());
         assertEquals(preForms + 1, forms.getTotalCount());
 
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getEntity().getKey()).build()).getResult().get(0);
         assertNotNull(form);
 
         // 3. first claim by bellini ....
@@ -745,7 +739,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(preForms,
                 USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build()).getTotalCount());
         assertTrue(USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().isEmpty());
+                new UserRequestQuery.Builder().user(userTO.getEntity().getKey()).build()).getResult().isEmpty());
 
         // 7.check that no more forms are still to be processed
         forms = USER_REQUEST_SERVICE.listForms(new UserRequestQuery.Builder().build());

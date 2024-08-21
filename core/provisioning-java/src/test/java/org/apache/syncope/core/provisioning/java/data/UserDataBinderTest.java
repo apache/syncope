@@ -108,12 +108,12 @@ public class UserDataBinderTest extends AbstractTest {
         dataBinder.update(userDAO.findById(userUR.getKey()).orElseThrow(), userUR);
 
         User user = userDAO.findById(userUR.getKey()).orElseThrow();
-        UMembership newM = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").get();
+        UMembership newM = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").orElseThrow();
         assertEquals(1, user.getPlainAttrs(newM).size());
 
-        assertNull(user.getPlainAttr("obscure").get().getMembership());
+        assertNull(user.getPlainAttr("obscure").orElseThrow().getMembership());
         assertEquals(2, user.getPlainAttrs("obscure").size());
-        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").get()));
+        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").orElseThrow()));
         assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> a.getMembership() == null));
         assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> newM.equals(a.getMembership())));
     }

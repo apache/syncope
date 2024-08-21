@@ -1387,6 +1387,7 @@ under the License.
             <useIncrementalCompilation>false</useIncrementalCompilation>
             <showWarnings>true</showWarnings>
             <showDeprecation>true</showDeprecation>
+            <proc>full</proc>
             <compilerArgs>
               <arg>-Xlint:unchecked</arg>
               <arg>-parameters</arg>

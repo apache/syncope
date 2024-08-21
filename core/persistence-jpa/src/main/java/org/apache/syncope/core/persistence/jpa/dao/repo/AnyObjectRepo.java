@@ -18,9 +18,31 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.util.List;
+import java.util.Optional;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface AnyObjectRepo
-        extends PagingAndSortingRepository<JPAAnyObject, String>, AnyObjectRepoBase, AnyObjectRepoExt {
+        extends PagingAndSortingRepository<JPAAnyObject, String>, AnyObjectRepoExt, AnyObjectDAO {
+
+    @Query("SELECT e.id FROM #{#entityName} e WHERE e.type.id = :type AND e.name = :name")
+    @Override
+    Optional<String> findKey(@Param("type") String type, @Param("name") String name);
+
+    @Query("SELECT e FROM #{#entityName} e WHERE e.type.id = :type AND e.name = :name")
+    @Override
+    Optional<? extends AnyObject> findByName(@Param("type") String type, @Param("name") String name);
+
+    @Query("SELECT e FROM #{#entityName} e WHERE e.name = :name")
+    @Override
+    List<AnyObject> findByName(@Param("name") String name);
+
+    @Query("SELECT e FROM #{#entityName} e WHERE e.id IN (:keys)")
+    @Override
+    List<AnyObject> findByKeys(@Param("keys") List<String> keys);
 }

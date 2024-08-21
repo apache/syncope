@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -36,10 +35,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -52,9 +49,9 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -69,27 +66,19 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
-            final PlainSchemaDAO plainSchemaDAO,
-            final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final AnyFinder anyFinder) {
 
         super(
-                plainSchemaDAO,
-                derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
+                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<OffsetDateTime> findLastChange(final String key) {
-        return findLastChange(key, JPAAnyObject.TABLE);
     }
 
     @Override
@@ -193,6 +182,9 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
         AnyObject merged = entityManager.merge(anyObject);
 
+        // ensure that entity listeners are invoked at this point
+        entityManager.flush();
+
         Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO.refreshDynMemberships(merged);
         dynRealmDAO.refreshDynMemberships(merged);
 
@@ -202,6 +194,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
+        checkBeforeSave(anyObject);
         return (S) doSave(anyObject).getLeft();
     }
 

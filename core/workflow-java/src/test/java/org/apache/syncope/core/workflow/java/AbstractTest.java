@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -30,7 +31,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-@SpringJUnitConfig(classes = { WorkflowTestContext.class })
+@SpringJUnitConfig(classes = { MasterDomain.class, WorkflowTestContext.class })
 public abstract class AbstractTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);

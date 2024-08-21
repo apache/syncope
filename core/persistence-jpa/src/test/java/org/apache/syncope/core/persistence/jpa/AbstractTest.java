@@ -23,14 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import jakarta.persistence.EntityManager;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Supplier;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
-import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExtImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +50,13 @@ public abstract class AbstractTest {
 
     private static String ORM = "META-INF/spring-orm.xml";
 
-    private static String INDEXES = "classpath:indexes.xml";
+    private static String INDEXES = "classpath:META-INF/indexes.xml";
+
+    private static String VIEWS = "classpath:META-INF/views.xml";
+
+    private static Supplier<Object> DB_USER_SUPPLIER;
+
+    private static Supplier<Object> DB2_USER_SUPPLIER;
 
     private static JdbcDatabaseContainer<?> MASTER_DOMAIN;
 
@@ -96,6 +98,9 @@ public abstract class AbstractTest {
         if (classExists("org.postgresql.Driver")) {
             JDBC_DRIVER = "org.postgresql.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.PostgresDictionary";
+            ORM = "META-INF/spring-orm.xml";
+            INDEXES = "classpath:META-INF/indexes.xml";
+            VIEWS = "classpath:META-INF/views.xml";
 
             MASTER_DOMAIN = new PostgreSQLContainer<>("postgres:" + dockerPostgreSQLVersion).
                     withTmpFs(Map.of("/var/lib/postgresql/data", "rw")).
@@ -107,10 +112,16 @@ public abstract class AbstractTest {
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("stringtype", "unspecified").
                     withReuse(true);
+
+            DB_USER_SUPPLIER = MASTER_DOMAIN::getUsername;
+            DB2_USER_SUPPLIER = TWO_DOMAIN::getUsername;
         } else if (classExists("com.mysql.cj.jdbc.Driver")) {
             JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MySQLDictionary("
                     + "blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)";
+            ORM = "META-INF/mysql/spring-orm.xml";
+            INDEXES = "classpath:META-INF/mysql/indexes.xml";
+            VIEWS = "classpath:META-INF/mysql/views.xml";
 
             MASTER_DOMAIN = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
@@ -122,10 +133,16 @@ public abstract class AbstractTest {
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
+
+            DB_USER_SUPPLIER = MASTER_DOMAIN::getUsername;
+            DB2_USER_SUPPLIER = TWO_DOMAIN::getUsername;
         } else if (classExists("org.mariadb.jdbc.Driver")) {
             JDBC_DRIVER = "org.mariadb.jdbc.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MariaDBDictionary("
                     + "blobTypeName=LONGBLOB,dateFractionDigits=3)";
+            ORM = "META-INF/mariadb/spring-orm.xml";
+            INDEXES = "classpath:META-INF/mariadb/indexes.xml";
+            VIEWS = "classpath:META-INF/mariadb/views.xml";
 
             MASTER_DOMAIN = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
@@ -137,11 +154,16 @@ public abstract class AbstractTest {
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
+
+            // https://jira.mariadb.org/browse/MDEV-27898
+            DB_USER_SUPPLIER = () -> "root";
+            DB2_USER_SUPPLIER = () -> "root";
         } else if (classExists("oracle.jdbc.OracleDriver")) {
             JDBC_DRIVER = "oracle.jdbc.OracleDriver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.OracleDictionary";
-            ORM = "META-INF/spring-orm-oracle.xml";
-            INDEXES = "classpath:oracle_indexes.xml";
+            ORM = "META-INF/oracle/spring-orm.xml";
+            INDEXES = "classpath:META-INF/oracle/indexes.xml";
+            VIEWS = "classpath:META-INF/oracle/views.xml";
 
             MASTER_DOMAIN = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
@@ -149,6 +171,9 @@ public abstract class AbstractTest {
             TWO_DOMAIN = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withReuse(true);
+
+            DB_USER_SUPPLIER = MASTER_DOMAIN::getUsername;
+            DB2_USER_SUPPLIER = TWO_DOMAIN::getUsername;
         }
 
         if (MASTER_DOMAIN == null) {
@@ -167,13 +192,14 @@ public abstract class AbstractTest {
         registry.add("DATABASE_PLATFORM", () -> DATABASE_PLATFORM);
         registry.add("ORM", () -> ORM);
         registry.add("INDEXES", () -> INDEXES);
+        registry.add("VIEWS", () -> VIEWS);
 
         registry.add("DB_URL", MASTER_DOMAIN::getJdbcUrl);
-        registry.add("DB_USER", MASTER_DOMAIN::getUsername);
+        registry.add("DB_USER", DB_USER_SUPPLIER::get);
         registry.add("DB_PASSWORD", MASTER_DOMAIN::getPassword);
 
         registry.add("DB2_URL", TWO_DOMAIN::getJdbcUrl);
-        registry.add("DB2_USER", TWO_DOMAIN::getUsername);
+        registry.add("DB2_USER", DB2_USER_SUPPLIER::get);
         registry.add("DB2_PASSWORD", TWO_DOMAIN::getPassword);
     }
 
@@ -186,13 +212,4 @@ public abstract class AbstractTest {
     @Autowired
     protected EntityManager entityManager;
 
-    protected <T extends PlainAttr<?>> Optional<T> findPlainAttr(final String key, final Class<T> reference) {
-        return Optional.ofNullable(
-                reference.cast(entityManager.find(PlainSchemaRepoExtImpl.getEntityReference(reference), key)));
-    }
-
-    protected <T extends PlainAttrValue> Optional<T> findPlainAttrValue(final String key, final Class<T> reference) {
-        return Optional.ofNullable(
-                reference.cast(entityManager.find(JPAPlainAttrValueDAO.getEntityReference(reference), key)));
-    }
 }

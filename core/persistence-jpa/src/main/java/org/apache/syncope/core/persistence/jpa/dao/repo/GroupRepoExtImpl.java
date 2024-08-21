@@ -21,13 +21,11 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -59,9 +56,9 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
@@ -77,6 +74,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     protected final ApplicationEventPublisher publisher;
 
+    protected final PlainSchemaDAO plainSchemaDAO;
+
     protected final AnyMatchDAO anyMatchDAO;
 
     protected final UserDAO userDAO;
@@ -91,33 +90,27 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
             final PlainSchemaDAO plainSchemaDAO,
-            final DerSchemaDAO derSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final AnySearchDAO searchDAO,
             final SearchCondVisitor searchCondVisitor,
-            final EntityManager entityManager) {
+            final EntityManager entityManager,
+            final AnyFinder anyFinder) {
 
         super(
-                plainSchemaDAO,
-                derSchemaDAO,
                 dynRealmDAO,
                 entityManager,
+                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
+        this.plainSchemaDAO = plainSchemaDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.anySearchDAO = searchDAO;
         this.searchCondVisitor = searchCondVisitor;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<OffsetDateTime> findLastChange(final String key) {
-        return findLastChange(key, JPAGroup.TABLE);
     }
 
     @Transactional(readOnly = true)
@@ -233,6 +226,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public <S extends Group> S save(final S group) {
+        checkBeforeSave(group);
         return entityManager.merge(group);
     }
 

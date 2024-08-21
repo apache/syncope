@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -34,13 +33,11 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.validation.AnyObjectCheck;
+import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGroupableRelatable;
-import org.apache.syncope.core.persistence.neo4j.entity.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAttributable;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -50,7 +47,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @AttributableCheck
 public class Neo4jAnyObject
         extends AbstractGroupableRelatable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship>
-        implements AnyObject, Neo4jAttributable<AnyObject> {
+        implements AnyObject {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
@@ -63,7 +60,7 @@ public class Neo4jAnyObject
     public static final String ANY_OBJECT_AUX_CLASSES_REL = "ANY_OBJECT_AUX_CLASSES";
 
     @CompositeProperty(converterRef = "aPlainAttrsConverter")
-    protected Map<String, Neo4jAPlainAttr> plainAttrs = new HashMap<>();
+    protected Map<String, JSONAPlainAttr> plainAttrs = new HashMap<>();
 
     @NotNull(message = "Blank name")
     protected String name;
@@ -88,7 +85,7 @@ public class Neo4jAnyObject
     protected List<Neo4jAMembership> memberships = new ArrayList<>();
 
     @Override
-    protected Map<String, ? extends Neo4jPlainAttr<? extends Any<APlainAttr>>> plainAttrs() {
+    protected Map<String, ? extends APlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
@@ -125,14 +122,14 @@ public class Neo4jAnyObject
     }
 
     @Override
-    public Optional<? extends APlainAttr> getPlainAttr(final String plainSchema) {
-        return Optional.ofNullable(plainAttrs.get(plainSchema));
+    protected void setPlainAttrOwner(final APlainAttr plainAttr) {
+        plainAttr.setOwner(this);
     }
 
     @Override
     public boolean add(final APlainAttr attr) {
-        checkType(attr, Neo4jAPlainAttr.class);
-        Neo4jAPlainAttr neo4jAttr = (Neo4jAPlainAttr) attr;
+        checkType(attr, JSONAPlainAttr.class);
+        JSONAPlainAttr neo4jAttr = (JSONAPlainAttr) attr;
 
         if (neo4jAttr.getMembershipKey() == null) {
             return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;

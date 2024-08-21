@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -28,11 +29,13 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -51,6 +54,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 @Entity
 @Table(name = JPAAnyObject.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "name", "type_id" }))
+@EntityListeners({ JSONAnyObjectListener.class })
 @Cacheable
 @AnyObjectCheck
 public class JPAAnyObject
@@ -67,9 +71,10 @@ public class JPAAnyObject
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPAAnyType type;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-    @Valid
-    private List<JPAAPlainAttr> plainAttrs = new ArrayList<>();
+    private String plainAttrs;
+
+    @Transient
+    private final List<JSONAPlainAttr> plainAttrsList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -130,14 +135,31 @@ public class JPAAnyObject
     }
 
     @Override
-    public boolean add(final APlainAttr attr) {
-        checkType(attr, JPAAPlainAttr.class);
-        return plainAttrs.add((JPAAPlainAttr) attr);
+    public List<? extends APlainAttr> getPlainAttrsList() {
+        return plainAttrsList;
     }
 
     @Override
-    protected List<? extends APlainAttr> internalGetPlainAttrs() {
+    public String getPlainAttrsJSON() {
         return plainAttrs;
+    }
+
+    @Override
+    public void setPlainAttrsJSON(final String plainAttrs) {
+        this.plainAttrs = plainAttrs;
+    }
+
+    @Override
+    public boolean add(final APlainAttr attr) {
+        checkType(attr, JSONAPlainAttr.class);
+        return plainAttrsList.add((JSONAPlainAttr) attr);
+    }
+
+    @Override
+    public boolean remove(final APlainAttr attr) {
+        checkType(attr, JSONAPlainAttr.class);
+        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey())
+                && Objects.equals(jsonAttr.getMembershipKey(), attr.getMembershipKey()));
     }
 
     @Override
@@ -181,6 +203,8 @@ public class JPAAnyObject
     @Override
     public boolean remove(final AMembership membership) {
         checkType(membership, JPAAMembership.class);
+        plainAttrsList.removeIf(attr -> attr.getMembershipKey() != null
+                && attr.getMembershipKey().equals(membership.getKey()));
         return this.memberships.remove((JPAAMembership) membership);
     }
 

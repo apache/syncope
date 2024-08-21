@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,7 +77,8 @@ public class EmbeddedPostgreSQLContext {
 
             JndiObjectFactoryBean masterDataSource = new JndiObjectFactoryBean();
             masterDataSource.setJndiName("java:comp/env/jdbc/syncopeMasterDataSource");
-            masterDataSource.setDefaultObject(pg.getDatabase("syncope", "syncope"));
+            masterDataSource.setDefaultObject(pg.getDatabase(
+                    "syncope", "syncope", Map.of("stringtype", "unspecified")));
             return masterDataSource;
         } catch (IOException e) {
             throw new IllegalStateException("Could not start embedded PostgreSQL", e);

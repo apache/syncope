@@ -47,7 +47,13 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.jndi.JndiObjectFactoryBean;
 
-@Import(PersistenceContext.class)
+@Import({
+    PersistenceContext.class,
+    PGPersistenceContext.class,
+    MySQLPersistenceContext.class,
+    MariaDBPersistenceContext.class,
+    OraclePersistenceContext.class
+})
 @Configuration(proxyBeanMethods = false)
 public class PersistenceTestContext {
 
