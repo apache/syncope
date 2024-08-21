@@ -28,7 +28,7 @@ public abstract class TextFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 1708195999215061362L;
 
-    private static final Pattern HTML_PATTERN = Pattern.compile("<(\"[^\"]*\"|'[^']*'|[^'\">])*>");
+    private static final Pattern HTML_PATTERN = Pattern.compile(".*<.*");
 
     public TextFieldPanel(final String id, final String name, final IModel<String> model) {
         super(id, name, model);
