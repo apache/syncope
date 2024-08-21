@@ -50,6 +50,6 @@ jobs:
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'Unit Tests: Oracle'
-      run: mvn -f core/persistence-jpa-json/pom.xml -P oracle -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
+      run: mvn -f core/persistence-jpa/pom.xml -P oracle -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'Integration Tests: Oracle'
       run: mvn -f fit/core-reference/pom.xml -P oracle-it -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
