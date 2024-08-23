@@ -413,7 +413,7 @@ under the License.
     <bouncycastle.version>1.78.1</bouncycastle.version>
     <nimbus-jose-jwt.version>9.40</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.3.2</spring-boot.version>
+    <spring-boot.version>3.3.3</spring-boot.version>
     <spring-cloud-gateway.version>4.1.5</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.0</openjpa.version>
@@ -494,7 +494,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>10.1.28</tomcat.version>
-    <wildfly.version>33.0.0.Final</wildfly.version>
+    <wildfly.version>33.0.1.Final</wildfly.version>
     <payara.version>6.2024.8</payara.version>
     <jakarta.faces.version>4.1.1</jakarta.faces.version>
 
@@ -503,7 +503,7 @@ under the License.
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.neo4j.version>5.22.0</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.3</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.4.1</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
@@ -1466,7 +1466,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.7.1</version>
+          <version>3.8.0</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <artifactItems>
@@ -1640,7 +1640,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.5.0</version>
           <configuration>
             <configLocation>${rootpom.basedir}/src/main/resources/org/apache/syncope/checkstyle.xml</configLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
@@ -1956,7 +1956,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.6.2</version>
+        <version>3.7.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -2019,7 +2019,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
       </plugin>
     </plugins>
   </reporting>
@@ -2293,26 +2293,6 @@ under the License.
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <!-- TMP until CAS 7.1.0-RC6 -->
-    <profile>
-      <id>jdk23-plus</id>
-
-      <activation>
-        <jdk>[23,)</jdk>
-      </activation>
-
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>org.awaitility</groupId>
-            <artifactId>awaitility</artifactId>
-            <version>4.2.0</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
     </profile>
   </profiles>
 
