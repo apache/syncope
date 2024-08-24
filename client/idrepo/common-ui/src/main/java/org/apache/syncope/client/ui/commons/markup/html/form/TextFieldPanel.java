@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import java.util.regex.Pattern;
+import java.util.Optional;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.validation.IValidatable;
 import org.apache.wicket.validation.IValidator;
@@ -27,8 +27,6 @@ import org.apache.wicket.validation.ValidationError;
 public abstract class TextFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 1708195999215061362L;
-
-    private static final Pattern HTML_PATTERN = Pattern.compile(".*<.*");
 
     public TextFieldPanel(final String id, final String name, final IModel<String> model) {
         super(id, name, model);
@@ -41,11 +39,11 @@ public abstract class TextFieldPanel extends FieldPanel<String> {
 
             @Override
             public void validate(final IValidatable<String> validatable) {
-                if (HTML_PATTERN.matcher(validatable.getValue()).matches()) {
+                Optional.ofNullable(validatable.getValue()).filter(v -> v.indexOf('<') != -1).ifPresent(v -> {
                     ValidationError error = new ValidationError().addKey("htmlErrorMessage");
                     error.setVariable("label", field.getLabel().getObject());
                     validatable.error(error);
-                }
+                });
             }
         });
 
