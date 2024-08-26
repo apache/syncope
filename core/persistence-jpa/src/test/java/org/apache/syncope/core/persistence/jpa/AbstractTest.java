@@ -19,30 +19,28 @@
 package org.apache.syncope.core.persistence.jpa;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import jakarta.persistence.EntityManager;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.oracle.OracleContainer;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, PersistenceTestContext.class })
 public abstract class AbstractTest {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
     private static String JDBC_DRIVER;
 
@@ -54,13 +52,17 @@ public abstract class AbstractTest {
 
     private static String VIEWS = "classpath:META-INF/views.xml";
 
-    private static Supplier<Object> DB_USER_SUPPLIER;
+    private static Supplier<Object> JDBC_URL_SUPPLIER;
 
-    private static Supplier<Object> DB2_USER_SUPPLIER;
+    private static Supplier<Object> JDBC2_URL_SUPPLIER;
 
-    private static JdbcDatabaseContainer<?> MASTER_DOMAIN;
+    private static Supplier<Object> DB_USER_SUPPLIER = () -> "syncope";
 
-    private static JdbcDatabaseContainer<?> TWO_DOMAIN;
+    private static Supplier<Object> DB_PWD_SUPPLIER = () -> "syncope";
+
+    private static Supplier<Object> DB2_USER_SUPPLIER = () -> "syncope";
+
+    private static Supplier<Object> DB2_PWD_SUPPLIER = () -> "syncope";
 
     private static boolean classExists(final String name) {
         try {
@@ -73,7 +75,6 @@ public abstract class AbstractTest {
     }
 
     static {
-        String dockerPostgreSQLVersion = null;
         String dockerMySQLVersion = null;
         String dockerMariaDBVersion = null;
         String dockerOracleVersion = null;
@@ -81,20 +82,16 @@ public abstract class AbstractTest {
             Properties props = new Properties();
             props.load(propStream);
 
-            dockerPostgreSQLVersion = props.getProperty("docker.postgresql.version");
             dockerMySQLVersion = props.getProperty("docker.mysql.version");
             dockerMariaDBVersion = props.getProperty("docker.mariadb.version");
             dockerOracleVersion = props.getProperty("docker.oracle.version");
         } catch (Exception e) {
-            LOG.error("Could not load /test.properties", e);
+            fail("Could not load /test.properties", e);
         }
-        assertNotNull(dockerPostgreSQLVersion);
         assertNotNull(dockerMySQLVersion);
         assertNotNull(dockerMariaDBVersion);
         assertNotNull(dockerOracleVersion);
 
-        MASTER_DOMAIN = null;
-        TWO_DOMAIN = null;
         if (classExists("org.postgresql.Driver")) {
             JDBC_DRIVER = "org.postgresql.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.PostgresDictionary";
@@ -102,19 +99,23 @@ public abstract class AbstractTest {
             INDEXES = "classpath:META-INF/indexes.xml";
             VIEWS = "classpath:META-INF/views.xml";
 
-            MASTER_DOMAIN = new PostgreSQLContainer<>("postgres:" + dockerPostgreSQLVersion).
-                    withTmpFs(Map.of("/var/lib/postgresql/data", "rw")).
-                    withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
-                    withUrlParam("stringtype", "unspecified").
-                    withReuse(true);
-            TWO_DOMAIN = new PostgreSQLContainer<>("postgres:" + dockerPostgreSQLVersion).
-                    withTmpFs(Map.of("/var/lib/postgresql/data", "rw")).
-                    withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
-                    withUrlParam("stringtype", "unspecified").
-                    withReuse(true);
+            try {
+                EmbeddedPostgres pg = EmbeddedPostgres.builder().start();
+                JdbcTemplate jdbcTemplate = new JdbcTemplate(pg.getPostgresDatabase());
+                Stream.of("syncope", "syncopetwo").forEach(key -> {
+                    jdbcTemplate.execute("CREATE DATABASE " + key);
 
-            DB_USER_SUPPLIER = MASTER_DOMAIN::getUsername;
-            DB2_USER_SUPPLIER = TWO_DOMAIN::getUsername;
+                    jdbcTemplate.execute("CREATE USER " + key + " WITH PASSWORD '" + key + "'");
+                    jdbcTemplate.execute("ALTER DATABASE " + key + " OWNER TO " + key);
+                });
+
+                JDBC_URL_SUPPLIER = () -> pg.getJdbcUrl("syncope", "syncope") + "&stringtype=unspecified";
+                JDBC2_URL_SUPPLIER = () -> pg.getJdbcUrl("syncopetwo", "syncopetwo") + "&stringtype=unspecified";
+                DB2_USER_SUPPLIER = () -> "syncopetwo";
+                DB2_PWD_SUPPLIER = () -> "syncopetwo";
+            } catch (Exception e) {
+                fail("Could not setup PostgreSQL databases", e);
+            }
         } else if (classExists("com.mysql.cj.jdbc.Driver")) {
             JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MySQLDictionary("
@@ -123,19 +124,21 @@ public abstract class AbstractTest {
             INDEXES = "classpath:META-INF/mysql/indexes.xml";
             VIEWS = "classpath:META-INF/mysql/views.xml";
 
-            MASTER_DOMAIN = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
+            MySQLContainer<?> masterDomain = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
-            TWO_DOMAIN = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
-                    withTmpFs(Map.of("/var/lib/mysql", "rw")).
-                    withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
-                    withUrlParam("characterEncoding", "UTF-8").
-                    withReuse(true);
+            masterDomain.start();
+            JDBC_URL_SUPPLIER = () -> masterDomain.getJdbcUrl();
 
-            DB_USER_SUPPLIER = MASTER_DOMAIN::getUsername;
-            DB2_USER_SUPPLIER = TWO_DOMAIN::getUsername;
+            MySQLContainer<?> twoDomain = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
+                    withTmpFs(Map.of("/var/lib/mysql", "rw")).
+                    withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
+                    withUrlParam("characterEncoding", "UTF-8").
+                    withReuse(true);
+            twoDomain.start();
+            JDBC2_URL_SUPPLIER = () -> twoDomain.getJdbcUrl();
         } else if (classExists("org.mariadb.jdbc.Driver")) {
             JDBC_DRIVER = "org.mariadb.jdbc.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MariaDBDictionary("
@@ -144,20 +147,27 @@ public abstract class AbstractTest {
             INDEXES = "classpath:META-INF/mariadb/indexes.xml";
             VIEWS = "classpath:META-INF/mariadb/views.xml";
 
-            MASTER_DOMAIN = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
+            MariaDBContainer<?> masterDomain = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
-            TWO_DOMAIN = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
+            masterDomain.start();
+            JDBC_URL_SUPPLIER = () -> masterDomain.getJdbcUrl();
+
+            MariaDBContainer<?> twoDomain = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
+            twoDomain.start();
+            JDBC2_URL_SUPPLIER = () -> twoDomain.getJdbcUrl();
 
             // https://jira.mariadb.org/browse/MDEV-27898
             DB_USER_SUPPLIER = () -> "root";
+            DB_PWD_SUPPLIER = () -> "syncope";
             DB2_USER_SUPPLIER = () -> "root";
+            DB2_PWD_SUPPLIER = () -> "syncope";
         } else if (classExists("oracle.jdbc.OracleDriver")) {
             JDBC_DRIVER = "oracle.jdbc.OracleDriver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.OracleDictionary";
@@ -165,25 +175,18 @@ public abstract class AbstractTest {
             INDEXES = "classpath:META-INF/oracle/indexes.xml";
             VIEWS = "classpath:META-INF/oracle/views.xml";
 
-            MASTER_DOMAIN = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
+            OracleContainer masterDomain = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withReuse(true);
-            TWO_DOMAIN = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
+            masterDomain.start();
+            JDBC_URL_SUPPLIER = () -> masterDomain.getJdbcUrl();
+
+            OracleContainer twoDomain = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withReuse(true);
-
-            DB_USER_SUPPLIER = MASTER_DOMAIN::getUsername;
-            DB2_USER_SUPPLIER = TWO_DOMAIN::getUsername;
+            twoDomain.start();
+            JDBC2_URL_SUPPLIER = () -> twoDomain.getJdbcUrl();
         }
-
-        if (MASTER_DOMAIN == null) {
-            throw new IllegalStateException("Could not inizialize TestContainers for domain Master");
-        }
-        MASTER_DOMAIN.start();
-        if (TWO_DOMAIN == null) {
-            throw new IllegalStateException("Could not inizialize TestContainers for domain Two");
-        }
-        TWO_DOMAIN.start();
     }
 
     @DynamicPropertySource
@@ -194,13 +197,13 @@ public abstract class AbstractTest {
         registry.add("INDEXES", () -> INDEXES);
         registry.add("VIEWS", () -> VIEWS);
 
-        registry.add("DB_URL", MASTER_DOMAIN::getJdbcUrl);
+        registry.add("DB_URL", JDBC_URL_SUPPLIER::get);
         registry.add("DB_USER", DB_USER_SUPPLIER::get);
-        registry.add("DB_PASSWORD", MASTER_DOMAIN::getPassword);
+        registry.add("DB_PASSWORD", DB_PWD_SUPPLIER::get);
 
-        registry.add("DB2_URL", TWO_DOMAIN::getJdbcUrl);
+        registry.add("DB2_URL", JDBC2_URL_SUPPLIER::get);
         registry.add("DB2_USER", DB2_USER_SUPPLIER::get);
-        registry.add("DB2_PASSWORD", TWO_DOMAIN::getPassword);
+        registry.add("DB2_PASSWORD", DB2_PWD_SUPPLIER::get);
     }
 
     @Autowired

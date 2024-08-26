@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License
-name: "FIT Tomcat H2 YAML"
+name: "FIT Tomcat PostgreSQL YAML"
 
 on:
   push:
@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  fit_Tomcat_H2_YAML:
+  fit_Tomcat_PostgreSQL_YAML:
     runs-on: ubuntu-latest
 
     steps:

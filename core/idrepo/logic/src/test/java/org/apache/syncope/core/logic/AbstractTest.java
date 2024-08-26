@@ -18,56 +18,48 @@
  */
 package org.apache.syncope.core.logic;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
+import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import jakarta.persistence.EntityManager;
-import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
+import java.util.function.Supplier;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.jpa.MasterDomain;
 import org.junit.jupiter.api.BeforeAll;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, IdRepoLogicTestContext.class })
 public abstract class AbstractTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
+    private static Supplier<Object> JDBC_URL_SUPPLIER;
 
-    private static final PostgreSQLContainer<?> MASTER_DOMAIN;
+    private static final Supplier<Object> DB_CRED_SUPPLIER = () -> "syncope";
 
     static {
-        String dockerPostgreSQLVersion = null;
-        try (InputStream propStream = AbstractTest.class.getResourceAsStream("/test.properties")) {
-            Properties props = new Properties();
-            props.load(propStream);
+        try {
+            EmbeddedPostgres pg = EmbeddedPostgres.builder().start();
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(pg.getPostgresDatabase());
+            jdbcTemplate.execute("CREATE DATABASE syncope");
 
-            dockerPostgreSQLVersion = props.getProperty("docker.postgresql.version");
+            jdbcTemplate.execute("CREATE USER syncope WITH PASSWORD 'syncope'");
+            jdbcTemplate.execute("ALTER DATABASE syncope OWNER TO syncope");
+
+            JDBC_URL_SUPPLIER = () -> pg.getJdbcUrl("syncope", "syncope") + "&stringtype=unspecified";
         } catch (Exception e) {
-            LOG.error("Could not load /test.properties", e);
+            fail("Could not setup PostgreSQL database", e);
         }
-        assertNotNull(dockerPostgreSQLVersion);
-
-        MASTER_DOMAIN = new PostgreSQLContainer<>("postgres:" + dockerPostgreSQLVersion).
-                withTmpFs(Map.of("/var/lib/postgresql/data", "rw")).
-                withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
-                withUrlParam("stringtype", "unspecified").
-                withReuse(true);
-        MASTER_DOMAIN.start();
     }
 
     @DynamicPropertySource
     static void configureProperties(final DynamicPropertyRegistry registry) {
-        registry.add("DB_URL", MASTER_DOMAIN::getJdbcUrl);
-        registry.add("DB_USER", MASTER_DOMAIN::getUsername);
-        registry.add("DB_PASSWORD", MASTER_DOMAIN::getPassword);
+        registry.add("DB_URL", JDBC_URL_SUPPLIER);
+        registry.add("DB_USER", DB_CRED_SUPPLIER);
+        registry.add("DB_PASSWORD", DB_CRED_SUPPLIER);
     }
 
     @BeforeAll
