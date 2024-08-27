@@ -93,11 +93,11 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
     @Override
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
         String label;
-        if (reference.isAssignableFrom(GPlainAttr.class)) {
+        if (GPlainAttr.class.isAssignableFrom(reference)) {
             label = Neo4jGroup.NODE;
-        } else if (reference.isAssignableFrom(APlainAttr.class)) {
+        } else if (APlainAttr.class.isAssignableFrom(reference)) {
             label = Neo4jAnyObject.NODE;
-        } else if (reference.isAssignableFrom(LAPlainAttr.class)) {
+        } else if (LAPlainAttr.class.isAssignableFrom(reference)) {
             label = Neo4jLinkedAccount.NODE;
         } else {
             label = Neo4jUser.NODE;
