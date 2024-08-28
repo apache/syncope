@@ -34,9 +34,6 @@ under the License.
   <packaging>war</packaging>
   
   <properties>
-    <jakarta.xml.version>3.0.1</jakarta.xml.version>
-    <jaxb.version>3.0.2</jaxb.version>
-
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
 
@@ -75,40 +72,6 @@ under the License.
     <dependency>
       <groupId>com.unboundid</groupId>
       <artifactId>unboundid-ldapsdk</artifactId>
-    </dependency>
-
-    <!-- Needed by CXF 4.0 to build the SOAP service -->
-    <dependency>
-      <groupId>jakarta.xml.ws</groupId>
-      <artifactId>jakarta.xml.ws-api</artifactId>
-      <version>${jakarta.xml.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>jakarta.xml.bind</groupId>
-      <artifactId>jakarta.xml.bind-api</artifactId>
-      <version>${jakarta.xml.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-core</artifactId>
-      <version>${jaxb.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.sun.activation</groupId>
-          <artifactId>jakarta.activation</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.glassfish.jaxb</groupId>
-      <artifactId>jaxb-runtime</artifactId>
-      <version>${jaxb.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.sun.activation</groupId>
-          <artifactId>jakarta.activation</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
