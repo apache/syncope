@@ -429,7 +429,7 @@ under the License.
 
     <elasticsearch.version>8.15.0</elasticsearch.version>
     <opensearch.version>2.16.0</opensearch.version>
-    <opensearch-java.version>2.12.0</opensearch-java.version>
+    <opensearch-java.version>2.14.0</opensearch-java.version>
 
     <commons-lang3.version>3.16.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
@@ -501,7 +501,7 @@ under the License.
     <docker.postgresql.version>16</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
-    <docker.neo4j.version>5.22.0</docker.neo4j.version>
+    <docker.neo4j.version>5.23.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
@@ -1451,7 +1451,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.10.0</version>
           <configuration>
             <release>${targetJdk}</release>
           </configuration>
@@ -1612,7 +1612,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.5.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1622,7 +1622,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.5.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
@@ -1974,7 +1974,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.10.0</version>
         <configuration>
           <source>${targetJdk}</source>
           <destDir>apidocs/4.0</destDir>
