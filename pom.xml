@@ -432,7 +432,7 @@ under the License.
 
     <elasticsearch.version>8.15.0</elasticsearch.version>
     <opensearch.version>2.16.0</opensearch.version>
-    <opensearch-java.version>2.13.0</opensearch-java.version>
+    <opensearch-java.version>2.14.0</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
@@ -1550,7 +1550,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.8.0</version>
+          <version>3.10.0</version>
           <configuration>
             <release>${targetJdk}</release>
           </configuration>
@@ -1711,7 +1711,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.5.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1721,7 +1721,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.4.0</version>
+          <version>3.5.0</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
@@ -2069,7 +2069,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.10.0</version>
         <configuration>
           <release>${targetJdk}</release>
           <destDir>apidocs/3.0</destDir>
