@@ -160,6 +160,8 @@ public class WAServiceRegistryTest extends AbstractTest {
         WAClientAppService service = waRestClient.getService(WAClientAppService.class);
         assertTrue(service.list().isEmpty());
 
+        int initialServices = servicesManager.load().size();
+
         // 2. add one client app on mocked Core, nothing on WA yet
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildOIDCRP());
@@ -174,7 +176,7 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         // 3. trigger client app refresh
         Collection<RegisteredService> load = servicesManager.load();
-        assertEquals(3, load.size());
+        assertEquals(initialServices + 1, load.size());
 
         // 4. look for the service created above
         RegisteredService found = servicesManager.findServiceBy(clientAppId);
@@ -202,7 +204,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals(2, apps.size());
 
         load = servicesManager.load();
-        assertEquals(4, load.size());
+        assertEquals(initialServices + 2, load.size());
 
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found instanceof SamlRegisteredService);
@@ -225,7 +227,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertEquals(3, apps.size());
 
         load = servicesManager.load();
-        assertEquals(5, load.size());
+        assertEquals(initialServices + 3, load.size());
 
         found = servicesManager.findServiceBy(clientAppId);
         assertTrue(found.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);

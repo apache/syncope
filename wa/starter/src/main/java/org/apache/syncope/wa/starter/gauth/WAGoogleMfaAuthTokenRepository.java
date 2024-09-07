@@ -50,12 +50,13 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository<G
     }
 
     @Override
-    public void store(final GoogleAuthenticatorToken token) {
+    public GoogleAuthenticatorToken store(final GoogleAuthenticatorToken token) {
         GoogleMfaAuthToken tokenTO = new GoogleMfaAuthToken.Builder().
                 token(token.getToken()).
                 issueDate(token.getIssuedDateTime()).
                 build();
         service().store(token.getUserId(), tokenTO);
+        return token;
     }
 
     @Override
