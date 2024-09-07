@@ -469,7 +469,7 @@ public class JWTITCase extends AbstractITCase {
                 notBeforeTime(currentTime);
 
         AccessTokenJWSSigner customJWSSigner =
-                new AccessTokenJWSSigner(JWS_ALGORITHM, RandomStringUtils.randomAlphanumeric(512));
+                new AccessTokenJWSSigner(JWS_ALGORITHM, RandomStringUtils.insecure().nextAlphanumeric(512));
 
         SignedJWT jwt = new SignedJWT(new JWSHeader(customJWSSigner.getJwsAlgorithm()), claimsSet.build());
         jwt.sign(customJWSSigner);

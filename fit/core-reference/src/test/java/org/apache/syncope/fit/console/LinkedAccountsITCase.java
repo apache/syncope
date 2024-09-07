@@ -82,7 +82,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
 
         // create user with linked account
-        String email = "linkedAccount" + RandomStringUtils.randomNumeric(4) + "@syncope.apache.org";
+        String email = "linkedAccount" + RandomStringUtils.insecure().nextNumeric(4) + "@syncope.apache.org";
         UserCR userCR = UserITCase.getSample(email);
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
 
