@@ -440,7 +440,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchBySecurityAnswer() {
-        String securityAnswer = RandomStringUtils.randomAlphanumeric(10);
+        String securityAnswer = RandomStringUtils.insecure().nextAlphanumeric(10);
         UserCR userCR = UserITCase.getUniqueSample("securityAnswer@syncope.apache.org");
         userCR.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
         userCR.setSecurityAnswer(securityAnswer);

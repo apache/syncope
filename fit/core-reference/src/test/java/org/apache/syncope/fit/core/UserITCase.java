@@ -1403,7 +1403,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals("InvalidPassword: Password pwned", e.getElements().iterator().next());
         }
 
-        userCR.setPassword('1' + RandomStringUtils.randomAlphanumeric(10));
+        userCR.setPassword('1' + RandomStringUtils.insecure().nextAlphanumeric(10));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
     }

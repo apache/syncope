@@ -81,7 +81,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     public void createWithLinkedAccountThenUpdateThenRemove() throws NamingException {
         // 1. create user with linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "firstAccountOf" + userCR.getUsername();
         String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
@@ -157,7 +157,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     public void createWithLinkedAccountThenUpdateUsingPutThenRemove() throws NamingException {
         // 1. create user with linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
         String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
@@ -197,7 +197,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     public void createWithoutLinkedAccountThenAdd() throws NamingException {
         // 1. create user without linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
 
         UserTO user = createUser(userCR).getEntity();
@@ -246,7 +246,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         // 2. create user without linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
 
         UserTO user = createUser(userCR).getEntity();
@@ -269,7 +269,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(user.getKey());
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
-        
+
         // 4.1 SYNCOPE-1824 update with a wrong password, a error must be raised
         account.setPassword("password");
         try {
@@ -280,7 +280,7 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertEquals("InvalidUser [InvalidPassword: Password must be 10 or more characters in length.]",
                     sce.getMessage());
         }
-        
+
         // set a correct password
         account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
@@ -323,7 +323,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         try {
             // 1. create user with linked account
             UserCR userCR = UserITCase.getSample(
-                    "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                    "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
 
             LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_REST, connObjectKeyValue).build();
             userCR.getLinkedAccounts().add(account);
