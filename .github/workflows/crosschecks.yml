@@ -36,6 +36,15 @@ jobs:
         java: [ '21', '23-ea' ]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -61,4 +70,4 @@ jobs:
     - name: Test
       run: mvn -T 1C clean test '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Dianal.phase=none' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Dsass.skip=true'
     - name: Verify
-      run: mvn -f fit/core-reference/pom.xml verify '-Dcargo.deployable.ping.timeout=1800000' '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'
+      run: mvn -f fit/core-reference/pom.xml verify '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'
