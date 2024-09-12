@@ -36,16 +36,10 @@ jobs:
         java: [ '21', '23-ea' ]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-
     steps:
+    - name: Start PostgreSQL on Windows
+      if: runner.os == 'Windows'
+      run: net start postgresql-x64-14
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Setup Java JDK
