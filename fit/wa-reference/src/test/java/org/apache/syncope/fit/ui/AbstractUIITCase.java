@@ -33,11 +33,8 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 
-@TestMethodOrder(MethodOrderer.MethodName.class)
 public abstract class AbstractUIITCase extends AbstractITCase {
 
     protected static AuthPolicyTO getAuthPolicy() {
