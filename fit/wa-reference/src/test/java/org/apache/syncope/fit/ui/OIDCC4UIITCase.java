@@ -260,6 +260,12 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
 
         // 3. verify that user is now authenticated
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+        String body = EntityUtils.toString(response.getEntity());
+        if (!body.contains(username)) {
+            fail("XXXXXXXXXXXX\n" + body);
+        }
+
         assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
 
         // 4. logout
