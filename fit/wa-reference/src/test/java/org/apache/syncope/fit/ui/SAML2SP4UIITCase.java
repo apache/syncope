@@ -295,7 +295,11 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         get = new HttpGet(baseURL + StringUtils.removeStart(location, "../"));
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+
+            String body = EntityUtils.toString(response.getEntity());
+            fail("SelfReg body for '" + get.getURI().toASCIIString() + "' :\n" + body);
+
+            assertTrue(body.contains(username));
         }
     }
 
