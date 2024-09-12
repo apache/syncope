@@ -39,7 +39,9 @@ jobs:
     steps:
     - name: Start PostgreSQL on Windows
       if: runner.os == 'Windows'
-      run: net start postgresql-x64-14
+      run: |
+        sc.exe config postgresql-x64-14 start=auto
+        sc.exe start postgresql-x64-14
     - name: Checkout repository
       uses: actions/checkout@v4
     - name: Setup Java JDK
