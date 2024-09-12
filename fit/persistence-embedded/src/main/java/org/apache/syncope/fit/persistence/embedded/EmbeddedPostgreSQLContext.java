@@ -48,7 +48,7 @@ public class EmbeddedPostgreSQLContext {
 
     private static final String DEFAULT_POSTGRES_USER = "postgres";
 
-    private static final String DEFAULT_POSTGRES_PASSWORD = "postgres";
+    private static final String DEFAULT_POSTGRES_PASSWORD = "root";
 
     @Value("${embedded.databases:syncope}")
     private String[] embeddedDatabases;
