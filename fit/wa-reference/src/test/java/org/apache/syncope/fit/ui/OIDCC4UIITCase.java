@@ -260,11 +260,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
 
         // 3. verify that user is now authenticated
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-
-        String body = EntityUtils.toString(response.getEntity());
-        fail("SelfReg body for '" + get.getURI().toASCIIString() + "' :\n" + body);
-
-        assertTrue(body.contains(username));
+        assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
     }
 
     @Override
