@@ -1610,8 +1610,8 @@ under the License.
           <version>1.10.14</version>
           <configuration>
             <container>
-              <log>${project.build.directory}/log/cargo.log</log>
-              <output>${project.build.directory}/log/cargo-output.log</output>
+<!--              <log>${project.build.directory}/log/cargo.log</log>
+              <output>${project.build.directory}/log/cargo-output.log</output>-->
               <systemProperties>
                 <syncope.conf.dir>${project.build.directory}/test-classes</syncope.conf.dir>
                 <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
