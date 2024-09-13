@@ -21,59 +21,39 @@ under the License.
 
   <appenders>
 
-    <RollingRandomAccessFile name="main" fileName="${sys:syncope.log.dir}/wa.log"
-                             filePattern="${sys:syncope.log.dir}/wa-%d{yyyy-MM-dd}.log.gz"
-                             immediateFlush="false" append="true">
-      <PatternLayout>
-        <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
-      </PatternLayout>
-      <Policies>
-        <TimeBasedTriggeringPolicy/>
-        <SizeBasedTriggeringPolicy size="250 MB"/>
-      </Policies>
-    </RollingRandomAccessFile>
-
+    <Console name="console" target="SYSTEM_OUT" follow="true">
+      <PatternLayout pattern="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} [%11.11t] %style{%-60.60c{60}}{cyan} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    </Console>
+    
   </appenders>
-
+  
   <loggers>
+    
     <asyncLogger name="org.apereo.cas" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
-
-    <asyncLogger name="org.apereo.services.persondir" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-
     <asyncLogger name="org.apereo.inspektr.audit.support" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-
-    <asyncLogger name="org.pac4j" additivity="false" level="ERROR">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-
-    <asyncLogger name="io.micrometer" additivity="false" level="ERROR">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <asyncLogger name="org.springframework" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
-    </asyncLogger>
-
-    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <asyncLogger name="org.apache.syncope.client.lib" additivity="false" level="OFF">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.wa" additivity="false" level="INFO">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
+      <appender-ref ref="console"/>
     </asyncLogger>
 
     <root level="INFO">
-      <appender-ref ref="main"/>
+      <appender-ref ref="console"/>
     </root>
+    
   </loggers>
-  
 </configuration>
