@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>3.6.4</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.41</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.41.1</nimbus-jose-jwt.version>
 
     <spring-framework.version>5.3.39</spring-framework.version>
     <spring-security.version>5.8.13</spring-security.version>
@@ -424,7 +424,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>4.0.22</groovy.version>
+    <groovy.version>4.0.23</groovy.version>
 
     <flowable.version>6.8.1</flowable.version>
 
