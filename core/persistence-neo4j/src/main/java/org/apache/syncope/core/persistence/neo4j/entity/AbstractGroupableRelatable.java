@@ -46,15 +46,13 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public boolean remove(final P attr) {
-        Neo4jPlainAttr<L> neo4jAttr = (Neo4jPlainAttr<L>) attr;
-
-        if (neo4jAttr.getMembershipKey() == null) {
-            return plainAttrs().put(neo4jAttr.getSchemaKey(), null) != null;
+        if (attr.getMembershipKey() == null) {
+            return plainAttrs().put(attr.getSchemaKey(), null) != null;
         }
 
         return memberships().stream().
-                filter(m -> m.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
-                map(membership -> membership.plainAttrs().put(neo4jAttr.getSchemaKey(), null) != null).
+                filter(m -> m.getKey().equals(attr.getMembershipKey())).findFirst().
+                map(membership -> membership.plainAttrs().put(attr.getSchemaKey(), null) != null).
                 orElse(false);
     }
 

@@ -78,6 +78,7 @@ under the License.
   
   <modules>
     <module>build-tools</module>
+    <module>persistence-embedded</module>
     <module>core-reference</module>
     <module>console-reference</module>
     <module>enduser-reference</module>

@@ -28,16 +28,16 @@ public abstract class AbstractValidator<A extends Annotation, T> implements Cons
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
-    @Override
-    public void initialize(final A annotation) {
-        // no initialization
-    }
-
     protected static String getTemplate(final EntityViolationType type, final String message) {
         return type.name() + ';' + message;
     }
 
-    protected boolean isHtml(final String text) {
+    protected static boolean isHtml(final String text) {
         return text != null && (text.indexOf('<') != -1 || text.indexOf('>') != -1);
+    }
+
+    @Override
+    public void initialize(final A annotation) {
+        // no initialization
     }
 }

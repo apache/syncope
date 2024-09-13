@@ -118,16 +118,16 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2IdPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jWAConfigEntry;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jConfParam;
@@ -153,16 +153,16 @@ import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPropagationTas
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPullTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPushTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jSchedTask;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jSecurityQuestion;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
@@ -239,33 +239,33 @@ public class Neo4jEntityFactory implements EntityFactory {
         } else if (reference.equals(PlainSchema.class)) {
             result = (E) new Neo4jPlainSchema();
         } else if (reference.equals(APlainAttr.class)) {
-            result = (E) new Neo4jAPlainAttr();
+            result = (E) new JSONAPlainAttr();
         } else if (reference.equals(APlainAttrValue.class)) {
-            result = (E) new Neo4jAPlainAttrValue();
+            result = (E) new JSONAPlainAttrValue();
         } else if (reference.equals(APlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jAPlainAttrUniqueValue();
+            result = (E) new JSONAPlainAttrUniqueValue();
         } else if (reference.equals(UPlainAttr.class)) {
-            result = (E) new Neo4jUPlainAttr();
+            result = (E) new JSONUPlainAttr();
         } else if (reference.equals(UPlainAttrValue.class)) {
-            result = (E) new Neo4jUPlainAttrValue();
+            result = (E) new JSONUPlainAttrValue();
         } else if (reference.equals(UPlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jUPlainAttrUniqueValue();
+            result = (E) new JSONUPlainAttrUniqueValue();
         } else if (reference.equals(LAPlainAttr.class)) {
-            result = (E) new Neo4jLAPlainAttr();
+            result = (E) new JSONLAPlainAttr();
         } else if (reference.equals(LAPlainAttrValue.class)) {
-            result = (E) new Neo4jLAPlainAttrValue();
+            result = (E) new JSONLAPlainAttrValue();
         } else if (reference.equals(LAPlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jLAPlainAttrUniqueValue();
+            result = (E) new JSONLAPlainAttrUniqueValue();
         } else if (reference.equals(DerSchema.class)) {
             result = (E) new Neo4jDerSchema();
         } else if (reference.equals(VirSchema.class)) {
             result = (E) new Neo4jVirSchema();
         } else if (reference.equals(GPlainAttr.class)) {
-            result = (E) new Neo4jGPlainAttr();
+            result = (E) new JSONGPlainAttr();
         } else if (reference.equals(GPlainAttrValue.class)) {
-            result = (E) new Neo4jGPlainAttrValue();
+            result = (E) new JSONGPlainAttrValue();
         } else if (reference.equals(GPlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jGPlainAttrUniqueValue();
+            result = (E) new JSONGPlainAttrUniqueValue();
         } else if (reference.equals(Report.class)) {
             result = (E) new Neo4jReport();
         } else if (reference.equals(ReportExec.class)) {

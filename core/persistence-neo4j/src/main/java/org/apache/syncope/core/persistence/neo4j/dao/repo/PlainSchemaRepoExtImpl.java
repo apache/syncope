@@ -29,13 +29,14 @@ import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
@@ -92,11 +93,11 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
     @Override
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
         String label;
-        if (reference.isAssignableFrom(Neo4jGPlainAttr.class)) {
+        if (GPlainAttr.class.isAssignableFrom(reference)) {
             label = Neo4jGroup.NODE;
-        } else if (reference.isAssignableFrom(Neo4jAPlainAttr.class)) {
+        } else if (APlainAttr.class.isAssignableFrom(reference)) {
             label = Neo4jAnyObject.NODE;
-        } else if (reference.isAssignableFrom(Neo4jAPlainAttr.class)) {
+        } else if (LAPlainAttr.class.isAssignableFrom(reference)) {
             label = Neo4jLinkedAccount.NODE;
         } else {
             label = Neo4jUser.NODE;

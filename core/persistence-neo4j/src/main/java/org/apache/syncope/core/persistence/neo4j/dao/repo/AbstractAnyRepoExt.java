@@ -63,11 +63,8 @@ import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Propagation;
@@ -75,8 +72,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny<?>>
         extends AbstractDAO implements AnyRepoExt<A> {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
 
     /**
      * Split an attribute value recurring on provided literals/tokens.
@@ -196,7 +191,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
         if (attrValue instanceof PlainAttrUniqueValue plainAttrUniqueValue) {
             attr.setUniqueValue(plainAttrUniqueValue);
         } else {
-            ((Neo4jPlainAttr<?>) attr).add(attrValue);
+            attr.add(attrValue);
         }
 
         String op;
@@ -315,7 +310,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
                     } else {
                         PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                         attrValue.setStringValue(attrValues.get(i));
-                        ((Neo4jPlainAttr<?>) attr).add(attrValue);
+                        attr.add(attrValue);
                     }
 
                     String op;
@@ -467,13 +462,13 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
     protected void checkBeforeSave(final A any) {
         // check UNIQUE constraints
         any.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
-            PlainSchema schema = attr.getSchema();
-            Optional<A> other = findByPlainAttrUniqueValue(schema, attr.getUniqueValue(), false);
+            Optional<A> other = findByPlainAttrUniqueValue(attr.getSchema(), attr.getUniqueValue(), false);
             if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
-                LOG.debug("No duplicate value found for {}", attr.getUniqueValue().getValueAsString());
+                LOG.debug("No duplicate value found for {}={}",
+                        attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
             } else {
-                throw new DuplicateException(
-                        "Value " + attr.getUniqueValue().getValueAsString() + " existing for " + schema.getKey());
+                throw new DuplicateException("Duplicate value found for "
+                        + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
             }
         });
 

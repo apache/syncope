@@ -39,6 +39,7 @@ Several Connector Bundles come included with Apache Syncope:
 * https://connid.atlassian.net/wiki/display/BASE/Database[Database^]
 * https://connid.atlassian.net/wiki/display/BASE/Google+Apps[Google Apps^]
 * https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^]
+* https://connid.atlassian.net/wiki/display/BASE/Okta[Okta^]
 * https://connid.atlassian.net/wiki/display/BASE/REST[Scripted REST^]
 * https://connid.atlassian.net/wiki/display/BASE/ServiceNow[ServiceNow^]
 * https://connid.atlassian.net/wiki/display/BASE/SCIM[SCIM^]

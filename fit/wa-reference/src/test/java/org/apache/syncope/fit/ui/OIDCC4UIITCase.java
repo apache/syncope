@@ -261,6 +261,12 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         // 3. verify that user is now authenticated
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+
+        // 4. logout
+        get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
+                ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
+                : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
+        httpclient.execute(get, context);
     }
 
     @Override

@@ -211,13 +211,13 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jTaskUtilsFactory;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.CacheCleaningTransactionExecutionListener;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
@@ -356,23 +356,23 @@ public class PersistenceContext {
     }
 
     @Bean(name = "uPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, Neo4jUPlainAttr>> uPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(Neo4jUPlainAttr.class);
+    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONUPlainAttr>> uPlainAttrsConverter() {
+        return new PlainAttrsConverter<>(JSONUPlainAttr.class);
     }
 
     @Bean(name = "laPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, Neo4jLAPlainAttr>> laPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(Neo4jLAPlainAttr.class);
+    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONLAPlainAttr>> laPlainAttrsConverter() {
+        return new PlainAttrsConverter<>(JSONLAPlainAttr.class);
     }
 
     @Bean(name = "gPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, Neo4jGPlainAttr>> gPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(Neo4jGPlainAttr.class);
+    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONGPlainAttr>> gPlainAttrsConverter() {
+        return new PlainAttrsConverter<>(JSONGPlainAttr.class);
     }
 
     @Bean(name = "aPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, Neo4jAPlainAttr>> aPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(Neo4jAPlainAttr.class);
+    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONAPlainAttr>> aPlainAttrsConverter() {
+        return new PlainAttrsConverter<>(JSONAPlainAttr.class);
     }
 
     @ConditionalOnMissingBean

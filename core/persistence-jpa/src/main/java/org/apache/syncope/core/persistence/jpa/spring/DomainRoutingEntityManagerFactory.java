@@ -28,16 +28,11 @@ import jakarta.persistence.SynchronizationType;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.metamodel.Metamodel;
 import java.io.Closeable;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
-import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
-import org.apache.openjpa.jdbc.meta.MappingRepository;
-import org.apache.openjpa.jdbc.meta.MappingTool;
-import org.apache.openjpa.lib.conf.Configurations;
-import org.apache.openjpa.persistence.OpenJPAEntityManagerFactorySPI;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.jpa.PersistenceProperties;
@@ -59,6 +54,22 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     protected final Map<String, EntityManagerFactory> delegates = new ConcurrentHashMap<>();
 
+    protected void addToJpaPropertyMap(
+            final DomainEntityManagerFactoryBean emf,
+            final OpenJpaVendorAdapter vendorAdapter,
+            final String dbSchema,
+            final String orm,
+            final String metadataFactory) {
+
+        emf.getJpaPropertyMap().putAll(vendorAdapter.getJpaPropertyMap());
+
+        Optional.ofNullable(dbSchema).
+                ifPresent(s -> emf.getJpaPropertyMap().put("openjpa.jdbc.Schema", s));
+
+        Optional.ofNullable(metadataFactory).
+                ifPresent(m -> emf.getJpaPropertyMap().put("openjpa.MetaDataFactory", m.replace("##orm##", orm)));
+    }
+
     public void master(
             final PersistenceProperties props,
             final JndiObjectFactoryBean dataSource) {
@@ -69,19 +80,20 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         vendorAdapter.setDatabasePlatform(props.getDomain().get(0).getDatabasePlatform());
 
         DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
-        emf.setMappingResources(props.getDomain().get(0).getOrm());
         emf.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
+        emf.setMappingResources(props.getDomain().get(0).getOrm());
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
         emf.setConnectorManagerRemoteCommitListener(
                 new ConnectorManagerRemoteCommitListener(SyncopeConstants.MASTER_DOMAIN));
 
-        if (props.getMetaDataFactory() != null) {
-            emf.setJpaPropertyMap(Map.of(
-                    "openjpa.MetaDataFactory",
-                    props.getMetaDataFactory().replace("##orm##", props.getDomain().get(0).getOrm())));
-        }
+        addToJpaPropertyMap(
+                emf,
+                vendorAdapter,
+                props.getDomain().get(0).getDbSchema(),
+                props.getDomain().get(0).getOrm(),
+                props.getMetaDataFactory());
 
         emf.afterPropertiesSet();
 
@@ -99,18 +111,14 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         vendorAdapter.setDatabasePlatform(domain.getDatabasePlatform());
 
         DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
-        emf.setMappingResources(domain.getOrm());
         emf.setPersistenceUnitName(domain.getKey());
+        emf.setMappingResources(domain.getOrm());
         emf.setDataSource(dataSource);
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
         emf.setConnectorManagerRemoteCommitListener(new ConnectorManagerRemoteCommitListener(domain.getKey()));
 
-        if (metadataFactory != null) {
-            emf.setJpaPropertyMap(Map.of(
-                    "openjpa.MetaDataFactory",
-                    metadataFactory.replace("##orm##", domain.getOrm())));
-        }
+        addToJpaPropertyMap(emf, vendorAdapter, domain.getDbSchema(), domain.getOrm(), metadataFactory);
 
         emf.afterPropertiesSet();
 
@@ -126,25 +134,6 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         return delegates.computeIfAbsent(AuthContextUtils.getDomain(), domain -> {
             throw new IllegalStateException("Could not find EntityManagerFactory for domain " + domain);
         });
-    }
-
-    public void initJPASchema() {
-        OpenJPAEntityManagerFactorySPI emfspi = delegate().unwrap(OpenJPAEntityManagerFactorySPI.class);
-        JDBCConfiguration jdbcConf = (JDBCConfiguration) emfspi.getConfiguration();
-
-        MappingRepository mappingRepo = jdbcConf.getMappingRepositoryInstance();
-        Collection<Class<?>> classes = mappingRepo.loadPersistentTypes(false, getClass().getClassLoader());
-
-        String action = "buildSchema(ForeignKeys=true)";
-        String props = Configurations.getProperties(action);
-        action = Configurations.getClassName(action);
-        MappingTool mappingTool = new MappingTool(jdbcConf, action, false, getClass().getClassLoader());
-        Configurations.configureInstance(mappingTool, jdbcConf, props, "SynchronizeMappings");
-
-        // initialize the schema
-        classes.forEach(mappingTool::run);
-
-        mappingTool.record();
     }
 
     @Override

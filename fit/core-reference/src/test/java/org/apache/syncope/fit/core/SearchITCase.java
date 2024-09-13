@@ -796,6 +796,14 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(rossini);
         assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").orElseThrow().getValues().get(0));
 
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         PagedResult<UserTO> total = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
 

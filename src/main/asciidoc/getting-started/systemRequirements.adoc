@@ -25,12 +25,12 @@ The hardware requirements depend greatly on the given deployment, in particular 
 managed entities (Users, Groups and Any Objects), their attributes and resources.
 
  * CPU: dual core, 2 GHz (minimum)
- * RAM: 4 GB (minimum)
+ * RAM: 8 GB (minimum)
  * Disk: 200 MB (minimum) 
 
 === Java
 
-Apache Syncope {docVersion} requires the latest JDK 17 that is available. Works with JDK 20.
+Apache Syncope {docVersion} requires the latest JDK 21 that is available. Works with later versions.
 
 === Java EE Container
 
@@ -38,14 +38,13 @@ Apache Syncope {docVersion} is verified with the following Java EE containers:
 
  . https://tomcat.apache.org/download-10.cgi[Apache Tomcat 10^]
  . https://www.payara.fish/[Payara Server 6^]
- . https://www.wildfly.org/[Wildfly 32^]
+ . https://www.wildfly.org/[Wildfly 33^]
 
 === Internal Storage
 
 Apache Syncope {docVersion} is verified with the recent versions of the following DBMSes, for internal storage:
 
- . http://www.postgresql.org/[PostgreSQL^] (>= {postgresql}, JDBC driver >= {postgresqlJDBC})
+ . https://www.postgresql.org/[PostgreSQL^] (>= {postgresql}, JDBC driver >= {postgresqlJDBC})
  . https://mariadb.org/[MariaDB^] (>= {mariadb}, JDBC driver >= {mariadbJDBC})
- . http://www.mysql.com/[MySQL^] (>= {mysql}, JDBC driver >= {mysqlJDBC})
- . https://www.oracle.com/database/index.html[Oracle Database^] (>= 19c, JDBC driver >= ojdbc11 {oracleJDBC})
- . http://www.microsoft.com/en-us/server-cloud/products/sql-server/[MS SQL Server^] (>= 2017, JDBC driver >= {sqlserverJDBC}11)
+ . https://www.mysql.com/[MySQL^] (>= {mysql}, JDBC driver >= {mysqlJDBC})
+ . https://www.oracle.com/database/index.html[Oracle Database^] (>= {oracle}, JDBC driver >= ojdbc11 {oracleJDBC})

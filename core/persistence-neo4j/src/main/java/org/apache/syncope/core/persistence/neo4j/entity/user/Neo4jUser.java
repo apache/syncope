@@ -30,7 +30,6 @@ import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -43,12 +42,10 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGroupableRelatable;
-import org.apache.syncope.core.persistence.neo4j.entity.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAttributable;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -63,7 +60,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @AttributableCheck
 public class Neo4jUser
         extends AbstractGroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship>
-        implements User, Neo4jAttributable<User> {
+        implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
@@ -87,7 +84,7 @@ public class Neo4jUser
     protected String password;
 
     @CompositeProperty(converterRef = "uPlainAttrsConverter")
-    protected Map<String, Neo4jUPlainAttr> plainAttrs = new HashMap<>();
+    protected Map<String, JSONUPlainAttr> plainAttrs = new HashMap<>();
 
     protected String token;
 
@@ -150,7 +147,7 @@ public class Neo4jUser
     protected List<Neo4jLinkedAccount> linkedAccounts = new ArrayList<>();
 
     @Override
-    protected Map<String, ? extends Neo4jPlainAttr<? extends Any<UPlainAttr>>> plainAttrs() {
+    protected Map<String, ? extends UPlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
@@ -233,14 +230,14 @@ public class Neo4jUser
     }
 
     @Override
-    public Optional<? extends UPlainAttr> getPlainAttr(final String plainSchema) {
-        return Optional.ofNullable(plainAttrs.get(plainSchema));
+    protected void setPlainAttrOwner(final UPlainAttr plainAttr) {
+        plainAttr.setOwner(this);
     }
 
     @Override
     public boolean add(final UPlainAttr attr) {
-        checkType(attr, Neo4jUPlainAttr.class);
-        Neo4jUPlainAttr neo4jAttr = (Neo4jUPlainAttr) attr;
+        checkType(attr, JSONUPlainAttr.class);
+        JSONUPlainAttr neo4jAttr = (JSONUPlainAttr) attr;
 
         if (neo4jAttr.getMembershipKey() == null) {
             return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;

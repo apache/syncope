@@ -288,7 +288,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 IOUtils.copy(src, dst);
             }
         } catch (IOException e) {
-            fail(e::getMessage);
+            fail(e.getMessage(), e);
         }
 
         // -----------------------------
@@ -1445,7 +1445,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             self = CLIENT_FACTORY.create(user.getUsername(), oldCleanPassword).self();
             assertNotNull(self);
         } catch (Exception e) {
-            fail(e::getMessage);
+            fail(e.getMessage(), e);
         } finally {
             // Delete PullTask + user + reset the connector
             if (pullTask != null && pullTask.getKey() != null) {
@@ -1556,7 +1556,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(2, propagationTasks.getSize());
         } catch (Exception e) {
             LOG.error("Unexpected during issueSYNCOPE1062()", e);
-            fail(e::getMessage);
+            fail(e.getMessage(), e);
         } finally {
             Optional.ofNullable(pullTask).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t.getKey()));
 

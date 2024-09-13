@@ -38,70 +38,61 @@ public abstract class AbstractGroupableRelatable<
 
     private static final long serialVersionUID = -2269285197388729673L;
 
-    protected abstract List<? extends P> internalGetPlainAttrs();
-
     @Override
-    public boolean remove(final P attr) {
-        return internalGetPlainAttrs().remove(attr);
+    public List<? extends P> getPlainAttrs() {
+        return getPlainAttrsList().stream().
+                filter(attr -> attr.getMembershipKey() == null).
+                toList();
     }
 
     @Override
     public Optional<? extends P> getPlainAttr(final String plainSchema) {
-        return internalGetPlainAttrs().stream().
-                filter(attr -> attr != null && attr.getSchema() != null && attr.getMembership() == null
-                && plainSchema.equals(attr.getSchema().getKey())).
+        return getPlainAttrsList().stream().
+                filter(attr -> attr.getMembershipKey() == null
+                && plainSchema.equals(attr.getSchemaKey())).
                 findFirst();
     }
 
     @Override
     public Optional<? extends P> getPlainAttr(final String plainSchema, final Membership<?> membership) {
-        return internalGetPlainAttrs().stream().
-                filter(attr -> attr != null && attr.getSchema() != null
-                && attr.getMembership() != null && attr.getMembership().equals(membership)
-                && plainSchema.equals(attr.getSchema().getKey())).
+        return getPlainAttrsList().stream().
+                filter(attr -> plainSchema.equals(attr.getSchemaKey())
+                && membership.getKey().equals(attr.getMembershipKey())).
                 findFirst();
     }
 
     @Override
-    public List<? extends P> getPlainAttrs() {
-        return internalGetPlainAttrs().stream().
-                filter(attr -> attr != null && attr.getSchema() != null && attr.getMembership() == null).
-                toList();
-    }
-
-    @Override
     public Collection<? extends P> getPlainAttrs(final String plainSchema) {
-        return internalGetPlainAttrs().stream().
-                filter(attr -> attr != null && attr.getSchema() != null
-                && plainSchema.equals(attr.getSchema().getKey())).
+        return getPlainAttrsList().stream().
+                filter(attr -> plainSchema.equals(attr.getSchemaKey())).
                 toList();
     }
 
     @Override
     public Collection<? extends P> getPlainAttrs(final Membership<?> membership) {
-        return internalGetPlainAttrs().stream().
-                filter(attr -> attr != null && attr.getSchema() != null && membership.equals(attr.getMembership())).
+        return getPlainAttrsList().stream().
+                filter(attr -> membership.getKey().equals(attr.getMembershipKey())).
                 toList();
     }
 
     @Override
     public Optional<? extends M> getMembership(final String groupKey) {
         return getMemberships().stream().
-                filter(membership -> groupKey != null && groupKey.equals(membership.getRightEnd().getKey())).
+                filter(membership -> groupKey.equals(membership.getRightEnd().getKey())).
                 findFirst();
     }
 
     @Override
     public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
         return getRelationships().stream().
-                filter(relationship -> relationshipType != null && relationshipType.equals(relationship.getType())).
+                filter(relationship -> relationshipType.equals(relationship.getType())).
                 toList();
     }
 
     @Override
     public Collection<? extends REL> getRelationships(final String otherEndKey) {
         return getRelationships().stream().
-                filter(relationship -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
+                filter(relationship -> otherEndKey.equals(relationship.getRightEnd().getKey())).
                 toList();
     }
 }

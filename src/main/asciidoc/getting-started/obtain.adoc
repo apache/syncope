@@ -62,39 +62,6 @@ instructions.
 The set of provided components, including access URLs and credentials, is the same as reported for 
 <<paths-and-components,embedded mode>>, with the exception of log files, available here under `$CATALINA_HOME/logs`.
 
-[TIP]
-.Internal Storage
-====
-By default, the standalone distribution is configured to use an in-memory database instance.
-This means that every time Tomcat is shut down all changes that have been made are lost.
-
-If you want instead to make your changes persistent, replace
-
-[source,java]
-jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1
-
-with
-
-[source,java]
-jdbc:h2:~/syncopedb;DB_CLOSE_DELAY=-1
-
-in `webapps/syncope/WEB-INF/classes/core-embedded.properties` for `persistence.domain[0].jdbcURL` property (`Master`
-domain) and / or
-
-[source,java]
-jdbc:h2:mem:syncopetwo;DB_CLOSE_DELAY=-1
-
-with
-
-[source,java]
-jdbc:h2:~/syncopetwo;DB_CLOSE_DELAY=-1
-
-for `persistence.domain[1].jdbcURL` property (`Two` domain), from the Apache Tomcat directory.
-This will create H2 database files in the home directory of the user running Apache Syncope.
-
-Please refer to the http://www.h2database.com/[H2 documentation^] for more options.
-====
-
 === Docker
 
 https://www.docker.com/[Docker^] images ready to use, published to https://hub.docker.com[Docker Hub^].
@@ -272,7 +239,7 @@ containers.
 ----
 services:
    keymaster: // <1>
-     image: zookeeper:3.7.0
+     image: zookeeper:latest
      restart: always
 
    db: // <2>
@@ -672,11 +639,8 @@ Credentials: `admin` / `password`
 | http://localhost:8080/
 
 | Internal storage
-| A SQL web interface is available at https://localhost:9443/syncope/h2 +
- +
- Choose configuration 'Generic H2 (Embedded)' +
- Insert `jdbc:h2:mem:syncopedb` as JDBC URL +
- Click 'Connect' button
+| `jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified` +
+Credentials: `syncope` / `syncope`
 
 | External resource: LDAP
 | An embedded instance is available. +
@@ -698,7 +662,7 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  +
  Choose configuration 'Generic H2 (Server)' +
  Insert `jdbc:h2:tcp://localhost:9092/mem:testdb` as JDBC URL +
- Set 'sa' as password +
+ Set `sa` as password +
  Click 'Connect' button
 
 |===

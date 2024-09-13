@@ -24,13 +24,13 @@ schemas, connectors, resources, mapping, roles, groups, tasks and other paramete
 During the implementation phase of an Apache Syncope-based project, it might be useful to move such configuration back
 and forth from one Apache Syncope instance to another (say developer's laptop and production server). +
 One option is clearly to act at a low level by empowering DBMS' dump & restore capabilities, but what if the developer
-is running MySQL (or even in-memory H2) while the sysadmin features Oracle?
+is running MySQL while the sysadmin features Oracle?
 
 [CAUTION]
 .Wipe existing content
 =====
-When not running in-memory H2, the internal storage's data must be wiped before starting Apache Syncope, otherwise
-the provided content will be just ignored.
+The internal storage's data must be wiped before starting Apache Syncope, otherwise the provided content will be just
+ignored.
 
 Check `core-persistence.log` for message
 

@@ -58,10 +58,6 @@ public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
         }
     }
 
-    protected void onAdd(final Domain domain) {
-        // nothing to do
-    }
-
     @Async
     @SuppressWarnings("unchecked")
     @Override
@@ -72,8 +68,6 @@ public class RuntimeDomainLoader<D extends Domain> implements DomainWatcher {
             LOG.info("Domain {} registration", domain.getKey());
 
             domainRegistry.register((D) domain);
-
-            onAdd(domain);
 
             ApplicationContextProvider.getBeanFactory().getBeansOfType(SyncopeCoreLoader.class).values().
                     stream().sorted(Comparator.comparing(SyncopeCoreLoader::getOrder)).

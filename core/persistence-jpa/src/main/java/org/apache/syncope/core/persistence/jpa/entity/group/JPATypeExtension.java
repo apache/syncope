@@ -45,7 +45,8 @@ public class JPATypeExtension extends AbstractGeneratedKeyEntity implements Type
 
     public static final String TABLE = "TypeExtension";
 
-    private Group group;
+    @ManyToOne
+    private JPAGroup group;
 
     @ManyToOne
     private JPAAnyType anyType;
@@ -55,7 +56,8 @@ public class JPATypeExtension extends AbstractGeneratedKeyEntity implements Type
             @JoinColumn(name = "typeExtension_id"),
             inverseJoinColumns =
             @JoinColumn(name = "anyTypeClass_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = { "typeExtension_id", "anyTypeClass_id" }))
+            uniqueConstraints =
+            @UniqueConstraint(columnNames = { "typeExtension_id", "anyTypeClass_id" }))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
     @Override

@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -36,9 +38,13 @@ public class JPAUMembership extends AbstractGeneratedKeyEntity implements UMembe
 
     public static final String TABLE = "UMembership";
 
-    private User leftEnd;
+    @ManyToOne
+    @Column(name = "user_id")
+    private JPAUser leftEnd;
 
-    private Group rightEnd;
+    @ManyToOne
+    @Column(name = "group_id")
+    private JPAGroup rightEnd;
 
     @Override
     public MembershipType getType() {

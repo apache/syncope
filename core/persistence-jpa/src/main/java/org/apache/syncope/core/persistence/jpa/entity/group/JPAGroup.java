@@ -22,13 +22,16 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -56,6 +59,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @Entity
 @Table(name = JPAGroup.TABLE)
+@EntityListeners({ JSONGroupListener.class })
 @Cacheable
 @GroupCheck
 public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
@@ -68,13 +72,16 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @NotNull
     private String name;
 
-    protected User userOwner;
+    @ManyToOne
+    private JPAUser userOwner;
 
-    protected Group groupOwner;
+    @ManyToOne
+    private JPAGroup groupOwner;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
-    @Valid
-    private List<JPAGPlainAttr> plainAttrs = new ArrayList<>();
+    private String plainAttrs;
+
+    @Transient
+    private final List<JSONGPlainAttr> plainAttrsList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
@@ -158,27 +165,42 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
+    public List<? extends GPlainAttr> getPlainAttrsList() {
+        return plainAttrsList;
+    }
+
+    @Override
+    public String getPlainAttrsJSON() {
+        return plainAttrs;
+    }
+
+    @Override
+    public void setPlainAttrsJSON(final String plainAttrs) {
+        this.plainAttrs = plainAttrs;
+    }
+
+    @Override
     public boolean add(final GPlainAttr attr) {
-        checkType(attr, JPAGPlainAttr.class);
-        return plainAttrs.add((JPAGPlainAttr) attr);
+        checkType(attr, JSONGPlainAttr.class);
+        return plainAttrsList.add((JSONGPlainAttr) attr);
     }
 
     @Override
     public boolean remove(final GPlainAttr attr) {
-        checkType(attr, JPAGPlainAttr.class);
-        return getPlainAttrs().remove((JPAGPlainAttr) attr);
+        checkType(attr, JSONGPlainAttr.class);
+        return plainAttrsList.removeIf(a -> a.getSchemaKey().equals(attr.getSchema().getKey()));
     }
 
     @Override
     public Optional<? extends GPlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrs().stream().
-                filter(plainAttr -> plainAttr != null && plainAttr.getSchema() != null
-                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
+        return plainAttrsList.stream().
+                filter(attr -> plainSchema.equals(attr.getSchemaKey())).
+                findFirst();
     }
 
     @Override
     public List<? extends GPlainAttr> getPlainAttrs() {
-        return plainAttrs;
+        return plainAttrsList.stream().toList();
     }
 
     @Override

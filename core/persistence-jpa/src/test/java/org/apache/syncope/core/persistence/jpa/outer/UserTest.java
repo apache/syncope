@@ -43,24 +43,20 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPALAPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
 public class UserTest extends AbstractTest {
 
@@ -108,8 +104,6 @@ public class UserTest extends AbstractTest {
         entityManager.flush();
 
         assertTrue(userDAO.findByUsername("bellini").isEmpty());
-        assertTrue(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class).isEmpty());
-        assertTrue(findPlainAttrValue(UUID.randomUUID().toString(), UPlainAttrValue.class).isEmpty());
         assertTrue(plainSchemaDAO.findById("loginDate").isPresent());
 
         memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector").orElseThrow());
@@ -217,29 +211,6 @@ public class UserTest extends AbstractTest {
                 applicationDAO.findPrivilege("getMighty").orElseThrow());
         assertEquals(1, accounts.size());
         assertEquals(account, accounts.get(0));
-    }
-
-    @Tag("plainAttrTable")
-    @Test
-    public void deleteLinkedAccountUserCascade() {
-        LinkedAccount account = newLinkedAccount("deleteLinkedAccountUserCascade");
-        assertNotNull(account.getKey());
-
-        LAPlainAttr plainAttr = account.getPlainAttrs().get(0);
-        assertNotNull(entityManager.find(JPALAPlainAttr.class, plainAttr.getKey()));
-
-        PlainAttrValue plainAttrValue = account.getPlainAttrs().get(0).getValues().get(0);
-        assertNotNull(entityManager.find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
-
-        LinkedAccount found = entityManager.find(JPALinkedAccount.class, account.getKey());
-        assertEquals(account, found);
-
-        userDAO.delete(account.getOwner());
-        entityManager.flush();
-
-        assertNull(entityManager.find(JPALinkedAccount.class, account.getKey()));
-        assertNull(entityManager.find(JPALAPlainAttr.class, plainAttr.getKey()));
-        assertNull(entityManager.find(JPALAPlainAttrValue.class, plainAttrValue.getKey()));
     }
 
     @Test

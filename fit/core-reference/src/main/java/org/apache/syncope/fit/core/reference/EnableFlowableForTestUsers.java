@@ -46,7 +46,7 @@ public class EnableFlowableForTestUsers {
 
         String procDef = null;
         try (Connection conn = datasource.getConnection(); PreparedStatement stmt = conn.prepareStatement(
-                "SELECT ID_ FROM ACT_RE_PROCDEF WHERE KEY_=?")) {
+                        "SELECT ID_ FROM ACT_RE_PROCDEF WHERE KEY_=?")) {
 
             stmt.setString(1, "userWorkflow");
             ResultSet rs = stmt.executeQuery();
@@ -66,7 +66,7 @@ public class EnableFlowableForTestUsers {
         for (User user : userDAO.findAll()) {
             int value = counter.addAndGet(1);
             try (Connection conn = datasource.getConnection(); PreparedStatement stmt = conn.prepareStatement(
-                    """
+                            """
                     INSERT INTO ACT_RU_EXECUTION(ID_,REV_,PROC_INST_ID_,BUSINESS_KEY_,PROC_DEF_ID_,ACT_ID_,
                     IS_ACTIVE_,IS_CONCURRENT_,IS_SCOPE_,IS_EVENT_SCOPE_,SUSPENSION_STATE_)
                     VALUES(?,?,?,?,?,?,?,?,?,?,?)
@@ -82,7 +82,7 @@ public class EnableFlowableForTestUsers {
                 stmt.setBoolean(8, false);
                 stmt.setBoolean(9, true);
                 stmt.setBoolean(10, false);
-                stmt.setBoolean(11, true);
+                stmt.setInt(11, 0);
 
                 stmt.executeUpdate();
             } catch (Exception e) {
@@ -91,7 +91,7 @@ public class EnableFlowableForTestUsers {
 
             value = counter.addAndGet(1);
             try (Connection conn = datasource.getConnection(); PreparedStatement stmt = conn.prepareStatement(
-                    """
+                            """
                     INSERT INTO ACT_RU_TASK(ID_,REV_,EXECUTION_ID_,PROC_INST_ID_,PROC_DEF_ID_,NAME_,TASK_DEF_KEY_,
                     PRIORITY_,CREATE_TIME_)
                     VALUES(?,?,?,?,?,?,?,?,?)
