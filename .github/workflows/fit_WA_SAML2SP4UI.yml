@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  fit_WA_SAML2SP4UI_OIDCC4UI:
+  fit_WA_SAML2SP4UI:
     runs-on: ubuntu-latest
 
     steps:
