@@ -14,7 +14,7 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License
-name: "FIT WA SAML2SP4UI OIDCC4UI"
+name: "FIT WA SAML2SP4UI"
 
 on:
   push:
@@ -49,5 +49,5 @@ jobs:
           ${{ runner.os }}-maven-
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
-    - name: 'WA / SAML2SP4UI, OIDCC4UI'
-      run: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/core-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=OIDCC4UIITCase
+    - name: 'WA / SAML2SP4UI'
+      run: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/core-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=SAML2SP4UIITCase
