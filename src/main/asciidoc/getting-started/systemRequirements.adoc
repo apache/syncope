@@ -25,12 +25,12 @@ The hardware requirements depend greatly on the given deployment, in particular 
 managed entities (Users, Groups and Any Objects), their attributes and resources.
 
  * CPU: dual core, 2 GHz (minimum)
- * RAM: 4 GB (minimum)
+ * RAM: 8 GB (minimum)
  * Disk: 200 MB (minimum) 
 
 === Java
 
-Apache Syncope {docVersion} requires the latest JDK 17 that is available. Works with JDK 20.
+Apache Syncope {docVersion} requires the latest JDK 21 that is available. Works with later versions.
 
 === Java EE Container
 
@@ -38,7 +38,7 @@ Apache Syncope {docVersion} is verified with the following Java EE containers:
 
  . https://tomcat.apache.org/download-10.cgi[Apache Tomcat 10^]
  . https://www.payara.fish/[Payara Server 6^]
- . https://www.wildfly.org/[Wildfly 32^]
+ . https://www.wildfly.org/[Wildfly 33^]
 
 === Internal Storage
 

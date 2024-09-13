@@ -292,12 +292,6 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 * https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/MasterDomain.java[MasterDomain^]
 endif::[]
-ifeval::["{snapshotOrRelease}" == "release"]
-* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/DomainConfFactory.java[DomainConfFactory^]
-endif::[]
-ifeval::["{snapshotOrRelease}" == "snapshot"]
-* https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/DomainConfFactory.java[DomainConfFactory^]
-endif::[]
 
 The `@Bean` declarations from these classes can be customized as explained <<extending-configuration,above>>.
 

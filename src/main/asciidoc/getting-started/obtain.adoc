@@ -239,7 +239,7 @@ containers.
 ----
 services:
    keymaster: // <1>
-     image: zookeeper:3.7.0
+     image: zookeeper:latest
      restart: always
 
    db: // <2>
@@ -638,6 +638,10 @@ Credentials: `admin` / `password`
 | SRA
 | http://localhost:8080/
 
+| Internal storage
+| `jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified` +
+Credentials: `syncope` / `syncope`
+
 | External resource: LDAP
 | An embedded instance is available. +
 You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for example) with the following information: +
@@ -658,7 +662,7 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  +
  Choose configuration 'Generic H2 (Server)' +
  Insert `jdbc:h2:tcp://localhost:9092/mem:testdb` as JDBC URL +
- Set 'sa' as password +
+ Set `sa` as password +
  Click 'Connect' button
 
 |===
