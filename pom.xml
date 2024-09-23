@@ -440,7 +440,7 @@ under the License.
     <cas.version>7.1.0</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <swagger-core.version>2.2.23</swagger-core.version>
+    <swagger-core.version>2.2.24</swagger-core.version>
     <swagger-ui.version>5.17.14</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -1476,6 +1476,10 @@ under the License.
           <version>3.10.0</version>
           <configuration>
             <release>${targetJdk}</release>
+            <additionalOptions>
+              <additionalOption>--legal-notices</additionalOption>
+              <additionalOption>none</additionalOption>
+            </additionalOptions>
           </configuration>
         </plugin>
 
@@ -1926,7 +1930,7 @@ under the License.
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
+              <outputDirectory>${project.build.directory}/reports/apidocs/META-INF</outputDirectory>
               <resources>
                 <resource>
                   <directory>${rootpom.basedir}</directory>
@@ -2008,7 +2012,7 @@ under the License.
             <dependencySourceExclude>org.webjars.bower:*</dependencySourceExclude>
           </dependencySourceExcludes>
           <links>
-            <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
+            <link>https://docs.oracle.com/en/java/javase/21/docs/api/</link>
             <link>https://jakarta.ee/specifications/platform/10/apidocs/</link>
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
@@ -2022,13 +2026,17 @@ under the License.
             <link>https://ci.apache.org/projects/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.0.0-BETA/api/</link>
+            <link>https://tika.apache.org/3.0.0-BETA2/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/current/api/</link>
             <link>https://docs.spring.io/spring/docs/current/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/current/api/</link>
             <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.2.8/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.2.24/apidocs/</link>
           </links>
+          <additionalOptions>
+            <additionalOption>--legal-notices</additionalOption>
+            <additionalOption>none</additionalOption>
+          </additionalOptions>
         </configuration>
         <reportSets>
           <reportSet>
