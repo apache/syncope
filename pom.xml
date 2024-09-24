@@ -395,7 +395,7 @@ under the License.
     <project.build.outputTimestamp>2022-12-26T08:35:28Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.0-SNAPSHOT</connid.version>
+    <connid.version>1.6.0.0-RC1</connid.version>
     <connid.soap.version>1.5.0-SNAPSHOT</connid.soap.version>
     <connid.rest.version>1.1.0-SNAPSHOT</connid.rest.version>
     <connid.db.version>2.3.0</connid.db.version>
