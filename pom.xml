@@ -468,7 +468,7 @@ under the License.
     <zookeeper.version>3.9.2</zookeeper.version>
 
     <zonky.embedded-postgres.version>2.0.7</zonky.embedded-postgres.version>
-    <zonky.embedded-postgres-binaries.version>16.4.0</zonky.embedded-postgres-binaries.version>
+    <zonky.embedded-postgres-binaries.version>17.0.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -499,7 +499,7 @@ under the License.
     <payara.version>6.2024.9</payara.version>
     <jakarta.faces.version>4.1.1</jakarta.faces.version>
 
-    <docker.postgresql.version>16-alpine</docker.postgresql.version>
+    <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
@@ -2088,7 +2088,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.2.6</version>
+            <version>3.2.7</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>

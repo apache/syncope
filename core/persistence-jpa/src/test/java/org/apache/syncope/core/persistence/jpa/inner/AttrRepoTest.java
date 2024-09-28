@@ -142,7 +142,7 @@ public class AttrRepoTest extends AbstractTest {
     public void saveWithJDBCRepo() {
         JDBCAttrRepoConf conf = new JDBCAttrRepoConf();
         conf.setSql("SELECT * FROM table WHERE name=?");
-        conf.setUrl("jdbc:tc:postgresql:16-alpine:///db");
+        conf.setUrl("jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1");
         conf.setUser("username");
         conf.setPassword("password");
 
