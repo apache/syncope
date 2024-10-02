@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>3.6.4</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.41.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.41.2</nimbus-jose-jwt.version>
 
     <spring-framework.version>5.3.39</spring-framework.version>
     <spring-security.version>5.8.14</spring-security.version>
@@ -431,7 +431,7 @@ under the License.
     <slf4j.version>1.7.36</slf4j.version>
 
     <elasticsearch.version>8.15.2</elasticsearch.version>
-    <opensearch.version>2.17.0</opensearch.version>
+    <opensearch.version>2.17.1</opensearch.version>
     <opensearch-java.version>2.14.0</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
@@ -1550,7 +1550,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.10.0</version>
+          <version>3.10.1</version>
           <configuration>
             <release>${targetJdk}</release>
             <additionalOptions>
@@ -2073,7 +2073,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.10.0</version>
+        <version>3.10.1</version>
         <configuration>
           <release>${targetJdk}</release>
           <destDir>apidocs/3.0</destDir>
