@@ -1886,7 +1886,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>3.0.2</version>
+        <version>4.0.1</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
