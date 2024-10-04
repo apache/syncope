@@ -437,7 +437,7 @@ under the License.
 
     <pac4j.version>6.0.6</pac4j.version>
 
-    <cas.version>7.1.0</cas.version>
+    <cas.version>7.1.1</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.25</swagger-core.version>
