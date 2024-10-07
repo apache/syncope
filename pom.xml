@@ -422,7 +422,7 @@ under the License.
 
     <groovy.version>5.0.0-alpha-10</groovy.version>
 
-    <flowable.version>7.0.1</flowable.version>
+    <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>3.4.4</disruptor.version>
