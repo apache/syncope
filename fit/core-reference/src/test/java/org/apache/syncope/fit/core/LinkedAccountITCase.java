@@ -73,6 +73,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRule;
 import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRuleConf;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -384,10 +385,10 @@ public class LinkedAccountITCase extends AbstractITCase {
                     // ignore
                 }
             }
-            tasks = TASK_SERVICE.search(
-                    new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
-                            anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
-            assertEquals(3, tasks.getTotalCount());
+
+            Awaitility.await().until(() -> TASK_SERVICE.search(
+                    new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
+                            .anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build()).getTotalCount() == 3);
 
             // 6. verify that both user and account are now found on resource
             response = webClient.get();

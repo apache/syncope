@@ -259,27 +259,22 @@ public class AnyObjectITCase extends AbstractITCase {
         assertFalse(printer.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
     }
 
-    @Test 
+    @Test
     void issueSYNCOPE1830() {
         // search user by membership attribute
         AnyObjectTO canonMf = ANY_OBJECT_SERVICE.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
-        GroupTO additional = GROUP_SERVICE.read("additional");
-        // add type extension also for AnyObject to additional group
-        TypeExtensionTO typeExtension = new TypeExtensionTO();
-        typeExtension.setAnyType(PRINTER);
-        typeExtension.getAuxClasses().add("other");
-        updateGroup(new GroupUR.Builder(additional.getKey()).typeExtension(typeExtension).build());
+        GroupTO otherchild = GROUP_SERVICE.read("otherchild");
         // add a membership and its plain attribute
         updateAnyObject(new AnyObjectUR.Builder(canonMf.getKey()).memberships(
-                        new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
+                        new MembershipUR.Builder(otherchild.getKey()).plainAttrs(attr("ctype", "otherchildctype"))
                                 .build()).build());
         Awaitility.await().until(() -> ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo("additionalctype")
+                .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo("otherchildctype")
                         .query()).build()).getTotalCount() == 1);
         assertTrue(ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                        .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
-                                .is("ctype").equalTo("additionalctype").query())
-                        .build()).getResult().stream()
+                        .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo(
+                                "otherchildctype")
+                                .query()).build()).getResult().stream()
                 .anyMatch(u -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(u.getKey())));
     }
 }
