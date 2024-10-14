@@ -98,6 +98,7 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
@@ -107,6 +108,7 @@ import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPassw
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.awaitility.Awaitility;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.BeforeAll;
@@ -1819,5 +1821,22 @@ public class UserIssuesITCase extends AbstractITCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
             jdbcTemplate.update("DELETE FROM TESTPULL WHERE USERNAME = 'rossini'");
         }
+    }
+
+    @Test 
+    void issueSYNCOPE1830() {
+        // search user by membership attribute
+        UserTO puccini = USER_SERVICE.read("puccini");
+        GroupTO additional = GROUP_SERVICE.read("additional");
+        // add a membership and its plain attribute
+        updateUser(new UserUR.Builder(puccini.getKey()).memberships(
+                        new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
+                                .build()).build());
+        Awaitility.await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
+                .build()).getTotalCount() == 1);
+        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
+                .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
     }
 }
