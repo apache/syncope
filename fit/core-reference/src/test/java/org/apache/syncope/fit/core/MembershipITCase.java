@@ -105,7 +105,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
             assertEquals("1977", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
 
-            // 3. verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
+            // 3. verify that derived attributes from 'csv' and 'other' are also populated for user's membership
             assertFalse(membership.getDerAttr("csvuserid").orElseThrow().getValues().isEmpty());
             assertFalse(membership.getDerAttr("noschema").orElseThrow().getValues().isEmpty());
 

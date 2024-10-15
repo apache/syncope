@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -377,10 +378,9 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertEquals(1, task.getExecutions().size());
             assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
 
-            tasks = TASK_SERVICE.search(
-                    new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
-                            anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
-            assertEquals(3, tasks.getTotalCount());
+            await().until(() -> TASK_SERVICE.search(
+                    new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
+                            .anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build()).getTotalCount() == 3);
 
             // 6. verify that both user and account are now found on resource
             response = webClient.get();
