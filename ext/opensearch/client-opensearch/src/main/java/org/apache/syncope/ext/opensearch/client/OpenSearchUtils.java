@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -218,14 +217,13 @@ public class OpenSearchUtils {
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(),
-                        k -> Collections.synchronizedSet(new HashSet<>()));
+                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(), k -> new HashSet<>());
+                // also support case in which there is also an existing attribute set previously
                 if (attr instanceof Collection) {
                     ((Collection<Object>) attr).addAll(values);
                 } else {
-                    Set<Object> newValues = Collections.synchronizedSet(new HashSet<>(values));
-                    newValues.add(attr);
-                    builder.put(mAttr.getSchema().getKey(), newValues);
+                    values.add(attr);
+                    builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
                 }
             }));
         }
