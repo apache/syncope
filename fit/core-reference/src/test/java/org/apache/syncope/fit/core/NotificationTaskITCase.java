@@ -273,7 +273,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         assertNotNull(taskTO);
         assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getRecipients().containsAll(
-                new TestNotificationRecipientsProvider().provideRecipients(null)));
+                new TestNotificationRecipientsProvider().provideRecipients(null, null, null)));
 
         execNotificationTask(TASK_SERVICE, taskTO.getKey(), MAX_WAIT_SECONDS);
 
