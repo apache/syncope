@@ -1397,7 +1397,7 @@ under the License.
       <dependency>
         <groupId>org.passay</groupId>
         <artifactId>passay</artifactId>
-        <version>1.6.5</version>
+        <version>1.6.6</version>
       </dependency>
 
       <dependency>
