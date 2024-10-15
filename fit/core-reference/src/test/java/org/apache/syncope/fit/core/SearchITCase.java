@@ -43,6 +43,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -54,6 +55,7 @@ import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -1064,15 +1066,31 @@ public class SearchITCase extends AbstractITCase {
         // search user by membership attribute
         UserTO puccini = USER_SERVICE.read("puccini");
         GroupTO additional = GROUP_SERVICE.read("additional");
+        GroupTO employee = GROUP_SERVICE.read("employee");
+        TypeExtensionTO typeExtensionTO = new TypeExtensionTO();
+        typeExtensionTO.setAnyType(AnyTypeKind.USER.name());
+        typeExtensionTO.getAuxClasses().add("other");
+        updateGroup(new GroupUR.Builder(employee.getKey()).typeExtension(typeExtensionTO).build());
         // add a membership and its plain attribute
-        updateUser(new UserUR.Builder(puccini.getKey()).memberships(
+        updateUser(new UserUR.Builder(puccini.getKey())
+                .plainAttr(attrAddReplacePatch("ctype", "myownctype"))
+                .memberships(
                 new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
-                        .build()).build());
+                        .build(), new MembershipUR.Builder(employee.getKey())
+                                .plainAttrs(attr("ctype", "additionalemployeectype"))
+                                .build()).build());
         await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
                 .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
                 .build()).getTotalCount() == 1);
         assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
                 .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
+                .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalemployeectype")
+                        .query()).build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+        // check also that search on user plain attribute (not in membership) works
+        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("myownctype").query())
                 .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
     }
     

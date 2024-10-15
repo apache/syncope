@@ -102,6 +102,7 @@ public class ElasticsearchUtils {
      * @param any user, group or any object to index
      * @return document specialized with content from the provided any
      */
+    @SuppressWarnings("unchecked")
     @Transactional
     public Map<String, Object> document(final Any<?> any) {
         Map<String, Object> builder = new HashMap<>();
@@ -214,10 +215,14 @@ public class ElasticsearchUtils {
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                if (!builder.containsKey(mAttr.getSchema().getKey())) {
-                    builder.put(mAttr.getSchema().getKey(), new HashSet<>());
+                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(), k -> new HashSet<>());
+                // also support case in which there is also an existing attribute set previously
+                if (attr instanceof Collection) {
+                    ((Collection<Object>) attr).addAll(values);
+                } else {
+                    values.add(attr);
+                    builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
                 }
-                builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
             }));
         }
         
