@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -103,6 +104,7 @@ public class ElasticsearchUtils {
      * @param any user, group or any object to index
      * @return document specialized with content from the provided any
      */
+    @SuppressWarnings("unchecked")
     @Transactional
     public Map<String, Object> document(final Any<?> any) {
         Collection<String> resources = any instanceof User
@@ -216,10 +218,8 @@ public class ElasticsearchUtils {
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                if (!builder.containsKey(mAttr.getSchema().getKey())) {
-                    builder.put(mAttr.getSchema().getKey(), new HashSet<>());
-                }
-                builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+                ((Set<Object>) builder.computeIfAbsent(mAttr.getSchema().getKey(),
+                        k -> Collections.synchronizedSet(new HashSet<>()))).addAll(values);
             }));
         }
         
