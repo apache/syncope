@@ -1059,7 +1059,9 @@ public class SearchITCase extends AbstractITCase {
         UserTO puccini = USER_SERVICE.read("puccini");
         GroupTO additional = GROUP_SERVICE.read("additional");
         // add a membership and its plain attribute
-        updateUser(new UserUR.Builder(puccini.getKey()).memberships(
+        updateUser(new UserUR.Builder(puccini.getKey())
+                .plainAttr(attrAddReplacePatch("ctype", "myownctype"))
+                .memberships(
                 new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
                         .build()).build());
         await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
@@ -1067,6 +1069,10 @@ public class SearchITCase extends AbstractITCase {
                 .build()).getTotalCount() == 1);
         assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
                 .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
+                .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+        // check also that search on user plain attribute (not in membership) works
+        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("myownctype").query())
                 .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
     }
     

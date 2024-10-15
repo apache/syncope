@@ -218,8 +218,15 @@ public class OpenSearchUtils {
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                ((Set<Object>) builder.computeIfAbsent(mAttr.getSchema().getKey(),
-                        k -> Collections.synchronizedSet(new HashSet<>()))).addAll(values);
+                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(),
+                        k -> Collections.synchronizedSet(new HashSet<>()));
+                if (attr instanceof Collection) {
+                    ((Collection<Object>) attr).addAll(values);
+                } else {
+                    Set<Object> newValues = Collections.synchronizedSet(new HashSet<>(values));
+                    newValues.add(attr);
+                    builder.put(mAttr.getSchema().getKey(), newValues);
+                }
             }));
         }
         
