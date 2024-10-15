@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -1056,6 +1057,42 @@ public class SearchITCase extends AbstractITCase {
             deleteUser("user 1826 test");
             deleteUser("user test 182");
         }
+    }
+
+    @Test
+    void userByMembershipAttribute() {
+        // search user by membership attribute
+        UserTO puccini = USER_SERVICE.read("puccini");
+        GroupTO additional = GROUP_SERVICE.read("additional");
+        // add a membership and its plain attribute
+        updateUser(new UserUR.Builder(puccini.getKey()).memberships(
+                new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
+                        .build()).build());
+        await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
+                .build()).getTotalCount() == 1);
+        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
+                .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+    }
+    
+    @Test
+    void anyObjectByMembershipAttribute() {
+        // search user by membership attribute
+        AnyObjectTO canonMf = ANY_OBJECT_SERVICE.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        GroupTO otherchild = GROUP_SERVICE.read("otherchild");
+        // add a membership and its plain attribute
+        updateAnyObject(new AnyObjectUR.Builder(canonMf.getKey()).memberships(
+                new MembershipUR.Builder(otherchild.getKey()).plainAttrs(attr("ctype", "otherchildctype"))
+                        .build()).build());
+        await().until(() -> ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo("otherchildctype")
+                        .query()).build()).getTotalCount() == 1);
+        assertTrue(ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+                        .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo(
+                                        "otherchildctype")
+                                .query()).build()).getResult().stream()
+                .anyMatch(u -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(u.getKey())));
     }
 
 }

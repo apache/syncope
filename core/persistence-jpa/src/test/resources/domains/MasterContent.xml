@@ -384,6 +384,9 @@ under the License.
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <TypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"
+                 group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" anyType_id="PRINTER"/>
+  <TypeExtension_AnyTypeClass typeExtension_id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" anyTypeClass_id="other"/>
   <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 creator="admin" lastModifier="admin" 
