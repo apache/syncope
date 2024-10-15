@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -73,7 +74,6 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRule;
 import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRuleConf;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -386,7 +386,7 @@ public class LinkedAccountITCase extends AbstractITCase {
                 }
             }
 
-            Awaitility.await().until(() -> TASK_SERVICE.search(
+            await().until(() -> TASK_SERVICE.search(
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
                             .anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build()).getTotalCount() == 3);
 
