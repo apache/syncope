@@ -63,7 +63,6 @@ import org.apache.syncope.common.rest.api.beans.ConnObjectTOQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.awaitility.Awaitility;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -1063,7 +1062,7 @@ public class SearchITCase extends AbstractITCase {
         updateUser(new UserUR.Builder(puccini.getKey()).memberships(
                 new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
                         .build()).build());
-        Awaitility.await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
+        await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
                 .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
                 .build()).getTotalCount() == 1);
         assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
