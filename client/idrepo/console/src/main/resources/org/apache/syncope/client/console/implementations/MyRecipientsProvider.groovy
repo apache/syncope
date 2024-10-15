@@ -17,7 +17,9 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.util.Map
 import java.util.Set
+import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.Notification
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider
 
@@ -25,7 +27,7 @@ import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider
 class MyRecipientsProvider implements RecipientsProvider {
   
   @Override
-  Set<String> provideRecipients(Notification notification) {
+  Set<String> provideRecipients(Notification notification, Any<?> any, Map<String, Object> jexlVars) {
     return Set.of();
   }
 }

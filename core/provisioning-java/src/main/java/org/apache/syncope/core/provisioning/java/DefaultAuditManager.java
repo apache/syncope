@@ -96,18 +96,16 @@ public class DefaultAuditManager implements AuditManager {
         auditEntry.setDate(OffsetDateTime.now());
 
         AuditConf auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
-        boolean auditRequested = auditConf != null && auditConf.isActive();
 
-        if (auditRequested) {
+        if (auditConf != null && auditConf.isActive()) {
             return true;
         }
 
         auditEntry.setLogger(new AuditLoggerName(type, category, subcategory, event, Result.FAILURE));
 
         auditConf = auditConfDAO.find(auditEntry.getLogger().toAuditKey());
-        auditRequested = auditConf != null && auditConf.isActive();
 
-        return auditRequested;
+        return auditConf != null && auditConf.isActive();
     }
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)

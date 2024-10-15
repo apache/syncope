@@ -133,11 +133,8 @@ public class AuditLoggerName implements BaseBean {
             eventBuilder.append(event);
         }
         eventBuilder.append(']');
-
         if (result != null) {
-            eventBuilder.append(":[").
-                    append(result).
-                    append(']');
+            eventBuilder.append(":[").append(result).append(']');
         }
 
         return eventBuilder.toString();
