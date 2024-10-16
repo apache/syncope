@@ -506,7 +506,7 @@ under the License.
     <docker.neo4j.version>5.23.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
-    <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
+    <jdbc.mysql.version>9.1.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.4.1</jdbc.mariadb.version>
     <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
 
