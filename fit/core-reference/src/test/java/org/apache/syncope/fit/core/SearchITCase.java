@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -626,6 +625,95 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
+    public void userByMembershipAttribute() {
+        // create type extension for the 'employee' group, if not present
+        GroupTO employee = GROUP_SERVICE.read("employee");
+        if (employee.getTypeExtension(AnyTypeKind.USER.name()).isEmpty()) {
+            TypeExtensionTO typeExtensionTO = new TypeExtensionTO();
+            typeExtensionTO.setAnyType(AnyTypeKind.USER.name());
+            typeExtensionTO.getAuxClasses().add("other");
+            updateGroup(new GroupUR.Builder(employee.getKey()).typeExtension(typeExtensionTO).build());
+        }
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        PagedResult<UserTO> matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("additionalctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("myownctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+
+        // add user membership and its plain attribute
+        updateUser(new UserUR.Builder(USER_SERVICE.read("puccini").getKey())
+                .plainAttr(attrAddReplacePatch("ctype", "myownctype"))
+                .membership(new MembershipUR.Builder(GROUP_SERVICE.read("additional").getKey()).
+                        plainAttrs(attr("ctype", "additionalctype")).build())
+                .membership(new MembershipUR.Builder(employee.getKey())
+                        .plainAttrs(attr("ctype", "additionalemployeectype")).build())
+                .build());
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("additionalctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+        assertTrue(matching.getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+
+        // check also that search on user plain attribute (not in membership) works
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("myownctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+        assertTrue(matching.getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+    }
+
+    @Test
+    public void anyObjectByMembershipAttribute() {
+        PagedResult<AnyObjectTO> matching = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
+                        .is("ctype").equalTo("otherchildctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+
+        // add any object membership and its plain attribute
+        updateAnyObject(new AnyObjectUR.Builder("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
+                membership(new MembershipUR.Builder(GROUP_SERVICE.read("otherchild").getKey()).
+                        plainAttrs(attr("ctype", "otherchildctype")).
+                        build()).build());
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        matching = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
+                        .is("ctype").equalTo("otherchildctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+
+        assertTrue(matching.getResult().stream().
+                anyMatch(a -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(a.getKey())));
+    }
+
+    @Test
     public void issueSYNCOPE768() {
         int usersWithNullable = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").nullValue().query()).build()).
@@ -1054,57 +1142,4 @@ public class SearchITCase extends AbstractITCase {
             deleteUser("user test 182");
         }
     }
-
-    @Test
-    void userByMembershipAttribute() {
-        // search user by membership attribute
-        UserTO puccini = USER_SERVICE.read("puccini");
-        GroupTO additional = GROUP_SERVICE.read("additional");
-        GroupTO employee = GROUP_SERVICE.read("employee");
-        TypeExtensionTO typeExtensionTO = new TypeExtensionTO();
-        typeExtensionTO.setAnyType(AnyTypeKind.USER.name());
-        typeExtensionTO.getAuxClasses().add("other");
-        updateGroup(new GroupUR.Builder(employee.getKey()).typeExtension(typeExtensionTO).build());
-        // add a membership and its plain attribute
-        updateUser(new UserUR.Builder(puccini.getKey())
-                .plainAttr(attrAddReplacePatch("ctype", "myownctype"))
-                .memberships(
-                new MembershipUR.Builder(additional.getKey()).plainAttrs(attr("ctype", "additionalctype"))
-                        .build(), new MembershipUR.Builder(employee.getKey())
-                                .plainAttrs(attr("ctype", "additionalemployeectype"))
-                                .build()).build());
-        await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
-                .build()).getTotalCount() == 1);
-        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalctype").query())
-                .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
-        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("additionalemployeectype")
-                        .query()).build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
-        // check also that search on user plain attribute (not in membership) works
-        assertTrue(USER_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                .fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("myownctype").query())
-                .build()).getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
-    }
-    
-    @Test
-    void anyObjectByMembershipAttribute() {
-        // search user by membership attribute
-        AnyObjectTO canonMf = ANY_OBJECT_SERVICE.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
-        GroupTO otherchild = GROUP_SERVICE.read("otherchild");
-        // add a membership and its plain attribute
-        updateAnyObject(new AnyObjectUR.Builder(canonMf.getKey()).memberships(
-                new MembershipUR.Builder(otherchild.getKey()).plainAttrs(attr("ctype", "otherchildctype"))
-                        .build()).build());
-        await().until(() -> ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo("otherchildctype")
-                        .query()).build()).getTotalCount() == 1);
-        assertTrue(ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().page(1).size(10)
-                        .fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("ctype").equalTo(
-                                        "otherchildctype")
-                                .query()).build()).getResult().stream()
-                .anyMatch(u -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(u.getKey())));
-    }
-
 }

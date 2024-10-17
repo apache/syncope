@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -45,6 +46,9 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
@@ -65,6 +69,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private AnySearchDAO searchDAO;
@@ -150,6 +157,38 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(rossini.getKey(), users.get(0).getKey());
+    }
+
+    @Test
+    public void searchByMembershipAttribute() {
+        AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
+        attrCond.setSchema("ctype");
+        attrCond.setExpression("otherchildctype");
+        SearchCond cond = SearchCond.getLeaf(attrCond);
+
+        List<AnyObject> results = searchDAO.search(cond, AnyTypeKind.ANY_OBJECT);
+        assertTrue(results.isEmpty());
+
+        // add any object membership and its plain attribute
+        AnyObject anyObject = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
+        AMembership memb = entityFactory.newEntity(AMembership.class);
+        memb.setLeftEnd(anyObject);
+        memb.setRightEnd(groupDAO.findByName("otherchild"));
+        anyObject.add(memb);
+        anyObject = anyObjectDAO.save(anyObject);
+
+        APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
+        attr.setSchema(plainSchemaDAO.find("ctype"));
+        attr.add(validator, "otherchildctype", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+        attr.setOwner(anyObject);
+        attr.setMembership(anyObject.getMemberships().get(0));
+        anyObject.add(attr);
+        anyObjectDAO.save(anyObject);
+
+        results = searchDAO.search(cond, AnyTypeKind.ANY_OBJECT);
+        assertEquals(1, results.size());
+
+        assertTrue(results.stream().anyMatch(a -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(a.getKey())));
     }
 
     @Test
