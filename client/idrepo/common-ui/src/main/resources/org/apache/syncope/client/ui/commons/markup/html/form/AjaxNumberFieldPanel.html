@@ -17,21 +17,12 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <div class="form-group">    
-      <span wicket:id="creationDate"></span>
-    </div>
-    <div class="form-group">    
-      <span wicket:id="lastChangeDate"></span>
-    </div>
-    <div class="form-group">    
-      <span wicket:id="bulkMaxOperations"></span>
-    </div>
-    <div class="form-group">    
-      <span wicket:id="bulkMaxPayloadSize"></span>
-    </div>
-    <div class="form-group">    
-      <span wicket:id="filterMaxResults"></span>
-    </div>
-  </wicket:panel>
+  <wicket:extend>
+    <wicket:enclosure child="field-label">
+      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+      <span wicket:id="externalAction"/>
+    </wicket:enclosure>
+
+    <input type="number" wicket:id="numberTextField"/>
+  </wicket:extend>
 </html>

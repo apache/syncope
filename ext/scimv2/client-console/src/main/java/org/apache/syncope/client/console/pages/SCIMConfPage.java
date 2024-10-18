@@ -19,19 +19,12 @@
 package org.apache.syncope.client.console.pages;
 
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.io.Serializable;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.SCIMConfPanel;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.any.ResultPanel;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
-import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
@@ -45,52 +38,15 @@ public class SCIMConfPage extends BaseExtPage {
     @SpringBean
     protected SCIMConfRestClient scimConfRestClient;
 
-    protected final WebMarkupContainer content;
-
     public SCIMConfPage(final PageParameters parameters) {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
 
-        content = new WebMarkupContainer("content");
-
-        content.add(new Label("body", "General"));
+        WebMarkupContainer content = new WebMarkupContainer("content");
         content.setOutputMarkupId(true);
         body.add(content);
 
-        updateSCIMGeneralConfContent(scimConfRestClient.get());
-    }
-
-    protected WebMarkupContainer updateSCIMGeneralConfContent(final SCIMConf scimConf) {
-        if (scimConf == null) {
-            return content;
-        }
-
-        content.addOrReplace(new SCIMConfPanel("body", scimConf, SCIMConfPage.this.getPageReference()) {
-
-            private static final long serialVersionUID = 8221398624379357183L;
-
-            @Override
-            protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
-                modal.setWindowClosedCallback(target -> {
-                    if (modal.getContent() instanceof ResultPanel) {
-                        Serializable result = ResultPanel.class.cast(modal.getContent()).getResult();
-                        try {
-                            scimConfRestClient.set(MAPPER.readValue(result.toString(), SCIMConf.class));
-
-                            SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                            modal.show(false);
-                            target.add(content);
-                        } catch (Exception e) {
-                            LOG.error("While setting SCIM configuration", e);
-                            SyncopeConsoleSession.get().onException(e);
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                });
-            }
-        });
-
-        return content;
+        content.add(new SCIMConfPanel("scimConf", scimConfRestClient.get(), SCIMConfPage.this.getPageReference()));
     }
 }

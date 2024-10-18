@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.scim;
 
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -53,21 +54,21 @@ public class SCIMConfManager {
 
     @PreAuthorize("hasRole('" + SCIMEntitlement.SCIM_CONF_GET + "')")
     public SCIMConf get() {
-        SCIMConf conf = null;
-        String confString = confParamOps.get(AuthContextUtils.getDomain(), SCIMConf.KEY, null, String.class);
-        if (confString != null) {
-            try {
-                conf = POJOHelper.deserialize(new String(Base64.getDecoder().decode(confString)), SCIMConf.class);
-            } catch (Exception e) {
-                LOG.error("Could not deserialize, reverting to default", e);
-            }
-        }
-        if (conf == null) {
-            conf = new SCIMConf();
-            set(conf);
-        }
-
-        return conf;
+        return Optional.ofNullable(confParamOps.get(AuthContextUtils.getDomain(), SCIMConf.KEY, null, String.class)).
+                map(confString -> {
+                    try {
+                        return POJOHelper.deserialize(
+                                new String(Base64.getDecoder().decode(confString)), SCIMConf.class);
+                    } catch (Exception e) {
+                        LOG.error("Could not deserialize, reverting to default", e);
+                        return null;
+                    }
+                }).
+                orElseGet(() -> {
+                    SCIMConf scimConf = new SCIMConf();
+                    set(scimConf);
+                    return scimConf;
+                });
     }
 
     @PreAuthorize("hasRole('" + SCIMEntitlement.SCIM_CONF_SET + "')")
@@ -81,7 +82,9 @@ public class SCIMConfManager {
             scimConf.setMimeType(MediaType.APPLICATION_JSON);
             schemaLogic.create(SchemaType.PLAIN, scimConf);
         }
-        conf.setGeneralConf(new SCIMGeneralConf());
+        if (conf.getGeneralConf() == null) {
+            conf.setGeneralConf(new SCIMGeneralConf());
+        }
         conf.getGeneralConf().setLastChangeDate(OffsetDateTime.now());
 
         if (conf.getExtensionUserConf() != null) {
