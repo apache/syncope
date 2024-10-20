@@ -66,16 +66,16 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
             }
         }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT).setEnabled(false));
 
-        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().
-                build("bulkMaxOperations", "bulkMaxOperations",
+        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().convertValuesToString(false).
+                build("bulkMaxOperations", "bulkMaxOperations", Integer.class,
                         new PropertyModel<>(scimGeneralConf, "bulkMaxOperations")));
 
-        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().
-                build("bulkMaxPayloadSize", "bulkMaxPayloadSize",
+        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().convertValuesToString(false).
+                build("bulkMaxPayloadSize", "bulkMaxPayloadSize", Integer.class,
                         new PropertyModel<>(scimGeneralConf, "bulkMaxPayloadSize")));
 
-        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().
-                build("filterMaxResults", "filterMaxResults",
+        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().convertValuesToString(false).
+                build("filterMaxResults", "filterMaxResults", Integer.class,
                         new PropertyModel<>(scimGeneralConf, "filterMaxResults")));
     }
 }

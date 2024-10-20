@@ -22,7 +22,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
@@ -57,12 +57,12 @@ public class DomainPoolModalPanel extends AbstractModalPanel<Domain> {
             poolMinIdleModel = new Model<>();
         }
 
-        add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+        add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                 "poolMaxActive",
                 "poolMaxActive",
                 Integer.class,
                 poolMaxActiveModel).setRequired(true));
-        add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+        add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                 "poolMinIdle",
                 "poolMinIdle",
                 Integer.class,
