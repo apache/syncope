@@ -33,8 +33,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
@@ -161,7 +161,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             switch (type) {
                 case ACCOUNT:
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
                             "field",
                             "maxAuthenticationAttempts",
                             Integer.class,
@@ -180,7 +180,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case PASSWORD:
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
                             "field",
                             "historyLength",
                             Integer.class,
@@ -206,7 +206,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             new PropertyModel<>(policyTO, "updateDelta"),
                             false));
 
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
                             "field",
                             "maxAttempts",
                             Integer.class,
@@ -220,21 +220,21 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
                     PropertyModel<String> backOffParamsModel = new PropertyModel<>(policyTO, "backOffParams");
 
-                    AjaxSpinnerFieldPanel<Long> initialInterval = new AjaxSpinnerFieldPanel.Builder<Long>().
+                    AjaxNumberFieldPanel<Long> initialInterval = new AjaxNumberFieldPanel.Builder<Long>().
                             min(1L).build(
                             "field",
                             "initialInterval",
                             Long.class,
                             new BackOffParamsModel<>(backOffParamsModel, 0));
                     fields.add(initialInterval.setOutputMarkupPlaceholderTag(true));
-                    AjaxSpinnerFieldPanel<Long> maxInterval = new AjaxSpinnerFieldPanel.Builder<Long>().
+                    AjaxNumberFieldPanel<Long> maxInterval = new AjaxNumberFieldPanel.Builder<Long>().
                             min(1L).build(
                             "field",
                             "maxInterval",
                             Long.class,
                             new BackOffParamsModel<>(backOffParamsModel, 1));
                     fields.add(maxInterval.setOutputMarkupPlaceholderTag(true).setVisible(false));
-                    AjaxSpinnerFieldPanel<Double> multiplier = new AjaxSpinnerFieldPanel.Builder<Double>().
+                    AjaxNumberFieldPanel<Double> multiplier = new AjaxNumberFieldPanel.Builder<Double>().
                             min(1D).build(
                             "field",
                             "multiplier",
@@ -310,7 +310,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case ATTR_RELEASE:
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().build(
                             "field",
                             "order",
                             Integer.class,
@@ -339,9 +339,9 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
         private void showHide(
                 final AjaxDropDownChoicePanel<Serializable> backOffStrategy,
-                final AjaxSpinnerFieldPanel<Long> initialInterval,
-                final AjaxSpinnerFieldPanel<Long> maxInterval,
-                final AjaxSpinnerFieldPanel<Double> multiplier) {
+                final AjaxNumberFieldPanel<Long> initialInterval,
+                final AjaxNumberFieldPanel<Long> maxInterval,
+                final AjaxNumberFieldPanel<Double> multiplier) {
 
             BackOffStrategy strategy = (BackOffStrategy) backOffStrategy.getField().getModelObject();
 

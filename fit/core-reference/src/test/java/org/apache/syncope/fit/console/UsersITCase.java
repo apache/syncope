@@ -302,7 +302,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 Constants.ON_CLICK);
 
         formTester.setValue("view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:content:"
-                + "schemas:0:panel:spinner", "1");
+                + "schemas:0:panel:numberTextField", "1");
         formTester.submit("buttons:next");
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");

@@ -52,7 +52,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", name);
-        formTester.setValue("content:fields:1:field:spinner", "1");
+        formTester.setValue("content:fields:1:field:numberTextField", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
         formTester.setValue("content:fields:3:field:paletteField:recorder", "ws-target-resource-nopropagation4");
 
@@ -83,7 +83,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", name);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 1);
+                + ":content:fields:1:field:numberTextField", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
@@ -109,7 +109,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", name);
-        formTester.setValue("content:fields:1:field:spinner", "1");
+        formTester.setValue("content:fields:1:field:numberTextField", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
 
         TESTER.clickLink(
@@ -136,7 +136,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", name);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 1);
+                + ":content:fields:1:field:numberTextField", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
 
@@ -451,7 +451,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:1:field:spinner", "2");
+        formTester.setValue("content:fields:1:field:numberTextField", "2");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -474,7 +474,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 Modal.class);
 
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 2);
+                + ":content:fields:1:field:numberTextField", 2);
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
@@ -553,7 +553,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:1:field:spinner", "2");
+        formTester.setValue("content:fields:1:field:numberTextField", "2");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -576,7 +576,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 Modal.class);
 
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 2);
+                + ":content:fields:1:field:numberTextField", 2);
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",

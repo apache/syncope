@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.SRARouteType;
@@ -154,7 +154,7 @@ public class SRARouteWizardBuilder extends BaseAjaxWizardBuilder<SRARouteTO> {
 
             add(new AjaxCheckBoxPanel("csrf", "csrf", new PropertyModel<>(route, "csrf")));
 
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                     "order", "order", Integer.class, new PropertyModel<>(route, "order")).
                     setRequired(true));
         }

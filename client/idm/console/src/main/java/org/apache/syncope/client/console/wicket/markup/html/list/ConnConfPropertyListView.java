@@ -30,8 +30,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -100,9 +100,8 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             }
 
             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
-                @SuppressWarnings("unchecked")
-                Class<Number> numberClass = (Class<Number>) propertySchemaClass;
-                field = new AjaxSpinnerFieldPanel.Builder<>().build("panel", label, numberClass, new Model<>());
+                field = new AjaxNumberFieldPanel.Builder<>().build(
+                        "panel", label, AjaxNumberFieldPanel.cast(propertySchemaClass), new Model<>());
                 required = property.getSchema().isRequired();
             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
                 field = new AjaxCheckBoxPanel("panel", label, new Model<>());

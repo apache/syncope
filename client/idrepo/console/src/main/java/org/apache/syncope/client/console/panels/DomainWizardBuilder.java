@@ -27,7 +27,7 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -127,12 +127,12 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             transactionIsolation.setNullValid(false);
             add(transactionIsolation);
 
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                     "poolMaxActive",
                     "poolMaxActive",
                     Integer.class,
                     new PropertyModel<>(domain, "poolMaxActive")).addRequiredLabel());
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                     "poolMinIdle",
                     "poolMinIdle",
                     Integer.class,

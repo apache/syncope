@@ -52,8 +52,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.report.SearchCondition;
@@ -295,8 +295,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
         if (ClassUtils.isAssignable(Boolean.class, type)) {
             panel = new AjaxCheckBoxPanel(id, fieldName, model);
         } else if (ClassUtils.isAssignable(Number.class, type)) {
-            panel = new AjaxSpinnerFieldPanel.Builder<>().build(
-                    id, fieldName, (Class<Number>) ClassUtils.resolvePrimitiveIfNecessary(type), model);
+            panel = new AjaxNumberFieldPanel.Builder<>().build(
+                    id, fieldName, AjaxNumberFieldPanel.cast(ClassUtils.resolvePrimitiveIfNecessary(type)), model);
         } else if (Date.class.equals(type)) {
             panel = new AjaxDateTimeFieldPanel(id, fieldName, model,
                     DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
