@@ -2,6 +2,23 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.9
+================================================================================
+
+** Bug
+    * [SYNCOPE-1824] - Password policies are not always enforced on linked account password while updating account
+    * [SYNCOPE-1825] - Database schema not set on OpenJPA even if configured by properties
+    * [SYNCOPE-1826] - Search fails if search condition contains four digits at the end of the value
+    * [SYNCOPE-1828] - Can't open the profiles tab in WA page if one of the fields is null
+    * [SYNCOPE-1831] - SCIM general configuration can not be updated
+
+** New Feature
+    * [SYNCOPE-1662] - Leverage MariaDB JSON type
+
+** Improvement
+    * [SYNCOPE-1830] - Add support for membership attributes on elasticsearch and opensearch searches
+    * [SYNCOPE-1832] - Replace number input method for UI
+
 Release Notes - Syncope - Version 3.0.8
 ================================================================================
 
