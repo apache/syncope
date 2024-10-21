@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-docker</artifactId>
-    <version>3.0.9-SNAPSHOT</version>
+    <version>3.0.9</version>
   </parent>
 
   <name>Apache Syncope Docker WA</name>
