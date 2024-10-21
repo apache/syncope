@@ -16,7 +16,7 @@
 # under the License.
 
 FROM eclipse-temurin:17-jammy
-MAINTAINER dev@syncope.apache.org
+LABEL org.opencontainers.image.authors="dev@syncope.apache.org"
 
 RUN set -x
 
