@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +30,14 @@ public class SCIMExtensionInfo extends SCIMBean {
 
     private final Map<String, String> attributes = new HashMap<>();
 
+    @JsonValue
     public Map<String, String> getAttributes() {
         return attributes;
+    }
+
+    @JsonAnySetter
+    public void add(final String key, final String value) {
+        attributes.put(key, value);
     }
 
     @JsonIgnore
