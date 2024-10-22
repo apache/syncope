@@ -36,14 +36,11 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
-import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
-import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -208,11 +205,10 @@ public class OpenSearchUtils {
 
         // add also flattened membership attributes
         if (any instanceof GroupableRelatable) {
-            GroupableRelatable<? extends Any, ? extends Membership, ? extends GroupablePlainAttr, ? extends Any, ?
-                    extends Relationship> entity = GroupableRelatable.class.cast(any);
-            entity.getMemberships().forEach(m -> entity.getPlainAttrs(m).forEach(mAttr -> {
-                List<Object> values = mAttr.getValues().stream().map(PlainAttrValue::getValue)
-                        .collect(Collectors.toList());
+            GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
+            groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
+                List<Object> values = mAttr.getValues().stream().
+                        map(PlainAttrValue::getValue).collect(Collectors.toList());
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
@@ -226,7 +222,7 @@ public class OpenSearchUtils {
                 }
             }));
         }
-        
+
         return builder;
     }
 

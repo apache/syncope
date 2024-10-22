@@ -495,7 +495,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>10.1.31</tomcat.version>
-    <wildfly.version>33.0.2.Final</wildfly.version>
+    <wildfly.version>34.0.0.Final</wildfly.version>
     <payara.version>6.2024.10</payara.version>
     <jakarta.faces.version>4.1.1</jakarta.faces.version>
 
@@ -503,7 +503,7 @@ under the License.
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
-    <docker.neo4j.version>5.23.0</docker.neo4j.version>
+    <docker.neo4j.version>5.24.2</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.1.0</jdbc.mysql.version>

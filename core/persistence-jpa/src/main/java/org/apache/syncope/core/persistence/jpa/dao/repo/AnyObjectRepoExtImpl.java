@@ -232,7 +232,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
         List<Object> result = query.getResultList();
         return result.stream().
                 map(groupKey -> groupDAO.findById(groupKey.toString())).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 distinct().
                 collect(Collectors.toList());
     }

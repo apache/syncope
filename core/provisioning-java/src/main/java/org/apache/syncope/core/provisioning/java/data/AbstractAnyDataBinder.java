@@ -246,7 +246,7 @@ abstract class AbstractAnyDataBinder {
 
         Map<String, ConnObject> onResources = new HashMap<>();
 
-        resources.stream().map(resourceDAO::findById).filter(Optional::isPresent).map(Optional::get).
+        resources.stream().map(resourceDAO::findById).flatMap(Optional::stream).
                 forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
                 ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
@@ -617,7 +617,7 @@ abstract class AbstractAnyDataBinder {
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
                 map(className -> anyTypeClassDAO.findById(className)).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 forEach(auxClass -> {
                     if (auxClass == null) {
                         LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);

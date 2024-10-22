@@ -205,7 +205,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     Stream.concat(
                             anyType.getClasses().stream(),
                             provision.getAuxClasses().stream().map(anyTypeClassDAO::findById).
-                                    filter(Optional::isPresent).map(Optional::get)).forEach(anyTypeClass -> {
+                                    flatMap(Optional::stream)).forEach(anyTypeClass -> {
 
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
                                 map(PlainSchema::getKey).toList());

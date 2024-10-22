@@ -384,9 +384,10 @@ under the License.
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
   <SyncopeGroup_Realm left="f779c0d4-633b-4be5-8f57-32eb478a3ca5" right="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
-  <TypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"
-                 group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" anyType_id="PRINTER"/>
-  <TypeExtension_AnyTypeClass typeExtension_id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" anyTypeClass_id="other"/>
+  <TypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"/>
+  <TypeExtension_SyncopeGroup left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="f779c0d4-633b-4be5-8f57-32eb478a3ca5"/>
+  <TypeExtension_AnyType left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="PRINTER"/>
+  <TypeExtension_AnyTypeClass left="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" right="other"/>
   <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
                 creator="admin" lastModifier="admin" 
                 creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>

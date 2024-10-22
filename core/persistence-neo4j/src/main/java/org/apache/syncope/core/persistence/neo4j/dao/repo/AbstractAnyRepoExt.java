@@ -364,17 +364,17 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
             if (reference.equals(PlainSchema.class)) {
                 atc.getPlainSchemas().stream().
                         map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        filter(Optional::isPresent).map(Optional::get).
+                        flatMap(Optional::stream).
                         forEach(schema -> result.getForSelf().add((S) schema));
             } else if (reference.equals(DerSchema.class)) {
                 atc.getDerSchemas().stream().
                         map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        filter(Optional::isPresent).map(Optional::get).
+                        flatMap(Optional::stream).
                         forEach(schema -> result.getForSelf().add((S) schema));
             } else if (reference.equals(VirSchema.class)) {
                 atc.getVirSchemas().stream().
                         map(schema -> virSchemaDAO.findById(schema.getKey())).
-                        filter(Optional::isPresent).map(Optional::get).
+                        flatMap(Optional::stream).
                         forEach(schema -> result.getForSelf().add((S) schema));
             }
         });
@@ -419,17 +419,17 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
             if (reference.equals(PlainSchema.class)) {
                 atc.getPlainSchemas().stream().
                         map(schema -> plainSchemaDAO.findById(schema.getKey())).
-                        filter(Optional::isPresent).map(Optional::get).
+                        flatMap(Optional::stream).
                         forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
             } else if (reference.equals(DerSchema.class)) {
                 atc.getDerSchemas().stream().
                         map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        filter(Optional::isPresent).map(Optional::get).
+                        flatMap(Optional::stream).
                         forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
             } else if (reference.equals(VirSchema.class)) {
                 atc.getVirSchemas().stream().
                         map(schema -> virSchemaDAO.findById(schema.getKey())).
-                        filter(Optional::isPresent).map(Optional::get).
+                        flatMap(Optional::stream).
                         forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
             }
         }));

@@ -227,7 +227,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
 
         return owned.stream().
                 map(id -> neo4jTemplate.findById(id, Neo4jGroup.class)).
-                filter(Optional::isPresent).map(Optional::get).map(Group.class::cast).toList();
+                flatMap(Optional::stream).map(Group.class::cast).toList();
     }
 
     @Override

@@ -127,7 +127,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 new Query.Builder().term(QueryBuilders.term().
                         field("name").value(FieldValue.of(name)).build()).build());
         return result.stream().map(realmDAO::findById).
-                filter(Optional::isPresent).map(Optional::get).map(Realm.class::cast).toList();
+                flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
 
     @Override
@@ -136,7 +136,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 new Query.Builder().term(QueryBuilders.term().
                         field("parent_id").value(FieldValue.of(realm.getKey())).build()).build());
         return result.stream().map(realmDAO::findById).
-                filter(Optional::isPresent).map(Optional::get).map(Realm.class::cast).toList();
+                flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
 
     protected Query buildDescendantQuery(final String base, final String keyword) {
@@ -209,7 +209,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
         }
 
         return result.stream().map(realmDAO::findById).
-                filter(Optional::isPresent).map(Optional::get).map(Realm.class::cast).toList();
+                flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
 
     @Override

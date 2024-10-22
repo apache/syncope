@@ -76,7 +76,7 @@ public abstract class AbstractGroupableRelatable<
     public Collection<? extends P> getPlainAttrs(final String plainSchema) {
         return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElse(Stream.empty()),
                 memberships().stream().map(m -> m.getPlainAttr(plainSchema)).
-                        filter(Optional::isPresent).map(Optional::get)).
+                        flatMap(Optional::stream)).
                 toList();
     }
 
