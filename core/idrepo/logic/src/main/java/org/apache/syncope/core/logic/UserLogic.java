@@ -398,7 +398,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                     orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
         }
         Set<ExternalResource> resources = query.getResources().stream().
-                map(resourceDAO::findById).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+                map(resourceDAO::findById).flatMap(Optional::stream).collect(Collectors.toSet());
         if (realm == null && resources.isEmpty()) {
             sce.getElements().add("Nothing to check");
             throw sce;

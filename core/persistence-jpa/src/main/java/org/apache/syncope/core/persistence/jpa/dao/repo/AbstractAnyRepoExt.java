@@ -228,7 +228,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         List<Object> result = query.getResultList();
         return result.stream().
                 map(dynRealm -> dynRealmDAO.findById(dynRealm.toString())).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 map(DynRealm::getKey).
                 distinct().
                 toList();

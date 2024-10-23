@@ -188,13 +188,13 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
                 map(a -> plainSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 forEach(s -> prefcolumns.add(new AttrColumn<>(
                 s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.PLAIN)));
 
         PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
                 map(a -> derSchemas.stream().filter(p -> p.getKey().equals(a)).findFirst()).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 forEach(s -> prefcolumns.add(new AttrColumn<>(
                 s.getKey(), s.getLabel(SyncopeConsoleSession.get().getLocale()), SchemaType.DERIVED)));
 

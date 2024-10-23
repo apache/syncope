@@ -186,7 +186,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             profile.setDryRun(false);
             profile.setConflictResolutionAction(conflictResolutionAction);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                    map(implementationDAO::findById).flatMap(Optional::stream).
                     toList()));
             profile.setExecutor(executor);
 

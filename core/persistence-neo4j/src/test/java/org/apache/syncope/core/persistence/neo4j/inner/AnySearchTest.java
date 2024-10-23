@@ -615,6 +615,8 @@ public class AnySearchTest extends AbstractTest {
         List<Sort.Order> orderByClauses = new ArrayList<>();
         orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "username"));
         orderByClauses.add(new Sort.Order(Sort.Direction.ASC, "fullname"));
+        orderByClauses.add(new Sort.Order(Sort.Direction.ASC, "status"));
+        orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "firstname"));
 
         List<User> users = searchDAO.search(searchCondition, orderByClauses, AnyTypeKind.USER);
         assertEquals(

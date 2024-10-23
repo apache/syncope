@@ -141,7 +141,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             profile = new ProvisioningProfile<>(connector, task);
             profile.setExecutor(executor);
             profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
-                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                    map(implementationDAO::findById).flatMap(Optional::stream).
                     toList()));
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
 

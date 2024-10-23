@@ -345,7 +345,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
         // finally publish events for all groups affected by this operation, via membership
         result.getResult().getLeft().getMemberships().stream().map(MembershipUR::getGroup).distinct().
-                map(groupDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                map(groupDAO::findById).flatMap(Optional::stream).
                 forEach(group -> publisher.publishEvent(new EntityLifecycleEvent<>(
                 this, SyncDeltaType.UPDATE, group, AuthContextUtils.getDomain())));
 
