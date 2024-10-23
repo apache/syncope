@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
-import static org.apache.syncope.common.lib.types.AnyTypeKind.ANY_OBJECT;
-import static org.apache.syncope.common.lib.types.AnyTypeKind.GROUP;
-import static org.apache.syncope.common.lib.types.AnyTypeKind.USER;
-
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
