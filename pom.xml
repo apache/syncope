@@ -429,7 +429,7 @@ under the License.
 
     <elasticsearch.version>8.15.3</elasticsearch.version>
     <opensearch.version>2.17.1</opensearch.version>
-    <opensearch-java.version>2.15.0</opensearch-java.version>
+    <opensearch-java.version>2.16.0</opensearch-java.version>
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
@@ -656,7 +656,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
-        <version>7.0.0</version>
+        <version>7.1.0</version>
       </dependency>
 
       <dependency>
@@ -1693,7 +1693,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.4.1</version>
+          <version>3.5.0</version>
         </plugin>
 
         <plugin>
@@ -2250,7 +2250,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-site-plugin</artifactId>
-            <version>3.20.0</version>
+            <version>3.21.0</version>
           </plugin>
         </plugins>
       </build>
