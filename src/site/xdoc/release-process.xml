@@ -496,10 +496,8 @@ svn mv -m "Moving the voted release artifacts to dist/release" \
 https://dist.apache.org/repos/dist/dev/syncope/$VERSION
 https://dist.apache.org/repos/dist/release/syncope/
 
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-cd syncope-dist-release
-svn rm <any older release artifact (if present)>
-svn commit -m "Cleaning up older releases"]]></source>
+svn rm -m "Cleaning up older releases" \
+https://dist.apache.org/repos/dist/release/syncope/$OLD_VERSION/]]></source>
           </li>
           <li>
             Add appropriate release notes to
@@ -516,7 +514,7 @@ svn commit -m "Cleaning up older releases"]]></source>
             <source><![CDATA[
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
-svn rm *.html apidocs rest css images img js fonts docs
+svn rm *.html apidocs rest css images img js fonts docs xref*
 svn mv $VERSION/* .
 svn rm $VERSION
 svn commit -m "Promoting the staging site"]]></source>
