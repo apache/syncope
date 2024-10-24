@@ -465,7 +465,7 @@ under the License.
     <antlr4.version>4.13.2</antlr4.version>
 
     <curator.version>5.7.1</curator.version>
-    <zookeeper.version>3.9.2</zookeeper.version>
+    <zookeeper.version>3.9.3</zookeeper.version>
 
     <zonky.embedded-postgres.version>2.0.7</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.0.0</zonky.embedded-postgres-binaries.version>
