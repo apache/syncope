@@ -34,8 +34,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -382,7 +382,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             provisioningTaskSpecifics.add(enableConcurrentSettings.
                     setVisible(taskTO instanceof ProvisioningTaskTO).setOutputMarkupId(true));
 
-            FieldPanel<Integer> poolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+            FieldPanel<Integer> poolSize = new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
                     "poolSize",
                     "poolSize",
                     Integer.class,

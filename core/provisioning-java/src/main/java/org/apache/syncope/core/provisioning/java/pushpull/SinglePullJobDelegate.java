@@ -111,7 +111,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile.setDryRun(false);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
             profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
+                    map(implementationDAO::findById).flatMap(Optional::stream).
                     toList()));
             profile.setExecutor(executor);
 

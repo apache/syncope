@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -53,6 +54,7 @@ import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -351,7 +353,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> issueSYNCOPE1321 = USER_SERVICE.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("lastLoginDate").lexicalNotBefore("2016-03-02T15:21:22%2B0300").
+                        is("lastChangeDate").lexicalNotBefore("2010-03-02T15:21:22%2B0300").
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
@@ -618,6 +620,95 @@ public class SearchITCase extends AbstractITCase {
                 fiql("status!~suspended;changePwdDate==$null").build()).
                 getTotalCount();
         assertTrue(users > 0);
+    }
+
+    @Test
+    public void userByMembershipAttribute() {
+        // create type extension for the 'employee' group, if not present
+        GroupTO employee = GROUP_SERVICE.read("employee");
+        if (employee.getTypeExtension(AnyTypeKind.USER.name()).isEmpty()) {
+            TypeExtensionTO typeExtensionTO = new TypeExtensionTO();
+            typeExtensionTO.setAnyType(AnyTypeKind.USER.name());
+            typeExtensionTO.getAuxClasses().add("other");
+            updateGroup(new GroupUR.Builder(employee.getKey()).typeExtension(typeExtensionTO).build());
+        }
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        PagedResult<UserTO> matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("additionalctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("myownctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+
+        // add user membership and its plain attribute
+        updateUser(new UserUR.Builder(USER_SERVICE.read("puccini").getKey())
+                .plainAttr(attrAddReplacePatch("ctype", "myownctype"))
+                .membership(new MembershipUR.Builder(GROUP_SERVICE.read("additional").getKey()).
+                        plainAttrs(attr("ctype", "additionalctype")).build())
+                .membership(new MembershipUR.Builder(employee.getKey())
+                        .plainAttrs(attr("ctype", "additionalemployeectype")).build())
+                .build());
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("additionalctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+        assertTrue(matching.getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+
+        // check also that search on user plain attribute (not in membership) works
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("myownctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+        assertTrue(matching.getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+    }
+
+    @Test
+    public void anyObjectByMembershipAttribute() {
+        PagedResult<AnyObjectTO> matching = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
+                        .is("ctype").equalTo("otherchildctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+
+        // add any object membership and its plain attribute
+        updateAnyObject(new AnyObjectUR.Builder("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
+                membership(new MembershipUR.Builder(GROUP_SERVICE.read("otherchild").getKey()).
+                        plainAttrs(attr("ctype", "otherchildctype")).
+                        build()).build());
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        matching = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
+                        .is("ctype").equalTo("otherchildctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+
+        assertTrue(matching.getResult().stream().
+                anyMatch(a -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(a.getKey())));
     }
 
     @Test
@@ -1057,5 +1148,4 @@ public class SearchITCase extends AbstractITCase {
             deleteUser("user test 182");
         }
     }
-
 }

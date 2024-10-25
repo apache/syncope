@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,11 @@ public class TestNotificationRecipientsProvider implements RecipientsProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public Set<String> provideRecipients(final Notification notification) {
+    public Set<String> provideRecipients(
+            final Notification notification,
+            final Any<?> any,
+            final Map<String, Object> jexlVars) {
+
         return Set.of(getClass().getSimpleName() + "@syncope.apache.org");
     }
 }

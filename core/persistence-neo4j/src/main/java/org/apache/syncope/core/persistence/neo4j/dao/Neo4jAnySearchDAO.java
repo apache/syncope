@@ -100,7 +100,11 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
     }
 
-    protected static record QueryInfo(TextStringBuilder query, Set<String> fields, Set<PlainSchema> plainSchemas) {
+    protected static record QueryInfo(
+            TextStringBuilder query,
+            Set<String> fields,
+            Set<PlainSchema> plainSchemas,
+            List<Pair<String, PlainSchema>> membershipAttrConds) {
 
     }
 
@@ -754,6 +758,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         TextStringBuilder query = new TextStringBuilder();
         Set<String> involvedFields = new HashSet<>();
         Set<PlainSchema> involvedPlainSchemas = new HashSet<>();
+        List<Pair<String, PlainSchema>> membershipAttrConds = new ArrayList<>();
 
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
@@ -804,6 +809,13 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                             Pair<String, PlainSchema> attrCondResult = getQuery(kind, leaf, not, parameters);
                             query.append(attrCondResult.getLeft());
                             involvedPlainSchemas.add(attrCondResult.getRight());
+                            if (kind != AnyTypeKind.GROUP
+                                    && !not
+                                    && leaf.getType() != AttrCond.Type.ISNULL
+                                    && leaf.getType() != AttrCond.Type.ISNOTNULL) {
+
+                                membershipAttrConds.add(attrCondResult);
+                            }
                         }));
 
                 // allow for additional search conditions
@@ -813,10 +825,12 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 QueryInfo leftAndInfo = getQuery(kind, cond.getLeft(), parameters);
                 involvedFields.addAll(leftAndInfo.fields());
                 involvedPlainSchemas.addAll(leftAndInfo.plainSchemas());
+                membershipAttrConds.addAll(leftAndInfo.membershipAttrConds());
 
                 QueryInfo rigthAndInfo = getQuery(kind, cond.getRight(), parameters);
                 involvedFields.addAll(rigthAndInfo.fields());
                 involvedPlainSchemas.addAll(rigthAndInfo.plainSchemas());
+                membershipAttrConds.addAll(rigthAndInfo.membershipAttrConds());
 
                 queryOp(query, "AND", leftAndInfo, rigthAndInfo);
             }
@@ -825,10 +839,12 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 QueryInfo leftOrInfo = getQuery(kind, cond.getLeft(), parameters);
                 involvedFields.addAll(leftOrInfo.fields());
                 involvedPlainSchemas.addAll(leftOrInfo.plainSchemas());
+                membershipAttrConds.addAll(leftOrInfo.membershipAttrConds());
 
                 QueryInfo rigthOrInfo = getQuery(kind, cond.getRight(), parameters);
                 involvedFields.addAll(rigthOrInfo.fields());
                 involvedPlainSchemas.addAll(rigthOrInfo.plainSchemas());
+                membershipAttrConds.addAll(rigthOrInfo.membershipAttrConds());
 
                 queryOp(query, "OR", leftOrInfo, rigthOrInfo);
             }
@@ -837,7 +853,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
 
-        return new QueryInfo(query, involvedFields, involvedPlainSchemas);
+        return new QueryInfo(query, involvedFields, involvedPlainSchemas, membershipAttrConds);
     }
 
     protected void wrapQuery(
@@ -845,8 +861,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final Streamable<Order> orderBy,
             final AnyTypeKind kind,
             final String adminRealmsFilter) {
-
-        TextStringBuilder query = queryInfo.query();
 
         TextStringBuilder match = new TextStringBuilder("MATCH (n:").append(AnyRepoExt.node(kind)).append(") ").
                 append("WITH n.id AS id");
@@ -864,7 +878,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         Stream.concat(
                 queryInfo.plainSchemas().stream(),
                 orderBy.stream().map(clause -> plainSchemaDAO.findById(clause.getProperty())).
-                        filter(Optional::isPresent).map(Optional::get)).distinct().forEach(schema -> {
+                        flatMap(Optional::stream)).distinct().forEach(schema -> {
 
             match.append(", apoc.convert.getJsonProperty(n, 'plainAttrs.").append(schema.getKey());
             if (schema.isUniqueConstraint()) {
@@ -875,6 +889,8 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             match.append(" AS ").append(schema.getKey());
         });
 
+        TextStringBuilder query = queryInfo.query();
+
         // take realms into account
         if (query.startsWith("MATCH (n)")) {
             query.replaceFirst("MATCH (n)", match + " WHERE (EXISTS { MATCH (n)");
@@ -884,6 +900,75 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             query.insert(0, match.append(' '));
         }
         query.append(") AND EXISTS { ").append(adminRealmsFilter).append(" } ");
+    }
+
+    protected void membershipAttrConds(
+            final TextStringBuilder query,
+            final QueryInfo queryInfo,
+            final List<String> orderBy,
+            final AnyTypeKind kind) {
+
+        if (kind == AnyTypeKind.GROUP) {
+            return;
+        }
+        if (queryInfo.membershipAttrConds().isEmpty()) {
+            return;
+        }
+
+        Set<String> orderByItems = orderBy.stream().
+                map(clause -> StringUtils.substringBefore(clause, " ")).
+                collect(Collectors.toSet());
+
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
+        Set<String> fields = Stream.concat(
+                queryInfo.fields().stream().filter(f -> !"id".equals(f)),
+                orderByItems.stream().filter(item -> !"id".equals(item) && anyUtils.getField(item).isPresent())).
+                collect(Collectors.toSet());
+
+        Set<PlainSchema> plainSchemas = Stream.concat(
+                queryInfo.membershipAttrConds().stream().map(Pair::getRight),
+                orderByItems.stream().map(item -> plainSchemaDAO.findById(item)).flatMap(Optional::stream)).
+                collect(Collectors.toSet());
+
+        // call
+        query.insert(0, "CALL () { ");
+
+        // return
+        TextStringBuilder returnStmt = new TextStringBuilder("RETURN id");
+
+        fields.forEach(f -> returnStmt.append(", ").append(f));
+
+        plainSchemas.forEach(schema -> returnStmt.append(", ").append(schema.getKey()));
+
+        query.append(returnStmt);
+
+        // union
+        query.append(" UNION ").
+                append("MATCH (n:").append(AnyRepoExt.membNode(kind)).
+                append(")-[]-(m:").append(AnyRepoExt.node(kind) + ") ").
+                append("WITH m.id AS id ");
+
+        fields.forEach(f -> query.append(", m.").append(f).append(" AS ").append(f));
+
+        plainSchemas.forEach(schema -> {
+            query.append(", apoc.convert.getJsonProperty(n, 'plainAttrs.").append(schema.getKey());
+            if (schema.isUniqueConstraint()) {
+                query.append("', '$.uniqueValue')");
+            } else {
+                query.append("', '$.values')");
+            }
+            query.append(" AS ").append(schema.getKey());
+        });
+
+        query.append(" WHERE ");
+
+        query.append(queryInfo.membershipAttrConds().stream().
+                map(mac -> "(EXISTS { " + mac.getLeft() + "} )").
+                collect(Collectors.joining(" AND ")));
+
+        query.append(" AND EXISTS { (m)-[]-(r:Realm) WHERE r.id IN $param0 } ").
+                append(returnStmt).
+                append(" } ");
     }
 
     @Override
@@ -906,15 +991,18 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
         wrapQuery(queryInfo, Streamable.empty(), kind, filter.filter());
         TextStringBuilder query = queryInfo.query();
 
-        // 3. prepare the count query
+        // 3. include membership plain attr queries
+        membershipAttrConds(query, queryInfo, List.of(), kind);
+
+        // 4. prepare the count query
         query.append("RETURN COUNT(id)");
 
         return neo4jTemplate.count(query.toString(), parameters);
     }
 
-    protected String parseOrderBy(
+    protected List<String> parseOrderBy(
             final AnyTypeKind kind,
-            final Stream<Sort.Order> orderBy) {
+            final Streamable<Sort.Order> orderBy) {
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
@@ -946,7 +1034,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             }
         });
 
-        return clauses.stream().collect(Collectors.joining(", "));
+        return clauses;
     }
 
     @Override
@@ -970,9 +1058,15 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             wrapQuery(queryInfo, pageable.getSort(), kind, filter.filter());
             TextStringBuilder query = queryInfo.query();
 
-            // 3. prepare the search query
+            List<String> orderBy = parseOrderBy(kind, pageable.getSort());
+            String orderByStmt = orderBy.stream().collect(Collectors.joining(", "));
+
+            // 3. include membership plain attr queries
+            membershipAttrConds(query, queryInfo, orderBy, kind);
+
+            // 4. prepare the search query
             query.append("RETURN id ").
-                    append("ORDER BY ").append(parseOrderBy(kind, pageable.getSort().get()));
+                    append("ORDER BY ").append(orderByStmt);
 
             if (pageable.isPaged()) {
                 query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -981,7 +1075,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
             LOG.debug("Query with auth and order by statements: {}, parameters: {}", query, parameters);
 
-            // 4. Prepare the result (avoiding duplicates)
+            // 5. Prepare the result (avoiding duplicates)
             return buildResult(neo4jClient.query(query.toString()).bindAll(parameters).fetch().all().stream().
                     map(found -> found.get("id")).toList(), kind);
         } catch (SyncopeClientException e) {

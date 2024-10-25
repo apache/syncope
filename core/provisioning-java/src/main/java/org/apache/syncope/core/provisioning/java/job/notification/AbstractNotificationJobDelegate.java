@@ -89,12 +89,13 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
         if (StringUtils.isBlank(task.getSubject()) || task.getRecipients().isEmpty()
                 || StringUtils.isBlank(task.getHtmlBody()) || StringUtils.isBlank(task.getTextBody())) {
 
-            String message = "Could not fetch all required information for sending e-mails:\n"
-                    + task.getRecipients() + '\n'
-                    + task.getSender() + '\n'
-                    + task.getSubject() + '\n'
-                    + task.getHtmlBody() + '\n'
-                    + task.getTextBody();
+            String message = "Could not fetch all required information for sending out notifications:"
+                    + "\nFrom: " + task.getSender()
+                    + "\nTo: " + task.getRecipients()
+                    + "\nSubject: " + task.getSubject()
+                    + "\nHTML body:\n" + task.getHtmlBody()
+                    + "\nText body:\n" + task.getTextBody()
+                    + "\n";
             LOG.error(message);
 
             execution.setStatus(NotificationJob.Status.NOT_SENT.name());
@@ -104,12 +105,8 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
                 execution.setMessage(message);
             }
         } else {
-            LOG.debug("About to send notifications:\n{}\n{}\n{}\n{}\n{}",
-                    task.getRecipients(),
-                    task.getSender(),
-                    task.getSubject(),
-                    task.getHtmlBody(),
-                    task.getTextBody());
+            LOG.debug("About to send notifications:\nFrom: {}\nTo: {}\nSubject: {}\nHTML body:\n{}\nText body:\n{}\n",
+                    task.getSender(), task.getRecipients(), task.getSubject(), task.getHtmlBody(), task.getTextBody());
 
             setStatus("Sending notifications to " + task.getRecipients());
 

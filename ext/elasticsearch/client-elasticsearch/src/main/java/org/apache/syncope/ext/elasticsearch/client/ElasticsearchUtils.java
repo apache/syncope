@@ -20,6 +20,7 @@ package org.apache.syncope.ext.elasticsearch.client;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Privilege;
@@ -98,6 +100,7 @@ public class ElasticsearchUtils {
      * @param any user, group or any object to index
      * @return document specialized with content from the provided any
      */
+    @SuppressWarnings("unchecked")
     @Transactional
     public Map<String, Object> document(final Any<?> any) {
         Map<String, Object> builder = new HashMap<>();
@@ -198,6 +201,26 @@ public class ElasticsearchUtils {
             Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
             builder.put(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+        }
+
+        // add also flattened membership attributes
+        if (any instanceof GroupableRelatable) {
+            GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
+            groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
+                List<Object> values = mAttr.getValues().stream().
+                        map(PlainAttrValue::getValue).collect(Collectors.toList());
+
+                Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
+
+                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(), k -> new HashSet<>());
+                // also support case in which there is also an existing attribute set previously
+                if (attr instanceof Collection) {
+                    ((Collection<Object>) attr).addAll(values);
+                } else {
+                    values.add(attr);
+                    builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+                }
+            }));
         }
 
         return builder;

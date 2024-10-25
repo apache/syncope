@@ -171,8 +171,7 @@ public class DefaultMappingManager implements MappingManager {
     protected List<Implementation> getTransformers(final Item item) {
         return item.getTransformers().stream().
                 map(implementationDAO::findById).
-                filter(Optional::isPresent).
-                map(Optional::get).
+                flatMap(Optional::stream).
                 collect(Collectors.toList());
     }
 

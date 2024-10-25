@@ -42,8 +42,8 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
@@ -285,7 +285,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 break;
 
             case Long:
-                panel = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
+                panel = new AjaxNumberFieldPanel.Builder<Long>().enableOnChange().build(
                         "panel",
                         plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         Long.class,
@@ -297,7 +297,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
+                panel = new AjaxNumberFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
                         "panel",
                         plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),
                         Double.class,

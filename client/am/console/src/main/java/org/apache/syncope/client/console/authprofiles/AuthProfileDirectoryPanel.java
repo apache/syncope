@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.authprofiles.AuthProfileDirectoryPanel.AuthProfileProvider;
 import org.apache.syncope.client.console.commons.AMConstants;
@@ -127,7 +128,7 @@ public class AuthProfileDirectoryPanel
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
-                return !rowModel.getObject().getImpersonationAccounts().isEmpty();
+                return CollectionUtils.isNotEmpty(rowModel.getObject().getImpersonationAccounts());
             }
         });
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("googleMfaAuthTokens")) {
@@ -136,7 +137,7 @@ public class AuthProfileDirectoryPanel
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
-                return !rowModel.getObject().getGoogleMfaAuthTokens().isEmpty();
+                return CollectionUtils.isNotEmpty(rowModel.getObject().getGoogleMfaAuthTokens());
             }
         });
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("googleMfaAuthAccounts")) {
@@ -145,7 +146,7 @@ public class AuthProfileDirectoryPanel
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
-                return !rowModel.getObject().getGoogleMfaAuthAccounts().isEmpty();
+                return CollectionUtils.isNotEmpty(rowModel.getObject().getGoogleMfaAuthAccounts());
             }
         });
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("mfaTrustedDevices")) {
@@ -154,7 +155,7 @@ public class AuthProfileDirectoryPanel
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
-                return !rowModel.getObject().getMfaTrustedDevices().isEmpty();
+                return CollectionUtils.isNotEmpty(rowModel.getObject().getMfaTrustedDevices());
             }
         });
         columns.add(new BooleanConditionColumn<>(new StringResourceModel("webAuthnAccount")) {
@@ -163,7 +164,7 @@ public class AuthProfileDirectoryPanel
 
             @Override
             protected boolean isCondition(final IModel<AuthProfileTO> rowModel) {
-                return !rowModel.getObject().getWebAuthnDeviceCredentials().isEmpty();
+                return CollectionUtils.isNotEmpty(rowModel.getObject().getWebAuthnDeviceCredentials());
             }
         });
 

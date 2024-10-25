@@ -234,7 +234,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         List<Object> result = query.getResultList();
         return result.stream().
                 map(roleKey -> roleDAO.findById(roleKey.toString())).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 distinct().
                 collect(Collectors.toList());
     }
@@ -250,7 +250,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         List<Object> result = query.getResultList();
         return result.stream().
                 map(groupKey -> groupDAO.findById(groupKey.toString())).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 distinct().
                 collect(Collectors.toList());
     }

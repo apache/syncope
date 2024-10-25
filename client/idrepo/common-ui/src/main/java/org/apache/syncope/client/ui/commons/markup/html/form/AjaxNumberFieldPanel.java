@@ -19,29 +19,33 @@
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import com.googlecode.wicket.jquery.core.Options;
-import com.googlecode.wicket.jquery.ui.JQueryUIBehavior;
-import com.googlecode.wicket.jquery.ui.form.spinner.AjaxSpinner;
-import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerAdapter;
-import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
+import com.googlecode.wicket.kendo.ui.form.NumberTextField;
+import com.googlecode.wicket.kendo.ui.resource.KendoCultureResourceReference;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.Attributable;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 
-public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
+public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extends FieldPanel<T> {
 
     private static final long serialVersionUID = 6413819574530703577L;
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Number & Comparable<T>> Class<T> cast(final Class<?> clazz) {
+        return (Class<T>) clazz;
+    }
 
     private final Class<T> reference;
 
@@ -49,11 +53,11 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     private final Options options;
 
+    private final boolean enableOnChange;
+
     private final boolean convertValuesToString;
 
-    private SpinnerBehavior behavior;
-
-    private AjaxSpinnerFieldPanel(
+    private AjaxNumberFieldPanel(
             final String id,
             final String name,
             final Class<T> reference,
@@ -64,17 +68,13 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
         super(id, name, model);
 
-        field = new AjaxSpinner<>("spinner", model, options, reference) {
+        this.reference = reference;
+        this.model = model;
+        this.options = options;
+        this.enableOnChange = enableOnChange;
+        this.convertValuesToString = convertValuesToString;
 
-            private static final long serialVersionUID = -3624755213720060594L;
-
-            @Override
-            public JQueryUIBehavior newWidgetBehavior(final String selector) {
-                behavior = new SpinnerBehavior(selector, new SpinnerAdapter());
-                behavior.setOptions(options);
-                return behavior;
-            }
-        };
+        field = new NumberTextField<>("numberTextField", model, reference, options);
 
         if (enableOnChange && !isReadOnly()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -89,16 +89,17 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         }
 
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
-
-        this.name = name;
-        this.model = model;
-        this.reference = reference;
-        this.options = options;
-        this.convertValuesToString = convertValuesToString;
     }
 
     @Override
-    public AjaxSpinnerFieldPanel<T> setNewModel(final List<Serializable> list) {
+    public FieldPanel<T> setReadOnly(final boolean readOnly) {
+        super.setReadOnly(readOnly);
+        NumberTextField.class.cast(field).setEnabled(!readOnly);
+        return this;
+    }
+
+    @Override
+    public AjaxNumberFieldPanel<T> setNewModel(final List<Serializable> list) {
         setNewModel(new Model<>() {
 
             private static final long serialVersionUID = 527651414610325237L;
@@ -107,9 +108,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             public T getObject() {
                 T value = null;
 
-                if (list != null && !list.isEmpty()
-                        && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
-
+                if (list != null && !list.isEmpty() && list.get(0) != null && !list.get(0).toString().isEmpty()) {
                     value = reference.equals(Integer.class)
                             ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
                             : reference.equals(Long.class)
@@ -138,7 +137,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     @SuppressWarnings("rawtypes")
     @Override
-    public AjaxSpinnerFieldPanel<T> setNewModel(final ListItem item) {
+    public AjaxNumberFieldPanel<T> setNewModel(final ListItem item) {
         field.setModel(new Model<>() {
 
             private static final long serialVersionUID = 6799404673615637845L;
@@ -196,15 +195,14 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         return this;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public FieldPanel<T> setNewModel(final Attributable attributable, final String schema) {
-        field.setModel(new Model() {
+        field.setModel(new Model<>() {
 
             private static final long serialVersionUID = -4214654722524358000L;
 
             @Override
-            public Serializable getObject() {
+            public T getObject() {
                 return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
                         map(values -> reference.equals(Integer.class)
                         ? reference.cast(NumberUtils.toInt(values.get(0)))
@@ -221,7 +219,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             }
 
             @Override
-            public void setObject(final Serializable object) {
+            public void setObject(final T object) {
                 attributable.getPlainAttr(schema).ifPresent(plainAttr -> {
                     plainAttr.getValues().clear();
                     Optional.ofNullable(object).ifPresent(o -> plainAttr.getValues().add(o.toString()));
@@ -233,9 +231,15 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
     }
 
     @Override
-    public AjaxSpinnerFieldPanel<T> clone() {
-        AjaxSpinnerFieldPanel<T> panel = new AjaxSpinnerFieldPanel<>(
-                getId(), name, reference, model, options, false, convertValuesToString);
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(JavaScriptHeaderItem.forReference(new KendoCultureResourceReference(getLocale())));
+    }
+
+    @Override
+    public AjaxNumberFieldPanel<T> clone() {
+        AjaxNumberFieldPanel<T> panel = new AjaxNumberFieldPanel<>(
+                getId(), name, reference, model, options, enableOnChange, convertValuesToString);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
@@ -248,18 +252,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
         return panel;
     }
 
-    @Override
-    public FieldPanel<T> setReadOnly(final boolean readOnly) {
-        super.setReadOnly(readOnly);
-        AjaxSpinner.class.cast(field).setEnabled(!readOnly);
-        options.set("disabled", readOnly);
-        if (behavior != null) {
-            behavior.setOptions(options);
-        }
-        return this;
-    }
-
-    public static class Builder<T extends Number> {
+    public static class Builder<T extends Number & Comparable<T>> {
 
         private final Options options = new Options();
 
@@ -277,8 +270,18 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             return this;
         }
 
+        public Builder<T> format(final String format) {
+            options.set("format", format);
+            return this;
+        }
+
         public Builder<T> step(final T step) {
             options.set("step", step);
+            return this;
+        }
+
+        public Builder<T> options(final Options options) {
+            options.entries().forEach(e -> this.options.set(e.getKey(), e.getValue()));
             return this;
         }
 
@@ -292,13 +295,32 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             return this;
         }
 
-        public AjaxSpinnerFieldPanel<T> build(
+        public AjaxNumberFieldPanel<T> build(
                 final String id,
                 final String name,
                 final Class<T> reference,
                 final IModel<T> model) {
 
-            return new AjaxSpinnerFieldPanel<>(
+            if (options.entries().stream().noneMatch(e -> "decimals".equals(e.getKey()))) {
+                options.set("decimals", "10");
+            }
+
+            if (options.entries().stream().noneMatch(o -> "format".equalsIgnoreCase(o.getKey()))) {
+                if (reference.equals(Integer.class) || reference.equals(Long.class) || reference.equals(Short.class)) {
+                    options.set("format", "'#'");
+                } else {
+                    options.set("format", "'#.##########'");
+                }
+            }
+            if (options.entries().stream().noneMatch(o -> "step".equalsIgnoreCase(o.getKey()))) {
+                if (reference.equals(Integer.class) || reference.equals(Long.class) || reference.equals(Short.class)) {
+                    options.set("step", "1");
+                } else {
+                    options.set("step", "0.000000001");
+                }
+            }
+
+            return new AjaxNumberFieldPanel<>(
                     id, name, reference, model, options, enableOnChange, convertValuesToString);
         }
     }

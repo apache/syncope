@@ -22,8 +22,7 @@ import java.util.Date;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
 import org.apache.wicket.model.Model;
@@ -37,75 +36,46 @@ public class SCIMConfGeneralPanel extends SCIMConfTabPanel {
         super(id);
 
         SCIMGeneralConf scimGeneralConf = scimConf.getGeneralConf();
+        add(new AjaxDateTimeFieldPanel("creationDate", "creationDate", new Model<>() {
 
-        AjaxDateTimeFieldPanel creationDatePanel =
-                new AjaxDateTimeFieldPanel("creationDate", "creationDate", new Model<>() {
-
-                    private static final long serialVersionUID = 7075312408615929880L;
-
-                    @Override
-                    public Date getObject() {
-                        return DateOps.convert(scimGeneralConf.getCreationDate());
-                    }
-
-                    @Override
-                    public void setObject(final Date object) {
-                        scimGeneralConf.setCreationDate(DateOps.toOffsetDateTime(object));
-                    }
-                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
-        creationDatePanel.setEnabled(false);
-
-        AjaxDateTimeFieldPanel lastChangeDatePanel =
-                new AjaxDateTimeFieldPanel("lastChangeDate", "lastChangeDate", new Model<>() {
-
-                    private static final long serialVersionUID = 7075312408615929880L;
-
-                    @Override
-                    public Date getObject() {
-                        return DateOps.convert(scimGeneralConf.getLastChangeDate());
-                    }
-
-                    @Override
-                    public void setObject(final Date object) {
-                        scimGeneralConf.setLastChangeDate(DateOps.toOffsetDateTime(object));
-                    }
-                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
-        lastChangeDatePanel.setEnabled(false);
-
-        AjaxSpinnerFieldPanel<Integer> bulkMaxOperationsPanel = new AjaxSpinnerFieldPanel.Builder<Integer>().
-                build("bulkMaxOperations", "bulkMaxOperations", Integer.class,
-                        new PropertyModel<>(scimGeneralConf, "bulkMaxOperations"));
-
-        AjaxSpinnerFieldPanel<Integer> bulkMaxPayloadSizePanel = new AjaxSpinnerFieldPanel.Builder<Integer>().
-                build("bulkMaxPayloadSize", "bulkMaxPayloadSize", Integer.class,
-                        new PropertyModel<>(scimGeneralConf, "bulkMaxPayloadSize"));
-
-        AjaxSpinnerFieldPanel<Integer> filterMaxResultsPanel = new AjaxSpinnerFieldPanel.Builder<Integer>().
-                build("filterMaxResults", "filterMaxResults", Integer.class,
-                        new PropertyModel<>(scimGeneralConf, "filterMaxResults"));
-
-        AjaxTextFieldPanel eTagValuePanel = new AjaxTextFieldPanel("eTagValue", "eTagValue",
-                new PropertyModel<>("eTagValue", "eTagValue") {
-
-            private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = 7075312408615929880L;
 
             @Override
-            public String getObject() {
-                return scimGeneralConf.getETagValue();
+            public Date getObject() {
+                return DateOps.convert(scimGeneralConf.getCreationDate());
             }
 
             @Override
-            public void setObject(final String object) {
+            public void setObject(final Date object) {
                 // nothing to do
             }
-        });
-        eTagValuePanel.setEnabled(false);
+        }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT).setEnabled(false));
 
-        add(creationDatePanel);
-        add(lastChangeDatePanel);
-        add(bulkMaxOperationsPanel);
-        add(bulkMaxPayloadSizePanel);
-        add(filterMaxResultsPanel);
-        add(eTagValuePanel);
+        add(new AjaxDateTimeFieldPanel("lastChangeDate", "lastChangeDate", new Model<>() {
+
+            private static final long serialVersionUID = 7075312408615929880L;
+
+            @Override
+            public Date getObject() {
+                return DateOps.convert(scimGeneralConf.getLastChangeDate());
+            }
+
+            @Override
+            public void setObject(final Date object) {
+                // nothing to do
+            }
+        }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT).setEnabled(false));
+
+        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().convertValuesToString(false).
+                build("bulkMaxOperations", "bulkMaxOperations", Integer.class,
+                        new PropertyModel<>(scimGeneralConf, "bulkMaxOperations")));
+
+        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().convertValuesToString(false).
+                build("bulkMaxPayloadSize", "bulkMaxPayloadSize", Integer.class,
+                        new PropertyModel<>(scimGeneralConf, "bulkMaxPayloadSize")));
+
+        add(new AjaxNumberFieldPanel.Builder<Integer>().enableOnChange().convertValuesToString(false).
+                build("filterMaxResults", "filterMaxResults", Integer.class,
+                        new PropertyModel<>(scimGeneralConf, "filterMaxResults")));
     }
 }

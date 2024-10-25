@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.ui.commons.panels.ModalPanel;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -29,7 +28,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class SCIMConfTabPanel extends Panel implements ModalPanel {
+public class SCIMConfTabPanel extends Panel {
 
     private static final long serialVersionUID = -4482885585790492795L;
 

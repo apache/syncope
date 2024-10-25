@@ -638,7 +638,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
         anyUtilsFactory.getInstance(kind).dao().findAllResourceKeys(key).stream().
                 map(resourceDAO::findById).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 filter(resource -> !excludedResources.contains(resource.getKey())
                 && resource.getProvisionByAnyType(any.getType().getKey()).isPresent()
                 && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).

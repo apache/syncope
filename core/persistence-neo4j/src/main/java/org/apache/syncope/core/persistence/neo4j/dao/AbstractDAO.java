@@ -112,7 +112,7 @@ public abstract class AbstractDAO {
 
         return result.stream().
                 map(found -> findById(found.get(property).toString(), domainType, cache)).
-                filter(Optional::isPresent).map(Optional::get).map(n -> (E) n).toList();
+                flatMap(Optional::stream).map(n -> (E) n).toList();
     }
 
     protected void cascadeDelete(

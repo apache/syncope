@@ -28,8 +28,8 @@ import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -102,7 +102,7 @@ public class ResourceDetailsPanel extends WizardStep {
                 new PropertyModel<>(resourceTO, "enforceMandatoryCondition"),
                 false));
 
-        container.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+        container.add(new AjaxNumberFieldPanel.Builder<Integer>().build(
                 "propagationPriority",
                 "propagationPriority",
                 Integer.class,

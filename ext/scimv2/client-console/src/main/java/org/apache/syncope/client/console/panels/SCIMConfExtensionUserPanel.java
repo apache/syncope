@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.panels.mapping.SCIMExtentionMappingPanel;
+import org.apache.syncope.client.console.panels.mapping.SCIMExtensionMappingPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMExtensionUserConf;
@@ -31,15 +31,13 @@ public class SCIMConfExtensionUserPanel extends SCIMConfTabPanel {
 
     private static final long serialVersionUID = 2459231778083046011L;
 
-    private final SCIMExtensionUserConf scimExtensionUserConf;
-
     public SCIMConfExtensionUserPanel(final String id, final SCIMConf scimConf) {
         super(id);
 
         if (scimConf.getExtensionUserConf() == null) {
             scimConf.setExtensionUserConf(new SCIMExtensionUserConf());
         }
-        scimExtensionUserConf = scimConf.getExtensionUserConf();
+        SCIMExtensionUserConf scimExtensionUserConf = scimConf.getExtensionUserConf();
 
         AjaxTextFieldPanel namePanel = new AjaxTextFieldPanel("name", "name", new PropertyModel<>("name", "name") {
 
@@ -57,8 +55,8 @@ public class SCIMConfExtensionUserPanel extends SCIMConfTabPanel {
         });
         add(namePanel);
 
-        AjaxTextFieldPanel descriptionPanel = new AjaxTextFieldPanel("description", "description",
-                new PropertyModel<>("description", "description") {
+        AjaxTextFieldPanel descriptionPanel = new AjaxTextFieldPanel(
+                "description", "description", new PropertyModel<>("description", "description") {
 
             private static final long serialVersionUID = -5911179251497048661L;
 
@@ -74,10 +72,10 @@ public class SCIMConfExtensionUserPanel extends SCIMConfTabPanel {
         });
         add(descriptionPanel);
 
-        SCIMExtentionMappingPanel extentionMappingPanel = new SCIMExtentionMappingPanel(
+        SCIMExtensionMappingPanel extensionMappingPanel = new SCIMExtensionMappingPanel(
                 "mapping", new ListModel<>(scimExtensionUserConf.getAttributes()));
         Form<SCIMExtensionUserConf> form = new Form<>("form", new Model<>(scimExtensionUserConf));
-        form.add(extentionMappingPanel);
+        form.add(extensionMappingPanel);
         add(form);
     }
 }

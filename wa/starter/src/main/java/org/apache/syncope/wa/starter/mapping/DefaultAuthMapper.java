@@ -99,8 +99,7 @@ public class DefaultAuthMapper implements AuthMapper {
         if (!mfaAuthHandlers.isEmpty()) {
             Set<String> fns = mfaAuthHandlers.stream().
                     map(handler -> authModules.stream().filter(am -> handler.equals(am.getKey())).findFirst()).
-                    filter(Optional::isPresent).
-                    map(Optional::get).
+                    flatMap(Optional::stream).
                     filter(am -> am.getConf() instanceof MFAAuthModuleConf).
                     map(am -> ((MFAAuthModuleConf) am.getConf()).getFriendlyName()).
                     collect(Collectors.toSet());

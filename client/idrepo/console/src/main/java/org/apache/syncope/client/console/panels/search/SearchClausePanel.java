@@ -46,7 +46,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -987,7 +987,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 break;
 
             case Long:
-                value = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().build(
+                value = new AjaxNumberFieldPanel.Builder<Long>().enableOnChange().build(
                         "value",
                         "Value",
                         Long.class,
@@ -997,7 +997,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 break;
 
             case Double:
-                value = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
+                value = new AjaxNumberFieldPanel.Builder<Double>().enableOnChange().step(0.1).build(
                         "value",
                         "value",
                         Double.class,

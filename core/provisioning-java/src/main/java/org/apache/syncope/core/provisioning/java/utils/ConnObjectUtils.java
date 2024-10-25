@@ -202,7 +202,7 @@ public class ConnObjectUtils {
             // add resource policies
             userCR.getResources().stream().
                     map(resourceDAO::findById).
-                    filter(Optional::isPresent).map(Optional::get).
+                    flatMap(Optional::stream).
                     filter(r -> r.getPasswordPolicy() != null).
                     forEach(r -> passwordPolicies.add(r.getPasswordPolicy()));
 

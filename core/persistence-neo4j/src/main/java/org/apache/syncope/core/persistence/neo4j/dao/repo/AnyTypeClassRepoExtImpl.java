@@ -186,17 +186,16 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
             typeExt.getAuxClasses().remove(anyTypeClass);
 
             if (typeExt.getAuxClasses().isEmpty()) {
+                groupCache.remove(EntityCacheKey.of(typeExt.getGroup().getKey()));
+
                 typeExt.getGroup().getTypeExtensions().remove(typeExt);
                 typeExt.setGroup(null);
-
-                groupCache.remove(EntityCacheKey.of(typeExt.getGroup().getKey()));
             }
         }
 
         resourceDAO.findAll().stream().filter(resource -> resource.getProvisions().stream().
                 anyMatch(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey()))).
                 forEach(resource -> {
-
                     resource.getProvisions().stream().
                             filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
                             forEach(provision -> provision.getAuxClasses().remove(anyTypeClass.getKey()));

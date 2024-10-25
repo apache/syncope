@@ -49,7 +49,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class SCIMExtentionMappingPanel extends Panel {
+public class SCIMExtensionMappingPanel extends Panel {
 
     private static final long serialVersionUID = -5268147603868322754L;
 
@@ -79,7 +79,7 @@ public class SCIMExtentionMappingPanel extends Panel {
 
     protected final WebMarkupContainer mappingContainer;
 
-    public SCIMExtentionMappingPanel(
+    public SCIMExtensionMappingPanel(
             final String id,
             final IModel<List<SCIMItem>> model) {
 
@@ -228,7 +228,7 @@ public class SCIMExtentionMappingPanel extends Panel {
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         model.getObject().remove(item.getIndex());
                         item.getParent().removeAll();
-                        target.add(SCIMExtentionMappingPanel.this);
+                        target.add(SCIMExtensionMappingPanel.this);
                     }
                 }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true).hideLabel();
                 item.add(actions);
@@ -255,7 +255,7 @@ public class SCIMExtentionMappingPanel extends Panel {
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 model.getObject().add(new SCIMItem());
-                target.add(SCIMExtentionMappingPanel.this);
+                target.add(SCIMExtensionMappingPanel.this);
             }
         };
         addMappingBtn.setDefaultFormProcessing(false);

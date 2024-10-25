@@ -181,17 +181,16 @@ public class DefaultNotificationManager implements NotificationManager {
             final Any<?> any,
             final Map<String, Object> jexlVars) {
 
-        if (any != null) {
-            virAttrHandler.getValues(any);
-        }
+        jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
+        jexlVars.put("events", notification.getEvents());
+
+        Optional.ofNullable(any).ifPresent(virAttrHandler::getValues);
 
         List<User> recipients = new ArrayList<>();
 
-        if (notification.getRecipientsFIQL() != null) {
-            recipients.addAll(anySearchDAO.<User>search(
-                    SearchCondConverter.convert(searchCondVisitor, notification.getRecipientsFIQL()),
-                    List.of(), AnyTypeKind.USER));
-        }
+        Optional.ofNullable(notification.getRecipientsFIQL()).
+                ifPresent(fiql -> recipients.addAll(anySearchDAO.<User>search(
+                SearchCondConverter.convert(searchCondVisitor, fiql), List.of(), AnyTypeKind.USER)));
 
         if (notification.isSelfAsRecipient() && any instanceof User) {
             recipients.add((User) any);
@@ -202,47 +201,44 @@ public class DefaultNotificationManager implements NotificationManager {
         recipients.forEach(recipient -> {
             virAttrHandler.getValues(recipient);
 
-            String email = getRecipientEmail(notification.getRecipientAttrName(), recipient);
-            if (email == null) {
-                LOG.warn("{} cannot be notified: {} not found", recipient, notification.getRecipientAttrName());
-            } else {
-                recipientEmails.add(email);
-                recipientTOs.add(userDataBinder.getUserTO(recipient, true));
-            }
+            Optional.ofNullable(getRecipientEmail(notification.getRecipientAttrName(), recipient)).
+                    ifPresentOrElse(
+                            email -> {
+                                recipientEmails.add(email);
+                                recipientTOs.add(userDataBinder.getUserTO(recipient, true));
+                            },
+                            () -> LOG.warn("{} cannot be notified: {} not found",
+                                    recipient, notification.getRecipientAttrName()));
         });
+        jexlVars.put("recipients", recipientTOs);
 
-        if (notification.getStaticRecipients() != null) {
-            recipientEmails.addAll(notification.getStaticRecipients());
-        }
+        Optional.ofNullable(notification.getStaticRecipients()).ifPresent(recipientEmails::addAll);
 
-        if (notification.getRecipientsProvider() != null) {
+        Optional.ofNullable(notification.getRecipientsProvider()).ifPresent(impl -> {
             try {
                 RecipientsProvider recipientsProvider = ImplementationManager.build(
-                        notification.getRecipientsProvider(),
+                        impl,
                         () -> perContextRecipientsProvider.orElse(null),
                         instance -> perContextRecipientsProvider = Optional.of(instance));
 
-                recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
+                recipientEmails.addAll(recipientsProvider.provideRecipients(notification, any, jexlVars));
             } catch (Exception e) {
                 LOG.error("While building {}", notification.getRecipientsProvider(), e);
             }
-        }
+        });
 
-        jexlVars.put("recipients", recipientTOs);
-        jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
-        jexlVars.put("events", notification.getEvents());
         JexlContext ctx = new MapContext(jexlVars);
 
         NotificationTask task = entityFactory.newEntity(NotificationTask.class);
         task.setNotification(notification);
-        if (any != null) {
-            task.setEntityKey(any.getKey());
-            task.setAnyTypeKind(any.getType().getKind());
-        }
+        Optional.ofNullable(any).ifPresent(a -> {
+            task.setEntityKey(a.getKey());
+            task.setAnyTypeKind(a.getType().getKind());
+        });
         task.setTraceLevel(notification.getTraceLevel());
         task.getRecipients().addAll(recipientEmails);
         task.setSender(notification.getSender());
-        task.setSubject(notification.getSubject());
+        task.setSubject(JexlUtils.evaluateTemplate(notification.getSubject(), ctx));
 
         if (StringUtils.isNotBlank(notification.getTemplate().getTextTemplate())) {
             task.setTextBody(JexlUtils.evaluateTemplate(notification.getTemplate().getTextTemplate(), ctx));
@@ -296,8 +292,6 @@ public class DefaultNotificationManager implements NotificationManager {
             final Object output,
             final Object... input) {
 
-        String currentEvent = OpEvent.toString(type, category, subcategory, op, outcome);
-
         Optional<? extends Any<?>> any = Optional.empty();
 
         if (before instanceof UserTO userTO) {
@@ -341,6 +335,8 @@ public class DefaultNotificationManager implements NotificationManager {
             }
 
             if (notification.isActive()) {
+                String currentEvent = OpEvent.toString(type, category, subcategory, op, outcome);
+
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any.isEmpty()
@@ -350,31 +346,31 @@ public class DefaultNotificationManager implements NotificationManager {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
-                    Map<String, Object> model = new HashMap<>();
-                    model.put("who", who);
-                    model.put("type", type);
-                    model.put("category", category);
-                    model.put("subcategory", subcategory);
-                    model.put("event", op);
-                    model.put("condition", outcome);
-                    model.put("before", before);
-                    model.put("output", output);
-                    model.put("input", input);
+                    Map<String, Object> jexlVars = new HashMap<>();
+                    jexlVars.put("who", who);
+                    jexlVars.put("type", type);
+                    jexlVars.put("category", category);
+                    jexlVars.put("subcategory", subcategory);
+                    jexlVars.put("event", op);
+                    jexlVars.put("condition", outcome);
+                    jexlVars.put("before", before);
+                    jexlVars.put("output", output);
+                    jexlVars.put("input", input);
 
                     any.ifPresent(a -> {
                         switch (a) {
                             case User user ->
-                                model.put("user", userDataBinder.getUserTO(user, true));
+                                jexlVars.put("user", userDataBinder.getUserTO(user, true));
                             case Group group ->
-                                model.put("group", groupDataBinder.getGroupTO(group, true));
+                                jexlVars.put("group", groupDataBinder.getGroupTO(group, true));
                             case AnyObject anyObject ->
-                                model.put("anyObject", anyObjectDataBinder.getAnyObjectTO(anyObject, true));
+                                jexlVars.put("anyObject", anyObjectDataBinder.getAnyObjectTO(anyObject, true));
                             default -> {
                             }
                         }
                     });
 
-                    NotificationTask notificationTask = getNotificationTask(notification, any.orElse(null), model);
+                    NotificationTask notificationTask = getNotificationTask(notification, any.orElse(null), jexlVars);
                     notificationTask = taskDAO.save(notificationTask);
                     notifications.add(notificationTask);
                 }
@@ -399,11 +395,10 @@ public class DefaultNotificationManager implements NotificationManager {
         if ("username".equals(intAttrName.getField())) {
             email = user.getUsername();
         } else if (intAttrName.getSchemaType() != null) {
-            UMembership membership = intAttrName.getMembershipOfGroup() == null
-                    ? null
-                    : groupDAO.findByName(intAttrName.getMembershipOfGroup()).
-                            flatMap(group -> user.getMembership(group.getKey())).
-                            orElse(null);
+            UMembership membership = Optional.ofNullable(intAttrName.getMembershipOfGroup()).
+                    flatMap(groupDAO::findByName).
+                    flatMap(group -> user.getMembership(group.getKey())).
+                    orElse(null);
 
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {

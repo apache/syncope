@@ -154,7 +154,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 OpEvent.CategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
-                this.getClass().getSimpleName(), // searching for before object is too much expensive ...
+                this.getClass().getSimpleName(),
                 result,
                 task,
                 execution);
@@ -165,10 +165,10 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 OpEvent.CategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,
-                null, // searching for before object is too much expensive ...
+                this.getClass().getSimpleName(),
                 result,
                 task,
-                null);
+                execution);
 
         if (manageOperationId) {
             MDC.remove(Job.OPERATION_ID);

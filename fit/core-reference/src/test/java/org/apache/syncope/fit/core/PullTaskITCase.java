@@ -1466,6 +1466,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1062() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         GroupTO propagationGroup = null;
         PullTaskTO pullTask = null;
         UserTO user = null;

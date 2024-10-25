@@ -71,8 +71,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
     public void updateParameter() {
         TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel",
-                "notification.maxRetries");
+        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "notification.maxRetries");
         assertNotNull(result);
 
         TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
@@ -85,7 +84,8 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         formTester = TESTER.newFormTester(
                 "body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:spinner", "70");
+        formTester.setValue(
+                "content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:numberTextField", "70");
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
