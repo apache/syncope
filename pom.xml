@@ -472,7 +472,7 @@ under the License.
     <antlr4.version>4.13.2</antlr4.version>
 
     <curator.version>5.7.0</curator.version>
-    <zookeeper.version>3.9.1</zookeeper.version>
+    <zookeeper.version>3.9.3</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -509,7 +509,7 @@ under the License.
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.4.1</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.0</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
 
