@@ -465,7 +465,7 @@ under the License.
     <antlr4.version>4.13.2</antlr4.version>
 
     <curator.version>5.7.1</curator.version>
-    <zookeeper.version>3.9.2</zookeeper.version>
+    <zookeeper.version>3.9.3</zookeeper.version>
 
     <zonky.embedded-postgres.version>2.0.7</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.0.0</zonky.embedded-postgres-binaries.version>
@@ -507,7 +507,7 @@ under the License.
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.1.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.4.1</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.0</jdbc.mariadb.version>
     <jdbc.oracle.version>23.5.0.24.07</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -659,6 +659,14 @@ under the License.
         <version>7.1.0</version>
       </dependency>
 
+      <!-- TMP until Spring Boot 3.3.6-->
+      <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-framework-bom</artifactId>
+        <version>6.1.15-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
@@ -1390,6 +1398,14 @@ under the License.
       <releases>
         <enabled>true</enabled>
       </releases>
+    </repository>
+    <repository>
+      <id>repository.spring.snapshot</id>
+      <name>Spring Snapshot Repository</name>
+      <url>https://repo.spring.io/snapshot</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
