@@ -34,8 +34,18 @@ The default configuration in `core.properties` is
 persistence.remoteCommitProvider=sjvm
 ....
 
-which is suited for single JVM installations; with multiple instances, more options like as TCP or JMS are available;
-see the OpenJPA documentation for reference.
+which is suited for single JVM installations; with multiple instances, more options like as TCP, JMS or Kubernetes
+are available; see the OpenJPA documentation for reference.
+
+With multiple instances, ensure to add the following dependency to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-pool2</artifactId>
+</dependency>
+----
 
 [WARNING]
 ====
