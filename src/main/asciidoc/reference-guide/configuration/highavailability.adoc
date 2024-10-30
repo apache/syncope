@@ -37,16 +37,6 @@ persistence.remoteCommitProvider=sjvm
 which is suited for single JVM installations; with multiple instances, more options like as TCP, JMS or Kubernetes
 are available; see the OpenJPA documentation for reference.
 
-With multiple instances, ensure to add the following dependency to `core/pom.xml`:
-
-[source,xml,subs="verbatim,attributes"]
-----
-<dependency>
-  <groupId>org.apache.commons</groupId>
-  <artifactId>commons-pool2</artifactId>
-</dependency>
-----
-
 [WARNING]
 ====
 The https://openjpa.apache.org/builds/3.2.2/apache-openjpa/docs/ref_guide_event.html[OpenJPA documentation^]'s XML
