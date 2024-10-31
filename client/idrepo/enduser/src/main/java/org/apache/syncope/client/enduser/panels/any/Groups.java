@@ -28,6 +28,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.wizards.any.AbstractGroupsModel;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
@@ -174,28 +175,16 @@ public class Groups extends Panel {
 
         private static final long serialVersionUID = -4541954630939063927L;
 
-        @Override
-        public List<GroupTO> getObject() {
-            reload();
-            return groups;
-        }
-
         /**
          * Retrieve the first MAX_GROUP_LIST_CARDINALITY assignable.
          */
         @Override
         protected void reloadObject() {
             groups = groupRestClient.searchAssignableGroups(
-                    realm,
+                    SyncopeConstants.ROOT_REALM,
                     null,
                     1,
                     MAX_GROUP_LIST_CARDINALITY);
-        }
-
-        @Override
-        public List<MembershipTO> getMemberships() {
-            reload();
-            return memberships;
         }
 
         /**
@@ -207,31 +196,13 @@ public class Groups extends Panel {
         }
 
         @Override
-        public List<String> getDynMemberships() {
-            return List.of();
-        }
-
-        /**
-         * Retrieve dyn group memberships.
-         */
-        @Override
         protected void reloadDynMemberships() {
             // DO NOTHING
         }
 
-        /**
-         * Reload data if the realm changes (see SYNCOPE-1135).
-         */
         @Override
-        protected void reload() {
-            boolean reload = Groups.this.anyTO.getRealm() != null
-                    && !Groups.this.anyTO.getRealm().equalsIgnoreCase(realm);
-            realm = Groups.this.anyTO.getRealm();
-
-            if (reload) {
-                reloadObject();
-                reloadMemberships();
-            }
+        public List<String> getDynMemberships() {
+            return List.of();
         }
     }
 }
