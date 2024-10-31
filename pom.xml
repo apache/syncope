@@ -410,7 +410,7 @@ under the License.
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>4.1.0-SNAPSHOT</cxf.version>
-    <bouncycastle.version>1.78.1</bouncycastle.version>
+    <bouncycastle.version>1.79</bouncycastle.version>
     <nimbus-jose-jwt.version>9.42</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.3.5</spring-boot.version>
