@@ -122,8 +122,8 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setAllowMultiplePrincipalAttributeValues(conf.isAllowMultiplePrincipalAttributeValues());
         props.setAdditionalAttributes(conf.getAdditionalAttributes());
         props.setAllowMissingPrincipalAttributeValue(conf.isAllowMissingPrincipalAttributeValue());
-        props.setCollectDnAttribute(props.isCollectDnAttribute());
-
+        props.setCollectDnAttribute(conf.isCollectDnAttribute());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
         props.getPasswordPolicy().setType(AbstractLdapProperties.LdapType.valueOf(conf.getLdapType().name()));
 
         fill(props, conf);
