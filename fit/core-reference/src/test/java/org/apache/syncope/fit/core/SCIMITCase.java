@@ -677,6 +677,19 @@ public class SCIMITCase extends AbstractITCase {
 
         user = response.readEntity(SCIMUser.class);
         assertTrue(user.getEmails().stream().noneMatch(v -> "home".equals(v.getType())));
+
+        // 7. update with path, update password
+        body =
+                "{"
+                        + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                        + "\"Operations\":[{"
+                        + "\"op\":\"replace\","
+                        + "\"path\":\"password\","
+                        + "\"value\":\"Password123!\""
+                        + "}]"
+                        + "}";
+        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
     }
 
     @Test
