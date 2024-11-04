@@ -836,7 +836,8 @@ public class SCIMDataBinder {
 
             case "password" -> {
                 if (op.getOp() != PatchOp.remove && !CollectionUtils.isEmpty(op.getValue())) {
-                    userUR.setPassword(new PasswordPatch.Builder().value(op.getValue().get(0).toString()).build());
+                    userUR.setPassword(new PasswordPatch.Builder().value(op.getValue().get(0).toString()).resources(
+                            resources).build());
                 }
             }
 
