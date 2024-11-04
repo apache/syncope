@@ -1397,8 +1397,22 @@ under the License.
       <id>repository.spring.snapshot</id>
       <name>Spring Snapshot Repository</name>
       <url>https://repo.spring.io/snapshot</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
       <snapshots>
         <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <!-- Excluding useless transitive repositories -->
+    <repository>
+      <id>couchbase</id>
+      <url>https://files.couchbase.com/maven2/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
   </repositories>
@@ -1488,7 +1502,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.11.1</version>
           <configuration>
             <release>${targetJdk}</release>
             <additionalOptions>
@@ -1653,7 +1667,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.5.2</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1663,7 +1677,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.1</version>
+          <version>3.5.2</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
@@ -2015,7 +2029,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.11.1</version>
         <configuration>
           <source>${targetJdk}</source>
           <destDir>apidocs/4.0</destDir>
