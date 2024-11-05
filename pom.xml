@@ -429,7 +429,7 @@ under the License.
 
     <elasticsearch.version>8.15.3</elasticsearch.version>
     <opensearch.version>2.17.1</opensearch.version>
-    <opensearch-java.version>2.16.0</opensearch-java.version>
+    <opensearch-java.version>2.17.0</opensearch-java.version>
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
@@ -497,7 +497,7 @@ under the License.
     <tomcat.version>10.1.31</tomcat.version>
     <wildfly.version>34.0.0.Final</wildfly.version>
     <payara.version>6.2024.10</payara.version>
-    <jakarta.faces.version>4.1.1</jakarta.faces.version>
+    <jakarta.faces.version>4.1.2</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
@@ -2359,7 +2359,7 @@ under the License.
 
       <properties>
         <mockito.version>5.14.2</mockito.version>
-        <byte-buddy.version>1.15.8</byte-buddy.version>
+        <byte-buddy.version>1.15.10</byte-buddy.version>
       </properties>
 
       <dependencyManagement>
