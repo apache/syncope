@@ -198,13 +198,13 @@ public class RealmChoicePanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
                         realmRestClient.search(
-                                new RealmQuery.Builder().base(item.getModelObject()).build()).getResult().stream().
-                                findFirst().ifPresent(t -> chooseRealm(t, target));
+                                new RealmQuery.Builder().base(RealmsUtils.getFullPath(item.getModelObject())).build()).
+                                getResult().stream().findFirst().ifPresent(t -> chooseRealm(t, target));
                     }
                 };
                 bcitem.setBody(Model.of(SyncopeConstants.ROOT_REALM.equals(item.getModelObject())
                         ? SyncopeConstants.ROOT_REALM
-                        : StringUtils.substringAfterLast(item.getModelObject(), "/")));
+                        : StringUtils.substringAfterLast(RealmsUtils.getFullPath(item.getModelObject()), "/")));
                 bcitem.setEnabled(!model.getObject().getFullPath().equals(item.getModelObject()));
                 item.add(bcitem);
             }
