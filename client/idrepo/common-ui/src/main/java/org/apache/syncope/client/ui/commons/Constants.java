@@ -71,6 +71,8 @@ public final class Constants {
 
     public static final String OPERATION_ERROR = "operation_error";
 
+    public static final String OPERATION_NO_OP = "operation_no_op";
+
     public static final String CAPTCHA_ERROR = "captcha_error";
 
     public static final String SEARCH_ERROR = "search_error";

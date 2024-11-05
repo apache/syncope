@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -162,10 +163,31 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
             public void onClick(final AjaxRequestTarget target, final CommandWrapper ignore) {
                 try {
                     MacroTaskTO actual = taskRestClient.readTask(TaskType.MACRO, task);
-                    actual.getCommands().remove(model.getObject().getCommand());
-                    taskRestClient.update(TaskType.MACRO, actual);
 
-                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    // cannot rely on actual.getCommands().remove(model.getObject().getCommand())
+                    // since CommandArgs instances could not be implementing equals() / hashCode()
+                    Integer idx = null;
+                    for (int i = 0; i < actual.getCommands().size() && idx == null; i++) {
+                        CommandTO actualCmd = actual.getCommands().get(i);
+                        try {
+                            if (actualCmd.getKey().equals(model.getObject().getCommand().getKey())
+                                    && MAPPER.writeValueAsString(actualCmd.getArgs()).equals(
+                                            MAPPER.writeValueAsString(model.getObject().getCommand().getArgs()))) {
+
+                                idx = i;
+                            }
+                        } catch (JsonProcessingException e) {
+                            LOG.error("While comparing command arguments", e);
+                        }
+                    }
+                    if (idx == null) {
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_NO_OP));
+                    } else {
+                        actual.getCommands().remove(idx.intValue());
+                        taskRestClient.update(TaskType.MACRO, actual);
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    }
+
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting {}", model.getObject(), e);
@@ -173,7 +195,7 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
                 }
                 ((BaseWebPage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_UPDATE);
+        }, ActionLink.ActionType.DELETE, IdRepoEntitlement.TASK_UPDATE, true);
 
         return panel;
     }
@@ -232,10 +254,7 @@ public class CommandComposeDirectoryPanel extends DirectoryPanel<
         @Override
         public Iterator<CommandWrapper> iterator(final long first, final long count) {
             MacroTaskTO actual = taskRestClient.readTask(TaskType.MACRO, task);
-
-            List<CommandTO> commands = actual.getCommands();
-
-            return commands.subList((int) first, (int) (first + count)).stream().
+            return actual.getCommands().subList((int) first, (int) (first + count)).stream().
                     map(command -> new CommandWrapper(false).setCommand(command)).
                     iterator();
         }
