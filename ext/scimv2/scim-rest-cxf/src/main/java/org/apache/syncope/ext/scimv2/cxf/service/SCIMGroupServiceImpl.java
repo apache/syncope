@@ -188,7 +188,7 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
 
         // update group, don't change members
         ProvisioningResult<GroupTO> result = groupLogic.update(
-                AnyOperations.diff(binder.toGroupTO(group, true), groupLogic.read(id), false), false);
+                AnyOperations.diff(binder.toGroupTO(group, true), groupLogic.read(id), false, true), false);
 
         // assign new members
         Set<String> afterMembers = new HashSet<>();

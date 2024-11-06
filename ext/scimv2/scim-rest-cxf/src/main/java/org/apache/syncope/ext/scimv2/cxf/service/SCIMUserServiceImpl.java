@@ -123,7 +123,7 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
         UserTO before = userLogic.read(id);
 
         ProvisioningResult<UserTO> result = userLogic.update(
-                AnyOperations.diff(binder.toUserTO(user, true), before, false), false);
+                AnyOperations.diff(binder.toUserTO(user, true), before, false, true), false);
 
         if (before.isSuspended() == user.isActive()) {
             StatusR statusR = new StatusR.Builder(
