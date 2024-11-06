@@ -122,8 +122,13 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
 
         UserTO before = userLogic.read(id);
 
-        ProvisioningResult<UserTO> result = userLogic.update(
-                AnyOperations.diff(binder.toUserTO(user, true), before, false), false);
+        UserUR req = AnyOperations.diff(binder.toUserTO(user, true), before, false);
+        req.getResources().clear();
+        req.getAuxClasses().clear();
+        req.getRelationships().clear();
+        req.getRoles().clear();
+        req.getLinkedAccounts().clear();
+        ProvisioningResult<UserTO> result = userLogic.update(req, false);
 
         if (before.isSuspended() == user.isActive()) {
             StatusR statusR = new StatusR.Builder(

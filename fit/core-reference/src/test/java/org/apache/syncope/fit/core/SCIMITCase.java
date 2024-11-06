@@ -45,6 +45,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.StringPatchItem;
+import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
@@ -54,8 +57,10 @@ import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.common.lib.scim.SCIMUserNameConf;
 import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
@@ -704,6 +709,12 @@ public class SCIMITCase extends AbstractITCase {
         user = response.readEntity(SCIMUser.class);
         assertNotNull(user.getId());
 
+        UserTO userTO = USER_SERVICE.read(user.getId());
+        assertNotNull(userTO);
+        USER_SERVICE.update(new UserUR.Builder(userTO.getKey()).resource(
+                new StringPatchItem.Builder().value(RESOURCE_NAME_LDAP).operation(PatchOperation.ADD_REPLACE).build())
+                .build());
+
         user.getName().setFormatted("new" + user.getUserName());
 
         response = webClient().path("Users").path(user.getId()).put(user);
@@ -711,6 +722,10 @@ public class SCIMITCase extends AbstractITCase {
 
         user = response.readEntity(SCIMUser.class);
         assertTrue(user.getName().getFormatted().startsWith("new"));
+
+        userTO = USER_SERVICE.read(user.getId());
+        assertNotNull(userTO);
+        assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
     }
 
     @Test
@@ -860,6 +875,15 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(1, group.getMembers().size());
         assertEquals("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", group.getMembers().get(0).getValue());
 
+        GroupTO groupTO = GROUP_SERVICE.read(group.getId());
+        assertNotNull(groupTO);
+        GROUP_SERVICE.update(new GroupUR.Builder(groupTO.getKey()).resource(
+                new StringPatchItem.Builder().value(RESOURCE_NAME_LDAP).operation(PatchOperation.ADD_REPLACE).build())
+                .build());
+        groupTO = GROUP_SERVICE.read(group.getId());
+        assertNotNull(groupTO);
+        assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
+
         group.setDisplayName("other" + group.getId());
         group.getMembers().add(new Member("c9b2dec2-00a7-4855-97c0-d854842b4b24", null, null));
 
@@ -869,6 +893,10 @@ public class SCIMITCase extends AbstractITCase {
         group = response.readEntity(SCIMGroup.class);
         assertTrue(group.getDisplayName().startsWith("other"));
         assertEquals(2, group.getMembers().size());
+
+        groupTO = GROUP_SERVICE.read(group.getId());
+        assertNotNull(groupTO);
+        assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         group.getMembers().clear();
         group.getMembers().add(new Member("c9b2dec2-00a7-4855-97c0-d854842b4b24", null, null));
