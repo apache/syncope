@@ -77,11 +77,7 @@ public final class AnyOperations {
     }
 
     private static void diff(
-            final AnyTO updated,
-            final AnyTO original,
-            final AnyUR result,
-            final boolean incremental,
-            final boolean preserve) {
+            final AnyTO updated, final AnyTO original, final AnyUR result, final boolean incremental) {
 
         // check same key
         if (updated.getKey() == null && original.getKey() != null
@@ -97,7 +93,7 @@ public final class AnyOperations {
         // 2. auxilairy classes
         result.getAuxClasses().clear();
 
-        if (!incremental && !preserve) {
+        if (!incremental) {
             original.getAuxClasses().stream().filter(auxClass -> !updated.getAuxClasses().contains(auxClass)).
                     forEach(auxClass -> result.getAuxClasses().add(new StringPatchItem.Builder().
                     operation(PatchOperation.DELETE).value(auxClass).build()));
@@ -147,7 +143,7 @@ public final class AnyOperations {
         // 5. resources
         result.getResources().clear();
 
-        if (!incremental && !preserve) {
+        if (!incremental) {
             original.getResources().stream().filter(resource -> !updated.getResources().contains(resource)).
                     forEach(resource -> result.getResources().add(new StringPatchItem.Builder().
                     operation(PatchOperation.DELETE).value(resource).build()));
@@ -171,7 +167,7 @@ public final class AnyOperations {
 
         AnyObjectUR result = new AnyObjectUR();
 
-        diff(updated, original, result, incremental, incremental);
+        diff(updated, original, result, incremental);
 
         // 1. name
         result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
@@ -235,14 +231,12 @@ public final class AnyOperations {
      * @param updated updated UserTO
      * @param original original UserTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @param preserve doesn't remove existing info for auxClasses, resources, roles, relationships and linked accounts
      * @return {@link UserUR} containing differences
      */
-    public static UserUR diff(
-            final UserTO updated, final UserTO original, final boolean incremental, final boolean preserve) {
+    public static UserUR diff(final UserTO updated, final UserTO original, final boolean incremental) {
         UserUR result = new UserUR();
 
-        diff(updated, original, result, incremental, preserve);
+        diff(updated, original, result, incremental);
 
         // 1. password
         if (updated.getPassword() != null
@@ -274,7 +268,7 @@ public final class AnyOperations {
                 updated.isMustChangePassword(), original.isMustChangePassword(), new BooleanReplacePatchItem()));
 
         // 4. roles
-        if (!incremental && !preserve) {
+        if (!incremental) {
             original.getRoles().stream().filter(role -> !updated.getRoles().contains(role)).
                     forEach(toRemove -> result.getRoles().add(new StringPatchItem.Builder().
                     operation(PatchOperation.DELETE).value(toRemove).build()));
@@ -295,7 +289,7 @@ public final class AnyOperations {
                 forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
                 operation(PatchOperation.ADD_REPLACE).build()));
 
-        if (!incremental && !preserve) {
+        if (!incremental) {
             originalRels.keySet().stream().filter(relationship -> !updatedRels.containsKey(relationship)).
                     forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
                     operation(PatchOperation.DELETE).build()));
@@ -333,7 +327,7 @@ public final class AnyOperations {
                             linkedAccountTO(entry.getValue()).build());
                 });
 
-        if (!incremental && !preserve) {
+        if (!incremental) {
             originalAccounts.keySet().stream().filter(account -> !updatedAccounts.containsKey(account)).
                     forEach(key -> {
                         result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
@@ -351,14 +345,12 @@ public final class AnyOperations {
      * @param updated updated GroupTO
      * @param original original GroupTO
      * @param incremental perform incremental diff (without removing existing info)
-     * @param preserve doesn't remove existing info for auxClasses and resources
      * @return {@link GroupUR} containing differences
      */
-    public static GroupUR diff(
-            final GroupTO updated, final GroupTO original, final boolean incremental, final boolean preserve) {
+    public static GroupUR diff(final GroupTO updated, final GroupTO original, final boolean incremental) {
         GroupUR result = new GroupUR();
 
-        diff(updated, original, result, incremental, preserve);
+        diff(updated, original, result, incremental);
 
         // 1. name
         result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
@@ -384,9 +376,9 @@ public final class AnyOperations {
             final TO updated, final TO original, final boolean incremental) {
 
         if (updated instanceof UserTO && original instanceof UserTO) {
-            return (P) diff((UserTO) updated, (UserTO) original, incremental, incremental);
+            return (P) diff((UserTO) updated, (UserTO) original, incremental);
         } else if (updated instanceof GroupTO && original instanceof GroupTO) {
-            return (P) diff((GroupTO) updated, (GroupTO) original, incremental, incremental);
+            return (P) diff((GroupTO) updated, (GroupTO) original, incremental);
         } else if (updated instanceof AnyObjectTO && original instanceof AnyObjectTO) {
             return (P) diff((AnyObjectTO) updated, (AnyObjectTO) original, incremental);
         }

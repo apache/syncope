@@ -31,6 +31,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -187,8 +188,10 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
         Set<String> beforeMembers = members(id);
 
         // update group, don't change members
-        ProvisioningResult<GroupTO> result = groupLogic.update(
-                AnyOperations.diff(binder.toGroupTO(group, true), groupLogic.read(id), false, true), false);
+        GroupUR req = AnyOperations.diff(binder.toGroupTO(group, true), groupLogic.read(id), false);
+        req.getResources().clear();
+        req.getAuxClasses().clear();
+        ProvisioningResult<GroupTO> result = groupLogic.update(req, false);
 
         // assign new members
         Set<String> afterMembers = new HashSet<>();
