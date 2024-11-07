@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -195,8 +196,8 @@ public class TaskTest extends AbstractTest {
         task.add(macroTaskCommand);
 
         FormPropertyDef formPropertyDef = entityFactory.newEntity(FormPropertyDef.class);
-        formPropertyDef.setKey("one");
-        formPropertyDef.setName("One");
+        formPropertyDef.setName("one");
+        formPropertyDef.getLabels().put(Locale.ENGLISH, "One");
         formPropertyDef.setType(FormPropertyType.Enum);
         task.add(formPropertyDef);
 
@@ -222,6 +223,7 @@ public class TaskTest extends AbstractTest {
         assertEquals(1, task.getCommands().size());
         assertEquals(command, task.getCommands().get(0).getCommand());
         assertEquals(1, task.getFormPropertyDefs().size());
+        assertNotNull(task.getFormPropertyDefs().get(0).getKey());
         assertEquals(formPropertyDef, task.getFormPropertyDefs().get(0));
 
         MacroTask actual = (MacroTask) taskDAO.find(TaskType.MACRO, task.getKey());

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import java.util.Locale;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
@@ -40,5 +41,5 @@ public interface TaskDataBinder {
 
     <T extends TaskTO> T getTaskTO(Task<?> task, TaskUtils taskUtil, boolean details);
 
-    SyncopeForm getMacroTaskForm(MacroTask task);
+    SyncopeForm getMacroTaskForm(MacroTask task, Locale locale);
 }

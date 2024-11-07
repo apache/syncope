@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -280,8 +281,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         macroTask.getFormPropertyDefs().clear();
         macroTaskTO.getFormPropertyDefs().forEach(fpdTO -> {
             FormPropertyDef fpd = entityFactory.newEntity(FormPropertyDef.class);
-            fpd.setKey(fpdTO.getKey());
             fpd.setName(fpdTO.getName());
+            fpd.getLabels().putAll(fpdTO.getLabels());
             fpd.setType(fpdTO.getType());
             fpd.setReadable(fpdTO.isReadable());
             fpd.setWritable(fpdTO.isWritable());
@@ -515,6 +516,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     FormPropertyDefTO fpdTO = new FormPropertyDefTO();
                     fpdTO.setKey(fpd.getKey());
                     fpdTO.setName(fpd.getName());
+                    fpdTO.getLabels().putAll(fpd.getLabels());
                     fpdTO.setType(fpd.getType());
                     fpdTO.setReadable(fpd.isReadable());
                     fpdTO.setWritable(fpd.isWritable());
@@ -596,7 +598,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     @Override
-    public SyncopeForm getMacroTaskForm(final MacroTask task) {
+    public SyncopeForm getMacroTaskForm(final MacroTask task, final Locale locale) {
         if (task.getFormPropertyDefs().isEmpty()) {
             throw new NotFoundException("No form properties defined for MacroTask " + task.getKey());
         }
@@ -623,13 +625,13 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
         form.getProperties().addAll(task.getFormPropertyDefs().stream().map(fpd -> {
             FormProperty prop = new FormProperty();
-            prop.setId(fpd.getKey());
-            prop.setName(fpd.getName());
+            prop.setId(fpd.getName());
+            prop.setName(fpd.getLabels().getOrDefault(locale, fpd.getName()));
             prop.setReadable(fpd.isReadable());
             prop.setRequired(fpd.isRequired());
             prop.setWritable(fpd.isWritable());
             prop.setType(fpd.getType());
-            actions.flatMap(a -> a.getDefaultValue(fpd.getKey())).ifPresent(v -> prop.setValue(v));
+            actions.flatMap(a -> a.getDefaultValue(fpd.getName())).ifPresent(v -> prop.setValue(v));
             switch (prop.getType()) {
                 case String:
                     prop.setStringRegEx(fpd.getStringRegEx());
@@ -640,13 +642,12 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     break;
 
                 case Enum:
-                    fpd.getEnumValues().
-                            forEach((key, value) -> prop.getEnumValues().add(new FormPropertyValue(key, value)));
+                    fpd.getEnumValues().forEach((k, v) -> prop.getEnumValues().add(new FormPropertyValue(k, v)));
                     break;
 
                 case Dropdown:
-                    actions.ifPresent(a -> a.getDropdownValues(fpd.getKey()).
-                            forEach((key, value) -> prop.getDropdownValues().add(new FormPropertyValue(key, value))));
+                    actions.ifPresent(a -> a.getDropdownValues(fpd.getName()).
+                            forEach((k, v) -> prop.getDropdownValues().add(new FormPropertyValue(k, v))));
                     prop.setDropdownSingleSelection(fpd.isDropdownSingleSelection());
                     prop.setDropdownFreeForm(fpd.isDropdownFreeForm());
                     break;

@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -32,6 +35,8 @@ public class FormPropertyDefTO implements NamedEntityTO {
     private String key;
 
     private String name;
+
+    private final Map<Locale, String> labels = new HashMap<>();
 
     private FormPropertyType type;
 
@@ -69,6 +74,15 @@ public class FormPropertyDefTO implements NamedEntityTO {
     @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @JsonIgnore
+    public String getLabel(final Locale locale) {
+        return labels.getOrDefault(locale, key);
+    }
+
+    public Map<Locale, String> getLabels() {
+        return labels;
     }
 
     public FormPropertyType getType() {
@@ -144,6 +158,7 @@ public class FormPropertyDefTO implements NamedEntityTO {
         return new HashCodeBuilder().
                 append(key).
                 append(name).
+                append(labels).
                 append(type).
                 append(readable).
                 append(writable).
@@ -171,6 +186,7 @@ public class FormPropertyDefTO implements NamedEntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(name, other.name).
+                append(labels, other.labels).
                 append(type, other.type).
                 append(readable, other.readable).
                 append(writable, other.writable).

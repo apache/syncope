@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.lib.batch.BatchRequest;
 import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.common.lib.form.SyncopeForm;
@@ -194,7 +195,8 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public SyncopeForm getMacroTaskForm(final String taskKey) {
-        return getService(TaskService.class).getMacroTaskForm(taskKey);
+        return getService(TaskService.class).
+                getMacroTaskForm(taskKey, SyncopeConsoleSession.get().getLocale().toLanguageTag());
     }
 
     public void delete(final TaskType type, final String taskKey) {

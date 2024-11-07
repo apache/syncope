@@ -169,12 +169,13 @@ public interface TaskService extends ExecutableService {
      * Fetches the form to fill and submit for execution, for the given macro task (if defined).
      *
      * @param key macro task key
+     * @param locale form locale
      * @return the form to fill and submit for execution, for the given macro task (if defined)
      */
     @GET
     @Path("MACRO/{key}/form")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    SyncopeForm getMacroTaskForm(@NotNull @PathParam("key") String key);
+    SyncopeForm getMacroTaskForm(@NotNull @PathParam("key") String key, @NotNull @QueryParam("locale") String locale);
 
     /**
      * Executes the macro task matching the given specs, with the provided form as input.

@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -89,19 +90,18 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
             protected void populateItem(final ListItem<FormPropertyDefTO> item) {
                 FormPropertyDefTO fpd = item.getModelObject();
 
-                AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                        "key",
-                        "key",
-                        new PropertyModel<>(fpd, "key"),
-                        true);
-                item.add(key.setRequired(true).hideLabel());
-
                 AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                         "name",
                         "name",
                         new PropertyModel<>(fpd, "name"),
                         true);
                 item.add(name.setRequired(true).hideLabel());
+
+                AjaxGridFieldPanel<String, Locale, String> labels = new AjaxGridFieldPanel<>(
+                        "labels",
+                        "labels",
+                        new PropertyModel<>(fpd, "labels"));
+                item.add(labels.hideLabel());
 
                 AjaxCheckBoxPanel readable = new AjaxCheckBoxPanel(
                         "readable",

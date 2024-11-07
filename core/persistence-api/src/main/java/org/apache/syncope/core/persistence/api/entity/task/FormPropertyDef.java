@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.entity.task;
 
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.form.FormPropertyType;
-import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface FormPropertyDef extends ProvidedKeyEntity {
+public interface FormPropertyDef extends Entity {
 
     MacroTask getMacroTask();
 
@@ -32,6 +34,10 @@ public interface FormPropertyDef extends ProvidedKeyEntity {
     String getName();
 
     void setName(String name);
+
+    Optional<String> getLabel(Locale locale);
+
+    Map<Locale, String> getLabels();
 
     FormPropertyType getType();
 
