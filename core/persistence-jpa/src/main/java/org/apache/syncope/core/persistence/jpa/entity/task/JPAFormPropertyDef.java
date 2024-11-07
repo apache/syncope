@@ -24,8 +24,16 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -33,19 +41,24 @@ import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.common.validation.FormPropertyDefCheck;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAFormPropertyDef.TABLE)
 @FormPropertyDefCheck
-public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements FormPropertyDef {
+public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements FormPropertyDef {
 
     private static final long serialVersionUID = -5839990371546587373L;
 
     public static final String TABLE = "FormPropertyDef";
 
-    protected static final TypeReference<Map<String, String>> TYPEREF = new TypeReference<Map<String, String>>() {
+    protected static final TypeReference<Map<String, String>> ENUMVALUES_TYPEREF =
+            new TypeReference<Map<String, String>>() {
+    };
+
+    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
+            new TypeReference<HashMap<Locale, String>>() {
     };
 
     private int idx;
@@ -55,6 +68,12 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     @NotNull
     private String name;
+
+    @Lob
+    private String labels;
+
+    @Transient
+    private Map<Locale, String> labelMap = new HashMap<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -105,6 +124,16 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public Optional<String> getLabel(final Locale locale) {
+        return Optional.ofNullable(labelMap.get(locale));
+    }
+
+    @Override
+    public Map<Locale, String> getLabels() {
+        return labelMap;
     }
 
     @Override
@@ -169,7 +198,7 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElse(Map.of());
+        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).orElse(Map.of());
     }
 
     @Override
@@ -195,5 +224,31 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     @Override
     public void setDropdownFreeForm(final boolean dropdownFreeForm) {
         this.dropdownFreeForm = dropdownFreeForm;
+    }
+
+    protected void json2map(final boolean clearFirst) {
+        if (clearFirst) {
+            getLabels().clear();
+        }
+        if (labels != null) {
+            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2map(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2map(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void map2json() {
+        labels = POJOHelper.serialize(getLabels());
     }
 }

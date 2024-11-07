@@ -92,8 +92,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         Set<String> missingFormProperties = task.getFormPropertyDefs().stream().
                 filter(FormPropertyDef::isRequired).
                 map(fpd -> Pair.of(
-                fpd.getKey(),
-                macroTaskForm.getProperty(fpd.getKey()).map(p -> p.getValue() != null))).
+                fpd.getName(),
+                macroTaskForm.getProperty(fpd.getName()).map(p -> p.getValue() != null))).
                 filter(pair -> pair.getRight().isEmpty()).
                 map(Pair::getLeft).
                 collect(Collectors.toSet());
@@ -104,7 +104,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         // build the JEXL context where variables are mapped to property values, built according to the defined type
         Map<String, Object> vars = new HashMap<>();
         for (FormPropertyDef fpd : task.getFormPropertyDefs()) {
-            String value = macroTaskForm.getProperty(fpd.getKey()).map(FormProperty::getValue).orElse(null);
+            String value = macroTaskForm.getProperty(fpd.getName()).map(FormProperty::getValue).orElse(null);
             if (value == null) {
                 continue;
             }
@@ -115,37 +115,37 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                             map(pattern -> !pattern.matcher(value).matches()).
                             orElse(false)) {
 
-                        throw new JobExecutionException("RegEx not matching for " + fpd.getKey() + ": " + value);
+                        throw new JobExecutionException("RegEx not matching for " + fpd.getName() + ": " + value);
                     }
 
-                    vars.put(fpd.getKey(), value);
+                    vars.put(fpd.getName(), value);
                 }
 
                 case Password ->
-                    vars.put(fpd.getKey(), value);
+                    vars.put(fpd.getName(), value);
 
                 case Boolean ->
-                    vars.put(fpd.getKey(), BooleanUtils.toBoolean(value));
+                    vars.put(fpd.getName(), BooleanUtils.toBoolean(value));
 
                 case Date -> {
                     try {
-                        vars.put(fpd.getKey(), StringUtils.isBlank(fpd.getDatePattern())
+                        vars.put(fpd.getName(), StringUtils.isBlank(fpd.getDatePattern())
                                 ? FormatUtils.parseDate(value)
                                 : FormatUtils.parseDate(value, fpd.getDatePattern()));
                     } catch (DateTimeParseException e) {
-                        throw new JobExecutionException("Unparseable date " + fpd.getKey() + ": " + value, e);
+                        throw new JobExecutionException("Unparseable date " + fpd.getName() + ": " + value, e);
                     }
                 }
 
                 case Long ->
-                    vars.put(fpd.getKey(), NumberUtils.toLong(value));
+                    vars.put(fpd.getName(), NumberUtils.toLong(value));
 
                 case Enum -> {
                     if (!fpd.getEnumValues().containsKey(value)) {
-                        throw new JobExecutionException("Not allowed for " + fpd.getKey() + ": " + value);
+                        throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + value);
                     }
 
-                    vars.put(fpd.getKey(), value);
+                    vars.put(fpd.getName(), value);
                 }
 
                 case Dropdown -> {
@@ -154,14 +154,14 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 ? List.of(value)
                                 : List.of(value.split(";"));
 
-                        if (!actions.map(a -> a.getDropdownValues(fpd.getKey()).keySet()).
+                        if (!actions.map(a -> a.getDropdownValues(fpd.getName()).keySet()).
                                 orElse(Set.of()).containsAll(values)) {
 
-                            throw new JobExecutionException("Not allowed for " + fpd.getKey() + ": " + values);
+                            throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + values);
                         }
                     }
 
-                    vars.put(fpd.getKey(), value);
+                    vars.put(fpd.getName(), value);
                 }
 
                 default -> {
@@ -309,7 +309,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                     throw new JobExecutionException(
                             "While running " + command.getKey(),
-                            new IllegalArgumentException(args.getClass().getName()));
+                            new IllegalArgumentException(violations.stream().
+                                    map(v -> v.getPropertyPath() + ": " + v.getMessage()).
+                                    collect(Collectors.joining(","))));
                 }
             }
 

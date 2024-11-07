@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTaskCommand;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
@@ -202,8 +203,9 @@ public class JPATaskDAO implements TaskDAO {
 
     @Override
     public List<MacroTask> findByCommand(final Implementation command) {
-        TypedQuery<MacroTask> query = entityManager.createQuery("SELECT e FROM " + JPAMacroTask.class.getSimpleName()
-                + " e WHERE :command MEMBER OF e.commands", MacroTask.class);
+        TypedQuery<MacroTask> query = entityManager.createQuery(
+                "SELECT e.macroTask FROM " + JPAMacroTaskCommand.class.getSimpleName() + " e "
+                + "WHERE e.command=:command", MacroTask.class);
         query.setParameter("command", command);
 
         return query.getResultList();

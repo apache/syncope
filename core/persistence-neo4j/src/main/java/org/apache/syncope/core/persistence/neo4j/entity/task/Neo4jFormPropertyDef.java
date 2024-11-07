@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.neo4j.entity.task;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -27,20 +29,27 @@ import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.common.validation.FormPropertyDefCheck;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jFormPropertyDef.NODE)
 @FormPropertyDefCheck
-public class Neo4jFormPropertyDef extends AbstractProvidedKeyNode implements FormPropertyDef {
+public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements FormPropertyDef {
 
     private static final long serialVersionUID = -5839990371546587373L;
 
     public static final String NODE = "FormPropertyDef";
 
-    protected static final TypeReference<Map<String, String>> TYPEREF = new TypeReference<Map<String, String>>() {
+    protected static final TypeReference<Map<String, String>> ENUMVALUES_TYPEREF =
+            new TypeReference<Map<String, String>>() {
+    };
+
+    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
+            new TypeReference<HashMap<Locale, String>>() {
     };
 
     @NotNull
@@ -49,6 +58,11 @@ public class Neo4jFormPropertyDef extends AbstractProvidedKeyNode implements For
 
     @NotNull
     private String name;
+
+    private String labels;
+
+    @Transient
+    private Map<Locale, String> labelMap = new HashMap<>();
 
     @NotNull
     private FormPropertyType type;
@@ -93,6 +107,16 @@ public class Neo4jFormPropertyDef extends AbstractProvidedKeyNode implements For
     @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public Optional<String> getLabel(final Locale locale) {
+        return Optional.ofNullable(labelMap.get(locale));
+    }
+
+    @Override
+    public Map<Locale, String> getLabels() {
+        return labelMap;
     }
 
     @Override
@@ -157,7 +181,7 @@ public class Neo4jFormPropertyDef extends AbstractProvidedKeyNode implements For
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElse(Map.of());
+        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).orElse(Map.of());
     }
 
     @Override
@@ -183,5 +207,27 @@ public class Neo4jFormPropertyDef extends AbstractProvidedKeyNode implements For
     @Override
     public void setDropdownFreeForm(final boolean dropdownFreeForm) {
         this.dropdownFreeForm = dropdownFreeForm;
+    }
+
+    protected void json2map(final boolean clearFirst) {
+        if (clearFirst) {
+            getLabels().clear();
+        }
+        if (labels != null) {
+            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2map(false);
+    }
+
+    public void postSave() {
+        json2map(true);
+    }
+
+    public void map2json() {
+        labels = POJOHelper.serialize(getLabels());
     }
 }

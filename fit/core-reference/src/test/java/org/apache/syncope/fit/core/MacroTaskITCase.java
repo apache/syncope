@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -130,16 +131,16 @@ public class MacroTaskITCase extends AbstractITCase {
                                 new CommandTO.Builder(TestCommand.class.getSimpleName()).args(TCA).build());
 
                         FormPropertyDefTO realm = new FormPropertyDefTO();
-                        realm.setKey("realm");
-                        realm.setName("Realm");
+                        realm.setName("realm");
+                        realm.getLabels().put(Locale.ENGLISH, "Realm");
                         realm.setWritable(true);
                         realm.setRequired(true);
                         realm.setType(FormPropertyType.String);
                         task.getFormPropertyDefs().add(realm);
 
                         FormPropertyDefTO parent = new FormPropertyDefTO();
-                        parent.setKey("parent");
-                        parent.setName("Parent Realm");
+                        parent.setName("parent");
+                        parent.getLabels().put(Locale.ENGLISH, "Parent Realm");
                         parent.setWritable(true);
                         parent.setRequired(true);
                         parent.setType(FormPropertyType.Dropdown);
@@ -166,7 +167,7 @@ public class MacroTaskITCase extends AbstractITCase {
 
     @Test
     public void execute() {
-        SyncopeForm form = TASK_SERVICE.getMacroTaskForm(MACRO_TASK_KEY);
+        SyncopeForm form = TASK_SERVICE.getMacroTaskForm(MACRO_TASK_KEY, Locale.ENGLISH.toLanguageTag());
         form.getProperty("realm").orElseThrow().setValue("macro");
         FormProperty parent = form.getProperty("parent").orElseThrow();
         assertTrue(parent.getDropdownValues().stream().anyMatch(v -> "/odd".equals(v.getKey())));

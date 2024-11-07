@@ -179,8 +179,7 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
                             LOG.error("Invalid Locale: {}", validatable.getValue(), e);
                             validatable.error(new ValidationError("Invalid Locale: " + validatable.getValue()));
 
-                            RequestCycle.get().find(AjaxRequestTarget.class).
-                                    ifPresent(target -> target.add(Labels.this));
+                            RequestCycle.get().find(AjaxRequestTarget.class).ifPresent(t -> t.add(Labels.this));
                         }
                     });
                     item.add(locale);

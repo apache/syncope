@@ -23,11 +23,15 @@ import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Locale;
+import org.apache.commons.lang3.LocaleUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -112,8 +116,19 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     }
 
     @Override
-    public SyncopeForm getMacroTaskForm(final String key) {
-        return logic.getMacroTaskForm(key);
+    public SyncopeForm getMacroTaskForm(final String key, final String locale) {
+        Locale localeObj = null;
+        try {
+            localeObj = LocaleUtils.toLocale(locale);
+        } catch (Exception e) {
+            LOG.error("While attempting to convert {} to Locale", locale, e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+            sce.getElements().add("Invalid locale '" + locale + "'");
+            throw sce;
+        }
+
+        return logic.getMacroTaskForm(key, localeObj);
     }
 
     @Override
