@@ -49,11 +49,14 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -76,11 +79,33 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @Configuration(proxyBeanMethods = false)
 public class SecurityConfig {
+
+    /**
+     * Workaround for https://github.com/spring-projects/spring-framework/issues/33789
+     *
+     * @return web filter with writable HTTP headers
+     */
+    @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public WebFilter writeableHeaders() {
+        return (exchange, chain) -> {
+            HttpHeaders writeableHeaders = HttpHeaders.writableHttpHeaders(exchange.getRequest().getHeaders());
+            ServerHttpRequestDecorator writeableRequest = new ServerHttpRequestDecorator(exchange.getRequest()) {
+
+                @Override
+                public HttpHeaders getHeaders() {
+                    return writeableHeaders;
+                }
+            };
+            return chain.filter(exchange.mutate().request(writeableRequest).build());
+        };
+    }
 
     @Bean
     @Order(0)
