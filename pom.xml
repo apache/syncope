@@ -441,7 +441,7 @@ under the License.
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.25</swagger-core.version>
-    <swagger-ui.version>5.18.1</swagger-ui.version>
+    <swagger-ui.version>5.18.2</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -494,7 +494,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.31</tomcat.version>
+    <tomcat.version>10.1.33</tomcat.version>
     <wildfly.version>34.0.0.Final</wildfly.version>
     <payara.version>6.2024.10</payara.version>
     <jakarta.faces.version>4.1.2</jakarta.faces.version>
