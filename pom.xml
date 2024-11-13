@@ -812,6 +812,11 @@ under the License.
           </exclusion>
         </exclusions>
       </dependency>
+      <dependency>
+        <groupId>org.quartz-scheduler</groupId>
+        <artifactId>quartz</artifactId>
+        <version>2.5.0</version>
+      </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
