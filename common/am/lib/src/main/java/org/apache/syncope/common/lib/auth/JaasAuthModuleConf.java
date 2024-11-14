@@ -44,6 +44,17 @@ public class JaasAuthModuleConf implements AuthModuleConf {
 
     private String loginConfigurationFile;
 
+    /**
+     * A number of authentication handlers are allowed to determine whether they can operate on the provided credential
+     * and as such lend themselves to be tried and tested during the authentication handler selection phase.
+     * The credential criteria may be one of the following options:<ul>
+     * <li>A regular expression pattern that is tested against the credential identifier.</li>
+     * <li>A fully qualified class name of your own design that implements {@code Predicate}.</li>
+     * <li>Path to an external Groovy script that implements the same interface.</li>
+     * </ul>
+     */
+    private String credentialCriteria;
+
     public String getRealm() {
         return realm;
     }
@@ -82,6 +93,14 @@ public class JaasAuthModuleConf implements AuthModuleConf {
 
     public void setLoginConfigurationFile(final String loginConfigurationFile) {
         this.loginConfigurationFile = loginConfigurationFile;
+    }
+
+    public String getCredentialCriteria() {
+        return credentialCriteria;
+    }
+
+    public void setCredentialCriteria(final String credentialCriteria) {
+        this.credentialCriteria = credentialCriteria;
     }
 
     @Override
