@@ -18,26 +18,29 @@
  */
 package org.apache.syncope.common.lib.attr;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Map;
-import org.apache.syncope.common.lib.BaseBean;
+import org.apache.syncope.common.lib.AbstractAzureActiveDirectoryConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
-public interface AttrRepoConf extends BaseBean {
+public class AzureActiveDirectoryAttrRepoConf extends AbstractAzureActiveDirectoryConf implements AttrRepoConf {
 
-    interface Mapper {
+    private static final long serialVersionUID = -2365294132437794196L;
 
-        Map<String, Object> map(AttrRepoTO attrRepo, StubAttrRepoConf conf);
+    /**
+     * Whether attribute repository should consider the underlying attribute names in a case-insensitive manner.
+     */
+    private boolean caseInsensitive;
 
-        Map<String, Object> map(AttrRepoTO attrRepo, LDAPAttrRepoConf conf);
-
-        Map<String, Object> map(AttrRepoTO attrRepo, JDBCAttrRepoConf conf);
-
-        Map<String, Object> map(AttrRepoTO attrRepo, SyncopeAttrRepoConf conf);
-
-        Map<String, Object> map(AttrRepoTO attrRepo, AzureActiveDirectoryAttrRepoConf conf);
+    public boolean isCaseInsensitive() {
+        return caseInsensitive;
     }
 
-    Map<String, Object> map(AttrRepoTO attrRepo, Mapper mapper);
+    public void setCaseInsensitive(final boolean caseInsensitive) {
+        this.caseInsensitive = caseInsensitive;
+    }
+
+    @Override
+    public Map<String, Object> map(final AttrRepoTO attrRepo, final Mapper mapper) {
+        return mapper.map(attrRepo, this);
+    }
 }

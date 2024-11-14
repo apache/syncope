@@ -52,6 +52,8 @@ public interface AuthModuleConf extends BaseBean {
 
         Map<String, Object> map(AuthModuleTO authModule, SyncopeAuthModuleConf conf);
 
+        Map<String, Object> map(AuthModuleTO authModule, AzureActiveDirectoryAuthModuleConf conf);
+
         Map<String, Object> map(AuthModuleTO authModule, X509AuthModuleConf conf);
 
         Map<String, Object> map(AuthModuleTO authModule, GoogleMfaAuthModuleConf conf);
