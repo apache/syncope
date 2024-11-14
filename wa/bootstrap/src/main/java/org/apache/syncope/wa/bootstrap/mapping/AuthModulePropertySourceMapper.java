@@ -93,6 +93,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
         props.setOrder(authModuleTO.getOrder());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
         String users = conf.getUsers().entrySet().stream().
                 map(entry -> entry.getKey() + "::" + entry.getValue()).
                 collect(Collectors.joining(","));
@@ -143,6 +144,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setFieldPassword(conf.getFieldPassword());
         props.setPrincipalAttributeList(authModuleTO.getItems().stream().
                 map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).toList());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
         fill(props, conf);
 
         return prefix("cas.authn.jdbc.query[].", WAConfUtils.asMap(props));
@@ -159,6 +161,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setKerberosRealmSystemProperty(conf.getKerberosRealmSystemProperty());
         props.setLoginConfigType(conf.getLoginConfigurationFile());
         props.setRealm(conf.getRealm());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
 
         return prefix("cas.authn.jaas[].", WAConfUtils.asMap(props));
     }
@@ -386,6 +389,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
         props.setAttributeMappings(authModuleTO.getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
+        props.setCredentialCriteria(conf.getCredentialCriteria());
 
         return prefix("cas.authn.syncope.", WAConfUtils.asMap(props));
     }
