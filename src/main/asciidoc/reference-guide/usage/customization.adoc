@@ -275,7 +275,7 @@ components:
 ===== Customize OpenJPA settings
 
 Apache OpenJPA is at the core of the <<persistence,persistence>> layer; its configuration can be tweaked under several
-aspects - including https://openjpa.apache.org/builds/3.2.2/apache-openjpa/docs/ref_guide_caching.html[caching^] for
+aspects - including https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_caching.html[caching^] for
 example, to best suit the various environments.
 
 The main configuration classes are:
