@@ -28,6 +28,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AbstractOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AppleOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.AzureActiveDirectoryAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AzureOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
@@ -51,6 +52,7 @@ import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.CasCoreConfigurationUtils;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
+import org.apereo.cas.configuration.model.support.azuread.AzureActiveDirectoryAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
@@ -400,6 +402,20 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setCredentialCriteria(conf.getCredentialCriteria());
 
         return prefix("cas.authn.syncope.", CasCoreConfigurationUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final AzureActiveDirectoryAuthModuleConf conf) {
+        AzureActiveDirectoryAuthenticationProperties props = new AzureActiveDirectoryAuthenticationProperties();
+        props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setClientId(conf.getClientId());
+        props.setLoginUrl(conf.getLoginUrl());
+        props.setResource(conf.getResource());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
+
+        return prefix("cas.authn.azure-active-directory.", CasCoreConfigurationUtils.asMap(props));
     }
 
     @Override
