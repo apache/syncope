@@ -396,8 +396,8 @@ under the License.
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.6.0.0-RC1</connid.version>
-    <connid.soap.version>1.5.0-SNAPSHOT</connid.soap.version>
-    <connid.rest.version>1.1.0-SNAPSHOT</connid.rest.version>
+    <connid.soap.version>1.5.0-RC1</connid.soap.version>
+    <connid.rest.version>1.1.0-RC1</connid.rest.version>
     <connid.db.version>2.3.0</connid.db.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
     <connid.ldap.version>1.5.9</connid.ldap.version>
@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>4.1.0-SNAPSHOT</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.46</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.47</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.3.5</spring-boot.version>
     <spring-cloud-gateway.version>4.1.5</spring-cloud-gateway.version>
@@ -657,7 +657,7 @@ under the License.
       <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-framework-bom</artifactId>
-        <version>6.1.15-SNAPSHOT</version>
+        <version>6.1.15</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -1392,17 +1392,6 @@ under the License.
       <releases>
         <enabled>true</enabled>
       </releases>
-    </repository>
-    <repository>
-      <id>repository.spring.snapshot</id>
-      <name>Spring Snapshot Repository</name>
-      <url>https://repo.spring.io/snapshot</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
     </repository>
     <!-- Excluding useless transitive repositories -->
     <repository>
@@ -2170,7 +2159,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
             <inherited>false</inherited>
             <dependencies>
               <dependency>
