@@ -65,6 +65,8 @@ public interface AuthModuleConf extends BaseBean {
         Map<String, Object> map(AuthModuleTO authModule, SimpleMfaAuthModuleConf conf);
 
         Map<String, Object> map(AuthModuleTO authModule, SpnegoAuthModuleConf conf);
+
+        Map<String, Object> map(AuthModuleTO authModule, OktaAuthModuleConf conf);
     }
 
     Map<String, Object> map(AuthModuleTO authModule, Mapper mapper);
