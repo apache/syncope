@@ -416,7 +416,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     }
 
     @Override
-    public Map<String, Object> map(AuthModuleTO authModuleTO, OktaAuthModuleConf conf) {
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final OktaAuthModuleConf conf) {
         OktaAuthenticationProperties props = new OktaAuthenticationProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
