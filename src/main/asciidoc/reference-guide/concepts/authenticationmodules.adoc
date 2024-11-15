@@ -30,6 +30,7 @@ Several authentication modules are provided:
     ** https://apereo.github.io/cas/7.1.x/authentication/SPNEGO-Authentication.html[SPNEGO^]
     ** https://apereo.github.io/cas/7.1.x/authentication/Syncope-Authentication.html[Syncope^]
     ** https://apereo.github.io/cas/7.1.x/authentication/Azure-ActiveDirectory-Authentication.html[Azure Active Directory^]
+    ** https://apereo.github.io/cas/7.1.x/authentication/Okta-Authentication.html[Okta^]
     ** https://apereo.github.io/cas/7.1.x/authentication/X509-Authentication.html[X509^]
     ** https://apereo.github.io/cas/7.1.x/integration/Delegate-Authentication-Generic-OpenID-Connect.html[OpenID Connect^]
     ** https://apereo.github.io/cas/7.1.x/integration/Delegate-Authentication-OAuth20.html[OAuth2^]

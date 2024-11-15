@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.auth.KeycloakOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
+import org.apache.syncope.common.lib.auth.OktaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SpnegoAuthModuleConf;
@@ -61,6 +62,7 @@ import org.apereo.cas.configuration.model.support.mfa.duo.DuoSecurityMultifactor
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.okta.OktaAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.BasePac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAppleOidcClientProperties;
@@ -411,6 +413,18 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setCredentialCriteria(conf.getCredentialCriteria());
 
         return prefix("cas.authn.azure-active-directory.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(AuthModuleTO authModuleTO, OktaAuthModuleConf conf) {
+        OktaAuthenticationProperties props = new OktaAuthenticationProperties();
+        props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setOrganizationUrl(conf.getOrganizationUrl());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
+
+        return prefix("cas.authn.okta.", WAConfUtils.asMap(props));
     }
 
     @Override

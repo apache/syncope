@@ -28,6 +28,7 @@ Some attribute repositories are provided:
 * https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-Stub.html[Stub^]
 * https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-Syncope.html[Syncope^]
 * https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-AzureAD.html[Azure Active Directory^]
+* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-Okta.html[Okta^]
 
 [TIP]
 ====
