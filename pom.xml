@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>3.6.4</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.46</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.47</nimbus-jose-jwt.version>
 
     <spring-framework.version>5.3.39</spring-framework.version>
     <spring-security.version>5.8.15</spring-security.version>
@@ -2227,7 +2227,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>3.1.0</version>
+            <version>3.1.1</version>
             <inherited>false</inherited>
             <dependencies>
               <dependency>
