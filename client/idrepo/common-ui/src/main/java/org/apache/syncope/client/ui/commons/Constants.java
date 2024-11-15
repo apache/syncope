@@ -55,6 +55,8 @@ public final class Constants {
 
     public static final String ON_CLICK = "click";
 
+    public static final String ON_DOUBLE_CLICK = "dblclick";
+
     public static final String ON_CHANGE = "change";
 
     public static final String ON_KEYUP = "keyup";
