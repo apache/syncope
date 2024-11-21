@@ -509,7 +509,7 @@ under the License.
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.0.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.5.0</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.1</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.6.0.24.10</jdbc.oracle.version>
 
