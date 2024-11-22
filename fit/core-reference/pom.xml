@@ -1275,6 +1275,10 @@ under the License.
               <groupId>org.apache.tomcat.embed</groupId>
               <artifactId>tomcat-embed-el</artifactId>
             </exclusion>
+            <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
           </exclusions>
         </dependency>
 
@@ -1307,6 +1311,19 @@ under the License.
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
         </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.client.idrepo</groupId>
+          <artifactId>syncope-client-idrepo-enduser</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.springframework.boot</groupId>
+              <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
+          </exclusions>
+          <scope>test</scope>
+        </dependency>        
       </dependencies>
 
       <build>
