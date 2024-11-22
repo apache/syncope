@@ -38,15 +38,13 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setConnector(ConnInstance connector);
 
-    Set<ConnConfProperty> getConfOverride();
+    Optional<List<ConnConfProperty>> getConfOverride();
 
-    void setConfOverride(Set<ConnConfProperty> confOverride);
+    void setConfOverride(Optional<List<ConnConfProperty>> confOverride);
 
-    boolean isOverrideCapabilities();
+    Optional<Set<ConnectorCapability>> getCapabilitiesOverride();
 
-    void setOverrideCapabilities(boolean overrideCapabilities);
-
-    Set<ConnectorCapability> getCapabilitiesOverride();
+    void setCapabilitiesOverride(Optional<Set<ConnectorCapability>> capabilitiesOverride);
 
     AccountPolicy getAccountPolicy();
 

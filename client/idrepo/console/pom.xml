@@ -340,11 +340,6 @@ under the License.
       
       <dependencies>
         <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-
-        <dependency>
           <groupId>org.apache.syncope.common.keymaster.self</groupId>
           <artifactId>syncope-common-keymaster-client-self</artifactId>
           <version>${project.version}</version>

@@ -124,7 +124,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     private User user;
 
-    private Set<ConnConfProperty> connConfProperties;
+    private List<ConnConfProperty> connConfProperties;
 
     @BeforeEach
     public void initTest() {
@@ -148,7 +148,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         connConfPropSchema.setName("testSchemaName");
         ConnConfProperty connConfProperty = new ConnConfProperty();
         connConfProperty.setSchema(connConfPropSchema);
-        connConfProperties = Set.of(connConfProperty);
+        connConfProperties = List.of(connConfProperty);
 
         lenient().when(profile.getTask()).thenAnswer(ic -> pullTask);
         lenient().when(pullTask.getResource()).thenReturn(resource);

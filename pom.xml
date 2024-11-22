@@ -395,7 +395,7 @@ under the License.
     <project.build.outputTimestamp>2022-12-26T08:35:28Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.0-RC1</connid.version>
+    <connid.version>1.6.0.0-SNAPSHOT</connid.version>
     <connid.soap.version>1.5.0-RC1</connid.soap.version>
     <connid.rest.version>1.1.0-RC1</connid.rest.version>
     <connid.db.version>2.3.0</connid.db.version>
@@ -408,6 +408,7 @@ under the License.
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
     <connid.okta.version>3.0.5</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
+    <connid.kafka.version>1.0.0-SNAPSHOT</connid.kafka.version>
 
     <cxf.version>4.1.0-SNAPSHOT</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
@@ -705,10 +706,6 @@ under the License.
             <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-          </exclusion>
-          <exclusion>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-parameter-names</artifactId>
           </exclusion>
@@ -734,10 +731,6 @@ under the License.
           <exclusion>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -819,10 +812,6 @@ under the License.
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
 
@@ -834,10 +823,6 @@ under the License.
           <exclusion>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-logging</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
           </exclusion>
           <exclusion>
             <groupId>cglib</groupId>
@@ -1576,6 +1561,12 @@ under the License.
                 <groupId>net.tirasa.connid.bundles</groupId>
                 <artifactId>net.tirasa.connid.bundles.cmd</artifactId>
                 <version>${connid.cmd.version}</version>
+                <classifier>bundle</classifier>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles</groupId>
+                <artifactId>net.tirasa.connid.bundles.kafka</artifactId>
+                <version>${connid.kafka.version}</version>
                 <classifier>bundle</classifier>
               </artifactItem>
             </artifactItems>

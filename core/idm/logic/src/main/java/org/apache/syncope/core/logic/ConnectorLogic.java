@@ -213,7 +213,8 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 orElse(connInstanceTO);
 
         Set<ObjectClassInfo> objectClassInfo = connectorManager.createConnector(
-                connectorManager.buildConnInstanceOverride(actual, connInstanceTO.getConf(), Optional.empty())).
+                connectorManager.buildConnInstanceOverride(
+                        actual, Optional.of(connInstanceTO.getConf()), Optional.empty())).
                 getObjectClassInfo();
 
         return objectClassInfo.stream().map(info -> {

@@ -568,7 +568,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     public void reconcileFromScriptedSQL() throws IOException {
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
-        ResourceTO originalResource = SerializationUtils.clone(resource);
+        ResourceTO originalResource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         Provision provision = resource.getProvision(PRINTER).orElseThrow();
         assertNotNull(provision);
 
@@ -751,7 +751,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ResourceTO origResource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBPULL);
         ConnInstanceTO origConnector = CONNECTOR_SERVICE.read(origResource.getConnector(), null);
 
-        ResourceTO resForTest = SerializationUtils.clone(origResource);
+        ResourceTO resForTest = RESOURCE_SERVICE.read(RESOURCE_NAME_DBPULL);
         resForTest.setKey("syncTokenWithErrors");
         resForTest.setConnector(null);
         ConnInstanceTO connForTest = SerializationUtils.clone(origConnector);

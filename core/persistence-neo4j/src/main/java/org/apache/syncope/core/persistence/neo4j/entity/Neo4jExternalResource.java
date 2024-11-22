@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -78,7 +77,11 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     public static final String RESOURCE_PROPAGATION_ACTIONS_REL = "RESOURCE_PROPAGATION_ACTIONS";
 
-    protected static final TypeReference<Set<ConnectorCapability>> CAPABILITY_TYPEREF =
+    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
+            new TypeReference<List<ConnConfProperty>>() {
+    };
+
+    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
     };
 
@@ -114,13 +117,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
      */
     private String jsonConf;
 
-    @NotNull
-    private Boolean overrideCapabilities = false;
-
     private String capabilitiesOverride;
-
-    @Transient
-    private final Set<ConnectorCapability> capabilitiesOverrideSet = new HashSet<>();
 
     private String provisions;
 
@@ -172,14 +169,12 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     @Override
     public Optional<Provision> getProvisionByAnyType(final String anyType) {
-        return getProvisions().stream().
-                filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
     public Optional<Provision> getProvisionByObjectClass(final String objectClass) {
-        return getProvisions().stream().
-                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override
@@ -246,36 +241,6 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     @Override
     public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
         this.provisioningTraceLevel = provisioningTraceLevel;
-    }
-
-    @Override
-    public Set<ConnConfProperty> getConfOverride() {
-        Set<ConnConfProperty> confOverride = new HashSet<>();
-        if (!StringUtils.isBlank(jsonConf)) {
-            confOverride.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
-        }
-
-        return confOverride;
-    }
-
-    @Override
-    public void setConfOverride(final Set<ConnConfProperty> confOverride) {
-        jsonConf = POJOHelper.serialize(new HashSet<>(confOverride));
-    }
-
-    @Override
-    public boolean isOverrideCapabilities() {
-        return overrideCapabilities;
-    }
-
-    @Override
-    public void setOverrideCapabilities(final boolean overrideCapabilities) {
-        this.overrideCapabilities = overrideCapabilities;
-    }
-
-    @Override
-    public Set<ConnectorCapability> getCapabilitiesOverride() {
-        return capabilitiesOverrideSet;
     }
 
     @Override
@@ -357,6 +322,34 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     @Override
+    public Optional<List<ConnConfProperty>> getConfOverride() {
+        return StringUtils.isBlank(jsonConf)
+                ? Optional.empty()
+                : Optional.of(POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF));
+    }
+
+    @Override
+    public void setConfOverride(final Optional<List<ConnConfProperty>> confOverride) {
+        confOverride.ifPresentOrElse(
+                conf -> jsonConf = POJOHelper.serialize(conf),
+                () -> jsonConf = null);
+    }
+
+    @Override
+    public Optional<Set<ConnectorCapability>> getCapabilitiesOverride() {
+        return StringUtils.isBlank(capabilitiesOverride)
+                ? Optional.empty()
+                : Optional.of(POJOHelper.deserialize(capabilitiesOverride, CONNECTOR_CAPABILITY_TYPEREF));
+    }
+
+    @Override
+    public void setCapabilitiesOverride(final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
+        capabilitiesOverride.ifPresentOrElse(
+                override -> this.capabilitiesOverride = POJOHelper.serialize(override),
+                () -> this.capabilitiesOverride = null);
+    }
+
+    @Override
     public boolean add(final Implementation propagationAction) {
         checkType(propagationAction, Neo4jImplementation.class);
         checkImplementationType(propagationAction, IdMImplementationType.PROPAGATION_ACTIONS);
@@ -371,11 +364,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
-            getCapabilitiesOverride().clear();
             getProvisions().clear();
-        }
-        if (capabilitiesOverride != null) {
-            getCapabilitiesOverride().addAll(POJOHelper.deserialize(capabilitiesOverride, CAPABILITY_TYPEREF));
         }
         if (provisions != null) {
             getProvisions().addAll(POJOHelper.deserialize(provisions, PROVISION_TYPEREF));
@@ -393,7 +382,6 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     public void list2json() {
-        capabilitiesOverride = POJOHelper.serialize(getCapabilitiesOverride());
         provisions = POJOHelper.serialize(getProvisions());
     }
 }

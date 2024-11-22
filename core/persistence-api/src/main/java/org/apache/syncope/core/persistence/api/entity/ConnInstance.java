@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -61,9 +60,9 @@ public interface ConnInstance extends Entity {
 
     List<? extends ExternalResource> getResources();
 
-    void setConf(Collection<ConnConfProperty> conf);
+    void setConf(List<ConnConfProperty> conf);
 
-    Set<ConnConfProperty> getConf();
+    List<ConnConfProperty> getConf();
 
     void setConnRequestTimeout(Integer timeout);
 

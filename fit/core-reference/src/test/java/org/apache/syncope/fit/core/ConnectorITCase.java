@@ -29,11 +29,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -631,7 +633,7 @@ public class ConnectorITCase extends AbstractITCase {
         connectorTO.setDisplayName("WSSoap");
 
         // set the connector configuration using PropertyTO
-        Set<ConnConfProperty> conf = new HashSet<>();
+        List<ConnConfProperty> conf = new ArrayList<>();
 
         ConnConfPropSchema userSchema = new ConnConfPropSchema();
         userSchema.setName("endpoint");
@@ -683,12 +685,12 @@ public class ConnectorITCase extends AbstractITCase {
             resourceTO.setKey(resourceName);
             resourceTO.setConnector(connectorTO.getKey());
 
-            conf = new HashSet<>();
+            conf = new ArrayList<>();
             endpoint.getValues().clear();
             endpoint.getValues().add(BUILD_TOOLS_ADDRESS + "/soap/provisioning");
             conf.add(endpoint);
 
-            resourceTO.getConfOverride().addAll(conf);
+            resourceTO.setConfOverride(Optional.of(conf));
 
             Provision provisionTO = new Provision();
             provisionTO.setAnyType(AnyTypeKind.USER.name());

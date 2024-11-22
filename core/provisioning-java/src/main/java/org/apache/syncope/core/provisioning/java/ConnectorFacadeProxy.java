@@ -44,6 +44,7 @@ import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.LiveSyncResultsHandler;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -296,7 +297,10 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
+    public void sync(
+            final ObjectClass objectClass,
+            final SyncToken token,
+            final SyncResultsHandler handler,
             final OperationOptions options) {
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
@@ -333,6 +337,20 @@ public class ConnectorFacadeProxy implements Connector {
         }
 
         return result;
+    }
+
+    @Override
+    public void livesync(
+            final ObjectClass objectClass,
+            final LiveSyncResultsHandler handler,
+            final OperationOptions options) {
+
+        if (connInstance.getCapabilities().contains(ConnectorCapability.LIVE_SYNC)) {
+            connector.livesync(objectClass, handler, options);
+        } else {
+            LOG.info("Live sync was attempted, although the connector only has these capabilities: {}. No action.",
+                    connInstance.getCapabilities());
+        }
     }
 
     @Override
