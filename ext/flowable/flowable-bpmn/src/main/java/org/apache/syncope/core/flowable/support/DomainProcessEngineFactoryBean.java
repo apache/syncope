@@ -100,7 +100,7 @@ public class DomainProcessEngineFactoryBean implements FactoryBean<DomainProcess
     }
 
     @Override
-    public DomainProcessEngine getObject() throws Exception {
+    public DomainProcessEngine getObject() {
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 

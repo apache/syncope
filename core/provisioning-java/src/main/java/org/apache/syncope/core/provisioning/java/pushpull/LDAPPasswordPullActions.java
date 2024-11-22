@@ -83,7 +83,7 @@ public class LDAPPasswordPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity,
-            final ProvisioningReport result) throws JobExecutionException {
+            final ProvisioningReport result) {
 
         if (entity instanceof UserTO) {
             userDAO.findById(entity.getKey()).ifPresent(user -> {

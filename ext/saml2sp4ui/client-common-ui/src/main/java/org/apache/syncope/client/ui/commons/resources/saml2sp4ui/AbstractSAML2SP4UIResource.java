@@ -64,7 +64,7 @@ public abstract class AbstractSAML2SP4UIResource extends AbstractResource {
                 response.setWriteCallback(new WriteCallback() {
 
                     @Override
-                    public void writeData(final Attributes attributes) throws IOException {
+                    public void writeData(final Attributes attributes) {
                         attributes.getResponse().
                                 write(new String(Base64.getMimeDecoder().decode(request.getContent())));
                     }

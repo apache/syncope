@@ -423,7 +423,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
         }
 
         @Override
-        public Pair<Serializable, Serializable> call() throws Exception {
+        public Pair<Serializable, Serializable> call() {
             try {
                 ThreadContext.setApplication(this.application);
                 ThreadContext.setRequestCycle(this.requestCycle);

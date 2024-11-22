@@ -238,7 +238,7 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
+    public ServletInputStream getInputStream() {
         return inputStream;
     }
 }

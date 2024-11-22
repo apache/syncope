@@ -132,14 +132,12 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
                 trustManagers.add(new X509TrustManager() {
 
                     @Override
-                    public void checkClientTrusted(final X509Certificate[] chain, final String authType)
-                            throws CertificateException {
+                    public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
                         // no checks, trust all
                     }
 
                     @Override
-                    public void checkServerTrusted(final X509Certificate[] chain, final String authType)
-                            throws CertificateException {
+                    public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
                         // no checks, trust all
                     }
 

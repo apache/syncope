@@ -78,12 +78,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param createReq create request
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            AnyCR createReq) throws JobExecutionException {
+            AnyCR createReq) {
     }
 
     /**
@@ -92,12 +91,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param linkedAccount create request
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            LinkedAccountTO linkedAccount) throws JobExecutionException {
+            LinkedAccountTO linkedAccount) {
     }
 
     /**
@@ -108,12 +106,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param realm realm
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            RealmTO realm) throws JobExecutionException {
+            RealmTO realm) {
     }
 
     /**
@@ -124,12 +121,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param createReq create request
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            AnyCR createReq) throws JobExecutionException {
+            AnyCR createReq) {
     }
 
     /**
@@ -138,12 +134,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param linkedAccount linked account
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            LinkedAccountTO linkedAccount) throws JobExecutionException {
+            LinkedAccountTO linkedAccount) {
     }
 
     /**
@@ -154,12 +149,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param realm realm
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            RealmTO realm) throws JobExecutionException {
+            RealmTO realm) {
     }
 
     /**
@@ -170,12 +164,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeUnassign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            EntityTO entity) {
     }
 
     /**
@@ -186,12 +179,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            EntityTO entity) {
     }
 
     /**
@@ -202,12 +194,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeUnlink(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            EntityTO entity) {
     }
 
     /**
@@ -218,12 +209,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeLink(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            EntityTO entity) {
     }
 
     /**
@@ -250,12 +240,11 @@ public interface PullActions extends ProvisioningActions {
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
      * @param entity entity
-     * @throws JobExecutionException in case of generic failure
      */
     default void beforeDelete(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException {
+            EntityTO entity) {
     }
 
     /**
@@ -285,12 +274,11 @@ public interface PullActions extends ProvisioningActions {
      * beforeDelete)
      * @param e the exception thrown
      * @return an instance of the given exception type is that is to be thrown; {@code NULL} otherwise
-     * @throws JobExecutionException in case of generic failure
      */
     default IgnoreProvisionException onError(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            Exception e) throws JobExecutionException {
+            Exception e) {
 
         return null;
     }

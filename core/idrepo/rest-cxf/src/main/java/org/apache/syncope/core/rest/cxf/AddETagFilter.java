@@ -39,7 +39,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 public class AddETagFilter implements ContainerResponseFilter {
 
     @Override
-    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
+    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) {
         if (resCtx.getEntityTag() == null) {
             AnyTO annotated = null;
             if (resCtx.getEntity() instanceof AnyTO anyTO) {

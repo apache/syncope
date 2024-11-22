@@ -64,8 +64,7 @@ public abstract class AbstractContentLoaderHandler extends DefaultHandler {
     protected abstract void create(String qName, Attributes atts);
 
     @Override
-    public void startElement(final String uri, final String localName, final String qName, final Attributes atts)
-            throws SAXException {
+    public void startElement(final String uri, final String localName, final String qName, final Attributes atts) {
 
         // skip root element
         if (rootElement.equals(qName)) {

@@ -48,12 +48,12 @@ public class SAML2SPRestClient extends BaseRestClient {
             private static final long serialVersionUID = -2268011115723452312L;
 
             @Override
-            public InputStream getInputStream() throws ResourceStreamNotFoundException {
+            public InputStream getInputStream() {
                 return inputStream;
             }
 
             @Override
-            public void close() throws IOException {
+            public void close() {
                 IOUtils.closeQuietly(inputStream);
             }
         };

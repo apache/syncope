@@ -26,5 +26,5 @@ public interface NotificationJobDelegate {
 
     TaskExec<NotificationTask> executeSingle(NotificationTask task, String executor);
 
-    void execute(String executor) throws JobExecutionException;
+    void execute(String executor);
 }

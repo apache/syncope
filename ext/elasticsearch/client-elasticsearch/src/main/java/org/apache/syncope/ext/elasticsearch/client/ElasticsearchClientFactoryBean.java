@@ -97,7 +97,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
     }
 
     @Override
-    public ElasticsearchClient getObject() throws Exception {
+    public ElasticsearchClient getObject() {
         synchronized (this) {
             if (client == null) {
                 RestClientBuilder builder = RestClient.builder(hosts.toArray(HttpHost[]::new));

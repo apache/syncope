@@ -38,7 +38,7 @@ public class SystemLoadReporterJob extends Job {
     }
 
     @Override
-    protected void execute(final JobExecutionContext context) throws JobExecutionException {
+    protected void execute(final JobExecutionContext context) {
         SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant();
 
         instant.setSystemLoadAverage(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());

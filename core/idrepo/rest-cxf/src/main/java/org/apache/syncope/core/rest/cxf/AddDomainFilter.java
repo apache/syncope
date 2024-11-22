@@ -33,7 +33,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 public class AddDomainFilter implements ContainerResponseFilter {
 
     @Override
-    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
+    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) {
         resCtx.getHeaders().add(RESTHeaders.DOMAIN, AuthContextUtils.getDomain());
     }
 }

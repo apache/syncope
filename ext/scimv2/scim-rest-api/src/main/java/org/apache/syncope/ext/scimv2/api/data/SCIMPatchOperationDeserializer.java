@@ -75,7 +75,7 @@ public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOpe
 
     @Override
     public SCIMPatchOperation deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException {
 
         JsonNode node = jp.getCodec().readTree(jp);
 

@@ -88,8 +88,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                     throw new PasswordPolicyException("Password pwned");
                 }
             }
-        } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException
-                | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
+        } catch (InvalidKeyException | NoSuchAlgorithmException | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
 
             LOG.error("Could not encode the password value as SHA1", e);
         } catch (HttpStatusCodeException e) {

@@ -41,8 +41,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     @Override
-    public InputStream getInputStream()
-            throws ResourceStreamNotFoundException {
+    public InputStream getInputStream() {
 
         return responseHolder.getInputStream() == null
                 ? new ByteArrayInputStream(new byte[0])
@@ -57,7 +56,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // No need for explict closing
     }
 

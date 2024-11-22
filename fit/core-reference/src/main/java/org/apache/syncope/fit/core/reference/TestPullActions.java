@@ -40,8 +40,7 @@ public class TestPullActions implements PullActions {
 
     @Override
     public void beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR)
-            throws JobExecutionException {
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR) {
 
         Attr attrTO = anyCR.getPlainAttrs().stream().
                 filter(attr -> "fullname".equals(attr.getSchema())).findFirst().
@@ -56,8 +55,7 @@ public class TestPullActions implements PullActions {
 
     @Override
     public void beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR)
-            throws JobExecutionException {
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR) {
 
         if (anyCR instanceof UserCR && "test2".equals(UserCR.class.cast(anyCR).getUsername())) {
             throw new IgnoreProvisionException();
@@ -69,7 +67,7 @@ public class TestPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
-            final AnyUR anyUR) throws JobExecutionException {
+            final AnyUR anyUR) {
 
         AttrPatch fullnamePatch = null;
         for (AttrPatch attrPatch : anyUR.getPlainAttrs()) {
