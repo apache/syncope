@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.InputStream;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;

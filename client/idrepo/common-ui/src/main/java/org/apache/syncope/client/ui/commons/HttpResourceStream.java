@@ -20,7 +20,6 @@ package org.apache.syncope.client.ui.commons;
 
 import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;

@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
 /**
  * Interface for actions to be performed during push.

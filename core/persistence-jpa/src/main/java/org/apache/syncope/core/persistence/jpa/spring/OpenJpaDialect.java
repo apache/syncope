@@ -18,7 +18,6 @@ package org.apache.syncope.core.persistence.jpa.spring;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import org.apache.commons.logging.LogFactory;
 import org.apache.openjpa.persistence.FetchPlan;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;

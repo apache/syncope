@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.common.security.SecurityUtil;

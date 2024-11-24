@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**

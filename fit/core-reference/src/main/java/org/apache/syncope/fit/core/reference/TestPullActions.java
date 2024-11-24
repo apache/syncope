@@ -25,7 +25,6 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;

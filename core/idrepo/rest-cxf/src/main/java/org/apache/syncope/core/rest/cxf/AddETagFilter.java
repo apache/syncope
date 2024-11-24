@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.ext.Provider;
 import jakarta.ws.rs.ext.RuntimeDelegate;
-import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;

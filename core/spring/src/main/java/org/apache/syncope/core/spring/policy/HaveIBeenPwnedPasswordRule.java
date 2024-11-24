@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.policy;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

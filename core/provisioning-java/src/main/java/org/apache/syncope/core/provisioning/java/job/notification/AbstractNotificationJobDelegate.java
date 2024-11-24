@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;

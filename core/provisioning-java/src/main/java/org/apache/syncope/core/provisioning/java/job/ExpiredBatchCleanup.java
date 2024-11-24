@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.job;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExpiredBatchCleanup extends AbstractSchedTaskJobDelegate<SchedTask> {

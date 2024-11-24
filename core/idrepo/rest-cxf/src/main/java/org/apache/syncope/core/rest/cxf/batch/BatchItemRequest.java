@@ -24,7 +24,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
