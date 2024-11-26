@@ -28,7 +28,6 @@ import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.wicket.util.io.IOUtils;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 
 public class SAML2SPRestClient extends BaseRestClient {
 

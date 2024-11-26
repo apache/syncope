@@ -26,7 +26,6 @@ import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 
 public class HttpResourceStream extends AbstractResourceStream implements IFixedLocationResourceStream {
 
