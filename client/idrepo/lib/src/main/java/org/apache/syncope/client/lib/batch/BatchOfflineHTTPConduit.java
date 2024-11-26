@@ -52,7 +52,7 @@ public class BatchOfflineHTTPConduit extends HTTPConduit {
     @Override
     protected void setupConnection(
             final Message message, final Address address,
-            final HTTPClientPolicy csPolicy) throws IOException {
+            final HTTPClientPolicy csPolicy) {
     }
 
     @Override
@@ -65,7 +65,7 @@ public class BatchOfflineHTTPConduit extends HTTPConduit {
             final Message message,
             final boolean needToCacheRequest,
             final boolean isChunking,
-            final int chunkThreshold) throws IOException {
+            final int chunkThreshold) {
 
         baos = new ByteArrayOutputStream();
         return baos;

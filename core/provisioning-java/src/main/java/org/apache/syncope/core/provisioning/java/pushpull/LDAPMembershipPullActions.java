@@ -206,7 +206,7 @@ public class LDAPMembershipPullActions implements PullActions {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
+    public void afterAll(final ProvisioningProfile<?, ?> profile) {
         List<UserUR> updateReqs = new ArrayList<>();
 
         membershipsAfter.forEach((user, groups) -> {

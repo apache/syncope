@@ -606,8 +606,7 @@ public abstract class AbstractPullResultHandler
     protected OpEvent.Outcome delete(
             final SyncDelta delta,
             final List<PullMatch> matches,
-            final Provision provision)
-            throws JobExecutionException {
+            final Provision provision) {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
@@ -693,8 +692,7 @@ public abstract class AbstractPullResultHandler
             final List<PullMatch> matches,
             final Provision provision,
             final boolean matching,
-            final String... message)
-            throws JobExecutionException {
+            final String... message) {
 
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 

@@ -304,8 +304,7 @@ public class ProvisioningImpl implements Provisioning {
     }
 
     @Override
-    public int getLatestChangeNumber()
-            throws ProvisioningException {
+    public int getLatestChangeNumber() {
 
         LOG.debug("getLatestChangeNumber request received");
 
@@ -313,8 +312,7 @@ public class ProvisioningImpl implements Provisioning {
     }
 
     @Override
-    public List<WSChange> sync()
-            throws ProvisioningException {
+    public List<WSChange> sync() {
 
         LOG.debug("sync request received");
 
@@ -566,8 +564,7 @@ public class ProvisioningImpl implements Provisioning {
     }
 
     @Override
-    public String authenticate(final String username, final String password)
-            throws ProvisioningException {
+    public String authenticate(final String username, final String password) {
 
         LOG.debug("authenticate request received");
 

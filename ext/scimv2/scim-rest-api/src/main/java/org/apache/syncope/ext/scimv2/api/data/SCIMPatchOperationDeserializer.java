@@ -19,7 +19,6 @@
 package org.apache.syncope.ext.scimv2.api.data;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -75,7 +74,7 @@ public class SCIMPatchOperationDeserializer extends StdDeserializer<SCIMPatchOpe
 
     @Override
     public SCIMPatchOperation deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException {
 
         JsonNode node = jp.getCodec().readTree(jp);
 

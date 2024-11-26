@@ -73,7 +73,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
     private ExternalResource externalResource(
             final AnyType anyType,
             final List<String> columns,
-            final List<String> propagationActions) throws JobExecutionException {
+            final List<String> propagationActions) {
 
         Provision provision = new Provision();
         provision.setAnyType(anyType.getKey());

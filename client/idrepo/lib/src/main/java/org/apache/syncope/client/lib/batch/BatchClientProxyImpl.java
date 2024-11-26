@@ -61,7 +61,7 @@ public class BatchClientProxyImpl extends ClientProxyImpl {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected Object[] preProcessResult(final Message message) throws Exception {
+    protected Object[] preProcessResult(final Message message) {
         BatchRequestItem bri = new BatchRequestItem();
         bri.setMethod((String) message.get(Message.HTTP_REQUEST_METHOD));
         bri.setRequestURI(StringUtils.substringAfter(
@@ -77,7 +77,7 @@ public class BatchClientProxyImpl extends ClientProxyImpl {
     }
 
     @Override
-    protected Object handleResponse(final Message outMessage, final Class<?> serviceCls) throws Throwable {
+    protected Object handleResponse(final Message outMessage, final Class<?> serviceCls) {
         return null;
     }
 }

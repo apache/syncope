@@ -56,7 +56,7 @@ public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
     @Override
     protected SamlIdPMetadataDocument finalizeMetadataDocument(
             final SamlIdPMetadataDocument doc,
-            final Optional<SamlRegisteredService> registeredService) throws Exception {
+            final Optional<SamlRegisteredService> registeredService) {
 
         doc.setAppliesTo(getAppliesToFor(registeredService));
 

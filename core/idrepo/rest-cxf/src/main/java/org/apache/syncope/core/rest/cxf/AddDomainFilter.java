@@ -22,7 +22,6 @@ import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerResponseContext;
 import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.ext.Provider;
-import java.io.IOException;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 
@@ -33,7 +32,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 public class AddDomainFilter implements ContainerResponseFilter {
 
     @Override
-    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
+    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) {
         resCtx.getHeaders().add(RESTHeaders.DOMAIN, AuthContextUtils.getDomain());
     }
 }

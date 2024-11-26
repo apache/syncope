@@ -30,7 +30,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -83,7 +82,7 @@ public class LDAPPasswordPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entity,
-            final ProvisioningReport result) throws JobExecutionException {
+            final ProvisioningReport result) {
 
         if (entity instanceof UserTO) {
             userDAO.findById(entity.getKey()).ifPresent(user -> {

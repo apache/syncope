@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,14 +131,12 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
                 trustManagers.add(new X509TrustManager() {
 
                     @Override
-                    public void checkClientTrusted(final X509Certificate[] chain, final String authType)
-                            throws CertificateException {
+                    public void checkClientTrusted(final X509Certificate[] chain, final String authType) {
                         // no checks, trust all
                     }
 
                     @Override
-                    public void checkServerTrusted(final X509Certificate[] chain, final String authType)
-                            throws CertificateException {
+                    public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
                         // no checks, trust all
                     }
 

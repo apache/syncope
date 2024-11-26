@@ -22,7 +22,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.util.Base64;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +63,7 @@ public abstract class AbstractSAML2SP4UIResource extends AbstractResource {
                 response.setWriteCallback(new WriteCallback() {
 
                     @Override
-                    public void writeData(final Attributes attributes) throws IOException {
+                    public void writeData(final Attributes attributes) {
                         attributes.getResponse().
                                 write(new String(Base64.getMimeDecoder().decode(request.getContent())));
                     }
