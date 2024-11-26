@@ -223,7 +223,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         }
 
         @Override
-        public String call() throws Exception {
+        public String call() {
             try {
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                         connectorRestClient.check(coreAddress, domain, jwt, key)
@@ -243,7 +243,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
         }
 
         @Override
-        public String call() throws Exception {
+        public String call() {
             try {
                 return String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                         resourceRestClient.check(coreAddress, domain, jwt, key)

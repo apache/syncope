@@ -20,14 +20,12 @@ package org.apache.syncope.client.ui.commons;
 
 import jakarta.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IFixedLocationResourceStream;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 
 public class HttpResourceStream extends AbstractResourceStream implements IFixedLocationResourceStream {
 
@@ -41,8 +39,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     @Override
-    public InputStream getInputStream()
-            throws ResourceStreamNotFoundException {
+    public InputStream getInputStream() {
 
         return responseHolder.getInputStream() == null
                 ? new ByteArrayInputStream(new byte[0])
@@ -57,7 +54,7 @@ public class HttpResourceStream extends AbstractResourceStream implements IFixed
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // No need for explict closing
     }
 

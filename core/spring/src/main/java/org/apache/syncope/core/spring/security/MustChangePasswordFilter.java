@@ -33,7 +33,7 @@ import org.springframework.security.web.servletapi.SecurityContextHolderAwareReq
 public class MustChangePasswordFilter implements Filter {
 
     @Override
-    public void init(final FilterConfig filterConfig) throws ServletException {
+    public void init(final FilterConfig filterConfig) {
         // not used
     }
 

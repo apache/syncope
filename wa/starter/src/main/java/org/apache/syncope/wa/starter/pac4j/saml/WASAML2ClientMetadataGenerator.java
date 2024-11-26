@@ -44,12 +44,12 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
     }
 
     @Override
-    public boolean storeMetadata(final String metadata, final boolean force) throws Exception {
+    public boolean storeMetadata(final String metadata, final boolean force) {
         return true;
     }
 
     @Override
-    protected AbstractMetadataResolver createMetadataResolver() throws Exception {
+    protected AbstractMetadataResolver createMetadataResolver() {
         return new WASAML2MetadataResolver(waRestClient, saml2Client);
     }
 

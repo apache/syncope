@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.ext.Provider;
 import jakarta.ws.rs.ext.RuntimeDelegate;
-import java.io.IOException;
 import java.time.OffsetDateTime;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
@@ -35,7 +34,7 @@ import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 public class AddETagFilter implements ContainerResponseFilter {
 
     @Override
-    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) throws IOException {
+    public void filter(final ContainerRequestContext reqCtx, final ContainerResponseContext resCtx) {
         if (resCtx.getEntityTag() == null) {
             OffsetDateTime lastModified;
             if (resCtx.getEntity() instanceof SCIMUser scimUser) {

@@ -284,7 +284,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
             final int threshold,
             final BidiMap<String, EntityType<?>> entities,
             final Map<String, Pair<String, String>> relationTables,
-            final TransformerHandler handler) throws SQLException, MetaDataAccessException, SAXException {
+            final TransformerHandler handler) throws MetaDataAccessException, SAXException {
 
         LOG.debug("Export table {}", tableName);
 

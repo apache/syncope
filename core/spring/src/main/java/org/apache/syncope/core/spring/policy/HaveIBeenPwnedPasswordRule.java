@@ -18,15 +18,10 @@
  */
 package org.apache.syncope.core.spring.policy;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
@@ -88,9 +83,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                     throw new PasswordPolicyException("Password pwned");
                 }
             }
-        } catch (UnsupportedEncodingException | InvalidKeyException | NoSuchAlgorithmException
-                | BadPaddingException | IllegalBlockSizeException | NoSuchPaddingException e) {
-
+        } catch (GeneralSecurityException e) {
             LOG.error("Could not encode the password value as SHA1", e);
         } catch (HttpStatusCodeException e) {
             LOG.error("Error while contacting the PwnedPasswords service", e);

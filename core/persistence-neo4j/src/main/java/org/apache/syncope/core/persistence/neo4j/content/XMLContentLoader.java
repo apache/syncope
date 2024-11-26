@@ -65,7 +65,7 @@ public class XMLContentLoader extends AbstractXMLContentLoader {
     }
 
     @Override
-    protected void createViews(final String domain) throws IOException {
+    protected void createViews(final String domain) {
         // nothing to do
     }
 

@@ -57,7 +57,7 @@ public class ConfParamLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @Override
-    protected EntityTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
+    protected EntityTO resolveReference(final Method method, final Object... args) {
         throw new UnsupportedOperationException();
     }
 }

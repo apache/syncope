@@ -562,8 +562,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     protected OpEvent.Outcome delete(
             final SyncDelta delta,
             final LinkedAccount account,
-            final Provision provision)
-            throws JobExecutionException {
+            final Provision provision) {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
@@ -644,8 +643,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             final SyncDelta delta,
             final LinkedAccount account,
             final boolean matching,
-            final String... message)
-            throws JobExecutionException {
+            final String... message) {
 
         LOG.debug("Linked account to ignore {}", delta.getObject().getUid().getUidValue());
 

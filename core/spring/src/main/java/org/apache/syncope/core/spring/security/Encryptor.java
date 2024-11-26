@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -92,7 +91,7 @@ public final class Encryptor {
     }
 
     public String encode(final String value, final CipherAlgorithm cipherAlgorithm)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
         String encoded = null;
@@ -134,7 +133,7 @@ public final class Encryptor {
     }
 
     public String decode(final String encoded, final CipherAlgorithm cipherAlgorithm)
-            throws UnsupportedEncodingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
             IllegalBlockSizeException, BadPaddingException {
 
         String decoded = null;

@@ -18,7 +18,6 @@ package org.apache.syncope.core.persistence.jpa.spring;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceException;
 import java.sql.Connection;
-import java.sql.SQLException;
 import org.apache.commons.logging.LogFactory;
 import org.apache.openjpa.persistence.FetchPlan;
 import org.apache.openjpa.persistence.OpenJPAEntityManager;
@@ -47,7 +46,7 @@ public class OpenJpaDialect extends DefaultJpaDialect {
 
     @Override
     public Object beginTransaction(final EntityManager entityManager, final TransactionDefinition definition)
-            throws PersistenceException, SQLException, TransactionException {
+            throws PersistenceException, TransactionException {
 
         OpenJPAEntityManager openJpaEntityManager = getOpenJPAEntityManager(entityManager);
 
@@ -74,7 +73,7 @@ public class OpenJpaDialect extends DefaultJpaDialect {
 
     @Override
     public ConnectionHandle getJdbcConnection(final EntityManager entityManager, final boolean readOnly)
-            throws PersistenceException, SQLException {
+            throws PersistenceException {
 
         return new OpenJpaConnectionHandle(getOpenJPAEntityManager(entityManager));
     }

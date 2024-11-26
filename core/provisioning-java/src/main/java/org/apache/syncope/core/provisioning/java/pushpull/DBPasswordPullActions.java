@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -63,7 +62,7 @@ public class DBPasswordPullActions implements PullActions {
     public void beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final AnyCR anyCR) throws JobExecutionException {
+            final AnyCR anyCR) {
 
         if (anyCR instanceof UserCR userCR) {
             parseEncodedPassword(userCR.getPassword(), profile.getConnector());
@@ -76,7 +75,7 @@ public class DBPasswordPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO entityTO,
-            final AnyUR anyUR) throws JobExecutionException {
+            final AnyUR anyUR) {
 
         if (anyUR instanceof UserUR userUR) {
             parseEncodedPassword(Optional.ofNullable(userUR.getPassword()).
@@ -115,7 +114,7 @@ public class DBPasswordPullActions implements PullActions {
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
             final EntityTO any,
-            final ProvisioningReport result) throws JobExecutionException {
+            final ProvisioningReport result) {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
             userDAO.findById(any.getKey()).ifPresent(user -> {

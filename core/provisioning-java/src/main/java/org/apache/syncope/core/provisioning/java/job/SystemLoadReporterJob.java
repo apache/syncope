@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.job;
 import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.context.ApplicationEventPublisher;
 
 /**
@@ -38,7 +37,7 @@ public class SystemLoadReporterJob extends Job {
     }
 
     @Override
-    protected void execute(final JobExecutionContext context) throws JobExecutionException {
+    protected void execute(final JobExecutionContext context) {
         SystemInfo.LoadInstant instant = new SystemInfo.LoadInstant();
 
         instant.setSystemLoadAverage(ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());

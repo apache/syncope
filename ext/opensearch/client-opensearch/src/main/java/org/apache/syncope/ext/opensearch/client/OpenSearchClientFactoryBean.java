@@ -97,7 +97,7 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
     }
 
     @Override
-    public OpenSearchClient getObject() throws Exception {
+    public OpenSearchClient getObject() {
         synchronized (this) {
             if (client == null) {
                 RestClientBuilder builder = RestClient.builder(hosts.toArray(HttpHost[]::new));

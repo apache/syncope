@@ -74,7 +74,7 @@ public class DefaultPropagationTaskCallable implements PropagationTaskCallable {
     }
 
     @Override
-    public TaskExec<PropagationTask> call() throws Exception {
+    public TaskExec<PropagationTask> call() {
         return AuthContextUtils.callAs(domain, executor, authorities, () -> {
             LOG.debug("Execution started for {}", taskInfo);
 

@@ -268,7 +268,6 @@ public class ElasticsearchUtils {
 
     protected void customizeDocument(
             final Map<String, Object> builder,
-            final AuditEvent auditEvent)
-            throws IOException {
+            final AuditEvent auditEvent) {
     }
 }

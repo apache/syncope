@@ -99,7 +99,7 @@ public class ElasticsearchIndexManager {
                 value();
     }
 
-    public IndexSettings defaultSettings() throws IOException {
+    public IndexSettings defaultSettings() {
         return new IndexSettings.Builder().
                 analysis(new IndexSettingsAnalysis.Builder().
                         normalizer("string_lowercase", new Normalizer.Builder().
@@ -114,7 +114,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultAnyMapping() throws IOException {
+    public TypeMapping defaultAnyMapping() {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -127,7 +127,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultRealmMapping() throws IOException {
+    public TypeMapping defaultRealmMapping() {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -140,7 +140,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultAuditMapping() throws IOException {
+    public TypeMapping defaultAuditMapping() {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",

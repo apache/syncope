@@ -264,7 +264,7 @@ public class SecurityConfig {
                 protected void store(
                         final KeyStore ks,
                         final X509Certificate certificate,
-                        final PrivateKey privateKey) throws Exception {
+                        final PrivateKey privateKey) {
 
                     // nothing to do
                 }

@@ -529,8 +529,7 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected OpEvent.Outcome delete(final SyncDelta delta, final List<Realm> realms)
-            throws JobExecutionException {
+    protected OpEvent.Outcome delete(final SyncDelta delta, final List<Realm> realms) {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
@@ -628,7 +627,7 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected OpEvent.Outcome ignore(final SyncDelta delta, final boolean matching) throws JobExecutionException {
+    protected OpEvent.Outcome ignore(final SyncDelta delta, final boolean matching) {
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
         ProvisioningReport report = new ProvisioningReport();
