@@ -88,13 +88,12 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
     protected abstract String sortProperty();
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof ExitEvent) {
             AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
             authProfileModal.close(target);
-        } else if (event.getPayload() instanceof AjaxWizard.EditItemActionEvent) {
-            @SuppressWarnings("unchecked")
-            AjaxWizard.EditItemActionEvent<?> payload = (AjaxWizard.EditItemActionEvent<?>) event.getPayload();
+        } else if (event.getPayload() instanceof final AjaxWizard.EditItemActionEvent<?> payload) {
             payload.getTarget().ifPresent(actionTogglePanel::close);
         }
         super.onEvent(event);

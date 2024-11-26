@@ -491,8 +491,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
             target.ifPresent(t -> t.add(ListViewPanel.this));
             super.onEvent(event);
-        } else if (event.getPayload() instanceof ListViewPanel.ListViewReload) {
-            final ListViewPanel.ListViewReload<?> payload = (ListViewPanel.ListViewReload<?>) event.getPayload();
+        } else if (event.getPayload() instanceof final ListViewPanel.ListViewReload<?> payload) {
             if (payload.getItems() != null) {
                 ListViewPanel.this.listOfItems.clear();
                 try {

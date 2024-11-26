@@ -264,9 +264,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
     public void cancelByUser(final EntityLifecycleEvent<Entity> event) {
         if (AuthContextUtils.getDomain().equals(event.getDomain())
                 && event.getType() == SyncDeltaType.DELETE
-                && event.getEntity() instanceof User) {
+                && event.getEntity() instanceof final User user) {
 
-            User user = (User) event.getEntity();
             engine.getRuntimeService().createNativeProcessInstanceQuery().
                     sql(createProcessInstanceQuery(user.getKey()).toString()).
                     list().forEach(procInst -> engine.getRuntimeService().deleteProcessInstance(

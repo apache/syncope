@@ -166,8 +166,8 @@ public final class SearchUtils implements Serializable {
         }
 
         ConditionType ct = sc.getConditionType();
-        if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
-            SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
+        if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
+            && sc.getConditionType() == ConditionType.CUSTOM) {
             if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
                 ct = ConditionType.EQUALS;
             } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {

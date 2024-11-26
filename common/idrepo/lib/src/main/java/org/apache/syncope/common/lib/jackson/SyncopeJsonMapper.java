@@ -52,8 +52,7 @@ public class SyncopeJsonMapper extends JsonMapper {
      * @return the unwrapped map or the original value
      */
     protected Object unwrapMap(final Object value) {
-        if (value instanceof Map) {
-            Map<?, ?> map = (Map<?, ?>) value;
+        if (value instanceof final Map<?, ?> map) {
             if (map.size() == 1) {
                 return map.values().iterator().next();
             }

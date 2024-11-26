@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
@@ -67,9 +66,9 @@ public class TestFileAuditProcessor implements AuditEventProcessor {
         String fileName = System.getProperty("syncope.log.dir") + "/audit_for_" + domain + "_file";
         String content = POJOHelper.serialize(auditEventDAO.toAuditEventTO(event)) + '\n';
         try {
-            Files.write(
+            Files.writeString(
                     Paths.get(fileName),
-                    content.getBytes(StandardCharsets.UTF_8),
+                    content,
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (Exception e) {
             LOG.error("Could not append audit event {} to file {}", event, fileName, e);

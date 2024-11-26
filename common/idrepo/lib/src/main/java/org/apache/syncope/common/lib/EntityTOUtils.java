@@ -70,9 +70,7 @@ public final class EntityTOUtils {
         anyCR.getVirAttrs().addAll(anyTO.getVirAttrs());
         anyCR.getResources().addAll(anyTO.getResources());
 
-        if (anyCR instanceof UserCR && anyTO instanceof UserTO) {
-            UserCR userCR = (UserCR) anyCR;
-            UserTO userTO = (UserTO) anyTO;
+        if (anyCR instanceof final UserCR userCR && anyTO instanceof final UserTO userTO) {
 
             userCR.setUsername(userTO.getUsername());
             userCR.setPassword(userTO.getPassword());
@@ -82,9 +80,7 @@ public final class EntityTOUtils {
             userCR.getRelationships().addAll(userTO.getRelationships());
             userCR.getMemberships().addAll(userTO.getMemberships());
             userCR.getRoles().addAll(userTO.getRoles());
-        } else if (anyCR instanceof GroupCR && anyTO instanceof GroupTO) {
-            GroupCR groupCR = (GroupCR) anyCR;
-            GroupTO groupTO = (GroupTO) anyTO;
+        } else if (anyCR instanceof final GroupCR groupCR && anyTO instanceof final GroupTO groupTO) {
 
             groupCR.setName(groupTO.getName());
             groupCR.setUserOwner(groupTO.getUserOwner());
@@ -92,9 +88,7 @@ public final class EntityTOUtils {
             groupCR.setUDynMembershipCond(groupTO.getUDynMembershipCond());
             groupCR.getADynMembershipConds().putAll(groupTO.getADynMembershipConds());
             groupCR.getTypeExtensions().addAll(groupTO.getTypeExtensions());
-        } else if (anyCR instanceof AnyObjectCR && anyTO instanceof AnyObjectTO) {
-            AnyObjectCR anyObjectCR = (AnyObjectCR) anyCR;
-            AnyObjectTO anyObjectTO = (AnyObjectTO) anyTO;
+        } else if (anyCR instanceof final AnyObjectCR anyObjectCR && anyTO instanceof final AnyObjectTO anyObjectTO) {
 
             anyObjectCR.setType(anyObjectTO.getType());
             anyObjectCR.setName(anyObjectTO.getName());
@@ -110,9 +104,7 @@ public final class EntityTOUtils {
         anyTO.getVirAttrs().addAll(anyCR.getVirAttrs());
         anyTO.getResources().addAll(anyCR.getResources());
 
-        if (anyTO instanceof UserTO && anyCR instanceof UserCR) {
-            UserTO userTO = (UserTO) anyTO;
-            UserCR userCR = (UserCR) anyCR;
+        if (anyTO instanceof final UserTO userTO && anyCR instanceof final UserCR userCR) {
 
             userTO.setUsername(userCR.getUsername());
             userTO.setPassword(userCR.getPassword());
@@ -122,9 +114,7 @@ public final class EntityTOUtils {
             userTO.getRelationships().addAll(userCR.getRelationships());
             userTO.getMemberships().addAll(userCR.getMemberships());
             userTO.getRoles().addAll(userCR.getRoles());
-        } else if (anyTO instanceof GroupTO && anyCR instanceof GroupCR) {
-            GroupTO groupTO = (GroupTO) anyTO;
-            GroupCR groupCR = (GroupCR) anyCR;
+        } else if (anyTO instanceof final GroupTO groupTO && anyCR instanceof final GroupCR groupCR) {
 
             groupTO.setName(groupCR.getName());
             groupTO.setUserOwner(groupCR.getUserOwner());
@@ -132,9 +122,7 @@ public final class EntityTOUtils {
             groupTO.setUDynMembershipCond(groupCR.getUDynMembershipCond());
             groupTO.getADynMembershipConds().putAll(groupCR.getADynMembershipConds());
             groupTO.getTypeExtensions().addAll(groupCR.getTypeExtensions());
-        } else if (anyTO instanceof AnyObjectTO && anyCR instanceof AnyObjectCR) {
-            AnyObjectTO anyObjectTO = (AnyObjectTO) anyTO;
-            AnyObjectCR anyObjectCR = (AnyObjectCR) anyCR;
+        } else if (anyTO instanceof final AnyObjectTO anyObjectTO && anyCR instanceof final AnyObjectCR anyObjectCR) {
 
             anyObjectTO.setType(anyObjectCR.getType());
             anyObjectTO.setName(anyObjectCR.getName());
