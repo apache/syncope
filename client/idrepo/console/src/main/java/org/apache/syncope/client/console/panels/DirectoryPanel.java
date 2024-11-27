@@ -343,8 +343,7 @@ public abstract class DirectoryPanel<
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof EventDataWrapper) {
-            EventDataWrapper data = (EventDataWrapper) event.getPayload();
+        if (event.getPayload() instanceof final EventDataWrapper data) {
 
             if (data.getRows() < 1) {
                 updateResultTable(data.isCreate());

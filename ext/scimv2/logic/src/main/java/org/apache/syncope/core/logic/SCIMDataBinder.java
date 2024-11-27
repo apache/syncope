@@ -800,9 +800,7 @@ public class SCIMDataBinder {
         StatusR statusR = null;
 
         if (op.getPath() == null && op.getOp() != PatchOp.remove
-                && !CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof SCIMUser) {
-
-            SCIMUser after = (SCIMUser) op.getValue().get(0);
+                && !CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser after) {
 
             if (after.getActive() != null && before.isSuspended() == after.isActive()) {
                 statusR = new StatusR.Builder(
@@ -932,8 +930,7 @@ public class SCIMDataBinder {
             }
 
             case "addresses" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof SCIMUser) {
-                    SCIMUser after = (SCIMUser) op.getValue().get(0);
+                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser after) {
                     after.getAddresses().stream().filter(address -> address.getType() != null).forEach(
                             address -> conf.getUserConf().getAddresses().stream()
                                     .filter(object -> address.getType().equals(object.getType().name())).findFirst()

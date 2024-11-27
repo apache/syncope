@@ -516,8 +516,7 @@ public class DefaultPropagationManager implements PropagationManager {
             }
         });
 
-        if (any instanceof User && propByLinkedAccount != null) {
-            User user = (User) any;
+        if (any instanceof final User user && propByLinkedAccount != null) {
             propByLinkedAccount.asMap().forEach((accountInfo, operation) -> {
                 LinkedAccount account = user.getLinkedAccount(accountInfo.getLeft(), accountInfo.getRight()).
                         orElse(null);

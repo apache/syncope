@@ -83,8 +83,7 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
 
         Optional.ofNullable(tgtExpirationPolicy).ifPresent(service::setTicketGrantingTicketExpirationPolicy);
 
-        if (service instanceof CasRegisteredService) {
-            CasRegisteredService casRegisteredService = (CasRegisteredService) service;
+        if (service instanceof final CasRegisteredService casRegisteredService) {
 
             Optional.ofNullable(stExpirationPolicy).
                     ifPresent(casRegisteredService::setServiceTicketExpirationPolicy);

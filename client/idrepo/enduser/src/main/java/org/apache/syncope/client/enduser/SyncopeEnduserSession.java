@@ -133,8 +133,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
         Throwable root = ExceptionUtils.getRootCause(e);
         String message = root.getMessage();
 
-        if (root instanceof SyncopeClientException) {
-            SyncopeClientException sce = (SyncopeClientException) root;
+        if (root instanceof final SyncopeClientException sce) {
             message = sce.isComposite()
                     ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
                     : message(sce);

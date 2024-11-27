@@ -50,10 +50,9 @@ public abstract class AbstractNode implements Entity {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof AbstractNode)) {
+        if (!(obj instanceof final AbstractNode entity)) {
             return false;
         }
-        AbstractNode entity = (AbstractNode) obj;
         return Objects.equals(getKey(), entity.getKey());
     }
 

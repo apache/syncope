@@ -127,9 +127,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
     }
 
     protected void fill(final ProvisioningTask<?> provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
-        if (provisioningTask instanceof PushTask && provisioningTaskTO instanceof PushTaskTO) {
-            PushTask pushTask = (PushTask) provisioningTask;
-            PushTaskTO pushTaskTO = (PushTaskTO) provisioningTaskTO;
+        if (provisioningTask instanceof final PushTask pushTask
+            && provisioningTaskTO instanceof final PushTaskTO pushTaskTO) {
 
             Implementation jobDelegate = pushTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
@@ -160,9 +159,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             // remove all filters not contained in the TO
             pushTask.getFilters().entrySet().
                     removeIf(filter -> !pushTaskTO.getFilters().containsKey(filter.getKey()));
-        } else if (provisioningTask instanceof PullTask && provisioningTaskTO instanceof PullTaskTO) {
-            PullTask pullTask = (PullTask) provisioningTask;
-            PullTaskTO pullTaskTO = (PullTaskTO) provisioningTaskTO;
+        } else if (provisioningTask instanceof final PullTask pullTask
+            && provisioningTaskTO instanceof final PullTaskTO pullTaskTO) {
 
             Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
@@ -418,9 +416,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         scheduler.getNextTrigger(AuthContextUtils.getDomain(), JobNamer.getJobName(schedTask)).
                 ifPresent(schedTaskTO::setNextExec);
 
-        if (schedTaskTO instanceof ProvisioningTaskTO && schedTask instanceof ProvisioningTask) {
-            ProvisioningTaskTO provisioningTaskTO = (ProvisioningTaskTO) schedTaskTO;
-            ProvisioningTask<?> provisioningTask = (ProvisioningTask<?>) schedTask;
+        if (schedTaskTO instanceof final ProvisioningTaskTO provisioningTaskTO
+            && schedTask instanceof final ProvisioningTask<?> provisioningTask) {
 
             provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
 

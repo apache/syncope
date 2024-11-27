@@ -101,8 +101,7 @@ public class SelectedEventsPanel extends Panel {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof EventSelectionChanged) {
-            EventSelectionChanged eventSelectionChanged = (EventSelectionChanged) event.getPayload();
+        if (event.getPayload() instanceof final EventSelectionChanged eventSelectionChanged) {
 
             eventSelectionChanged.getToBeRemoved().
                     forEach(toBeRemoved -> model.getObject().remove(toBeRemoved.toString()));
