@@ -50,10 +50,9 @@ public abstract class AbstractEntity implements Entity {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof AbstractEntity)) {
+        if (!(obj instanceof final AbstractEntity entity)) {
             return false;
         }
-        AbstractEntity entity = (AbstractEntity) obj;
         return Objects.equals(getKey(), entity.getKey());
     }
 

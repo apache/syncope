@@ -83,8 +83,8 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     protected static ConditionType getConditionType(final SearchCondition<SearchBean> sc) {
         ConditionType ct = sc.getConditionType();
-        if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
-            SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
+        if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
+            && sc.getConditionType() == ConditionType.CUSTOM) {
             switch (sfsc.getOperator()) {
                 case SyncopeFiqlParser.IEQ:
                     ct = ConditionType.EQUALS;

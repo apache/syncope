@@ -96,8 +96,7 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             return Response.status(Response.Status.NOT_FOUND).entity(new SCIMError(null,
                     Response.Status.NOT_FOUND.getStatusCode(), ExceptionUtils.getRootCauseMessage(ex))).
                     build();
-        } else if (ex instanceof SyncopeClientException) {
-            SyncopeClientException sce = (SyncopeClientException) ex;
+        } else if (ex instanceof final SyncopeClientException sce) {
             builder = builder(sce.getType(), ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof DelegatedAdministrationException
                 || ExceptionUtils.getRootCause(ex) instanceof DelegatedAdministrationException) {

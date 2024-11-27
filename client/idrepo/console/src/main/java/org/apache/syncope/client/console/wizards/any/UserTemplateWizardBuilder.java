@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
@@ -48,11 +49,7 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
         super(anyTypeClasses, formLayoutInfo, userRestClient, pageRef);
         templatable = null;
 
-        if (template == null) {
-            setItem(new UserWrapper(new UserTO()));
-        } else {
-            setItem(new UserWrapper(template));
-        }
+        setItem(new UserWrapper(Objects.requireNonNullElseGet(template, UserTO::new)));
     }
 
     public UserTemplateWizardBuilder(

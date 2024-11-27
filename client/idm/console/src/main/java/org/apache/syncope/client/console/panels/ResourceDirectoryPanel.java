@@ -130,8 +130,7 @@ public class ResourceDirectoryPanel extends
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ResourceSearchEvent) {
-            ResourceSearchEvent payload = (ResourceSearchEvent) event.getPayload();
+        if (event.getPayload() instanceof final ResourceSearchEvent payload) {
             AjaxRequestTarget target = payload.getTarget();
             if (StringUtils.isNotEmpty(payload.getKeyword())) {
                 keyword = payload.getKeyword().toLowerCase();

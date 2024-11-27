@@ -38,8 +38,7 @@ public class SyncopeFormHandlerHelper extends FormHandlerHelper {
     public TaskFormHandler getTaskFormHandlder(final String procDefId, final String taskId) {
         Process process = ProcessDefinitionUtil.getProcess(procDefId);
         FlowElement flowElement = process.getFlowElement(taskId, true);
-        if (flowElement instanceof UserTask) {
-            UserTask userTask = (UserTask) flowElement;
+        if (flowElement instanceof final UserTask userTask) {
 
             ProcessDefinition processDefinitionEntity = ProcessDefinitionUtil.getProcessDefinition(procDefId);
             DeploymentEntity deploymentEntity = CommandContextUtil.getProcessEngineConfiguration().

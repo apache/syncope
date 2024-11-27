@@ -192,11 +192,10 @@ public class ConnObjectUtils {
         EntityTOUtils.toAnyCR(anyTO, anyCR);
 
         // (for users) if password was not set above, generate if possible
-        if (anyCR instanceof UserCR
+        if (anyCR instanceof final UserCR userCR
                 && StringUtils.isBlank(((UserCR) anyCR).getPassword())
                 && generatePassword) {
 
-            UserCR userCR = (UserCR) anyCR;
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();
 
             // add resource policies
