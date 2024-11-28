@@ -231,7 +231,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             } else {
                 AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
                 if (otherEnd == null) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+                    LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
                 } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
                     LOG.error("{} was already in relationship {} with {}",
                             otherEnd, relationshipTO.getType(), anyObject);
@@ -266,8 +266,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     ? groupDAO.findByName(membershipTO.getGroupName()).orElse(null)
                     : groupDAO.findById(membershipTO.getGroupKey()).orElse(null);
             if (group == null) {
-                LOG.debug("Ignoring invalid group "
-                        + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
+                LOG.debug("Ignoring invalid group {} / {}", membershipTO.getGroupKey(), membershipTO.getGroupName());
             } else if (groups.contains(group.getKey())) {
                 LOG.error("{} was already assigned to {}", group, anyObject);
 
@@ -431,8 +430,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     patch.getPlainAttrs().forEach(attrTO -> {
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
-                            LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                                    + "{}, ignoring...", attrTO.getSchema());
+                            LOG.debug("Invalid {}{}, ignoring...",
+                                PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
                             Optional<? extends APlainAttr> attr =
                                     anyObject.getPlainAttr(schema.getKey(), newMembership);

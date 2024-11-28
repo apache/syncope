@@ -59,7 +59,7 @@ public class ConnectorServerStartStopListener implements ServletContextListener 
             LOG.error("While getting bundled ConnId bundles", e);
         }
 
-        LOG.info("ConnId bundles loaded: " + bundleURLs);
+        LOG.info("ConnId bundles loaded: {}", bundleURLs);
 
         return bundleURLs;
     }

@@ -220,9 +220,8 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
                 connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("\nBundle name: " + key.getBundleName()
-                    + "\nBundle version: " + key.getBundleVersion()
-                    + "\nBundle class: " + key.getConnectorName());
+            LOG.debug("\nBundle name: {}\nBundle version: {}\nBundle class: {}",
+                key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
         }
 
         // get the specified connector

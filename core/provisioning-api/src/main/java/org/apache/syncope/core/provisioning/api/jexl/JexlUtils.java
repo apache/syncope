@@ -107,7 +107,7 @@ public final class JexlUtils {
             getJexlEngine().createExpression(expression);
             result = true;
         } catch (JexlException e) {
-            LOG.error("Invalid JEXL expression: " + expression, e);
+            LOG.error("Invalid JEXL expression: {}", expression, e);
             result = false;
         }
 
@@ -122,7 +122,7 @@ public final class JexlUtils {
                 JexlExpression jexlExpression = getJexlEngine().createExpression(expression);
                 result = jexlExpression.evaluate(jexlContext);
             } catch (Exception e) {
-                LOG.error("Error while evaluating JEXL expression: " + expression, e);
+                LOG.error("Error while evaluating JEXL expression: {}", expression, e);
             }
         } else {
             LOG.debug("Expression not provided or invalid context");
@@ -140,7 +140,7 @@ public final class JexlUtils {
                 getJxltEngine().createTemplate(template).evaluate(jexlContext, writer);
                 result = writer.toString();
             } catch (Exception e) {
-                LOG.error("Error while evaluating JEXL template: " + template, e);
+                LOG.error("Error while evaluating JEXL template: {}", template, e);
             }
         } else {
             LOG.debug("Template not provided or invalid context");

@@ -117,8 +117,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + AMEntitlement.WA_CONFIG_PUSH + "')")
     public void pushToWA(final WAConfigService.PushSubject subject, final List<String> services) {
-        HttpClient client = HttpClient.newHttpClient();
-        try {
+        try (HttpClient client = HttpClient.newHttpClient()) {
             serviceOps.list(NetworkService.Type.WA).stream().
                     filter(wa -> CollectionUtils.isEmpty(services) || services.contains(wa.getAddress())).
                     forEach(wa -> {

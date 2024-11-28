@@ -346,7 +346,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         userCR.getRelationships().forEach(relationshipTO -> {
             AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
             if (otherEnd == null) {
-                LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+                LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
             } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
                 LOG.error("{} was already in relationship {} with {}", otherEnd, relationshipTO.getType(), user);
 
@@ -627,8 +627,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     patch.getPlainAttrs().forEach(attrTO -> {
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
-                            LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                                    + "{}, ignoring...", attrTO.getSchema());
+                            LOG.debug("Invalid {}{}, ignoring...",
+                                PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
                             UPlainAttr attr = user.getPlainAttr(schema.getKey(), newMembership).orElse(null);
                             if (attr == null) {

@@ -28,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
 
 public abstract class AbstractXMLContentLoader implements ContentLoader {
 
@@ -53,7 +51,7 @@ public abstract class AbstractXMLContentLoader implements ContentLoader {
     protected abstract void createIndexes(String domain) throws IOException;
 
     protected SAXParser saxParser()
-            throws ParserConfigurationException, SAXNotRecognizedException, SAXNotSupportedException, SAXException {
+            throws ParserConfigurationException, SAXException {
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);

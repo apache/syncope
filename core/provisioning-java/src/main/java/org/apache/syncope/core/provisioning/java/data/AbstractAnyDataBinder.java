@@ -422,7 +422,7 @@ abstract class AbstractAnyDataBinder {
                 && !schema.isReadonly()
                 && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any, derAttrHandler)) {
 
-            LOG.error("Mandatory schema " + schema.getKey() + " not provided with values");
+            LOG.error("Mandatory schema {} not provided with values", schema.getKey());
 
             reqValMissing.getElements().add(schema.getKey());
         }
@@ -517,8 +517,8 @@ abstract class AbstractAnyDataBinder {
                                 any.getAuxClasses().remove(auxClass);
                         }
                     },
-                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...",
-                            patch.getValue()));
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                        AnyTypeClass.class.getSimpleName(), patch.getValue()));
         }
 
         // 2. resources
@@ -535,8 +535,8 @@ abstract class AbstractAnyDataBinder {
                                 any.getResources().remove(resource);
                         }
                     },
-                    () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...",
-                            patch.getValue()));
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                        ExternalResource.class.getSimpleName(), patch.getValue()));
         }
 
         Set<ExternalResource> resources = anyUtils.getAllResources(any);
@@ -546,8 +546,7 @@ abstract class AbstractAnyDataBinder {
         anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).forEach(patch -> {
             PlainSchema schema = getPlainSchema(patch.getAttr().getSchema());
             if (schema == null) {
-                LOG.debug("Invalid " + PlainSchema.class.getSimpleName() + " {}, ignoring...",
-                        patch.getAttr().getSchema());
+                LOG.debug("Invalid {} {}, ignoring...", PlainSchema.class.getSimpleName(), patch.getAttr().getSchema());
             } else {
                 PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
                 if (attr == null) {
@@ -620,7 +619,7 @@ abstract class AbstractAnyDataBinder {
                 flatMap(Optional::stream).
                 forEach(auxClass -> {
                     if (auxClass == null) {
-                        LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);
+                        LOG.debug("Invalid {} {}, ignoring...", AnyTypeClass.class.getSimpleName(), auxClass);
                     } else {
                         any.add(auxClass);
                     }

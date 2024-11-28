@@ -158,7 +158,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     false,
                     Map.of());
         } catch (Exception e) {
-            LOG.error("While registering job for task " + task.getKey(), e);
+            LOG.error("While registering job for task {}", task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -195,7 +195,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     false,
                     Map.of());
         } catch (Exception e) {
-            LOG.error("While registering job for task " + task.getKey(), e);
+            LOG.error("While registering job for task {}", task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());

@@ -170,8 +170,7 @@ public abstract class AbstractPullResultHandler
         }
     }
 
-    protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
-            throws JobExecutionException {
+    protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception) {
 
         if (exception instanceof IgnoreProvisionException) {
             throw IgnoreProvisionException.class.cast(exception);

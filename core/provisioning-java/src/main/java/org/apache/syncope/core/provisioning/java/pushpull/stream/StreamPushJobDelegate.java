@@ -104,7 +104,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
         propagationActions.forEach(key -> {
             Implementation impl = implementationDAO.findById(key).orElse(null);
             if (impl == null || !IdMImplementationType.PROPAGATION_ACTIONS.equals(impl.getType())) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
+                LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key);
             } else {
                 resource.add(impl);
             }

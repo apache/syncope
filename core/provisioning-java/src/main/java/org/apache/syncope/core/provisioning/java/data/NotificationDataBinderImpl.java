@@ -177,8 +177,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         } else {
             implementationDAO.findById(notificationTO.getRecipientsProvider()).ifPresentOrElse(
                     notification::setRecipientsProvider,
-                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                            notificationTO.getRecipientsProvider()));
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                        Implementation.class.getSimpleName(), notificationTO.getRecipientsProvider()));
         }
     }
 }

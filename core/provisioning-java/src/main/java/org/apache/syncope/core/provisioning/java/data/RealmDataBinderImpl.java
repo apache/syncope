@@ -125,13 +125,13 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         realmTO.getActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 realm::add,
-                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key)));
 
         setTemplates(realmTO, realm);
 
         realmTO.getResources().forEach(key -> resourceDAO.findById(key).ifPresentOrElse(
                 realm::add,
-                () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), key)));
 
         return realm;
     }
@@ -162,7 +162,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         realmTO.getActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 realm::add,
-                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key)));
         // remove all implementations not contained in the TO
         realm.getActions().
                 removeIf(implementation -> !realmTO.getActions().contains(implementation.getKey()));
@@ -175,7 +175,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
                     realm.add(resource);
                     propByRes.add(ResourceOperation.CREATE, resource.getKey());
                 },
-                () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), key)));
         // remove all resources not contained in the TO
         realm.getResources().removeIf(resource -> {
             boolean contained = realmTO.getResources().contains(resource.getKey());

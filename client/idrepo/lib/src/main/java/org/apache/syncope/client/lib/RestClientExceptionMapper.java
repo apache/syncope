@@ -117,7 +117,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
                 try {
                     exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
                 } catch (IllegalArgumentException e) {
-                    LOG.error("Unexpected value of " + RESTHeaders.ERROR_CODE + ": " + exTypeAsString, e);
+                    LOG.error("Unexpected value of " + RESTHeaders.ERROR_CODE + ": {}", exTypeAsString, e);
                 }
                 if (exceptionType != null) {
                     handledExceptions.add(exTypeAsString);
@@ -136,7 +136,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
 
             exTypesInHeaders.removeAll(handledExceptions);
             if (!exTypesInHeaders.isEmpty()) {
-                LOG.error("Unmanaged exceptions: " + exTypesInHeaders);
+                LOG.error("Unmanaged exceptions: {}", exTypesInHeaders);
             }
         } else {
             for (ErrorTO error : errors) {
