@@ -71,7 +71,7 @@ public class WAClientAppDataBinderImpl implements WAClientAppDataBinder {
             if (authPolicyConf instanceof DefaultAuthPolicyConf defaultAuthPolicyConf) {
                 defaultAuthPolicyConf.getAuthModules().forEach(key -> authModuleDAO.findById(key).ifPresentOrElse(
                         module -> waClientApp.getAuthModules().add(authModuleDataBinder.getAuthModuleTO(module)),
-                        () -> LOG.warn("AuthModule " + key + " not found")));
+                        () -> LOG.warn("AuthModule {} not found", key)));
             }
 
             if (clientApp.getAccessPolicy() != null) {

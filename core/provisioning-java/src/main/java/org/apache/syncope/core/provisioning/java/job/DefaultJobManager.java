@@ -272,7 +272,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 try {
                     register(domain, task, task.getStartAt(), securityProperties.getAdminUser(), false, Map.of());
                 } catch (Exception e) {
-                    LOG.error("While loading job instance for task " + task.getKey(), e);
+                    LOG.error("While loading job instance for task {}", task.getKey(), e);
                     loadException = true;
                 }
             }
@@ -286,7 +286,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                     try {
                         register(domain, report, null, securityProperties.getAdminUser(), false);
                     } catch (Exception e) {
-                        LOG.error("While loading job instance for report " + report.getName(), e);
+                        LOG.error("While loading job instance for report {}", report.getName(), e);
                         loadException = true;
                     }
                 }
@@ -353,7 +353,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 try {
                     unregister(task);
                 } catch (Exception e) {
-                    LOG.error("While unloading job instance for task " + task.getKey(), e);
+                    LOG.error("While unloading job instance for task {}", task.getKey(), e);
                 }
             });
 
@@ -362,7 +362,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 try {
                     unregister(report);
                 } catch (Exception e) {
-                    LOG.error("While unloading job instance for report " + report.getName(), e);
+                    LOG.error("While unloading job instance for report {}", report.getName(), e);
                 }
             });
         });

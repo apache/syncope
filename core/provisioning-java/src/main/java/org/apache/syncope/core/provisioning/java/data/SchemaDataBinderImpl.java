@@ -115,8 +115,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         } else {
             implementationDAO.findById(schemaTO.getDropdownValueProvider()).ifPresentOrElse(
                     schema::setDropdownValueProvider,
-                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                            schemaTO.getDropdownValueProvider()));
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                        Implementation.class.getSimpleName(), schemaTO.getDropdownValueProvider()));
         }
 
         schema.setMandatoryCondition(schemaTO.getMandatoryCondition());
@@ -134,8 +134,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         } else {
             implementationDAO.findById(schemaTO.getValidator()).ifPresentOrElse(
                     schema::setValidator,
-                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                            schemaTO.getValidator()));
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                        Implementation.class.getSimpleName(), schemaTO.getValidator()));
         }
 
         PlainSchema saved = plainSchemaDAO.save(schema);
@@ -152,8 +152,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
                         atc.set(anyTypeClass);
                     },
-                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
-                            schemaTO.getAnyTypeClass()));
+                    () -> LOG.debug("Invalid {}{}, ignoring...",
+                        AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
             saved.getAnyTypeClass().getPlainSchemas().remove(saved);
             saved.setAnyTypeClass(null);
@@ -272,8 +272,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
                         atc.set(anyTypeClass);
                     },
-                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
-                            schemaTO.getAnyTypeClass()));
+                    () -> LOG.debug("Invalid {}{}, ignoring...",
+                        AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
             saved.getAnyTypeClass().getDerSchemas().remove(saved);
             saved.setAnyTypeClass(null);
@@ -352,8 +352,8 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
                         atc.set(anyTypeClass);
                     },
-                    () -> LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...",
-                            schemaTO.getAnyTypeClass()));
+                    () -> LOG.debug("Invalid {}{}, ignoring...",
+                        AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
             saved.getAnyTypeClass().getVirSchemas().remove(saved);
             saved.setAnyTypeClass(null);

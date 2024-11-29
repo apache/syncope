@@ -606,7 +606,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             propagationAttempted.set(true);
 
-            LOG.error("Exception during provision on resource " + taskInfo.getResource().getKey(), e);
+            LOG.error("Exception during provision on resource {}", taskInfo.getResource().getKey(), e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();

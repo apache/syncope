@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,7 +49,7 @@ public class AMSessionDeserializer extends StdDeserializer<AMSession> {
 
     @Override
     public AMSession deserialize(final JsonParser jp, final DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException {
 
         JsonNode node = jp.getCodec().readTree(jp);
 

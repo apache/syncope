@@ -92,7 +92,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
 
         String consoleLayout = role.getAnyLayout();
         if (StringUtils.isBlank(consoleLayout)) {
-            LOG.error("Could not find console layout for Role '" + key + '\'');
+            LOG.error("Could not find console layout for Role '{}'", key);
 
             throw new NotFoundException("Console layout for role " + key);
         }

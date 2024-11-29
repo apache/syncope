@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -250,7 +249,7 @@ public class OpenSearchUtils {
     protected void customizeDocument(final Map<String, Object> builder, final Realm realm) {
     }
 
-    public Map<String, Object> document(final AuditEvent auditEvent) throws IOException {
+    public Map<String, Object> document(final AuditEvent auditEvent) {
         Map<String, Object> builder = new HashMap<>();
         builder.put("key", auditEvent.getKey());
         builder.put("opEvent", auditEvent.getOpEvent());

@@ -107,14 +107,14 @@ public class SelfKeymasterServiceOps extends SelfKeymasterOps implements Service
 
         completionStage.whenComplete((response, throwable) -> {
             if (throwable == null && response.getStatus() < 300) {
-                LOG.info("{} successfully " + action + "ed", service);
+                LOG.info("{} successfully {}ed", service, action);
             } else {
-                LOG.error("Could not " + action + " {}", service, throwable);
+                LOG.error("Could not {} {}", action, service, throwable);
 
                 handleRetry(service, action, retries, backOffExecution);
             }
         }).exceptionally(throwable -> {
-            LOG.error("Could not " + action + " {}", service, throwable);
+            LOG.error("Could not {} {}", action, service, throwable);
 
             handleRetry(service, action, retries, backOffExecution);
 

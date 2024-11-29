@@ -64,7 +64,7 @@ public class CreateARelationship extends FlowableServiceTask {
             execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
             execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
         } else {
-            LOG.info("Printer assignment to " + user.getUsername() + " was not approved");
+            LOG.info("Printer assignment to {} was not approved", user.getUsername());
         }
     }
 }

@@ -52,7 +52,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final ExternalResource resource,
             final Connector connector,
             final PushTaskTO pushTaskTO,
-            final String executor) throws JobExecutionException {
+            final String executor) {
 
         LOG.debug("Executing push on {}", resource);
 

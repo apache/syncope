@@ -559,15 +559,11 @@ public class DefaultMappingManager implements MappingManager {
         schemaType = intValues.getLeft();
         List<PlainAttrValue> values = intValues.getRight();
 
-        LOG.debug("Define mapping for: "
-                + "\n* ExtAttrName " + item.getExtAttrName()
-                + "\n* is connObjectKey " + item.isConnObjectKey()
-                + "\n* is password " + item.isPassword()
-                + "\n* mandatory condition " + item.getMandatoryCondition()
-                + "\n* Schema " + intAttrName.getSchema()
-                + "\n* ClassType " + schemaType.getType().getName()
-                + "\n* AttrSchemaType " + schemaType
-                + "\n* Values " + values);
+        LOG.debug("Define mapping for: \n* ExtAttrName {}\n* is connObjectKey {}\n"
+            + "* is password {}\n* mandatory condition {}\n* Schema {}\n"
+            + "* ClassType {}\n* AttrSchemaType {}\n* Values {}",
+            item.getExtAttrName(), item.isConnObjectKey(), item.isPassword(), item.getMandatoryCondition(),
+            intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
 
         Pair<String, Attribute> result;
         if (readOnlyVirSchema) {

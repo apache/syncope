@@ -68,7 +68,7 @@ public class ProvisioningImpl implements Provisioning {
                 statement.setString(1, accountid);
 
                 String query = "DELETE FROM testuser WHERE userId='" + accountid + "';";
-                LOG.debug("Execute query: " + query);
+                LOG.debug("Execute query: {}", query);
 
                 statement.executeUpdate();
             }
@@ -156,7 +156,7 @@ public class ProvisioningImpl implements Provisioning {
                         conn.prepareStatement("UPDATE testuser SET " + set.toString() + " WHERE userId=?")) {
                     statement.setString(1, accountid);
                     String query = "UPDATE testuser SET " + set.toString() + " WHERE userId='" + accountid + "';";
-                    LOG.debug("Execute query: " + query);
+                    LOG.debug("Execute query: {}", query);
 
                     statement.executeUpdate();
                 }
@@ -290,13 +290,13 @@ public class ProvisioningImpl implements Provisioning {
                     }
                 }
                 query = "INSERT INTO testuser (" + keys.toString() + ") VALUES (" + values.toString() + ')';
-                LOG.debug("Execute query: " + query);
+                LOG.debug("Execute query: {}", query);
                 statement.executeUpdate(query);
             }
 
             return accountid;
         } catch (SQLException e) {
-            LOG.error("Creation failed:\n" + query, e);
+            LOG.error("Creation failed:\n{}", query, e);
             throw new ProvisioningException("Create operation failed", e);
         } finally {
             DataSourceUtils.releaseConnection(conn, dataSource);
@@ -322,7 +322,7 @@ public class ProvisioningImpl implements Provisioning {
     @Override
     public String resolve(final String username) throws ProvisioningException {
 
-        LOG.debug("Resolve request operation received: " + username);
+        LOG.debug("Resolve request operation received: {}", username);
 
         String resolved = "";
 
@@ -333,7 +333,7 @@ public class ProvisioningImpl implements Provisioning {
             statement.setString(1, username);
 
             String query = "SELECT userId FROM testuser WHERE userId='" + username + "';";
-            LOG.debug("Execute query: " + query);
+            LOG.debug("Execute query: {}", query);
 
             ResultSet rs = statement.executeQuery();
 
@@ -345,7 +345,7 @@ public class ProvisioningImpl implements Provisioning {
                 statement = conn.prepareStatement("SELECT roleName FROM role WHERE roleName=?");
                 statement.setString(1, username);
                 final String roleQuery = "SELECT roleName FROM role WHERE roleName='" + username + "';";
-                LOG.debug("Execute query: " + roleQuery);
+                LOG.debug("Execute query: {}", roleQuery);
 
                 rs = statement.executeQuery();
 
