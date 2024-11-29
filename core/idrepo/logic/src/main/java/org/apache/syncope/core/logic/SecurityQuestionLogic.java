@@ -100,7 +100,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
                 orElseThrow(() -> new NotFoundException("User " + username));
 
         if (user.getSecurityQuestion() == null) {
-            LOG.error("Could not find security question for user '" + username + '\'');
+            LOG.error("Could not find security question for user '{}'", username);
 
             throw new NotFoundException("Security question for user " + username);
         }

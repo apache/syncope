@@ -113,7 +113,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             accountPolicyTO.getRules().forEach(ruleKey -> implementationDAO.findById(ruleKey).ifPresentOrElse(
                     accountPolicy::add,
-                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", ruleKey)));
+                    () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), ruleKey)));
             // remove all implementations not contained in the TO
             accountPolicy.getRules().
                     removeIf(implementation -> !accountPolicyTO.getRules().contains(implementation.getKey()));

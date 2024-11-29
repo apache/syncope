@@ -89,7 +89,7 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
             isValid = nonNullVales == 1;
 
             if (!isValid) {
-                LOG.error("More than one non-null value for " + value);
+                LOG.error("More than one non-null value for {}", value);
 
                 context.buildConstraintViolationWithTemplate(
                         AbstractValidator.getTemplate(EntityViolationType.MoreThanOneNonNull,
@@ -104,8 +104,8 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
                 isValid = uniqueValueSchema.equals(attrSchema);
 
                 if (!isValid) {
-                    LOG.error("Unique value schema for " + value + " is " + uniqueValueSchema
-                            + ", while owning attribute's schema is " + attrSchema);
+                    LOG.error("Unique value schema for {} is {}, while owning attribute's schema is {}",
+                        value, uniqueValueSchema, attrSchema);
 
                     context.buildConstraintViolationWithTemplate(
                             AbstractValidator.getTemplate(EntityViolationType.InvalidPlainAttr,

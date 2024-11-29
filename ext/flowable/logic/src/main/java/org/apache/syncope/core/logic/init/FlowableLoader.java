@@ -66,7 +66,7 @@ public class FlowableLoader implements SyncopeCoreLoader {
         try (InputStream wfIn = userWorkflowDef.getInputStream()) {
             wfDef = IOUtils.toByteArray(wfIn);
         } catch (IOException e) {
-            LOG.error("While loading " + userWorkflowDef.getFilename(), e);
+            LOG.error("While loading {}", userWorkflowDef.getFilename(), e);
         }
 
         ProcessEngine processEngine = dpEngine.getEngines().get(domain);

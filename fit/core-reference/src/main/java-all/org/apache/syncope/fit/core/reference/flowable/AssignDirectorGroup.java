@@ -59,7 +59,7 @@ public class AssignDirectorGroup extends FlowableServiceTask {
             execution.setVariable(FlowableRuntimeUtils.PROP_BY_RESOURCE, propInfo.getLeft());
             execution.setVariable(FlowableRuntimeUtils.PROP_BY_LINKEDACCOUNT, propInfo.getRight());
         } else {
-            LOG.info("Second level was not approved, not assigning the director group to " + user.getUsername());
+            LOG.info("Second level was not approved, not assigning the director group to {}", user.getUsername());
         }
     }
 }

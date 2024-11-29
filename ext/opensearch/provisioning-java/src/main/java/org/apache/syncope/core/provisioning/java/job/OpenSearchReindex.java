@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.io.IOException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -72,43 +71,43 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
     @Autowired
     protected RealmDAO realmDAO;
 
-    protected IndexSettings userSettings() throws IOException {
+    protected IndexSettings userSettings() {
         return indexManager.defaultSettings();
     }
 
-    protected IndexSettings groupSettings() throws IOException {
+    protected IndexSettings groupSettings() {
         return indexManager.defaultSettings();
     }
 
-    protected IndexSettings anyObjectSettings() throws IOException {
+    protected IndexSettings anyObjectSettings() {
         return indexManager.defaultSettings();
     }
 
-    protected IndexSettings realmSettings() throws IOException {
+    protected IndexSettings realmSettings() {
         return indexManager.defaultSettings();
     }
 
-    protected IndexSettings auditSettings() throws IOException {
+    protected IndexSettings auditSettings() {
         return indexManager.defaultSettings();
     }
 
-    protected TypeMapping userMapping() throws IOException {
+    protected TypeMapping userMapping() {
         return indexManager.defaultAnyMapping();
     }
 
-    protected TypeMapping groupMapping() throws IOException {
+    protected TypeMapping groupMapping() {
         return indexManager.defaultAnyMapping();
     }
 
-    protected TypeMapping anyObjectMapping() throws IOException {
+    protected TypeMapping anyObjectMapping() {
         return indexManager.defaultAnyMapping();
     }
 
-    protected TypeMapping realmMapping() throws IOException {
+    protected TypeMapping realmMapping() {
         return indexManager.defaultRealmMapping();
     }
 
-    protected TypeMapping auditMapping() throws IOException {
+    protected TypeMapping auditMapping() {
         return indexManager.defaultAuditMapping();
     }
 

@@ -388,7 +388,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                         validator.validate(schema, cond.getExpression(), attrValue);
                     }
                 } catch (ValidationException e) {
-                    LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
+                    LOG.error("Could not validate expression '{}'", cond.getExpression(), e);
                     return false;
                 }
 
@@ -469,7 +469,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                     try {
                         validator.validate(schema, cond.getExpression(), attrValue);
                     } catch (ValidationException e) {
-                        LOG.error("Could not validate expression '" + cond.getExpression() + '\'', e);
+                        LOG.error("Could not validate expression '{}'", cond.getExpression(), e);
                         return false;
                     }
                 }

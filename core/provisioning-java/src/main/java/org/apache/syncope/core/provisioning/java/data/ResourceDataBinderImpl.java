@@ -318,8 +318,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
-                                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        key)));
+                                () -> LOG.debug("Invalid {} {}, ignoring...",
+                                    Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -475,8 +475,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
-                                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        key)));
+                                () -> LOG.debug("Invalid {} {}, ignoring...",
+                                    Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));

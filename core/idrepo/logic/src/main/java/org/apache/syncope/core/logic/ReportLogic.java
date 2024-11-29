@@ -100,7 +100,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                     AuthContextUtils.getUsername(),
                     false);
         } catch (Exception e) {
-            LOG.error("While registering job for report " + report.getKey(), e);
+            LOG.error("While registering job for report {}", report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -124,7 +124,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                     AuthContextUtils.getUsername(),
                     false);
         } catch (Exception e) {
-            LOG.error("While registering job for report " + report.getKey(), e);
+            LOG.error("While registering job for report {}", report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());

@@ -132,7 +132,7 @@ public final class SearchUtils implements Serializable {
                 reduce(sc.getCondition().get(property), (s, v) -> s.replace(v, ENCODINGS.getKey(v)));
         clause.setValue(value);
 
-        LOG.debug("Condition: " + sc.getCondition());
+        LOG.debug("Condition: {}", sc.getCondition());
 
         if (SpecialAttr.ROLES.toString().equals(property)) {
             clause.setType(SearchClause.Type.ROLE_MEMBERSHIP);

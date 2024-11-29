@@ -80,8 +80,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
             jwksTO = service.get();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
-                try {
-                    Response response = service.generate(jwksKeyId, jwksType, jwksKeySize);
+                try (Response response = service.generate(jwksKeyId, jwksType, jwksKeySize)) {
                     jwksTO = response.readEntity(OIDCJWKSTO.class);
                 } catch (Exception ge) {
                     LOG.error("While generating new OIDC JWKS", ge);
