@@ -96,7 +96,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void createPasswordPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -146,7 +146,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void createInboundPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -216,7 +216,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void deletePasswordPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);
@@ -241,7 +241,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void deleteInboundPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);

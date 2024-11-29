@@ -27,6 +27,7 @@ import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,14 +77,16 @@ public class TaskJob extends Job {
 
         String taskKey = (String) context.getData().get(JobManager.TASK_KEY);
         try {
-            try {
-                delegate(context, taskKey);
-            } catch (Exception e) {
-                if (e instanceof RuntimeException re) {
-                    throw re;
+            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
+                try {
+                    delegate(context, taskKey);
+                } catch (Exception e) {
+                    if (e instanceof RuntimeException re) {
+                        throw re;
+                    }
+                    throw new RuntimeException(e);
                 }
-                throw new RuntimeException(e);
-            }
+            });
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
             if (e.getCause() instanceof JobExecutionException jee) {
