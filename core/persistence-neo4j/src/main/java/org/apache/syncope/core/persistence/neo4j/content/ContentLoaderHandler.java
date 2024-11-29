@@ -38,12 +38,14 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jInboundTask;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jLiveSyncTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommandRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jProvisioningTask;
@@ -108,8 +110,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
             case Neo4jPushPolicy.NODE -> {
                 return Neo4jPushPolicy.NODE + ":" + Neo4jPolicy.NODE;
             }
-            case Neo4jPullPolicy.NODE -> {
-                return Neo4jPullPolicy.NODE + ":" + Neo4jPolicy.NODE;
+            case Neo4jInboundPolicy.NODE -> {
+                return Neo4jInboundPolicy.NODE + ":" + Neo4jPolicy.NODE;
             }
             case Neo4jTicketExpirationPolicy.NODE -> {
                 return Neo4jTicketExpirationPolicy.NODE + ":" + Neo4jPolicy.NODE;
@@ -119,7 +121,12 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                 return Neo4jPushTask.NODE + ":" + Neo4jProvisioningTask.NODE + ":" + Neo4jSchedTask.NODE;
             }
             case Neo4jPullTask.NODE -> {
-                return Neo4jPullTask.NODE + ":" + Neo4jProvisioningTask.NODE + ":" + Neo4jSchedTask.NODE;
+                return Neo4jPullTask.NODE + ":" + Neo4jInboundTask.NODE + ":"
+                        + Neo4jProvisioningTask.NODE + ":" + Neo4jSchedTask.NODE;
+            }
+            case Neo4jLiveSyncTask.NODE -> {
+                return Neo4jLiveSyncTask.NODE + ":" + Neo4jInboundTask.NODE + ":"
+                        + Neo4jProvisioningTask.NODE + ":" + Neo4jSchedTask.NODE;
             }
             case Neo4jMacroTask.NODE -> {
                 return Neo4jMacroTask.NODE + ":" + Neo4jSchedTask.NODE;

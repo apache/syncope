@@ -26,7 +26,7 @@ import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate
 class MySchedTaskJobDelegate implements SchedTaskJobDelegate {
 
   @Override
-  void execute(TaskType taskType, String taskKey, boolean dryRun, JobExecutionContext context)
+  void execute(TaskType taskType, String taskKey, JobExecutionContext context)
     throws JobExecutionException {
 
   }

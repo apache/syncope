@@ -203,16 +203,16 @@ public class ImplementationLogic extends AbstractTransactionalLogic<Implementati
                 inUse = !resourceDAO.findByPropagationActionsContaining(implementation).isEmpty();
                 break;
 
-            case IdMImplementationType.PULL_ACTIONS:
-                inUse = !taskDAO.findByPullActions(implementation).isEmpty();
+            case IdMImplementationType.INBOUND_ACTIONS:
+                inUse = !taskDAO.findByInboundActions(implementation).isEmpty();
                 break;
 
             case IdMImplementationType.PUSH_ACTIONS:
                 inUse = !taskDAO.findByPushActions(implementation).isEmpty();
                 break;
 
-            case IdMImplementationType.PULL_CORRELATION_RULE:
-                inUse = !policyDAO.findByPullCorrelationRule(implementation).isEmpty();
+            case IdMImplementationType.INBOUND_CORRELATION_RULE:
+                inUse = !policyDAO.findByInboundCorrelationRule(implementation).isEmpty();
                 break;
 
             case IdMImplementationType.PUSH_CORRELATION_RULE:

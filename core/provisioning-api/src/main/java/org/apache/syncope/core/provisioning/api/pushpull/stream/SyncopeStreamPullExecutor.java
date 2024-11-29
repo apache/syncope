@@ -34,7 +34,7 @@ public interface SyncopeStreamPullExecutor {
             String keyColumn,
             List<String> columns,
             ConflictResolutionAction conflictResolutionAction,
-            String pullCorrelationRule,
+            String inboundCorrelationRule,
             Connector connector,
             PullTaskTO pullTaskTO,
             String executor) throws JobExecutionException;

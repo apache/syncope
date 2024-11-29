@@ -40,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.InboundPolicyTO;
 import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -72,8 +72,8 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRule;
-import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRuleConf;
+import org.apache.syncope.fit.core.reference.LinkedAccountSampleInboundCorrelationRule;
+import org.apache.syncope.fit.core.reference.LinkedAccountSampleInboundCorrelationRuleConf;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -410,18 +410,19 @@ public class LinkedAccountITCase extends AbstractITCase {
         // Add a custom policy with correlation rule
         // -----------------------------
         ResourceTO restResource = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
-        if (restResource.getPullPolicy() == null) {
+        if (restResource.getInboundPolicy() == null) {
             ImplementationTO rule = null;
             try {
                 rule = IMPLEMENTATION_SERVICE.read(
-                        IdMImplementationType.PULL_CORRELATION_RULE, "LinkedAccountSamplePullCorrelationRule");
+                        IdMImplementationType.INBOUND_CORRELATION_RULE,
+                        "LinkedAccountSampleInboundCorrelationrrelationRule");
             } catch (SyncopeClientException e) {
                 if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                     rule = new ImplementationTO();
-                    rule.setKey("LinkedAccountSamplePullCorrelationRule");
+                    rule.setKey("LinkedAccountSampleInboundCorrelationrrelationRule");
                     rule.setEngine(ImplementationEngine.JAVA);
-                    rule.setType(IdMImplementationType.PULL_CORRELATION_RULE);
-                    rule.setBody(POJOHelper.serialize(new LinkedAccountSamplePullCorrelationRuleConf()));
+                    rule.setType(IdMImplementationType.INBOUND_CORRELATION_RULE);
+                    rule.setBody(POJOHelper.serialize(new LinkedAccountSampleInboundCorrelationRuleConf()));
                     Response response = IMPLEMENTATION_SERVICE.create(rule);
                     rule = IMPLEMENTATION_SERVICE.read(
                             rule.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -430,14 +431,14 @@ public class LinkedAccountITCase extends AbstractITCase {
             }
             assertNotNull(rule);
 
-            PullPolicyTO policy = new PullPolicyTO();
-            policy.setName("Linked Account sample Pull policy");
+            InboundPolicyTO policy = new InboundPolicyTO();
+            policy.setName("Linked Account sample inbound policy");
             policy.getCorrelationRules().put(AnyTypeKind.USER.name(), rule.getKey());
-            Response response = POLICY_SERVICE.create(PolicyType.PULL, policy);
-            policy = POLICY_SERVICE.read(PolicyType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+            Response response = POLICY_SERVICE.create(PolicyType.INBOUND, policy);
+            policy = POLICY_SERVICE.read(PolicyType.INBOUND, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
             assertNotNull(policy.getKey());
 
-            restResource.setPullPolicy(policy.getKey());
+            restResource.setInboundPolicy(policy.getKey());
             RESOURCE_SERVICE.update(restResource);
         }
 
@@ -595,7 +596,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         } finally {
             // clean up
             UserUR patch = new UserUR();
-            patch.setKey(LinkedAccountSamplePullCorrelationRule.VIVALDI_KEY);
+            patch.setKey(LinkedAccountSampleInboundCorrelationRule.VIVALDI_KEY);
             patch.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                     operation(PatchOperation.DELETE).
                     linkedAccountTO(new LinkedAccountTO.Builder(RESOURCE_NAME_REST, user2Key).build()).

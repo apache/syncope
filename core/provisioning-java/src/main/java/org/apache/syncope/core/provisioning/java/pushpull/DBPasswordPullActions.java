@@ -31,20 +31,20 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to
+ * A {@link org.apache.syncope.core.provisioning.api.pushpull.InboundActions} implementation which allows the ability to
  * import passwords from a Database backend, where the passwords are hashed according to the password cipher algorithm
  * property of the (DB) Connector and HEX-encoded.
  */
-public class DBPasswordPullActions implements PullActions {
+public class DBPasswordPullActions implements InboundActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
 
@@ -61,7 +61,7 @@ public class DBPasswordPullActions implements PullActions {
     @Override
     public void beforeProvision(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final AnyCR anyCR) {
 
         if (anyCR instanceof UserCR userCR) {
@@ -73,7 +73,7 @@ public class DBPasswordPullActions implements PullActions {
     @Override
     public void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO entityTO,
             final AnyUR anyUR) {
 
@@ -112,7 +112,7 @@ public class DBPasswordPullActions implements PullActions {
     @Override
     public void after(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO any,
             final ProvisioningReport result) {
 

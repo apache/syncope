@@ -19,34 +19,36 @@
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
 import org.apache.syncope.common.lib.types.IdMImplementationType;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-@Node(Neo4jPullCorrelationRuleEntity.NODE)
-public class Neo4jPullCorrelationRuleEntity extends AbstractCorrelationRuleEntity implements PullCorrelationRuleEntity {
+@Node(Neo4jInboundCorrelationRuleEntity.NODE)
+public class Neo4jInboundCorrelationRuleEntity
+        extends AbstractCorrelationRuleEntity
+        implements InboundCorrelationRuleEntity {
 
     private static final long serialVersionUID = 4276417265524083919L;
 
-    public static final String NODE = "PullCorrelationRuleEntity";
+    public static final String NODE = "InboundCorrelationRuleEntity";
 
     @Relationship(direction = Relationship.Direction.OUTGOING)
-    private Neo4jPullPolicy pullPolicy;
+    private Neo4jInboundPolicy inboundPolicy;
 
     @Override
     protected String getImplementationType() {
-        return IdMImplementationType.PULL_CORRELATION_RULE;
+        return IdMImplementationType.INBOUND_CORRELATION_RULE;
     }
 
     @Override
-    public PullPolicy getPullPolicy() {
-        return pullPolicy;
+    public InboundPolicy getInboundPolicy() {
+        return inboundPolicy;
     }
 
     @Override
-    public void setPullPolicy(final PullPolicy pullPolicy) {
-        checkType(pullPolicy, Neo4jPullPolicy.class);
-        this.pullPolicy = (Neo4jPullPolicy) pullPolicy;
+    public void setInboundPolicy(final InboundPolicy inboundPolicy) {
+        checkType(inboundPolicy, Neo4jInboundPolicy.class);
+        this.inboundPolicy = (Neo4jInboundPolicy) inboundPolicy;
     }
 }

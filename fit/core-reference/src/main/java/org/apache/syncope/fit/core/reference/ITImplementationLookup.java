@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -43,8 +43,8 @@ import org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidato
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
 import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
@@ -55,8 +55,8 @@ import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagati
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultInboundCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultProvisionSorter;
-import org.apache.syncope.core.provisioning.java.pushpull.DefaultPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultPushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
@@ -92,11 +92,13 @@ public class ITImplementationLookup implements ImplementationLookup {
                     HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
 
     private static final Map<
-            Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> PULL_CR_CLASSES =
-            Map.of(
-                    DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class,
-                    DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class,
-                    LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
+            Class<? extends InboundCorrelationRuleConf>, Class<? extends InboundCorrelationRule>> INBOUND_CR_CLASSES =
+            Map.of(DummyInboundCorrelationRuleConf.class,
+                    DummyInboundCorrelationRule.class,
+                    DefaultInboundCorrelationRuleConf.class,
+                    DefaultInboundCorrelationRule.class,
+                    LinkedAccountSampleInboundCorrelationRuleConf.class,
+                    LinkedAccountSampleInboundCorrelationRule.class);
 
     private static final Map<
             Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> PUSH_CR_CLASSES =
@@ -160,17 +162,17 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             classNames.add(LDAPPasswordPullActions.class.getName());
-            classNames.add(TestPullActions.class.getName());
+            classNames.add(TestInboundActions.class.getName());
             classNames.add(LDAPMembershipPullActions.class.getName());
             classNames.add(DBPasswordPullActions.class.getName());
-            put(IdMImplementationType.PULL_ACTIONS, classNames);
+            put(IdMImplementationType.INBOUND_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             put(IdMImplementationType.PUSH_ACTIONS, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(DummyPullCorrelationRule.class.getName());
-            put(IdMImplementationType.PULL_CORRELATION_RULE, classNames);
+            classNames.add(DummyInboundCorrelationRule.class.getName());
+            put(IdMImplementationType.INBOUND_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
             classNames.add(DummyPushCorrelationRule.class.getName());
@@ -256,10 +258,10 @@ public class ITImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
-            final Class<? extends PullCorrelationRuleConf> pullCorrelationRuleConfClass) {
+    public Class<? extends InboundCorrelationRule> getInboundCorrelationRuleClass(
+            final Class<? extends InboundCorrelationRuleConf> inboundCorrelationRuleConfClass) {
 
-        return PULL_CR_CLASSES.get(pullCorrelationRuleConfClass);
+        return INBOUND_CR_CLASSES.get(inboundCorrelationRuleConfClass);
     }
 
     @Override

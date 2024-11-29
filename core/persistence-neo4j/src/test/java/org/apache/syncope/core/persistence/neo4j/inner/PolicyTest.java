@@ -27,8 +27,8 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -45,16 +45,16 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.junit.jupiter.api.Test;
@@ -84,7 +84,7 @@ public class PolicyTest extends AbstractTest {
         assertEquals(2, policyDAO.findAll(AuthPolicy.class).size());
         assertEquals(3, policyDAO.findAll(PasswordPolicy.class).size());
         assertEquals(1, policyDAO.findAll(PropagationPolicy.class).size());
-        assertEquals(4, policyDAO.findAll(PullPolicy.class).size());
+        assertEquals(4, policyDAO.findAll(InboundPolicy.class).size());
         assertEquals(1, policyDAO.findAll(PushPolicy.class).size());
     }
 
@@ -96,12 +96,12 @@ public class PolicyTest extends AbstractTest {
         assertEquals("10000", propagationPolicy.getBackOffParams());
         assertEquals(5, propagationPolicy.getMaxAttempts());
 
-        PullPolicy pullPolicy = policyDAO.findById(
-                "880f8553-069b-4aed-9930-2cd53873f544", PullPolicy.class).orElseThrow();
+        InboundPolicy inboundPolicy = policyDAO.findById("880f8553-069b-4aed-9930-2cd53873f544", InboundPolicy.class).
+                orElseThrow();
 
-        PullCorrelationRuleEntity pullCR = pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElseThrow();
-        DefaultPullCorrelationRuleConf pullCRConf =
-                POJOHelper.deserialize(pullCR.getImplementation().getBody(), DefaultPullCorrelationRuleConf.class);
+        InboundCorrelationRuleEntity pullCR = inboundPolicy.getCorrelationRule(AnyTypeKind.USER.name()).orElseThrow();
+        DefaultInboundCorrelationRuleConf pullCRConf =
+                POJOHelper.deserialize(pullCR.getImplementation().getBody(), DefaultInboundCorrelationRuleConf.class);
         assertNotNull(pullCRConf);
         assertEquals(2, pullCRConf.getSchemas().size());
         assertTrue(pullCRConf.getSchemas().contains("username"));
@@ -152,9 +152,9 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void createPull() {
-        PullPolicy pullPolicy = entityFactory.newEntity(PullPolicy.class);
-        pullPolicy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
-        pullPolicy.setName("Pull policy");
+        InboundPolicy inboundPolicy = entityFactory.newEntity(InboundPolicy.class);
+        inboundPolicy.setConflictResolutionAction(ConflictResolutionAction.IGNORE);
+        inboundPolicy.setName("Pull policy");
 
         final String pullURuleName = "net.tirasa.pull.correlation.TirasaURule";
         final String pullGRuleName = "net.tirasa.pull.correlation.TirasaGRule";
@@ -162,36 +162,36 @@ public class PolicyTest extends AbstractTest {
         Implementation impl1 = entityFactory.newEntity(Implementation.class);
         impl1.setKey(pullURuleName);
         impl1.setEngine(ImplementationEngine.JAVA);
-        impl1.setType(IdMImplementationType.PULL_CORRELATION_RULE);
-        impl1.setBody(PullCorrelationRule.class.getName());
+        impl1.setType(IdMImplementationType.INBOUND_CORRELATION_RULE);
+        impl1.setBody(InboundCorrelationRule.class.getName());
         impl1 = implementationDAO.save(impl1);
 
-        PullCorrelationRuleEntity rule1 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
+        InboundCorrelationRuleEntity rule1 = entityFactory.newEntity(InboundCorrelationRuleEntity.class);
         rule1.setAnyType(anyTypeDAO.getUser());
-        rule1.setPullPolicy(pullPolicy);
+        rule1.setInboundPolicy(inboundPolicy);
         rule1.setImplementation(impl1);
-        pullPolicy.add(rule1);
+        inboundPolicy.add(rule1);
 
         Implementation impl2 = entityFactory.newEntity(Implementation.class);
         impl2.setKey(pullGRuleName);
         impl2.setEngine(ImplementationEngine.JAVA);
-        impl2.setType(IdMImplementationType.PULL_CORRELATION_RULE);
-        impl2.setBody(PullCorrelationRule.class.getName());
+        impl2.setType(IdMImplementationType.INBOUND_CORRELATION_RULE);
+        impl2.setBody(InboundCorrelationRule.class.getName());
         impl2 = implementationDAO.save(impl2);
 
-        PullCorrelationRuleEntity rule2 = entityFactory.newEntity(PullCorrelationRuleEntity.class);
+        InboundCorrelationRuleEntity rule2 = entityFactory.newEntity(InboundCorrelationRuleEntity.class);
         rule2.setAnyType(anyTypeDAO.getGroup());
-        rule2.setPullPolicy(pullPolicy);
+        rule2.setInboundPolicy(inboundPolicy);
         rule2.setImplementation(impl2);
-        pullPolicy.add(rule2);
+        inboundPolicy.add(rule2);
 
-        pullPolicy = policyDAO.save(pullPolicy);
+        inboundPolicy = policyDAO.save(inboundPolicy);
 
-        assertNotNull(pullPolicy);
+        assertNotNull(inboundPolicy);
         assertEquals(pullURuleName,
-                pullPolicy.getCorrelationRule(AnyTypeKind.USER.name()).get().getImplementation().getKey());
+                inboundPolicy.getCorrelationRule(AnyTypeKind.USER.name()).get().getImplementation().getKey());
         assertEquals(pullGRuleName,
-                pullPolicy.getCorrelationRule(AnyTypeKind.GROUP.name()).get().getImplementation().getKey());
+                inboundPolicy.getCorrelationRule(AnyTypeKind.GROUP.name()).get().getImplementation().getKey());
     }
 
     @Test

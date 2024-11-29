@@ -26,34 +26,34 @@ import jakarta.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 
 @Entity
-@Table(name = JPAPullPolicy.TABLE)
-public class JPAPullPolicy extends AbstractProvisioningPolicy implements PullPolicy {
+@Table(name = JPAInboundPolicy.TABLE)
+public class JPAInboundPolicy extends AbstractProvisioningPolicy implements InboundPolicy {
 
     private static final long serialVersionUID = -6090413855809521279L;
 
-    public static final String TABLE = "PullPolicy";
+    public static final String TABLE = "InboundPolicy";
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullPolicy")
-    private List<JPAPullCorrelationRuleEntity> correlationRules = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "inboundPolicy")
+    private List<JPAInboundCorrelationRuleEntity> correlationRules = new ArrayList<>();
 
     @Override
-    public boolean add(final PullCorrelationRuleEntity filter) {
-        checkType(filter, JPAPullCorrelationRuleEntity.class);
-        return this.correlationRules.add((JPAPullCorrelationRuleEntity) filter);
+    public boolean add(final InboundCorrelationRuleEntity filter) {
+        checkType(filter, JPAInboundCorrelationRuleEntity.class);
+        return this.correlationRules.add((JPAInboundCorrelationRuleEntity) filter);
     }
 
     @Override
-    public Optional<? extends PullCorrelationRuleEntity> getCorrelationRule(final String anyType) {
+    public Optional<? extends InboundCorrelationRuleEntity> getCorrelationRule(final String anyType) {
         return correlationRules.stream().
                 filter(rule -> anyType != null && anyType.equals(rule.getAnyType().getKey())).findFirst();
     }
 
     @Override
-    public List<? extends PullCorrelationRuleEntity> getCorrelationRules() {
+    public List<? extends InboundCorrelationRuleEntity> getCorrelationRules() {
         return correlationRules;
     }
 }

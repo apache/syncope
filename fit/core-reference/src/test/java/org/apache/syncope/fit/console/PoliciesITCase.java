@@ -145,7 +145,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void createPullPolicy(final String name) {
+    private static void createInboundPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
@@ -240,7 +240,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void deletePullPolicy(final String name) {
+    private static void deleteInboundPolicy(final String name) {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -375,16 +375,16 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void createDeletePullPolicy() {
+    public void createDeleteInboundPolicy() {
         String name = "My Test Pull Policy";
-        createPullPolicy(name);
-        deletePullPolicy(name);
+        createInboundPolicy(name);
+        deleteInboundPolicy(name);
     }
 
     @Test
-    public void cloneDeletePullPolicy() {
+    public void cloneDeleteInboundPolicy() {
         String name = "My Test Pull Policy to be cloned";
-        createPullPolicy(name);
+        createInboundPolicy(name);
 
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -417,12 +417,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNotNull(findComponentByProp("name", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
 
-        deletePullPolicy(name);
+        deleteInboundPolicy(name);
 
         assertNotNull(findComponentByProp("name", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name + '2'));
 
-        deletePullPolicy(name + '2');
+        deleteInboundPolicy(name + '2');
     }
 
     @Test
@@ -628,9 +628,9 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void createUpdateDeletePullPolicy() {
+    public void createUpdateDeleteInboundPolicy() {
         String name = "Pull Policy To Be Updated";
-        createPullPolicy(name);
+        createInboundPolicy(name);
 
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -679,13 +679,13 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        deletePullPolicy(name + '2');
+        deleteInboundPolicy(name + '2');
     }
 
     @Test
-    public void createComposeDeletePullPolicy() {
+    public void createComposeDeleteInboundPolicy() {
         String name = "Pull Policy To Be Composed";
-        createPullPolicy(name);
+        createInboundPolicy(name);
 
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -728,7 +728,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         closeCallBack(modal);
 
-        deletePullPolicy(name);
+        deleteInboundPolicy(name);
     }
 
     @Test

@@ -44,8 +44,8 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeSinglePullExecutor;
@@ -110,12 +110,12 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile = new ProvisioningProfile<>(connector, task);
             profile.setDryRun(false);
             profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
-            profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
+            profile.getActions().addAll(getInboundActions(pullTaskTO.getActions().stream().
                     map(implementationDAO::findById).flatMap(Optional::stream).
                     toList()));
             profile.setExecutor(executor);
 
-            for (PullActions action : profile.getActions()) {
+            for (InboundActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
@@ -144,7 +144,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             profile.getActions().forEach(a -> matg.addAll(a.moreAttrsToGet(profile, provision)));
 
             Stream<Item> mapItems = Stream.concat(
-                    MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
+                    MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.findByResourceAndAnyType(task.getResource().getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
@@ -155,12 +155,12 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     MappingUtils.buildOperationOptions(mapItems, matg.toArray(String[]::new)));
 
             try {
-                setGroupOwners(ghandler);
+                setGroupOwners(ghandler, groupDAO, anyTypeDAO, inboundMatcher, profile);
             } catch (Exception e) {
                 LOG.error("While setting group owners", e);
             }
 
-            for (PullActions action : profile.getActions()) {
+            for (InboundActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
 

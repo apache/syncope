@@ -27,9 +27,9 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
 public interface ExternalResource extends ProvidedKeyEntity {
@@ -58,17 +58,17 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setPropagationPolicy(PropagationPolicy propagationPolicy);
 
-    PullPolicy getPullPolicy();
+    InboundPolicy getInboundPolicy();
 
-    void setPullPolicy(PullPolicy pullPolicy);
+    void setInboundPolicy(InboundPolicy inboundPolicy);
 
     PushPolicy getPushPolicy();
+
+    void setPushPolicy(PushPolicy pushPolicy);
 
     Implementation getProvisionSorter();
 
     void setProvisionSorter(Implementation provisionSorter);
-
-    void setPushPolicy(PushPolicy pushPolicy);
 
     TraceLevel getCreateTraceLevel();
 

@@ -23,23 +23,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-@Node(Neo4jPullPolicy.NODE)
-public class Neo4jPullPolicy extends Neo4jPolicy implements PullPolicy {
+@Node(Neo4jInboundPolicy.NODE)
+public class Neo4jInboundPolicy extends Neo4jPolicy implements InboundPolicy {
 
     private static final long serialVersionUID = -6090413855809521279L;
 
-    public static final String NODE = "PullPolicy";
+    public static final String NODE = "InboundPolicy";
 
     @NotNull
     private ConflictResolutionAction conflictResolutionAction;
 
-    @Relationship(type = "PULL_POLICY", direction = Relationship.Direction.INCOMING)
-    private List<Neo4jPullCorrelationRuleEntity> correlationRules = new ArrayList<>();
+    @Relationship(type = "INBOUND_POLICY", direction = Relationship.Direction.INCOMING)
+    private List<Neo4jInboundCorrelationRuleEntity> correlationRules = new ArrayList<>();
 
     @Override
     public ConflictResolutionAction getConflictResolutionAction() {
@@ -52,19 +52,19 @@ public class Neo4jPullPolicy extends Neo4jPolicy implements PullPolicy {
     }
 
     @Override
-    public boolean add(final PullCorrelationRuleEntity filter) {
-        checkType(filter, Neo4jPullCorrelationRuleEntity.class);
-        return this.correlationRules.add((Neo4jPullCorrelationRuleEntity) filter);
+    public boolean add(final InboundCorrelationRuleEntity filter) {
+        checkType(filter, Neo4jInboundCorrelationRuleEntity.class);
+        return this.correlationRules.add((Neo4jInboundCorrelationRuleEntity) filter);
     }
 
     @Override
-    public Optional<? extends PullCorrelationRuleEntity> getCorrelationRule(final String anyType) {
+    public Optional<? extends InboundCorrelationRuleEntity> getCorrelationRule(final String anyType) {
         return correlationRules.stream().
                 filter(rule -> anyType != null && anyType.equals(rule.getAnyType().getKey())).findFirst();
     }
 
     @Override
-    public List<? extends PullCorrelationRuleEntity> getCorrelationRules() {
+    public List<? extends InboundCorrelationRuleEntity> getCorrelationRules() {
         return correlationRules;
     }
 }

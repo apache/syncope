@@ -55,9 +55,9 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -359,8 +359,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setPropagationPolicy(resourceTO.getPropagationPolicy() == null
                 ? null : policyDAO.findById(resourceTO.getPropagationPolicy(), PropagationPolicy.class).orElse(null));
 
-        resource.setPullPolicy(resourceTO.getPullPolicy() == null
-                ? null : policyDAO.findById(resourceTO.getPullPolicy(), PullPolicy.class).orElse(null));
+        resource.setInboundPolicy(resourceTO.getInboundPolicy() == null
+                ? null : policyDAO.findById(resourceTO.getInboundPolicy(), InboundPolicy.class).orElse(null));
 
         resource.setPushPolicy(resourceTO.getPushPolicy() == null
                 ? null : policyDAO.findById(resourceTO.getPushPolicy(), PushPolicy.class).orElse(null));
@@ -656,8 +656,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setPropagationPolicy(resource.getPropagationPolicy() == null
                 ? null : resource.getPropagationPolicy().getKey());
 
-        resourceTO.setPullPolicy(resource.getPullPolicy() == null
-                ? null : resource.getPullPolicy().getKey());
+        resourceTO.setInboundPolicy(resource.getInboundPolicy() == null
+                ? null : resource.getInboundPolicy().getKey());
 
         resourceTO.setPushPolicy(resource.getPushPolicy() == null
                 ? null : resource.getPushPolicy().getKey());

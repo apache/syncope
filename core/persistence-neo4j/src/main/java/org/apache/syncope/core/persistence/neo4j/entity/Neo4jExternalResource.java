@@ -37,15 +37,15 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.common.validation.ExternalResourceCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
@@ -69,7 +69,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     public static final String RESOURCE_PROPAGATION_POLICY_REL = "RESOURCE_PROPAGATION_POLICY";
 
-    public static final String RESOURCE_PULL_POLICY_REL = "RESOURCE_PULL_POLICY";
+    public static final String RESOURCE_INBOUND_POLICY_REL = "RESOURCE_INBOUND_POLICY";
 
     public static final String RESOURCE_PUSH_POLICY_REL = "RESOURCE_PUSH_POLICY";
 
@@ -141,8 +141,8 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     @Relationship(type = RESOURCE_PROPAGATION_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jPropagationPolicy propagationPolicy;
 
-    @Relationship(type = RESOURCE_PULL_POLICY_REL, direction = Relationship.Direction.OUTGOING)
-    private Neo4jPullPolicy pullPolicy;
+    @Relationship(type = RESOURCE_INBOUND_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    private Neo4jInboundPolicy inboundPolicy;
 
     @Relationship(type = RESOURCE_PUSH_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jPushPolicy pushPolicy;
@@ -288,14 +288,14 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     @Override
-    public PullPolicy getPullPolicy() {
-        return pullPolicy;
+    public InboundPolicy getInboundPolicy() {
+        return inboundPolicy;
     }
 
     @Override
-    public void setPullPolicy(final PullPolicy pullPolicy) {
-        checkType(pullPolicy, Neo4jPullPolicy.class);
-        this.pullPolicy = (Neo4jPullPolicy) pullPolicy;
+    public void setInboundPolicy(final InboundPolicy inboundPolicy) {
+        checkType(inboundPolicy, Neo4jInboundPolicy.class);
+        this.inboundPolicy = (Neo4jInboundPolicy) inboundPolicy;
     }
 
     @Override

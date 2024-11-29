@@ -29,7 +29,6 @@ import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.Job;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,29 +67,27 @@ public class ReportJob extends Job {
 
         String reportKey = (String) context.getData().get(JobManager.REPORT_KEY);
         try {
-            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
-                try {
-                    String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
-                    Implementation impl = implementationDAO.findById(implKey).orElse(null);
-                    if (impl == null) {
-                        LOG.error("Could not find Implementation '{}', aborting", implKey);
-                    } else {
-                        ReportJobDelegate delegate = ImplementationManager.buildReportJobDelegate(
-                                impl,
-                                () -> perContextReportJobDelegates.get(impl.getKey()),
-                                instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
-                                orElseThrow(() -> new IllegalArgumentException(
-                                "Could not instantiate " + impl.getBody()));
-                        delegate.execute(
-                                reportKey,
-                                context.isDryRun(),
-                                context);
-                    }
-                } catch (Exception e) {
-                    LOG.error("While executing report {}", reportKey, e);
-                    throw new RuntimeException(e);
+            try {
+                String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
+                Implementation impl = implementationDAO.findById(implKey).orElse(null);
+                if (impl == null) {
+                    LOG.error("Could not find Implementation '{}', aborting", implKey);
+                } else {
+                    ReportJobDelegate delegate = ImplementationManager.buildReportJobDelegate(
+                            impl,
+                            () -> perContextReportJobDelegates.get(impl.getKey()),
+                            instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
+                            orElseThrow(() -> new IllegalArgumentException(
+                            "Could not instantiate " + impl.getBody()));
+                    delegate.execute(
+                            reportKey,
+                            context.isDryRun(),
+                            context);
                 }
-            });
+            } catch (Exception e) {
+                LOG.error("While executing report {}", reportKey, e);
+                throw new RuntimeException(e);
+            }
         } catch (RuntimeException e) {
             LOG.error("While executing report {}", reportKey, e);
             throw new JobExecutionException("While executing report " + reportKey, e);

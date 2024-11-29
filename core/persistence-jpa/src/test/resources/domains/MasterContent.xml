@@ -447,15 +447,15 @@ under the License.
   <UMembership id="8cfb78fc-d0e7-4f08-a0ae-d7abf3223b6f"
                user_id="823074dc-d280-436d-a7dd-07399fae48ec" group_id="ece66293-8f31-4a84-8e8d-23da36e70846"/>
     
-  <!-- pull policies -->
-  <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" name="a pull policy" conflictResolutionAction="IGNORE"/>
-  <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" name="another pull policy" conflictResolutionAction="ALL"/>
-  <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
-  <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
-                             anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
-  <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" name="pull policy 1" conflictResolutionAction="IGNORE"/>
-  <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" name="pull policy for java rule" conflictResolutionAction="IGNORE"/>
+  <!-- inbound policies -->
+  <InboundPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" name="a pull policy" conflictResolutionAction="IGNORE"/>
+  <InboundPolicy id="880f8553-069b-4aed-9930-2cd53873f544" name="another pull policy" conflictResolutionAction="ALL"/>
+  <Implementation id="TestInboundCorrelationRule" type="INBOUND_CORRELATION_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf","schemas":["username","firstname"]}'/>
+  <InboundCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" inboundPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
+                                anyType_id="USER" implementation_id="TestInboundCorrelationRule"/>
+  <InboundPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" name="pull policy 1" conflictResolutionAction="IGNORE"/>
+  <InboundPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" name="pull policy for java rule" conflictResolutionAction="IGNORE"/>
 
   <!-- push policies -->
   <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" name="a push policy" conflictResolutionAction="IGNORE"/>
@@ -566,7 +566,7 @@ under the License.
   <ExternalResource id="ws-target-resource-2" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
                     enforceMandatoryCondition="1"
                     createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
-                    pullPolicy_id="9454b0d7-2610-400a-be82-fc23cf553dd6"
+                    inboundPolicy_id="9454b0d7-2610-400a-be82-fc23cf553dd6"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"ctype","extAttrName":"type","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"type == &#39;F&#39;","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"virtualdata","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"type == &#39;F&#39;","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"cn","extAttrName":"fullname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-timeout" connector_id="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08"
                     enforceMandatoryCondition="1"
@@ -602,7 +602,7 @@ under the License.
   <ExternalResourcePropAction resource_id="resource-testdb2" implementation_id="GenerateRandomPasswordPropagationActions"/>
   <ExternalResource id="resource-csv" connector_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf"
                     enforceMandatoryCondition="0"
-                    pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544"
+                    inboundPolicy_id="880f8553-069b-4aed-9930-2cd53873f544"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":["csv","generic membership","minimal group"],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"id","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"id","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"csvuserid","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"groups[root].rderToBePropagated","extAttrName":"theirgroup","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"csvuserid","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-update-resetsynctoken" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
@@ -692,7 +692,8 @@ under the License.
 
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
-
+  <Implementation id="LiveSyncJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate"/>
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"

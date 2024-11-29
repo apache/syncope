@@ -348,7 +348,7 @@ public class ConnectorFacadeProxy implements Connector {
         if (connInstance.getCapabilities().contains(ConnectorCapability.LIVE_SYNC)) {
             connector.livesync(objectClass, handler, options);
         } else {
-            LOG.info("Live sync was attempted, although the connector only has these capabilities: {}. No action.",
+            LOG.info("livesync was attempted, although the connector only has these capabilities: {}. No action.",
                     connInstance.getCapabilities());
         }
     }

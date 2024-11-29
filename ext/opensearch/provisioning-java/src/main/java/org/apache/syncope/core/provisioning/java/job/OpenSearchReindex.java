@@ -112,10 +112,8 @@ public class OpenSearchReindex extends AbstractSchedTaskJobDelegate<SchedTask> {
     }
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
-            throws JobExecutionException {
-
-        if (!dryRun) {
+    protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
+        if (!context.isDryRun()) {
             setStatus("Start rebuilding indexes");
 
             try {

@@ -159,7 +159,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     public <T extends SchedTask> Optional<T> findByName(final TaskType type, final String name) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
         return neo4jClient.query(
-                "MATCH (n:" + taskUtils.getTaskTable() + ") WHERE n.name = $name RETURN n.id").
+                "MATCH (n:" + taskUtils.getTaskStorage() + ") WHERE n.name = $name RETURN n.id").
                 bindAll(Map.of("name", name)).fetch().one().
                 flatMap(toOptional("n.id", (Class<AbstractTask<?>>) taskUtils.getTaskEntity(), null));
     }
@@ -199,9 +199,9 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     }
 
     @Override
-    public List<PullTask> findByPullActions(final Implementation pullActions) {
+    public List<PullTask> findByInboundActions(final Implementation inboundActions) {
         return findByRelationship(
-                Neo4jPullTask.NODE, Neo4jImplementation.NODE, pullActions.getKey(), Neo4jPullTask.class, null);
+                Neo4jPullTask.NODE, Neo4jImplementation.NODE, inboundActions.getKey(), Neo4jPullTask.class, null);
     }
 
     @Override
@@ -225,7 +225,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
     @SuppressWarnings("unchecked")
     public <T extends Task<T>> List<T> findToExec(final TaskType type) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
-        StringBuilder query = new StringBuilder("MATCH (n:" + taskUtils.getTaskTable() + ") WHERE ");
+        StringBuilder query = new StringBuilder("MATCH (n:" + taskUtils.getTaskStorage() + ") WHERE ");
 
         if (type == TaskType.NOTIFICATION) {
             query.append("n.executed = false ");
@@ -261,7 +261,10 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             final Map<String, Object> parameters) {
 
         if (resource != null
-                && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
+                && type != TaskType.PROPAGATION
+                && type != TaskType.LIVE_SYNC
+                && type != TaskType.PUSH
+                && type != TaskType.PULL) {
 
             throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
         }
@@ -292,7 +295,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         }
 
         relationships.add(Pair.of(
-                (optionalMatch ? "OPTIONAL " : "") + "MATCH (n)-[]-(p:" + taskUtils.getTaskExecTable() + ")", null));
+                (optionalMatch ? "OPTIONAL " : "") + "MATCH (n)-[]-(p:" + taskUtils.getTaskExecStorage() + ")", null));
 
         if (resource != null) {
             relationships.add(Pair.of("MATCH (n)-[]-(e:" + Neo4jExternalResource.NODE + " {id: $eid})", null));
@@ -324,7 +327,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
             relationships.add(Pair.of("MATCH (n)-[]-(q:" + Neo4jRealm.NODE + ")", "(" + realmCond + ")"));
         }
 
-        StringBuilder query = new StringBuilder("MATCH (n:").append(taskUtils.getTaskTable()).append(")");
+        StringBuilder query = new StringBuilder("MATCH (n:").append(taskUtils.getTaskStorage()).append(")");
 
         if (type == TaskType.SCHEDULED) {
             query.append(

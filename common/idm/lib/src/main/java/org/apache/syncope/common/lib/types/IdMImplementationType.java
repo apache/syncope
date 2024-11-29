@@ -27,24 +27,27 @@ public final class IdMImplementationType {
 
     public static final String PROPAGATION_ACTIONS = "PROPAGATION_ACTIONS";
 
-    public static final String PULL_ACTIONS = "PULL_ACTIONS";
+    public static final String INBOUND_ACTIONS = "PULL_ACTIONS";
 
     public static final String PUSH_ACTIONS = "PUSH_ACTIONS";
 
-    public static final String PULL_CORRELATION_RULE = "PULL_CORRELATION_RULE";
+    public static final String INBOUND_CORRELATION_RULE = "INBOUND_CORRELATION_RULE";
 
     public static final String PUSH_CORRELATION_RULE = "PUSH_CORRELATION_RULE";
 
     public static final String PROVISION_SORTER = "PROVISION_SORTER";
 
+    public static final String LIVE_SYNC_DELTA_MAPPER = "LIVE_SYNC_DELTA_MAPPER";
+
     private static final Map<String, String> VALUES = Map.ofEntries(
             Pair.of(RECON_FILTER_BUILDER, "org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder"),
             Pair.of(PROPAGATION_ACTIONS, "org.apache.syncope.core.provisioning.api.propagation.PropagationActions"),
-            Pair.of(PULL_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.PullActions"),
+            Pair.of(INBOUND_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.InboundActions"),
             Pair.of(PUSH_ACTIONS, "org.apache.syncope.core.provisioning.api.pushpull.PushActions"),
-            Pair.of(PULL_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule"),
+            Pair.of(INBOUND_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule"),
             Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule"),
-            Pair.of(PROVISION_SORTER, "org.apache.syncope.core.provisioning.api.ProvisionSorter"));
+            Pair.of(PROVISION_SORTER, "org.apache.syncope.core.provisioning.api.ProvisionSorter"),
+            Pair.of(LIVE_SYNC_DELTA_MAPPER, "org.apache.syncope.core.provisioning.api.LiveSyncDeltaMapper"));
 
     public static Map<String, String> values() {
         return VALUES;

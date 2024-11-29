@@ -242,9 +242,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
-            throws JobExecutionException {
-
+    protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         Optional<MacroActions> actions;
         if (task.getMacroActions() == null) {
             actions = Optional.empty();
@@ -264,7 +262,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         SyncopeForm macroTaskForm = (SyncopeForm) context.getData().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
         Optional<JexlContext> jexlContext = check(macroTaskForm, actions, output);
 
-        if (!dryRun) {
+        if (!context.isDryRun()) {
             actions.ifPresent(MacroActions::beforeAll);
         }
 
@@ -318,7 +316,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             commands.add(Pair.of(runnable, args));
         }
 
-        return run(commands, actions, output, dryRun);
+        return run(commands, actions, output, context.isDryRun());
     }
 
     @Override

@@ -16,18 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.rules;
+package org.apache.syncope.common.lib.policy;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Target({ ElementType.TYPE })
-@Retention(RetentionPolicy.RUNTIME)
-public @interface PullCorrelationRuleConfClass {
+@Schema(allOf = { ProvisioningPolicyTO.class })
+public class InboundPolicyTO extends ProvisioningPolicyTO {
 
-    Class<? extends PullCorrelationRuleConf> value();
+    private static final long serialVersionUID = 993024634238024242L;
 
+    @JacksonXmlProperty(localName = "_class", isAttribute = true)
+    @JsonProperty("_class")
+    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
+            example = "org.apache.syncope.common.lib.policy.InboundPolicyTO")
+    @Override
+    public String getDiscriminator() {
+        return getClass().getName();
+    }
 }

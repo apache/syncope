@@ -54,15 +54,15 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.common.validation.ExternalResourceCheck;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAInboundPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
@@ -131,7 +131,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private JPAPropagationPolicy propagationPolicy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private JPAPullPolicy pullPolicy;
+    private JPAInboundPolicy inboundPolicy;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPushPolicy pushPolicy;
@@ -298,14 +298,14 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public PullPolicy getPullPolicy() {
-        return pullPolicy;
+    public InboundPolicy getInboundPolicy() {
+        return inboundPolicy;
     }
 
     @Override
-    public void setPullPolicy(final PullPolicy pullPolicy) {
-        checkType(pullPolicy, JPAPullPolicy.class);
-        this.pullPolicy = (JPAPullPolicy) pullPolicy;
+    public void setInboundPolicy(final InboundPolicy inboundPolicy) {
+        checkType(inboundPolicy, JPAInboundPolicy.class);
+        this.inboundPolicy = (JPAInboundPolicy) inboundPolicy;
     }
 
     @Override

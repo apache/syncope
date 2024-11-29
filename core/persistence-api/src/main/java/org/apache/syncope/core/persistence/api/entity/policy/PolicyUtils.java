@@ -55,8 +55,8 @@ public class PolicyUtils {
             case PROPAGATION:
                 return PropagationPolicy.class;
 
-            case PULL:
-                return PullPolicy.class;
+            case INBOUND:
+                return InboundPolicy.class;
 
             case PUSH:
             default:

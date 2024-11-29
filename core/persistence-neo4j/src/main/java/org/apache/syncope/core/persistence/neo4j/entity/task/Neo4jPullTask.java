@@ -27,14 +27,12 @@ import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -42,7 +40,7 @@ import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jPullTask.NODE)
-public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements PullTask {
+public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
 
@@ -62,10 +60,6 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     @Relationship(type = PULL_TASK_RECON_FILTER_BUIDER_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation reconFilterBuilder;
 
-    @NotNull
-    @Relationship(direction = Relationship.Direction.OUTGOING)
-    private Neo4jRealm destinationRealm;
-
     @Relationship(type = PULL_TASK_PULL_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
@@ -78,9 +72,6 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
 
     @Relationship(type = PULL_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jPullTaskExec> executions = new ArrayList<>();
-
-    @NotNull
-    private Boolean remediation = false;
 
     @Override
     public PullMode getPullMode() {
@@ -105,20 +96,9 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     }
 
     @Override
-    public Realm getDestinationRealm() {
-        return destinationRealm;
-    }
-
-    @Override
-    public void setDestinationRealm(final Realm destinationRealm) {
-        checkType(destinationRealm, Neo4jRealm.class);
-        this.destinationRealm = (Neo4jRealm) destinationRealm;
-    }
-
-    @Override
     public boolean add(final Implementation action) {
         checkType(action, Neo4jImplementation.class);
-        checkImplementationType(action, IdMImplementationType.PULL_ACTIONS);
+        checkImplementationType(action, IdMImplementationType.INBOUND_ACTIONS);
         return sortedActions.contains((Neo4jImplementation) action) || sortedActions.add((Neo4jImplementation) action);
     }
 
@@ -143,16 +123,6 @@ public class Neo4jPullTask extends Neo4jProvisioningTask<PullTask> implements Pu
     @Override
     public List<? extends AnyTemplatePullTask> getTemplates() {
         return templates;
-    }
-
-    @Override
-    public void setRemediation(final boolean remediation) {
-        this.remediation = remediation;
-    }
-
-    @Override
-    public boolean isRemediation() {
-        return concurrentSettings != null ? true : remediation;
     }
 
     @Override

@@ -97,7 +97,7 @@ When defining a pull task, the following information must be provided:
 * whether <<remediation,remediation>> is enabled
 * whether to synchronize the status information from the related identity store
 * selected <<provisioning-pull,matching and unmatching rules>>
-* optional <<pullactions,pull action(s)>>
+* optional <<inboundactions,inbound action(s)>>
 * <<pull-templates,entity templates>>
 * scheduling information:
 ** when to start

@@ -55,9 +55,9 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
-import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,11 +141,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     @Override
     protected OpEvent.Outcome handleLinkedAccounts(
             final SyncDelta delta,
-            final List<PullMatch> matches,
+            final List<InboundMatch> matches,
             final Provision provision) throws JobExecutionException {
 
         OpEvent.Outcome global = OpEvent.Outcome.SUCCESS;
-        for (PullMatch match : matches) {
+        for (InboundMatch match : matches) {
             if (match.getAny() == null) {
                 LOG.error("Could not find linking user, cannot process match {}", match);
                 return OpEvent.Outcome.FAILURE;
@@ -264,11 +264,11 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
             try {
                 if (matchingRule == MatchingRule.UNASSIGN) {
-                    for (PullActions action : profile.getActions()) {
+                    for (InboundActions action : profile.getActions()) {
                         action.beforeUnassign(profile, delta, before);
                     }
                 } else if (matchingRule == MatchingRule.DEPROVISION) {
-                    for (PullActions action : profile.getActions()) {
+                    for (InboundActions action : profile.getActions()) {
                         action.beforeDeprovision(profile, delta, before);
                     }
                 }
@@ -286,7 +286,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         false,
                         profile.getExecutor());
 
-                for (PullActions action : profile.getActions()) {
+                for (InboundActions action : profile.getActions()) {
                     action.after(profile, delta, before, report);
                 }
 
@@ -370,7 +370,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             }
         });
 
-        for (PullActions action : profile.getActions()) {
+        for (InboundActions action : profile.getActions()) {
             if (rule == UnmatchingRule.ASSIGN) {
                 action.beforeAssign(profile, delta, accountTO);
             } else if (rule == UnmatchingRule.PROVISION) {
@@ -406,7 +406,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             output = created;
             resultStatus = OpEvent.Outcome.SUCCESS;
 
-            for (PullActions action : profile.getActions()) {
+            for (InboundActions action : profile.getActions()) {
                 action.after(profile, delta, created, report);
             }
 
@@ -502,7 +502,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                     operation(PatchOperation.ADD_REPLACE).linkedAccountTO(update).build());
 
-            for (PullActions action : profile.getActions()) {
+            for (InboundActions action : profile.getActions()) {
                 action.beforeUpdate(profile, delta, before, userUR);
             }
 
@@ -525,7 +525,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
                         orElse(null);
                 output = updated;
 
-                for (PullActions action : profile.getActions()) {
+                for (InboundActions action : profile.getActions()) {
                     action.after(profile, delta, updated, report);
                 }
 
@@ -589,7 +589,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             if (!profile.isDryRun()) {
                 LinkedAccountTO before = userDataBinder.getLinkedAccountTO(account);
 
-                for (PullActions action : profile.getActions()) {
+                for (InboundActions action : profile.getActions()) {
                     action.beforeDelete(profile, delta, before);
                 }
 
@@ -611,7 +611,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
 
                     output = null;
 
-                    for (PullActions action : profile.getActions()) {
+                    for (InboundActions action : profile.getActions()) {
                         action.after(profile, delta, before, report);
                     }
                 } catch (Exception e) {

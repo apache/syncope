@@ -58,7 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -198,7 +198,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(new Uid(UUID.randomUUID().toString()));
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
-                thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
+                thenReturn(Optional.of(new InboundMatch(MatchType.ANY, user)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 

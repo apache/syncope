@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
@@ -60,7 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.junit.jupiter.api.Test;
@@ -264,15 +265,15 @@ public class TaskTest extends AbstractTest {
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
 
-        // now adding PullActions
-        Implementation pullActions = entityFactory.newEntity(Implementation.class);
-        pullActions.setKey("PullActions" + UUID.randomUUID().toString());
-        pullActions.setEngine(ImplementationEngine.JAVA);
-        pullActions.setType(IdMImplementationType.PULL_ACTIONS);
-        pullActions.setBody(PullActions.class.getName());
-        pullActions = implementationDAO.save(pullActions);
+        // now adding InboundActions
+        Implementation inboundActions = entityFactory.newEntity(Implementation.class);
+        inboundActions.setKey("InboundActions" + UUID.randomUUID().toString());
+        inboundActions.setEngine(ImplementationEngine.JAVA);
+        inboundActions.setType(IdMImplementationType.INBOUND_ACTIONS);
+        inboundActions.setBody(InboundActions.class.getName());
+        inboundActions = implementationDAO.save(inboundActions);
 
-        task.add(pullActions);
+        task.add(inboundActions);
 
         // this save() fails because of an invalid Cron Expression
         try {
@@ -301,12 +302,12 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void addAndRemovePullActions() {
+    public void addAndRemoveInboundActions() {
         Implementation implementation = entityFactory.newEntity(Implementation.class);
         implementation.setKey(UUID.randomUUID().toString());
         implementation.setEngine(ImplementationEngine.JAVA);
-        implementation.setType(IdMImplementationType.PULL_ACTIONS);
-        implementation.setBody("TestPullActions");
+        implementation.setType(IdMImplementationType.INBOUND_ACTIONS);
+        implementation.setBody("TestInboundActions");
         implementation = implementationDAO.save(implementation);
 
         PullTask task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").
@@ -326,6 +327,27 @@ public class TaskTest extends AbstractTest {
 
         task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
         assertTrue(task.getActions().isEmpty());
+    }
+
+    @Test
+    public void saveLiveSyncTask() {
+        LiveSyncTask task = entityFactory.newEntity(LiveSyncTask.class);
+        task.setName("saveLiveSyncTask");
+        task.setDescription("LiveSyncTask description");
+        task.setActive(true);
+        task.setJobDelegate(implementationDAO.findById("LiveSyncJobDelegate").orElseThrow());
+        task.setDestinationRealm(realmDAO.getRoot());
+        task.setCronExpression("BLA BLA");
+        task.setMatchingRule(MatchingRule.UPDATE);
+        task.setUnmatchingRule(UnmatchingRule.PROVISION);
+        task.setCronExpression(null);
+        task.setResource(resourceDAO.findById("ws-target-resource-1").orElseThrow());
+
+        task = taskDAO.save(task);
+        assertNotNull(task);
+
+        LiveSyncTask actual = (LiveSyncTask) taskDAO.findById(TaskType.LIVE_SYNC, task.getKey()).orElseThrow();
+        assertEquals(task, actual);
     }
 
     @Test
@@ -453,12 +475,12 @@ public class TaskTest extends AbstractTest {
         ExternalResource resource = resourceDAO.findById("ws-target-resource-1").orElseThrow();
         assertNotNull(resource);
 
-        Implementation pullActions = entityFactory.newEntity(Implementation.class);
-        pullActions.setKey("syncope144");
-        pullActions.setEngine(ImplementationEngine.JAVA);
-        pullActions.setType(IdMImplementationType.PULL_ACTIONS);
-        pullActions.setBody(PullActions.class.getName());
-        pullActions = implementationDAO.save(pullActions);
+        Implementation inboundActions = entityFactory.newEntity(Implementation.class);
+        inboundActions.setKey("syncope144");
+        inboundActions.setEngine(ImplementationEngine.JAVA);
+        inboundActions.setType(IdMImplementationType.INBOUND_ACTIONS);
+        inboundActions.setBody(InboundActions.class.getName());
+        inboundActions = implementationDAO.save(inboundActions);
 
         PullTask task = entityFactory.newEntity(PullTask.class);
 
@@ -467,7 +489,7 @@ public class TaskTest extends AbstractTest {
         task.setDescription("issueSYNCOPE144 Description");
         task.setActive(true);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
-        task.add(pullActions);
+        task.add(inboundActions);
         task.setMatchingRule(MatchingRule.UPDATE);
         task.setUnmatchingRule(UnmatchingRule.PROVISION);
         task.setJobDelegate(implementationDAO.findById("PullJobDelegate").orElseThrow());

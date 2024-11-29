@@ -83,7 +83,7 @@ public class ResourceSecurityPanel extends WizardStep {
 
         @Override
         protected Map<String, String> load() {
-            return policyRestClient.list(PolicyType.PULL).stream().
+            return policyRestClient.list(PolicyType.INBOUND).stream().
                     collect(Collectors.toMap(PolicyTO::getKey, PolicyTO::getName, (v1, v2) -> v1, LinkedHashMap::new));
         }
     };
@@ -153,15 +153,15 @@ public class ResourceSecurityPanel extends WizardStep {
         // -------------------------------
         // Pull policy selection
         // -------------------------------
-        AjaxDropDownChoicePanel<String> pullPolicy = new AjaxDropDownChoicePanel<>(
-                "pullPolicy",
-                new ResourceModel("pullPolicy", "pullPolicy").getObject(),
-                new PropertyModel<>(resourceTO, "pullPolicy"),
+        AjaxDropDownChoicePanel<String> inboundPolicy = new AjaxDropDownChoicePanel<>(
+                "inboundPolicy",
+                new ResourceModel("inboundPolicy", "inboundPolicy").getObject(),
+                new PropertyModel<>(resourceTO, "inboundPolicy"),
                 false);
-        pullPolicy.setChoiceRenderer(new PolicyRenderer(pullPolicies.getObject()));
-        pullPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));
-        ((DropDownChoice<?>) pullPolicy.getField()).setNullValid(true);
-        container.add(pullPolicy);
+        inboundPolicy.setChoiceRenderer(new PolicyRenderer(pullPolicies.getObject()));
+        inboundPolicy.setChoices(new ArrayList<>(pullPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) inboundPolicy.getField()).setNullValid(true);
+        container.add(inboundPolicy);
         // -------------------------------
 
         // -------------------------------

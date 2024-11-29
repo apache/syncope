@@ -27,7 +27,6 @@ import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +46,26 @@ public class TaskJob extends Job {
     }
 
     @Autowired
-    private ImplementationDAO implementationDAO;
+    private DomainHolder<?> domainHolder;
 
     @Autowired
-    private DomainHolder<?> domainHolder;
+    protected ImplementationDAO implementationDAO;
+
+    protected void delegate(final JobExecutionContext context, final String taskKey)
+            throws ClassNotFoundException, JobExecutionException {
+
+        String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
+        Implementation impl = implementationDAO.findById(implKey).orElse(null);
+        if (impl == null) {
+            LOG.error("Could not find Implementation '{}', aborting", implKey);
+        } else {
+            SchedTaskJobDelegate delegate = ImplementationManager.build(impl);
+            delegate.execute(
+                    (TaskType) context.getData().get(JobManager.TASK_TYPE),
+                    taskKey,
+                    context);
+        }
+    }
 
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
@@ -61,27 +76,19 @@ public class TaskJob extends Job {
 
         String taskKey = (String) context.getData().get(JobManager.TASK_KEY);
         try {
-            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
-                try {
-                    String implKey = (String) context.getData().get(JobManager.DELEGATE_IMPLEMENTATION);
-                    Implementation impl = implementationDAO.findById(implKey).orElse(null);
-                    if (impl == null) {
-                        LOG.error("Could not find Implementation '{}', aborting", implKey);
-                    } else {
-                        SchedTaskJobDelegate delegate = ImplementationManager.build(impl);
-                        delegate.execute(
-                                (TaskType) context.getData().get(JobManager.TASK_TYPE),
-                                taskKey,
-                                context.isDryRun(),
-                                context);
-                    }
-                } catch (Exception e) {
-                    LOG.error("While executing task {}", taskKey, e);
-                    throw new RuntimeException(e);
+            try {
+                delegate(context, taskKey);
+            } catch (Exception e) {
+                if (e instanceof RuntimeException re) {
+                    throw re;
                 }
-            });
+                throw new RuntimeException(e);
+            }
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
+            if (e.getCause() instanceof JobExecutionException jee) {
+                throw jee;
+            }
             throw new JobExecutionException("While executing task " + taskKey, e);
         }
     }

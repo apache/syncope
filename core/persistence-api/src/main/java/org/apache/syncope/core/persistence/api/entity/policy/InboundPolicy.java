@@ -16,14 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core.reference;
+package org.apache.syncope.core.persistence.api.entity.policy;
 
-import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import java.util.List;
+import java.util.Optional;
 
-public class DummyPullCorrelationRuleConf
-        extends AbstractCorrelationRuleConf implements PullCorrelationRuleConf {
+public interface InboundPolicy extends ProvisioningPolicy {
 
-    private static final long serialVersionUID = -2984203196323732531L;
+    boolean add(InboundCorrelationRuleEntity rule);
 
+    Optional<? extends InboundCorrelationRuleEntity> getCorrelationRule(String anyType);
+
+    List<? extends InboundCorrelationRuleEntity> getCorrelationRules();
 }
