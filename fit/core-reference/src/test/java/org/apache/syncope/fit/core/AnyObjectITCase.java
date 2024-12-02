@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -252,5 +253,83 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO printer = ANY_OBJECT_SERVICE.read("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertFalse(printer.getResources().contains(RESOURCE_NAME_DBSCRIPTED), "Should not contain removed resources");
         assertFalse(printer.getAuxClasses().contains("csv"), "Should not contain removed auxiliary classes");
+    }
+
+    @Test
+    public void issueSYNCOPE1686() {
+        // Create printers
+        AnyObjectCR printer1CR = getSample("printer1");
+        printer1CR.setRealm("/");
+        printer1CR.getResources().clear();
+        String key1 = createAnyObject(printer1CR).getEntity().getKey();
+
+        AnyObjectCR printer2CR = getSample("printer2");
+        printer2CR.setRealm("/");
+        printer2CR.getResources().clear();
+        String key2 = createAnyObject(printer2CR).getEntity().getKey();
+
+        AnyObjectCR printer3CR = getSample("printer3");
+        printer3CR.setRealm("/");
+        printer3CR.getResources().clear();
+        String key3 = createAnyObject(printer3CR).getEntity().getKey();
+
+        // Add relationships: printer1 -> printer2 and printer2 -> printer3
+        AnyObjectUR relationship1To2 = new AnyObjectUR.Builder(key1)
+                .relationship(new RelationshipUR.Builder(
+                        new RelationshipTO.Builder("neighborhood").otherEnd(PRINTER, key2).build()).build())
+                .build();
+        AnyObjectUR relationship2To3 = new AnyObjectUR.Builder(key2)
+                .relationship(new RelationshipUR.Builder(
+                        new RelationshipTO.Builder("neighborhood").otherEnd(PRINTER, key3).build()).build())
+                .build();
+
+        updateAnyObject(relationship1To2);
+        updateAnyObject(relationship2To3);
+
+        // Read updated printers
+        AnyObjectTO printer1 = ANY_OBJECT_SERVICE.read(key1);
+        AnyObjectTO printer2 = ANY_OBJECT_SERVICE.read(key2);
+        AnyObjectTO printer3 = ANY_OBJECT_SERVICE.read(key3);
+
+        // Verify relationships for printer1
+        assertEquals(1, printer1.getRelationships().size());
+        RelationshipTO rel1 = printer1.getRelationships().get(0);
+        assertEquals(RelationshipTO.End.LEFT, rel1.getEnd());
+        assertEquals(printer2.getKey(), rel1.getOtherEndKey());
+        assertEquals(printer2.getType(), rel1.getOtherEndType());
+        assertEquals(printer2.getName(), rel1.getOtherEndName());
+
+        // Verify relationships for printer2
+        assertEquals(2, printer2.getRelationships().size());
+        assertTrue(printer2.getRelationships().stream()
+                .anyMatch(r -> r.getEnd() == RelationshipTO.End.LEFT
+                               && printer3.getKey().equals(r.getOtherEndKey())
+                               && printer3.getType().equals(r.getOtherEndType())
+                               && printer3.getName().equals(r.getOtherEndName())));
+        assertTrue(printer2.getRelationships().stream()
+                .anyMatch(r -> r.getEnd() == RelationshipTO.End.RIGHT
+                               && printer1.getKey().equals(r.getOtherEndKey())
+                               && printer1.getType().equals(r.getOtherEndType())
+                               && printer1.getName().equals(r.getOtherEndName())));
+
+        // Verify relationships for printer3
+        assertEquals(1, printer3.getRelationships().size());
+        RelationshipTO rel3 = printer3.getRelationships().get(0);
+        assertEquals(RelationshipTO.End.RIGHT, rel3.getEnd());
+        assertEquals(printer2.getKey(), rel3.getOtherEndKey());
+        assertEquals(printer2.getType(), rel3.getOtherEndType());
+        assertEquals(printer2.getName(), rel3.getOtherEndName());
+
+        // Test invalid relationship with End.RIGHT
+        AnyObjectCR printer4CR = getSample("printer4");
+        printer4CR.setRealm("/");
+        printer4CR.getResources().clear();
+        printer4CR.getRelationships().add(new RelationshipTO.Builder("neighborhood", RelationshipTO.End.RIGHT)
+                .otherEnd(PRINTER, key1).build());
+
+        SyncopeClientException exception =
+                assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
+        assertEquals("InvalidRelationship [Invalid relationship end: RIGHT is not allowed for this operation]",
+                exception.getMessage());
     }
 }

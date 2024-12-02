@@ -76,6 +76,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -656,9 +657,16 @@ abstract class AbstractAnyDataBinder {
         anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
     }
 
-    protected static RelationshipTO getRelationshipTO(final String relationshipType, final AnyObject otherEnd) {
-        return new RelationshipTO.Builder(relationshipType).
-                otherEnd(otherEnd.getType().getKey(), otherEnd.getKey(), otherEnd.getName()).
+    protected static RelationshipTO getRelationshipTO(
+            final String relationshipType,
+            final RelationshipTO.End end,
+            final Any<?> otherEnd) {
+        return new RelationshipTO.Builder(relationshipType, end).
+                otherEnd(otherEnd.getType().getKey(),
+                        otherEnd.getKey(),
+                        otherEnd instanceof User
+                        ? ((User) otherEnd).getUsername()
+                        : ((AnyObject) otherEnd).getName()).
                 build();
     }
 
