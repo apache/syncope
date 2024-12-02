@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -160,8 +161,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             map(relationship -> getRelationshipTO(
                             relationship.getType().getKey(),
                             relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                            ? RelationshipTO.End.LEFT
+                            : RelationshipTO.End.RIGHT,
+                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
                             ? relationship.getRightEnd()
-                            : anyObject)).
+                            : relationship.getLeftEnd())).
                             toList());
 
             // memberships
@@ -232,10 +236,13 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
                 if (otherEnd == null) {
                     LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
+                } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
+                    SyncopeClientException noRight =
+                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                    noRight.getElements().add(
+                            "Relationships shall be created or updated only from their left end");
+                    scce.addException(noRight);
                 } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                    LOG.error("{} was already in relationship {} with {}",
-                            otherEnd, relationshipTO.getType(), anyObject);
-
                     SyncopeClientException assigned =
                             SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                     assigned.getElements().add("AnyObject was already in relationship "
@@ -357,11 +364,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 orElse(null);
                         if (otherEnd == null) {
                             LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
+                        } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
+                            SyncopeClientException noRight =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                            noRight.getElements().add(
+                                    "Relationships shall be created or updated only from their left end");
+                            scce.addException(noRight);
                         } else if (relationships.contains(
                                 Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
-
-                            LOG.error("{} was already in relationship {} with {}",
-                                    anyObject, patch.getRelationshipTO().getType(), otherEnd);
 
                             SyncopeClientException assigned =
                                     SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
@@ -431,7 +441,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
                             LOG.debug("Invalid {}{}, ignoring...",
-                                PlainSchema.class.getSimpleName(), attrTO.getSchema());
+                                    PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
                             Optional<? extends APlainAttr> attr =
                                     anyObject.getPlainAttr(schema.getKey(), newMembership);
