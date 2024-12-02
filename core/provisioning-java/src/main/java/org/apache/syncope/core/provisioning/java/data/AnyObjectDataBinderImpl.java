@@ -235,18 +235,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 if (otherEnd == null) {
                     LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
                 } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
-                    LOG.error("Invalid relationship end: {} is not allowed for this operation",
-                            relationshipTO.getEnd());
-                    SyncopeClientException assigned =
+                    SyncopeClientException noRight =
                             SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                    assigned.getElements().add("Invalid relationship end: "
-                                               + relationshipTO.getEnd()
-                                               + " is not allowed for this operation");
-                    scce.addException(assigned);
+                    noRight.getElements().add(
+                            "Relationships shall be created or updated only from their left end");
+                    scce.addException(noRight);
                 } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                    LOG.error("{} was already in relationship {} with {}",
-                            otherEnd, relationshipTO.getType(), anyObject);
-
                     SyncopeClientException assigned =
                             SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                     assigned.getElements().add("AnyObject was already in relationship "
@@ -365,11 +359,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getOtherEndKey());
                         if (otherEnd == null) {
                             LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
+                        } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
+                            SyncopeClientException noRight =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                            noRight.getElements().add(
+                                    "Relationships shall be created or updated only from their left end");
+                            scce.addException(noRight);
                         } else if (relationships.contains(
                                 Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
-
-                            LOG.error("{} was already in relationship {} with {}",
-                                    anyObject, patch.getRelationshipTO().getType(), otherEnd);
 
                             SyncopeClientException assigned =
                                     SyncopeClientException.build(ClientExceptionType.InvalidRelationship);

@@ -357,17 +357,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             if (otherEnd == null) {
                 LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
             } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
-                LOG.error("Invalid relationship end: {} is not allowed for this operation",
-                        relationshipTO.getEnd());
-                SyncopeClientException assigned =
+                SyncopeClientException noRight =
                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                assigned.getElements().add("Invalid relationship end: "
-                                           + relationshipTO.getEnd()
-                                           + " is not allowed for this operation");
-                scce.addException(assigned);
+                noRight.getElements().add(
+                        "Relationships shall be created or updated only from their left end");
+                scce.addException(noRight);
             } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                LOG.error("{} was already in relationship {} with {}", otherEnd, relationshipTO.getType(), user);
-
                 SyncopeClientException assigned =
                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                 assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
@@ -388,8 +383,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     user.add(relationship);
                 }
             } else {
-                LOG.error("{} cannot be related to {}", otherEnd, user);
-
                 SyncopeClientException unrelatable =
                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                 unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
@@ -568,15 +561,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     } else if (relationships.contains(
                             Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
 
-                        LOG.error("{} was already in relationship {} with {}",
-                                user, patch.getRelationshipTO().getType(), otherEnd);
-
                         SyncopeClientException assigned =
                                 SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                         assigned.getElements().add("User was already in relationship "
                                 + patch.getRelationshipTO().getType() + " with "
                                 + otherEnd.getType().getKey() + " " + otherEnd.getName());
                         scce.addException(assigned);
+                    } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
+                        SyncopeClientException noRight =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        noRight.getElements().add(
+                                "Relationships shall be created or updated only from their left end");
+                        scce.addException(noRight);
                     } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                         relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
 
@@ -840,7 +836,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().
                     map(relationship -> getRelationshipTO(relationship.getType().getKey(),
-                            RelationshipTO.End.LEFT, relationship.getRightEnd())).
+                    RelationshipTO.End.LEFT, relationship.getRightEnd())).
                     collect(Collectors.toList()));
 
             // memberships

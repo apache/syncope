@@ -259,17 +259,14 @@ public class AnyObjectITCase extends AbstractITCase {
     public void issueSYNCOPE1686() {
         // Create printers
         AnyObjectCR printer1CR = getSample("printer1");
-        printer1CR.setRealm("/");
         printer1CR.getResources().clear();
         String key1 = createAnyObject(printer1CR).getEntity().getKey();
 
         AnyObjectCR printer2CR = getSample("printer2");
-        printer2CR.setRealm("/");
         printer2CR.getResources().clear();
         String key2 = createAnyObject(printer2CR).getEntity().getKey();
 
         AnyObjectCR printer3CR = getSample("printer3");
-        printer3CR.setRealm("/");
         printer3CR.getResources().clear();
         String key3 = createAnyObject(printer3CR).getEntity().getKey();
 
@@ -303,14 +300,14 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals(2, printer2.getRelationships().size());
         assertTrue(printer2.getRelationships().stream()
                 .anyMatch(r -> r.getEnd() == RelationshipTO.End.LEFT
-                               && printer3.getKey().equals(r.getOtherEndKey())
-                               && printer3.getType().equals(r.getOtherEndType())
-                               && printer3.getName().equals(r.getOtherEndName())));
+                && printer3.getKey().equals(r.getOtherEndKey())
+                && printer3.getType().equals(r.getOtherEndType())
+                && printer3.getName().equals(r.getOtherEndName())));
         assertTrue(printer2.getRelationships().stream()
                 .anyMatch(r -> r.getEnd() == RelationshipTO.End.RIGHT
-                               && printer1.getKey().equals(r.getOtherEndKey())
-                               && printer1.getType().equals(r.getOtherEndType())
-                               && printer1.getName().equals(r.getOtherEndName())));
+                && printer1.getKey().equals(r.getOtherEndKey())
+                && printer1.getType().equals(r.getOtherEndType())
+                && printer1.getName().equals(r.getOtherEndName())));
 
         // Verify relationships for printer3
         assertEquals(1, printer3.getRelationships().size());
@@ -322,14 +319,14 @@ public class AnyObjectITCase extends AbstractITCase {
 
         // Test invalid relationship with End.RIGHT
         AnyObjectCR printer4CR = getSample("printer4");
-        printer4CR.setRealm("/");
         printer4CR.getResources().clear();
-        printer4CR.getRelationships().add(new RelationshipTO.Builder("neighborhood", RelationshipTO.End.RIGHT)
-                .otherEnd(PRINTER, key1).build());
+        printer4CR.getRelationships().add(
+                new RelationshipTO.Builder("neighborhood", RelationshipTO.End.RIGHT).otherEnd(PRINTER, key1).build());
 
         SyncopeClientException exception =
                 assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
-        assertEquals("InvalidRelationship [Invalid relationship end: RIGHT is not allowed for this operation]",
-                exception.getMessage());
+        assertEquals(ClientExceptionType.InvalidRelationship, exception.getType());
+        assertTrue(exception.getMessage().
+                contains("Relationships shall be created or updated only from their left end"));
     }
 }
