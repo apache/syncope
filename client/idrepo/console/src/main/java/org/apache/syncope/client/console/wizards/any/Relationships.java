@@ -49,7 +49,6 @@ import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.End;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -196,7 +195,7 @@ public class Relationships extends WizardStep implements ICondition {
         public Specification() {
             super("specification");
             rel = new RelationshipTO();
-            rel.setEnd(End.LEFT);
+            rel.setEnd(RelationshipTO.End.LEFT);
 
             List<String> availableRels = relationshipTypeRestClient.list().stream().
                     map(RelationshipTypeTO::getKey).collect(Collectors.toList());

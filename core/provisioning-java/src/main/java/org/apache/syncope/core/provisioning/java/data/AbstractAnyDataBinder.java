@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObject;
-import org.apache.syncope.common.lib.to.End;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RelationshipTO;
@@ -660,7 +659,7 @@ abstract class AbstractAnyDataBinder {
 
     protected static RelationshipTO getRelationshipTO(
             final String relationshipType,
-            final End end,
+            final RelationshipTO.End end,
             final Any<?> otherEnd) {
         return new RelationshipTO.Builder(relationshipType, end).
                 otherEnd(otherEnd.getType().getKey(),

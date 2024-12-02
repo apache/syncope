@@ -26,6 +26,11 @@ public class RelationshipTO implements BaseBean {
 
     private static final long serialVersionUID = 360672942026613929L;
 
+    public enum End {
+        LEFT,
+        RIGHT;
+    }
+
     public static class Builder {
 
         private final RelationshipTO instance = new RelationshipTO();

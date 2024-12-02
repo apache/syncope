@@ -28,7 +28,6 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.End;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -42,14 +41,10 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> {
 
     private static final long serialVersionUID = -7510529471158257903L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(RelationshipViewPanel.class);
 
     private ActionLinksTogglePanel<RelationshipTO> togglePanel;
 
@@ -74,6 +69,9 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
 
                 ActionsPanel<RelationshipTO> action = new ActionsPanel<>("action", new Model<>(relationshipTO));
                 action.add(new ActionLink<>() {
+
+                    private static final long serialVersionUID = 5207800927605869051L;
+
                     @Override
                     public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
                         relationships.remove(modelObject);
@@ -130,7 +128,7 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
             final ListItem<RelationshipTO> row,
             final RelationshipTO relationshipTO,
             final AnyTO anyTO) {
-        boolean isLeftRelation = relationshipTO.getEnd().equals(End.LEFT);
+        boolean isLeftRelation = relationshipTO.getEnd() == RelationshipTO.End.LEFT;
         String anyName = anyTO instanceof UserTO
                 ? UserTO.class.cast(anyTO).getUsername()
                 : AnyObjectTO.class.cast(anyTO).getName();

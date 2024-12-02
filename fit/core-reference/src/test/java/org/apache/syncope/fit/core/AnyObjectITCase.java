@@ -38,7 +38,6 @@ import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
-import org.apache.syncope.common.lib.to.End;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -295,7 +294,7 @@ public class AnyObjectITCase extends AbstractITCase {
         // Verify relationships for printer1
         assertEquals(1, printer1.getRelationships().size());
         RelationshipTO rel1 = printer1.getRelationships().get(0);
-        assertEquals(End.LEFT, rel1.getEnd());
+        assertEquals(RelationshipTO.End.LEFT, rel1.getEnd());
         assertEquals(printer2.getKey(), rel1.getOtherEndKey());
         assertEquals(printer2.getType(), rel1.getOtherEndType());
         assertEquals(printer2.getName(), rel1.getOtherEndName());
@@ -303,12 +302,12 @@ public class AnyObjectITCase extends AbstractITCase {
         // Verify relationships for printer2
         assertEquals(2, printer2.getRelationships().size());
         assertTrue(printer2.getRelationships().stream()
-                .anyMatch(r -> r.getEnd() == End.LEFT
+                .anyMatch(r -> r.getEnd() == RelationshipTO.End.LEFT
                                && printer3.getKey().equals(r.getOtherEndKey())
                                && printer3.getType().equals(r.getOtherEndType())
                                && printer3.getName().equals(r.getOtherEndName())));
         assertTrue(printer2.getRelationships().stream()
-                .anyMatch(r -> r.getEnd() == End.RIGHT
+                .anyMatch(r -> r.getEnd() == RelationshipTO.End.RIGHT
                                && printer1.getKey().equals(r.getOtherEndKey())
                                && printer1.getType().equals(r.getOtherEndType())
                                && printer1.getName().equals(r.getOtherEndName())));
@@ -316,7 +315,7 @@ public class AnyObjectITCase extends AbstractITCase {
         // Verify relationships for printer3
         assertEquals(1, printer3.getRelationships().size());
         RelationshipTO rel3 = printer3.getRelationships().get(0);
-        assertEquals(End.RIGHT, rel3.getEnd());
+        assertEquals(RelationshipTO.End.RIGHT, rel3.getEnd());
         assertEquals(printer2.getKey(), rel3.getOtherEndKey());
         assertEquals(printer2.getType(), rel3.getOtherEndType());
         assertEquals(printer2.getName(), rel3.getOtherEndName());
@@ -325,7 +324,7 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectCR printer4CR = getSample("printer4");
         printer4CR.setRealm("/");
         printer4CR.getResources().clear();
-        printer4CR.getRelationships().add(new RelationshipTO.Builder("neighborhood", End.RIGHT)
+        printer4CR.getRelationships().add(new RelationshipTO.Builder("neighborhood", RelationshipTO.End.RIGHT)
                 .otherEnd(PRINTER, key1).build());
 
         SyncopeClientException exception =
