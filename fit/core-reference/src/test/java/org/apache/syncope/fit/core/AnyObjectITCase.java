@@ -329,7 +329,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         SyncopeClientException exception =
                 assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
-        assertEquals("InvalidRelationship [Invalid relationship end: RIGHT is not allowed for this operation.]",
+        assertEquals("InvalidRelationship [Invalid relationship end: RIGHT is not allowed for this operation]",
                 exception.getMessage());
     }
 }

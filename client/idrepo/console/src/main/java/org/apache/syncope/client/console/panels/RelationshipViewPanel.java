@@ -116,11 +116,9 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
 
     private WebMarkupContainer getHeader() {
         WebMarkupContainer headerContainer = new WebMarkupContainer("header");
-        headerContainer.add(new Label("header_left_type", getString("left.type")));
-        headerContainer.add(new Label("header_left_name", new ResourceModel("left.name")));
+        headerContainer.add(new Label("header_left_end", getString("left.end")));
         headerContainer.add(new Label("header_relationship", new ResourceModel("relationship")));
-        headerContainer.add(new Label("header_right_name", new ResourceModel("right.name")));
-        headerContainer.add(new Label("header_right_type", new ResourceModel("right.type")));
+        headerContainer.add(new Label("header_right_end", new ResourceModel("right.end")));
         return headerContainer;
     }
 
@@ -134,29 +132,20 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
                 : AnyObjectTO.class.cast(anyTO).getName();
 
         row.add(new Label("relationship", relationshipTO.getType()));
-        Label leftType = new Label("left_type", isLeftRelation
-                ? anyTO.getType()
-                : relationshipTO.getOtherEndType());
+        Label leftEnd = new Label("left_end", isLeftRelation
+                ? String.format("%s %s", anyTO.getType() , anyName)
+                : String.format("%s %s", relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName()));
 
-        Label leftName = new Label("left_name", isLeftRelation
-                ? anyName
-                : relationshipTO.getOtherEndName());
+        Label rightEnd = new Label("right_end", isLeftRelation
+                ? String.format("%s %s", relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName())
+                : String.format("%s %s", anyTO.getType() , anyName));
 
-        Label rightType = new Label("right_type", isLeftRelation
-                ? relationshipTO.getOtherEndType()
-                : anyTO.getType());
-
-        Label rightName = new Label("right_name", isLeftRelation
-                ? relationshipTO.getOtherEndName()
-                : anyName);
-
-        if (anyTO.getKey().equals(relationshipTO.getOtherEndKey())) {
-            setBold(leftType, leftName, rightType, rightName);
+        if (anyTO.getKey() != null && anyTO.getKey().equals(relationshipTO.getOtherEndKey())) {
+            setBold(leftEnd, rightEnd);
         } else {
-            setBold(isLeftRelation ? leftName : rightType,
-                    isLeftRelation ? leftType : rightName);
+            setBold(isLeftRelation ? leftEnd : rightEnd);
         }
-        row.add(leftType, leftName, rightType, rightName);
+        row.add(leftEnd, rightEnd);
     }
 
     private void setBold(final Label... labels) {
