@@ -49,6 +49,10 @@ public class ConnectorRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6870366819966266617L;
 
+    protected static List<ConnConfProperty> filterBlank(final List<ConnConfProperty> properties) {
+        return properties.stream().filter(obj -> obj != null && !obj.toString().isBlank()).toList();
+    }
+
     public List<ConnInstanceTO> getAllConnectors() {
         List<ConnInstanceTO> connectors = List.of();
         try {
@@ -59,12 +63,10 @@ public class ConnectorRestClient extends BaseRestClient {
         return connectors;
     }
 
-    protected void filterBlankValues(final List<ConnConfProperty> properties) {
-        properties.forEach(prop -> prop.getValues().removeIf(obj -> obj == null || obj.toString().isBlank()));
-    }
-
     public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
-        filterBlankValues(connectorTO.getConf());
+        List<ConnConfProperty> filteredConf = filterBlank(connectorTO.getConf());
+        connectorTO.getConf().clear();
+        connectorTO.getConf().addAll(filteredConf);
 
         ConnectorService service = getService(ConnectorService.class);
         Response response = service.create(connectorTO);
@@ -119,7 +121,10 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void update(final ConnInstanceTO connectorTO) {
-        filterBlankValues(connectorTO.getConf());
+        List<ConnConfProperty> filteredConf = filterBlank(connectorTO.getConf());
+        connectorTO.getConf().clear();
+        connectorTO.getConf().addAll(filteredConf);
+
         getService(ConnectorService.class).update(connectorTO);
     }
 
@@ -162,8 +167,8 @@ public class ConnectorRestClient extends BaseRestClient {
 
     public Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
-        filterBlankValues(toBeChecked.getConf());
+        BeanUtils.copyProperties(connectorTO, toBeChecked);
+        toBeChecked.getConf().addAll(filterBlank(connectorTO.getConf()));
 
         boolean check = false;
         String errorMessage = null;

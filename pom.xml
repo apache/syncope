@@ -488,6 +488,9 @@ under the License.
     <testmail.smtpport>2525</testmail.smtpport>
     <testmail.pop3port>1110</testmail.pop3port>
 
+    <testkafka.port>19092</testkafka.port>
+    <testkafka.topics>account-provisioning,group-provisioning</testkafka.topics>
+
     <test.csvdir.path>${project.build.directory}/test-csvdir</test.csvdir.path>
 
     <cargo.servlet.port>9080</cargo.servlet.port>

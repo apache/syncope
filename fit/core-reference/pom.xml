@@ -197,6 +197,11 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-tester</artifactId>
       <scope>test</scope>
@@ -1336,7 +1341,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly32x</containerId>
+                <containerId>wildfly33x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

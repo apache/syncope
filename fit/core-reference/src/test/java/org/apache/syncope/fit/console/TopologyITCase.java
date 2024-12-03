@@ -159,7 +159,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         String res = UUID.randomUUID().toString();
 
         TESTER.executeAjaxEvent(
-                "body:conns:0:conns:1:conn", Constants.ON_CLICK);
+                "body:conns:0:conns:2:conn", Constants.ON_CLICK);
         TESTER.executeAjaxEvent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create", Constants.ON_CLICK);
 

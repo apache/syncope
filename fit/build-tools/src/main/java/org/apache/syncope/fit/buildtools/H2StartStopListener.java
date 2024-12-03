@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import jakarta.servlet.annotation.WebListener;
@@ -42,19 +41,16 @@ public class H2StartStopListener implements ServletContextListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(H2StartStopListener.class);
 
-    private static final String H2_TESTDB = "h2TestDb";
+    private Server h2TestDb;
 
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
-        ServletContext context = sce.getServletContext();
-        WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(context);
+        WebApplicationContext ctx = WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext());
 
         try {
-            Server h2TestDb = new Server();
+            h2TestDb = new Server();
             h2TestDb.runTool("-ifNotExists", "-tcp", "-tcpDaemon", "-web", "-webDaemon",
                     "-webPort", Objects.requireNonNull(ctx).getEnvironment().getProperty("testdb.webport"));
-
-            context.setAttribute(H2_TESTDB, h2TestDb);
         } catch (SQLException e) {
             LOG.error("Could not start H2 test db", e);
         }
@@ -78,7 +74,6 @@ public class H2StartStopListener implements ServletContextListener {
 
     @Override
     public void contextDestroyed(final ServletContextEvent sce) {
-        Server h2TestDb = (Server) sce.getServletContext().getAttribute(H2_TESTDB);
         if (h2TestDb != null) {
             h2TestDb.shutdown();
         }

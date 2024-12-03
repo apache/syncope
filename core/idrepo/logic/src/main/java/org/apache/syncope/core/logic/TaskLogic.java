@@ -523,10 +523,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @Override
     protected Triple<JobType, String, String> getReference(final String jobName) {
-        String key = JobNamer.getTaskKeyFromJobName(jobName);
-
-        return taskDAO.findById(key).filter(SchedTask.class::isInstance).
-                map(t -> Triple.of(JobType.TASK, key, binder.buildRefDesc(t))).orElse(null);
+        return JobNamer.getTaskKeyFromJobName(jobName).
+                flatMap(taskDAO::findById).filter(SchedTask.class::isInstance).
+                map(t -> Triple.of(JobType.TASK, t.getKey(), binder.buildRefDesc(t))).
+                orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")

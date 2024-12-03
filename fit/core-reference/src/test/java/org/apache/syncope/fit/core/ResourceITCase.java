@@ -261,33 +261,30 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void createWithoutExtAttr() {
-        assertThrows(SyncopeClientException.class, () -> {
-            String resourceKey = RESOURCE_NAME_CREATE_WRONG;
-            ResourceTO resourceTO = new ResourceTO();
-            resourceTO.setKey(resourceKey);
-            resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
+        ResourceTO resourceTO = new ResourceTO();
+        resourceTO.setKey(RESOURCE_NAME_CREATE_WRONG);
+        resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-            Provision provisionTO = new Provision();
-            provisionTO.setAnyType(AnyTypeKind.USER.name());
-            provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
-            resourceTO.getProvisions().add(provisionTO);
+        Provision provisionTO = new Provision();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
 
-            Mapping mapping = new Mapping();
-            provisionTO.setMapping(mapping);
+        Mapping mapping = new Mapping();
+        provisionTO.setMapping(mapping);
 
-            Item item = new Item();
-            item.setIntAttrName("key");
-            item.setExtAttrName("userId");
-            item.setConnObjectKey(true);
-            mapping.setConnObjectKeyItem(item);
+        Item item = new Item();
+        item.setIntAttrName("key");
+        item.setExtAttrName("userId");
+        item.setConnObjectKey(true);
+        mapping.setConnObjectKeyItem(item);
 
-            item = new Item();
-            item.setIntAttrName("usernane");
-            // missing extAttrName ...
-            mapping.add(item);
+        item = new Item();
+        item.setIntAttrName("usernane");
+        // missing extAttrName ...
+        mapping.add(item);
 
-            createResource(resourceTO);
-        });
+        assertThrows(SyncopeClientException.class, () -> createResource(resourceTO));
     }
 
     @Test

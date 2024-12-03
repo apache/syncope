@@ -75,14 +75,14 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        assertEquals(16, policyDAO.findAll().size());
+        assertEquals(17, policyDAO.findAll().size());
 
         assertEquals(1, policyDAO.findAll(AccessPolicy.class).size());
         assertEquals(2, policyDAO.findAll(AccountPolicy.class).size());
         assertEquals(2, policyDAO.findAll(AttrReleasePolicy.class).size());
         assertEquals(2, policyDAO.findAll(AuthPolicy.class).size());
         assertEquals(3, policyDAO.findAll(PasswordPolicy.class).size());
-        assertEquals(1, policyDAO.findAll(PropagationPolicy.class).size());
+        assertEquals(2, policyDAO.findAll(PropagationPolicy.class).size());
         assertEquals(4, policyDAO.findAll(InboundPolicy.class).size());
         assertEquals(1, policyDAO.findAll(PushPolicy.class).size());
         assertEquals(0, policyDAO.findAll(TicketExpirationPolicy.class).size());
