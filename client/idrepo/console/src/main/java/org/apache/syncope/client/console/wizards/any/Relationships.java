@@ -91,8 +91,6 @@ public class Relationships extends WizardStep implements ICondition {
 
     protected final AnyTO anyTO;
 
-    protected final Specification specification;
-
     protected final PageReference pageRef;
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
@@ -110,7 +108,6 @@ public class Relationships extends WizardStep implements ICondition {
         }
 
         this.anyTO = modelObject.getInnerObject();
-        this.specification = new Specification();
         this.pageRef = pageRef;
 
         // ------------------------
@@ -148,7 +145,7 @@ public class Relationships extends WizardStep implements ICondition {
             public void onClick(final AjaxRequestTarget target, final RelationshipTO ignore) {
                 Fragment addFragment = new Fragment("relationships", "addFragment", Relationships.this);
                 addOrReplace(addFragment);
-                addFragment.add(specification.setRenderBodyOnly(true));
+                addFragment.add(new Specification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
         }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).hideLabel();
