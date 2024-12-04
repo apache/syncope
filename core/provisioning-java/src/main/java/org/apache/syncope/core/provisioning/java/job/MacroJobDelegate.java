@@ -73,7 +73,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
     protected Validator validator;
 
     @Resource(name = "batchExecutor")
-    protected VirtualThreadPoolTaskExecutor executor;
+    protected VirtualThreadPoolTaskExecutor taskExecutor;
 
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
@@ -188,7 +188,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             final boolean dryRun)
             throws JobExecutionException {
 
-        Future<AtomicReference<Pair<String, Throwable>>> future = executor.submit(
+        Future<AtomicReference<Pair<String, Throwable>>> future = taskExecutor.submit(
                 new DelegatingSecurityContextCallable<>(() -> {
 
                     AtomicReference<Pair<String, Throwable>> error = new AtomicReference<>();
