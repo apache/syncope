@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
@@ -47,6 +48,7 @@ public final class POJOHelper {
         pojoModule.addSerializer(Attribute.class, new AttributeSerializer());
         pojoModule.addSerializer(AttributeDelta.class, new AttributeDeltaSerializer());
         pojoModule.addSerializer(SyncToken.class, new SyncTokenSerializer());
+        pojoModule.addSerializer(PropagationTaskInfo.class, new PropagationTaskInfoSerializer());
         pojoModule.addDeserializer(GuardedString.class, new GuardedStringDeserializer());
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
         pojoModule.addDeserializer(AttributeDelta.class, new AttributeDeltaDeserializer());
