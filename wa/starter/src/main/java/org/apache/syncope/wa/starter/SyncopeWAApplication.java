@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.syncope.wa.bootstrap.WAProperties;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.config.WARefreshContextJob;
+import org.apereo.cas.config.CasGoogleAuthenticatorLdapAutoConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
@@ -69,7 +70,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     MongoDataAutoConfiguration.class,
     CassandraAutoConfiguration.class,
     DataSourceTransactionManagerAutoConfiguration.class,
-    RedisRepositoriesAutoConfiguration.class
+    RedisRepositoriesAutoConfiguration.class,
+    CasGoogleAuthenticatorLdapAutoConfiguration.class
 })
 @EnableConfigurationProperties({ WAProperties.class, CasConfigurationProperties.class })
 @EnableAsync(proxyTargetClass = false)
