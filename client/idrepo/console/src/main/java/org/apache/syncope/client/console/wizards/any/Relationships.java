@@ -122,6 +122,10 @@ public class Relationships extends WizardStep implements ICondition {
         return super.getHeader(id, parent, wizard).setVisible(false);
     }
 
+    protected Specification newSpecification() {
+        return new Specification();
+    }
+
     protected Fragment getViewFragment() {
         Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
@@ -145,7 +149,7 @@ public class Relationships extends WizardStep implements ICondition {
             public void onClick(final AjaxRequestTarget target, final RelationshipTO ignore) {
                 Fragment addFragment = new Fragment("relationships", "addFragment", Relationships.this);
                 addOrReplace(addFragment);
-                addFragment.add(new Specification().setRenderBodyOnly(true));
+                addFragment.add(newSpecification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
         }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).hideLabel();
