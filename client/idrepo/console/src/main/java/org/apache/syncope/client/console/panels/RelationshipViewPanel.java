@@ -75,6 +75,7 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
                         relationships.remove(modelObject);
+                        relationshipsList.remove(relationshipItem);
                         target.add(RelationshipViewPanel.this);
                     }
                 }, ActionLink.ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).hideLabel();
@@ -133,12 +134,12 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
 
         row.add(new Label("relationship", relationshipTO.getType()));
         Label leftEnd = new Label("left_end", isLeftRelation
-                ? String.format("%s %s", anyTO.getType() , anyName)
+                ? String.format("%s %s", anyTO.getType(), anyName)
                 : String.format("%s %s", relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName()));
 
         Label rightEnd = new Label("right_end", isLeftRelation
                 ? String.format("%s %s", relationshipTO.getOtherEndType(), relationshipTO.getOtherEndName())
-                : String.format("%s %s", anyTO.getType() , anyName));
+                : String.format("%s %s", anyTO.getType(), anyName));
 
         if (anyTO.getKey() != null && anyTO.getKey().equals(relationshipTO.getOtherEndKey())) {
             setBold(leftEnd, rightEnd);

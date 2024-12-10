@@ -156,17 +156,36 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:actions:"
-                + "actionRepeater:0:action:action", Constants.ON_CLICK);
+        // Add first RELATIONSHIP
+        addRelationship("Canon MF 8030cn");
+        component = TESTER.getComponentFromLastRenderedPage(TAB_PANEL + "outerObjectsRepeater:0:outer"
+                + ":form:content:form:view:relationships:relationships:container:content:relationships:0:right_end");
+        assertNotNull(component);
+        assertEquals("PRINTER Canon MF 8030cn", component.getDefaultModel().getObject());
+
+        // Add second RELATIONSHIP
+        addRelationship("HP LJ 1300n");
+        component = TESTER.getComponentFromLastRenderedPage(TAB_PANEL + "outerObjectsRepeater:0:outer"
+                + ":form:content:form:view:relationships:relationships:container:content:relationships:1:right_end");
+        assertNotNull(component);
+        assertEquals("PRINTER HP LJ 1300n", component.getDefaultModel().getObject());
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
+        formTester.submit("buttons:cancel");
+    }
 
-        formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "1");
-        TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
+    // issue SYNCOPE-1846
+    private void addRelationship(final String printerName) {
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:actions:"
+                + "actionRepeater:0:action:action", Constants.ON_CLICK);
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "neighborhood");
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
                 + "specification:type:dropDownChoiceField", Constants.ON_CHANGE);
+         formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "neighborhood");
         // The ON_CHANGE above should enable this component, but it doesn't; doing it by hand
         Component otherType = findComponentById(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:specification",
@@ -175,17 +194,19 @@ public class UsersITCase extends AbstractConsoleITCase {
         otherType.setEnabled(true);
 
         formTester.setValue("view:relationships:specification:otherType:dropDownChoiceField", "PRINTER");
-        TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
                 + "specification:otherType:dropDownChoiceField", Constants.ON_CHANGE);
 
-        component = findComponentByProp("name", TAB_PANEL + "outerObjectsRepeater:"
+        Component component = findComponentByProp("name", TAB_PANEL + "outerObjectsRepeater:"
                 + "0:outer:form:content:form:view:relationships:specification:searchPanelContainer:searchPanel:"
                 + "searchResultPanel:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:"
-                + "dataTable:body:rows:1:cells:2:cell", "Canon MF 8030cn");
+                + "dataTable:body:rows:1:cells:2:cell", printerName);
         assertNotNull(component);
-
-        formTester.submit("buttons:cancel");
+        TESTER.executeAjaxEvent(component, Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:specification:"
+                + "searchPanelContainer:searchPanel:searchResultPanel:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
     }
 
     @Test
