@@ -508,15 +508,15 @@ public class ConnectorFacadeProxy implements Connector {
                 value = values.get(0) == null || values.get(0).toString().isEmpty()
                         ? null : values.get(0).toString().charAt(0);
             } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
-                value = Integer.parseInt(values.get(0).toString());
+                value = Integer.valueOf(values.get(0).toString());
             } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
-                value = Long.parseLong(values.get(0).toString());
+                value = Long.valueOf(values.get(0).toString());
             } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
-                value = Float.parseFloat(values.get(0).toString());
+                value = Float.valueOf(values.get(0).toString());
             } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
-                value = Double.parseDouble(values.get(0).toString());
+                value = Double.valueOf(values.get(0).toString());
             } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
-                value = Boolean.parseBoolean(values.get(0).toString());
+                value = Boolean.valueOf(values.get(0).toString());
             } else if (URI.class.equals(propertySchemaClass)) {
                 value = URI.create(values.get(0).toString());
             } else if (File.class.equals(propertySchemaClass)) {
