@@ -2339,7 +2339,7 @@ under the License.
 
       <properties>
         <mockito.version>5.14.2</mockito.version>
-        <byte-buddy.version>1.15.10</byte-buddy.version>
+        <byte-buddy.version>1.15.11</byte-buddy.version>
       </properties>
 
       <dependencyManagement>
