@@ -410,7 +410,7 @@ under the License.
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0-SNAPSHOT</connid.kafka.version>
 
-    <cxf.version>4.1.0-SNAPSHOT</cxf.version>
+    <cxf.version>4.1.0</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
     <nimbus-jose-jwt.version>9.47</nimbus-jose-jwt.version>
 
@@ -434,7 +434,7 @@ under the License.
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
-    <commons-text.version>1.12.0</commons-text.version>
+    <commons-text.version>1.13.0</commons-text.version>
 
     <pac4j.version>6.0.6</pac4j.version>
 
