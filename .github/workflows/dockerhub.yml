@@ -18,10 +18,13 @@ name: "Push to DockerHub"
 
 on:
   push:
-    branches: ['master']
+    branches:
+      - master
+    tags:
+      - syncope-4.0.*
 
 jobs:
-  neo4j:
+  push2DockerHub:
     runs-on: ubuntu-latest
 
     steps:
