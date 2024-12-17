@@ -451,6 +451,7 @@ public class SCIMITCase extends AbstractITCase {
             });
             assertNotNull(users);
             assertEquals(1, users.getTotalResults());
+            assertFalse(users.getResources().get(0).getGroups().isEmpty());
 
             // Extension User
             response = webClient().path("Users").query(
