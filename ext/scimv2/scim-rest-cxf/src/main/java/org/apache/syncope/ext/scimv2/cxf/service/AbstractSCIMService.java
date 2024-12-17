@@ -189,7 +189,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                 PageRequest.of(page, itemsPerPage, Sort.by(sort)),
                 SyncopeConstants.ROOT_REALM,
                 true,
-                false);
+                true);
 
         if (result.getTotalElements() > confManager.get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
