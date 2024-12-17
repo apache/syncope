@@ -192,7 +192,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                 sort,
                 SyncopeConstants.ROOT_REALM,
                 true,
-                false);
+                true);
 
         if (result.getLeft() > confManager.get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
