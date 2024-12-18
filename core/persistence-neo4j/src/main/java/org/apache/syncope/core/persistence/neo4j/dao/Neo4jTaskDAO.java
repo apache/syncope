@@ -487,12 +487,11 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
                     }
 
                     t.getActions().stream().filter(act -> !pullTask.getActions().contains(act)).
-                            forEach(impl -> deleteRelationship(
-                            Neo4jPullTask.NODE,
+                            forEach(impl -> deleteRelationship(Neo4jPullTask.NODE,
                             Neo4jImplementation.NODE,
                             pullTask.getKey(),
                             impl.getKey(),
-                            Neo4jPullTask.PULL_TASK_PULL_ACTIONS_REL));
+                            Neo4jPullTask.PULL_TASK_INBOUND_ACTIONS_REL));
                 });
 
             case Neo4jPushTask pushTask -> {

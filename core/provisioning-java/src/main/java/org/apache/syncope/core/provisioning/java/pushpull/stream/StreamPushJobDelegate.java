@@ -138,14 +138,18 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             task.setPerformDelete(true);
             task.setSyncStatus(false);
 
-            profile = new ProvisioningProfile<>(connector, task);
-            profile.setExecutor(executor);
-            profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
-                    map(implementationDAO::findById).flatMap(Optional::stream).
-                    toList()));
-            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+            profile = new ProvisioningProfile<>(
+                    connector,
+                    taskType,
+                    task,
+                    ConflictResolutionAction.FIRSTMATCH,
+                    getPushActions(pushTaskTO.getActions().stream().
+                            map(implementationDAO::findById).flatMap(Optional::stream).
+                            toList()),
+                    executor,
+                    false);
 
-            PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
+            dispatcher = new PushResultHandlerDispatcher(profile, this);
 
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);

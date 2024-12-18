@@ -77,6 +77,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
         taskType = TaskType.PULL;
         try {
             task = entityFactory.newEntity(PullTask.class);
+            task.setName(pullTaskTO.getName());
             task.setResource(resource);
             task.setMatchingRule(pullTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
@@ -107,13 +108,18 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     },
                     () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
 
-            profile = new ProvisioningProfile<>(connector, task);
-            profile.setDryRun(false);
-            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
-            profile.getActions().addAll(getInboundActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::findById).flatMap(Optional::stream).
-                    toList()));
-            profile.setExecutor(executor);
+            profile = new ProvisioningProfile<>(
+                    connector,
+                    taskType,
+                    task,
+                    ConflictResolutionAction.FIRSTMATCH,
+                    getInboundActions(pullTaskTO.getActions().stream().
+                            map(implementationDAO::findById).flatMap(Optional::stream).
+                            toList()),
+                    executor,
+                    false);
+
+            dispatcher = new PullResultHandlerDispatcher(profile, this);
 
             for (InboundActions action : profile.getActions()) {
                 action.beforeAll(profile);
@@ -122,22 +128,25 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
                     orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
-            SyncopePullResultHandler handler;
             GroupPullResultHandler ghandler = buildGroupHandler();
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
+                SyncopePullResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = ghandler;
-                    break;
+                    case GROUP:
+                        handler = ghandler;
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             // execute filtered pull
             Set<String> matg = new HashSet<>(moreAttrsToGet);
@@ -151,7 +160,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             connector.filteredReconciliation(
                     new ObjectClass(provision.getObjectClass()),
                     reconFilterBuilder,
-                    handler,
+                    dispatcher,
                     MappingUtils.buildOperationOptions(mapItems, matg.toArray(String[]::new)));
 
             try {

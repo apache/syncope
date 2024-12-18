@@ -47,6 +47,6 @@ public class DefaultGroupPushResultHandler extends AbstractPushResultHandler imp
 
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
-        return gwfAdapter.update((GroupUR) req, profile.getExecutor(), getContext());
+        return gwfAdapter.update((GroupUR) req, profile.getExecutor(), profile.getContext());
     }
 }

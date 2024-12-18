@@ -16,13 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.core.provisioning.api.job;
 
-import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
+public interface StoppableSchedTaskJobDelegate extends SchedTaskJobDelegate {
 
-public interface SyncopeResultHandler<T extends ProvisioningTask<?>, A extends ProvisioningActions> {
-
-    void setProfile(ProvisioningProfile<T, A> profile);
-
+    /**
+     * Request the current Job to stop the execution of the running Task.
+     */
     void stop();
 }

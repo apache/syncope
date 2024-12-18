@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
+import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,8 +98,17 @@ public class SyncopeTaskScheduler {
     }
 
     public void cancel(final String domain, final String jobName) {
-        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).
-                filter(f -> f.getRight() != null).ifPresent(f -> f.getRight().cancel(true));
+        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).filter(f -> f.getRight() != null).ifPresent(f -> {
+            boolean mayInterruptIfRunning = true;
+            if (f.getLeft() instanceof TaskJob taskJob
+                    && taskJob.getDelegate() instanceof StoppableSchedTaskJobDelegate stoppable) {
+
+                stoppable.stop();
+                mayInterruptIfRunning = false;
+            }
+
+            f.getRight().cancel(mayInterruptIfRunning);
+        });
     }
 
     public void delete(final String domain, final String jobName) {

@@ -249,6 +249,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final String anyKey) {
+        if (stopRequested) {
+            LOG.debug("Stop was requested");
+            return false;
+        }
+
         Any<?> any = null;
         try {
             any = getAnyUtils().dao().authFind(anyKey);

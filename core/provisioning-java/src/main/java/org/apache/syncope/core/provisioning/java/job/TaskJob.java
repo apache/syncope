@@ -52,6 +52,12 @@ public class TaskJob extends Job {
     @Autowired
     protected ImplementationDAO implementationDAO;
 
+    protected SchedTaskJobDelegate delegate;
+
+    public SchedTaskJobDelegate getDelegate() {
+        return delegate;
+    }
+
     protected void delegate(final JobExecutionContext context, final String taskKey)
             throws ClassNotFoundException, JobExecutionException {
 
@@ -60,7 +66,7 @@ public class TaskJob extends Job {
         if (impl == null) {
             LOG.error("Could not find Implementation '{}', aborting", implKey);
         } else {
-            SchedTaskJobDelegate delegate = ImplementationManager.build(impl);
+            delegate = ImplementationManager.build(impl);
             delegate.execute(
                     (TaskType) context.getData().get(JobManager.TASK_TYPE),
                     taskKey,

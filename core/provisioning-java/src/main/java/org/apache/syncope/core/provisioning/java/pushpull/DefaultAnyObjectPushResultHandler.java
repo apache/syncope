@@ -47,6 +47,6 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
 
     @Override
     protected WorkflowResult<? extends AnyObjectUR> update(final AnyUR req) {
-        return awfAdapter.update((AnyObjectUR) req, profile.getExecutor(), getContext());
+        return awfAdapter.update((AnyObjectUR) req, profile.getExecutor(), profile.getContext());
     }
 }

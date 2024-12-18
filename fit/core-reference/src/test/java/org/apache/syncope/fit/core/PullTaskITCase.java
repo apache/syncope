@@ -245,7 +245,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     public void create() {
         PullTaskTO task = new PullTaskTO();
         task.setName("Test create Pull");
-        task.setDestinationRealm("/");
+        task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         task.setResource(RESOURCE_NAME_WS2);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
 
@@ -502,7 +502,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         GroupTO groupTO = matchingGroups.getResult().get(0);
         assertNotNull(groupTO);
         assertEquals("testLDAPGroup", groupTO.getName());
-        assertTrue(groupTO.getLastChangeContext().contains("PullTask " + task.getKey()));
+        assertTrue(groupTO.getLastChangeContext().contains("Task " + task.getKey()));
         assertEquals("true", groupTO.getPlainAttr("show").orElseThrow().getValues().get(0));
         assertEquals(matchingUsers.getResult().get(0).getKey(), groupTO.getUserOwner());
         assertNull(groupTO.getGroupOwner());

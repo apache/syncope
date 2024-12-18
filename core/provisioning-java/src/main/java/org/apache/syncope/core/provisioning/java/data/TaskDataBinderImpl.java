@@ -422,10 +422,13 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setCronExpression(taskTO.getCronExpression());
         task.setActive(taskTO.isActive());
 
-        if (task instanceof MacroTask) {
-            fill((MacroTask) task, (MacroTaskTO) taskTO);
-        } else if (task instanceof ProvisioningTask) {
-            fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
+        switch (task) {
+            case MacroTask macroTask ->
+                fill(macroTask, (MacroTaskTO) taskTO);
+            case ProvisioningTask<?> provisioningTask ->
+                fill(provisioningTask, (ProvisioningTaskTO) taskTO);
+            default -> {
+            }
         }
     }
 
@@ -465,6 +468,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         schedTaskTO.setDescription(schedTask.getDescription());
         schedTaskTO.setCronExpression(schedTask.getCronExpression());
         schedTaskTO.setActive(schedTask.isActive());
+        schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
 
         schedTaskTO.getExecutions().stream().sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().
                 map(ExecTO::getStart).ifPresentOrElse(
@@ -531,8 +535,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 SchedTask schedTask = (SchedTask) task;
                 SchedTaskTO schedTaskTO = (SchedTaskTO) taskTO;
 
-                schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
-
                 fill(schedTaskTO, schedTask);
             }
 
@@ -542,7 +544,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
                 fill(macroTaskTO, macroTask);
 
-                macroTaskTO.setJobDelegate(macroTask.getJobDelegate().getKey());
                 macroTaskTO.setRealm(macroTask.getRealm().getFullPath());
 
                 macroTask.getCommands().forEach(mct -> macroTaskTO.getCommands().add(
@@ -571,6 +572,25 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
                 Optional.ofNullable(macroTask.getMacroActions()).
                         ifPresent(fv -> macroTaskTO.setMacroActions(fv.getKey()));
+            }
+
+            case LIVE_SYNC -> {
+                LiveSyncTask liveSyncTask = (LiveSyncTask) task;
+                LiveSyncTaskTO liveSyncTaskTO = (LiveSyncTaskTO) taskTO;
+
+                fill(liveSyncTaskTO, liveSyncTask);
+
+                liveSyncTaskTO.setDestinationRealm(liveSyncTask.getDestinationRealm().getFullPath());
+                liveSyncTaskTO.setMatchingRule(liveSyncTask.getMatchingRule() == null
+                        ? MatchingRule.UPDATE : liveSyncTask.getMatchingRule());
+                liveSyncTaskTO.setUnmatchingRule(liveSyncTask.getUnmatchingRule() == null
+                        ? UnmatchingRule.PROVISION : liveSyncTask.getUnmatchingRule());
+
+                liveSyncTaskTO.setLiveSyncDeltaMapper(liveSyncTask.getLiveSyncDeltaMapper().getKey());
+
+                liveSyncTask.getTemplates().
+                        forEach(template -> liveSyncTaskTO.getTemplates().
+                        put(template.getAnyType().getKey(), template.get()));
             }
 
             case PULL -> {

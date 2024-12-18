@@ -48,7 +48,7 @@ public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTas
 
     public static final String PULL_TASK_RECON_FILTER_BUIDER_REL = "PULL_TASK_RECON_FILTER_BUIDER";
 
-    public static final String PULL_TASK_PULL_ACTIONS_REL = "PULL_TASK_PULL_ACTIONS";
+    public static final String PULL_TASK_INBOUND_ACTIONS_REL = "PULL_TASK_INBOUND_ACTIONS";
 
     public static final String PULL_TASK_TEMPLATE_REL = "PULL_TASK_TEMPLATE";
 
@@ -60,7 +60,7 @@ public class Neo4jPullTask extends Neo4jInboundTask<PullTask> implements PullTas
     @Relationship(type = PULL_TASK_RECON_FILTER_BUIDER_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation reconFilterBuilder;
 
-    @Relationship(type = PULL_TASK_PULL_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PULL_TASK_INBOUND_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
     private SortedSet<Neo4jImplementationRelationship> actions = new TreeSet<>();
 
     @Transient

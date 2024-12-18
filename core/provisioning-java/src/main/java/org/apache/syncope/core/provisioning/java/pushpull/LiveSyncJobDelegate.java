@@ -58,6 +58,7 @@ import org.apache.syncope.core.provisioning.api.LiveSyncDeltaMapper;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
@@ -75,7 +76,9 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyncTask> {
+public class LiveSyncJobDelegate
+        extends AbstractProvisioningJobDelegate<LiveSyncTask>
+        implements StoppableSchedTaskJobDelegate {
 
     protected static record LiveSyncInfo(
             Provision provision,
@@ -103,6 +106,9 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
     @Autowired
     protected InboundMatcher inboundMatcher;
 
+    @Autowired
+    protected LiveSyncTaskExecSaver liveSyncTaskExecSaver;
+
     protected ProvisioningProfile<PullTask, InboundActions> profile;
 
     protected LiveSyncDeltaMapper mapper;
@@ -111,11 +117,22 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
 
     protected final Map<String, InboundActions> perContextActions = new ConcurrentHashMap<>();
 
-    // volatile ensures visibility across threads
     protected volatile boolean stopRequested = false;
 
-    public void stop() {
-        stopRequested = true;
+    protected RealmPullResultHandler buildRealmHandler() {
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
+    }
+
+    protected AnyObjectPullResultHandler buildAnyObjectHandler() {
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultAnyObjectPullResultHandler.class);
+    }
+
+    protected UserPullResultHandler buildUserHandler() {
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultUserPullResultHandler.class);
+    }
+
+    protected GroupPullResultHandler buildGroupHandler() {
+        return ApplicationContextProvider.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
     }
 
     @Override
@@ -137,6 +154,7 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
         }
 
         PullTask pullTask = entityFactory.newEntity(PullTask.class);
+        pullTask.setName(task.getName());
         pullTask.setResource(task.getResource());
         pullTask.setMatchingRule(task.getMatchingRule());
         pullTask.setUnmatchingRule(task.getUnmatchingRule());
@@ -156,10 +174,10 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
             atpt.set(atlst.get());
         });
 
-        profile = new ProvisioningProfile<>(connector, pullTask);
+        List<InboundActions> actions = new ArrayList<>();
         task.getActions().forEach(action -> {
             try {
-                profile.getActions().add(ImplementationManager.build(
+                actions.add(ImplementationManager.build(
                         action,
                         () -> perContextActions.get(action.getKey()),
                         instance -> perContextActions.put(action.getKey(), instance)));
@@ -167,11 +185,22 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
                 LOG.warn("While building {}", action, e);
             }
         });
-        profile.setDryRun(context.isDryRun());
-        profile.setConflictResolutionAction(Optional.ofNullable(task.getResource().getInboundPolicy()).
-                map(InboundPolicy::getConflictResolutionAction).
-                orElse(ConflictResolutionAction.IGNORE));
-        profile.setExecutor(executor);
+        profile = new ProvisioningProfile<>(
+                connector,
+                taskType,
+                pullTask,
+                Optional.ofNullable(task.getResource().getInboundPolicy()).
+                        map(InboundPolicy::getConflictResolutionAction).
+                        orElse(ConflictResolutionAction.IGNORE),
+                actions,
+                executor,
+                context.isDryRun()) {
+
+            @Override
+            public String getContext() {
+                return taskType + " Task " + taskKey + " '" + task.getName() + "'";
+            }
+        };
 
         infos = new ArrayList<>();
 
@@ -254,6 +283,11 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
         setStatus("Initialization completed");
     }
 
+    @Override
+    public void stop() {
+        stopRequested = true;
+    }
+
     @Transactional
     @Override
     public void execute(
@@ -270,22 +304,6 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
         end();
     }
 
-    protected RealmPullResultHandler buildRealmHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
-    }
-
-    protected AnyObjectPullResultHandler buildAnyObjectHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultAnyObjectPullResultHandler.class);
-    }
-
-    protected UserPullResultHandler buildUserHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultUserPullResultHandler.class);
-    }
-
-    protected GroupPullResultHandler buildGroupHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
-    }
-
     @Override
     protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         if (infos.isEmpty()) {
@@ -299,6 +317,7 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
             profile.getResults().clear();
 
             TaskExec<SchedTask> execution = initExecution();
+            execution.setTask(null);
 
             String message;
             String status;
@@ -364,7 +383,9 @@ public class LiveSyncJobDelegate extends AbstractProvisioningJobDelegate<LiveSyn
                 result = OpEvent.Outcome.FAILURE;
             }
 
-            endExecution(execution, message, status, result);
+            if (!profile.getResults().isEmpty()) {
+                liveSyncTaskExecSaver.save(task.getKey(), execution, message, status, result, this::hasToBeRegistered);
+            }
         }
 
         return StringUtils.EMPTY;

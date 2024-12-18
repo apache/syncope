@@ -27,7 +27,7 @@ public final class IdMImplementationType {
 
     public static final String PROPAGATION_ACTIONS = "PROPAGATION_ACTIONS";
 
-    public static final String INBOUND_ACTIONS = "PULL_ACTIONS";
+    public static final String INBOUND_ACTIONS = "INBOUND_ACTIONS";
 
     public static final String PUSH_ACTIONS = "PUSH_ACTIONS";
 

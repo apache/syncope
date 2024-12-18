@@ -331,6 +331,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 break;
 
             case SCHEDULED:
+            case LIVE_SYNC:
             case PULL:
             case PUSH:
             case MACRO:
@@ -420,6 +421,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
         if (TaskType.SCHEDULED == taskUtils.getType()
+                || TaskType.LIVE_SYNC == taskUtils.getType()
                 || TaskType.PULL == taskUtils.getType()
                 || TaskType.PUSH == taskUtils.getType()
                 || TaskType.MACRO == taskUtils.getType()) {

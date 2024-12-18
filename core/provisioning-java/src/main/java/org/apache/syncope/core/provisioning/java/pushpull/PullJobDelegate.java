@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
@@ -72,7 +73,9 @@ import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
+public class PullJobDelegate
+        extends AbstractProvisioningJobDelegate<PullTask>
+        implements SyncopePullExecutor, StoppableSchedTaskJobDelegate {
 
     public static void setGroupOwners(
             final GroupPullResultHandler ghandler,
@@ -130,6 +133,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     protected final Map<String, InboundActions> perContextActions = new ConcurrentHashMap<>();
 
     protected Optional<ReconFilterBuilder> perContextReconFilterBuilder = Optional.empty();
+
+    protected PullResultHandlerDispatcher dispatcher;
 
     @Override
     public void setLatestSyncToken(final String objectClass, final SyncToken latestSyncToken) {
@@ -206,22 +211,30 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
         super.init(taskType, taskKey, context);
 
-        profile = new ProvisioningProfile<>(connector, task);
-        profile.getActions().addAll(getInboundActions(task.getActions()));
-        profile.setDryRun(context.isDryRun());
-        profile.setConflictResolutionAction(Optional.ofNullable(task.getResource().getInboundPolicy()).
-                map(InboundPolicy::getConflictResolutionAction).
-                orElse(ConflictResolutionAction.IGNORE));
-        profile.setExecutor(executor);
+        profile = new ProvisioningProfile<>(
+                connector,
+                taskType,
+                task,
+                Optional.ofNullable(task.getResource().getInboundPolicy()).
+                        map(InboundPolicy::getConflictResolutionAction).
+                        orElse(ConflictResolutionAction.IGNORE),
+                getInboundActions(task.getActions()),
+                executor,
+                context.isDryRun());
 
         latestSyncTokens.clear();
+    }
+
+    @Override
+    public void stop() {
+        Optional.ofNullable(dispatcher).ifPresent(PullResultHandlerDispatcher::stop);
     }
 
     @Override
     protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Executing pull on {}", task.getResource());
 
-        PullResultHandlerDispatcher dispatcher = new PullResultHandlerDispatcher(profile, this);
+        dispatcher = new PullResultHandlerDispatcher(profile, this);
 
         latestSyncTokens.clear();
 

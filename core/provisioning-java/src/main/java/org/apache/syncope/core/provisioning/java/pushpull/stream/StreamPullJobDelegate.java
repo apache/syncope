@@ -52,6 +52,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PullResultHandlerDispatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -170,6 +171,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             Provision provision = resource.getProvisions().get(0);
 
             task = entityFactory.newEntity(PullTask.class);
+            task.setName(pullTaskTO.getName());
             task.setResource(resource);
             task.setMatchingRule(pullTaskTO.getMatchingRule());
             task.setUnmatchingRule(pullTaskTO.getUnmatchingRule());
@@ -182,34 +184,42 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
             task.setRemediation(pullTaskTO.isRemediation());
 
-            profile = new ProvisioningProfile<>(connector, task);
-            profile.setDryRun(false);
-            profile.setConflictResolutionAction(conflictResolutionAction);
-            profile.getActions().addAll(getInboundActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::findById).flatMap(Optional::stream).
-                    toList()));
-            profile.setExecutor(executor);
+            profile = new ProvisioningProfile<>(
+                    connector,
+                    taskType,
+                    task,
+                    conflictResolutionAction,
+                    getInboundActions(pullTaskTO.getActions().stream().
+                            map(implementationDAO::findById).flatMap(Optional::stream).
+                            toList()),
+                    executor,
+                    false);
+
+            dispatcher = new PullResultHandlerDispatcher(profile, this);
 
             for (InboundActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
-            SyncopePullResultHandler handler;
             GroupPullResultHandler ghandler = buildGroupHandler();
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
+                SyncopePullResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = ghandler;
-                    break;
+                    case GROUP:
+                        handler = ghandler;
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             // execute filtered pull
             Set<String> moreAttrsToGet = new HashSet<>();
@@ -222,7 +232,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             connector.fullReconciliation(
                     new ObjectClass(provision.getObjectClass()),
-                    handler,
+                    dispatcher,
                     MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
 
             try {

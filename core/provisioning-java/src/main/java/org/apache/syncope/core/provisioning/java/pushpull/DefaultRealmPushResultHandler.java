@@ -111,6 +111,11 @@ public class DefaultRealmPushResultHandler
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final String realmKey) {
+        if (stopRequested) {
+            LOG.debug("Stop was requested");
+            return false;
+        }
+
         Realm realm = null;
         try {
             realm = realmDAO.findById(realmKey).orElseThrow(() -> new NotFoundException("Realm " + realmKey));

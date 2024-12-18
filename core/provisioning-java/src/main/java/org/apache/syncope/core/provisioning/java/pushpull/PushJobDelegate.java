@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -61,7 +62,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> implements SyncopePushExecutor {
+public class PushJobDelegate
+        extends AbstractProvisioningJobDelegate<PushTask>
+        implements SyncopePushExecutor, StoppableSchedTaskJobDelegate {
 
     @Autowired
     protected AnySearchDAO searchDAO;
@@ -77,6 +80,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
     protected final Map<String, MutablePair<Integer, String>> handled = new ConcurrentHashMap<>();
 
     protected final Map<String, PushActions> perContextActions = new ConcurrentHashMap<>();
+
+    protected PushResultHandlerDispatcher dispatcher;
 
     @Override
     public void reportHandled(final String anyType, final String key) {
@@ -157,21 +162,28 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
         super.init(taskType, taskKey, context);
 
-        profile = new ProvisioningProfile<>(connector, task);
-        profile.getActions().addAll(getPushActions(task.getActions()));
-        profile.setDryRun(context.isDryRun());
-        profile.setConflictResolutionAction(
+        profile = new ProvisioningProfile<>(
+                connector,
+                taskType,
+                task,
                 Optional.ofNullable(task.getResource().getPushPolicy()).
                         map(PushPolicy::getConflictResolutionAction).
-                        orElse(ConflictResolutionAction.IGNORE));
-        profile.setExecutor(executor);
+                        orElse(ConflictResolutionAction.IGNORE),
+                getPushActions(task.getActions()),
+                executor,
+                context.isDryRun());
+    }
+
+    @Override
+    public void stop() {
+        Optional.ofNullable(dispatcher).ifPresent(PushResultHandlerDispatcher::stop);
     }
 
     @Override
     protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Executing push on {}", task.getResource());
 
-        PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
+        dispatcher = new PushResultHandlerDispatcher(profile, this);
 
         if (!profile.isDryRun()) {
             for (PushActions action : profile.getActions()) {
