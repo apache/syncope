@@ -95,11 +95,6 @@ public class DefaultRealmPullResultHandler
 
     @Override
     public boolean handle(final SyncDelta delta) {
-        if (stopRequested) {
-            LOG.debug("Stop was requested");
-            return false;
-        }
-
         try {
             OrgUnit orgUnit = Optional.ofNullable(profile.getTask().getResource().getOrgUnit()).
                     orElseThrow(() -> new JobExecutionException(
@@ -109,6 +104,11 @@ public class DefaultRealmPullResultHandler
             OpEvent.Outcome latestResult = doHandle(delta, orgUnit);
 
             LOG.debug("Successfully handled {}", delta);
+
+            if (stopRequested) {
+                LOG.debug("Stop was requested");
+                return false;
+            }
 
             if (profile.getTask().getPullMode() != PullMode.INCREMENTAL) {
                 return true;

@@ -52,7 +52,7 @@ public class TaskJob extends Job {
     @Autowired
     protected ImplementationDAO implementationDAO;
 
-    protected SchedTaskJobDelegate delegate;
+    private SchedTaskJobDelegate delegate;
 
     public SchedTaskJobDelegate getDelegate() {
         return delegate;

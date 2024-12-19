@@ -126,11 +126,6 @@ public abstract class AbstractPullResultHandler
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final SyncDelta delta) {
-        if (stopRequested) {
-            LOG.debug("Stop was requested");
-            return false;
-        }
-
         Provision provision = null;
         try {
             provision = profile.getTask().getResource().
@@ -148,6 +143,11 @@ public abstract class AbstractPullResultHandler
                             getKind());
 
             LOG.debug("Successfully handled {}", delta);
+
+            if (stopRequested) {
+                LOG.debug("Stop was requested");
+                return false;
+            }
 
             if (profile.getTask().getPullMode() != PullMode.INCREMENTAL) {
                 return true;

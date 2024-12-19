@@ -91,23 +91,25 @@ public class SyncopeTaskScheduler {
 
     public Optional<OffsetDateTime> getNextTrigger(final String domain, final String jobName) {
         return Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).
-                filter(f -> f.getRight() != null).
-                map(f -> f.getRight().getDelay(TimeUnit.SECONDS)).
+                filter(pair -> pair.getRight() != null).
+                map(pair -> pair.getRight().getDelay(TimeUnit.SECONDS)).
                 filter(delay -> delay > 0).
                 map(delay -> OffsetDateTime.now().plusSeconds(delay));
     }
 
     public void cancel(final String domain, final String jobName) {
-        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).filter(f -> f.getRight() != null).ifPresent(f -> {
+        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).ifPresent(pair -> {
             boolean mayInterruptIfRunning = true;
-            if (f.getLeft() instanceof TaskJob taskJob
+            if (pair.getLeft() instanceof TaskJob taskJob
                     && taskJob.getDelegate() instanceof StoppableSchedTaskJobDelegate stoppable) {
 
                 stoppable.stop();
                 mayInterruptIfRunning = false;
             }
 
-            f.getRight().cancel(mayInterruptIfRunning);
+            if (pair.getRight() != null) {
+                pair.getRight().cancel(mayInterruptIfRunning);
+            }
         });
     }
 

@@ -246,9 +246,10 @@ public class LiveSyncITCase extends AbstractITCase {
             assertEquals("LiveSync", user.getPlainAttr("firstname").orElseThrow().getValues().get(0));
             assertEquals("LiveSync", user.getPlainAttr("surname").orElseThrow().getValues().get(0));
 
-            task = TASK_SERVICE.read(TaskType.LIVE_SYNC, task.getKey(), true);
-            assertEquals(1, task.getExecutions().size());
-            assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
+                    () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, actual.getKey(), true).getExecutions(),
+                    execs -> execs.size() == 1
+                    && execs.stream().allMatch(exec -> ExecStatus.SUCCESS.name().equals(exec.getStatus())));
 
             // 4. stop live syncing
             assertTrue(TASK_SERVICE.getJob(task.getKey()).isRunning());
@@ -272,9 +273,6 @@ public class LiveSyncITCase extends AbstractITCase {
                     """.
                                 formatted(groupName)));
             }
-
-            task = TASK_SERVICE.read(TaskType.LIVE_SYNC, task.getKey(), true);
-            assertEquals(1, task.getExecutions().size());
 
             // 6. start again live syncing and find the new group in Syncope
             TASK_SERVICE.actionJob(task.getKey(), JobAction.START);

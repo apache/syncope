@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
@@ -33,7 +33,12 @@ public class LiveSyncJob extends TaskJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(LiveSyncJob.class);
 
-    protected LiveSyncJobDelegate delegate;
+    private LiveSyncJobDelegate delegate;
+
+    @Override
+    public SchedTaskJobDelegate getDelegate() {
+        return delegate;
+    }
 
     @Override
     protected void delegate(final JobExecutionContext context, final String taskKey)
@@ -50,9 +55,5 @@ public class LiveSyncJob extends TaskJob {
                     taskKey,
                     context);
         }
-    }
-
-    public void stop() {
-        Optional.ofNullable(delegate).ifPresent(LiveSyncJobDelegate::stop);
     }
 }
