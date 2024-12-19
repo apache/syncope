@@ -151,6 +151,20 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
     }
 
     @Override
+    public IModel<List<String>> getLiveSyncDeltaMappers() {
+        return new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return implementationRestClient.list(IdMImplementationType.LIVE_SYNC_DELTA_MAPPER).stream().
+                        map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
+            }
+        };
+    }
+
+    @Override
     public IModel<List<String>> getInboundActions() {
         return new LoadableDetachableModel<>() {
 

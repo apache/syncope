@@ -46,6 +46,8 @@ public interface ImplementationInfoProvider extends Serializable {
 
     IModel<List<String>> getReconFilterBuilders();
 
+    IModel<List<String>> getLiveSyncDeltaMappers();
+
     IModel<List<String>> getMacroActions();
 
     IModel<List<String>> getInboundActions();

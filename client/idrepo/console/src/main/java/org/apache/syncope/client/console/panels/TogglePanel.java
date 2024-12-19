@@ -162,26 +162,25 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         final String key;
         if (modelObject == null) {
             key = new ResourceModel("actions", StringUtils.EMPTY).getObject();
-        } else if (modelObject instanceof EntityTO) {
-            key = ((EntityTO) modelObject).getKey();
+        } else if (modelObject instanceof EntityTO entityTO) {
+            key = entityTO.getKey();
         } else if (modelObject instanceof AnyWrapper) {
             key = ((AnyWrapper<?>) modelObject).getInnerObject().getKey();
-        } else if (modelObject instanceof Attr) {
-            key = ((Attr) modelObject).getSchema();
-        } else if (modelObject instanceof ConfParam) {
-            key = ((ConfParam) modelObject).getSchema();
-        } else if (modelObject instanceof StatusBean) {
-            key = StringUtils.isNotBlank(((StatusBean) modelObject).getResource())
-                    ? ((StatusBean) modelObject).getResource() : ((StatusBean) modelObject).getKey();
-        } else if (modelObject instanceof PolicyRuleWrapper) {
-            key = ((PolicyRuleWrapper) modelObject).getConf().getName();
-        } else if (modelObject instanceof JobTO) {
-            key = ((JobTO) modelObject).getRefKey() == null
-                    ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
-        } else if (modelObject instanceof ToggleableTarget) {
-            key = ((ToggleableTarget) modelObject).getKey();
-        } else if (modelObject instanceof Domain) {
-            key = ((Domain) modelObject).getKey();
+        } else if (modelObject instanceof Attr attr) {
+            key = attr.getSchema();
+        } else if (modelObject instanceof ConfParam confParam) {
+            key = confParam.getSchema();
+        } else if (modelObject instanceof StatusBean statusBean) {
+            key = StringUtils.isNotBlank(statusBean.getResource())
+                    ? statusBean.getResource() : statusBean.getKey();
+        } else if (modelObject instanceof PolicyRuleWrapper policyRuleWrapper) {
+            key = policyRuleWrapper.getConf().getName();
+        } else if (modelObject instanceof JobTO jobTO) {
+            key = jobTO.getRefKey() == null ? jobTO.getRefDesc() : jobTO.getRefKey();
+        } else if (modelObject instanceof ToggleableTarget toggleableTarget) {
+            key = toggleableTarget.getKey();
+        } else if (modelObject instanceof Domain domain) {
+            key = domain.getKey();
         } else {
             key = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }
@@ -213,7 +212,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
      * @param toggle toggle action.
      */
     public void toggle(final AjaxRequestTarget target, final boolean toggle) {
-        final String selector = String.format("$(\"div#%s\")", activeId);
+        String selector = String.format("$(\"div#%s\")", activeId);
         if (toggle) {
             if (status == Status.INACTIVE) {
                 target.add(TogglePanel.this.container);

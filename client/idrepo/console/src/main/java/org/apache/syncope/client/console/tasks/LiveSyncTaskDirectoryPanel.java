@@ -18,31 +18,56 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
 
-public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPanel<PullTaskTO> {
+public abstract class LiveSyncTaskDirectoryPanel extends ProvisioningTaskDirectoryPanel<LiveSyncTaskTO> {
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    protected PullTaskDirectoryPanel(
+    protected LiveSyncTaskDirectoryPanel(
             final TaskRestClient restClient,
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String resource,
             final PageReference pageRef) {
 
-        super(restClient, baseModal, multiLevelPanelRef, TaskType.PULL, new PullTaskTO(), resource, pageRef);
+        super(restClient, baseModal, multiLevelPanelRef, TaskType.LIVE_SYNC, new LiveSyncTaskTO(), resource, pageRef);
+    }
+
+    @Override
+    protected List<IColumn<LiveSyncTaskTO, String>> getTrailingFieldColumns() {
+        List<IColumn<LiveSyncTaskTO, String>> columns = super.getTrailingFieldColumns();
+        columns.removeIf(column -> column instanceof PropertyColumn<?, ?> propertyColumn
+                && propertyColumn.getPropertyExpression().contains("Exec"));
+        return columns;
+    }
+
+    @Override
+    protected Collection<ActionLink.ActionType> getBatches() {
+        return Set.of();
+    }
+
+    @Override
+    public ActionsPanel<LiveSyncTaskTO> getActions(final IModel<LiveSyncTaskTO> model) {
+        ActionsPanel<LiveSyncTaskTO> panel = super.getActions(model);
+        panel.getActions().removeIf(action -> action.getType() == ActionLink.ActionType.CLONE);
+        return panel;
     }
 
     @Override
@@ -51,19 +76,34 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
     }
 
     @Override
-    protected ProvisioningTasksProvider<PullTaskTO> dataProvider() {
-        return new ProvisioningTasksProvider<>(TaskType.PULL, rows);
+    protected void onDelete(final AjaxRequestTarget target) {
+        target.add(addAjaxLink);
     }
 
     @Override
-    protected void addFurtherActions(final ActionsPanel<PullTaskTO> panel, final IModel<PullTaskTO> model) {
+    protected ProvisioningTasksProvider<LiveSyncTaskTO> dataProvider() {
+        return new ProvisioningTasksProvider<>(TaskType.LIVE_SYNC, rows) {
+
+            private static final long serialVersionUID = -8658004154067744714L;
+
+            @Override
+            public long size() {
+                long size = super.size();
+                addAjaxLink.setEnabled(size == 0);
+                return size;
+            }
+        };
+    }
+
+    @Override
+    protected void addFurtherActions(final ActionsPanel<LiveSyncTaskTO> panel, final IModel<LiveSyncTaskTO> model) {
         panel.add(new ActionLink<>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public void onClick(final AjaxRequestTarget target, final PullTaskTO ignore) {
-                PullTaskDirectoryPanel.this.getTogglePanel().close(target);
+            public void onClick(final AjaxRequestTarget target, final LiveSyncTaskTO ignore) {
+                LiveSyncTaskDirectoryPanel.this.getTogglePanel().close(target);
                 templates.setTargetObject(model.getObject());
                 templates.toggle(target, true);
             }

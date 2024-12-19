@@ -106,11 +106,9 @@ public class ITImplementationLookup implements ImplementationLookup {
                     DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class,
                     DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
 
-    private static final Set<Class<?>> PROVISION_SORTER_CLASSES =
-            Set.of(DefaultProvisionSorter.class);
+    private static final Set<Class<?>> PROVISION_SORTER_CLASSES = Set.of(DefaultProvisionSorter.class);
 
-    private static final Set<Class<?>> COMMAND_CLASSES =
-            Set.of(TestCommand.class);
+    private static final Set<Class<?>> COMMAND_CLASSES = Set.of(TestCommand.class);
 
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<>() {
 
@@ -147,7 +145,12 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdMImplementationType.RECON_FILTER_BUILDER, classNames);
 
             classNames = new HashSet<>();
+            classNames.add(TestLiveSyncDeltaMapper.class.getName());
+            put(IdMImplementationType.LIVE_SYNC_DELTA_MAPPER, classNames);
+
+            classNames = new HashSet<>();
             put(IdRepoImplementationType.LOGIC_ACTIONS, classNames);
+
             classNames = new HashSet<>();
             classNames.add(TestMacroActions.class.getName());
             put(IdRepoImplementationType.MACRO_ACTIONS, classNames);

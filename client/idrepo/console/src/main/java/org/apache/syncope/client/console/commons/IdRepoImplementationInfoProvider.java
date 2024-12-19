@@ -212,6 +212,19 @@ public class IdRepoImplementationInfoProvider implements ImplementationInfoProvi
     }
 
     @Override
+    public IModel<List<String>> getLiveSyncDeltaMappers() {
+        return new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return List.of();
+            }
+        };
+    }
+
+    @Override
     public IModel<List<String>> getMacroActions() {
         return new LoadableDetachableModel<>() {
 
