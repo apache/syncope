@@ -22,10 +22,10 @@ import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.InboundPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -44,8 +44,8 @@ public class PolicyUtilsFactory {
             type = PolicyType.PASSWORD;
         } else if (policy instanceof PropagationPolicy) {
             type = PolicyType.PROPAGATION;
-        } else if (policy instanceof PullPolicy) {
-            type = PolicyType.PULL;
+        } else if (policy instanceof InboundPolicy) {
+            type = PolicyType.INBOUND;
         } else if (policy instanceof PushPolicy) {
             type = PolicyType.PUSH;
         } else if (policy instanceof AuthPolicy) {
@@ -71,8 +71,8 @@ public class PolicyUtilsFactory {
             type = PolicyType.PASSWORD;
         } else if (policyClass == PropagationPolicyTO.class) {
             type = PolicyType.PROPAGATION;
-        } else if (policyClass == PullPolicyTO.class) {
-            type = PolicyType.PULL;
+        } else if (policyClass == InboundPolicyTO.class) {
+            type = PolicyType.INBOUND;
         } else if (policyClass == PushPolicyTO.class) {
             type = PolicyType.PUSH;
         } else if (policyClass == AuthPolicyTO.class) {

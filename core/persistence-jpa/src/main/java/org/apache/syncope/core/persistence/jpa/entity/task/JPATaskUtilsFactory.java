@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -28,6 +29,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -61,7 +63,9 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
     @Override
     public TaskUtils getInstance(final Task<?> task) {
         TaskType type;
-        if (task instanceof PullTask) {
+        if (task instanceof LiveSyncTask) {
+            type = TaskType.LIVE_SYNC;
+        } else if (task instanceof PullTask) {
             type = TaskType.PULL;
         } else if (task instanceof PushTask) {
             type = TaskType.PUSH;
@@ -89,6 +93,8 @@ public class JPATaskUtilsFactory implements TaskUtilsFactory {
             type = TaskType.NOTIFICATION;
         } else if (taskClass == SchedTaskTO.class) {
             type = TaskType.SCHEDULED;
+        } else if (taskClass == LiveSyncTaskTO.class) {
+            type = TaskType.LIVE_SYNC;
         } else if (taskClass == PullTaskTO.class) {
             type = TaskType.PULL;
         } else if (taskClass == PushTaskTO.class) {

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -842,7 +843,6 @@ public class GroupITCase extends AbstractITCase {
         // resource with no capability override
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(ldap);
-        assertFalse(ldap.isOverrideCapabilities());
         assertTrue(ldap.getCapabilitiesOverride().isEmpty());
 
         // connector with all required for create and update
@@ -865,63 +865,33 @@ public class GroupITCase extends AbstractITCase {
             GroupTO group = result.getEntity();
 
             // 2. update succeeds
-            GroupUR groupUR = new GroupUR();
-            groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("title", "second")).
-                    operation(PatchOperation.ADD_REPLACE).build());
-
-            result = updateGroup(groupUR);
+            result = updateGroup(new GroupUR.Builder(group.getKey()).
+                    plainAttr(new AttrPatch.Builder(attr("title", "second")).build()).
+                    build());
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
             assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getEntity();
 
-            // 3. set capability override with only search allowed, but not enable
-            ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
+            // 3. enable capability override with only search allowed
+            ldap.setCapabilitiesOverride(Optional.of(Set.of(ConnectorCapability.SEARCH)));
             RESOURCE_SERVICE.update(ldap);
             ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             assertNotNull(ldap);
-            assertFalse(ldap.isOverrideCapabilities());
-            assertEquals(1, ldap.getCapabilitiesOverride().size());
-            assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
+            assertEquals(1, ldap.getCapabilitiesOverride().orElseThrow().size());
+            assertTrue(ldap.getCapabilitiesOverride().orElseThrow().contains(ConnectorCapability.SEARCH));
 
-            // 4. update succeeds again
-            groupUR = new GroupUR();
-            groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("title", "third")).
-                    operation(PatchOperation.ADD_REPLACE).build());
-
-            result = updateGroup(groupUR);
-            assertNotNull(result);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-            group = result.getEntity();
-
-            // 5. enable capability override
-            ldap.setOverrideCapabilities(true);
-            RESOURCE_SERVICE.update(ldap);
-            ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-            assertNotNull(ldap);
-            assertTrue(ldap.isOverrideCapabilities());
-            assertEquals(1, ldap.getCapabilitiesOverride().size());
-            assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
-
-            // 6. update now fails
-            groupUR = new GroupUR();
-            groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("title", "fourth")).
-                    operation(PatchOperation.ADD_REPLACE).build());
-
-            result = updateGroup(groupUR);
+            // 4. update now fails
+            result = updateGroup(new GroupUR.Builder(group.getKey()).
+                    plainAttr(new AttrPatch.Builder(attr("title", "fourth")).build()).
+                    build());
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
             assertEquals(ExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().get(0).getStatus());
         } finally {
-            ldap.getCapabilitiesOverride().clear();
-            ldap.setOverrideCapabilities(false);
+            ldap.setCapabilitiesOverride(Optional.empty());
             RESOURCE_SERVICE.update(ldap);
         }
     }

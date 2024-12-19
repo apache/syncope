@@ -22,12 +22,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<ResourceTO> {
@@ -47,29 +47,8 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
             @Override
             protected List<ConnConfProperty> load() {
                 List<ConnConfProperty> confOverride = getConnProperties(resourceTO);
-                resourceTO.getConfOverride().clear();
-                resourceTO.getConfOverride().addAll(confOverride);
-
-                return new PropertyModel<List<ConnConfProperty>>(modelObject, "confOverride") {
-
-                    private static final long serialVersionUID = -7809699384012595307L;
-
-                    @Override
-                    public List<ConnConfProperty> getObject() {
-                        List<ConnConfProperty> res = new ArrayList<>(super.getObject());
-
-                        // re-order properties
-                        res.sort((left, right) -> {
-                            if (left == null) {
-                                return -1;
-                            } else {
-                                return left.compareTo(right);
-                            }
-                        });
-
-                        return res;
-                    }
-                }.getObject();
+                resourceTO.setConfOverride(Optional.of(confOverride));
+                return confOverride;
             }
         };
 
@@ -86,7 +65,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
      * @return overridable properties.
      */
     @Override
-    protected final List<ConnConfProperty> getConnProperties(final ResourceTO resourceTO) {
+    protected List<ConnConfProperty> getConnProperties(final ResourceTO resourceTO) {
         List<ConnConfProperty> props = new ArrayList<>();
 
         if (resourceTO.getConnector() != null) {
@@ -94,24 +73,19 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
                     filter(ConnConfProperty::isOverridable).
                     forEachOrdered(props::add);
         }
-        if (resourceTO.getConfOverride().isEmpty()) {
-            resourceTO.getConfOverride().clear();
-        } else {
+
+        resourceTO.getConfOverride().ifPresent(confOverride -> {
             Map<String, ConnConfProperty> valuedProps = new HashMap<>();
-            resourceTO.getConfOverride().forEach(prop -> valuedProps.put(prop.getSchema().getName(), prop));
+            confOverride.forEach(prop -> valuedProps.put(prop.getSchema().getName(), prop));
 
             for (int i = 0; i < props.size(); i++) {
                 if (valuedProps.containsKey(props.get(i).getSchema().getName())) {
                     props.set(i, valuedProps.get(props.get(i).getSchema().getName()));
                 }
             }
-        }
+        });
 
         return props;
-    }
-
-    public LoadableDetachableModel<List<ConnConfProperty>> getModel() {
-        return model;
     }
 
     public AjaxButton getCheck() {

@@ -20,6 +20,7 @@ package org.apache.syncope.fit.console;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.util.UUID;
@@ -156,16 +157,23 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
     @Test
     public void createNewResurceAndProvisionRules() {
-        String res = UUID.randomUUID().toString();
+        // ConnInstance100
+        Component connector = findComponentByProp(
+                "key", "body:conns:0:conns", "88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+        assertNotNull(connector);
+
+        int bodyIdx = connector.getPath().indexOf("body");
+        assertTrue(bodyIdx != -1);
 
         TESTER.executeAjaxEvent(
-                "body:conns:0:conns:1:conn", Constants.ON_CLICK);
+                connector.getPath().substring(bodyIdx) + ":conn", Constants.ON_CLICK);
         TESTER.executeAjaxEvent(
                 "body:toggle:container:content:togglePanelContainer:container:actions:create", Constants.ON_CLICK);
 
         FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:0:outer:form:content:form");
 
+        String res = UUID.randomUUID().toString();
         formTester.setValue("view:container:key:textField", res);
         formTester.submit("buttons:next");
 

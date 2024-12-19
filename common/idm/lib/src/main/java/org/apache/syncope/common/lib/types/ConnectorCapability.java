@@ -29,6 +29,7 @@ public enum ConnectorCapability {
     UPDATE_DELTA,
     DELETE,
     SEARCH,
-    SYNC;
+    SYNC,
+    LIVE_SYNC;
 
 }

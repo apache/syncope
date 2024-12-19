@@ -26,9 +26,9 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
@@ -75,7 +75,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
     @Mock
     private ConnInstance connInstance;
 
-    private Set<ConnConfProperty> connConfProperties;
+    private List<ConnConfProperty> connConfProperties;
 
     private UserTO userTO;
 
@@ -98,7 +98,7 @@ public class DBPasswordPullActionsTest extends AbstractTest {
         connConfPropSchema.setName("cipherAlgorithm");
         connConfProperty = new ConnConfProperty();
         connConfProperty.setSchema(connConfPropSchema);
-        connConfProperties = new HashSet<>();
+        connConfProperties = new ArrayList<>();
         connConfProperties.add(connConfProperty);
 
         ReflectionTestUtils.setField(dBPasswordPullActions, "encodedPassword", encodedPassword);

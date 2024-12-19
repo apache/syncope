@@ -737,7 +737,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     spec.getKeyColumn(),
                     columns,
                     spec.getConflictResolutionAction(),
-                    spec.getPullCorrelationRule(),
+                    spec.getInboundCorrelationRule(),
                     connector,
                     pullTask,
                     AuthContextUtils.getWho());

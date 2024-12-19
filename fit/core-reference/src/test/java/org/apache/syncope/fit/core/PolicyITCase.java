@@ -43,9 +43,9 @@ import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultTicketExpirationPolicyConf;
+import org.apache.syncope.common.lib.policy.InboundPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -59,22 +59,22 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.DummyPullCorrelationRule;
+import org.apache.syncope.fit.core.reference.DummyInboundCorrelationRule;
 import org.apache.syncope.fit.core.reference.DummyPushCorrelationRule;
 import org.junit.jupiter.api.Test;
 
 public class PolicyITCase extends AbstractITCase {
 
-    private PullPolicyTO buildPullPolicyTO() throws IOException {
+    private InboundPolicyTO buildInboundPolicyTO() throws IOException {
         ImplementationTO corrRule = null;
         try {
-            corrRule = IMPLEMENTATION_SERVICE.read(IdMImplementationType.PULL_CORRELATION_RULE, "TestPullRule");
+            corrRule = IMPLEMENTATION_SERVICE.read(IdMImplementationType.INBOUND_CORRELATION_RULE, "TestPullRule");
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 corrRule = new ImplementationTO();
                 corrRule.setKey("TestPullRule");
                 corrRule.setEngine(ImplementationEngine.GROOVY);
-                corrRule.setType(IdMImplementationType.PULL_CORRELATION_RULE);
+                corrRule.setType(IdMImplementationType.INBOUND_CORRELATION_RULE);
                 corrRule.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/TestPullRule.groovy"), StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(corrRule);
@@ -85,7 +85,7 @@ public class PolicyITCase extends AbstractITCase {
         }
         assertNotNull(corrRule);
 
-        PullPolicyTO policy = new PullPolicyTO();
+        InboundPolicyTO policy = new InboundPolicyTO();
         policy.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
         policy.setName("Pull policy");
 
@@ -125,7 +125,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(propagationPolicies);
         assertFalse(propagationPolicies.isEmpty());
 
-        List<PullPolicyTO> pullPolicies = POLICY_SERVICE.list(PolicyType.PULL);
+        List<InboundPolicyTO> pullPolicies = POLICY_SERVICE.list(PolicyType.INBOUND);
         assertNotNull(pullPolicies);
         assertFalse(pullPolicies.isEmpty());
     }
@@ -159,8 +159,8 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void getPullPolicy() {
-        PullPolicyTO policyTO = POLICY_SERVICE.read(PolicyType.PULL, "66691e96-285f-4464-bc19-e68384ea4c85");
+    public void getInboundPolicy() {
+        InboundPolicyTO policyTO = POLICY_SERVICE.read(PolicyType.INBOUND, "66691e96-285f-4464-bc19-e68384ea4c85");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByRealms().isEmpty());
@@ -201,9 +201,9 @@ public class PolicyITCase extends AbstractITCase {
         assertEquals(3, propagationPolicyTO.getMaxAttempts());
         assertEquals(BackOffStrategy.EXPONENTIAL.getDefaultBackOffParams(), propagationPolicyTO.getBackOffParams());
 
-        PullPolicyTO pullPolicyTO = createPolicy(PolicyType.PULL, buildPullPolicyTO());
-        assertNotNull(pullPolicyTO);
-        assertEquals("TestPullRule", pullPolicyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
+        InboundPolicyTO inboundPolicyTO = createPolicy(PolicyType.INBOUND, buildInboundPolicyTO());
+        assertNotNull(inboundPolicyTO);
+        assertEquals("TestPullRule", inboundPolicyTO.getCorrelationRules().get(AnyTypeKind.USER.name()));
 
         PushPolicyTO pushPolicyTO = createPolicy(PolicyType.PUSH, buildPushPolicyTO());
         assertNotNull(pushPolicyTO);
@@ -340,15 +340,15 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void delete() throws IOException {
-        PullPolicyTO policy = buildPullPolicyTO();
+        InboundPolicyTO policy = buildInboundPolicyTO();
 
-        PullPolicyTO policyTO = createPolicy(PolicyType.PULL, policy);
+        InboundPolicyTO policyTO = createPolicy(PolicyType.INBOUND, policy);
         assertNotNull(policyTO);
 
-        POLICY_SERVICE.delete(PolicyType.PULL, policyTO.getKey());
+        POLICY_SERVICE.delete(PolicyType.INBOUND, policyTO.getKey());
 
         try {
-            POLICY_SERVICE.read(PolicyType.PULL, policyTO.getKey());
+            POLICY_SERVICE.read(PolicyType.INBOUND, policyTO.getKey());
             fail("This should not happen");
         } catch (SyncopeClientException e) {
             assertNotNull(e);
@@ -407,11 +407,11 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void getPullCorrelationRuleJavaClasses() {
+    public void getInboundCorrelationRuleJavaClasses() {
         Set<String> classes = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdMImplementationType.PULL_CORRELATION_RULE).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.INBOUND_CORRELATION_RULE).get().getClasses();
         assertEquals(1, classes.size());
-        assertEquals(DummyPullCorrelationRule.class.getName(), classes.iterator().next());
+        assertEquals(DummyInboundCorrelationRule.class.getName(), classes.iterator().next());
     }
 
     @Test

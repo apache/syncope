@@ -56,19 +56,20 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SearchResult;
@@ -112,7 +113,7 @@ public class InboundMatcher {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
-    protected final Map<String, PullCorrelationRule> perContextPullCorrelationRules = new ConcurrentHashMap<>();
+    protected final Map<String, InboundCorrelationRule> perContextInboundCorrelationRules = new ConcurrentHashMap<>();
 
     public InboundMatcher(
             final UserDAO userDAO,
@@ -140,7 +141,7 @@ public class InboundMatcher {
         this.anyUtilsFactory = anyUtilsFactory;
     }
 
-    public Optional<PullMatch> match(
+    public Optional<InboundMatch> match(
             final AnyType anyType,
             final String nameValue,
             final ExternalResource resource,
@@ -181,7 +182,7 @@ public class InboundMatcher {
             LOG.warn("While searching for {} ...", nameValue, t);
         }
 
-        Optional<PullMatch> result = Optional.empty();
+        Optional<InboundMatch> result = Optional.empty();
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with {} {}", provision.get().getObjectClass(), resource, Name.NAME, nameValue);
@@ -193,7 +194,7 @@ public class InboundMatcher {
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                List<PullMatch> matches = match(
+                List<InboundMatch> matches = match(
                         new SyncDeltaBuilder().
                                 setToken(new SyncToken("")).
                                 setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
@@ -210,7 +211,7 @@ public class InboundMatcher {
                     }
 
                     result = matches.stream().filter(match -> match.getAny() != null).findFirst();
-                    result.ifPresent(pullMatch -> virAttrHandler.setValues(pullMatch.getAny(), connObj));
+                    result.ifPresent(inboundMatch -> virAttrHandler.setValues(inboundMatch.getAny(), connObj));
                 }
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());
@@ -227,7 +228,7 @@ public class InboundMatcher {
                 collect(Collectors.toList());
     }
 
-    public List<PullMatch> matchByConnObjectKeyValue(
+    public List<InboundMatch> matchByConnObjectKeyValue(
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final AnyTypeKind anyTypeKind,
@@ -247,7 +248,7 @@ public class InboundMatcher {
             }
         }
 
-        List<PullMatch> noMatchResult = List.of(PullCorrelationRule.NO_MATCH);
+        List<InboundMatch> noMatchResult = List.of(InboundCorrelationRule.NO_MATCH);
 
         IntAttrName intAttrName;
         try {
@@ -332,26 +333,26 @@ public class InboundMatcher {
             }
         }
 
-        List<PullMatch> result = anys.stream().
-                map(any -> new PullMatch(MatchType.ANY, any)).
+        List<InboundMatch> result = anys.stream().
+                map(any -> new InboundMatch(MatchType.ANY, any)).
                 toList();
 
         if (resource != null) {
             userDAO.findLinkedAccount(resource, finalConnObjectKeyValue).
-                    map(account -> new PullMatch(MatchType.LINKED_ACCOUNT, account)).
+                    map(account -> new InboundMatch(MatchType.LINKED_ACCOUNT, account)).
                     ifPresent(result::add);
         }
 
         return result.isEmpty() ? noMatchResult : result;
     }
 
-    protected List<PullMatch> matchByCorrelationRule(
+    protected List<InboundMatch> matchByCorrelationRule(
             final SyncDelta syncDelta,
             final Provision provision,
-            final PullCorrelationRule rule,
+            final InboundCorrelationRule rule,
             final AnyTypeKind type) {
 
-        List<PullMatch> result = new ArrayList<>();
+        List<InboundMatch> result = new ArrayList<>();
 
         try {
             result.addAll(anySearchDAO.search(rule.getSearchCond(syncDelta, provision), type).stream().
@@ -368,19 +369,18 @@ public class InboundMatcher {
         return result;
     }
 
-    protected Optional<PullCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
-        Optional<? extends PullCorrelationRuleEntity> correlationRule = resource.getPullPolicy() == null
+    protected Optional<InboundCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
+        Optional<? extends InboundCorrelationRuleEntity> correlationRule = resource.getInboundPolicy() == null
                 ? Optional.empty()
-                : resource.getPullPolicy().getCorrelationRule(provision.getAnyType());
+                : resource.getInboundPolicy().getCorrelationRule(provision.getAnyType());
 
-        Optional<PullCorrelationRule> rule = Optional.empty();
+        Optional<InboundCorrelationRule> rule = Optional.empty();
         if (correlationRule.isPresent()) {
             Implementation impl = correlationRule.get().getImplementation();
             try {
-                rule = ImplementationManager.buildPullCorrelationRule(
-                        impl,
-                        () -> perContextPullCorrelationRules.get(impl.getKey()),
-                        instance -> perContextPullCorrelationRules.put(impl.getKey(), instance));
+                rule = ImplementationManager.buildInboundCorrelationRule(impl,
+                        () -> perContextInboundCorrelationRules.get(impl.getKey()),
+                        instance -> perContextInboundCorrelationRules.put(impl.getKey(), instance));
             } catch (Exception e) {
                 LOG.error("While building {}", impl, e);
             }
@@ -398,15 +398,15 @@ public class InboundMatcher {
      * @param anyTypeKind type kind
      * @return list of matching users' / groups' / any objects' keys
      */
-    public List<PullMatch> match(
+    public List<InboundMatch> match(
             final SyncDelta syncDelta,
             final ExternalResource resource,
             final Provision provision,
             final AnyTypeKind anyTypeKind) {
 
-        Optional<PullCorrelationRule> rule = rule(resource, provision);
+        Optional<InboundCorrelationRule> rule = rule(resource, provision);
 
-        List<PullMatch> result = List.of();
+        List<InboundMatch> result = List.of();
         try {
             if (rule.isPresent()) {
                 result = matchByCorrelationRule(syncDelta, provision, rule.get(), anyTypeKind);
@@ -426,7 +426,7 @@ public class InboundMatcher {
                     }
                 }
                 if (connObjectKeyValue == null) {
-                    result = List.of(PullCorrelationRule.NO_MATCH);
+                    result = List.of(InboundCorrelationRule.NO_MATCH);
                 } else {
                     result = matchByConnObjectKeyValue(
                             connObjectKeyItem.get(),
@@ -455,7 +455,7 @@ public class InboundMatcher {
      * @return list of matching realms' keys.
      */
     @Transactional(readOnly = true)
-    public List<Realm> match(final SyncDelta syncDelta, final OrgUnit orgUnit) {
+    public List<Realm> match(final LiveSyncDelta syncDelta, final OrgUnit orgUnit) {
         String connObjectKey = null;
 
         Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();

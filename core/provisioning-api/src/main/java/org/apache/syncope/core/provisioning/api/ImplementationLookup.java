@@ -20,15 +20,15 @@ package org.apache.syncope.core.provisioning.api;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 
 public interface ImplementationLookup extends SyncopeCoreLoader {
@@ -44,8 +44,8 @@ public interface ImplementationLookup extends SyncopeCoreLoader {
     Class<? extends PasswordRule> getPasswordRuleClass(
             Class<? extends PasswordRuleConf> passwordRuleConfClass);
 
-    Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
-            Class<? extends PullCorrelationRuleConf> pullCorrelationRuleConfClass);
+    Class<? extends InboundCorrelationRule> getInboundCorrelationRuleClass(
+            Class<? extends InboundCorrelationRuleConf> inboundCorrelationRuleConfClass);
 
     Class<? extends PushCorrelationRule> getPushCorrelationRuleClass(
             Class<? extends PushCorrelationRuleConf> pushCorrelationRuleConfClass);

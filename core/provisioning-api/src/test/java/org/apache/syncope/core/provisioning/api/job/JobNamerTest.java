@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.job;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
@@ -36,21 +36,21 @@ public class JobNamerTest extends AbstractTest {
     @Test
     public void getTaskKeyFromJobName() {
         name = "testName";
-        assertNull(JobNamer.getTaskKeyFromJobName(name));
+        assertTrue(JobNamer.getTaskKeyFromJobName(name).isEmpty());
 
         String uuid = UUID.randomUUID().toString();
         name = String.format("taskJob%s", uuid);
-        assertEquals(uuid, JobNamer.getTaskKeyFromJobName(name));
+        assertEquals(uuid, JobNamer.getTaskKeyFromJobName(name).orElseThrow());
     }
 
     @Test
     public void getReportKeyFromJobName() {
         name = "testName";
-        assertNull(JobNamer.getTaskKeyFromJobName(name));
+        assertTrue(JobNamer.getTaskKeyFromJobName(name).isEmpty());
 
         String uuid = UUID.randomUUID().toString();
         name = String.format("reportJob%s", uuid);
-        assertEquals(uuid, JobNamer.getReportKeyFromJobName(name));
+        assertEquals(uuid, JobNamer.getReportKeyFromJobName(name).orElseThrow());
     }
 
     @Test

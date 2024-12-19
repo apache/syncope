@@ -20,17 +20,17 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
-import org.apache.syncope.core.provisioning.java.pushpull.DefaultPullCorrelationRule;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultInboundCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultPushCorrelationRule;
 import org.apache.syncope.core.spring.policy.DefaultAccountRule;
 import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
@@ -67,10 +67,10 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
-            final Class<? extends PullCorrelationRuleConf> pullCorrelationRuleConfClass) {
+    public Class<? extends InboundCorrelationRule> getInboundCorrelationRuleClass(
+            final Class<? extends InboundCorrelationRuleConf> inboundCorrelationRuleConfClass) {
 
-        return DefaultPullCorrelationRule.class;
+        return DefaultInboundCorrelationRule.class;
     }
 
     @Override

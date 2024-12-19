@@ -19,9 +19,10 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.ws.rs.PathParam;
 import java.util.ArrayList;
-import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -69,7 +70,7 @@ public class ResourceTO implements EntityTO {
 
     private String propagationPolicy;
 
-    private String pullPolicy;
+    private String inboundPolicy;
 
     private String pushPolicy;
 
@@ -79,11 +80,17 @@ public class ResourceTO implements EntityTO {
 
     private String accessPolicy;
 
-    private final List<ConnConfProperty> confOverride = new ArrayList<>();
+    @JsonProperty
+    private boolean confOverrideFlag = false;
 
-    private boolean overrideCapabilities = false;
+    @JsonProperty
+    private List<ConnConfProperty> confOverrideValue;
 
-    private final Set<ConnectorCapability> capabilitiesOverride = EnumSet.noneOf(ConnectorCapability.class);
+    @JsonProperty
+    private boolean capabilitiesOverrideFlag = false;
+
+    @JsonProperty
+    private Set<ConnectorCapability> capabilitiesOverrideValue;
 
     private final List<String> propagationActions = new ArrayList<>();
 
@@ -138,6 +145,14 @@ public class ResourceTO implements EntityTO {
         this.createTraceLevel = createTraceLevel;
     }
 
+    public TraceLevel getUpdateTraceLevel() {
+        return updateTraceLevel;
+    }
+
+    public void setUpdateTraceLevel(final TraceLevel updateTraceLevel) {
+        this.updateTraceLevel = updateTraceLevel;
+    }
+
     public TraceLevel getDeleteTraceLevel() {
         return deleteTraceLevel;
     }
@@ -146,12 +161,12 @@ public class ResourceTO implements EntityTO {
         this.deleteTraceLevel = deleteTraceLevel;
     }
 
-    public TraceLevel getUpdateTraceLevel() {
-        return updateTraceLevel;
+    public TraceLevel getProvisioningTraceLevel() {
+        return provisioningTraceLevel;
     }
 
-    public void setUpdateTraceLevel(final TraceLevel updateTraceLevel) {
-        this.updateTraceLevel = updateTraceLevel;
+    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
+        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     public String getPasswordPolicy() {
@@ -178,12 +193,12 @@ public class ResourceTO implements EntityTO {
         this.propagationPolicy = propagationPolicy;
     }
 
-    public String getPullPolicy() {
-        return pullPolicy;
+    public String getInboundPolicy() {
+        return inboundPolicy;
     }
 
-    public void setPullPolicy(final String pullPolicy) {
-        this.pullPolicy = pullPolicy;
+    public void setInboundPolicy(final String inboundPolicy) {
+        this.inboundPolicy = inboundPolicy;
     }
 
     public String getPushPolicy() {
@@ -192,14 +207,6 @@ public class ResourceTO implements EntityTO {
 
     public void setPushPolicy(final String pushPolicy) {
         this.pushPolicy = pushPolicy;
-    }
-
-    public String getProvisionSorter() {
-        return provisionSorter;
-    }
-
-    public void setProvisionSorter(final String provisionSorter) {
-        this.provisionSorter = provisionSorter;
     }
 
     public String getAuthPolicy() {
@@ -216,6 +223,14 @@ public class ResourceTO implements EntityTO {
 
     public void setAccessPolicy(final String accessPolicy) {
         this.accessPolicy = accessPolicy;
+    }
+
+    public String getProvisionSorter() {
+        return provisionSorter;
+    }
+
+    public void setProvisionSorter(final String provisionSorter) {
+        this.provisionSorter = provisionSorter;
     }
 
     @JsonIgnore
@@ -237,28 +252,36 @@ public class ResourceTO implements EntityTO {
         this.orgUnit = orgUnit;
     }
 
-    public List<ConnConfProperty> getConfOverride() {
-        return confOverride;
+    @JsonIgnore
+    public Optional<List<ConnConfProperty>> getConfOverride() {
+        return confOverrideFlag ? Optional.ofNullable(confOverrideValue) : Optional.empty();
     }
 
-    public boolean isOverrideCapabilities() {
-        return overrideCapabilities;
+    @JsonIgnore
+    public void setConfOverride(final Optional<List<ConnConfProperty>> confOverride) {
+        if (confOverride == null || confOverride.isEmpty()) {
+            confOverrideFlag = false;
+            confOverrideValue = null;
+        } else {
+            confOverrideFlag = true;
+            confOverrideValue = new ArrayList<>(confOverride.orElseThrow());
+        }
     }
 
-    public void setOverrideCapabilities(final boolean overrideCapabilities) {
-        this.overrideCapabilities = overrideCapabilities;
+    @JsonIgnore
+    public Optional<Set<ConnectorCapability>> getCapabilitiesOverride() {
+        return capabilitiesOverrideFlag ? Optional.ofNullable(capabilitiesOverrideValue) : Optional.empty();
     }
 
-    public Set<ConnectorCapability> getCapabilitiesOverride() {
-        return capabilitiesOverride;
-    }
-
-    public TraceLevel getProvisioningTraceLevel() {
-        return provisioningTraceLevel;
-    }
-
-    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
-        this.provisioningTraceLevel = provisioningTraceLevel;
+    @JsonIgnore
+    public void setCapabilitiesOverride(final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
+        if (capabilitiesOverride == null || capabilitiesOverride.isEmpty()) {
+            capabilitiesOverrideFlag = false;
+            capabilitiesOverrideValue = null;
+        } else {
+            capabilitiesOverrideFlag = true;
+            capabilitiesOverrideValue = new HashSet<>(capabilitiesOverride.orElseThrow());
+        }
     }
 
     public List<String> getPropagationActions() {
@@ -279,7 +302,6 @@ public class ResourceTO implements EntityTO {
         ResourceTO other = (ResourceTO) obj;
         return new EqualsBuilder().
                 append(enforceMandatoryCondition, other.enforceMandatoryCondition).
-                append(overrideCapabilities, other.overrideCapabilities).
                 append(key, other.key).
                 append(connector, other.connector).
                 append(connectorDisplayName, other.connectorDisplayName).
@@ -293,12 +315,14 @@ public class ResourceTO implements EntityTO {
                 append(passwordPolicy, other.passwordPolicy).
                 append(accountPolicy, other.accountPolicy).
                 append(propagationPolicy, other.propagationPolicy).
-                append(pullPolicy, other.pullPolicy).
+                append(inboundPolicy, other.inboundPolicy).
                 append(pushPolicy, other.pushPolicy).
                 append(authPolicy, other.authPolicy).
                 append(accessPolicy, other.accessPolicy).
-                append(confOverride, other.confOverride).
-                append(capabilitiesOverride, other.capabilitiesOverride).
+                append(confOverrideFlag, other.confOverrideFlag).
+                append(confOverrideValue, other.confOverrideValue).
+                append(capabilitiesOverrideFlag, other.capabilitiesOverrideFlag).
+                append(capabilitiesOverrideValue, other.capabilitiesOverrideValue).
                 append(propagationActions, other.propagationActions).
                 append(provisionSorter, other.provisionSorter).
                 build();
@@ -321,13 +345,14 @@ public class ResourceTO implements EntityTO {
                 append(passwordPolicy).
                 append(accountPolicy).
                 append(propagationPolicy).
-                append(pullPolicy).
+                append(inboundPolicy).
                 append(pushPolicy).
                 append(authPolicy).
                 append(accessPolicy).
-                append(confOverride).
-                append(overrideCapabilities).
-                append(capabilitiesOverride).
+                append(confOverrideFlag).
+                append(confOverrideValue).
+                append(capabilitiesOverrideFlag).
+                append(capabilitiesOverrideValue).
                 append(propagationActions).
                 append(provisionSorter).
                 build();

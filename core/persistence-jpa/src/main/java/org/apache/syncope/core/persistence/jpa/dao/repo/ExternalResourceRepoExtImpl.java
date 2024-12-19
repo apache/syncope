@@ -33,10 +33,10 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -111,8 +111,8 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
             queryString.append("passwordPolicy");
         } else if (PropagationPolicy.class.isAssignableFrom(policy.getClass())) {
             queryString.append("propagationPolicy");
-        } else if (PullPolicy.class.isAssignableFrom(policy.getClass())) {
-            queryString.append("pullPolicy");
+        } else if (InboundPolicy.class.isAssignableFrom(policy.getClass())) {
+            queryString.append("inboundPolicy");
         } else if (PushPolicy.class.isAssignableFrom(policy.getClass())) {
             queryString.append("pushPolicy");
         }
@@ -171,6 +171,7 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
         }
 
         taskDAO.deleteAll(resource, TaskType.PROPAGATION);
+        taskDAO.deleteAll(resource, TaskType.LIVE_SYNC);
         taskDAO.deleteAll(resource, TaskType.PULL);
         taskDAO.deleteAll(resource, TaskType.PUSH);
 

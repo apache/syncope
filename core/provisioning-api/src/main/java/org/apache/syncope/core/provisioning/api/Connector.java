@@ -27,6 +27,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.LiveSyncResultsHandler;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -187,6 +188,15 @@ public interface Connector {
      * @return latest sync token
      */
     SyncToken getLatestSyncToken(ObjectClass objectClass);
+
+    /**
+     * Live sync remote objects from a connector instance.
+     *
+     * @param objectClass ConnId's object class
+     * @param handler to be used to handle deltas
+     * @param options ConnId's OperationOptions
+     */
+    void livesync(ObjectClass objectClass, LiveSyncResultsHandler handler, OperationOptions options);
 
     /**
      * Get remote object.

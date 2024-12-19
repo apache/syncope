@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +49,10 @@ public class ConnectorRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -6870366819966266617L;
 
+    protected static List<ConnConfProperty> filterBlank(final List<ConnConfProperty> properties) {
+        return properties.stream().filter(obj -> obj != null && !obj.toString().isBlank()).toList();
+    }
+
     public List<ConnInstanceTO> getAllConnectors() {
         List<ConnInstanceTO> connectors = List.of();
         try {
@@ -61,7 +64,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
-        List<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
+        List<ConnConfProperty> filteredConf = filterBlank(connectorTO.getConf());
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
 
@@ -91,12 +94,12 @@ public class ConnectorRestClient extends BaseRestClient {
             final String adminRealm,
             final String objectClass,
             final String connectorKey,
-            final Collection<ConnConfProperty> conf) {
+            final Optional<List<ConnConfProperty>> conf) {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setAdminRealm(adminRealm);
         connInstanceTO.setKey(connectorKey);
-        connInstanceTO.getConf().addAll(conf);
+        conf.ifPresent(c -> connInstanceTO.getConf().addAll(c));
 
         // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
         Optional<ConnIdObjectClass> connIdObjectClass = buildObjectClassInfo(connInstanceTO, false).stream().
@@ -114,22 +117,14 @@ public class ConnectorRestClient extends BaseRestClient {
      * @return ConnInstanceTO
      */
     public ConnInstanceTO read(final String key) {
-        ConnInstanceTO connectorTO = null;
-
-        try {
-            connectorTO = getService(ConnectorService.class).
-                    read(key, SyncopeConsoleSession.get().getLocale().toString());
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a connector", e);
-        }
-
-        return connectorTO;
+        return getService(ConnectorService.class).read(key, SyncopeConsoleSession.get().getLocale().toString());
     }
 
     public void update(final ConnInstanceTO connectorTO) {
-        List<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
+        List<ConnConfProperty> filteredConf = filterBlank(connectorTO.getConf());
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
+
         getService(ConnectorService.class).update(connectorTO);
     }
 
@@ -152,25 +147,6 @@ public class ConnectorRestClient extends BaseRestClient {
         return bundles;
     }
 
-    protected List<ConnConfProperty> filterProperties(final Collection<ConnConfProperty> properties) {
-        List<ConnConfProperty> newProperties = new ArrayList<>();
-
-        properties.stream().map(property -> {
-            ConnConfProperty prop = new ConnConfProperty();
-            prop.setSchema(property.getSchema());
-            prop.setOverridable(property.isOverridable());
-            final List<Object> parsed = new ArrayList<>();
-            if (property.getValues() != null) {
-                property.getValues().stream().
-                        filter(obj -> (obj != null && !obj.toString().isEmpty())).
-                        forEachOrdered(parsed::add);
-            }
-            prop.getValues().addAll(parsed);
-            return prop;
-        }).forEachOrdered(newProperties::add);
-        return newProperties;
-    }
-
     public boolean check(final String coreAddress, final String domain, final String jwt, final String key)
             throws IOException {
 
@@ -191,8 +167,8 @@ public class ConnectorRestClient extends BaseRestClient {
 
     public Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
-        BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
-        toBeChecked.getConf().addAll(filterProperties(connectorTO.getConf()));
+        BeanUtils.copyProperties(connectorTO, toBeChecked);
+        toBeChecked.getConf().addAll(filterBlank(connectorTO.getConf()));
 
         boolean check = false;
         String errorMessage = null;

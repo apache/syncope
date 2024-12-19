@@ -136,8 +136,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     }
 
     public ModalPanel getContent() {
-        if (content instanceof ModalPanel) {
-            return (ModalPanel) content;
+        if (content instanceof ModalPanel modalPanel) {
+            return modalPanel;
         }
         throw new IllegalStateException();
     }

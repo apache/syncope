@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -36,7 +36,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.model.PropertyModel;
 
 /**
  * Resource wizard builder.
@@ -105,31 +104,9 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
 
                         @Override
                         protected List<ConnConfProperty> load() {
-                            List<ConnConfProperty> confOverride =
-                                    resourceConnConfPanel.getConnProperties(resourceTO);
-                            resourceTO.getConfOverride().clear();
-                            resourceTO.getConfOverride().addAll(confOverride);
-
-                            return new PropertyModel<List<ConnConfProperty>>(modelObject, "confOverride") {
-
-                                private static final long serialVersionUID = -7809699384012595307L;
-
-                                @Override
-                                public List<ConnConfProperty> getObject() {
-                                    List<ConnConfProperty> res = new ArrayList<>(super.getObject());
-
-                                    // re-order properties
-                                    Collections.sort(res, (left, right) -> {
-                                        if (left == null) {
-                                            return -1;
-                                        } else {
-                                            return left.compareTo(right);
-                                        }
-                                    });
-
-                                    return res;
-                                }
-                            }.getObject();
+                            List<ConnConfProperty> confOverride = resourceConnConfPanel.getConnProperties(resourceTO);
+                            resourceTO.setConfOverride(Optional.of(confOverride));
+                            return confOverride;
                         }
                     };
                     resourceConnConfPanel.setConfPropertyListView(model, true);
@@ -139,12 +116,10 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
         }
         wizardModel.add(resourceDetailsPanel);
         wizardModel.add(resourceConnConfPanel);
-        if (resourceTO.getConnector() != null) {
-            wizardModel.add(new ResourceConnCapabilitiesPanel(
-                    resourceTO, connectorRestClient.read(resourceTO.getConnector()).getCapabilities()));
-        } else {
-            wizardModel.add(new ResourceConnCapabilitiesPanel(resourceTO, Collections.emptySet()));
-        }
+        Optional.ofNullable(resourceTO.getConnector()).ifPresentOrElse(
+                conn -> wizardModel.add(new ResourceConnCapabilitiesPanel(
+                        resourceTO, connectorRestClient.read(conn).getCapabilities())),
+                () -> wizardModel.add(new ResourceConnCapabilitiesPanel(resourceTO, Set.of())));
 
         wizardModel.add(new ResourceSecurityPanel(resourceTO));
         return wizardModel;

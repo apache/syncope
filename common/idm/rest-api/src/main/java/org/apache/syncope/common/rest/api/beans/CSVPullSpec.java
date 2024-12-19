@@ -63,8 +63,8 @@ public class CSVPullSpec extends AbstractCSVSpec {
             return this;
         }
 
-        public Builder pullCorrelationRule(final String pullCorrelationRule) {
-            instance.setPullCorrelationRule(pullCorrelationRule);
+        public Builder inboundCorrelationRule(final String inboundCorrelationRule) {
+            instance.setInboundCorrelationRule(inboundCorrelationRule);
             return this;
         }
     }
@@ -79,7 +79,7 @@ public class CSVPullSpec extends AbstractCSVSpec {
 
     private ConflictResolutionAction conflictResolutionAction = ConflictResolutionAction.IGNORE;
 
-    private String pullCorrelationRule;
+    private String inboundCorrelationRule;
 
     public String getDestinationRealm() {
         return destinationRealm;
@@ -128,12 +128,12 @@ public class CSVPullSpec extends AbstractCSVSpec {
         this.conflictResolutionAction = conflictResolutionAction;
     }
 
-    public String getPullCorrelationRule() {
-        return pullCorrelationRule;
+    public String getInboundCorrelationRule() {
+        return inboundCorrelationRule;
     }
 
-    @QueryParam("pullCorrelationRule")
-    public void setPullCorrelationRule(final String pullCorrelationRule) {
-        this.pullCorrelationRule = pullCorrelationRule;
+    @QueryParam("inboundCorrelationRule")
+    public void setInboundCorrelationRule(final String inboundCorrelationRule) {
+        this.inboundCorrelationRule = inboundCorrelationRule;
     }
 }

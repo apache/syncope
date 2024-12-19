@@ -80,15 +80,16 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
+import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -137,15 +138,16 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jFormPropertyDef;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jLiveSyncTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommand;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jNotificationTask;
@@ -190,10 +192,10 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jPropagationPolicy();
         } else if (reference.equals(PushPolicy.class)) {
             result = (E) new Neo4jPushPolicy();
-        } else if (reference.equals(PullPolicy.class)) {
-            result = (E) new Neo4jPullPolicy();
-        } else if (reference.equals(PullCorrelationRuleEntity.class)) {
-            result = (E) new Neo4jPullCorrelationRuleEntity();
+        } else if (reference.equals(InboundPolicy.class)) {
+            result = (E) new Neo4jInboundPolicy();
+        } else if (reference.equals(InboundCorrelationRuleEntity.class)) {
+            result = (E) new Neo4jInboundCorrelationRuleEntity();
         } else if (reference.equals(PushCorrelationRuleEntity.class)) {
             result = (E) new Neo4jPushCorrelationRuleEntity();
         } else if (reference.equals(AnyTypeClass.class)) {
@@ -276,6 +278,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jPropagationTask();
         } else if (reference.equals(PushTask.class)) {
             result = (E) new Neo4jPushTask();
+        } else if (reference.equals(LiveSyncTask.class)) {
+            result = (E) new Neo4jLiveSyncTask();
         } else if (reference.equals(PullTask.class)) {
             result = (E) new Neo4jPullTask();
         } else if (reference.equals(MacroTask.class)) {

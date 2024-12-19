@@ -175,7 +175,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
         WorkflowResult<Pair<UserUR, Boolean>> update =
-                uwfAdapter.update((UserUR) req, null, profile.getExecutor(), getContext());
+                uwfAdapter.update((UserUR) req, null, profile.getExecutor(), profile.getContext());
         return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
 

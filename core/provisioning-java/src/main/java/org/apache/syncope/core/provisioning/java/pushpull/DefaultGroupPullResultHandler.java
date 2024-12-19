@@ -83,7 +83,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
 
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
-        return gwfAdapter.update((GroupUR) req, profile.getExecutor(), getContext());
+        return gwfAdapter.update((GroupUR) req, profile.getExecutor(), profile.getContext());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
-                getContext());
+                profile.getContext());
 
         return groupDataBinder.getGroupTO(created.getKey());
     }
@@ -115,7 +115,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
-                getContext());
+                profile.getContext());
 
         createRemediationIfNeeded(req, delta, result);
 

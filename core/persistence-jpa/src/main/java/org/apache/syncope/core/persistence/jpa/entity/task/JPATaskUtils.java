@@ -18,20 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
-import org.apache.syncope.common.lib.to.MacroTaskTO;
-import org.apache.syncope.common.lib.to.NotificationTaskTO;
-import org.apache.syncope.common.lib.to.PropagationTaskTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.common.lib.to.PushTaskTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
-import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
@@ -52,41 +39,6 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public <T extends Task<T>> Class<T> taskClass() {
-        Class<T> result = null;
-
-        switch (type) {
-            case PROPAGATION:
-                result = (Class<T>) PropagationTask.class;
-                break;
-
-            case SCHEDULED:
-                result = (Class<T>) SchedTask.class;
-                break;
-
-            case PULL:
-                result = (Class<T>) PullTask.class;
-                break;
-
-            case PUSH:
-                result = (Class<T>) PushTask.class;
-                break;
-
-            case MACRO:
-                result = (Class<T>) MacroTask.class;
-                break;
-
-            case NOTIFICATION:
-                result = (Class<T>) NotificationTask.class;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
     public <T extends Task<T>> T newTask() {
         T result = null;
 
@@ -97,6 +49,10 @@ public final class JPATaskUtils implements TaskUtils {
 
             case SCHEDULED:
                 result = (T) new JPASchedTask();
+                break;
+
+            case LIVE_SYNC:
+                result = (T) new JPALiveSyncTask();
                 break;
 
             case PULL:
@@ -138,6 +94,10 @@ public final class JPATaskUtils implements TaskUtils {
                 result = (E) new JPAPropagationTaskExec();
                 break;
 
+            case LIVE_SYNC:
+                result = (E) new JPALiveSyncTaskExec();
+                break;
+
             case PULL:
                 result = (E) new JPAPullTaskExec();
                 break;
@@ -166,52 +126,7 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public <T extends TaskTO> Class<T> taskTOClass() {
-        Class<T> result = null;
-
-        switch (type) {
-            case PROPAGATION:
-                result = (Class<T>) PropagationTaskTO.class;
-                break;
-
-            case SCHEDULED:
-                result = (Class<T>) SchedTaskTO.class;
-                break;
-
-            case PULL:
-                result = (Class<T>) PullTaskTO.class;
-                break;
-
-            case PUSH:
-                result = (Class<T>) PushTaskTO.class;
-                break;
-
-            case MACRO:
-                result = (Class<T>) MacroTaskTO.class;
-                break;
-
-            case NOTIFICATION:
-                result = (Class<T>) NotificationTaskTO.class;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public <T extends TaskTO> T newTaskTO() {
-        Class<T> taskClass = taskTOClass();
-        try {
-            return taskClass == null ? null : taskClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    @Override
-    public String getTaskTable() {
+    public String getTaskStorage() {
         String result = null;
 
         switch (type) {
@@ -225,6 +140,10 @@ public final class JPATaskUtils implements TaskUtils {
 
             case PUSH:
                 result = JPAPushTask.TABLE;
+                break;
+
+            case LIVE_SYNC:
+                result = JPALiveSyncTask.TABLE;
                 break;
 
             case PULL:
@@ -262,6 +181,10 @@ public final class JPATaskUtils implements TaskUtils {
                 result = JPAPushTask.class;
                 break;
 
+            case LIVE_SYNC:
+                result = JPALiveSyncTask.class;
+                break;
+
             case PULL:
                 result = JPAPullTask.class;
                 break;
@@ -281,7 +204,7 @@ public final class JPATaskUtils implements TaskUtils {
     }
 
     @Override
-    public String getTaskExecTable() {
+    public String getTaskExecStorage() {
         String result = null;
 
         switch (type) {
@@ -299,6 +222,10 @@ public final class JPATaskUtils implements TaskUtils {
 
             case PUSH:
                 result = JPAPushTaskExec.TABLE;
+                break;
+
+            case LIVE_SYNC:
+                result = JPALiveSyncTaskExec.TABLE;
                 break;
 
             case PULL:
@@ -334,6 +261,10 @@ public final class JPATaskUtils implements TaskUtils {
 
             case PUSH:
                 result = JPAPushTaskExec.class;
+                break;
+
+            case LIVE_SYNC:
+                result = JPALiveSyncTaskExec.class;
                 break;
 
             case PULL:

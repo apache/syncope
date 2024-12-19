@@ -27,8 +27,8 @@ import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.JobActionPanel;
+import org.apache.syncope.common.lib.to.InboundTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
@@ -99,7 +99,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
         columns.addAll(getHeadingFieldColumns());
 
-        if (schedTaskTO instanceof PullTaskTO) {
+        if (schedTaskTO instanceof InboundTaskTO) {
             columns.add(new PropertyColumn<>(
                     new StringResourceModel("destinationRealm", this), "destinationRealm", "destinationRealm"));
         } else if (schedTaskTO instanceof PushTaskTO) {
@@ -114,9 +114,9 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends ProvisioningTaskT
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
+        if (event.getPayload() instanceof JobActionPanel.JobActionPayload payload) {
             container.modelChanged();
-            JobActionPanel.JobActionPayload.class.cast(event.getPayload()).getTarget().add(container);
+            payload.getTarget().add(container);
         } else {
             super.onEvent(event);
         }

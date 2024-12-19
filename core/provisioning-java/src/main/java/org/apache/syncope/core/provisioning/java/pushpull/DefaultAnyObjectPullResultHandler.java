@@ -73,7 +73,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
 
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
-        return awfAdapter.update((AnyObjectUR) req, profile.getExecutor(), getContext());
+        return awfAdapter.update((AnyObjectUR) req, profile.getExecutor(), profile.getContext());
     }
 
     @Override
@@ -85,7 +85,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
-                getContext());
+                profile.getContext());
 
         return anyObjectDataBinder.getAnyObjectTO(created.getKey());
     }
@@ -104,7 +104,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
                 Set.of(profile.getTask().getResource().getKey()),
                 true,
                 profile.getExecutor(),
-                getContext());
+                profile.getContext());
 
         createRemediationIfNeeded(req, delta, result);
 

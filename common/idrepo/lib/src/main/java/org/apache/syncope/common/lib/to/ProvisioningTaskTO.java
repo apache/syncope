@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.types.ThreadPoolSettings;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 
 @Schema(allOf = { SchedTaskTO.class },
-        subTypes = { PushTaskTO.class, PullTaskTO.class }, discriminatorProperty = "_class")
+        subTypes = { PushTaskTO.class, InboundTaskTO.class }, discriminatorProperty = "_class")
 public abstract class ProvisioningTaskTO extends SchedTaskTO {
 
     private static final long serialVersionUID = -5722284116974636425L;

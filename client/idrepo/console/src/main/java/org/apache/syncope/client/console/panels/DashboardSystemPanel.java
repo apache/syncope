@@ -55,9 +55,9 @@ public class DashboardSystemPanel extends Panel {
         Pair<String, String> gitAndBuildInfo = SyncopeConsoleSession.get().gitAndBuildInfo();
         Label version = new Label("version", gitAndBuildInfo.getRight());
         String versionLink =
-                StringUtils.isNotBlank(gitAndBuildInfo.getLeft()) && gitAndBuildInfo.getRight().endsWith("-SNAPSHOT") 
-                        ? "https://gitbox.apache.org/repos/asf?p=syncope.git;a=commit;h=" + gitAndBuildInfo.getLeft()
-                        : "https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore";
+                StringUtils.isNotBlank(gitAndBuildInfo.getLeft()) && gitAndBuildInfo.getRight().endsWith("-SNAPSHOT")
+                ? "https://gitbox.apache.org/repos/asf?p=syncope.git;a=commit;h=" + gitAndBuildInfo.getLeft()
+                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore";
         version.add(new AttributeModifier("onclick", "window.open('" + versionLink + "', '_blank')"));
         add(version);
 
@@ -86,15 +86,14 @@ public class DashboardSystemPanel extends Panel {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream =
-                            new HttpResourceStream(new ResponseHolder(syncopeRestClient.exportInternalStorageContent(
-                                    tableThresholdModel.getObject())));
+                    HttpResourceStream stream = new HttpResourceStream(new ResponseHolder(
+                            syncopeRestClient.exportInternalStorageContent(tableThresholdModel.getObject())));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(
-                            stream.getFilename() == null 
-                                    ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
-                                    : stream.getFilename());
+                            stream.getFilename() == null
+                            ? SyncopeConsoleSession.get().getDomain() + "Content.xml"
+                            : stream.getFilename());
                     rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
                     rsrh.setCacheDuration(Duration.ZERO);
 

@@ -20,8 +20,8 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.concurrent.RejectedExecutionException;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -29,13 +29,13 @@ import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.springframework.transaction.annotation.Transactional;
 
 public class PullResultHandlerDispatcher
-        extends SyncopeResultHandlerDispatcher<PullTask, PullActions, SyncopePullResultHandler>
+        extends SyncopeResultHandlerDispatcher<PullTask, InboundActions, SyncopePullResultHandler>
         implements SyncResultsHandler {
 
     protected final SyncopePullExecutor executor;
 
     public PullResultHandlerDispatcher(
-            final ProvisioningProfile<PullTask, PullActions> profile,
+            final ProvisioningProfile<PullTask, InboundActions> profile,
             final SyncopePullExecutor executor) {
 
         super(profile);

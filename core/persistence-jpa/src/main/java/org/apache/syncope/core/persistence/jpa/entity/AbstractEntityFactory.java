@@ -79,15 +79,16 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
+import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -136,15 +137,16 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAInboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAInboundPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAFormPropertyDef;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPALiveSyncTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTaskCommand;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
@@ -189,10 +191,10 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAPropagationPolicy();
         } else if (reference.equals(PushPolicy.class)) {
             result = (E) new JPAPushPolicy();
-        } else if (reference.equals(PullPolicy.class)) {
-            result = (E) new JPAPullPolicy();
-        } else if (reference.equals(PullCorrelationRuleEntity.class)) {
-            result = (E) new JPAPullCorrelationRuleEntity();
+        } else if (reference.equals(InboundPolicy.class)) {
+            result = (E) new JPAInboundPolicy();
+        } else if (reference.equals(InboundCorrelationRuleEntity.class)) {
+            result = (E) new JPAInboundCorrelationRuleEntity();
         } else if (reference.equals(PushCorrelationRuleEntity.class)) {
             result = (E) new JPAPushCorrelationRuleEntity();
         } else if (reference.equals(AnyTypeClass.class)) {
@@ -275,6 +277,8 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAPropagationTask();
         } else if (reference.equals(PushTask.class)) {
             result = (E) new JPAPushTask();
+        } else if (reference.equals(LiveSyncTask.class)) {
+            result = (E) new JPALiveSyncTask();
         } else if (reference.equals(PullTask.class)) {
             result = (E) new JPAPullTask();
         } else if (reference.equals(MacroTask.class)) {

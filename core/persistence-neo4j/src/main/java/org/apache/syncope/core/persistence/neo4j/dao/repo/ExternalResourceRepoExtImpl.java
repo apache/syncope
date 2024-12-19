@@ -34,10 +34,10 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
@@ -45,10 +45,10 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
@@ -171,9 +171,9 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
         } else if (policy instanceof PushPolicy) {
             relationship = Neo4jExternalResource.RESOURCE_PUSH_POLICY_REL;
             label = Neo4jPushPolicy.NODE + ":" + Neo4jPolicy.NODE;
-        } else if (policy instanceof PullPolicy) {
-            relationship = Neo4jExternalResource.RESOURCE_PULL_POLICY_REL;
-            label = Neo4jPullPolicy.NODE + ":" + Neo4jPolicy.NODE;
+        } else if (policy instanceof InboundPolicy) {
+            relationship = Neo4jExternalResource.RESOURCE_INBOUND_POLICY_REL;
+            label = Neo4jInboundPolicy.NODE + ":" + Neo4jPolicy.NODE;
         }
 
         return findByRelationship(
@@ -233,13 +233,12 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                         before.getPropagationPolicy().getKey(),
                         Neo4jExternalResource.RESOURCE_PROPAGATION_POLICY_REL);
             }
-            if (before.getPullPolicy() != null && resource.getPullPolicy() == null) {
-                deleteRelationship(
-                        Neo4jExternalResource.NODE,
-                        Neo4jPullPolicy.NODE,
+            if (before.getInboundPolicy() != null && resource.getInboundPolicy() == null) {
+                deleteRelationship(Neo4jExternalResource.NODE,
+                        Neo4jInboundPolicy.NODE,
                         resource.getKey(),
-                        before.getPullPolicy().getKey(),
-                        Neo4jExternalResource.RESOURCE_PULL_POLICY_REL);
+                        before.getInboundPolicy().getKey(),
+                        Neo4jExternalResource.RESOURCE_INBOUND_POLICY_REL);
             }
             if (before.getPushPolicy() != null && resource.getPushPolicy() == null) {
                 deleteRelationship(

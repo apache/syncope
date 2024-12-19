@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Optional;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.audit.AuditHistoryModal;
 import org.apache.syncope.client.console.panels.ConnObjects;
@@ -31,6 +30,7 @@ import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.status.ResourceStatusModal;
+import org.apache.syncope.client.console.tasks.LiveSyncTask;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
@@ -138,22 +138,17 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         });
 
         switch (node.getKind()) {
-            case SYNCOPE:
+            case SYNCOPE ->
                 container.addOrReplace(getSyncopeFragment(pageRef));
-                break;
-            case CONNECTOR_SERVER:
+            case CONNECTOR_SERVER ->
                 container.addOrReplace(getLocationFragment(node, pageRef));
-                break;
-            case FS_PATH:
+            case FS_PATH ->
                 container.addOrReplace(getLocationFragment(node, pageRef));
-                break;
-            case CONNECTOR:
+            case CONNECTOR ->
                 container.addOrReplace(getConnectorFragment(node, pageRef));
-                break;
-            case RESOURCE:
+            case RESOURCE ->
                 container.addOrReplace(getResourceFragment(node, pageRef));
-                break;
-            default:
+            default ->
                 container.addOrReplace(getEmptyFragment());
         }
 
@@ -164,13 +159,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     @Override
     protected String getTargetKey(final Serializable modelObject) {
-        String key = super.getTargetKey(modelObject);
-        if (modelObject instanceof ResourceProvision) {
-            key = ((ResourceProvision) modelObject).getKey();
-        } else if (modelObject instanceof TopologyNode) {
-            key = ((TopologyNode) modelObject).getKey();
+        if (modelObject instanceof ResourceProvision resourceProvision) {
+            return resourceProvision.getKey();
         }
-        return key;
+        if (modelObject instanceof TopologyNode topologyNode) {
+            return topologyNode.getKey();
+        }
+        return super.getTargetKey(modelObject);
     }
 
     private Fragment getEmptyFragment() {
@@ -545,6 +540,25 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, IdRepoEntitlement.TASK_LIST);
         fragment.add(pull);
 
+        AjaxLink<String> livesync = new IndicatingAjaxLink<>("livesync") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                target.add(schedTaskModal.setContent(new LiveSyncTask(schedTaskModal, node.getKey(), pageRef)));
+                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.livesync"), node.getKey())));
+                schedTaskModal.show(true);
+            }
+
+            @Override
+            public String getAjaxIndicatorMarkupId() {
+                return Constants.VEIL_INDICATOR_MARKUP_ID;
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(livesync, RENDER, IdRepoEntitlement.TASK_READ);
+        fragment.add(livesync);
+
         AjaxLink<String> push = new IndicatingAjaxLink<>("push") {
 
             private static final long serialVersionUID = 3776750333491622263L;
@@ -612,7 +626,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
         fragment.add(history);
 
-        // [SYNCOPE-1161] - Option to clone a resource
         AjaxLink<String> clone = new IndicatingAjaxLink<>("clone") {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -654,14 +667,11 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
 
-        if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-            AjaxWizard.NewItemFinishEvent<?> item = AjaxWizard.NewItemFinishEvent.class.cast(event.getPayload());
-            Serializable result = item.getResult();
-            Optional<AjaxRequestTarget> target = item.getTarget();
-            if (result instanceof ConnInstanceTO) {
-                // update Toggle Panel header
-                target.ifPresent(t -> setHeader(t, ConnInstanceTO.class.cast(result).getDisplayName()));
-            }
+        if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent<?> item
+                && item.getResult() instanceof ConnInstanceTO connInstance) {
+
+            // update Toggle Panel header
+            item.getTarget().ifPresent(t -> setHeader(t, connInstance.getDisplayName()));
         }
     }
 

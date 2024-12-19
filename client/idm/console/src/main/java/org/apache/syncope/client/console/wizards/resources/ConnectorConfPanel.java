@@ -43,10 +43,6 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
             protected List<ConnConfProperty> load() {
                 List<ConnConfProperty> properties = getConnProperties(ConnectorConfPanel.this.modelObject);
                 ConnectorConfPanel.this.modelObject.getConf().clear();
-
-                // re-order properties
-                properties.sort((o1, o2) -> o1 == null ? -1 : o1.compareTo(o2));
-
                 ConnectorConfPanel.this.modelObject.getConf().addAll(properties);
                 return properties;
             }
@@ -62,23 +58,20 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
      * @return configuration properties.
      */
     @Override
-    protected final List<ConnConfProperty> getConnProperties(final ConnInstanceTO instance) {
-        return ConnectorWizardBuilder.getBundle(instance, bundles).getProperties().stream().
-                map(key -> {
-                    ConnConfProperty property = new ConnConfProperty();
-                    property.setSchema(key);
+    protected List<ConnConfProperty> getConnProperties(final ConnInstanceTO instance) {
+        return ConnectorWizardBuilder.getBundle(instance, bundles).getProperties().stream().map(key -> {
+            ConnConfProperty property = new ConnConfProperty();
+            property.setSchema(key);
 
-                    instance.getConf(key.getName()).ifPresent(conf -> {
-                        if (conf.getValues() != null) {
-                            property.getValues().addAll(conf.getValues());
-                            property.setOverridable(conf.isOverridable());
-                        }
-                    });
+            instance.getConf(key.getName()).ifPresent(conf -> {
+                property.getValues().addAll(conf.getValues());
+                property.setOverridable(conf.isOverridable());
+            });
 
-                    if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
-                        property.getValues().addAll(key.getDefaultValues());
-                    }
-                    return property;
-                }).collect(Collectors.toList());
+            if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
+                property.getValues().addAll(key.getDefaultValues());
+            }
+            return property;
+        }).collect(Collectors.toList());
     }
 }

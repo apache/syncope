@@ -136,7 +136,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
             columns.add(new CollectionPropertyColumn<>(
                     new StringResourceModel("usedByResources", this), "usedByResources"));
         }
-        if (type != PolicyType.PULL && type != PolicyType.PUSH) {
+        if (type != PolicyType.INBOUND && type != PolicyType.PUSH) {
             columns.add(new CollectionPropertyColumn<>(
                     new StringResourceModel("usedByRealms", this), "usedByRealms"));
         }

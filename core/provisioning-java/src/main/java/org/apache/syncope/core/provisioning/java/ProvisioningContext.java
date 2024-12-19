@@ -163,6 +163,7 @@ import org.apache.syncope.core.provisioning.java.notification.DefaultNotificatio
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationManager;
 import org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
+import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncTaskExecSaver;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
@@ -693,6 +694,18 @@ public class ProvisioningContext {
             final SecurityProperties securityProperties) {
 
         return new NotificationJob(securityProperties, domainHolder, delegate);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public LiveSyncTaskExecSaver liveSyncTaskExecSaver(
+            final TaskDAO taskDAO,
+            final TaskExecDAO taskExecDAO,
+            final TaskUtilsFactory taskUtilsFactory,
+            final NotificationManager notificationManager,
+            final AuditManager auditManager) {
+
+        return new LiveSyncTaskExecSaver(taskDAO, taskExecDAO, taskUtilsFactory, notificationManager, auditManager);
     }
 
     @ConditionalOnMissingBean

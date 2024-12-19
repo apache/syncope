@@ -35,10 +35,10 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
@@ -47,10 +47,10 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccessPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAttrReleasePolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAuthPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAInboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAInboundPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpirationPolicy;
@@ -68,8 +68,8 @@ public class JPAPolicyDAO implements PolicyDAO {
                 ? JPAPasswordPolicy.class
                 : PropagationPolicy.class.isAssignableFrom(reference)
                 ? JPAPropagationPolicy.class
-                : PullPolicy.class.isAssignableFrom(reference)
-                ? JPAPullPolicy.class
+                : InboundPolicy.class.isAssignableFrom(reference)
+                ? JPAInboundPolicy.class
                 : PushPolicy.class.isAssignableFrom(reference)
                 ? JPAPushPolicy.class
                 : AuthPolicy.class.isAssignableFrom(reference)
@@ -183,10 +183,10 @@ public class JPAPolicyDAO implements PolicyDAO {
     }
 
     @Override
-    public List<PullPolicy> findByPullCorrelationRule(final Implementation correlationRule) {
-        TypedQuery<PullPolicy> query = entityManager.createQuery(
-                "SELECT DISTINCT e.pullPolicy FROM " + JPAPullCorrelationRuleEntity.class.getSimpleName() + " e "
-                + "WHERE e.implementation=:correlationRule", PullPolicy.class);
+    public List<InboundPolicy> findByInboundCorrelationRule(final Implementation correlationRule) {
+        TypedQuery<InboundPolicy> query = entityManager.createQuery(
+                "SELECT DISTINCT e.inboundPolicy FROM " + JPAInboundCorrelationRuleEntity.class.getSimpleName() + " e "
+                + "WHERE e.implementation=:correlationRule", InboundPolicy.class);
         query.setParameter("correlationRule", correlationRule);
 
         return query.getResultList();
@@ -219,7 +219,7 @@ public class JPAPolicyDAO implements PolicyDAO {
         if (policy instanceof AccountPolicy
                 || policy instanceof PasswordPolicy
                 || policy instanceof PropagationPolicy
-                || policy instanceof PullPolicy
+                || policy instanceof InboundPolicy
                 || policy instanceof PushPolicy) {
 
             resourceDAO.findByPolicy(policy).
@@ -239,8 +239,8 @@ public class JPAPolicyDAO implements PolicyDAO {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPasswordPolicy(null));
         } else if (policy instanceof PropagationPolicy) {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPropagationPolicy(null));
-        } else if (policy instanceof PullPolicy) {
-            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPullPolicy(null));
+        } else if (policy instanceof InboundPolicy) {
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setInboundPolicy(null));
         } else if (policy instanceof PushPolicy) {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPushPolicy(null));
         } else if (policy instanceof AuthPolicy) {

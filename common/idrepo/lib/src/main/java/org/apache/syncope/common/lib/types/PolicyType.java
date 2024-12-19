@@ -49,9 +49,9 @@ public enum PolicyType {
      */
     PROPAGATION,
     /**
-     * For handling conflicts resolution during pull.
+     * For handling conflicts resolution during inbound.
      */
-    PULL,
+    INBOUND,
     /**
      * For handling conflicts resolution during push.
      */
