@@ -22,7 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 
-public interface SyncopePullResultHandler extends SyncopeResultHandler<PullTask, PullActions>, SyncResultsHandler {
+public interface SyncopePullResultHandler extends SyncopeResultHandler<PullTask, InboundActions>, SyncResultsHandler {
 
     @Override
     boolean handle(SyncDelta delta);

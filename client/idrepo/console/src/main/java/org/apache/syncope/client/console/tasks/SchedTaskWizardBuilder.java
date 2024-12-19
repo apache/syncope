@@ -137,8 +137,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
         protected final IModel<List<String>> macroActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getMacroActions();
 
-        protected final IModel<List<String>> pullActions = SyncopeWebApplication.get().
-                getImplementationInfoProvider().getPullActions();
+        protected final IModel<List<String>> inboundActions = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getInboundActions();
 
         protected final IModel<List<String>> pushActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getPushActions();
@@ -331,7 +331,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                     build("actions",
                             new PropertyModel<>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
-                                    ? pushActions.getObject() : pullActions.getObject()));
+                                    ? pushActions.getObject() : inboundActions.getObject()));
             provisioningTaskSpecifics.add(actions.setOutputMarkupId(true));
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(

@@ -121,6 +121,7 @@ public class SyncopeBuildToolsApplication extends SpringBootServletInitializer {
         sc.addListener(new LDAPStartStopListener());
         sc.addListener(new H2StartStopListener());
         sc.addListener(new GreenMailStartStopListener());
+        sc.addListener(new KafkaBrokerStartStopListener());
 
         ServletRegistration.Dynamic sts = sc.addServlet("ServiceTimeoutServlet", ServiceTimeoutServlet.class);
         sts.addMapping("/services/*");

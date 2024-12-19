@@ -75,13 +75,13 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
     @SpringBean
     protected ReconciliationRestClient reconciliationRestClient;
 
-    protected final IModel<List<String>> pullActions = new LoadableDetachableModel<>() {
+    protected final IModel<List<String>> inboundActions = new LoadableDetachableModel<>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
 
         @Override
         protected List<String> load() {
-            return implementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+            return implementationRestClient.list(IdMImplementationType.INBOUND_ACTIONS).stream().
                     map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
         }
     };
@@ -167,7 +167,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 build("actions",
                         new PropertyModel<>(taskTO, "actions"),
                         new ListModel<>(taskTO instanceof PushTaskTO
-                                ? pushActions.getObject() : pullActions.getObject()));
+                                ? pushActions.getObject() : inboundActions.getObject()));
         actions.setOutputMarkupId(true);
         form.add(actions);
 

@@ -20,8 +20,9 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.net.URI;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -33,7 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
@@ -101,20 +101,16 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstance.setConnRequestTimeout(connInstanceTO.getConnRequestTimeout());
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
-        if (connInstanceTO.getAdminRealm() != null) {
-            connInstance.setAdminRealm(realmSearchDAO.findByFullPath(connInstanceTO.getAdminRealm()).
-                    orElseThrow(() -> new NotFoundException("Realm " + connInstanceTO.getAdminRealm())));
-        }
+        Optional.ofNullable(connInstanceTO.getAdminRealm()).
+                ifPresent(r -> connInstance.setAdminRealm(realmSearchDAO.findByFullPath(r).orElse(null)));
         if (connInstance.getAdminRealm() == null) {
             sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
         }
-        if (connInstanceTO.getLocation() != null) {
-            connInstance.setLocation(connInstanceTO.getLocation());
-        }
+
+        Optional.ofNullable(connInstanceTO.getLocation()).ifPresent(connInstance::setLocation);
         connInstance.setConf(connInstanceTO.getConf());
-        if (connInstanceTO.getPoolConf() != null) {
-            connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf()));
-        }
+        Optional.ofNullable(connInstanceTO.getPoolConf()).
+                ifPresent(conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)));
 
         // Throw exception if there is at least one element set
         if (!sce.isEmpty()) {
@@ -126,57 +122,32 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Override
     public ConnInstance update(final ConnInstanceTO connInstanceTO) {
-        ConnInstance connInstance = connInstanceDAO.authFind(connInstanceTO.getKey());
-        if (connInstance == null) {
-            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + '\'');
-        }
+        ConnInstance connInstance = Optional.ofNullable(connInstanceDAO.authFind(connInstanceTO.getKey())).
+                orElseThrow(() -> new NotFoundException("Connector '" + connInstanceTO.getKey() + '\''));
 
         connInstance.getCapabilities().clear();
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
-        if (connInstanceTO.getAdminRealm() != null) {
-            Realm realm = realmSearchDAO.findByFullPath(connInstanceTO.getAdminRealm()).
-                    orElseThrow(() -> {
-                        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
-                        sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
-                        return sce;
-                    });
-            connInstance.setAdminRealm(realm);
-        }
+        Optional.ofNullable(connInstanceTO.getAdminRealm()).
+                ifPresent(r -> connInstance.setAdminRealm(realmSearchDAO.findByFullPath(r).
+                orElseThrow(() -> {
+                    SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                    sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
+                    return sce;
+                })));
 
-        if (connInstanceTO.getLocation() != null) {
-            connInstance.setLocation(connInstanceTO.getLocation());
-        }
-
-        if (connInstanceTO.getBundleName() != null) {
-            connInstance.setBundleName(connInstanceTO.getBundleName());
-        }
-
-        if (connInstanceTO.getVersion() != null) {
-            connInstance.setVersion(connInstanceTO.getVersion());
-        }
-
-        if (connInstanceTO.getConnectorName() != null) {
-            connInstance.setConnectorName(connInstanceTO.getConnectorName());
-        }
-
-        if (connInstanceTO.getConf() != null && !connInstanceTO.getConf().isEmpty()) {
-            connInstance.setConf(connInstanceTO.getConf());
-        }
-
-        if (connInstanceTO.getDisplayName() != null) {
-            connInstance.setDisplayName(connInstanceTO.getDisplayName());
-        }
-
-        if (connInstanceTO.getConnRequestTimeout() != null) {
-            connInstance.setConnRequestTimeout(connInstanceTO.getConnRequestTimeout());
-        }
-
-        if (connInstanceTO.getPoolConf() == null) {
-            connInstance.setPoolConf(null);
-        } else {
-            connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf()));
-        }
+        Optional.ofNullable(connInstanceTO.getLocation()).ifPresent(connInstance::setLocation);
+        Optional.ofNullable(connInstanceTO.getBundleName()).ifPresent(connInstance::setBundleName);
+        Optional.ofNullable(connInstanceTO.getVersion()).ifPresent(connInstance::setVersion);
+        Optional.ofNullable(connInstanceTO.getConnectorName()).ifPresent(connInstance::setConnectorName);
+        Optional.ofNullable(connInstanceTO.getDisplayName()).ifPresent(connInstance::setDisplayName);
+        Optional.ofNullable(connInstanceTO.getConf()).
+                filter(Predicate.not(Collection::isEmpty)).
+                ifPresent(connInstance::setConf);
+        Optional.ofNullable(connInstanceTO.getConnRequestTimeout()).ifPresent(connInstance::setConnRequestTimeout);
+        Optional.ofNullable(connInstanceTO.getPoolConf()).ifPresentOrElse(
+                conf -> connInstance.setPoolConf(ConnPoolConfUtils.getConnPoolConf(conf)),
+                () -> connInstance.setPoolConf(null));
 
         return connInstance;
     }
@@ -196,8 +167,8 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         if (property.getValue() != null) {
             if (property.getValue().getClass().isArray()) {
                 connConfPropSchema.getDefaultValues().addAll(List.of((Object[]) property.getValue()));
-            } else if (property.getValue() instanceof Collection<?>) {
-                connConfPropSchema.getDefaultValues().addAll((Collection<?>) property.getValue());
+            } else if (property.getValue() instanceof Collection<?> collection) {
+                connConfPropSchema.getDefaultValues().addAll(collection);
             } else {
                 connConfPropSchema.getDefaultValues().add(property.getValue());
             }
@@ -245,8 +216,6 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             connInstanceTO.setErrored(true);
             connInstanceTO.setLocation(connInstance.getLocation());
         }
-
-        Collections.sort(connInstanceTO.getConf());
 
         connInstanceTO.setPoolConf(connInstance.getPoolConf());
 

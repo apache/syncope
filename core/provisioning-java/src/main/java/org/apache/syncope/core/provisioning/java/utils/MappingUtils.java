@@ -60,13 +60,11 @@ public final class MappingUtils {
     }
 
     public static Stream<Item> getPropagationItems(final Stream<Item> items) {
-        return items.filter(
-                item -> item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH);
+        return items.filter(i -> i.getPurpose() == MappingPurpose.PROPAGATION || i.getPurpose() == MappingPurpose.BOTH);
     }
 
-    public static Stream<Item> getPullItems(final Stream<Item> items) {
-        return items.filter(
-                item -> item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH);
+    public static Stream<Item> getInboundItems(final Stream<Item> items) {
+        return items.filter(i -> i.getPurpose() == MappingPurpose.PULL || i.getPurpose() == MappingPurpose.BOTH);
     }
 
     public static List<ItemTransformer> getItemTransformers(

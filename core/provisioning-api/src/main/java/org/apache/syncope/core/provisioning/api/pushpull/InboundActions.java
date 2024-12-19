@@ -28,19 +28,19 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 
 /**
- * Interface for actions to be performed during pull.
- * All methods can throw {@link IgnoreProvisionException} to make the current any object ignored by the pull
+ * Interface for actions to be performed during inbound.
+ * All methods can throw {@link IgnoreProvisionException} to make the current any object ignored by the inbound
  * process.
  */
-public interface PullActions extends ProvisioningActions {
+public interface InboundActions extends ProvisioningActions {
 
     /**
      * Return additional attributes to include in the result from the underlying connector.
      *
-     * @param profile profile of the pull being executed.
+     * @param profile profile of the inbound being executed.
      * @param orgUnit Realm provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
@@ -51,7 +51,7 @@ public interface PullActions extends ProvisioningActions {
     /**
      * Return additional attributes to include in the result from the underlying connector.
      *
-     * @param profile profile of the pull being executed.
+     * @param profile profile of the inbound being executed.
      * @param provision Any provisioning information
      * @return additional attributes to include in the result from the underlying connector
      */
@@ -60,206 +60,207 @@ public interface PullActions extends ProvisioningActions {
     }
 
     /**
-     * Pre-process the pull information received by the underlying connector, before any internal activity occurs.
+     * Pre-process the inbound information received by the underlying connector, before any internal activity occurs.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
-     * @return pull information, possibly altered.
+     * @param <T> sync delta class
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
+     * @return inbound information, possibly altered.
      */
-    default SyncDelta preprocess(ProvisioningProfile<?, ?> profile, SyncDelta delta) {
+    default <T extends LiveSyncDelta> T preprocess(ProvisioningProfile<?, ?> profile, T delta) {
         return delta;
     }
 
     /**
-     * Action to be executed before to create a pulled entity locally.
-     * The entity is created locally upon pull in case of the un-matching rule
+     * Action to be executed before to create a inbounded entity locally.
+     * The entity is created locally upon inbound in case of the un-matching rule
      * {@link org.apache.syncope.common.lib.types.UnmatchingRule#PROVISION} (default un-matching rule) is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param createReq create request
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             AnyCR createReq) {
     }
 
     /**
      * Action to be executed before locally creating a linked account.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param linkedAccount create request
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             LinkedAccountTO linkedAccount) {
     }
 
     /**
-     * Action to be executed before to create a pulled realm locally.
-     * The realm is created locally upon pull in case of the un-matching rule
+     * Action to be executed before to create a inbounded realm locally.
+     * The realm is created locally upon inbound in case of the un-matching rule
      * {@link org.apache.syncope.common.lib.types.UnmatchingRule#PROVISION} (default un-matching rule) is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param realm realm
      */
     default void beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             RealmTO realm) {
     }
 
     /**
-     * Action to be executed before creating (and linking to the resource) a pulled entity locally.
-     * The entity is created locally and linked to the pulled resource upon pull in case of the
+     * Action to be executed before creating (and linking to the resource) a inbounded entity locally.
+     * The entity is created locally and linked to the inbounded resource upon inbound in case of the
      * un-matching rule {@link org.apache.syncope.common.lib.types.UnmatchingRule#ASSIGN} is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param createReq create request
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             AnyCR createReq) {
     }
 
     /**
      * Action to be executed before locally creating a linked account.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param linkedAccount linked account
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             LinkedAccountTO linkedAccount) {
     }
 
     /**
-     * Action to be executed before creating (and linking to the resource) a pulled realm locally.
-     * The realm is created locally and linked to the pulled resource upon pull in case of the
+     * Action to be executed before creating (and linking to the resource) a inbounded realm locally.
+     * The realm is created locally and linked to the inbounded resource upon inbound in case of the
      * un-matching rule {@link org.apache.syncope.common.lib.types.UnmatchingRule#ASSIGN} is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param realm realm
      */
     default void beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             RealmTO realm) {
     }
 
     /**
-     * Action to be executed before unlinking resource from the pulled entity and de-provisioning.
-     * The entity is unlinked and de-provisioned from the pulled resource upon pull in case of the
+     * Action to be executed before unlinking resource from the inbounded entity and de-provisioning.
+     * The entity is unlinked and de-provisioned from the inbounded resource upon inbound in case of the
      * matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#UNASSIGN} is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param entity entity
      */
     default void beforeUnassign(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity) {
     }
 
     /**
      * Action to be executed before de-provisioning action only.
-     * The entity is de-provisioned (without unlinking) from the pulled resource upon pull in case of
+     * The entity is de-provisioned (without unlinking) from the inbounded resource upon inbound in case of
      * the matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#DEPROVISION} is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param entity entity
      */
     default void beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity) {
     }
 
     /**
-     * Action to be executed before unlinking resource from the pulled entity.
-     * The entity is unlinked (without de-provisioning) from the pulled resource upon pull in case of
+     * Action to be executed before unlinking resource from the inbounded entity.
+     * The entity is unlinked (without de-provisioning) from the inbounded resource upon inbound in case of
      * the matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#UNLINK} is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param entity entity
      */
     default void beforeUnlink(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity) {
     }
 
     /**
-     * Action to be executed before linking resource to the pulled entity.
-     * The entity is linked (without updating) to the pulled resource upon pull in case of
+     * Action to be executed before linking resource to the inbounded entity.
+     * The entity is linked (without updating) to the inbounded resource upon inbound in case of
      * the matching rule {@link org.apache.syncope.common.lib.types.MatchingRule#LINK} is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param entity entity
      */
     default void beforeLink(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity) {
     }
 
     /**
-     * Action to be executed before to update a pulled entity locally.
-     * The entity is updated upon pull in case of the matching rule
+     * Action to be executed before to update a inbounded entity locally.
+     * The entity is updated upon inbound in case of the matching rule
      * {@link org.apache.syncope.common.lib.types.MatchingRule#UPDATE} (default matching rule) is applied.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param entity entity
      * @param anyUR modification
      * @throws JobExecutionException in case of generic failure.
      */
     default void beforeUpdate(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity,
             AnyUR anyUR) throws JobExecutionException {
     }
 
     /**
-     * Action to be executed before to delete a pulled entity locally.
+     * Action to be executed before to delete a inbounded entity locally.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information
      * @param entity entity
      */
     default void beforeDelete(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity) {
     }
 
     /**
-     * Action to be executed after each local entity pull.
+     * Action to be executed after each local entity inbound.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information (may be modified by beforeProvisionTO / beforeUpdate /
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information (may be modified by beforeProvisionTO / beforeUpdate /
      * beforeDelete)
      * @param entity entity
-     * @param result global pull results at the current pull step
+     * @param result global inbound results at the current inbound step
      * @throws JobExecutionException in case of generic failure
      */
     default void after(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             EntityTO entity,
             ProvisioningReport result) throws JobExecutionException {
 
@@ -267,17 +268,17 @@ public interface PullActions extends ProvisioningActions {
     }
 
     /**
-     * Action to be executed in case an exception is thrown during pull.
+     * Action to be executed in case an exception is thrown during inbound.
      *
-     * @param profile profile of the pull being executed.
-     * @param delta retrieved pull information (may be modified by beforeProvisionTO / beforeUpdate /
+     * @param profile profile of the inbound being executed.
+     * @param delta retrieved inbound information (may be modified by beforeProvisionTO / beforeUpdate /
      * beforeDelete)
      * @param e the exception thrown
      * @return an instance of the given exception type is that is to be thrown; {@code NULL} otherwise
      */
     default IgnoreProvisionException onError(
             ProvisioningProfile<?, ?> profile,
-            SyncDelta delta,
+            LiveSyncDelta delta,
             Exception e) {
 
         return null;

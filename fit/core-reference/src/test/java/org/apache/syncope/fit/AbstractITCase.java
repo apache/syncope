@@ -278,6 +278,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_REST = "rest-target-resource";
 
+    protected static final String RESOURCE_NAME_KAFKA = "resource-kafka";
+
     protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
 
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";

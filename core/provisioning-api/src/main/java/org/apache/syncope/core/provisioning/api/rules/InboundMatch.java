@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 
-public final class PullMatch implements Serializable {
+public final class InboundMatch implements Serializable {
 
     private static final long serialVersionUID = 6515473131174179932L;
 
@@ -36,13 +36,13 @@ public final class PullMatch implements Serializable {
 
     private LinkedAccount linkedAccount;
 
-    public PullMatch(final MatchType matchTarget, final Entity entity) {
+    public InboundMatch(final MatchType matchTarget, final Entity entity) {
         this.matchTarget = matchTarget;
 
         if (entity instanceof Any) {
             any = (Any<?>) entity;
-        } else if (entity instanceof LinkedAccount) {
-            linkedAccount = (LinkedAccount) entity;
+        } else if (entity instanceof LinkedAccount linkedAccount1) {
+            linkedAccount = linkedAccount1;
         }
     }
 
@@ -78,7 +78,7 @@ public final class PullMatch implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final PullMatch other = (PullMatch) obj;
+        final InboundMatch other = (InboundMatch) obj;
         return new EqualsBuilder().
                 append(matchTarget, other.matchTarget).
                 append(any, other.any).
@@ -88,7 +88,7 @@ public final class PullMatch implements Serializable {
 
     @Override
     public String toString() {
-        return "PullMatch{"
+        return "InboundMatch{"
                 + "matchTarget=" + matchTarget
                 + ", any=" + any
                 + ", linkedAccount=" + linkedAccount

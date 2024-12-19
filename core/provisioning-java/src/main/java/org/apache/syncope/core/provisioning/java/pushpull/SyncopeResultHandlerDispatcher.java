@@ -91,15 +91,15 @@ public abstract class SyncopeResultHandlerDispatcher<
     }
 
     protected RA nonConcurrentHandler(final String key) {
-        return Optional.ofNullable(handlers.get(key)).orElseGet(() -> {
-            RA h = suppliers.get(key).get();
-            handlers.put(key, h);
-            return h;
-        });
+        return handlers.computeIfAbsent(key, k -> suppliers.get(k).get());
     }
 
     protected void submit(final Runnable runnable) {
         tpte.ifPresent(executor -> futures.add(executor.submit(runnable)));
+    }
+
+    public void stop() {
+        handlers.values().forEach(SyncopeResultHandler::stop);
     }
 
     protected void shutdown() {

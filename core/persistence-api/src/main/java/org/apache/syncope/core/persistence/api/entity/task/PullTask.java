@@ -22,9 +22,8 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface PullTask extends ProvisioningTask<PullTask> {
+public interface PullTask extends InboundTask<PullTask> {
 
     PullMode getPullMode();
 
@@ -34,17 +33,11 @@ public interface PullTask extends ProvisioningTask<PullTask> {
 
     void setReconFilterBuilder(Implementation reconFilterBuilder);
 
-    Realm getDestinationRealm();
-
-    void setDestinationRealm(Realm destinationRealm);
-
     boolean add(AnyTemplatePullTask template);
 
+    @Override
     Optional<? extends AnyTemplatePullTask> getTemplate(String anyType);
 
+    @Override
     List<? extends AnyTemplatePullTask> getTemplates();
-
-    void setRemediation(boolean remediation);
-
-    boolean isRemediation();
 }

@@ -27,7 +27,7 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 
 @Schema(allOf = { PolicyTO.class },
-        subTypes = { PullPolicyTO.class, PushPolicyTO.class },
+        subTypes = { InboundPolicyTO.class, PushPolicyTO.class },
         discriminatorProperty = "_class")
 public abstract class ProvisioningPolicyTO extends PolicyTO {
 

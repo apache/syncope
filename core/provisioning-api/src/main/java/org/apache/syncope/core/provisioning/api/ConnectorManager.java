@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -43,8 +44,8 @@ public interface ConnectorManager {
      */
     ConnInstance buildConnInstanceOverride(
             ConnInstanceTO connInstance,
-            Collection<ConnConfProperty> confOverride,
-            Optional<Collection<ConnectorCapability>> capabilitiesOverride);
+            Optional<List<ConnConfProperty>> confOverride,
+            Optional<Set<ConnectorCapability>> capabilitiesOverride);
 
     /**
      * Create connector from given connector instance.

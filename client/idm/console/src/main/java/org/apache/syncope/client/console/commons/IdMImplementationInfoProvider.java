@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -44,7 +44,7 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
 
     @Override
     public ViewMode getViewMode(final ImplementationTO implementation) {
-        return IdMImplementationType.PULL_CORRELATION_RULE.equals(implementation.getType())
+        return IdMImplementationType.INBOUND_CORRELATION_RULE.equals(implementation.getType())
                 || IdMImplementationType.PUSH_CORRELATION_RULE.equals(implementation.getType())
                 ? ViewMode.JSON_BODY
                 : super.getViewMode(implementation);
@@ -55,8 +55,8 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
         List<String> classes = new ArrayList<>();
         if (viewMode == ViewMode.JSON_BODY && IdMImplementationType.values().containsKey(implementation.getType())) {
             switch (implementation.getType()) {
-                case IdMImplementationType.PULL_CORRELATION_RULE:
-                    classes = lookup.getClasses(PullCorrelationRuleConf.class).stream().
+                case IdMImplementationType.INBOUND_CORRELATION_RULE:
+                    classes = lookup.getClasses(InboundCorrelationRuleConf.class).stream().
                             map(Class::getName).collect(Collectors.toList());
                     break;
 
@@ -88,16 +88,16 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
                 templateClassName = "MyPropagationActions";
                 break;
 
-            case IdMImplementationType.PULL_ACTIONS:
-                templateClassName = "MyPullActions";
+            case IdMImplementationType.INBOUND_ACTIONS:
+                templateClassName = "MyInboundActions";
                 break;
 
             case IdMImplementationType.PUSH_ACTIONS:
                 templateClassName = "MyPushActions";
                 break;
 
-            case IdMImplementationType.PULL_CORRELATION_RULE:
-                templateClassName = "MyPullCorrelationRule";
+            case IdMImplementationType.INBOUND_CORRELATION_RULE:
+                templateClassName = "MyInboundCorrelationRule";
                 break;
 
             case IdMImplementationType.PUSH_CORRELATION_RULE:
@@ -119,8 +119,8 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
     public Class<?> getClass(final String implementationType, final String name) {
         Class<?> clazz;
         switch (implementationType) {
-            case IdMImplementationType.PULL_CORRELATION_RULE:
-                clazz = lookup.getClasses(PullCorrelationRuleConf.class).stream().
+            case IdMImplementationType.INBOUND_CORRELATION_RULE:
+                clazz = lookup.getClasses(InboundCorrelationRuleConf.class).stream().
                         filter(c -> c.getName().equals(name)).findFirst().orElse(null);
                 break;
 
@@ -151,14 +151,14 @@ public class IdMImplementationInfoProvider extends IdRepoImplementationInfoProvi
     }
 
     @Override
-    public IModel<List<String>> getPullActions() {
+    public IModel<List<String>> getInboundActions() {
         return new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                return implementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+                return implementationRestClient.list(IdMImplementationType.INBOUND_ACTIONS).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };

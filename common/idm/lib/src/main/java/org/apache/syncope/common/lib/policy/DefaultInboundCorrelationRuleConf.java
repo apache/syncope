@@ -18,21 +18,31 @@
  */
 package org.apache.syncope.common.lib.policy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
+import java.util.List;
 
-@Schema(allOf = { ProvisioningPolicyTO.class })
-public class PullPolicyTO extends ProvisioningPolicyTO {
+public class DefaultInboundCorrelationRuleConf
+        extends AbstractCorrelationRuleConf implements InboundCorrelationRuleConf {
 
-    private static final long serialVersionUID = 993024634238024242L;
+    private static final long serialVersionUID = 429126085793346273L;
 
-    @JacksonXmlProperty(localName = "_class", isAttribute = true)
-    @JsonProperty("_class")
-    @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
-            example = "org.apache.syncope.common.lib.policy.PullPolicyTO")
-    @Override
-    public String getDiscriminator() {
-        return getClass().getName();
+    private boolean orSchemas;
+
+    private final List<String> schemas = new ArrayList<>();
+
+    public boolean isOrSchemas() {
+        return orSchemas;
+    }
+
+    public void setOrSchemas(final boolean orSchemas) {
+        this.orSchemas = orSchemas;
+    }
+
+    @JacksonXmlElementWrapper(localName = "schemas")
+    @JacksonXmlProperty(localName = "schema")
+    public List<String> getSchemas() {
+        return schemas;
     }
 }

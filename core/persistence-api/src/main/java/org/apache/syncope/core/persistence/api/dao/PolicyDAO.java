@@ -23,9 +23,9 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 
 public interface PolicyDAO extends DAO<Policy> {
@@ -38,7 +38,7 @@ public interface PolicyDAO extends DAO<Policy> {
 
     List<? extends PasswordPolicy> findByPasswordRule(Implementation passwordRule);
 
-    List<? extends PullPolicy> findByPullCorrelationRule(Implementation correlationRule);
+    List<? extends InboundPolicy> findByInboundCorrelationRule(Implementation correlationRule);
 
     List<? extends PushPolicy> findByPushCorrelationRule(Implementation correlationRule);
 

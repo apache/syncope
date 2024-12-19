@@ -44,6 +44,7 @@ import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
+import org.identityconnectors.framework.common.objects.LiveSyncResultsHandler;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -237,6 +238,15 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
 
     @Override
     public SyncToken getLatestSyncToken(final ObjectClass objectClass) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void livesync(
+            final ObjectClass objectClass,
+            final LiveSyncResultsHandler handler,
+            final OperationOptions options) {
+
         throw new UnsupportedOperationException();
     }
 

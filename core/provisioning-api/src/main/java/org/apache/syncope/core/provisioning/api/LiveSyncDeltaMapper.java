@@ -16,19 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.fit.core.reference;
+package org.apache.syncope.core.provisioning.api;
 
+import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRuleConfClass;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 
-@PullCorrelationRuleConfClass(DummyPullCorrelationRuleConf.class)
-public class DummyPullCorrelationRule implements PullCorrelationRule {
+public interface LiveSyncDeltaMapper {
 
-    @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
-        return new SearchCond();
-    }
+    SyncDelta map(LiveSyncDelta liveSyncDelta, OrgUnit orgUnit);
+
+    SyncDelta map(LiveSyncDelta liveSyncDelta, Provision provision);
 }

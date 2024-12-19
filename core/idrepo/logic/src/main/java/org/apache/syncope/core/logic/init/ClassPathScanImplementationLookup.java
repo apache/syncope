@@ -28,8 +28,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
@@ -46,15 +46,15 @@ import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
 import org.apache.syncope.core.provisioning.api.rules.AccountRuleConfClass;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRuleConfClass;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRuleConfClass;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
@@ -86,7 +86,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
 
-    private Map<Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> pullCRClasses;
+    private Map<Class<? extends InboundCorrelationRuleConf>, Class<? extends InboundCorrelationRule>> inboundCRClasses;
 
     private Map<Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> pushCRClasses;
 
@@ -127,7 +127,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         reportJobDelegateClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
         passwordRuleClasses = new HashMap<>();
-        pullCRClasses = new HashMap<>();
+        inboundCRClasses = new HashMap<>();
         pushCRClasses = new HashMap<>();
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
@@ -162,13 +162,14 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdRepoImplementationType.PASSWORD_RULE).add(clazz.getName());
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
-                } else if (PullCorrelationRule.class.isAssignableFrom(clazz)) {
-                    PullCorrelationRuleConfClass annotation = clazz.getAnnotation(PullCorrelationRuleConfClass.class);
+                } else if (InboundCorrelationRule.class.isAssignableFrom(clazz)) {
+                    InboundCorrelationRuleConfClass annotation = clazz.getAnnotation(
+                            InboundCorrelationRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found pull correlation rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(IdMImplementationType.PULL_CORRELATION_RULE).add(clazz.getName());
-                        pullCRClasses.put(annotation.value(), (Class<? extends PullCorrelationRule>) clazz);
+                        classNames.get(IdMImplementationType.INBOUND_CORRELATION_RULE).add(clazz.getName());
+                        inboundCRClasses.put(annotation.value(), (Class<? extends InboundCorrelationRule>) clazz);
                     }
                 } else if (PushCorrelationRule.class.isAssignableFrom(clazz)) {
                     PushCorrelationRuleConfClass annotation = clazz.getAnnotation(PushCorrelationRuleConfClass.class);
@@ -194,8 +195,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(IdRepoImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
                 } else if (PropagationActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
-                } else if (PullActions.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdMImplementationType.PULL_ACTIONS).add(bd.getBeanClassName());
+                } else if (InboundActions.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdMImplementationType.INBOUND_ACTIONS).add(bd.getBeanClassName());
                 } else if (PushActions.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 } else if (PlainAttrValueValidator.class.isAssignableFrom(clazz)) {
@@ -225,7 +226,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         reportJobDelegateClasses = Collections.unmodifiableMap(reportJobDelegateClasses);
         accountRuleClasses = Collections.unmodifiableMap(accountRuleClasses);
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
-        pullCRClasses = Collections.unmodifiableMap(pullCRClasses);
+        inboundCRClasses = Collections.unmodifiableMap(inboundCRClasses);
         pushCRClasses = Collections.unmodifiableMap(pushCRClasses);
     }
 
@@ -254,10 +255,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
-            final Class<? extends PullCorrelationRuleConf> correlationRuleConfClass) {
+    public Class<? extends InboundCorrelationRule> getInboundCorrelationRuleClass(
+            final Class<? extends InboundCorrelationRuleConf> inboundCorrelationRuleConfClass) {
 
-        return pullCRClasses.get(correlationRuleConfClass);
+        return inboundCRClasses.get(inboundCorrelationRuleConfClass);
     }
 
     @Override

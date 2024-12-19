@@ -29,6 +29,7 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -36,7 +37,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -44,10 +44,10 @@ import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -62,16 +62,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> implements SyncopePushExecutor {
+public class PushJobDelegate
+        extends AbstractProvisioningJobDelegate<PushTask>
+        implements SyncopePushExecutor, StoppableSchedTaskJobDelegate {
 
     @Autowired
     protected AnySearchDAO searchDAO;
 
     @Autowired
     protected RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    protected AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     protected SearchCondVisitor searchCondVisitor;
@@ -81,6 +80,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
     protected final Map<String, MutablePair<Integer, String>> handled = new ConcurrentHashMap<>();
 
     protected final Map<String, PushActions> perContextActions = new ConcurrentHashMap<>();
+
+    protected PushResultHandlerDispatcher dispatcher;
 
     @Override
     public void reportHandled(final String anyType, final String key) {
@@ -154,25 +155,35 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
     }
 
     @Override
-    protected String doExecuteProvisioning(
-            final PushTask pushTask,
-            final Connector connector,
-            final boolean dryRun,
-            final String executor,
+    protected void init(
+            final TaskType taskType,
+            final String taskKey,
             final JobExecutionContext context) throws JobExecutionException {
 
-        LOG.debug("Executing push on {}", pushTask.getResource());
+        super.init(taskType, taskKey, context);
 
-        profile = new ProvisioningProfile<>(connector, pushTask);
-        profile.getActions().addAll(getPushActions(pushTask.getActions()));
-        profile.setDryRun(dryRun);
-        profile.setConflictResolutionAction(
-                Optional.ofNullable(pushTask.getResource().getPushPolicy()).
+        profile = new ProvisioningProfile<>(
+                connector,
+                taskType,
+                task,
+                Optional.ofNullable(task.getResource().getPushPolicy()).
                         map(PushPolicy::getConflictResolutionAction).
-                        orElse(ConflictResolutionAction.IGNORE));
-        profile.setExecutor(executor);
+                        orElse(ConflictResolutionAction.IGNORE),
+                getPushActions(task.getActions()),
+                executor,
+                context.isDryRun());
+    }
 
-        PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
+    @Override
+    public void stop() {
+        Optional.ofNullable(dispatcher).ifPresent(PushResultHandlerDispatcher::stop);
+    }
+
+    @Override
+    protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
+        LOG.debug("Executing push on {}", task.getResource());
+
+        dispatcher = new PushResultHandlerDispatcher(profile, this);
 
         if (!profile.isDryRun()) {
             for (PushActions action : profile.getActions()) {
@@ -183,7 +194,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
         setStatus("Initialization completed");
 
         // First realms...
-        if (pushTask.getResource().getOrgUnit() != null) {
+        if (task.getResource().getOrgUnit() != null) {
             setStatus("Pushing realms");
 
             dispatcher.addHandlerSupplier(SyncopeConstants.REALM_ANYTYPE, () -> {
@@ -201,17 +212,17 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                 try {
                     result = dispatcher.handle(SyncopeConstants.REALM_ANYTYPE, realms.get(i).getKey());
                 } catch (Exception e) {
-                    LOG.warn("Failure pushing '{}' on '{}'", realms.get(i), pushTask.getResource(), e);
+                    LOG.warn("Failure pushing '{}' on '{}'", realms.get(i), task.getResource(), e);
                     throw new JobExecutionException(
-                            "While pushing " + realms.get(i) + " on " + pushTask.getResource(), e);
+                            "While pushing " + realms.get(i) + " on " + task.getResource(), e);
                 }
             }
         }
 
         // ...then provisions for any types
-        ProvisionSorter provisionSorter = getProvisionSorter(pushTask);
+        ProvisionSorter provisionSorter = getProvisionSorter(task);
 
-        for (Provision provision : pushTask.getResource().getProvisions().stream().
+        for (Provision provision : task.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 toList()) {
 
@@ -241,7 +252,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                 return handler;
             });
 
-            String filter = pushTask.getFilter(anyType.getKey()).orElse(null);
+            String filter = task.getFilter(anyType.getKey()).orElse(null);
             SearchCond cond = StringUtils.isBlank(filter)
                     ? anyDAO.getAllMatchingCond()
                     : SearchCondConverter.convert(searchCondVisitor, filter);
@@ -260,7 +271,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
                         cond,
                         PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE),
                         anyType.getKind());
-                result = doHandle(anys, dispatcher, pushTask.getResource());
+                result = doHandle(anys, dispatcher, task.getResource());
             }
         }
 
@@ -274,7 +285,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> i
 
         setStatus("Push done");
 
-        String result = createReport(profile.getResults(), pushTask.getResource(), dryRun);
+        String result = createReport(profile.getResults(), task.getResource(), context.isDryRun());
         LOG.debug("Push result: {}", result);
         return result;
     }

@@ -31,11 +31,11 @@ import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions
-import org.identityconnectors.framework.common.objects.SyncDelta
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions
+import org.identityconnectors.framework.common.objects.LiveSyncDelta
 
 @CompileStatic
-class MyPullActions implements PullActions {
+class MyInboundActions implements InboundActions {
 
   @Override
   Set<String> moreAttrsToGet(ProvisioningProfile profile, OrgUnit orgUnit) {
@@ -48,14 +48,14 @@ class MyPullActions implements PullActions {
   }
   
   @Override
-  SyncDelta preprocess(ProvisioningProfile profile, SyncDelta delta) {
+  LiveSyncDelta preprocess(ProvisioningProfile profile, LiveSyncDelta delta) {
     return delta;
   }
   
   @Override
   void beforeProvision(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     AnyCR anyCR) throws JobExecutionException {
 
   }
@@ -63,7 +63,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeProvision(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     RealmTO realmTO) throws JobExecutionException {
 
   }
@@ -71,7 +71,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeAssign(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     AnyCR anyCR) throws JobExecutionException {
 
   }
@@ -79,7 +79,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeAssign(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     RealmTO realmTO) throws JobExecutionException {
 
   }
@@ -87,7 +87,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeUnassign(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
   }
@@ -95,7 +95,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeDeprovision(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
   }
@@ -103,7 +103,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeUnlink(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
   }
@@ -111,7 +111,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeLink(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
   }
@@ -119,7 +119,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeUpdate(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity,
     AnyUR anyUR) throws JobExecutionException {
 
@@ -128,7 +128,7 @@ class MyPullActions implements PullActions {
   @Override
   void beforeDelete(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity) throws JobExecutionException {
 
   }
@@ -136,7 +136,7 @@ class MyPullActions implements PullActions {
   @Override
   void after(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     EntityTO entity,
     ProvisioningReport result) throws JobExecutionException {
 
@@ -146,7 +146,7 @@ class MyPullActions implements PullActions {
   @Override
   IgnoreProvisionException onError(
     ProvisioningProfile profile,
-    SyncDelta delta,
+    LiveSyncDelta delta,
     Exception e) throws JobExecutionException {
 
     return null;

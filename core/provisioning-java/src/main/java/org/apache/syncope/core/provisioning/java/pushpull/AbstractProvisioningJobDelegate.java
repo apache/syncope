@@ -18,21 +18,21 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -56,34 +56,62 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
 
     private static final String LINKED_ACCOUNT = "LINKED_ACCOUNT";
 
-    /**
-     * ConnInstance loader.
-     */
     @Autowired
     protected ConnectorManager connectorManager;
 
-    /**
-     * AnyTypeDAO DAO
-     */
     @Autowired
     protected AnyTypeDAO anyTypeDAO;
 
-    /**
-     * Resource DAO.
-     */
     @Autowired
     protected ExternalResourceDAO resourceDAO;
 
     @Autowired
     protected EntityFactory entityFactory;
 
-    /**
-     * Policy DAO.
-     */
+    @Autowired
+    protected AnyUtilsFactory anyUtilsFactory;
+
     @Autowired
     protected PolicyDAO policyDAO;
 
     protected Optional<ProvisionSorter> perContextProvisionSorter = Optional.empty();
+
+    protected Connector connector;
+
+    @Override
+    protected void init(
+            final TaskType taskType,
+            final String taskKey,
+            final JobExecutionContext context) throws JobExecutionException {
+
+        super.init(taskType, taskKey, context);
+
+        boolean noMapping = true;
+        for (Provision provision : task.getResource().getProvisions().stream().
+                filter(provision -> provision.getMapping() != null).toList()) {
+
+            noMapping = false;
+            if (provision.getMapping().getConnObjectKeyItem() == null) {
+                throw new JobExecutionException("Invalid ConnObjectKey mapping for provision " + provision);
+            }
+        }
+        if (noMapping) {
+            noMapping = task.getResource().getOrgUnit() == null;
+        }
+        if (noMapping) {
+            throw new JobExecutionException("No provisions nor orgUnit available: aborting...");
+        }
+
+        connector = connectorManager.getConnector(task.getResource());
+    }
+
+    @Override
+    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
+        // True if either failed and failures have to be registered, or if ALL has to be registered.
+        return (TaskJob.Status.valueOf(execution.getStatus()) == TaskJob.Status.FAILURE
+                && task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
+                || task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
+    }
 
     protected ProvisionSorter getProvisionSorter(final T task) {
         if (task.getResource().getProvisionSorter() != null) {
@@ -629,73 +657,5 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         }
 
         return report.toString();
-    }
-
-    protected Connector getConnector(final T provisioningTask) throws JobExecutionException {
-        Connector connector;
-        try {
-            connector = connectorManager.getConnector(provisioningTask.getResource());
-        } catch (Exception e) {
-            String msg = String.format("Connector instance bean for resource %s and connInstance %s not found",
-                    provisioningTask.getResource(), provisioningTask.getResource().getConnector());
-            throw new JobExecutionException(msg, e);
-        }
-
-        return connector;
-    }
-
-    @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
-            throws JobExecutionException {
-
-        try {
-            Class<T> clazz = getTaskClassReference();
-            if (!clazz.isAssignableFrom(task.getClass())) {
-                throw new JobExecutionException("Task " + task.getKey() + " isn't a ProvisioningTask");
-            }
-
-            T provisioningTask = clazz.cast(task);
-
-            Connector connector = getConnector(provisioningTask);
-
-            boolean noMapping = true;
-            for (Provision provision : provisioningTask.getResource().getProvisions()) {
-                Mapping mapping = provision.getMapping();
-                if (mapping != null) {
-                    noMapping = false;
-                    if (mapping.getConnObjectKeyItem() == null) {
-                        throw new JobExecutionException("Invalid ConnObjectKey mapping for provision " + provision);
-                    }
-                }
-            }
-            if (noMapping) {
-                noMapping = provisioningTask.getResource().getOrgUnit() == null;
-            }
-            if (noMapping) {
-                return "No provisions nor orgUnit available: aborting...";
-            }
-
-            return doExecuteProvisioning(provisioningTask, connector, dryRun, executor, context);
-        } catch (Throwable t) {
-            LOG.error("While executing provisioning job {}", getClass().getName(), t);
-            throw t;
-        }
-    }
-
-    protected abstract String doExecuteProvisioning(
-            T task, Connector connector, boolean dryRun, String executor, JobExecutionContext context)
-            throws JobExecutionException;
-
-    @Override
-    protected boolean hasToBeRegistered(final TaskExec<?> execution) {
-        // True if either failed and failures have to be registered, or if ALL has to be registered.
-        return (TaskJob.Status.valueOf(execution.getStatus()) == TaskJob.Status.FAILURE
-                && task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || task.getResource().getProvisioningTraceLevel().ordinal() >= TraceLevel.SUMMARY.ordinal();
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Class<T> getTaskClassReference() {
-        return (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 }

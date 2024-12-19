@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -74,8 +73,7 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
                             connectorManager.buildConnInstanceOverride(
                                     connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
                                     resource.getConfOverride(),
-                                    resource.isOverrideCapabilities()
-                                    ? Optional.of(resource.getCapabilitiesOverride()) : Optional.empty())).
+                                    resource.getCapabilitiesOverride())).
                             test();
                     status = Status.UP;
                 } catch (Exception e) {

@@ -16,11 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+import groovy.transform.CompileStatic
+import org.apache.syncope.common.lib.to.Provision
+import org.apache.syncope.core.provisioning.api.LiveSyncDeltaMapper
+import org.identityconnectors.framework.common.objects.LiveSyncDelta
+import org.identityconnectors.framework.common.objects.SyncDelta
 
-public interface PullCorrelationRuleEntity extends CorrelationRuleEntity {
-
-    PullPolicy getPullPolicy();
-
-    void setPullPolicy(PullPolicy pullPolicy);
+@CompileStatic
+class MyLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
+ 
+  @Override
+  SyncDelta map(LiveSyncDelta liveSyncDelta, Provision provision) {
+    
+  }
 }

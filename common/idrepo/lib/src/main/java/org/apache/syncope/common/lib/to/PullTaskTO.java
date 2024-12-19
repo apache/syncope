@@ -27,8 +27,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.PullMode;
 
-@Schema(allOf = { ProvisioningTaskTO.class })
-public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
+@Schema(allOf = { InboundTaskTO.class })
+public class PullTaskTO extends InboundTaskTO implements TemplatableTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
@@ -36,11 +36,6 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
     private PullMode pullMode;
 
     private String reconFilterBuilder;
-
-    @JsonProperty(required = true)
-    private String destinationRealm;
-
-    private boolean remediation;
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -69,25 +64,9 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
         this.reconFilterBuilder = reconFilterBuilder;
     }
 
-    public String getDestinationRealm() {
-        return destinationRealm;
-    }
-
-    public void setDestinationRealm(final String destinationRealm) {
-        this.destinationRealm = destinationRealm;
-    }
-
     @Override
     public Map<String, AnyTO> getTemplates() {
         return templates;
-    }
-
-    public boolean isRemediation() {
-        return remediation;
-    }
-
-    public void setRemediation(final boolean remediation) {
-        this.remediation = remediation;
     }
 
     @Override
@@ -96,8 +75,7 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
                 appendSuper(super.hashCode()).
                 append(pullMode).
                 append(reconFilterBuilder).
-                append(destinationRealm).
-                append(remediation).
+                append(templates).
                 build();
     }
 
@@ -117,8 +95,7 @@ public class PullTaskTO extends ProvisioningTaskTO implements TemplatableTO {
                 appendSuper(super.equals(obj)).
                 append(pullMode, other.pullMode).
                 append(reconFilterBuilder, other.reconFilterBuilder).
-                append(destinationRealm, other.destinationRealm).
-                append(remediation, other.remediation).
+                append(templates, other.templates).
                 build();
     }
 }

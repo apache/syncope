@@ -19,22 +19,22 @@
 package org.apache.syncope.core.provisioning.api.rules;
 
 import java.util.Optional;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 
 /**
- * Interface for correlation rule to be evaluated during PullJob execution.
+ * Interface for correlation rule to be evaluated during inbound task execution.
  */
 @FunctionalInterface
-public interface PullCorrelationRule {
+public interface InboundCorrelationRule {
 
-    PullMatch NO_MATCH = new PullMatch(MatchType.ANY, null);
+    InboundMatch NO_MATCH = new InboundMatch(MatchType.ANY, null);
 
-    default void setConf(PullCorrelationRuleConf conf) {
+    default void setConf(InboundCorrelationRuleConf conf) {
     }
 
     /**
@@ -44,11 +44,11 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return search condition.
      */
-    SearchCond getSearchCond(SyncDelta syncDelta, Provision provision);
+    SearchCond getSearchCond(LiveSyncDelta syncDelta, Provision provision);
 
     /**
      * Create matching information for the given Any, found matching for the given
-     * {@link SyncDelta} and {@link Provision}.
+     * {@link LiveSyncDelta} and {@link Provision}.
      * For users, this might end with creating / updating / deleting a
      * {@link org.apache.syncope.core.persistence.api.entity.user.LinkedAccount}.
      *
@@ -57,13 +57,13 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default PullMatch matching(Any<?> any, SyncDelta syncDelta, Provision provision) {
-        return new PullMatch(MatchType.ANY, any);
+    default InboundMatch matching(Any<?> any, LiveSyncDelta syncDelta, Provision provision) {
+        return new InboundMatch(MatchType.ANY, any);
     }
 
     /**
      * Optionally create matching information in case no matching Any was found for the given
-     * {@link SyncDelta} and {@link Provision}.
+     * {@link LiveSyncDelta} and {@link Provision}.
      * For users, this might end with creating a
      * {@link org.apache.syncope.core.persistence.api.entity.user.LinkedAccount}.
      *
@@ -71,7 +71,7 @@ public interface PullCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default Optional<PullMatch> unmatching(SyncDelta syncDelta, Provision provision) {
+    default Optional<InboundMatch> unmatching(LiveSyncDelta syncDelta, Provision provision) {
         return Optional.of(NO_MATCH);
     }
 }

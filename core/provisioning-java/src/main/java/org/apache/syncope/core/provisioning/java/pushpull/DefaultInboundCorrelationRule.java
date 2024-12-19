@@ -24,35 +24,35 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRuleConfClass;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRuleConfClass;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 
-@PullCorrelationRuleConfClass(DefaultPullCorrelationRuleConf.class)
-public class DefaultPullCorrelationRule implements PullCorrelationRule {
+@InboundCorrelationRuleConfClass(DefaultInboundCorrelationRuleConf.class)
+public class DefaultInboundCorrelationRule implements InboundCorrelationRule {
 
-    private DefaultPullCorrelationRuleConf conf;
+    private DefaultInboundCorrelationRuleConf conf;
 
     @Override
-    public void setConf(final PullCorrelationRuleConf conf) {
-        if (conf instanceof DefaultPullCorrelationRuleConf) {
-            this.conf = DefaultPullCorrelationRuleConf.class.cast(conf);
+    public void setConf(final InboundCorrelationRuleConf conf) {
+        if (conf instanceof DefaultInboundCorrelationRuleConf) {
+            this.conf = DefaultInboundCorrelationRuleConf.class.cast(conf);
         } else {
             throw new IllegalArgumentException(
-                    DefaultPullCorrelationRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
+                    DefaultInboundCorrelationRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
     }
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+    public SearchCond getSearchCond(final LiveSyncDelta syncDelta, final Provision provision) {
         Map<String, Item> mappingItems = provision.getMapping().getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Function.identity()));
 

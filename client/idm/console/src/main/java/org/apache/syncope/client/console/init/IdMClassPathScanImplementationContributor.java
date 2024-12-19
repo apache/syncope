@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.init;
 
 import java.util.Optional;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
@@ -30,14 +30,14 @@ public class IdMClassPathScanImplementationContributor implements ClassPathScanI
 
     @Override
     public void extend(final ClassPathScanningCandidateComponentProvider scanner) {
-        scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRuleConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(InboundCorrelationRuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushCorrelationRuleConf.class));
     }
 
     @Override
     public Optional<String> getLabel(final Class<?> clazz) {
-        if (PullCorrelationRuleConf.class.isAssignableFrom(clazz)) {
-            return Optional.of(PullCorrelationRuleConf.class.getName());
+        if (InboundCorrelationRuleConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(InboundCorrelationRuleConf.class.getName());
         }
         if (PushCorrelationRuleConf.class.isAssignableFrom(clazz)) {
             return Optional.of(PushCorrelationRuleConf.class.getName());

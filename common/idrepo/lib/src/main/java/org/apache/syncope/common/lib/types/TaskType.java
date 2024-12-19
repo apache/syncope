@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.types;
 
+import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -31,6 +32,7 @@ public enum TaskType {
     PROPAGATION(PropagationTaskTO.class),
     NOTIFICATION(NotificationTaskTO.class),
     SCHEDULED(SchedTaskTO.class),
+    LIVE_SYNC(LiveSyncTaskTO.class),
     PULL(PullTaskTO.class),
     PUSH(PushTaskTO.class),
     MACRO(MacroTaskTO.class);
@@ -48,6 +50,8 @@ public enum TaskType {
     public static TaskType fromTOClass(final Class<? extends TaskTO> clazz) {
         return PushTaskTO.class.isAssignableFrom(clazz)
                 ? TaskType.PUSH
+                : LiveSyncTaskTO.class.isAssignableFrom(clazz)
+                ? TaskType.LIVE_SYNC
                 : PullTaskTO.class.isAssignableFrom(clazz)
                 ? TaskType.PULL
                 : NotificationTaskTO.class.isAssignableFrom(clazz)

@@ -68,19 +68,17 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
     public void execute(
             final TaskType taskType,
             final String taskKey,
-            final boolean dryRun,
             final JobExecutionContext context)
             throws JobExecutionException {
 
         groupKey = (String) context.getData().get(GROUP_KEY_JOBDETAIL_KEY);
         action = (ProvisionAction) context.getData().get(ACTION_JOBDETAIL_KEY);
 
-        super.execute(taskType, taskKey, dryRun, context);
+        super.execute(taskType, taskKey, context);
     }
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context) {
-
+    protected String doExecute(final JobExecutionContext context) {
         Group group = groupDAO.authFind(groupKey);
 
         StringBuilder result = new StringBuilder("Group ").append(group.getName()).append(" members ");

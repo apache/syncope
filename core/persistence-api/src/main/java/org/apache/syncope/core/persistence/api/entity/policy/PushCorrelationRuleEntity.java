@@ -22,5 +22,5 @@ public interface PushCorrelationRuleEntity extends CorrelationRuleEntity {
 
     PushPolicy getPushPolicy();
 
-    void setPushPolicy(PushPolicy pullPolicy);
+    void setPushPolicy(PushPolicy pushPolicy);
 }

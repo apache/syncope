@@ -16,16 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.policy;
+package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface PullPolicy extends ProvisioningPolicy {
+public interface InboundTask<T extends SchedTask> extends ProvisioningTask<T> {
 
-    boolean add(PullCorrelationRuleEntity rule);
+    Realm getDestinationRealm();
 
-    Optional<? extends PullCorrelationRuleEntity> getCorrelationRule(String anyType);
+    void setDestinationRealm(Realm destinationRealm);
 
-    List<? extends PullCorrelationRuleEntity> getCorrelationRules();
+    void setRemediation(boolean remediation);
+
+    boolean isRemediation();
+
+    Optional<? extends AnyTemplate> getTemplate(String anyType);
+
+    List<? extends AnyTemplate> getTemplates();
 }

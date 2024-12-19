@@ -25,17 +25,17 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRuleConfClass;
-import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRuleConfClass;
+import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-@PullCorrelationRuleConfClass(LinkedAccountSamplePullCorrelationRuleConf.class)
-public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRule {
+@InboundCorrelationRuleConfClass(LinkedAccountSampleInboundCorrelationRuleConf.class)
+public class LinkedAccountSampleInboundCorrelationRule implements InboundCorrelationRule {
 
     public static final String VIVALDI_KEY = "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee";
 
@@ -43,7 +43,7 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
     private UserDAO userDAO;
 
     @Override
-    public SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+    public SearchCond getSearchCond(final LiveSyncDelta syncDelta, final Provision provision) {
         AttrCond cond = new AttrCond();
 
         Attribute email = syncDelta.getObject().getAttributeByName("email");
@@ -60,7 +60,7 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
 
     @Transactional(readOnly = true)
     @Override
-    public PullMatch matching(final Any<?> any, final SyncDelta syncDelta, final Provision provision) {
+    public InboundMatch matching(final Any<?> any, final LiveSyncDelta syncDelta, final Provision provision) {
         // if match with internal user vivaldi was found but firstName is different, update linked account
         // instead of updating user
         Attribute firstName = syncDelta.getObject().getAttributeByName("firstName");
@@ -68,16 +68,16 @@ public class LinkedAccountSamplePullCorrelationRule implements PullCorrelationRu
                 && firstName != null && !CollectionUtils.isEmpty(firstName.getValue())
                 && !"Antonio".equals(firstName.getValue().get(0).toString())) {
 
-            return new PullMatch(MatchType.LINKED_ACCOUNT, any);
+            return new InboundMatch(MatchType.LINKED_ACCOUNT, any);
         }
 
-        return PullCorrelationRule.super.matching(any, syncDelta, provision);
+        return InboundCorrelationRule.super.matching(any, syncDelta, provision);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Optional<PullMatch> unmatching(final SyncDelta syncDelta, final Provision provision) {
+    public Optional<InboundMatch> unmatching(final LiveSyncDelta syncDelta, final Provision provision) {
         // if no match with internal user was found, link account to vivaldi instead of creating new user
-        return Optional.of(new PullMatch(MatchType.LINKED_ACCOUNT, userDAO.findById(VIVALDI_KEY).orElseThrow()));
+        return Optional.of(new InboundMatch(MatchType.LINKED_ACCOUNT, userDAO.findById(VIVALDI_KEY).orElseThrow()));
     }
 }

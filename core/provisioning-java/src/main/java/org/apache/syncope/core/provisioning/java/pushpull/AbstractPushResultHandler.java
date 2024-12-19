@@ -261,6 +261,12 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             }
 
             doHandle(any, provision);
+
+            if (stopRequested) {
+                LOG.debug("Stop was requested");
+                return false;
+            }
+
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport ignoreResult = profile.getResults().stream().
@@ -357,8 +363,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             Object output = null;
             OpEvent.Outcome resultStatus = null;
 
-            Boolean enable = any instanceof User && profile.getTask().isSyncStatus()
-                    ? BooleanUtils.negate(((User) any).isSuspended())
+            Boolean enable = any instanceof User user && profile.getTask().isSyncStatus()
+                    ? BooleanUtils.negate(user.isSuspended())
                     : null;
             try {
                 if (beforeObj == null) {

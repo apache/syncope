@@ -43,10 +43,10 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoiceP
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
-import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
+import org.apache.syncope.common.lib.policy.InboundPolicyTO;
 import org.apache.syncope.common.lib.policy.ProvisioningPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -102,8 +102,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
             @Override
             protected Map<String, ImplementationTO> load() {
-                return implementationRestClient.list(policyTO instanceof PullPolicyTO
-                        ? IdMImplementationType.PULL_CORRELATION_RULE
+                return implementationRestClient.list(policyTO instanceof InboundPolicyTO
+                        ? IdMImplementationType.INBOUND_CORRELATION_RULE
                         : IdMImplementationType.PUSH_CORRELATION_RULE).stream().
                         collect(Collectors.toMap(ImplementationTO::getKey, Function.identity()));
             }
@@ -115,8 +115,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
             private final List<CorrelationRule> rules = policyTO.getCorrelationRules().keySet().stream().
                     map(anyType -> new CorrelationRule(
-                    policyTO instanceof PullPolicyTO
-                            ? DefaultPullCorrelationRuleConf.class
+                    policyTO instanceof InboundPolicyTO
+                            ? DefaultInboundCorrelationRuleConf.class
                             : DefaultPushCorrelationRuleConf.class,
                     anyType,
                     implementations.getObject().get(policyTO.getCorrelationRules().get(anyType)))).
@@ -140,8 +140,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
             @Override
             protected CorrelationRule newModelObject() {
-                return new CorrelationRule(policyTO instanceof PullPolicyTO
-                        ? DefaultPullCorrelationRuleConf.class
+                return new CorrelationRule(policyTO instanceof InboundPolicyTO
+                        ? DefaultInboundCorrelationRuleConf.class
                         : DefaultPushCorrelationRuleConf.class);
             }
 
@@ -172,8 +172,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                     }
                 }
             });
-            policyRestClient.update(getItem() instanceof PullPolicyTO
-                    ? PolicyType.PULL : PolicyType.PUSH, getItem());
+            policyRestClient.update(getItem() instanceof InboundPolicyTO
+                    ? PolicyType.INBOUND : PolicyType.PUSH, getItem());
 
             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
@@ -216,8 +216,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                 @Override
                 public Boolean getObject() {
                     AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultPullCorrelationRuleConf
-                            ? DefaultPullCorrelationRuleConf.class.cast(conf).isOrSchemas()
+                    return conf instanceof DefaultInboundCorrelationRuleConf
+                            ? DefaultInboundCorrelationRuleConf.class.cast(conf).isOrSchemas()
                             : conf instanceof DefaultPushCorrelationRuleConf
                                     ? DefaultPushCorrelationRuleConf.class.cast(conf).isOrSchemas()
                                     : false;
@@ -226,8 +226,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
                 @Override
                 public void setObject(final Boolean object) {
                     AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    if (conf instanceof DefaultPullCorrelationRuleConf) {
-                        DefaultPullCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
+                    if (conf instanceof DefaultInboundCorrelationRuleConf) {
+                        DefaultInboundCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
                     } else if (conf instanceof DefaultPushCorrelationRuleConf) {
                         DefaultPushCorrelationRuleConf.class.cast(conf).setOrSchemas(object);
                     }
@@ -244,8 +244,8 @@ public class ProvisioningPolicyModalPanel extends AbstractModalPanel<Provisionin
 
                 private List<String> schemas() {
                     AbstractCorrelationRuleConf conf = correlationRule.getObject().getDefaultRuleConf();
-                    return conf instanceof DefaultPullCorrelationRuleConf
-                            ? DefaultPullCorrelationRuleConf.class.cast(conf).getSchemas()
+                    return conf instanceof DefaultInboundCorrelationRuleConf
+                            ? DefaultInboundCorrelationRuleConf.class.cast(conf).getSchemas()
                             : conf instanceof DefaultPushCorrelationRuleConf
                                     ? DefaultPushCorrelationRuleConf.class.cast(conf).getSchemas()
                                     : List.of();

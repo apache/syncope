@@ -93,6 +93,8 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask<?>
      */
     protected ProvisioningProfile<T, A> profile;
 
+    protected volatile boolean stopRequested = false;
+
     protected abstract AnyUtils getAnyUtils();
 
     protected abstract AnyTO getAnyTO(Any<?> any);
@@ -104,8 +106,8 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask<?>
         this.profile = profile;
     }
 
-    protected String getContext() {
-        return (getClass().getSimpleName().contains("Pull") ? "PullTask" : "PushTask")
-                + " " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'";
+    @Override
+    public void stop() {
+        stopRequested = true;
     }
 }

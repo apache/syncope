@@ -41,16 +41,16 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.spring.implementation.InstanceScope;
 import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
-import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +64,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @see org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions
  */
 @SyncopeImplementation(scope = InstanceScope.PER_CONTEXT)
-public class LDAPMembershipPullActions implements PullActions {
+public class LDAPMembershipPullActions implements InboundActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPullActions.class);
 
@@ -107,7 +107,7 @@ public class LDAPMembershipPullActions implements PullActions {
      * @return value of attribute returned by
      * {@link #getGroupMembershipAttrName}
      */
-    protected List<Object> getMembAttrValues(final SyncDelta delta, final Connector connector) {
+    protected List<Object> getMembAttrValues(final LiveSyncDelta delta, final Connector connector) {
         String groupMemberName = getGroupMembershipAttrName(connector);
 
         // first, try to read the configured attribute from delta, returned by the ongoing pull
@@ -145,12 +145,12 @@ public class LDAPMembershipPullActions implements PullActions {
     @Override
     public void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO entity,
             final AnyUR anyUR) throws JobExecutionException {
 
         if (!(entity instanceof GroupTO)) {
-            PullActions.super.beforeUpdate(profile, delta, entity, anyUR);
+            InboundActions.super.beforeUpdate(profile, delta, entity, anyUR);
             return;
         }
 
@@ -171,24 +171,24 @@ public class LDAPMembershipPullActions implements PullActions {
     @Override
     public void after(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO entity,
             final ProvisioningReport result) throws JobExecutionException {
 
         if (!(entity instanceof GroupTO)) {
-            PullActions.super.after(profile, delta, entity, result);
+            InboundActions.super.after(profile, delta, entity, result);
             return;
         }
 
         Optional<Provision> provision = profile.getTask().getResource().
                 getProvisionByAnyType(AnyTypeKind.USER.name()).filter(p -> p.getMapping() != null);
         if (provision.isEmpty()) {
-            PullActions.super.after(profile, delta, entity, result);
+            InboundActions.super.after(profile, delta, entity, result);
             return;
         }
 
         getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
-            Optional<PullMatch> match = inboundMatcher.match(
+            Optional<InboundMatch> match = inboundMatcher.match(
                     anyTypeDAO.getUser(),
                     membValue.toString(),
                     profile.getTask().getResource(),

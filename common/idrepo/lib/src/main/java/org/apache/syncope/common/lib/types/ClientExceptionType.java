@@ -64,6 +64,7 @@ public enum ClientExceptionType {
     InvalidRole(Response.Status.BAD_REQUEST),
     InvalidUser(Response.Status.BAD_REQUEST),
     InvalidExternalResource(Response.Status.BAD_REQUEST),
+    InvalidLiveSyncTask(Response.Status.BAD_REQUEST),
     InvalidPullTask(Response.Status.BAD_REQUEST),
     InvalidRequest(Response.Status.BAD_REQUEST),
     InvalidValues(Response.Status.BAD_REQUEST),

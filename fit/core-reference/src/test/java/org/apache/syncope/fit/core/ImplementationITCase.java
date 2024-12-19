@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.TestPullActions;
+import org.apache.syncope.fit.core.reference.TestInboundActions;
 import org.junit.jupiter.api.Test;
 
 public class ImplementationITCase extends AbstractITCase {
@@ -44,7 +44,7 @@ public class ImplementationITCase extends AbstractITCase {
         implementationTO.setKey(UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);
         implementationTO.setType(IdMImplementationType.PUSH_ACTIONS);
-        implementationTO.setBody(TestPullActions.class.getName());
+        implementationTO.setBody(TestInboundActions.class.getName());
 
         // fail because type is wrong
         try {
@@ -53,7 +53,7 @@ public class ImplementationITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidImplementation, e.getType());
         }
-        implementationTO.setType(IdMImplementationType.PULL_ACTIONS);
+        implementationTO.setType(IdMImplementationType.INBOUND_ACTIONS);
 
         Response response = IMPLEMENTATION_SERVICE.create(implementationTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
@@ -74,8 +74,8 @@ public class ImplementationITCase extends AbstractITCase {
         ImplementationTO implementationTO = new ImplementationTO();
         implementationTO.setKey(UUID.randomUUID().toString());
         implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(IdMImplementationType.PULL_ACTIONS);
-        implementationTO.setBody(TestPullActions.class.getName());
+        implementationTO.setType(IdMImplementationType.INBOUND_ACTIONS);
+        implementationTO.setBody(TestInboundActions.class.getName());
 
         IMPLEMENTATION_SERVICE.create(implementationTO);
 

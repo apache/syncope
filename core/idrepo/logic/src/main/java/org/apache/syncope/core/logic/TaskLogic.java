@@ -331,6 +331,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 break;
 
             case SCHEDULED:
+            case LIVE_SYNC:
             case PULL:
             case PUSH:
             case MACRO:
@@ -420,6 +421,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
         if (TaskType.SCHEDULED == taskUtils.getType()
+                || TaskType.LIVE_SYNC == taskUtils.getType()
                 || TaskType.PULL == taskUtils.getType()
                 || TaskType.PUSH == taskUtils.getType()
                 || TaskType.MACRO == taskUtils.getType()) {
@@ -523,10 +525,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @Override
     protected Triple<JobType, String, String> getReference(final String jobName) {
-        String key = JobNamer.getTaskKeyFromJobName(jobName);
-
-        return taskDAO.findById(key).filter(SchedTask.class::isInstance).
-                map(t -> Triple.of(JobType.TASK, key, binder.buildRefDesc(t))).orElse(null);
+        return JobNamer.getTaskKeyFromJobName(jobName).
+                flatMap(taskDAO::findById).filter(SchedTask.class::isInstance).
+                map(t -> Triple.of(JobType.TASK, t.getKey(), binder.buildRefDesc(t))).
+                orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")

@@ -19,6 +19,6 @@
 package org.apache.syncope.common.lib.policy;
 
 @FunctionalInterface
-public interface PullCorrelationRuleConf extends RuleConf {
+public interface InboundCorrelationRuleConf extends RuleConf {
 
 }

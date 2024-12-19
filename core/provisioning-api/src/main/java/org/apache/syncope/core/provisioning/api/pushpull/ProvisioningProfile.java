@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 
@@ -30,21 +30,36 @@ public class ProvisioningProfile<T extends ProvisioningTask<?>, A extends Provis
 
     private final Connector connector;
 
+    private final TaskType taskType;
+
     private final T task;
+
+    private final ConflictResolutionAction conflictResolutionAction;
+
+    private final String executor;
+
+    private final boolean dryRun;
+
+    private final List<A> actions;
 
     private final List<ProvisioningReport> results = new CopyOnWriteArrayList<>();
 
-    private boolean dryRun;
+    public ProvisioningProfile(
+            final Connector connector,
+            final TaskType taskType,
+            final T task,
+            final ConflictResolutionAction conflictResolutionAction,
+            final List<A> actions,
+            final String executor,
+            final boolean dryRun) {
 
-    private ConflictResolutionAction conflictResolutionAction;
-
-    private String executor;
-
-    private final List<A> actions = new ArrayList<>();
-
-    public ProvisioningProfile(final Connector connector, final T task) {
         this.connector = connector;
+        this.taskType = taskType;
         this.task = task;
+        this.conflictResolutionAction = conflictResolutionAction;
+        this.actions = actions;
+        this.executor = executor;
+        this.dryRun = dryRun;
     }
 
     public Connector getConnector() {
@@ -55,35 +70,27 @@ public class ProvisioningProfile<T extends ProvisioningTask<?>, A extends Provis
         return task;
     }
 
-    public List<ProvisioningReport> getResults() {
-        return results;
-    }
-
     public boolean isDryRun() {
         return dryRun;
-    }
-
-    public void setDryRun(final boolean dryRun) {
-        this.dryRun = dryRun;
     }
 
     public ConflictResolutionAction getConflictResolutionAction() {
         return conflictResolutionAction;
     }
 
-    public void setConflictResolutionAction(final ConflictResolutionAction conflictResolutionAction) {
-        this.conflictResolutionAction = conflictResolutionAction;
-    }
-
     public String getExecutor() {
         return executor;
     }
 
-    public void setExecutor(final String executor) {
-        this.executor = executor;
-    }
-
     public List<A> getActions() {
         return actions;
+    }
+
+    public List<ProvisioningReport> getResults() {
+        return results;
+    }
+
+    public String getContext() {
+        return taskType + " Task " + task.getKey() + " '" + task.getName() + "'";
     }
 }

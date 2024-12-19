@@ -18,12 +18,17 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.common.lib.policy.AbstractCorrelationRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
+import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRuleConfClass;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 
-public class LinkedAccountSamplePullCorrelationRuleConf
-        extends AbstractCorrelationRuleConf implements PullCorrelationRuleConf {
+@InboundCorrelationRuleConfClass(DummyInboundCorrelationRuleConf.class)
+public class DummyInboundCorrelationRule implements InboundCorrelationRule {
 
-    private static final long serialVersionUID = -958386962492907926L;
-
+    @Override
+    public SearchCond getSearchCond(final LiveSyncDelta syncDelta, final Provision provision) {
+        return new SearchCond();
+    }
 }

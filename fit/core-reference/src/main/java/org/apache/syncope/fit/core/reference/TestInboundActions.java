@@ -26,20 +26,17 @@ import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 
-/**
- * Test pull action.
- */
-public class TestPullActions implements PullActions {
+public class TestInboundActions implements InboundActions {
 
     private int counter;
 
     @Override
     public void beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR) {
+            final ProvisioningProfile<?, ?> profile, final LiveSyncDelta delta, final AnyCR anyCR) {
 
         Attr attrTO = anyCR.getPlainAttrs().stream().
                 filter(attr -> "fullname".equals(attr.getSchema())).findFirst().
@@ -54,7 +51,7 @@ public class TestPullActions implements PullActions {
 
     @Override
     public void beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final AnyCR anyCR) {
+            final ProvisioningProfile<?, ?> profile, final LiveSyncDelta delta, final AnyCR anyCR) {
 
         if (anyCR instanceof UserCR && "test2".equals(UserCR.class.cast(anyCR).getUsername())) {
             throw new IgnoreProvisionException();
@@ -64,7 +61,7 @@ public class TestPullActions implements PullActions {
     @Override
     public void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO entityTO,
             final AnyUR anyUR) {
 

@@ -23,34 +23,36 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 
 @Entity
-@Table(name = JPAPullCorrelationRuleEntity.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "pullPolicy_id", "anyType_id" }))
-public class JPAPullCorrelationRuleEntity extends AbstractCorrelationRuleEntity implements PullCorrelationRuleEntity {
+@Table(name = JPAInboundCorrelationRuleEntity.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "inboundPolicy_id", "anyType_id" }))
+public class JPAInboundCorrelationRuleEntity
+        extends AbstractCorrelationRuleEntity
+        implements InboundCorrelationRuleEntity {
 
     private static final long serialVersionUID = 4276417265524083919L;
 
-    public static final String TABLE = "PullCorrelationRuleEntity";
+    public static final String TABLE = "InboundCorrelationRuleEntity";
 
     @ManyToOne(optional = false)
-    private JPAPullPolicy pullPolicy;
+    private JPAInboundPolicy inboundPolicy;
 
     @Override
     protected String getImplementationType() {
-        return IdMImplementationType.PULL_CORRELATION_RULE;
+        return IdMImplementationType.INBOUND_CORRELATION_RULE;
     }
 
     @Override
-    public PullPolicy getPullPolicy() {
-        return pullPolicy;
+    public InboundPolicy getInboundPolicy() {
+        return inboundPolicy;
     }
 
     @Override
-    public void setPullPolicy(final PullPolicy pullPolicy) {
-        checkType(pullPolicy, JPAPullPolicy.class);
-        this.pullPolicy = (JPAPullPolicy) pullPolicy;
+    public void setInboundPolicy(final InboundPolicy inboundPolicy) {
+        checkType(inboundPolicy, JPAInboundPolicy.class);
+        this.inboundPolicy = (JPAInboundPolicy) inboundPolicy;
     }
 }

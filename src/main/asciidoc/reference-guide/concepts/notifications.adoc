@@ -95,7 +95,7 @@ successful execution of the event identified by the `unexpected identification` 
 [NOTE]
 ====
 Custom events can be used to trigger notifications from non-predefined joint points, as BPMN `userTask`
-instances within the <<flowable-user-workflow-adapter>>, <<propagationactions>>, <<pushactions>>, <<pullactions>> or
+instances within the <<flowable-user-workflow-adapter>>, <<propagationactions>>, <<pushactions>>, <<inboundactions>> or
 other custom code.
 ====
 
