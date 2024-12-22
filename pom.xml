@@ -411,7 +411,7 @@ under the License.
 
     <cxf.version>4.1.0</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.47</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.3.7</spring-boot.version>
     <spring-cloud-gateway.version>4.1.6</spring-cloud-gateway.version>
@@ -456,7 +456,7 @@ under the License.
     <chartjs.version>4.4.3</chartjs.version>
 
     <wicket.version>10.3.0</wicket.version>
-    <wicketstuff.version>10.2.0</wicketstuff.version>
+    <wicketstuff.version>10.3.0</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.8</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
