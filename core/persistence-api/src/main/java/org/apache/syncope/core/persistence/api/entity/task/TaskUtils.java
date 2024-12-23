@@ -29,17 +29,60 @@ public interface TaskUtils {
 
     <E extends TaskExec<?>> E newTaskExec();
 
-    <T extends TaskTO> T newTaskTO();
+    default <T extends TaskTO> T newTaskTO() {
+        @SuppressWarnings("unchecked")
+        Class<T> taskClass = (Class<T>) getType().getToClass();
+        try {
+            return taskClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-    <T extends Task<T>> Class<T> taskClass();
+    @SuppressWarnings("unchecked")
+    default <T extends Task<T>> Class<T> taskClass() {
+        Class<T> result = null;
 
-    <T extends TaskTO> Class<T> taskTOClass();
+        switch (getType()) {
+            case PROPAGATION:
+                result = (Class<T>) PropagationTask.class;
+                break;
 
-    String getTaskTable();
+            case SCHEDULED:
+                result = (Class<T>) SchedTask.class;
+                break;
+
+            case LIVE_SYNC:
+                result = (Class<T>) LiveSyncTask.class;
+                break;
+
+            case PULL:
+                result = (Class<T>) PullTask.class;
+                break;
+
+            case PUSH:
+                result = (Class<T>) PushTask.class;
+                break;
+
+            case MACRO:
+                result = (Class<T>) MacroTask.class;
+                break;
+
+            case NOTIFICATION:
+                result = (Class<T>) NotificationTask.class;
+                break;
+
+            default:
+        }
+
+        return result;
+    }
+
+    String getTaskStorage();
 
     Class<? extends Task<?>> getTaskEntity();
 
-    String getTaskExecTable();
+    String getTaskExecStorage();
 
     Class<? extends TaskExec<?>> getTaskExecEntity();
 }

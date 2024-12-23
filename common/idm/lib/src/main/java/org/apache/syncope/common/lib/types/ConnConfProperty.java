@@ -22,12 +22,11 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class ConnConfProperty implements BaseBean, Comparable<ConnConfProperty> {
+public class ConnConfProperty implements BaseBean {
 
     private static final long serialVersionUID = -8391413960221862238L;
 
@@ -57,11 +56,6 @@ public class ConnConfProperty implements BaseBean, Comparable<ConnConfProperty> 
 
     public void setOverridable(final boolean overridable) {
         this.overridable = overridable;
-    }
-
-    @Override
-    public int compareTo(final ConnConfProperty connConfProperty) {
-        return ObjectUtils.compare(this.getSchema(), connConfProperty.getSchema());
     }
 
     @Override

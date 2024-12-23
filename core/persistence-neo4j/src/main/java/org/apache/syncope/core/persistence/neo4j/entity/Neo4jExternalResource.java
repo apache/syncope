@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,15 +37,15 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.common.validation.ExternalResourceCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
@@ -70,7 +69,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     public static final String RESOURCE_PROPAGATION_POLICY_REL = "RESOURCE_PROPAGATION_POLICY";
 
-    public static final String RESOURCE_PULL_POLICY_REL = "RESOURCE_PULL_POLICY";
+    public static final String RESOURCE_INBOUND_POLICY_REL = "RESOURCE_INBOUND_POLICY";
 
     public static final String RESOURCE_PUSH_POLICY_REL = "RESOURCE_PUSH_POLICY";
 
@@ -78,7 +77,11 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     public static final String RESOURCE_PROPAGATION_ACTIONS_REL = "RESOURCE_PROPAGATION_ACTIONS";
 
-    protected static final TypeReference<Set<ConnectorCapability>> CAPABILITY_TYPEREF =
+    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
+            new TypeReference<List<ConnConfProperty>>() {
+    };
+
+    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
     };
 
@@ -114,13 +117,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
      */
     private String jsonConf;
 
-    @NotNull
-    private Boolean overrideCapabilities = false;
-
     private String capabilitiesOverride;
-
-    @Transient
-    private final Set<ConnectorCapability> capabilitiesOverrideSet = new HashSet<>();
 
     private String provisions;
 
@@ -144,8 +141,8 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     @Relationship(type = RESOURCE_PROPAGATION_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jPropagationPolicy propagationPolicy;
 
-    @Relationship(type = RESOURCE_PULL_POLICY_REL, direction = Relationship.Direction.OUTGOING)
-    private Neo4jPullPolicy pullPolicy;
+    @Relationship(type = RESOURCE_INBOUND_POLICY_REL, direction = Relationship.Direction.OUTGOING)
+    private Neo4jInboundPolicy inboundPolicy;
 
     @Relationship(type = RESOURCE_PUSH_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jPushPolicy pushPolicy;
@@ -172,14 +169,12 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     @Override
     public Optional<Provision> getProvisionByAnyType(final String anyType) {
-        return getProvisions().stream().
-                filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
     public Optional<Provision> getProvisionByObjectClass(final String objectClass) {
-        return getProvisions().stream().
-                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override
@@ -249,36 +244,6 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     @Override
-    public Set<ConnConfProperty> getConfOverride() {
-        Set<ConnConfProperty> confOverride = new HashSet<>();
-        if (!StringUtils.isBlank(jsonConf)) {
-            confOverride.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
-        }
-
-        return confOverride;
-    }
-
-    @Override
-    public void setConfOverride(final Set<ConnConfProperty> confOverride) {
-        jsonConf = POJOHelper.serialize(new HashSet<>(confOverride));
-    }
-
-    @Override
-    public boolean isOverrideCapabilities() {
-        return overrideCapabilities;
-    }
-
-    @Override
-    public void setOverrideCapabilities(final boolean overrideCapabilities) {
-        this.overrideCapabilities = overrideCapabilities;
-    }
-
-    @Override
-    public Set<ConnectorCapability> getCapabilitiesOverride() {
-        return capabilitiesOverrideSet;
-    }
-
-    @Override
     public ConnInstance getConnector() {
         return connector;
     }
@@ -323,14 +288,14 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     @Override
-    public PullPolicy getPullPolicy() {
-        return pullPolicy;
+    public InboundPolicy getInboundPolicy() {
+        return inboundPolicy;
     }
 
     @Override
-    public void setPullPolicy(final PullPolicy pullPolicy) {
-        checkType(pullPolicy, Neo4jPullPolicy.class);
-        this.pullPolicy = (Neo4jPullPolicy) pullPolicy;
+    public void setInboundPolicy(final InboundPolicy inboundPolicy) {
+        checkType(inboundPolicy, Neo4jInboundPolicy.class);
+        this.inboundPolicy = (Neo4jInboundPolicy) inboundPolicy;
     }
 
     @Override
@@ -357,6 +322,34 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     @Override
+    public Optional<List<ConnConfProperty>> getConfOverride() {
+        return StringUtils.isBlank(jsonConf)
+                ? Optional.empty()
+                : Optional.of(POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF));
+    }
+
+    @Override
+    public void setConfOverride(final Optional<List<ConnConfProperty>> confOverride) {
+        confOverride.ifPresentOrElse(
+                conf -> jsonConf = POJOHelper.serialize(conf),
+                () -> jsonConf = null);
+    }
+
+    @Override
+    public Optional<Set<ConnectorCapability>> getCapabilitiesOverride() {
+        return StringUtils.isBlank(capabilitiesOverride)
+                ? Optional.empty()
+                : Optional.of(POJOHelper.deserialize(capabilitiesOverride, CONNECTOR_CAPABILITY_TYPEREF));
+    }
+
+    @Override
+    public void setCapabilitiesOverride(final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
+        capabilitiesOverride.ifPresentOrElse(
+                override -> this.capabilitiesOverride = POJOHelper.serialize(override),
+                () -> this.capabilitiesOverride = null);
+    }
+
+    @Override
     public boolean add(final Implementation propagationAction) {
         checkType(propagationAction, Neo4jImplementation.class);
         checkImplementationType(propagationAction, IdMImplementationType.PROPAGATION_ACTIONS);
@@ -371,11 +364,7 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
 
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
-            getCapabilitiesOverride().clear();
             getProvisions().clear();
-        }
-        if (capabilitiesOverride != null) {
-            getCapabilitiesOverride().addAll(POJOHelper.deserialize(capabilitiesOverride, CAPABILITY_TYPEREF));
         }
         if (provisions != null) {
             getProvisions().addAll(POJOHelper.deserialize(provisions, PROVISION_TYPEREF));
@@ -393,7 +382,6 @@ public class Neo4jExternalResource extends AbstractProvidedKeyNode implements Ex
     }
 
     public void list2json() {
-        capabilitiesOverride = POJOHelper.serialize(getCapabilitiesOverride());
         provisions = POJOHelper.serialize(getProvisions());
     }
 }

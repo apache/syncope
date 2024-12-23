@@ -78,7 +78,7 @@ Do not forget to define the following system properties:
 [TIP]
 .JPDA Debug in Embedded Mode
 ====
-The Java™ Platform Debugger Architecture (https://docs.oracle.com/en/java/javase/11/docs/specs/jpda/jpda.html[JPDA^])
+The Java™ Platform Debugger Architecture (https://docs.oracle.com/en/java/javase/21/docs/specs/jpda/jpda.html[JPDA^])
 is a collection of APIs aimed to help with debugging Java code.
 
 Enhancing the `embedded` profile of the `fit` module to enable the JPDA socket is quite
@@ -155,7 +155,7 @@ endif::[]
 ===== Extending configuration
 Apache Syncope <<architecture,components>> are built on https://spring.io/projects/spring-boot[Spring Boot^],
 hence designing and extending Syncope configuration very much comes down to
-https://docs.spring.io/spring-boot/docs/current/reference/html/[their guide^], some aspects of which are briefly
+https://docs.spring.io/spring-boot/3.3/index.html[their guide^], some aspects of which are briefly
 highlighted here.
 
 To design your own configuration class, take inspiration from the following sample:
@@ -236,7 +236,7 @@ $ mkdir /opt/syncope/conf
 [TIP]
 ====
 The `conf` directory must be configured for deployment, following Spring Boot's
-https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#features.external-config.files[Externalized Configuration^]
+https://docs.spring.io/spring-boot/3.3/reference/features/external-config.html[Externalized Configuration^]
 settings; with above reference:
 
 * <<standalone>>: `--spring.config.additional-location=/opt/syncope/conf/`
@@ -255,9 +255,10 @@ Besides replacing existing classes as explained <<override-behavior,above>>, new
 be provided - in the source tree under `core/src/main/java` when Java or via REST services if Groovy - for the following
 components:
 
-* <<propagationactions,propagation>>, <<pushactions,push>>, <<pullactions,pull>>,  <<macroactions,macro>> and <<logicactions,logic>> actions
-* <<push-correlation-rules,push>> / <<pull-correlation-rules,pull>> correlation rules
+* <<propagationactions,propagation>>, <<pushactions,push>>, <<inboundactions,inbound>>,  <<macroactions,macro>> and <<logicactions,logic>> actions
+* <<push-correlation-rules,push>> / <<inbound-correlation-rules,inbound>> correlation rules
 * <<pull-mode,reconciliation filter builders>>
+* <<provisioning-livesync,live sync delta mappers>>
 * <<commands,commands>>
 * <<tasks-macro,macros>>
 * <<tasks-scheduled,scheduled tasks>>
@@ -382,7 +383,7 @@ elasticsearch.numberOfReplicas=1
 as `core/src/main/resources/core-elasticsearch.properties`.
 
 Do not forget to include `elasticsearch` as 
-https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.3/reference/features/profiles.html[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from
@@ -435,7 +436,7 @@ opensearch.numberOfReplicas=1
 as `core/src/main/resources/core-opensearch.properties`.
 
 Do not forget to include `opensearch` as 
-https://docs.spring.io/spring-boot/docs/2.7.x/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.3/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from
@@ -480,7 +481,7 @@ Add the following dependencies to `core/pom.xml`:
 Adding a new REST endpoint involves several operations:
 
 . create - in an extension's `rest-api` module or under `common` otherwise - a Java interface with package
-`org.apache.syncope.common.rest.api.service` and proper JAX-RS annotations; check
+`org.apache.syncope.common.rest.api.service` and proper Jakarta RESTful Web Services annotations; check
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/flowable/rest-api/src/main/java/org/apache/syncope/common/rest/api/service/BpmnProcessService.java[BpmnProcessService^]
 endif::[]

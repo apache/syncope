@@ -39,11 +39,6 @@ under the License.
   
   <dependencies>
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-undertow</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.apache.syncope.client.idm</groupId>
       <artifactId>syncope-client-idm-console</artifactId>
       <version>${project.version}</version>

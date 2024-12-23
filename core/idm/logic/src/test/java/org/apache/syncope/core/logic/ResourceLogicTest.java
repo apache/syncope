@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,6 +27,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
@@ -143,25 +144,15 @@ public class ResourceLogicTest extends AbstractTest {
     public void updateChangeOverrideCapabilities() {
         ResourceTO ldap = logic.read("resource-ldap");
         assertNotNull(ldap);
-        assertFalse(ldap.isOverrideCapabilities());
         assertTrue(ldap.getCapabilitiesOverride().isEmpty());
 
-        ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
+        ldap.setCapabilitiesOverride(Optional.of(Set.of(ConnectorCapability.SEARCH)));
         ldap = logic.update(ldap);
         assertNotNull(ldap);
-        assertFalse(ldap.isOverrideCapabilities());
-        assertEquals(1, ldap.getCapabilitiesOverride().size());
-        assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
+        assertEquals(1, ldap.getCapabilitiesOverride().orElseThrow().size());
+        assertTrue(ldap.getCapabilitiesOverride().orElseThrow().contains(ConnectorCapability.SEARCH));
 
-        ldap.setOverrideCapabilities(true);
-        ldap = logic.update(ldap);
-        assertNotNull(ldap);
-        assertTrue(ldap.isOverrideCapabilities());
-        assertEquals(1, ldap.getCapabilitiesOverride().size());
-        assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
-
-        ldap.getCapabilitiesOverride().clear();
-        ldap.setOverrideCapabilities(false);
+        ldap.setCapabilitiesOverride(Optional.empty());
         logic.update(ldap);
     }
 

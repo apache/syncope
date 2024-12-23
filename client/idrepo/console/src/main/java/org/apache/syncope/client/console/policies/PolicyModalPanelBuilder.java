@@ -245,7 +245,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     });
                     break;
 
-                case PULL:
+                case INBOUND:
                 case PUSH:
                     fields.add(new AjaxDropDownChoicePanel<>(
                             "field",

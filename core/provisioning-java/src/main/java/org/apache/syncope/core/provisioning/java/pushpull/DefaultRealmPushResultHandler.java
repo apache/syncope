@@ -115,6 +115,12 @@ public class DefaultRealmPushResultHandler
         try {
             realm = realmDAO.findById(realmKey).orElseThrow(() -> new NotFoundException("Realm " + realmKey));
             doHandle(realm);
+
+            if (stopRequested) {
+                LOG.debug("Stop was requested");
+                return false;
+            }
+
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport result = new ProvisioningReport();

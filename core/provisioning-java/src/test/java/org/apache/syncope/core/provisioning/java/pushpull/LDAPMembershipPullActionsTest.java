@@ -58,7 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.rules.PullMatch;
+import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -124,7 +124,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
     private User user;
 
-    private Set<ConnConfProperty> connConfProperties;
+    private List<ConnConfProperty> connConfProperties;
 
     @BeforeEach
     public void initTest() {
@@ -148,7 +148,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         connConfPropSchema.setName("testSchemaName");
         ConnConfProperty connConfProperty = new ConnConfProperty();
         connConfProperty.setSchema(connConfPropSchema);
-        connConfProperties = Set.of(connConfProperty);
+        connConfProperties = List.of(connConfProperty);
 
         lenient().when(profile.getTask()).thenAnswer(ic -> pullTask);
         lenient().when(pullTask.getResource()).thenReturn(resource);
@@ -198,7 +198,7 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
 
         when(connectorObj.getAttributeByName(anyString())).thenReturn(new Uid(UUID.randomUUID().toString()));
         when(inboundMatcher.match(any(AnyType.class), anyString(), any(ExternalResource.class), any(Connector.class))).
-                thenReturn(Optional.of(new PullMatch(MatchType.ANY, user)));
+                thenReturn(Optional.of(new InboundMatch(MatchType.ANY, user)));
 
         ldapMembershipPullActions.after(profile, syncDelta, entity, result);
 

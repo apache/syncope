@@ -22,7 +22,8 @@ Whenever a change is performed via REST on Users, Groups or Any Objects:
 
 . a set of <<tasks-propagation,propagation tasks>> is generated, one for each associated external resource;
 . the generated propagation tasks are executed, e.g. the corresponding operations (create, update or delete) are sent
-out, via connectors, to the configured Identity Stores; the tasks can be saved for later re-execution.
+out, via connectors, to the configured Identity Stores, according to the configured
+<<policies-propagation,propagation policy>>, if defined; the tasks can be saved for later re-execution.
 
 [[propagation-resources]]
 [TIP]
@@ -97,6 +98,9 @@ but sound perfectly understandable once explained; in particular:
 * an `UPDATE` propagation task might result in an effective `CREATE` sent to the Connector +
  if preliminary read does not find any external object matching the remote key of the objected requested to be
 updated
+
+Please also note that this behavior is affected by the configured <<policies-propagation,propagation policy>>, if
+available: in particular, whether fetching around provisioning is enabled or not.
 ====
 
 Different implementations of the

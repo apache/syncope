@@ -174,7 +174,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,postgresql
+       SPRING_PROFILES_ACTIVE: docker,postgresql,saml2
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
@@ -196,7 +196,7 @@ services:
        - "28080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker
+       SPRING_PROFILES_ACTIVE: docker,saml2
        KEYMASTER_ADDRESS: https://syncope:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${ANONYMOUS_USER}
        KEYMASTER_PASSWORD: ${ANONYMOUS_KEY}
@@ -212,7 +212,7 @@ services:
        - "38080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker
+       SPRING_PROFILES_ACTIVE: docker,saml2
        KEYMASTER_ADDRESS: https://syncope:8080/syncope/rest/keymaster
        KEYMASTER_USERNAME: ${ANONYMOUS_USER}
        KEYMASTER_PASSWORD: ${ANONYMOUS_KEY}
@@ -259,7 +259,7 @@ services:
        - "18080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker,postgresql
+       SPRING_PROFILES_ACTIVE: docker,postgresql,saml2
        DB_URL: jdbc:postgresql://db:5432/syncope?stringtype=unspecified
        DB_USER: syncope
        DB_PASSWORD: syncope
@@ -282,7 +282,7 @@ services:
        - "28080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker
+       SPRING_PROFILES_ACTIVE: docker,saml2
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
@@ -299,7 +299,7 @@ services:
        - "38080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker
+       SPRING_PROFILES_ACTIVE: docker,saml2
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
@@ -316,7 +316,7 @@ services:
        - "48080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker
+       SPRING_PROFILES_ACTIVE: docker,saml2
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
@@ -334,7 +334,7 @@ services:
        - "58080:8080"
      restart: always
      environment:
-       SPRING_PROFILES_ACTIVE: docker
+       SPRING_PROFILES_ACTIVE: docker,saml2
        KEYMASTER_ADDRESS: keymaster:2181
        KEYMASTER_USERNAME: ${KEYMASTER_USERNAME:-}
        KEYMASTER_PASSWORD: ${KEYMASTER_PASSWORD:-}
@@ -664,6 +664,9 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  Insert `jdbc:h2:tcp://localhost:9092/mem:testdb` as JDBC URL +
  Set `sa` as password +
  Click 'Connect' button
+
+| External resource: Apache Kafka
+| Broker listening at localhost:19092
 
 |===
 

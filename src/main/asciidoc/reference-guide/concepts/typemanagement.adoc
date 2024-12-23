@@ -38,17 +38,17 @@ When defining a plain schema, the following information must be provided:
 * Type
 ** `String`
 ** `Long` - allows to specify a _conversion pattern_ to / from string, according to 
-https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/DecimalFormat.html[DecimalFormat^]
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DecimalFormat.html[DecimalFormat^]
 ** `Double` - allows to specify a _conversion pattern_ to / from string, according to 
-https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/DecimalFormat.html[DecimalFormat^]
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DecimalFormat.html[DecimalFormat^]
 ** `Boolean`
 ** `Date` - allows to specify a _conversion pattern_ to / from string, according to 
-https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/DateFormat.html[DateFormat^]
+https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DateFormat.html[DateFormat^]
 ** `Enum` - allows to specify which predetermined value(s) can be selected
 ** `Dropdown` - allows to specify an <<implementations,implementation>> which will dynamically return the value(s) that
 can be selected
 ** `Encrypted`
-*** secret key (stored or referenced as https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/core.html#beans-property-source-abstraction[Spring property^])
+*** secret key (stored or referenced as https://docs.spring.io/spring-framework/reference/6.1/core/beans/environment.html#beans-using-propertysource[Spring property^])
 *** cipher algorithm
 *** whether transparent encryption is to be enabled, e.g. attribute values are stored as encrypted but available as
 cleartext on-demand (requires AES ciphering)

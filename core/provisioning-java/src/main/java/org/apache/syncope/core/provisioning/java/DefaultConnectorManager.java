@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -107,8 +107,8 @@ public class DefaultConnectorManager implements ConnectorManager {
     @Override
     public ConnInstance buildConnInstanceOverride(
             final ConnInstanceTO connInstance,
-            final Collection<ConnConfProperty> confOverride,
-            final Optional<Collection<ConnectorCapability>> capabilitiesOverride) {
+            final Optional<List<ConnConfProperty>> confOverride,
+            final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
         override.setAdminRealm(realmSearchDAO.findByFullPath(connInstance.getAdminRealm()).orElseGet(() -> {
@@ -126,7 +126,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         override.setConnRequestTimeout(connInstance.getConnRequestTimeout());
 
         Map<String, ConnConfProperty> overridable = new HashMap<>();
-        Set<ConnConfProperty> conf = new HashSet<>();
+        List<ConnConfProperty> conf = new ArrayList<>();
 
         override.getConf().forEach(prop -> {
             if (prop.isOverridable()) {
@@ -137,12 +137,12 @@ public class DefaultConnectorManager implements ConnectorManager {
         });
 
         // add override properties
-        confOverride.stream().
+        confOverride.ifPresent(co -> co.stream().
                 filter(prop -> overridable.containsKey(prop.getSchema().getName()) && !prop.getValues().isEmpty()).
                 forEach(prop -> {
                     conf.add(prop);
                     overridable.remove(prop.getSchema().getName());
-                });
+                }));
 
         // add override properties not substituted
         conf.addAll(overridable.values());
@@ -155,9 +155,8 @@ public class DefaultConnectorManager implements ConnectorManager {
             override.getCapabilities().addAll(capabilities);
         });
 
-        if (connInstance.getPoolConf() != null) {
-            override.setPoolConf(ConnPoolConfUtils.getConnPoolConf(connInstance.getPoolConf()));
-        }
+        Optional.ofNullable(connInstance.getPoolConf()).
+                ifPresent(pc -> override.setPoolConf(ConnPoolConfUtils.getConnPoolConf(pc)));
 
         return override;
     }
@@ -178,7 +177,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         ConnInstance connInstance = buildConnInstanceOverride(
                 connInstanceDataBinder.getConnInstanceTO(resource.getConnector()),
                 resource.getConfOverride(),
-                resource.isOverrideCapabilities() ? Optional.of(resource.getCapabilitiesOverride()) : Optional.empty());
+                resource.getCapabilitiesOverride());
         Connector connector = createConnector(connInstance);
         LOG.debug("Connector to be registered: {}", connector);
 

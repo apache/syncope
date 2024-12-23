@@ -46,7 +46,7 @@ public interface TaskDAO extends DAO<Task<?>> {
 
     List<PullTask> findByReconFilterBuilder(Implementation reconFilterBuilder);
 
-    List<PullTask> findByPullActions(Implementation pullActions);
+    List<PullTask> findByInboundActions(Implementation inboundActions);
 
     List<PushTask> findByPushActions(Implementation pushActions);
 

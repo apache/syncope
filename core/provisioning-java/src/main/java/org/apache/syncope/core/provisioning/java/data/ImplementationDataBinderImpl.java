@@ -104,7 +104,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
                 case IdRepoImplementationType.ACCOUNT_RULE:
                 case IdRepoImplementationType.PASSWORD_RULE:
-                case IdMImplementationType.PULL_CORRELATION_RULE:
+                case IdMImplementationType.INBOUND_CORRELATION_RULE:
                 case IdMImplementationType.PUSH_CORRELATION_RULE:
                     RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
                     if (rule == null) {

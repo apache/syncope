@@ -40,7 +40,6 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -55,15 +54,15 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.common.validation.ExternalResourceCheck;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAInboundPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPropagationPolicy;
-import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
@@ -77,7 +76,11 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     public static final String TABLE = "ExternalResource";
 
-    protected static final TypeReference<Set<ConnectorCapability>> CAPABILITY_TYPEREF =
+    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
+            new TypeReference<List<ConnConfProperty>>() {
+    };
+
+    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
     };
 
@@ -128,7 +131,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private JPAPropagationPolicy propagationPolicy;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    private JPAPullPolicy pullPolicy;
+    private JPAInboundPolicy inboundPolicy;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPushPolicy pushPolicy;
@@ -142,14 +145,8 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @Lob
     private String jsonConf;
 
-    @NotNull
-    private Boolean overrideCapabilities = false;
-
     @Lob
     private String capabilitiesOverride;
-
-    @Transient
-    private final Set<ConnectorCapability> capabilitiesOverrideSet = new HashSet<>();
 
     @Lob
     private String provisions;
@@ -193,14 +190,12 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public Optional<Provision> getProvisionByAnyType(final String anyType) {
-        return getProvisions().stream().
-                filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
     public Optional<Provision> getProvisionByObjectClass(final String objectClass) {
-        return getProvisions().stream().
-                filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override
@@ -303,14 +298,14 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public PullPolicy getPullPolicy() {
-        return pullPolicy;
+    public InboundPolicy getInboundPolicy() {
+        return inboundPolicy;
     }
 
     @Override
-    public void setPullPolicy(final PullPolicy pullPolicy) {
-        checkType(pullPolicy, JPAPullPolicy.class);
-        this.pullPolicy = (JPAPullPolicy) pullPolicy;
+    public void setInboundPolicy(final InboundPolicy inboundPolicy) {
+        checkType(inboundPolicy, JPAInboundPolicy.class);
+        this.inboundPolicy = (JPAInboundPolicy) inboundPolicy;
     }
 
     @Override
@@ -337,33 +332,31 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public Set<ConnConfProperty> getConfOverride() {
-        Set<ConnConfProperty> confOverride = new HashSet<>();
-        if (!StringUtils.isBlank(jsonConf)) {
-            confOverride.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
-        }
-
-        return confOverride;
+    public Optional<List<ConnConfProperty>> getConfOverride() {
+        return StringUtils.isBlank(jsonConf)
+                ? Optional.empty()
+                : Optional.of(POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF));
     }
 
     @Override
-    public void setConfOverride(final Set<ConnConfProperty> confOverride) {
-        jsonConf = POJOHelper.serialize(new HashSet<>(confOverride));
+    public void setConfOverride(final Optional<List<ConnConfProperty>> confOverride) {
+        confOverride.ifPresentOrElse(
+                conf -> jsonConf = POJOHelper.serialize(conf),
+                () -> jsonConf = null);
     }
 
     @Override
-    public boolean isOverrideCapabilities() {
-        return overrideCapabilities;
+    public Optional<Set<ConnectorCapability>> getCapabilitiesOverride() {
+        return StringUtils.isBlank(capabilitiesOverride)
+                ? Optional.empty()
+                : Optional.of(POJOHelper.deserialize(capabilitiesOverride, CONNECTOR_CAPABILITY_TYPEREF));
     }
 
     @Override
-    public void setOverrideCapabilities(final boolean overrideCapabilities) {
-        this.overrideCapabilities = overrideCapabilities;
-    }
-
-    @Override
-    public Set<ConnectorCapability> getCapabilitiesOverride() {
-        return capabilitiesOverrideSet;
+    public void setCapabilitiesOverride(final Optional<Set<ConnectorCapability>> capabilitiesOverride) {
+        capabilitiesOverride.ifPresentOrElse(
+                override -> this.capabilitiesOverride = POJOHelper.serialize(override),
+                () -> this.capabilitiesOverride = null);
     }
 
     @Override
@@ -381,11 +374,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     protected void json2list(final boolean clearFirst) {
         if (clearFirst) {
-            getCapabilitiesOverride().clear();
             getProvisions().clear();
-        }
-        if (capabilitiesOverride != null) {
-            getCapabilitiesOverride().addAll(POJOHelper.deserialize(capabilitiesOverride, CAPABILITY_TYPEREF));
         }
         if (provisions != null) {
             getProvisions().addAll(POJOHelper.deserialize(provisions, PROVISION_TYPEREF));
@@ -406,7 +395,6 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @PrePersist
     @PreUpdate
     public void list2json() {
-        capabilitiesOverride = POJOHelper.serialize(getCapabilitiesOverride());
         provisions = POJOHelper.serialize(getProvisions());
     }
 }

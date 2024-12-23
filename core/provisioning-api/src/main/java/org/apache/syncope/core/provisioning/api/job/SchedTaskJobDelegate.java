@@ -27,13 +27,11 @@ public interface SchedTaskJobDelegate {
      *
      * @param taskType Type of task to run
      * @param taskKey Task key to run
-     * @param dryRun indicates if execution shall be simulated with no actual changes
      * @param context execution context, can be used to pass parameters to the job
      * @throws JobExecutionException if anything goes wrong
      */
     void execute(
             TaskType taskType,
             String taskKey,
-            boolean dryRun,
             JobExecutionContext context) throws JobExecutionException;
 }

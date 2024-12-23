@@ -30,22 +30,22 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to
+ * A {@link org.apache.syncope.core.provisioning.api.pushpull.InboundActions} implementation which allows the ability to
  * import passwords from an LDAP backend that are hashed.
  */
-public class LDAPPasswordPullActions implements PullActions {
+public class LDAPPasswordPullActions implements InboundActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPPasswordPullActions.class);
 
@@ -57,7 +57,7 @@ public class LDAPPasswordPullActions implements PullActions {
         if (AnyTypeKind.USER.name().equals(provision.getAnyType())) {
             return Set.of(OperationalAttributes.PASSWORD_NAME);
         }
-        return PullActions.super.moreAttrsToGet(profile, provision);
+        return InboundActions.super.moreAttrsToGet(profile, provision);
     }
 
     protected Optional<Pair<String, CipherAlgorithm>> parseEncodedPassword(final String password) {
@@ -80,7 +80,7 @@ public class LDAPPasswordPullActions implements PullActions {
     @Override
     public void after(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO entity,
             final ProvisioningReport result) {
 

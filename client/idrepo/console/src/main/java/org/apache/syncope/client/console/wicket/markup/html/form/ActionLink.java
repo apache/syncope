@@ -100,6 +100,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         PROPAGATION_TASKS("read"),
         NOTIFICATION_TASKS("read"),
         PULL_TASKS("read"),
+        LIVE_SYNC_TASK("read"),
         PUSH_TASKS("read"),
         ZOOM_IN("zoomin"),
         ZOOM_OUT("zoomout"),

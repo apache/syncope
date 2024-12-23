@@ -24,7 +24,7 @@ Java EE containers.
 
 [WARNING]
 The only exception is <<secure-remote-access>> that, being based on Spring Cloud Gateway - which in turn is built on 
-https://docs.spring.io/spring-framework/docs/5.3.x/reference/html/web-reactive.html[Spring WebFlux^] and
+https://docs.spring.io/spring-framework/reference/6.1/web-reactive.html[Spring WebFlux^] and
 https://projectreactor.io/docs[Project Reactor^], is only available as standalone application.
 
 [CAUTION]
@@ -51,7 +51,7 @@ applications as standalone fat JAR or WAR files.
 
 [TIP]
 Spring Boot applications can also be
-https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#deployment.installing[installed as system services^].
+https://docs.spring.io/spring-boot/3.3/how-to/deployment/installing.html[installed as system services^].
 
 .Run Core application as standalone under GNU / Linux
 ====
@@ -71,7 +71,7 @@ $ java -Dsyncope.conf.dir=/opt/syncope/conf \
   -jar /opt/syncope/lib/syncope.war
 ----
 Further options can be passed to last command, according to Spring Boot
-https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties[documentation^];
+https://docs.spring.io/spring-boot/3.3/appendix/application-properties/index.html[documentation^];
 for example:
 
 * `--spring.config.additional-location=/path` +
@@ -103,7 +103,7 @@ for the Master domain.
 Each JavaEE Container provides its own way to accomplish this task:
   * https://tomcat.apache.org/tomcat-10.0-doc/jdbc-pool.html[Apache Tomcat 10^]
   * https://docs.payara.fish/community/docs/Technical%20Documentation/Payara%20Server%20Documentation/Server%20Configuration%20And%20Management/JDBC%20Resource%20Management/JDBC.html[Payara Server 6^]
-  * https://docs.wildfly.org/33/Admin_Guide.html#DataSource[Wildfly 33^]
+  * https://docs.wildfly.org/34/Admin_Guide.html#DataSource[Wildfly 34^]
 ****
 
 ==== Apache Tomcat 10
@@ -200,7 +200,7 @@ For better performance under GNU / Linux, do not forget to include the system pr
 ....
 ====
 
-==== Wildfly 33
+==== Wildfly 34
 
 Add
 
@@ -256,6 +256,10 @@ with
           <groupId>org.apache.tomcat.embed</groupId>
           <artifactId>tomcat-embed-el</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 ....
@@ -279,7 +283,7 @@ javadocPaths=/WEB-INF/lib/syncope-common-idrepo-rest-api-${syncope.version}-java
 as `core/src/main/resources/core-wildfy.properties`.
 
 Do not forget to include `widlfly` as 
-https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.3/reference/features/profiles.html[Spring Boot profile^]
 for the Core application.
 
 [WARNING]

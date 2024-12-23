@@ -25,17 +25,19 @@ Each realm:
 
 . has a unique name and a parent realm - except for the pre-defined _root realm_, which is named `/`;
 . is either a leaf or root of a sub-tree of realms;
-. is uniquely identified by the path from the root realm, e.g. `/a/b/c` identifies the sub-realm `c` in the sub-tree rooted
-at `b`, having in turn `a` as parent realm, directly under the root realm;
-. optionally refers to <<policies-account,account>> and <<policies-password,password>> policies: such policies are
-enforced on all Users, Groups and Any Objects in the given realm and sub-realms, unless some sub-realms define their own policies.
+. is uniquely identified by the path from the root realm, e.g. `/a/b/c` identifies the sub-realm `c` in the sub-tree
+rooted at `b`, having in turn `a` as parent realm, directly under the root realm;
+. optionally refers to various <<policies,policies>> that are enforced on all Users, Groups and Any Objects in the given
+realm and sub-realms, unless some sub-realms define their own policies.
+. optionally refers to <<logicactions,logic action(s)>>
+. optionally defines <<logic-templates,entity templates>>
 
-If Users, Groups and Any Objects are members of a realm then they are also members of the parent realm: as a result, the root
-realm contains everything, and other realms can be seen as containers that split up the total number of entities into
-smaller pools.
+If Users, Groups and Any Objects are members of a realm then they are also members of the parent realm: as a result, the
+root realm contains everything, and other realms can be seen as containers that split up the total number of entities
+into smaller pools.
 
 This partition allows fine-grained control over policy enforcement and, alongside with
-<<entitlements,entitlements>> and <<roles,roles>>, helps to implement
+<<entitlements,entitlements>> and <<roles,roles>>, helps to implement 
 <<delegated-administration,delegated administration>>.
 
 [[dynamic-realms]]
@@ -50,6 +52,7 @@ assignment, group membership or any other condition available, with purpose of g
 <<delegated-administration,delegated administration>> rights.
 ****
 
+[[logic-templates]]
 [TIP]
 .Logic Templates
 ====

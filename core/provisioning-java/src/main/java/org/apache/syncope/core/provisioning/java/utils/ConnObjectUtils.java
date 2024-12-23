@@ -46,7 +46,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.persistence.api.entity.task.InboundTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -171,7 +171,7 @@ public class ConnObjectUtils {
      * Build a UserCR / GroupCR / AnyObjectCR out of connector object attributes and schema mapping.
      *
      * @param obj connector object
-     * @param pullTask pull task
+     * @param inboundTask inbound task
      * @param anyTypeKind any type kind
      * @param provision provision information
      * @param generatePassword whether password value shall be generated, in case not found from
@@ -182,12 +182,12 @@ public class ConnObjectUtils {
     @Transactional(readOnly = true)
     public <C extends AnyCR> C getAnyCR(
             final ConnectorObject obj,
-            final PullTask pullTask,
+            final InboundTask<?> inboundTask,
             final AnyTypeKind anyTypeKind,
             final Provision provision,
             final boolean generatePassword) {
 
-        AnyTO anyTO = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
+        AnyTO anyTO = getAnyTOFromConnObject(obj, inboundTask, anyTypeKind, provision);
         C anyCR = anyUtilsFactory.getInstance(anyTypeKind).newAnyCR();
         EntityTOUtils.toAnyCR(anyTO, anyCR);
 
@@ -221,7 +221,7 @@ public class ConnObjectUtils {
     public RealmTO getRealmTO(final ConnectorObject obj, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        MappingUtils.getPullItems(orgUnit.getItems().stream()).
+        MappingUtils.getInboundItems(orgUnit.getItems().stream()).
                 forEach(item -> mappingManager.setIntValues(
                 item, obj.getAttributeByName(item.getExtAttrName()), realmTO));
 
@@ -234,7 +234,7 @@ public class ConnObjectUtils {
      * @param key any object to be updated
      * @param obj connector object
      * @param original any object to get diff from
-     * @param pullTask pull task
+     * @param inboundTask inbound task
      * @param anyTypeKind any type kind
      * @param provision provision information
      * @param <U> any object
@@ -246,11 +246,11 @@ public class ConnObjectUtils {
             final String key,
             final ConnectorObject obj,
             final AnyTO original,
-            final PullTask pullTask,
+            final InboundTask<?> inboundTask,
             final AnyTypeKind anyTypeKind,
             final Provision provision) {
 
-        AnyTO updated = getAnyTOFromConnObject(obj, pullTask, anyTypeKind, provision);
+        AnyTO updated = getAnyTOFromConnObject(obj, inboundTask, anyTypeKind, provision);
         updated.setKey(key);
 
         U anyUR;
@@ -320,7 +320,7 @@ public class ConnObjectUtils {
 
     protected <T extends AnyTO> T getAnyTOFromConnObject(
             final ConnectorObject obj,
-            final PullTask pullTask,
+            final InboundTask<?> inboundTask,
             final AnyTypeKind anyTypeKind,
             final Provision provision) {
 
@@ -329,12 +329,13 @@ public class ConnObjectUtils {
         anyTO.getAuxClasses().addAll(provision.getAuxClasses());
 
         // 1. fill with data from connector object
-        anyTO.setRealm(pullTask.getDestinationRealm().getFullPath());
-        MappingUtils.getPullItems(provision.getMapping().getItems().stream()).forEach(
+        anyTO.setRealm(inboundTask.getDestinationRealm().getFullPath());
+        MappingUtils.getInboundItems(provision.getMapping().getItems().stream()).forEach(
                 item -> mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO));
 
         // 2. add data from defined template (if any)
-        pullTask.getTemplate(provision.getAnyType()).ifPresent(template -> templateUtils.apply(anyTO, template.get()));
+        inboundTask.getTemplate(provision.getAnyType()).
+                ifPresent(template -> templateUtils.apply(anyTO, template.get()));
 
         return anyTO;
     }

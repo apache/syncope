@@ -34,6 +34,8 @@ import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.FormPropertyDefTO;
+import org.apache.syncope.common.lib.to.InboundTaskTO;
+import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -57,8 +59,11 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.task.AnyTemplateLiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
+import org.apache.syncope.core.persistence.api.entity.task.InboundTask;
+import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -76,6 +81,7 @@ import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
+import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
@@ -128,7 +134,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
     protected void fill(final ProvisioningTask<?> provisioningTask, final ProvisioningTaskTO provisioningTaskTO) {
         if (provisioningTask instanceof final PushTask pushTask
-            && provisioningTaskTO instanceof final PushTaskTO pushTaskTO) {
+                && provisioningTaskTO instanceof final PushTaskTO pushTaskTO) {
 
             Implementation jobDelegate = pushTaskTO.getJobDelegate() == null
                     ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
@@ -159,62 +165,114 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             // remove all filters not contained in the TO
             pushTask.getFilters().entrySet().
                     removeIf(filter -> !pushTaskTO.getFilters().containsKey(filter.getKey()));
-        } else if (provisioningTask instanceof final PullTask pullTask
-            && provisioningTaskTO instanceof final PullTaskTO pullTaskTO) {
+        } else if (provisioningTask instanceof final InboundTask<?> inboundTask
+                && provisioningTaskTO instanceof final InboundTaskTO inboundTaskTO) {
 
-            Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
-                    ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
-                            filter(impl -> PullJobDelegate.class.getSimpleName().equals(impl.getKey())).
-                            findFirst().orElse(null)
-                    : implementationDAO.findById(pullTaskTO.getJobDelegate()).orElse(null);
-            if (jobDelegate == null) {
-                jobDelegate = entityFactory.newEntity(Implementation.class);
-                jobDelegate.setKey(PullJobDelegate.class.getSimpleName());
-                jobDelegate.setEngine(ImplementationEngine.JAVA);
-                jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
-                jobDelegate.setBody(PullJobDelegate.class.getName());
-                jobDelegate = implementationDAO.save(jobDelegate);
+            inboundTask.setDestinationRealm(realmSearchDAO.findByFullPath(inboundTaskTO.getDestinationRealm()).
+                    orElseThrow(() -> new NotFoundException("Realm " + inboundTaskTO.getDestinationRealm())));
+
+            inboundTask.setMatchingRule(inboundTaskTO.getMatchingRule() == null
+                    ? MatchingRule.UPDATE : inboundTaskTO.getMatchingRule());
+            inboundTask.setUnmatchingRule(inboundTaskTO.getUnmatchingRule() == null
+                    ? UnmatchingRule.PROVISION : inboundTaskTO.getUnmatchingRule());
+
+            inboundTask.setRemediation(inboundTaskTO.isRemediation());
+
+            if (provisioningTask instanceof final LiveSyncTask liveSyncTask
+                    && provisioningTaskTO instanceof final LiveSyncTaskTO liveSyncTaskTO) {
+
+                Implementation jobDelegate = liveSyncTaskTO.getJobDelegate() == null
+                        ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
+                                filter(impl -> LiveSyncJobDelegate.class.getSimpleName().equals(impl.getKey())).
+                                findFirst().orElse(null)
+                        : implementationDAO.findById(liveSyncTaskTO.getJobDelegate()).orElse(null);
+                if (jobDelegate == null) {
+                    jobDelegate = entityFactory.newEntity(Implementation.class);
+                    jobDelegate.setKey(LiveSyncJobDelegate.class.getSimpleName());
+                    jobDelegate.setEngine(ImplementationEngine.JAVA);
+                    jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
+                    jobDelegate.setBody(LiveSyncJobDelegate.class.getName());
+                    jobDelegate = implementationDAO.save(jobDelegate);
+                }
+                liveSyncTask.setJobDelegate(jobDelegate);
+
+                if (liveSyncTaskTO.getLiveSyncDeltaMapper() == null) {
+                    liveSyncTask.setLiveSyncDeltaMapper(null);
+                } else {
+                    implementationDAO.findById(liveSyncTaskTO.getLiveSyncDeltaMapper()).ifPresentOrElse(
+                            liveSyncTask::setLiveSyncDeltaMapper,
+                            () -> LOG.debug("Invalid Implementation {}, ignoring...",
+                                    liveSyncTaskTO.getLiveSyncDeltaMapper()));
+                }
+
+                // validate JEXL expressions from templates and proceed if fine
+                TemplateUtils.check(liveSyncTaskTO.getTemplates(), ClientExceptionType.InvalidLiveSyncTask);
+                liveSyncTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                        anyType -> {
+                            AnyTemplateLiveSyncTask anyTemplate = liveSyncTask.getTemplate(anyType.getKey()).
+                                    orElse(null);
+                            if (anyTemplate == null) {
+                                anyTemplate = entityFactory.newEntity(AnyTemplateLiveSyncTask.class);
+                                anyTemplate.setAnyType(anyType);
+                                anyTemplate.setLiveSyncTask(liveSyncTask);
+
+                                liveSyncTask.add(anyTemplate);
+                            }
+                            anyTemplate.set(template);
+                        },
+                        () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
+                // remove all templates not contained in the TO
+                liveSyncTask.getTemplates().removeIf(
+                        anyTemplate -> !liveSyncTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
+            } else if (provisioningTask instanceof final PullTask pullTask
+                    && provisioningTaskTO instanceof final PullTaskTO pullTaskTO) {
+
+                Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
+                        ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
+                                filter(impl -> PullJobDelegate.class.getSimpleName().equals(impl.getKey())).
+                                findFirst().orElse(null)
+                        : implementationDAO.findById(pullTaskTO.getJobDelegate()).orElse(null);
+                if (jobDelegate == null) {
+                    jobDelegate = entityFactory.newEntity(Implementation.class);
+                    jobDelegate.setKey(PullJobDelegate.class.getSimpleName());
+                    jobDelegate.setEngine(ImplementationEngine.JAVA);
+                    jobDelegate.setType(IdRepoImplementationType.TASKJOB_DELEGATE);
+                    jobDelegate.setBody(PullJobDelegate.class.getName());
+                    jobDelegate = implementationDAO.save(jobDelegate);
+                }
+                pullTask.setJobDelegate(jobDelegate);
+
+                pullTask.setPullMode(pullTaskTO.getPullMode());
+
+                if (pullTaskTO.getReconFilterBuilder() == null) {
+                    pullTask.setReconFilterBuilder(null);
+                } else {
+                    implementationDAO.findById(pullTaskTO.getReconFilterBuilder()).ifPresentOrElse(
+                            pullTask::setReconFilterBuilder,
+                            () -> LOG.debug("Invalid Implementation {}, ignoring...",
+                                    pullTaskTO.getReconFilterBuilder()));
+                }
+
+                // validate JEXL expressions from templates and proceed if fine
+                TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
+                pullTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
+                        anyType -> {
+                            AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
+                            if (anyTemplate == null) {
+                                anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
+                                anyTemplate.setAnyType(anyType);
+                                anyTemplate.setPullTask(pullTask);
+
+                                pullTask.add(anyTemplate);
+                            }
+                            anyTemplate.set(template);
+                        },
+                        () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
+                // remove all templates not contained in the TO
+                pullTask.getTemplates().
+                        removeIf(anyTemplate -> !pullTaskTO.getTemplates().
+                        containsKey(anyTemplate.getAnyType().getKey()));
             }
-            pullTask.setJobDelegate(jobDelegate);
-
-            pullTask.setPullMode(pullTaskTO.getPullMode());
-
-            if (pullTaskTO.getReconFilterBuilder() == null) {
-                pullTask.setReconFilterBuilder(null);
-            } else {
-                implementationDAO.findById(pullTaskTO.getReconFilterBuilder()).ifPresentOrElse(
-                        pullTask::setReconFilterBuilder,
-                        () -> LOG.debug("Invalid Implementation {}, ignoring...", pullTaskTO.getReconFilterBuilder()));
-            }
-
-            pullTask.setDestinationRealm(realmSearchDAO.findByFullPath(pullTaskTO.getDestinationRealm()).
-                    orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
-
-            pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
-                    ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
-            pullTask.setUnmatchingRule(pullTaskTO.getUnmatchingRule() == null
-                    ? UnmatchingRule.PROVISION : pullTaskTO.getUnmatchingRule());
-
-            // validate JEXL expressions from templates and proceed if fine
-            TemplateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
-            pullTaskTO.getTemplates().forEach((type, template) -> anyTypeDAO.findById(type).ifPresentOrElse(
-                    anyType -> {
-                        AnyTemplatePullTask anyTemplate = pullTask.getTemplate(anyType.getKey()).orElse(null);
-                        if (anyTemplate == null) {
-                            anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
-                            anyTemplate.setAnyType(anyType);
-                            anyTemplate.setPullTask(pullTask);
-
-                            pullTask.add(anyTemplate);
-                        }
-                        anyTemplate.set(template);
-                    },
-                    () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
-            // remove all templates not contained in the TO
-            pullTask.getTemplates().
-                    removeIf(anyTemplate -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey()));
-
-            pullTask.setRemediation(pullTaskTO.isRemediation());
         }
 
         // 3. fill the remaining fields
@@ -296,8 +354,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
     @Override
     public SchedTask createSchedTask(final SchedTaskTO taskTO, final TaskUtils taskUtils) {
-        Class<? extends TaskTO> taskTOClass = taskUtils.taskTOClass();
-        if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
+        Class<? extends TaskTO> taskTOClass = taskUtils.getType().getToClass();
+        if (!taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
         }
 
@@ -348,8 +406,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
     @Override
     public void updateSchedTask(final SchedTask task, final SchedTaskTO taskTO, final TaskUtils taskUtils) {
-        Class<? extends TaskTO> taskTOClass = taskUtils.taskTOClass();
-        if (taskTOClass == null || !taskTOClass.equals(taskTO.getClass())) {
+        Class<? extends TaskTO> taskTOClass = taskUtils.getType().getToClass();
+        if (!taskTOClass.equals(taskTO.getClass())) {
             throw new IllegalArgumentException(String.format("Expected %s, found %s", taskTOClass, taskTO.getClass()));
         }
 
@@ -364,10 +422,13 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         task.setCronExpression(taskTO.getCronExpression());
         task.setActive(taskTO.isActive());
 
-        if (task instanceof MacroTask) {
-            fill((MacroTask) task, (MacroTaskTO) taskTO);
-        } else if (task instanceof ProvisioningTask) {
-            fill((ProvisioningTask) task, (ProvisioningTaskTO) taskTO);
+        switch (task) {
+            case MacroTask macroTask ->
+                fill(macroTask, (MacroTaskTO) taskTO);
+            case ProvisioningTask<?> provisioningTask ->
+                fill(provisioningTask, (ProvisioningTaskTO) taskTO);
+            default -> {
+            }
         }
     }
 
@@ -407,6 +468,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         schedTaskTO.setDescription(schedTask.getDescription());
         schedTaskTO.setCronExpression(schedTask.getCronExpression());
         schedTaskTO.setActive(schedTask.isActive());
+        schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
 
         schedTaskTO.getExecutions().stream().sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().
                 map(ExecTO::getStart).ifPresentOrElse(
@@ -417,7 +479,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 ifPresent(schedTaskTO::setNextExec);
 
         if (schedTaskTO instanceof final ProvisioningTaskTO provisioningTaskTO
-            && schedTask instanceof final ProvisioningTask<?> provisioningTask) {
+                && schedTask instanceof final ProvisioningTask<?> provisioningTask) {
 
             provisioningTaskTO.setResource(provisioningTask.getResource().getKey());
 
@@ -473,8 +535,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 SchedTask schedTask = (SchedTask) task;
                 SchedTaskTO schedTaskTO = (SchedTaskTO) taskTO;
 
-                schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
-
                 fill(schedTaskTO, schedTask);
             }
 
@@ -484,7 +544,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
                 fill(macroTaskTO, macroTask);
 
-                macroTaskTO.setJobDelegate(macroTask.getJobDelegate().getKey());
                 macroTaskTO.setRealm(macroTask.getRealm().getFullPath());
 
                 macroTask.getCommands().forEach(mct -> macroTaskTO.getCommands().add(
@@ -513,6 +572,25 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
 
                 Optional.ofNullable(macroTask.getMacroActions()).
                         ifPresent(fv -> macroTaskTO.setMacroActions(fv.getKey()));
+            }
+
+            case LIVE_SYNC -> {
+                LiveSyncTask liveSyncTask = (LiveSyncTask) task;
+                LiveSyncTaskTO liveSyncTaskTO = (LiveSyncTaskTO) taskTO;
+
+                fill(liveSyncTaskTO, liveSyncTask);
+
+                liveSyncTaskTO.setDestinationRealm(liveSyncTask.getDestinationRealm().getFullPath());
+                liveSyncTaskTO.setMatchingRule(liveSyncTask.getMatchingRule() == null
+                        ? MatchingRule.UPDATE : liveSyncTask.getMatchingRule());
+                liveSyncTaskTO.setUnmatchingRule(liveSyncTask.getUnmatchingRule() == null
+                        ? UnmatchingRule.PROVISION : liveSyncTask.getUnmatchingRule());
+
+                liveSyncTaskTO.setLiveSyncDeltaMapper(liveSyncTask.getLiveSyncDeltaMapper().getKey());
+
+                liveSyncTask.getTemplates().
+                        forEach(template -> liveSyncTaskTO.getTemplates().
+                        put(template.getAnyType().getKey(), template.get()));
             }
 
             case PULL -> {

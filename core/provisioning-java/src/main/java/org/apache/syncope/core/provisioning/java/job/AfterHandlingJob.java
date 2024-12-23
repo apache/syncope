@@ -76,12 +76,10 @@ public class AfterHandlingJob extends Job {
         }
 
         try {
-            AuthContextUtils.runAsAdmin(
-                    context.getDomain(),
-                    () -> {
-                        notificationManager.createTasks(event.get());
-                        auditManager.audit(event.get());
-                    });
+            AuthContextUtils.runAsAdmin(context.getDomain(), () -> {
+                notificationManager.createTasks(event.get());
+                auditManager.audit(event.get());
+            });
         } catch (RuntimeException e) {
             throw new JobExecutionException("While handling notification / audit events", e);
         }

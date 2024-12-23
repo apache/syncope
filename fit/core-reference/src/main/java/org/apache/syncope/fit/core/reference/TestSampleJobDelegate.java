@@ -31,9 +31,7 @@ import org.apache.syncope.core.provisioning.java.job.AbstractSchedTaskJobDelegat
 public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate<SchedTask> {
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
-            throws JobExecutionException {
-
+    protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         for (int i = 0; i < 2; i++) {
             LOG.debug("TestSampleJob#doExecute round {} time {}", i, OffsetDateTime.now());
             try {
@@ -43,11 +41,11 @@ public class TestSampleJobDelegate extends AbstractSchedTaskJobDelegate<SchedTas
             }
         }
 
-        LOG.info("TestSampleJob {} running [SchedTask {}]", (dryRun
+        LOG.info("TestSampleJob {} running [SchedTask {}]", (context.isDryRun()
                 ? "dry "
                 : ""), task.getKey());
 
-        return (dryRun
+        return (context.isDryRun()
                 ? "DRY "
                 : "") + "RUNNING";
     }

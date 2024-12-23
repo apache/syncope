@@ -217,10 +217,10 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void propagationJEXLTransformer() {
+    public void propagationJEXLTransformer() throws IOException {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
-        ResourceTO originalResource = SerializationUtils.clone(resource);
+        ResourceTO originalResource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBSCRIPTED);
         Provision provision = resource.getProvision(PRINTER).orElseThrow();
         assertNotNull(provision);
 

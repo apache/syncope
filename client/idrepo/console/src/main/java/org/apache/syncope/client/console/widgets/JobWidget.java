@@ -395,10 +395,10 @@ public class JobWidget extends BaseWidget {
                 @Override
                 public void onClick(final AjaxRequestTarget target, final JobTO ignore) {
                     switch (jobTO.getType()) {
-                        case NOTIFICATION:
-                            break;
+                        case NOTIFICATION -> {
+                        }
 
-                        case REPORT:
+                        case REPORT -> {
                             ReportTO reportTO = reportRestClient.read(jobTO.getRefKey());
 
                             ReportWizardBuilder rwb = new ReportWizardBuilder(
@@ -417,9 +417,9 @@ public class JobWidget extends BaseWidget {
                                     new Model<>(reportTO)));
 
                             jobModal.show(true);
-                            break;
+                        }
 
-                        case TASK:
+                        case TASK -> {
                             TaskType taskType = null;
                             if (jobTO.getRefDesc().startsWith("SCHEDULED")) {
                                 taskType = TaskType.SCHEDULED;
@@ -444,10 +444,9 @@ public class JobWidget extends BaseWidget {
                                 break;
                             }
 
-                            if (taskTO instanceof ProvisioningTaskTO) {
-                                SchedTaskWizardBuilder<ProvisioningTaskTO> swb =
-                                        new SchedTaskWizardBuilder<>(taskType, (ProvisioningTaskTO) taskTO,
-                                                realmRestClient, taskRestClient, pageRef);
+                            if (taskTO instanceof ProvisioningTaskTO provisioningTask) {
+                                SchedTaskWizardBuilder<ProvisioningTaskTO> swb = new SchedTaskWizardBuilder<>(
+                                        taskType, provisioningTask, realmRestClient, taskRestClient, pageRef);
                                 swb.setEventSink(AvailableJobsPanel.this);
 
                                 target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
@@ -462,10 +461,10 @@ public class JobWidget extends BaseWidget {
                                 SyncopeConsoleSession.get().info("Unsupported task type: " + taskType.name());
                                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
-                            break;
+                        }
 
-                        default:
-                            break;
+                        default -> {
+                        }
                     }
                 }
 
@@ -485,19 +484,17 @@ public class JobWidget extends BaseWidget {
                         if (null != jobTO.getType()) {
                             switch (jobTO.getType()) {
 
-                                case NOTIFICATION:
-                                    break;
+                                case NOTIFICATION -> {
+                                }
 
-                                case REPORT:
+                                case REPORT ->
                                     reportRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
-                                    break;
 
-                                case TASK:
+                                case TASK ->
                                     taskRestClient.actionJob(jobTO.getRefKey(), JobAction.DELETE);
-                                    break;
 
-                                default:
-                                    break;
+                                default -> {
+                                }
                             }
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);

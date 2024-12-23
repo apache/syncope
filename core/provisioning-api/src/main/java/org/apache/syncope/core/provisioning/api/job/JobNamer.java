@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.job;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -30,7 +31,7 @@ public final class JobNamer {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobNamer.class);
 
-    private static String getKeyFromJobName(final String name, final String pattern, final int prefixLength) {
+    private static Optional<String> getKeyFromJobName(final String name, final String pattern, final int prefixLength) {
         String result = null;
 
         Matcher jobMatcher = Pattern.compile(pattern).matcher(name);
@@ -42,14 +43,14 @@ public final class JobNamer {
             }
         }
 
-        return result;
+        return Optional.ofNullable(result);
     }
 
-    public static String getTaskKeyFromJobName(final String name) {
+    public static Optional<String> getTaskKeyFromJobName(final String name) {
         return getKeyFromJobName(name, "taskJob" + SyncopeConstants.UUID_REGEX, 7);
     }
 
-    public static String getReportKeyFromJobName(final String name) {
+    public static Optional<String> getReportKeyFromJobName(final String name) {
         return getKeyFromJobName(name, "reportJob" + SyncopeConstants.UUID_REGEX, 9);
     }
 

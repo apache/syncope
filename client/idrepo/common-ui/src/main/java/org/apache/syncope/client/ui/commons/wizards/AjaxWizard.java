@@ -270,8 +270,8 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
             return res.getRight();
         } catch (InterruptedException | ExecutionException e) {
-            if (e.getCause() instanceof CaptchaNotMatchingException) {
-                throw (CaptchaNotMatchingException) e.getCause();
+            if (e.getCause() instanceof CaptchaNotMatchingException captchaNotMatchingException) {
+                throw captchaNotMatchingException;
             }
             throw new WicketRuntimeException(e);
         }
