@@ -89,6 +89,8 @@ include::propagation.adoc[]
 
 include::pull.adoc[]
 
+include::livesync.adoc[]
+
 include::push.adoc[]
 
 include::passwordreset.adoc[]

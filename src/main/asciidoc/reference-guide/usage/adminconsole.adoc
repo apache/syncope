@@ -37,19 +37,9 @@ You can use the <<set-admin-credentials,default admin credentials>> to login.
 
 The Admin UI is accessible to the visually impaired.
 
-Two icons are present in the main login page and in the menu on the right:
-
-[.text-center]
-image::accessibility-console01.png[title="Admin Console accessibility buttons",alt="Admin Console accessibility buttons"]
-
-By clicking the top right corner icon image:accessibility-icon01.png[Accessibility HC mode,30,30] it is possible to 
-toggle the "High contrast mode".
-In this mode, the website colors are switched to a higher contrast color schema.
-
-[TIP]
-====
 The `H` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
 be used to easily toggle "High contrast mode" by using the keyboard.
+In this mode, the website colors are switched to a higher contrast color schema.
 
 E.g. 
 |===
@@ -59,16 +49,9 @@ E.g.
 |Toggle "High contrast mode" on Firefox and Chrome browsers on Linux
 |===
 
-====
-
-By clicking the second icon image:accessibility-icon02.png[Accessibility Increased Font mode,30,30] it is possible 
-to toggle the "Increased font mode".
-In this mode, the website font size is increased.
-
-[TIP]
-====
 The `F` https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/accesskey[accesskey^] shortcut can
 be used to easily toggle "Increased font mode" by using the keyboard.
+In this mode, the website font size is increased.
 
 E.g. 
 |===
@@ -77,10 +60,6 @@ E.g.
 |`Alt` + `Shift` + `F`
 |Toggle "Increased font mode" on Firefox and Chrome browsers on Linux
 |===
-
-====
-
-To reset to the default mode, it is enough to click again on the specific icon.
 
 ==== Pages
 

@@ -48,7 +48,6 @@ import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
 import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
-import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -60,8 +59,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.DefaultProvisionSorter
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultPushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
-import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.policy.DefaultAccountRule;
 import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
@@ -133,9 +130,6 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(MacroJobDelegate.class.getName());
-            classNames.add(PullJobDelegate.class.getName());
-            classNames.add(PushJobDelegate.class.getName());
             classNames.add(ExpiredAccessTokenCleanup.class.getName());
             classNames.add(ExpiredBatchCleanup.class.getName());
             classNames.add(TestSampleJobDelegate.class.getName());

@@ -34,7 +34,7 @@ at runtime, expecially with high-availability.
 * `jwt.lifetime.minutes` - validity of https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] values used for
 <<rest-authentication-and-authorization,authentication>> (in minutes);
 * `notificationjob.cronExpression` -
-https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron^] expression describing how
+https://docs.spring.io/spring-framework/reference/6.1/integration/scheduling.html#scheduling-cron-expression[cron^] expression describing how
 frequently the pending <<tasks-notification,notification tasks>> are processed: empty means disabled;
 [NOTE]
 Restarting the deployment is required when changing value for this parameter.

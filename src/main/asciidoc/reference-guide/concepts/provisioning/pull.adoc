@@ -42,7 +42,7 @@ endif::[]
 Each entity is then processed in an isolated transaction; a retrieved entity can be:
 
 . _matching_ if a corresponding internal entity was found, according to the <<mapping,mapping>> of - or the
-<<policies-pull,pull policy>> set for, if present - the enclosing external resource;
+<<policies-inbound,inbound policy>> set for, if present - the enclosing external resource;
 . _unmatching_ otherwise.
 
 Once this has been assessed, entities are processed according to the matching / unmatching rules specified for the pull task:
@@ -158,6 +158,16 @@ endif::[]
 | Import hashed password values from DBMS;
 the cipher algorithm associated with the password must match the value of `Password cipher algorithm` for the 
 https://connid.atlassian.net/wiki/display/BASE/Database+Table#DatabaseTable-ConfigurationProperties[DatabaseTable connector bundle^].
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/KafkaInboundActions.java[KafkaInboundActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/KafkaInboundActions.java[KafkaInboundActions^]
+endif::[]
+| Instructs to fetch the attributes required during the <<provisioning-livesync,live sync>> process for the 
+https://connid.atlassian.net/wiki/display/BASE/Kafka[Apache Kafka connector bundle^].
 
 |===
 

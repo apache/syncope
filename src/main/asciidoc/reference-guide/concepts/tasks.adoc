@@ -101,7 +101,7 @@ When defining a pull task, the following information must be provided:
 * <<pull-templates,entity templates>>
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/6.1/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 [NOTE]
 ====
@@ -134,6 +134,45 @@ Resource; it is also possible to configure a pull task to work on several object
 overall execution time.
 ====
 
+[[tasks-livesync]]
+==== Live Sync
+
+Live sync tasks are required to define and trigger the <<provisioning-livesync,live sync>> process from Identity Stores.
+
+When defining a live sync task, the following information must be provided:
+
+* related <<external-resources,external resource>>
+* destination <<realms,Realm>> - where entities selected for creation are going to be placed
+* whether creation, update or deletion on internal storage are allowed or not
+* whether <<remediation,remediation>> is enabled
+* whether to synchronize the status information from the related identity store
+* selected <<provisioning-livesync,live sync delta mapper>>
+* selected <<provisioning-pull,matching and unmatching rules>>
+* optional <<inboundactions,inbound action(s)>>
+* <<pull-templates,entity templates>>
+
+[NOTE]
+====
+Live sync tasks are executed via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LiveSyncJobDelegate.java[LiveSyncJobDelegate^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LiveSyncJobDelegate.java[LiveSyncJobDelegate^]
+endif::[]
+during the <<provisioning-livesync,live sync>> process; the execution results are permanently saved - for examining the
+execution details - depending on the trace level set on the related <<external-resource-details,external resource>>.
+====
+
+[[concurrent-tasks-livesync]]
+[TIP]
+.Concurrent Live Sync Task Executions
+====
+By default, live sync tasks are set to accept and sequentially process the objects received from the configured External
+Resource; it is also possible to configure a live sync task to work on several objects at once in order to speed up the
+overall execution time.
+====
+
 [[tasks-push]]
 ==== Push
 
@@ -150,7 +189,7 @@ When defining a push task, the following information must be provided:
 * optional <<pushactions,push action(s)>>
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/6.1/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 [NOTE]
 ====
@@ -219,7 +258,7 @@ When defining a macro task, the following information must be provided:
 list, update or execute the given macro task
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/6.1/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 ===== MacroActions
 
@@ -250,7 +289,7 @@ endif::[]
 providing the custom logic to execute
 * scheduling information:
 ** when to start
-** https://docs.spring.io/spring-framework/reference/integration/scheduling.html#scheduling-cron-expression[cron expression^]
+** https://docs.spring.io/spring-framework/reference/6.1/integration/scheduling.html#scheduling-cron-expression[cron expression^]
 
 [TIP]
 ====

@@ -129,7 +129,7 @@ for delegated administration.
 *_Secure Remote Access_* or *_SRA_* is a security-enabled API gateway with HTTP reverse proxying capabilities.
 
 *_Core_* is the component providing IdM services and acting as central repository for other components' configuration. +
-It exposes a fully-compliant https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.1^] 
+It exposes a fully-compliant https://en.wikipedia.org/wiki/Jakarta_RESTful_Web_Services[Jakarta RESTful Web Services 3.1^] 
 https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interface which enables third-party applications,
 written in any programming language, to consume IdM services.
 
@@ -144,12 +144,12 @@ all-Java implementation can be extended for this purpose.
 from a provided list - including one based on https://www.flowable.org/[Flowable^], the reference open source
 http://www.bpmn.org/[BPMN 2.0^] implementations - or define new, custom ones. 
  * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
-using a standard https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.2^] approach. The data is persisted to an underlying 
+using a standard https://en.wikipedia.org/wiki/Jakarta_Persistence[Jakarta Persistence 3.1] approach. The data is persisted to an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
-http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html[transaction management^] 
+https://docs.spring.io/spring-framework/reference/6.1/data-access/transaction.html[transaction management^] 
 provided by the Spring Framework. +
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability with no code 
-changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported deployment options.
+changes: PostgreSQL, MySQL, MariaDB and Oracle are fully supported deployment options.
  * *_Security_* defines a fine-grained set of entitlements which can be granted to administrators, thus enabling the 
 implementation of delegated administration scenarios.
 

@@ -59,6 +59,8 @@ import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRuleConfClass;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.slf4j.Logger;
@@ -186,7 +188,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 } else if (SchedTaskJobDelegate.class.isAssignableFrom(clazz)
                         && !PullJobDelegate.class.isAssignableFrom(clazz)
                         && !PushJobDelegate.class.isAssignableFrom(clazz)
-                        && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
+                        && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)
+                        && !MacroJobDelegate.class.isAssignableFrom(clazz)
+                        && !LiveSyncJobDelegate.class.isAssignableFrom(clazz)) {
 
                     classNames.get(IdRepoImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
                 } else if (ReconFilterBuilder.class.isAssignableFrom(clazz)) {
