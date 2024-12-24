@@ -36,14 +36,17 @@ import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.logic.api.LogicActions;
+import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValueValidator;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.provisioning.api.LiveSyncDeltaMapper;
 import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.job.report.ReportConfClass;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.macro.Command;
+import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
@@ -140,15 +143,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     continue;
                 }
 
-                if (ReportJobDelegate.class.isAssignableFrom(clazz)) {
-                    ReportConfClass annotation = clazz.getAnnotation(ReportConfClass.class);
-                    if (annotation == null) {
-                        LOG.warn("Found Report {} without declared configuration", clazz.getName());
-                    } else {
-                        classNames.get(IdRepoImplementationType.REPORT_DELEGATE).add(clazz.getName());
-                        reportJobDelegateClasses.put(annotation.value(), (Class<? extends ReportJobDelegate>) clazz);
-                    }
-                } else if (AccountRule.class.isAssignableFrom(clazz)) {
+                if (AccountRule.class.isAssignableFrom(clazz)) {
                     AccountRuleConfClass annotation = clazz.getAnnotation(AccountRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found account policy rule {} without declared configuration", clazz.getName());
@@ -164,6 +159,46 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdRepoImplementationType.PASSWORD_RULE).add(clazz.getName());
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
+                } else if (SchedTaskJobDelegate.class.isAssignableFrom(clazz)
+                        && !PullJobDelegate.class.isAssignableFrom(clazz)
+                        && !PushJobDelegate.class.isAssignableFrom(clazz)
+                        && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)
+                        && !MacroJobDelegate.class.isAssignableFrom(clazz)
+                        && !LiveSyncJobDelegate.class.isAssignableFrom(clazz)) {
+
+                    classNames.get(IdRepoImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
+                } else if (ReportJobDelegate.class.isAssignableFrom(clazz)) {
+                    ReportConfClass annotation = clazz.getAnnotation(ReportConfClass.class);
+                    if (annotation == null) {
+                        LOG.warn("Found Report {} without declared configuration", clazz.getName());
+                    } else {
+                        classNames.get(IdRepoImplementationType.REPORT_DELEGATE).add(clazz.getName());
+                        reportJobDelegateClasses.put(annotation.value(), (Class<? extends ReportJobDelegate>) clazz);
+                    }
+                } else if (LogicActions.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
+                } else if (MacroActions.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.MACRO_ACTIONS).add(bd.getBeanClassName());
+                } else if (PlainAttrValueValidator.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.ATTR_VALUE_VALIDATOR).add(bd.getBeanClassName());
+                } else if (DropdownValueProvider.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER).add(bd.getBeanClassName());
+                } else if (Command.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.COMMAND).add(bd.getBeanClassName());
+                } else if (RecipientsProvider.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
+                } else if (ItemTransformer.class.isAssignableFrom(clazz)
+                        && !clazz.equals(JEXLItemTransformerImpl.class)) {
+
+                    classNames.get(IdRepoImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
+                } else if (ReconFilterBuilder.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdMImplementationType.RECON_FILTER_BUILDER).add(bd.getBeanClassName());
+                } else if (PropagationActions.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdMImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
+                } else if (InboundActions.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdMImplementationType.INBOUND_ACTIONS).add(bd.getBeanClassName());
+                } else if (PushActions.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 } else if (InboundCorrelationRule.class.isAssignableFrom(clazz)) {
                     InboundCorrelationRuleConfClass annotation = clazz.getAnnotation(
                             InboundCorrelationRuleConfClass.class);
@@ -181,36 +216,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         classNames.get(IdMImplementationType.PUSH_CORRELATION_RULE).add(clazz.getName());
                         pushCRClasses.put(annotation.value(), (Class<? extends PushCorrelationRule>) clazz);
                     }
-                } else if (ItemTransformer.class.isAssignableFrom(clazz)
-                        && !clazz.equals(JEXLItemTransformerImpl.class)) {
-
-                    classNames.get(IdRepoImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
-                } else if (SchedTaskJobDelegate.class.isAssignableFrom(clazz)
-                        && !PullJobDelegate.class.isAssignableFrom(clazz)
-                        && !PushJobDelegate.class.isAssignableFrom(clazz)
-                        && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)
-                        && !MacroJobDelegate.class.isAssignableFrom(clazz)
-                        && !LiveSyncJobDelegate.class.isAssignableFrom(clazz)) {
-
-                    classNames.get(IdRepoImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
-                } else if (ReconFilterBuilder.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdMImplementationType.RECON_FILTER_BUILDER).add(bd.getBeanClassName());
-                } else if (LogicActions.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
-                } else if (PropagationActions.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdMImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
-                } else if (InboundActions.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdMImplementationType.INBOUND_ACTIONS).add(bd.getBeanClassName());
-                } else if (PushActions.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdMImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
-                } else if (PlainAttrValueValidator.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.ATTR_VALUE_VALIDATOR).add(bd.getBeanClassName());
-                } else if (RecipientsProvider.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 } else if (ProvisionSorter.class.isAssignableFrom(clazz)) {
                     classNames.get(IdMImplementationType.PROVISION_SORTER).add(bd.getBeanClassName());
-                } else if (Command.class.isAssignableFrom(clazz)) {
-                    classNames.get(IdRepoImplementationType.COMMAND).add(bd.getBeanClassName());
+                } else if (LiveSyncDeltaMapper.class.isAssignableFrom(clazz)) {
+                    classNames.get(IdMImplementationType.LIVE_SYNC_DELTA_MAPPER).add(bd.getBeanClassName());
                 } else {
                     extImplTypes.forEach((typeName, typeInterface) -> {
                         Class<?> tic = ClassUtils.resolveClassName(typeInterface, ClassUtils.getDefaultClassLoader());

@@ -395,7 +395,7 @@ under the License.
     <project.build.outputTimestamp>2022-12-26T08:35:28Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.0-SNAPSHOT</connid.version>
+    <connid.version>1.6.0.0-RC2</connid.version>
     <connid.soap.version>1.5.0-RC1</connid.soap.version>
     <connid.rest.version>1.1.0-RC1</connid.rest.version>
     <connid.db.version>2.3.0</connid.db.version>
@@ -408,7 +408,7 @@ under the License.
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
     <connid.okta.version>3.0.5</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
-    <connid.kafka.version>1.0.0-SNAPSHOT</connid.kafka.version>
+    <connid.kafka.version>1.0.0</connid.kafka.version>
 
     <cxf.version>4.1.0</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
@@ -507,7 +507,7 @@ under the License.
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
-    <docker.neo4j.version>5.25.1</docker.neo4j.version>
+    <docker.neo4j.version>5.26.0</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
     <jdbc.mysql.version>9.1.0</jdbc.mysql.version>
