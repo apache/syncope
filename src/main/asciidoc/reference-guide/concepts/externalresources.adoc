@@ -158,7 +158,7 @@ complex statements to be expressed such as 'be mandatory only if this other attr
 Besides the items documented above, some more data needs to be specified for a complete mapping:
 
 * which
-http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
+http://connid.tirasa.net/apidocs/1.6/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
 shall be used during communication with the Identity Store; predefined are `\\__ACCOUNT__` for Users and 
 `\\__GROUP__` for Groups
 * whether matches between user / group / any object's attribute values and their counterparts on the Identity Store

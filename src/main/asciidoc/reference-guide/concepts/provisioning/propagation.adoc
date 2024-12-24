@@ -65,7 +65,7 @@ the provided mapping; password has a special treatment:
 * otherwise, a `null` value is sent to the External Resource
 
 Password values are always sent to External Resources wrapped as ConnId
-http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/common/security/GuardedString.html[GuardedString^] objects.
+http://connid.tirasa.net/apidocs/1.6/org/identityconnectors/common/security/GuardedString.html[GuardedString^] objects.
 ====
 
 By default, the propagation process is controlled by the

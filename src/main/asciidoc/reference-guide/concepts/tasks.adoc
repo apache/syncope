@@ -47,16 +47,16 @@ update or delete a given User, Group or Any Object, to / from a certain Identity
 
 * operation - `CREATE`, `UPDATE` or `DELETE`
 * connObjectKey - value for ConnId 
-http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/objects/Uid.html[unique identifier^]
+http://connid.tirasa.net/apidocs/1.6/org/identityconnectors/framework/common/objects/Uid.html[unique identifier^]
 on the Identity Store
 * oldConnObjectKey - the former unique identifier on the Identity Store: bears value only during updates involving the
 unique identifier
 * attributes - set of ConnId
-http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/objects/Attribute.html[attributes^] built
+http://connid.tirasa.net/apidocs/1.6/org/identityconnectors/framework/common/objects/Attribute.html[attributes^] built
 upon internal identity data and configured mapping
 * resource - related <<external-resources,external resource>>
 * objectClass - ConnId
-http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
+http://connid.tirasa.net/apidocs/1.6/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
 * entity - reference to the internal identity: User, Group or Any Object
 
 [NOTE]
@@ -268,7 +268,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/3_0_X/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
+https://github.com/apache/syncope/blob/master/core/idrepo/logic/src/main/java/org/apache/syncope/core/logic/api/MacroActions.java[MacroActions^]
 endif::[]
 interface.
 
