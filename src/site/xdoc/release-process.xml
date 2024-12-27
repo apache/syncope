@@ -283,20 +283,19 @@ mv /tmp/openapi.json rest/$MAJOR_VERSION/
 mv /tmp/keymaster-openapi.json rest/$MAJOR_VERSION/
 cp -r $SYNCOPE_RELEASE_DIR/core/starter/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/$MAJOR_VERSION/
 sed 's/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/target/classes/META-INF/resources/index.html | \
-  sed 's/\/rest\/keymaster\//keymaster-/' > rest/$MAJOR_VERSION/index.html
+  sed 's/rest\/keymaster\//keymaster-/' > rest/$MAJOR_VERSION/index.html
 mkdir -p docs/$MAJOR_VERSION
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/$MAJOR_VERSION/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/$MAJOR_VERSION/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/$MAJOR_VERSION/
-cd docs
-ln -s 4.0/reference-guide.html .
-ln -s 4.0/getting-started.html .
-ln -s 4.0/images/ .
+
 cd ../apidocs
 mkdir $MAJOR_VERSION
 mv * $MAJOR_VERSION/
+
 cd ../..
 svn add $VERSION
+
 # if releasing from 4_0_X              
 svn copy apidocs/3.0 $VERSION/apidocs/
 svn copy rest/3.0 $VERSION/rest/
@@ -305,6 +304,15 @@ svn copy docs/3.0 $VERSION/docs/
 svn copy apidocs/4.0 $VERSION/apidocs/
 svn copy rest/4.0 $VERSION/rest/
 svn copy docs/4.0 $VERSION/docs/              
+
+cd $VERSION/docs
+ln -s 4.0/reference-guide.html .
+ln -s 4.0/getting-started.html .
+ln -s 4.0/images/ .
+svn add 4.0/reference-guide.html
+svn add 4.0/getting-started.html
+svn add 4.0/images/
+cd ../..
 
 svn commit -m "Staging site for release"]]></source>
           </li>
