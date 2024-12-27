@@ -395,10 +395,10 @@ under the License.
     <project.build.outputTimestamp>2022-12-26T08:35:28Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.0-RC2</connid.version>
-    <connid.soap.version>1.5.0-RC1</connid.soap.version>
-    <connid.rest.version>1.1.0-RC1</connid.rest.version>
-    <connid.db.version>2.3.0</connid.db.version>
+    <connid.version>1.6.0.0-RC3</connid.version>
+    <connid.soap.version>1.5.0-RC2</connid.soap.version>
+    <connid.rest.version>1.1.0-RC2</connid.rest.version>
+    <connid.db.version>2.4.0-RC1</connid.db.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
     <connid.ldap.version>1.5.9</connid.ldap.version>
     <connid.ad.version>1.3.9</connid.ad.version>
