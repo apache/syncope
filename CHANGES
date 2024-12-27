@@ -2,6 +2,28 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.10
+================================================================================
+
+** Bug
+    * [SYNCOPE-1686] - relationship refering to object itself
+    * [SYNCOPE-1833] - Non-compliant SCIM payload returned when user extension is defined
+    * [SYNCOPE-1837] - Resources, Relationships and AuxClasses are deleted after SCIM PUT method invocation
+    * [SYNCOPE-1838] - Group owners cannot log into Console
+    * [SYNCOPE-1839] - In Console Commands cannot be removed from Macro Tasks
+    * [SYNCOPE-1840] - Cannot define the same form property for different Macro tasks
+    * [SYNCOPE-1846] - Cannot create more than one relationship at a time from the console
+    * [SYNCOPE-1847] - Propagation task audit throws exception during serialzation
+    * [SYNCOPE-1848] - Can't read user memberships with SCIM search endpoint
+
+** Improvement
+    * [SYNCOPE-1835] - Support Credential Criteria for LDAP authentication
+    * [SYNCOPE-1836] - Password propagation on resource doesn't happen from the SCIM extension
+    * [SYNCOPE-1842] - Support Credential Criteria for JAAS, JDBC and Syncope authentication
+    * [SYNCOPE-1843] - Support Azure AD authentication and attribute resolution
+    * [SYNCOPE-1844] - Support Okta authentication and attribute repository
+    * [SYNCOPE-1845] - Support doubleclik on data tables rows
+
 Release Notes - Syncope - Version 3.0.9
 ================================================================================
 
