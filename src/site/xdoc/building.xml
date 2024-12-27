@@ -152,13 +152,6 @@ under the License.
           <p>The build profiles enlisted below require <a href="https://www.docker.com/">Docker</a> to work.</p>
         </div>
 
-        <h5>PostgreSQL</h5>
-        <div class="alert alert-warning">
-          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
-        </div>
-        Perform the full test suite against a real <a href="https://www.postgresql.org/">PostgreSQL</a> database via
-        <source>$ mvn -Ppostgres-it</source> or <source>$ mvn -Ppgjsonb-it</source> (for JSONB support)
-
         <h5>MySQL</h5>
         <div class="alert alert-warning">
           <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
@@ -181,6 +174,9 @@ under the License.
         <source>$ mvn -Poracle-it</source> or <source>$ mvn -Pojson-it</source> (for JSON support)
 
         <h5>Neo4j</h5>
+        <div class="alert alert-warning">
+          <p>This build profile requires <a href="https://www.docker.com/">Docker</a> to work.</p>
+        </div>
         Prform the full test suite against a real <a href="https://neo4j.com/">Neo4j</a> instance via
         <source>$ mvn -Pneo4j-it</source>
 
