@@ -29,11 +29,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import jakarta.ws.rs.core.Response;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -282,8 +283,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             props.load(propStream);
 
-            try (InputStream src = new FileInputStream(props.getProperty("test.csv.src"));
-                    FileOutputStream dst = new FileOutputStream(props.getProperty("test.csv.dst"))) {
+            try (InputStream src = Files.newInputStream(Path.of(props.getProperty("test.csv.src")));
+                    OutputStream dst = Files.newOutputStream(Path.of(props.getProperty("test.csv.dst")))) {
 
                 IOUtils.copy(src, dst);
             }

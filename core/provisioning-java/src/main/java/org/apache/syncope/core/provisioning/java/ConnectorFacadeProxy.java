@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -539,7 +540,7 @@ public class ConnectorFacadeProxy implements Connector {
             } else if (URI.class.equals(propertySchemaClass)) {
                 value = URI.create(values.get(0).toString());
             } else if (File.class.equals(propertySchemaClass)) {
-                value = new File(values.get(0).toString());
+                value = Path.of(values.get(0).toString()).toFile();
             } else if (String[].class.equals(propertySchemaClass)) {
                 value = values.toArray(String[]::new);
             } else {

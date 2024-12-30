@@ -19,7 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.OpEvent;
@@ -67,7 +67,7 @@ public class TestFileAuditProcessor implements AuditEventProcessor {
         String content = POJOHelper.serialize(auditEventDAO.toAuditEventTO(event)) + '\n';
         try {
             Files.writeString(
-                    Paths.get(fileName),
+                    Path.of(fileName),
                     content,
                     StandardOpenOption.CREATE, StandardOpenOption.APPEND);
         } catch (Exception e) {

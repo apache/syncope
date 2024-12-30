@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,7 +83,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
 
     protected void initLocal(final URI location) {
         // 1. Find bundles inside local directory
-        File bundleDirectory = new File(location);
+        File bundleDirectory = Path.of(location).toFile();
         String[] bundleFiles = bundleDirectory.list();
         if (bundleFiles == null) {
             throw new NotFoundException("Local bundles directory " + location);
@@ -91,7 +92,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
         List<URL> bundleFileURLs = new ArrayList<>();
         for (String file : bundleFiles) {
             try {
-                bundleFileURLs.add(IOUtil.makeURL(bundleDirectory, file));
+                bundleFileURLs.add(IOUtil.makeURL(bundleDirectory.toPath(), file));
             } catch (IOException ignore) {
                 // ignore exception and don't add bundle
                 LOG.debug("{}/{} is not a valid connector bundle", bundleDirectory.toString(), file, ignore);
@@ -221,7 +222,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("\nBundle name: {}\nBundle version: {}\nBundle class: {}",
-                key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
+                    key.getBundleName(), key.getBundleVersion(), key.getConnectorName());
         }
 
         // get the specified connector

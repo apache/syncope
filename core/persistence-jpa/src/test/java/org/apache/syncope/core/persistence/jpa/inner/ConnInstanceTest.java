@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -91,7 +91,7 @@ public class ConnInstanceTest extends AbstractTest {
     public void save() throws ClassNotFoundException {
         ConnInstance connInstance = entityFactory.newEntity(ConnInstance.class);
 
-        connInstance.setLocation(new File(System.getProperty("java.io.tmpdir")).toURI().toString());
+        connInstance.setLocation(Path.of(System.getProperty("java.io.tmpdir")).toUri().toString());
 
         // set connector version
         connInstance.setVersion("1.0");
