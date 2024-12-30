@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
 
     protected void initLocal(final URI location) {
         // 1. Find bundles inside local directory
-        File bundleDirectory = new File(location);
+        File bundleDirectory = Path.of(location).toFile();
         String[] bundleFiles = bundleDirectory.list();
         if (bundleFiles == null) {
             throw new NotFoundException("Local bundles directory " + location);

@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api.utils;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Path;
 
 public final class URIUtils {
 
@@ -51,7 +50,7 @@ public final class URIUtils {
 
         URI uri;
         if (candidate.startsWith("file:")) {
-            uri = new File(new URL(candidate).getFile()).getAbsoluteFile().toURI();
+            uri = Path.of(new URI(candidate)).toAbsolutePath().toFile().toURI();
         } else {
             uri = new URI(candidate);
         }

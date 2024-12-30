@@ -34,7 +34,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
@@ -472,11 +471,11 @@ public class AuditITCase extends AbstractITCase {
             Properties props = new Properties();
             props.load(propStream);
 
-            Path auditFilePath = Paths.get(props.getProperty("test.log.dir")
+            Path auditFilePath = Path.of(props.getProperty("test.log.dir")
                     + File.separator + "audit_for_Master_file.log");
             Files.write(auditFilePath, new byte[0], StandardOpenOption.TRUNCATE_EXISTING);
 
-            Path auditNoRewriteFilePath = Paths.get(props.getProperty("test.log.dir")
+            Path auditNoRewriteFilePath = Path.of(props.getProperty("test.log.dir")
                     + File.separator + "audit_for_Master_norewrite_file.log");
             Files.write(auditNoRewriteFilePath, new byte[0], StandardOpenOption.TRUNCATE_EXISTING);
 

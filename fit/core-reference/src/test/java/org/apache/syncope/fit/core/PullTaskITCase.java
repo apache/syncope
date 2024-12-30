@@ -28,12 +28,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.Date;
@@ -237,29 +237,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // Attemp to reset CSV content
         Properties props = new Properties();
-        InputStream propStream = null;
-        InputStream srcStream = null;
-        OutputStream dstStream = null;
-        try {
-            propStream = getClass().getResourceAsStream("/test.properties");
+        try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             props.load(propStream);
 
-            srcStream = new FileInputStream(props.getProperty("test.csv.src"));
-            dstStream = new FileOutputStream(props.getProperty("test.csv.dst"));
+            try (InputStream src = Files.newInputStream(Path.of(props.getProperty("test.csv.src")));
+                    OutputStream dst = Files.newOutputStream(Path.of(props.getProperty("test.csv.dst")))) {
 
-            IOUtils.copy(srcStream, dstStream);
+                IOUtils.copy(src, dst);
+            }
         } catch (IOException e) {
-            fail(e::getMessage);
-        } finally {
-            if (propStream != null) {
-                propStream.close();
-            }
-            if (srcStream != null) {
-                srcStream.close();
-            }
-            if (dstStream != null) {
-                dstStream.close();
-            }
+            fail(e.getMessage(), e);
         }
 
         // -----------------------------
