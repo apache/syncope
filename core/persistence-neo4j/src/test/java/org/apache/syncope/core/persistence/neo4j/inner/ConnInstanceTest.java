@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -88,27 +87,16 @@ public class ConnInstanceTest extends AbstractTest {
     }
 
     @Test
-    public void save() throws ClassNotFoundException {
+    public void save() {
         ConnInstance connInstance = entityFactory.newEntity(ConnInstance.class);
-
-        connInstance.setLocation(Path.of(System.getProperty("java.io.tmpdir")).toUri().toString());
-
-        // set connector version
+        connInstance.setLocation("file:" + System.getProperty("java.io.tmpdir"));
         connInstance.setVersion("1.0");
-
-        // set connector name
         connInstance.setConnectorName("WebService");
-
-        // set bundle name
         connInstance.setBundleName("org.apache.syncope.core.persistence.test.util");
-
         connInstance.setDisplayName("New");
-
         connInstance.setConnRequestTimeout(60);
 
-        // set the connector configuration using PropertyTO
-        List<ConnConfProperty> conf = new ArrayList<>();
-
+        // set the connector configuration
         ConnConfPropSchema endpointSchema = new ConnConfPropSchema();
         endpointSchema.setName("endpoint");
         endpointSchema.setType(String.class.getName());
@@ -125,10 +113,9 @@ public class ConnInstanceTest extends AbstractTest {
         servicename.setSchema(servicenameSchema);
         endpoint.getValues().add("Provisioning");
 
+        List<ConnConfProperty> conf = new ArrayList<>();
         conf.add(endpoint);
         conf.add(servicename);
-
-        // set connector configuration
         connInstance.setConf(conf);
         assertFalse(connInstance.getConf().isEmpty());
 
@@ -147,11 +134,7 @@ public class ConnInstanceTest extends AbstractTest {
 
         assertEquals(60, actual.getConnRequestTimeout().intValue());
 
-        conf = connInstance.getConf();
-        assertFalse(conf.isEmpty());
-
-        assertNotNull(conf);
-        assertEquals(2, conf.size());
+        assertEquals(2, connInstance.getConf().size());
     }
 
     @Test
