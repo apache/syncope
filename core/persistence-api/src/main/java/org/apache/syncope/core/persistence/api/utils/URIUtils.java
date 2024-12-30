@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.utils;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 
 public final class URIUtils {
@@ -50,7 +51,7 @@ public final class URIUtils {
 
         URI uri;
         if (candidate.startsWith("file:")) {
-            uri = Path.of(new URI(candidate)).toAbsolutePath().toFile().toURI();
+            uri = Path.of(new URL(candidate).getFile()).toFile().getAbsoluteFile().toURI();
         } else {
             uri = new URI(candidate);
         }

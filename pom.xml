@@ -426,7 +426,7 @@ under the License.
     <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
-    <disruptor.version>3.4.4</disruptor.version>
+    <disruptor.version>4.0.0</disruptor.version>
 
     <elasticsearch.version>8.17.0</elasticsearch.version>
     <opensearch.version>2.18.0</opensearch.version>
@@ -2263,7 +2263,6 @@ under the License.
         <ianal.phase>none</ianal.phase>
         <modernizer.skip>true</modernizer.skip>
         <rat.skip>true</rat.skip>
-        <modernizer.skip>true</modernizer.skip>
         <checkstyle.skip>true</checkstyle.skip>
       </properties>
 
