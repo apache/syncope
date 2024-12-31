@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.api.utils;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 public final class URIUtils {
 
@@ -33,15 +33,13 @@ public final class URIUtils {
     /**
      * Build a valid URI out of the given location.
      * Only "file", "connid" and "connids" schemes are allowed.
-     * For "file", invalid characters are handled via intermediate transformation into URL.
      *
      * @param location the candidate location for URI
      * @return valid URI for the given location
-     * @throws MalformedURLException if the intermediate URL is not valid
      * @throws URISyntaxException if the given location does not correspond to a valid URI
      */
-    public static URI buildForConnId(final String location) throws MalformedURLException, URISyntaxException {
-        final String candidate = location.trim();
+    public static URI buildForConnId(final String location) throws URISyntaxException {
+        String candidate = location.trim();
 
         if (!candidate.startsWith("file:")
                 && !candidate.startsWith("connid:") && !candidate.startsWith("connids:")) {
@@ -51,7 +49,12 @@ public final class URIUtils {
 
         URI uri;
         if (candidate.startsWith("file:")) {
-            uri = Path.of(new URL(candidate).getFile()).toFile().getAbsoluteFile().toURI();
+            candidate = StringUtils.substringAfter(candidate, "file:");
+            if (SystemUtils.IS_OS_WINDOWS) {
+                candidate = StringUtils.stripStart(candidate, "/");
+            }
+
+            uri = Path.of(candidate).toFile().getAbsoluteFile().toURI();
         } else {
             uri = new URI(candidate);
         }

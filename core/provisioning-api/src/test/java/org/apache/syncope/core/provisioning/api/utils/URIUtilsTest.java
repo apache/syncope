@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.utils;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -41,5 +42,8 @@ public class URIUtilsTest extends AbstractTest {
         location.set("connid:test/location");
         URI expectedURI = new URI(location.get().trim());
         assertEquals(expectedURI, URIUtils.buildForConnId(location.get()));
+
+        assertDoesNotThrow(() -> URIUtils.buildForConnId("file:Z:\\syncope\\fit\\core-reference\\target/bundles/"));
+        assertDoesNotThrow(() -> URIUtils.buildForConnId("file:/Z:\\syncope\\fit\\core-reference\\target/bundles/"));
     }
 }
