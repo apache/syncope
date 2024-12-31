@@ -74,7 +74,9 @@ public class SyncopeAnonymousClient extends SyncopeClient {
         try {
             JsonNode info = info();
             return Pair.of(
-                    info.has("git") ? info.get("git").get("commit").get("id").asText() : StringUtils.EMPTY,
+                    info.has("git") && info.get("git").has("commit") && info.get("git").get("commit").has("id")
+                    ? info.get("git").get("commit").get("id").asText()
+                    : StringUtils.EMPTY,
                     info.get("build").get("version").asText());
         } catch (IOException e) {
             throw new RuntimeException("While getting build and git Info", e);
