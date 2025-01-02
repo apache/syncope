@@ -1741,7 +1741,7 @@ under the License.
                   <version>${targetJdk}</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
-                  <version>3.9.5</version>
+                  <version>3.9.9</version>
                 </requireMavenVersion>
               </rules>
             </configuration>
