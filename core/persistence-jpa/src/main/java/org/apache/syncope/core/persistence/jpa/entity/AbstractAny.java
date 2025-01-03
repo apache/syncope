@@ -30,7 +30,7 @@ import org.apache.syncope.core.persistence.common.validation.AnyCheck;
 
 @AnyCheck
 @MappedSuperclass
-public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGeneratedKeyEntity implements Any<P> {
+public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAttributable<P> implements Any<P> {
 
     private static final long serialVersionUID = -2666540708092702810L;
 

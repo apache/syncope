@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.status.ResourceStatusModal;
+import org.apache.syncope.client.console.tasks.LiveSyncTask;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
@@ -130,8 +131,7 @@ public class ResourceDirectoryPanel extends
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ResourceSearchEvent) {
-            ResourceSearchEvent payload = (ResourceSearchEvent) event.getPayload();
+        if (event.getPayload() instanceof final ResourceSearchEvent payload) {
             AjaxRequestTarget target = payload.getTarget();
             if (StringUtils.isNotEmpty(payload.getKeyword())) {
                 keyword = payload.getKeyword().toLowerCase();
@@ -159,7 +159,7 @@ public class ResourceDirectoryPanel extends
 
     @Override
     protected List<IColumn<Serializable, String>> getColumns() {
-        final List<IColumn<Serializable, String>> columns = new ArrayList<>();
+        List<IColumn<Serializable, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<>(
                 new ResourceModel("key"), "keySortParam", "key"));
         columns.add(new PropertyColumn<>(
@@ -174,7 +174,8 @@ public class ResourceDirectoryPanel extends
 
     @Override
     public ActionsPanel<Serializable> getActions(final IModel<Serializable> model) {
-        final ActionsPanel<Serializable> panel = super.getActions(model);
+        ActionsPanel<Serializable> panel = super.getActions(model);
+        String key = ((ResourceTO) model.getObject()).getKey();
 
         panel.add(new ActionLink<>() {
 
@@ -182,7 +183,7 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO resource = restClient.read(key);
                 ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
@@ -199,8 +200,8 @@ public class ResourceDirectoryPanel extends
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), model.getObject().getKey())));
                 modal.show(true);
             }
-        }, ActionLink.ActionType.EDIT, String.format("%s,%s", IdMEntitlement.RESOURCE_READ,
-                IdMEntitlement.RESOURCE_UPDATE));
+        }, ActionLink.ActionType.EDIT,
+                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdMEntitlement.RESOURCE_UPDATE));
 
         panel.add(new ActionLink<>() {
 
@@ -208,7 +209,7 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO resource = restClient.read(key);
                 ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
 
                 if (SyncopeConsoleSession.get().
@@ -229,8 +230,8 @@ public class ResourceDirectoryPanel extends
                         model.getObject().getKey())));
                 provisionModal.show(true);
             }
-        }, ActionLink.ActionType.MAPPING, String.format("%s,%s", IdMEntitlement.RESOURCE_READ,
-                IdMEntitlement.RESOURCE_UPDATE));
+        }, ActionLink.ActionType.MAPPING,
+                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdMEntitlement.RESOURCE_UPDATE));
 
         panel.add(new ActionLink<>() {
 
@@ -238,7 +239,7 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO resource = restClient.read(key);
 
                 target.add(propTaskModal.setContent(new ConnObjects(resource, pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(model.getObject())));
@@ -252,10 +253,8 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(propTaskModal.setContent(
-                        new PropagationTasks(propTaskModal, ((ResourceTO) model.getObject()).getKey(), pageRef)));
-                propTaskModal.header(new Model<>(MessageFormat.format(getString("task.propagation.list"),
-                        ((ResourceTO) model.getObject()).getKey())));
+                target.add(propTaskModal.setContent(new PropagationTasks(propTaskModal, key, pageRef)));
+                propTaskModal.header(new Model<>(MessageFormat.format(getString("task.propagation.list"), key)));
                 propTaskModal.show(true);
             }
         }, ActionLink.ActionType.PROPAGATION_TASKS, IdRepoEntitlement.TASK_LIST);
@@ -266,13 +265,23 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(schedTaskModal.setContent(new PullTasks(
-                        schedTaskModal, ((ResourceTO) model.getObject()).getKey(), pageRef)));
-                schedTaskModal.header(new Model<>(
-                        MessageFormat.format(getString("task.pull.list"), ((ResourceTO) model.getObject()).getKey())));
+                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, key, pageRef)));
+                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.pull.list"), key)));
                 schedTaskModal.show(true);
             }
         }, ActionLink.ActionType.PULL_TASKS, IdRepoEntitlement.TASK_LIST);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -4699610013584898667L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                target.add(schedTaskModal.setContent(new LiveSyncTask(schedTaskModal, key, pageRef)));
+                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.livesync"), key)));
+                schedTaskModal.show(true);
+            }
+        }, ActionLink.ActionType.LIVE_SYNC_TASK, IdRepoEntitlement.TASK_READ);
 
         panel.add(new ActionLink<>() {
 
@@ -280,10 +289,8 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                target.add(schedTaskModal.setContent(new PushTasks(
-                        schedTaskModal, ((ResourceTO) model.getObject()).getKey(), pageRef)));
-                schedTaskModal.header(new Model<>(
-                        MessageFormat.format(getString("task.push.list"), ((ResourceTO) model.getObject()).getKey())));
+                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, key, pageRef)));
+                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.push.list"), key)));
                 schedTaskModal.show(true);
             }
         }, ActionLink.ActionType.PUSH_TASKS, IdRepoEntitlement.TASK_LIST);
@@ -294,10 +301,9 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO modelObject = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO modelObject = restClient.read(key);
                 target.add(propTaskModal.setContent(new ResourceStatusModal(pageRef, modelObject)));
-                propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.reconciliation"),
-                        ((ResourceTO) model.getObject()).getKey())));
+                propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.reconciliation"), key)));
                 propTaskModal.show(true);
             }
         }, ActionLink.ActionType.RECONCILIATION_RESOURCE, IdRepoEntitlement.USER_UPDATE);
@@ -308,7 +314,7 @@ public class ResourceDirectoryPanel extends
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                ResourceTO modelObject = restClient.read(((ResourceTO) model.getObject()).getKey());
+                ResourceTO modelObject = restClient.read(key);
 
                 target.add(historyModal.setContent(new AuditHistoryModal<>(
                         OpEvent.CategoryType.LOGIC,
@@ -327,7 +333,7 @@ public class ResourceDirectoryPanel extends
 
                             SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
-                            LOG.error("While restoring resource {}", ((ResourceTO) model.getObject()).getKey(), e);
+                            LOG.error("While restoring resource {}", key, e);
                             SyncopeConsoleSession.get().onException(e);
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -336,12 +342,12 @@ public class ResourceDirectoryPanel extends
 
                 historyModal.header(
                         new Model<>(MessageFormat.format(getString("resource.menu.history"),
-                                ((ResourceTO) model.getObject()).getKey())));
+                                key)));
 
                 historyModal.show(true);
             }
-        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY, String.format("%s,%s", IdMEntitlement.RESOURCE_READ,
-                IdRepoEntitlement.AUDIT_LIST));
+        }, ActionLink.ActionType.VIEW_AUDIT_HISTORY,
+                String.format("%s,%s", IdMEntitlement.RESOURCE_READ, IdRepoEntitlement.AUDIT_LIST));
 
         panel.add(new ActionLink<>() {
 
@@ -350,15 +356,11 @@ public class ResourceDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    ResourceTO resource = restClient.read(((ResourceTO) model.getObject()).getKey());
+                    ResourceTO resource = restClient.read(key);
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
-                    resource.getProvisions().forEach(provision -> {
-                        if (provision.getMapping() != null) {
-                            provision.getMapping().getLinkingItems().clear();
-                        }
-                        provision.getVirSchemas().clear();
-                    });
+                    resource.getProvisions().stream().filter(p -> p.getMapping() != null).
+                            forEach(p -> p.getVirSchemas().clear());
                     target.add(modal.setContent(new ResourceWizardBuilder(
                             resource, restClient, connectorRestClient, pageRef).
                             build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
@@ -366,7 +368,7 @@ public class ResourceDirectoryPanel extends
                     modal.header(new Model<>(MessageFormat.format(getString("resource.clone"), resource.getKey())));
                     modal.show(true);
                 } catch (SyncopeClientException e) {
-                    LOG.error("While cloning resource {}", ((ResourceTO) model.getObject()).getKey(), e);
+                    LOG.error("While cloning resource {}", key, e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
@@ -380,13 +382,11 @@ public class ResourceDirectoryPanel extends
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 try {
-                    restClient.delete(((ResourceTO) model.getObject()).getKey());
-                    target.appendJavaScript(String.format("jsPlumb.remove('%s');",
-                            ((ResourceTO) model.getObject()).getKey()));
+                    restClient.delete(key);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (SyncopeClientException e) {
-                    LOG.error("While deleting resource {}", ((ResourceTO) model.getObject()).getKey(), e);
+                    LOG.error("While deleting resource {}", key, e);
                     SyncopeConsoleSession.get().onException(e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

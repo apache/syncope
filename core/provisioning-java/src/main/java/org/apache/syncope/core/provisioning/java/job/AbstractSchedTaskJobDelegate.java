@@ -89,18 +89,19 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
     @Autowired
     protected ApplicationEventPublisher publisher;
 
+    protected boolean manageOperationId;
+
+    protected String executor;
+
     protected void setStatus(final String status) {
         publisher.publishEvent(new JobStatusEvent(
                 this, AuthContextUtils.getDomain(), JobNamer.getJobName(task), status));
     }
 
     @SuppressWarnings("unchecked")
-    @Transactional
-    @Override
-    public void execute(
+    protected void init(
             final TaskType taskType,
             final String taskKey,
-            final boolean dryRun,
             final JobExecutionContext context)
             throws JobExecutionException {
 
@@ -113,35 +114,33 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             return;
         }
 
-        boolean manageOperationId = Optional.ofNullable(MDC.get(Job.OPERATION_ID)).
+        manageOperationId = Optional.ofNullable(MDC.get(Job.OPERATION_ID)).
                 map(operationId -> false).
                 orElseGet(() -> {
                     MDC.put(Job.OPERATION_ID, SecureRandomUtils.generateRandomUUID().toString());
                     return true;
                 });
 
-        String executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
+        executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
+    }
+
+    protected TaskExec<SchedTask> initExecution() {
         TaskExec<SchedTask> execution = taskUtilsFactory.getInstance(taskType).newTaskExec();
         execution.setStart(OffsetDateTime.now());
         execution.setTask(task);
         execution.setExecutor(executor);
 
-        setStatus("Initialization completed");
+        return execution;
+    }
 
-        OpEvent.Outcome result;
+    protected void endExecution(
+            final TaskExec<SchedTask> execution,
+            final String message,
+            final String status,
+            final OpEvent.Outcome result) {
 
-        try {
-            execution.setMessage(doExecute(dryRun, executor, context));
-            execution.setStatus(TaskJob.Status.SUCCESS.name());
-
-            result = OpEvent.Outcome.SUCCESS;
-        } catch (JobExecutionException e) {
-            LOG.error("While executing task {}", taskKey, e);
-            result = OpEvent.Outcome.FAILURE;
-
-            execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
-            execution.setStatus(TaskJob.Status.FAILURE.name());
-        }
+        execution.setMessage(message);
+        execution.setStatus(status);
         execution.setEnd(OffsetDateTime.now());
 
         if (hasToBeRegistered(execution)) {
@@ -154,7 +153,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 OpEvent.CategoryType.TASK,
                 this.getClass().getSimpleName(),
                 null,
-                this.getClass().getSimpleName(), // searching for before object is too much expensive ...
+                this.getClass().getSimpleName(),
                 result,
                 task,
                 execution);
@@ -165,27 +164,60 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                 OpEvent.CategoryType.TASK,
                 task.getClass().getSimpleName(),
                 null,
-                null, // searching for before object is too much expensive ...
+                this.getClass().getSimpleName(),
                 result,
                 task,
-                null);
+                execution);
+    }
 
+    protected void end() {
         if (manageOperationId) {
             MDC.remove(Job.OPERATION_ID);
         }
     }
 
+    @SuppressWarnings("unchecked")
+    @Transactional
+    @Override
+    public void execute(
+            final TaskType taskType,
+            final String taskKey,
+            final JobExecutionContext context)
+            throws JobExecutionException {
+
+        init(taskType, taskKey, context);
+
+        setStatus("Initialization completed");
+
+        TaskExec<SchedTask> execution = initExecution();
+
+        String message;
+        String status;
+        OpEvent.Outcome result;
+        try {
+            message = doExecute(context);
+            status = TaskJob.Status.SUCCESS.name();
+            result = OpEvent.Outcome.SUCCESS;
+        } catch (JobExecutionException e) {
+            LOG.error("While executing task {}", taskKey, e);
+
+            message = ExceptionUtils2.getFullStackTrace(e);
+            status = TaskJob.Status.FAILURE.name();
+            result = OpEvent.Outcome.FAILURE;
+        }
+        endExecution(execution, message, status, result);
+
+        end();
+    }
+
     /**
      * The actual execution, delegated to child classes.
      *
-     * @param dryRun whether to actually touch the data
-     * @param executor the user executing this task
      * @param context job execution context, can be used to pass parameters to the job
      * @return the task execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute(boolean dryRun, String executor, JobExecutionContext context)
-            throws JobExecutionException;
+    protected abstract String doExecute(JobExecutionContext context) throws JobExecutionException;
 
     /**
      * Template method to determine whether this job's task execution has to be persisted or not.

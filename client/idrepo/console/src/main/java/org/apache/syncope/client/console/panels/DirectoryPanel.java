@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -306,6 +307,10 @@ public abstract class DirectoryPanel<
                 return DirectoryPanel.this.getTogglePanel();
             }
 
+            @Override
+            protected BiConsumer<AjaxRequestTarget, IModel<T>> onDoubleClick() {
+                return DirectoryPanel.this.onDoubleClick();
+            }
         }.setColumns(getColumns()).
                 setRowsPerPage(rows).
                 setBatches(getBatches(), restClient, itemKeyFieldName).
@@ -338,8 +343,7 @@ public abstract class DirectoryPanel<
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof EventDataWrapper) {
-            EventDataWrapper data = (EventDataWrapper) event.getPayload();
+        if (event.getPayload() instanceof final EventDataWrapper data) {
 
             if (data.getRows() < 1) {
                 updateResultTable(data.isCreate());
@@ -372,6 +376,10 @@ public abstract class DirectoryPanel<
 
     protected ActionLinksTogglePanel<T> getTogglePanel() {
         return actionTogglePanel;
+    }
+
+    protected BiConsumer<AjaxRequestTarget, IModel<T>> onDoubleClick() {
+        return null;
     }
 
     public static class EventDataWrapper {

@@ -19,18 +19,13 @@
 package org.apache.syncope.core.persistence.neo4j.entity.policy;
 
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
-import org.apache.syncope.core.persistence.neo4j.entity.SortedSetList;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jAccountPolicy.NODE)
@@ -48,11 +43,7 @@ public class Neo4jAccountPolicy extends Neo4jPolicy implements AccountPolicy {
     private int maxAuthenticationAttempts;
 
     @Relationship(type = ACCOUNT_POLICY_RULE_REL, direction = Relationship.Direction.OUTGOING)
-    private SortedSet<Neo4jImplementationRelationship> rules = new TreeSet<>();
-
-    @Transient
-    private List<Neo4jImplementation> sortedRules = new SortedSetList<>(
-            rules, Neo4jImplementationRelationship.builder());
+    private List<Neo4jImplementation> rules = new ArrayList<>();
 
     @Override
     public boolean isPropagateSuspension() {
@@ -78,16 +69,11 @@ public class Neo4jAccountPolicy extends Neo4jPolicy implements AccountPolicy {
     public boolean add(final Implementation rule) {
         checkType(rule, Neo4jImplementation.class);
         checkImplementationType(rule, IdRepoImplementationType.ACCOUNT_RULE);
-        return sortedRules.contains((Neo4jImplementation) rule) || sortedRules.add((Neo4jImplementation) rule);
+        return rules.contains((Neo4jImplementation) rule) || rules.add((Neo4jImplementation) rule);
     }
 
     @Override
     public List<? extends Implementation> getRules() {
-        return sortedRules;
-    }
-
-    @PostLoad
-    public void postLoad() {
-        sortedRules = new SortedSetList<>(rules, Neo4jImplementationRelationship.builder());
+        return rules;
     }
 }

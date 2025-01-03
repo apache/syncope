@@ -20,8 +20,8 @@ package org.apache.syncope.client.console.commons;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.policies.InboundPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PropagationPolicyDirectoryPanel;
-import org.apache.syncope.client.console.policies.PullPolicyDirectoryPanel;
 import org.apache.syncope.client.console.policies.PushPolicyDirectoryPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.wicket.PageReference;
@@ -54,13 +54,13 @@ public class IdMPolicyTabProvider implements PolicyTabProvider {
             }
         });
 
-        tabs.add(new AbstractTab(new ResourceModel("policy.pull")) {
+        tabs.add(new AbstractTab(new ResourceModel("policy.inbound")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new PullPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
+                return new InboundPolicyDirectoryPanel(panelId, policyRestClient, pageRef);
             }
         });
 

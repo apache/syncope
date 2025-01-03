@@ -31,8 +31,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxGridFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
@@ -120,7 +120,7 @@ public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleaseP
                 new PropertyModel<>(model.getObject().getConf(), "principalAttrRepoConf.ignoreResolvedAttributes"),
                 false));
 
-        add(new AjaxSpinnerFieldPanel.Builder<Long>().build(
+        add(new AjaxNumberFieldPanel.Builder<Long>().build(
                 "expiration",
                 "expiration",
                 Long.class,

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 
@@ -25,29 +26,27 @@ public interface PlainSchema extends Schema {
 
     CipherAlgorithm getCipherAlgorithm();
 
-    String getConversionPattern();
-
-    String getEnumerationKeys();
-
-    String getEnumerationValues();
-
-    String getMimeType();
-
-    String getSecretKey();
-
-    Implementation getValidator();
-
     void setCipherAlgorithm(CipherAlgorithm cipherAlgorithm);
+
+    String getConversionPattern();
 
     void setConversionPattern(String conversionPattern);
 
-    void setEnumerationKeys(String enumerationKeys);
+    Map<String, String> getEnumValues();
 
-    void setEnumerationValues(String enumerationValues);
+    Implementation getDropdownValueProvider();
+
+    void setDropdownValueProvider(Implementation dropdownValueProvider);
+
+    String getMimeType();
 
     void setMimeType(String mimeType);
 
+    String getSecretKey();
+
     void setSecretKey(String secretKey);
+
+    Implementation getValidator();
 
     void setValidator(Implementation validator);
 
@@ -60,5 +59,4 @@ public interface PlainSchema extends Schema {
     void setReadonly(boolean readonly);
 
     void setUniqueConstraint(boolean uniquevalue);
-
 }

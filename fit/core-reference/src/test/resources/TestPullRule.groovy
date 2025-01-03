@@ -20,17 +20,17 @@ import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule
-import org.identityconnectors.framework.common.objects.SyncDelta
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule
+import org.identityconnectors.framework.common.objects.LiveSyncDelta
 
 /**
  * Test pull rule relying on {@code email} attribute value.
  */
 @CompileStatic
-class TestPullRule implements PullCorrelationRule {
+class TestPullRule implements InboundCorrelationRule {
 
   @Override
-  SearchCond getSearchCond(final SyncDelta syncDelta, final Provision provision) {
+  SearchCond getSearchCond(final LiveSyncDelta syncDelta, final Provision provision) {
     AttrCond cond = new AttrCond();
     cond.setSchema("email");
     cond.setType(AttrCond.Type.EQ);

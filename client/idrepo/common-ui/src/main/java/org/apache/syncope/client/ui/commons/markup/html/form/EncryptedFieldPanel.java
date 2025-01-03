@@ -25,7 +25,7 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class EncryptedFieldPanel extends FieldPanel<String> implements Cloneable {
+public class EncryptedFieldPanel extends TextFieldPanel implements Cloneable {
 
     private static final long serialVersionUID = 1882871043451691005L;
 
@@ -34,7 +34,11 @@ public class EncryptedFieldPanel extends FieldPanel<String> implements Cloneable
     }
 
     public EncryptedFieldPanel(
-            final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
+            final String id,
+            final String name,
+            final IModel<String> model,
+            final boolean enableOnChange) {
+
         super(id, name, model);
 
         field = new TextField<>("encryptedField", model) {
@@ -43,9 +47,10 @@ public class EncryptedFieldPanel extends FieldPanel<String> implements Cloneable
 
             @Override
             protected String[] getInputTypes() {
-                return new String[]{"password"};
+                return new String[] { "password" };
             }
         };
+        setHTMLInputNotAllowed();
 
         if (enableOnChange && !isReadOnly()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

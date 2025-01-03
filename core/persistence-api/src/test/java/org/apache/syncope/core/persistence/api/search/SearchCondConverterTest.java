@@ -351,4 +351,24 @@ public class SearchCondConverterTest {
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
+
+    @Test
+    public void issueSYNCOPE1826() {
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("sh test app 0722").query();
+        assertEquals("username=~sh test app 0722", fiql);
+
+        AnyCond anyCond = new AnyCond(AttrCond.Type.IEQ);
+        anyCond.setSchema("username");
+        anyCond.setExpression("sh test app 0722");
+
+        assertEquals(SearchCond.getLeaf(anyCond), SearchCondConverter.convert(VISITOR, fiql));
+
+        fiql = "lastLoginDate==2016-03-02T15:21:22%2B0300";
+        
+        AnyCond lastLoginDateCond = new AnyCond(AttrCond.Type.EQ);
+        lastLoginDateCond.setSchema("lastLoginDate");
+        lastLoginDateCond.setExpression("2016-03-02T15:21:22+0300");
+        
+        assertEquals(SearchCond.getLeaf(lastLoginDateCond), SearchCondConverter.convert(VISITOR, fiql));
+    }
 }

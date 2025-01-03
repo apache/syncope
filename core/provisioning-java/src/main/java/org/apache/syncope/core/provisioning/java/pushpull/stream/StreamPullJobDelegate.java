@@ -41,17 +41,18 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PullResultHandlerDispatcher;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -65,32 +66,32 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
     @Autowired
     private RealmSearchDAO realmSearchDAO;
 
-    private PullPolicy pullPolicy(
+    private InboundPolicy inboundPolicy(
             final AnyType anyType,
             final ConflictResolutionAction conflictResolutionAction,
-            final String pullCorrelationRule) {
+            final String inboundCorrelationRule) {
 
-        PullCorrelationRuleEntity pullCorrelationRuleEntity = null;
-        if (pullCorrelationRule != null) {
-            Implementation impl = implementationDAO.findById(pullCorrelationRule).orElse(null);
-            if (impl == null || !IdMImplementationType.PULL_CORRELATION_RULE.equals(impl.getType())) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", pullCorrelationRule);
+        InboundCorrelationRuleEntity inboundCorrelationRuleEntity = null;
+        if (inboundCorrelationRule != null) {
+            Implementation impl = implementationDAO.findById(inboundCorrelationRule).orElse(null);
+            if (impl == null || !IdMImplementationType.INBOUND_CORRELATION_RULE.equals(impl.getType())) {
+                LOG.debug("Invalid  {} {}, ignoring...", Implementation.class.getSimpleName(), inboundCorrelationRule);
             } else {
-                pullCorrelationRuleEntity = entityFactory.newEntity(PullCorrelationRuleEntity.class);
-                pullCorrelationRuleEntity.setAnyType(anyType);
-                pullCorrelationRuleEntity.setImplementation(impl);
+                inboundCorrelationRuleEntity = entityFactory.newEntity(InboundCorrelationRuleEntity.class);
+                inboundCorrelationRuleEntity.setAnyType(anyType);
+                inboundCorrelationRuleEntity.setImplementation(impl);
             }
         }
 
-        PullPolicy pullPolicy = entityFactory.newEntity(PullPolicy.class);
-        pullPolicy.setConflictResolutionAction(conflictResolutionAction);
+        InboundPolicy inboundPolicy = entityFactory.newEntity(InboundPolicy.class);
+        inboundPolicy.setConflictResolutionAction(conflictResolutionAction);
 
-        if (pullCorrelationRuleEntity != null) {
-            pullPolicy.add(pullCorrelationRuleEntity);
-            pullCorrelationRuleEntity.setPullPolicy(pullPolicy);
+        if (inboundCorrelationRuleEntity != null) {
+            inboundPolicy.add(inboundCorrelationRuleEntity);
+            inboundCorrelationRuleEntity.setInboundPolicy(inboundPolicy);
         }
 
-        return pullPolicy;
+        return inboundPolicy;
     }
 
     private Provision provision(
@@ -137,7 +138,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             final String keyColumn,
             final List<String> columns,
             final ConflictResolutionAction conflictResolutionAction,
-            final String pullCorrelationRule) throws JobExecutionException {
+            final String inboundCorrelationRule) throws JobExecutionException {
 
         Provision provision = provision(anyType, keyColumn, columns);
 
@@ -145,7 +146,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         resource.setKey("StreamPull_" + SecureRandomUtils.generateRandomUUID().toString());
         resource.getProvisions().add(provision);
 
-        resource.setPullPolicy(pullPolicy(anyType, conflictResolutionAction, pullCorrelationRule));
+        resource.setInboundPolicy(inboundPolicy(anyType, conflictResolutionAction, inboundCorrelationRule));
 
         return resource;
     }
@@ -156,7 +157,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             final String keyColumn,
             final List<String> columns,
             final ConflictResolutionAction conflictResolutionAction,
-            final String pullCorrelationRule,
+            final String inboundCorrelationRule,
             final Connector connector,
             final PullTaskTO pullTaskTO,
             final String executor) throws JobExecutionException {
@@ -166,10 +167,11 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         taskType = TaskType.PULL;
         try {
             ExternalResource resource =
-                    externalResource(anyType, keyColumn, columns, conflictResolutionAction, pullCorrelationRule);
+                    externalResource(anyType, keyColumn, columns, conflictResolutionAction, inboundCorrelationRule);
             Provision provision = resource.getProvisions().get(0);
 
             task = entityFactory.newEntity(PullTask.class);
+            task.setName(pullTaskTO.getName());
             task.setResource(resource);
             task.setMatchingRule(pullTaskTO.getMatchingRule());
             task.setUnmatchingRule(pullTaskTO.getUnmatchingRule());
@@ -182,56 +184,64 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     orElseThrow(() -> new NotFoundException("Realm " + pullTaskTO.getDestinationRealm())));
             task.setRemediation(pullTaskTO.isRemediation());
 
-            profile = new ProvisioningProfile<>(connector, task);
-            profile.setDryRun(false);
-            profile.setConflictResolutionAction(conflictResolutionAction);
-            profile.getActions().addAll(getPullActions(pullTaskTO.getActions().stream().
-                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
-                    toList()));
-            profile.setExecutor(executor);
+            profile = new ProvisioningProfile<>(
+                    connector,
+                    taskType,
+                    task,
+                    conflictResolutionAction,
+                    getInboundActions(pullTaskTO.getActions().stream().
+                            map(implementationDAO::findById).flatMap(Optional::stream).
+                            toList()),
+                    executor,
+                    false);
 
-            for (PullActions action : profile.getActions()) {
+            dispatcher = new PullResultHandlerDispatcher(profile, this);
+
+            for (InboundActions action : profile.getActions()) {
                 action.beforeAll(profile);
             }
 
-            SyncopePullResultHandler handler;
             GroupPullResultHandler ghandler = buildGroupHandler();
-            switch (anyType.getKind()) {
-                case USER:
-                    handler = buildUserHandler();
-                    break;
+            dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
+                SyncopePullResultHandler handler;
+                switch (anyType.getKind()) {
+                    case USER:
+                        handler = buildUserHandler();
+                        break;
 
-                case GROUP:
-                    handler = ghandler;
-                    break;
+                    case GROUP:
+                        handler = ghandler;
+                        break;
 
-                case ANY_OBJECT:
-                default:
-                    handler = buildAnyObjectHandler();
-            }
-            handler.setProfile(profile);
+                    case ANY_OBJECT:
+                    default:
+                        handler = buildAnyObjectHandler();
+                }
+                handler.setProfile(profile);
+                return handler;
+            });
 
             // execute filtered pull
             Set<String> moreAttrsToGet = new HashSet<>();
             profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
 
             Stream<Item> mapItems = Stream.concat(
-                    MappingUtils.getPullItems(provision.getMapping().getItems().stream()),
+                    MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
                     virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
                             map(VirSchema::asLinkingMappingItem));
 
             connector.fullReconciliation(
                     new ObjectClass(provision.getObjectClass()),
-                    handler,
+                    dispatcher,
                     MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
 
             try {
-                setGroupOwners(ghandler);
+                setGroupOwners(ghandler, groupDAO, anyTypeDAO, inboundMatcher, profile);
             } catch (Exception e) {
                 LOG.error("While setting group owners", e);
             }
 
-            for (PullActions action : profile.getActions()) {
+            for (InboundActions action : profile.getActions()) {
                 action.afterAll(profile);
             }
 

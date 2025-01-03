@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -54,7 +54,6 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             "org.postgresql.Driver",
             "com.mysql.cj.jdbc.Driver",
             "org.mariadb.jdbc.Driver",
-            "com.microsoft.sqlserver.jdbc.SQLServerDriver",
             "oracle.jdbc.OracleDriver",
             "org.h2.Driver");
 
@@ -64,7 +63,6 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             + "(blobTypeName=LONGBLOB,dateFractionDigits=3,useSetStringForClobs=true)",
             "org.apache.openjpa.jdbc.sql.MariaDBDictionary"
             + "(blobTypeName=LONGBLOB,dateFractionDigits=3)",
-            "org.apache.openjpa.jdbc.sql.SQLServerDictionary",
             "org.apache.openjpa.jdbc.sql.OracleDictionary",
             "org.apache.openjpa.jdbc.sql.H2Dictionary");
 
@@ -135,12 +133,12 @@ public class DomainWizardBuilder extends BaseAjaxWizardBuilder<Domain> {
             transactionIsolation.setNullValid(false);
             add(transactionIsolation);
 
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                     "poolMaxActive",
                     "poolMaxActive",
                     Integer.class,
                     new PropertyModel<>(domain, "poolMaxActive")).addRequiredLabel());
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                     "poolMinIdle",
                     "poolMinIdle",
                     Integer.class,

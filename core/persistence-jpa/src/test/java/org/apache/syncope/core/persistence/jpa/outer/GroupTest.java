@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembers
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -62,8 +61,10 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMemb
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Transactional
 public class GroupTest extends AbstractTest {
 
@@ -222,8 +223,6 @@ public class GroupTest extends AbstractTest {
 
         assertTrue(groupDAO.findById("b1f7c12d-ec83-441f-a50e-1691daaedf3b").isEmpty());
         assertEquals(before - 1, userDAO.findAllGroups(userDAO.findByUsername("verdi").orElseThrow()).size());
-        assertTrue(findPlainAttr("f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9", GPlainAttr.class).isEmpty());
-        assertTrue(findPlainAttrValue("49f35879-2510-4f11-a901-24152f753538", GPlainAttrValue.class).isEmpty());
         assertTrue(plainSchemaDAO.findById("icon").isPresent());
     }
 
@@ -241,7 +240,7 @@ public class GroupTest extends AbstractTest {
         List<Object> result = query.getResultList();
         return result.stream().
                 map(groupKey -> groupDAO.findById(groupKey.toString())).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 distinct().
                 collect(Collectors.toList());
     }
@@ -333,7 +332,7 @@ public class GroupTest extends AbstractTest {
         List<Object> result = query.getResultList();
         return result.stream().
                 map(groupKey -> groupDAO.findById(groupKey.toString())).
-                filter(Optional::isPresent).map(Optional::get).
+                flatMap(Optional::stream).
                 distinct().
                 collect(Collectors.toList());
     }

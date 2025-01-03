@@ -22,7 +22,6 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyUR;
-import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -32,21 +31,20 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.Connector;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to
+ * A {@link org.apache.syncope.core.provisioning.api.pushpull.InboundActions} implementation which allows the ability to
  * import passwords from a Database backend, where the passwords are hashed according to the password cipher algorithm
  * property of the (DB) Connector and HEX-encoded.
  */
-public class DBPasswordPullActions implements PullActions {
+public class DBPasswordPullActions implements InboundActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
 
@@ -63,12 +61,11 @@ public class DBPasswordPullActions implements PullActions {
     @Override
     public void beforeProvision(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
-            final AnyCR anyCR) throws JobExecutionException {
+            final LiveSyncDelta delta,
+            final AnyCR anyCR) {
 
         if (anyCR instanceof UserCR userCR) {
-            String password = userCR.getPassword();
-            parseEncodedPassword(password, profile.getConnector());
+            parseEncodedPassword(userCR.getPassword(), profile.getConnector());
         }
     }
 
@@ -76,14 +73,13 @@ public class DBPasswordPullActions implements PullActions {
     @Override
     public void beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO entityTO,
-            final AnyUR anyUR) throws JobExecutionException {
+            final AnyUR anyUR) {
 
         if (anyUR instanceof UserUR userUR) {
-            PasswordPatch modPassword = userUR.getPassword();
-            parseEncodedPassword(Optional.ofNullable(modPassword)
-                    .map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
+            parseEncodedPassword(Optional.ofNullable(userUR.getPassword()).
+                    map(AbstractPatchItem::getValue).orElse(null), profile.getConnector());
         }
     }
 
@@ -116,13 +112,15 @@ public class DBPasswordPullActions implements PullActions {
     @Override
     public void after(
             final ProvisioningProfile<?, ?> profile,
-            final SyncDelta delta,
+            final LiveSyncDelta delta,
             final EntityTO any,
-            final ProvisioningReport result) throws JobExecutionException {
+            final ProvisioningReport result) {
 
         if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            userDAO.findById(any.getKey()).
-                    ifPresent(user -> user.setEncodedPassword(encodedPassword.toUpperCase(), cipher));
+            userDAO.findById(any.getKey()).ifPresent(user -> {
+                user.setEncodedPassword(encodedPassword.toUpperCase(), cipher);
+                userDAO.save(user);
+            });
             encodedPassword = null;
             cipher = null;
         }

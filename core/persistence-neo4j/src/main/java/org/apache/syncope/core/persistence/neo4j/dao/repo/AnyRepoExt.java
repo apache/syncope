@@ -31,8 +31,10 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
+import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 
 public interface AnyRepoExt<A extends Any<?>> {
@@ -55,6 +57,17 @@ public interface AnyRepoExt<A extends Any<?>> {
                 Neo4jGroup.NODE;
             case ANY_OBJECT ->
                 Neo4jAnyObject.NODE;
+            default ->
+                "";
+        };
+    }
+
+    static String membNode(final AnyTypeKind anyTypeKind) {
+        return switch (anyTypeKind) {
+            case USER ->
+                Neo4jUMembership.NODE;
+            case ANY_OBJECT ->
+                Neo4jAMembership.NODE;
             default ->
                 "";
         };

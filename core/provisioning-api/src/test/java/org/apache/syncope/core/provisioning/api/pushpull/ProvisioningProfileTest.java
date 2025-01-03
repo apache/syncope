@@ -20,9 +20,11 @@ package org.apache.syncope.core.provisioning.api.pushpull;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.AbstractTest;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -36,20 +38,20 @@ public class ProvisioningProfileTest extends AbstractTest {
             final @Mock Connector connector,
             final @Mock PushTask pushTask) {
 
-        boolean dryRun = false;
-        ConflictResolutionAction conflictResolutionAction = ConflictResolutionAction.FIRSTMATCH;
-        ProvisioningProfile<PushTask, PushActions> profile;
-        profile = new ProvisioningProfile<>(connector, pushTask);
+        ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(
+                connector,
+                TaskType.PUSH,
+                pushTask,
+                ConflictResolutionAction.FIRSTMATCH,
+                List.of(),
+                "executor",
+                false);
 
         assertEquals(connector, profile.getConnector());
         assertEquals(pushTask, profile.getTask());
-        assertEquals(new ArrayList<>(), profile.getResults());
-        assertEquals(new ArrayList<>(), profile.getActions());
-
-        profile.setDryRun(dryRun);
         assertFalse(profile.isDryRun());
-
-        profile.setConflictResolutionAction(conflictResolutionAction);
-        assertEquals(conflictResolutionAction, profile.getConflictResolutionAction());
+        assertEquals(ConflictResolutionAction.FIRSTMATCH, profile.getConflictResolutionAction());
+        assertTrue(profile.getActions().isEmpty());
+        assertTrue(profile.getResults().isEmpty());
     }
 }

@@ -42,6 +42,7 @@ import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -53,6 +54,7 @@ import org.apache.syncope.common.lib.to.PagedConnObjectResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -337,9 +339,10 @@ public class SearchITCase extends AbstractITCase {
             }
         }
 
-        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
+                        is("creationDate").lexicalNotBefore("2009-03-02 15:21:22").
                         and("username").equalTo("bellini").query()).
                 build());
         assertNotNull(users);
@@ -350,7 +353,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> issueSYNCOPE1321 = USER_SERVICE.search(new AnyQuery.Builder().
                 realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("lastLoginDate").lexicalNotBefore("2016-03-02T15:21:22+0300").
+                        is("lastChangeDate").lexicalNotBefore("2010-03-02T15:21:22%2B0300").
                         and("username").equalTo("bellini").query()).
                 build());
         assertEquals(users, issueSYNCOPE1321);
@@ -363,9 +366,7 @@ public class SearchITCase extends AbstractITCase {
                         is("userOwner").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals(
-                "ebf97068-aa4b-4a85-9f01-680e8c4cf227",
-                groups.getResult().iterator().next().getKey());
+        assertEquals("ebf97068-aa4b-4a85-9f01-680e8c4cf227", groups.getResult().get(0).getKey());
     }
 
     @Test
@@ -441,7 +442,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchBySecurityAnswer() {
-        String securityAnswer = RandomStringUtils.randomAlphanumeric(10);
+        String securityAnswer = RandomStringUtils.insecure().nextAlphanumeric(10);
         UserCR userCR = UserITCase.getUniqueSample("securityAnswer@syncope.apache.org");
         userCR.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
         userCR.setSecurityAnswer(securityAnswer);
@@ -470,10 +471,9 @@ public class SearchITCase extends AbstractITCase {
         assertTrue(groups.getResult().stream().anyMatch(group -> "root".equals(group.getName())));
         assertTrue(groups.getResult().stream().anyMatch(group -> "otherchild".equals(group.getName())));
 
-        AnyObjectCR anyObjectCR = new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, getUUIDString()).
+        String printer = createAnyObject(new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, getUUIDString()).
                 membership(new MembershipTO.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3").build()).
-                build();
-        String printer = createAnyObject(anyObjectCR).getEntity().getKey();
+                build()).getEntity().getKey();
 
         if (IS_EXT_SEARCH_ENABLED) {
             try {
@@ -549,7 +549,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").equalTo("pullFromLDAP").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("givenName").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -558,7 +558,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("mail").equalTo("pullFromLDAP*").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("cn").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -567,7 +567,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("mail").equalTo("*@syncope.apache.org").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("cn").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -576,7 +576,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").equalToIgnoreCase("pullfromldap").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("givenName").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -585,7 +585,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is(Name.NAME).equalTo("uid=pullFromLDAP%252Cou=people%252Co=isp").query()).build());
         assertTrue(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("cn").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("cn").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -594,7 +594,7 @@ public class SearchITCase extends AbstractITCase {
                         SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
                                 is("givenName").notEqualTo("pullFromLDAP").query()).build());
         assertFalse(matches.getResult().stream().
-                anyMatch(connObject -> connObject.getAttr("givenName").get().getValues().contains("pullFromLDAP")));
+                anyMatch(connObj -> connObj.getAttr("givenName").orElseThrow().getValues().contains("pullFromLDAP")));
 
         matches = RESOURCE_SERVICE.searchConnObjects(
                 RESOURCE_NAME_LDAP,
@@ -620,6 +620,95 @@ public class SearchITCase extends AbstractITCase {
                 fiql("status!~suspended;changePwdDate==$null").build()).
                 getTotalCount();
         assertTrue(users > 0);
+    }
+
+    @Test
+    public void userByMembershipAttribute() {
+        // create type extension for the 'employee' group, if not present
+        GroupTO employee = GROUP_SERVICE.read("employee");
+        if (employee.getTypeExtension(AnyTypeKind.USER.name()).isEmpty()) {
+            TypeExtensionTO typeExtensionTO = new TypeExtensionTO();
+            typeExtensionTO.setAnyType(AnyTypeKind.USER.name());
+            typeExtensionTO.getAuxClasses().add("other");
+            updateGroup(new GroupUR.Builder(employee.getKey()).typeExtension(typeExtensionTO).build());
+        }
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        PagedResult<UserTO> matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("additionalctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("myownctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+
+        // add user membership and its plain attribute
+        updateUser(new UserUR.Builder(USER_SERVICE.read("puccini").getKey())
+                .plainAttr(attrAddReplacePatch("ctype", "myownctype"))
+                .membership(new MembershipUR.Builder(GROUP_SERVICE.read("additional").getKey()).
+                        plainAttrs(attr("ctype", "additionalctype")).build())
+                .membership(new MembershipUR.Builder(employee.getKey())
+                        .plainAttrs(attr("ctype", "additionalemployeectype")).build())
+                .build());
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("additionalctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+        assertTrue(matching.getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+
+        // check also that search on user plain attribute (not in membership) works
+        matching = USER_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("ctype").equalTo("myownctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+        assertTrue(matching.getResult().stream().anyMatch(u -> "puccini".equals(u.getUsername())));
+    }
+
+    @Test
+    public void anyObjectByMembershipAttribute() {
+        PagedResult<AnyObjectTO> matching = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
+                        .is("ctype").equalTo("otherchildctype").query()).build());
+        assertEquals(0, matching.getTotalCount());
+
+        // add any object membership and its plain attribute
+        updateAnyObject(new AnyObjectUR.Builder("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").
+                membership(new MembershipUR.Builder(GROUP_SERVICE.read("otherchild").getKey()).
+                        plainAttrs(attr("ctype", "otherchildctype")).
+                        build()).build());
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        matching = ANY_OBJECT_SERVICE.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER)
+                        .is("ctype").equalTo("otherchildctype").query()).build());
+        assertEquals(1, matching.getTotalCount());
+
+        assertTrue(matching.getResult().stream().
+                anyMatch(a -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(a.getKey())));
     }
 
     @Test
@@ -796,7 +885,15 @@ public class SearchITCase extends AbstractITCase {
                 new Attr.Builder("loginDate").value("2009-05-26").build()).build());
         rossini = updateUser(req).getEntity();
         assertNotNull(rossini);
-        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").get().getValues().get(0));
+        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").orElseThrow().getValues().get(0));
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
 
         PagedResult<UserTO> total = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(1).build());
@@ -849,7 +946,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(realm.getKey());
         assertEquals("syncope1727", realm.getName());
         assertEquals("/even/two/syncope1727", realm.getFullPath());
-        assertEquals(realm.getParent(), getRealm("/even/two").get().getKey());
+        assertEquals(realm.getParent(), getRealm("/even/two").orElseThrow().getKey());
 
         // 2. create user
         UserCR userCR = UserITCase.getUniqueSample("syncope1727@syncope.apache.org");
@@ -872,9 +969,9 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(user.getKey(), users.getResult().get(0).getKey());
 
         // 4. update parent Realm
-        realm.setParent(getRealm("/odd").get().getKey());
+        realm.setParent(getRealm("/odd").orElseThrow().getKey());
         REALM_SERVICE.update(realm);
-        realm = getRealm("/odd/syncope1727").get();
+        realm = getRealm("/odd/syncope1727").orElseThrow();
 
         // 5. search again for user
         users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -1003,5 +1100,52 @@ public class SearchITCase extends AbstractITCase {
                 fiql("surname=~D'*").build());
         assertEquals(1, users.getResult().size());
         assertEquals(user.getKey(), users.getResult().get(0).getKey());
+    }
+
+    @Test
+    void issueSYNCOPE1826() {
+        UserCR userCR = UserITCase.getUniqueSample("issueSearch1@syncope.apache.org");
+        userCR.setUsername("user test 1826");
+        createUser(userCR);
+
+        AnyObjectTO anotherPrinter = createAnyObject(new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM,
+                PRINTER,
+                "obj test 1826").build()).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issueSearch2@syncope.apache.org");
+        userCR.setUsername("user 1826 test");
+        createUser(userCR);
+
+        userCR = UserITCase.getUniqueSample("issueSearch3@syncope.apache.org");
+        userCR.setUsername("user test 182");
+        createUser(userCR);
+
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
+        try {
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user test 1826").query()).build()).getResult().isEmpty());
+            assertFalse(ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM)
+                    .details(false).fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).is("name")
+                    .equalToIgnoreCase("obj test 1826").query()).build()).getResult().isEmpty());
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user 1826 test").query()).build()).getResult().isEmpty());
+            assertFalse(USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).details(false)
+                    .fiql(SyncopeClient.getUserSearchConditionBuilder().is("username")
+                            .equalToIgnoreCase("user test 182").query()).build()).getResult().isEmpty());
+        } finally {
+            deleteUser("user test 1826");
+            deleteAnyObject(anotherPrinter.getKey());
+            deleteUser("user 1826 test");
+            deleteUser("user test 182");
+        }
     }
 }

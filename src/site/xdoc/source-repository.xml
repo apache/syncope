@@ -27,12 +27,7 @@ under the License.
 
   <body>
     <section name="Web Browsing">    
-      <p>To browse use the GIT web interface:<br/>
-
-        <a href="https://gitbox.apache.org/repos/asf?p=syncope.git">https://gitbox.apache.org/repos/asf?p=syncope.git</a>
-      </p>
-      <p>Alternatively, use GitHub web interface:<br/>
-
+      <p>To browse, use the GitHub web interface:<br/>
         <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>
       </p>
     </section>
@@ -54,7 +49,7 @@ under the License.
       </p>
     
       <subsection name="Forking on GitHub">
-        <p>Syncope's git repo is automatically mirrored on github at: <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>.</p>
+        <p>Syncope's git repo is automatically mirrored at: <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>.</p>
 
         <p>You can fork that repository, commit changes to your fork, and submit pull requests through GitHub's pull
           requests.<br/>

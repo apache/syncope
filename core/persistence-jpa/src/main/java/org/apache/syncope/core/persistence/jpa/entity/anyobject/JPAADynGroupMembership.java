@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -37,7 +38,8 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     public static final String TABLE = "ADynGroupMembership";
 
-    private Group group;
+    @OneToOne
+    private JPAGroup group;
 
     @ManyToOne
     private JPAAnyType anyType;

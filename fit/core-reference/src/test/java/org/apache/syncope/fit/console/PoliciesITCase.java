@@ -52,7 +52,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", name);
-        formTester.setValue("content:fields:1:field:spinner", "1");
+        formTester.setValue("content:fields:1:field:numberTextField", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
 
         TESTER.clickLink(
@@ -82,7 +82,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", name);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 1);
+                + ":content:fields:1:field:numberTextField", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
 
@@ -96,7 +96,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void createPasswordPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -106,7 +106,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:fields:0:field:textField", name);
-        formTester.setValue("content:fields:1:field:spinner", "1");
+        formTester.setValue("content:fields:1:field:numberTextField", "1");
         formTester.setValue("content:fields:2:field:checkboxField", true);
 
         TESTER.clickLink(
@@ -133,7 +133,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:0:field:textField", name);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 1);
+                + ":content:fields:1:field:numberTextField", 1);
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
                 + ":content:fields:2:field:checkboxField", true);
 
@@ -145,8 +145,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void createPullPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
+    private static void createInboundPolicy(final String name) {
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
         TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
         TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
@@ -216,7 +216,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     private static void deletePasswordPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:5:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);
@@ -240,8 +240,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
     }
 
-    private static void deletePullPolicy(final String name) {
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:6:link");
+    private static void deleteInboundPolicy(final String name) {
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name);
@@ -375,16 +375,16 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void createDeletePullPolicy() {
+    public void createDeleteInboundPolicy() {
         String name = "My Test Pull Policy";
-        createPullPolicy(name);
-        deletePullPolicy(name);
+        createInboundPolicy(name);
+        deleteInboundPolicy(name);
     }
 
     @Test
-    public void cloneDeletePullPolicy() {
+    public void cloneDeleteInboundPolicy() {
         String name = "My Test Pull Policy to be cloned";
-        createPullPolicy(name);
+        createInboundPolicy(name);
 
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -417,12 +417,12 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         assertNotNull(findComponentByProp("name", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name));
 
-        deletePullPolicy(name);
+        deleteInboundPolicy(name);
 
         assertNotNull(findComponentByProp("name", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", name + '2'));
 
-        deletePullPolicy(name + '2');
+        deleteInboundPolicy(name + '2');
     }
 
     @Test
@@ -448,7 +448,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:1:field:spinner", "2");
+        formTester.setValue("content:fields:1:field:numberTextField", "2");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -471,7 +471,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 Modal.class);
 
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 2);
+                + ":content:fields:1:field:numberTextField", 2);
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
@@ -550,7 +550,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:fields:1:field:spinner", "2");
+        formTester.setValue("content:fields:1:field:numberTextField", "2");
 
         TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
@@ -573,7 +573,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 Modal.class);
 
         TESTER.assertModelValue("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form"
-                + ":content:fields:1:field:spinner", 2);
+                + ":content:fields:1:field:numberTextField", 2);
 
         TESTER.executeAjaxEvent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
@@ -628,9 +628,9 @@ public class PoliciesITCase extends AbstractConsoleITCase {
     }
 
     @Test
-    public void createUpdateDeletePullPolicy() {
+    public void createUpdateDeleteInboundPolicy() {
         String name = "Pull Policy To Be Updated";
-        createPullPolicy(name);
+        createInboundPolicy(name);
 
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -679,13 +679,13 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        deletePullPolicy(name + '2');
+        deleteInboundPolicy(name + '2');
     }
 
     @Test
-    public void createComposeDeletePullPolicy() {
+    public void createComposeDeleteInboundPolicy() {
         String name = "Pull Policy To Be Composed";
-        createPullPolicy(name);
+        createInboundPolicy(name);
 
         Component component = findComponentByProp("name",
                 "body:content:tabbedPanel:panel:container:content:"
@@ -728,7 +728,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         closeCallBack(modal);
 
-        deletePullPolicy(name);
+        deleteInboundPolicy(name);
     }
 
     @Test
@@ -804,8 +804,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
-        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField", "rossini 1030");
-        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apache.org");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:7:panel:textField", "rossini 1030");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:15:panel:textField", "ross1030@apache.org");
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();

@@ -51,7 +51,7 @@ import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -63,7 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = Throwable.class)
 public class DefaultRealmPullResultHandler
-        extends AbstractRealmResultHandler<PullTask, PullActions>
+        extends AbstractRealmResultHandler<PullTask, InboundActions>
         implements RealmPullResultHandler {
 
     protected static OpEvent.Outcome and(final OpEvent.Outcome left, final OpEvent.Outcome right) {
@@ -105,6 +105,11 @@ public class DefaultRealmPullResultHandler
 
             LOG.debug("Successfully handled {}", delta);
 
+            if (stopRequested) {
+                LOG.debug("Stop was requested");
+                return false;
+            }
+
             if (profile.getTask().getPullMode() != PullMode.INCREMENTAL) {
                 return true;
             }
@@ -129,15 +134,14 @@ public class DefaultRealmPullResultHandler
         }
     }
 
-    protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception)
-            throws JobExecutionException {
+    protected void throwIgnoreProvisionException(final SyncDelta delta, final Exception exception) {
 
         if (exception instanceof IgnoreProvisionException) {
             throw IgnoreProvisionException.class.cast(exception);
         }
 
         IgnoreProvisionException ipe = null;
-        for (PullActions action : profile.getActions()) {
+        for (InboundActions action : profile.getActions()) {
             if (ipe == null) {
                 ipe = action.onError(profile, delta, exception);
             }
@@ -178,7 +182,7 @@ public class DefaultRealmPullResultHandler
             return OpEvent.Outcome.SUCCESS;
         }
 
-        for (PullActions action : profile.getActions()) {
+        for (InboundActions action : profile.getActions()) {
             action.beforeAssign(profile, delta, realmTO);
         }
 
@@ -217,7 +221,7 @@ public class DefaultRealmPullResultHandler
             return OpEvent.Outcome.SUCCESS;
         }
 
-        for (PullActions action : profile.getActions()) {
+        for (InboundActions action : profile.getActions()) {
             action.beforeProvision(profile, delta, realmTO);
         }
 
@@ -254,7 +258,7 @@ public class DefaultRealmPullResultHandler
             output = actual;
             resultStatus = OpEvent.Outcome.SUCCESS;
 
-            for (PullActions action : profile.getActions()) {
+            for (InboundActions action : profile.getActions()) {
                 action.after(profile, delta, actual, result);
             }
 
@@ -308,7 +312,7 @@ public class DefaultRealmPullResultHandler
                 RealmTO before = binder.getRealmTO(realm, true);
                 try {
                     if (!inLink) {
-                        for (PullActions action : profile.getActions()) {
+                        for (InboundActions action : profile.getActions()) {
                             action.beforeUpdate(profile, delta, before, null);
                         }
                     }
@@ -321,11 +325,10 @@ public class DefaultRealmPullResultHandler
 
                     List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                             propagationManager.createTasks(realm, propByRes, null),
-                            beforeAttrs,
-                            null);
+                            beforeAttrs);
                     taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 
-                    for (PullActions action : profile.getActions()) {
+                    for (InboundActions action : profile.getActions()) {
                         action.after(profile, delta, updated, result);
                     }
 
@@ -391,11 +394,11 @@ public class DefaultRealmPullResultHandler
                 RealmTO before = binder.getRealmTO(realm, true);
                 try {
                     if (unlink) {
-                        for (PullActions action : profile.getActions()) {
+                        for (InboundActions action : profile.getActions()) {
                             action.beforeUnassign(profile, delta, before);
                         }
                     } else {
-                        for (PullActions action : profile.getActions()) {
+                        for (InboundActions action : profile.getActions()) {
                             action.beforeDeprovision(profile, delta, before);
                         }
                     }
@@ -415,7 +418,7 @@ public class DefaultRealmPullResultHandler
                     }
                     output = realmTO;
 
-                    for (PullActions action : profile.getActions()) {
+                    for (InboundActions action : profile.getActions()) {
                         action.after(profile, delta, realmTO, result);
                     }
 
@@ -482,11 +485,11 @@ public class DefaultRealmPullResultHandler
                 RealmTO before = binder.getRealmTO(realm, true);
                 try {
                     if (unlink) {
-                        for (PullActions action : profile.getActions()) {
+                        for (InboundActions action : profile.getActions()) {
                             action.beforeUnlink(profile, delta, before);
                         }
                     } else {
-                        for (PullActions action : profile.getActions()) {
+                        for (InboundActions action : profile.getActions()) {
                             action.beforeLink(profile, delta, before);
                         }
                     }
@@ -530,8 +533,7 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected OpEvent.Outcome delete(final SyncDelta delta, final List<Realm> realms)
-            throws JobExecutionException {
+    protected OpEvent.Outcome delete(final SyncDelta delta, final List<Realm> realms) {
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
@@ -557,7 +559,7 @@ public class DefaultRealmPullResultHandler
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
 
                 if (!profile.isDryRun()) {
-                    for (PullActions action : profile.getActions()) {
+                    for (InboundActions action : profile.getActions()) {
                         action.beforeDelete(profile, delta, before);
                     }
 
@@ -602,7 +604,7 @@ public class DefaultRealmPullResultHandler
                         output = null;
                         resultStatus = OpEvent.Outcome.SUCCESS;
 
-                        for (PullActions action : profile.getActions()) {
+                        for (InboundActions action : profile.getActions()) {
                             action.after(profile, delta, before, result);
                         }
                     } catch (Exception e) {
@@ -629,7 +631,7 @@ public class DefaultRealmPullResultHandler
         return global;
     }
 
-    protected OpEvent.Outcome ignore(final SyncDelta delta, final boolean matching) throws JobExecutionException {
+    protected OpEvent.Outcome ignore(final SyncDelta delta, final boolean matching) {
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
         ProvisioningReport report = new ProvisioningReport();
@@ -655,7 +657,7 @@ public class DefaultRealmPullResultHandler
                 delta.getDeltaType(), delta.getUid().getUidValue(), delta.getObject().getObjectClass());
 
         SyncDelta finalDelta = delta;
-        for (PullActions action : profile.getActions()) {
+        for (InboundActions action : profile.getActions()) {
             finalDelta = action.preprocess(profile, finalDelta);
         }
 

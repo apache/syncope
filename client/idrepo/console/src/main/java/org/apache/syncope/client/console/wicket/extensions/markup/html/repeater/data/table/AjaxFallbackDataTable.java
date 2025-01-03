@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.navigation.paging.AjaxDataNavigationToolbar;
@@ -70,16 +71,15 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
             @Override
             protected WebMarkupContainer newSortableHeader(
-                final String borderId, final S property, final ISortStateLocator<S> locator) {
+                    final String borderId, final S property, final ISortStateLocator<S> locator) {
+
                 return new AjaxFallbackOrderByBorder<>(borderId, property, locator) {
 
                     private static final long serialVersionUID = 8261993963983329775L;
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {
-                        if (container != null) {
-                            target.add(container);
-                        }
+                        Optional.ofNullable(container).ifPresent(target::add);
                     }
                 };
             }
@@ -91,16 +91,14 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
             @Override
             protected WebMarkupContainer newSortableHeader(
-                final String borderId, final S property, final ISortStateLocator<S> locator) {
+                    final String borderId, final S property, final ISortStateLocator<S> locator) {
                 return new AjaxFallbackOrderByBorder<>(borderId, property, locator) {
 
                     private static final long serialVersionUID = 985887006636879421L;
 
                     @Override
                     protected void onAjaxClick(final AjaxRequestTarget target) {
-                        if (container != null) {
-                            target.add(container);
-                        }
+                        Optional.ofNullable(container).ifPresent(target::add);
                     }
                 };
             }
@@ -117,12 +115,17 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
         return null;
     }
 
+    protected void onDoubleClick(final AjaxRequestTarget target, final IModel<T> model) {
+        togglePanel.close(target);
+        getActions(model).getActions().get(0).getLink().onClick(target, model.getObject());
+    }
+
     @Override
     protected Item<T> newRowItem(final String id, final int index, final IModel<T> model) {
-        final OddEvenItem<T> item = new OddEvenItem<>(id, index, model);
+        OddEvenItem<T> item = new OddEvenItem<>(id, index, model);
 
         if (togglePanel != null) {
-            final ActionsPanel<T> actions = getActions(model);
+            ActionsPanel<T> actions = getActions(model);
 
             if (actions != null && !actions.isEmpty()) {
                 item.add(new AttributeModifier("style", "cursor: pointer;"));
@@ -137,7 +140,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
                     @Override
                     protected void onEvent(final AjaxRequestTarget target) {
-                        final String lastFocussedElementId = target.getLastFocusedElementId();
+                        String lastFocussedElementId = target.getLastFocusedElementId();
                         if (lastFocussedElementId == null) {
                             togglePanel.toggleWithContent(target, getActions(model), model.getObject());
                         } else {
@@ -164,6 +167,15 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                                 togglePanel.toggleWithContent(target, getActions(model), model.getObject());
                             }
                         }
+                    }
+                });
+                item.add(new AjaxEventBehavior(Constants.ON_DOUBLE_CLICK) {
+
+                    private static final long serialVersionUID = -4255753643957306394L;
+
+                    @Override
+                    protected void onEvent(final AjaxRequestTarget target) {
+                        onDoubleClick(target, model);
                     }
                 });
             }

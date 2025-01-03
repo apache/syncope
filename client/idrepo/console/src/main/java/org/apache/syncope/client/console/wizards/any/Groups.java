@@ -28,7 +28,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -92,8 +91,9 @@ public class Groups extends AbstractGroups {
         addDynamicRealmsContainer();
     }
 
-    protected List<GroupTO> searchAssignable(final String realm, final String term) {
-        return syncopeRestClient.searchAssignableGroups(realm, term, 1, Constants.MAX_GROUP_LIST_SIZE);
+    protected List<GroupTO> searchAssignable(final String term) {
+        return syncopeRestClient.searchAssignableGroups(
+                SyncopeConstants.ROOT_REALM, term, 1, Constants.MAX_GROUP_LIST_SIZE);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class Groups extends AbstractGroups {
                             ? List.of()
                             : ("*".equals(filter)
                                     ? groupsModel.getObject()
-                                    : searchAssignable(anyTO.getRealm(), filter)).stream().
+                                    : searchAssignable(filter)).stream().
                                     map(group -> new MembershipTO.Builder(group.getKey()).
                                     groupName(group.getName()).build()).
                                     collect(Collectors.toList());
@@ -200,32 +200,14 @@ public class Groups extends AbstractGroups {
 
         private static final long serialVersionUID = -4541954630939063927L;
 
-        protected List<GroupTO> groupsObj;
-
-        protected List<MembershipTO> membershipsObj;
-
-        protected List<String> dynMembershipsObj;
-
-        protected String realmObj;
-
-        @Override
-        public List<GroupTO> getObject() {
-            reload();
-            return groupsObj;
-        }
+        protected List<String> dynMemberships;
 
         /**
          * Retrieve the first MAX_GROUP_LIST_SIZE assignable.
          */
         @Override
         protected void reloadObject() {
-            groupsObj = searchAssignable(realmObj, null);
-        }
-
-        @Override
-        public List<MembershipTO> getMemberships() {
-            reload();
-            return membershipsObj;
+            groups = searchAssignable(null);
         }
 
         /**
@@ -251,7 +233,7 @@ public class Groups extends AbstractGroups {
 
                 if (!conditions.isEmpty()) {
                     assignedGroups.putAll(groupRestClient.search(
-                            realmObj,
+                            SyncopeConstants.ROOT_REALM,
                             builder.or(conditions).query(),
                             1,
                             Constants.MAX_GROUP_LIST_SIZE,
@@ -266,19 +248,10 @@ public class Groups extends AbstractGroups {
                     forEach(m -> m.setGroupName(assignedGroups.get(m.getGroupKey())));
             GroupableRelatableTO.class.cast(anyTO).getMemberships().removeIf(m -> m.getGroupName() == null);
 
-            membershipsObj = GroupableRelatableTO.class.cast(anyTO).getMemberships();
-            membershipsObj.sort(Comparator.comparing(MembershipTO::getGroupName));
+            memberships = GroupableRelatableTO.class.cast(anyTO).getMemberships();
+            memberships.sort(Comparator.comparing(MembershipTO::getGroupName));
         }
 
-        @Override
-        public List<String> getDynMemberships() {
-            reload();
-            return dynMembershipsObj;
-        }
-
-        /**
-         * Retrieve dyn group memberships.
-         */
         @Override
         protected void reloadDynMemberships() {
             GroupFiqlSearchConditionBuilder builder = SyncopeClient.getGroupSearchConditionBuilder();
@@ -288,9 +261,9 @@ public class Groups extends AbstractGroups {
                     equalTo(membership.getGroupKey()).wrap()).
                     collect(Collectors.toList());
 
-            dynMembershipsObj = new ArrayList<>();
+            dynMemberships = new ArrayList<>();
             if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.GROUP_SEARCH) && !conditions.isEmpty()) {
-                dynMembershipsObj.addAll(groupRestClient.search(
+                dynMemberships.addAll(groupRestClient.search(
                         SyncopeConstants.ROOT_REALM,
                         builder.or(conditions).query(),
                         -1,
@@ -300,25 +273,12 @@ public class Groups extends AbstractGroups {
             }
         }
 
-        /**
-         * Reload data if the realm changes (see SYNCOPE-1135).
-         */
         @Override
-        protected void reload() {
-            boolean reload;
-            if (Groups.this.templateMode) {
-                reload = realmObj == null;
-                realmObj = SyncopeConstants.ROOT_REALM;
-            } else {
-                reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realmObj);
-                realmObj = RealmsUtils.getFullPath(Groups.this.anyTO.getRealm());
-            }
-
-            if (reload) {
-                reloadObject();
-                reloadMemberships();
+        public List<String> getDynMemberships() {
+            if (dynMemberships == null) {
                 reloadDynMemberships();
             }
+            return dynMemberships;
         }
     }
 }

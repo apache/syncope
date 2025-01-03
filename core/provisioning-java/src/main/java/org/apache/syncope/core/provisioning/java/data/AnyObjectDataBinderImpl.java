@@ -26,6 +26,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
@@ -34,6 +36,7 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -158,8 +161,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             map(relationship -> getRelationshipTO(
                             relationship.getType().getKey(),
                             relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                            ? RelationshipTO.End.LEFT
+                            : RelationshipTO.End.RIGHT,
+                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
                             ? relationship.getRightEnd()
-                            : anyObject)).
+                            : relationship.getLeftEnd())).
                             toList());
 
             // memberships
@@ -189,6 +195,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     return sce;
                 });
         anyObject.setType(type);
+
+        AnyObjectTO anyTO = new AnyObjectTO();
+        EntityTOUtils.toAnyTO(anyObjectCR, anyTO);
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -226,11 +235,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             } else {
                 AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
                 if (otherEnd == null) {
-                    LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+                    LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
+                } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
+                    SyncopeClientException noRight =
+                            SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                    noRight.getElements().add(
+                            "Relationships shall be created or updated only from their left end");
+                    scce.addException(noRight);
                 } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                    LOG.error("{} was already in relationship {} with {}",
-                            otherEnd, relationshipTO.getType(), anyObject);
-
                     SyncopeClientException assigned =
                             SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                     assigned.getElements().add("AnyObject was already in relationship "
@@ -261,8 +273,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     ? groupDAO.findByName(membershipTO.getGroupName()).orElse(null)
                     : groupDAO.findById(membershipTO.getGroupKey()).orElse(null);
             if (group == null) {
-                LOG.debug("Ignoring invalid group "
-                        + membershipTO.getGroupKey() + " / " + membershipTO.getGroupName());
+                LOG.debug("Ignoring invalid group {} / {}", membershipTO.getGroupKey(), membershipTO.getGroupName());
             } else if (groups.contains(group.getKey())) {
                 LOG.error("{} was already assigned to {}", group, anyObject);
 
@@ -280,12 +291,13 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 anyObject.add(membership);
 
                 // membership attributes
-                fill(anyObject, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+                fill(anyTO, anyObject, membership, membershipTO,
+                        anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
             }
         });
 
         // attributes and resources
-        fill(anyObject, anyObjectCR, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+        fill(anyTO, anyObject, anyObjectCR, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -297,6 +309,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     public PropagationByResource<String> update(final AnyObject toBeUpdated, final AnyObjectUR anyObjectUR) {
         // Re-merge any pending change from workflow tasks
         AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
+
+        AnyObjectTO anyTO = AnyOperations.patch(getAnyObjectTO(anyObject, true), anyObjectUR);
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
 
@@ -317,7 +331,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // attributes and resources
-        fill(anyObject, anyObjectUR, anyUtils, scce);
+        fill(anyTO, anyObject, anyObjectUR, anyUtils, scce);
 
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
@@ -350,11 +364,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 orElse(null);
                         if (otherEnd == null) {
                             LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
+                        } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
+                            SyncopeClientException noRight =
+                                    SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                            noRight.getElements().add(
+                                    "Relationships shall be created or updated only from their left end");
+                            scce.addException(noRight);
                         } else if (relationships.contains(
                                 Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
-
-                            LOG.error("{} was already in relationship {} with {}",
-                                    anyObject, patch.getRelationshipTO().getType(), otherEnd);
 
                             SyncopeClientException assigned =
                                     SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
@@ -423,8 +440,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     patch.getPlainAttrs().forEach(attrTO -> {
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
-                            LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                                    + "{}, ignoring...", attrTO.getSchema());
+                            LOG.debug("Invalid {}{}, ignoring...",
+                                    PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
                             Optional<? extends APlainAttr> attr =
                                     anyObject.getPlainAttr(schema.getKey(), newMembership);
@@ -439,6 +456,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                                 anyObject.add(newAttr);
 
                                 processAttrPatch(
+                                        anyTO,
                                         anyObject,
                                         new AttrPatch.Builder(attrTO).build(),
                                         schema,

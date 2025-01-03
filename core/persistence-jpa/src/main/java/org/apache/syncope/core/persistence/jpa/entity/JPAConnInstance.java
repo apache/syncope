@@ -34,7 +34,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +57,12 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     public static final String TABLE = "ConnInstance";
 
-    protected static final TypeReference<Set<ConnectorCapability>> TYPEREF =
+    protected static final TypeReference<Set<ConnectorCapability>> CONNECTOR_CAPABILITY_TYPEREF =
             new TypeReference<Set<ConnectorCapability>>() {
+    };
+
+    protected static final TypeReference<List<ConnConfProperty>> CONN_CONF_PROPS_TYPEREF =
+            new TypeReference<List<ConnConfProperty>>() {
     };
 
     private static final int DEFAULT_TIMEOUT = 10;
@@ -74,25 +77,19 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     private String location;
 
     /**
-     * Connector bundle class name.
-     * Within a given location, the triple
-     * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
+     * Connector class name.
      */
     @NotNull
     private String connectorName;
 
     /**
-     * Qualified name for the connector bundle.
-     * Within a given location, the triple
-     * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
+     * Connector bundle name.
      */
     @NotNull
     private String bundleName;
 
     /**
-     * Version of the bundle.
-     * Within a given location, the triple
-     * (ConnectorBundle-Name, ConnectorBundle-Version, ConnectorBundle-Version) must be unique.
+     * Connector bundle version.
      */
     @NotNull
     private String version;
@@ -121,8 +118,9 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     private List<JPAExternalResource> resources = new ArrayList<>();
 
     /**
-     * Connector request timeout. It is not applied in case of sync, full reconciliation and search.
-     * DEFAULT_TIMEOUT is the default value to be used in case of unspecified timeout.
+     * Connection request timeout.
+     * It is not applied in case of sync, full reconciliation and search.
+     * DEFAULT_TIMEOUT if null.
      */
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
@@ -180,18 +178,15 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     }
 
     @Override
-    public Set<ConnConfProperty> getConf() {
-        Set<ConnConfProperty> configuration = new HashSet<>();
-        if (!StringUtils.isBlank(jsonConf)) {
-            configuration.addAll(List.of(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
-        }
-
-        return configuration;
+    public List<ConnConfProperty> getConf() {
+        return StringUtils.isNotBlank(jsonConf)
+                ? POJOHelper.deserialize(jsonConf, CONN_CONF_PROPS_TYPEREF)
+                : new ArrayList<>();
     }
 
     @Override
-    public void setConf(final Collection<ConnConfProperty> conf) {
-        jsonConf = POJOHelper.serialize(new HashSet<>(conf));
+    public void setConf(final List<ConnConfProperty> conf) {
+        jsonConf = POJOHelper.serialize(conf);
     }
 
     @Override
@@ -222,9 +217,6 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
 
     @Override
     public Integer getConnRequestTimeout() {
-        // DEFAULT_TIMEOUT will be returned in case of null timeout:
-        // * instances created by the content loader
-        // * or with a timeout nullified explicitely
         return Optional.ofNullable(connRequestTimeout).orElse(DEFAULT_TIMEOUT);
     }
 
@@ -248,7 +240,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
             getCapabilities().clear();
         }
         if (capabilities != null) {
-            getCapabilities().addAll(POJOHelper.deserialize(capabilities, TYPEREF));
+            getCapabilities().addAll(POJOHelper.deserialize(capabilities, CONNECTOR_CAPABILITY_TYPEREF));
         }
     }
 

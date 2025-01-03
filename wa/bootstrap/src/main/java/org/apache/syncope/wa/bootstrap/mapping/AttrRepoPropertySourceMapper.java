@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
+import org.apache.syncope.common.lib.attr.AzureActiveDirectoryAttrRepoConf;
 import org.apache.syncope.common.lib.attr.JDBCAttrRepoConf;
 import org.apache.syncope.common.lib.attr.LDAPAttrRepoConf;
+import org.apache.syncope.common.lib.attr.OktaAttrRepoConf;
 import org.apache.syncope.common.lib.attr.StubAttrRepoConf;
 import org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
@@ -32,8 +34,10 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.model.core.authentication.AttributeRepositoryStates;
 import org.apereo.cas.configuration.model.core.authentication.StubPrincipalAttributesProperties;
+import org.apereo.cas.configuration.model.support.azuread.AzureActiveDirectoryAttributesProperties;
 import org.apereo.cas.configuration.model.support.jdbc.JdbcPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.ldap.LdapPrincipalAttributesProperties;
+import org.apereo.cas.configuration.model.support.okta.OktaPrincipalAttributesProperties;
 import org.apereo.cas.configuration.model.support.syncope.SyncopePrincipalAttributesProperties;
 
 public class AttrRepoPropertySourceMapper extends PropertySourceMapper implements AttrRepoConf.Mapper {
@@ -114,5 +118,35 @@ public class AttrRepoPropertySourceMapper extends PropertySourceMapper implement
                 stream().collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
 
         return prefix("cas.authn.attribute-repository.syncope.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AttrRepoTO attrRepoTO, final AzureActiveDirectoryAttrRepoConf conf) {
+        AzureActiveDirectoryAttributesProperties props = new AzureActiveDirectoryAttributesProperties();
+        props.setId(attrRepoTO.getKey());
+        props.setOrder(attrRepoTO.getOrder());
+        props.setClientId(conf.getClientId());
+        props.setClientSecret(conf.getClientSecret());
+        props.setLoginBaseUrl(conf.getLoginUrl());
+        props.setResource(conf.getResource());
+        props.setTenant(conf.getTenant());
+        props.setScope(conf.getScope());
+        props.setCaseInsensitive(conf.isCaseInsensitive());
+        props.setAttributes(attrRepoTO.getItems().stream().map(Item::getExtAttrName).collect(Collectors.joining(",")));
+
+        return prefix("cas.authn.attribute-repository.azure-active-directory[].", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AttrRepoTO attrRepoTO, final OktaAttrRepoConf conf) {
+        OktaPrincipalAttributesProperties props = new OktaPrincipalAttributesProperties();
+        props.setId(attrRepoTO.getKey());
+        props.setOrder(attrRepoTO.getOrder());
+        props.setOrganizationUrl(conf.getOrganizationUrl());
+        props.setUsernameAttribute(conf.getUsernameAttribute());
+        props.setScopes(conf.getScopes());
+        props.setApiToken(conf.getApiToken());
+
+        return prefix("cas.authn.attribute-repository.okta.", WAConfUtils.asMap(props));
     }
 }

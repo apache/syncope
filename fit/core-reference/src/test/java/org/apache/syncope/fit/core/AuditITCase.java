@@ -35,7 +35,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -453,8 +452,7 @@ public class AuditITCase extends AbstractITCase {
             Properties props = new Properties();
             props.load(propStream);
 
-            Path auditFilePath = Paths.get(props.getProperty("test.log.dir")
-                    + File.separator + "audit_for_Master_file");
+            Path auditFilePath = Path.of(props.getProperty("test.log.dir") + File.separator + "audit_for_Master_file");
 
             // check that resource update is transformed and logged onto an audit file.
             ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);

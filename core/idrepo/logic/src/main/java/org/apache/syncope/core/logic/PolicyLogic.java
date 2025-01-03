@@ -58,7 +58,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(policyTO);
         if (policyUtils.getType() != type) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
-            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
+            sce.getElements().add("Found " + policyUtils.getType() + ", expected " + type);
             throw sce;
         }
 
@@ -67,13 +67,14 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_UPDATE + "')")
     public PolicyTO update(final PolicyType type, final PolicyTO policyTO) {
-        Policy policy = policyDAO.findById(policyTO.getKey()).
-                orElseThrow(() -> new NotFoundException("Policy " + policyTO.getKey()));
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
-        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
-        if (policyUtils.getType() != type) {
+        Policy policy = policyDAO.findById(policyTO.getKey(), policyUtils.policyClass()).
+                orElseThrow(() -> new NotFoundException(type + " Policy " + policyTO.getKey()));
+
+        if (policyUtilsFactory.getInstance(policyTO).getType() != type) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
-            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
+            sce.getElements().add("Found " + policyTO.getClass().getName() + ", expected " + type);
             throw sce;
         }
 
@@ -85,37 +86,26 @@ public class PolicyLogic extends AbstractTransactionalLogic<PolicyTO> {
     public <T extends PolicyTO> List<T> list(final PolicyType type) {
         PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
-        return policyDAO.findAll(policyUtils.policyClass()).stream().
-                <T>map(binder::getPolicyTO).toList();
+        return policyDAO.findAll(policyUtils.policyClass()).stream().<T>map(binder::getPolicyTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_READ + "')")
     @Transactional(readOnly = true)
     public <T extends PolicyTO> T read(final PolicyType type, final String key) {
-        Policy policy = policyDAO.findById(key).
-                orElseThrow(() -> new NotFoundException("Policy " + key));
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
-        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
-        if (type != null && policyUtils.getType() != type) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
-            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
-            throw sce;
-        }
+        Policy policy = policyDAO.findById(key, policyUtils.policyClass()).
+                orElseThrow(() -> new NotFoundException(type + " Policy " + key));
 
         return binder.getPolicyTO(policy);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.POLICY_DELETE + "')")
     public <T extends PolicyTO> T delete(final PolicyType type, final String key) {
-        Policy policy = policyDAO.findById(key).
-                orElseThrow(() -> new NotFoundException("Policy " + key));
+        PolicyUtils policyUtils = policyUtilsFactory.getInstance(type);
 
-        PolicyUtils policyUtils = policyUtilsFactory.getInstance(policy);
-        if (type != null && policyUtils.getType() != type) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
-            sce.getElements().add("Found " + type + ", expected " + policyUtils.getType());
-            throw sce;
-        }
+        Policy policy = policyDAO.findById(key, policyUtils.policyClass()).
+                orElseThrow(() -> new NotFoundException(type + " Policy " + key));
 
         T deleted = binder.getPolicyTO(policy);
         policyDAO.delete(policy);

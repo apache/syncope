@@ -73,7 +73,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
     private ExternalResource externalResource(
             final AnyType anyType,
             final List<String> columns,
-            final List<String> propagationActions) throws JobExecutionException {
+            final List<String> propagationActions) {
 
         Provision provision = new Provision();
         provision.setAnyType(anyType.getKey());
@@ -104,7 +104,7 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
         propagationActions.forEach(key -> {
             Implementation impl = implementationDAO.findById(key).orElse(null);
             if (impl == null || !IdMImplementationType.PROPAGATION_ACTIONS.equals(impl.getType())) {
-                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key);
+                LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key);
             } else {
                 resource.add(impl);
             }
@@ -138,14 +138,18 @@ public class StreamPushJobDelegate extends PushJobDelegate implements SyncopeStr
             task.setPerformDelete(true);
             task.setSyncStatus(false);
 
-            profile = new ProvisioningProfile<>(connector, task);
-            profile.setExecutor(executor);
-            profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
-                    map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
-                    toList()));
-            profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+            profile = new ProvisioningProfile<>(
+                    connector,
+                    taskType,
+                    task,
+                    ConflictResolutionAction.FIRSTMATCH,
+                    getPushActions(pushTaskTO.getActions().stream().
+                            map(implementationDAO::findById).flatMap(Optional::stream).
+                            toList()),
+                    executor,
+                    false);
 
-            PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
+            dispatcher = new PushResultHandlerDispatcher(profile, this);
 
             for (PushActions action : profile.getActions()) {
                 action.beforeAll(profile);

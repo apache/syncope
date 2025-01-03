@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.job;
 import org.apache.syncope.core.persistence.api.dao.BatchDAO;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class ExpiredBatchCleanup extends AbstractSchedTaskJobDelegate<SchedTask> {
@@ -30,10 +29,8 @@ public class ExpiredBatchCleanup extends AbstractSchedTaskJobDelegate<SchedTask>
     private BatchDAO batchDAO;
 
     @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
-            throws JobExecutionException {
-
-        if (!dryRun) {
+    protected String doExecute(final JobExecutionContext context) {
+        if (!context.isDryRun()) {
             long deleted = batchDAO.deleteExpired();
             LOG.debug("Successfully deleted {} expired batch requests", deleted);
         }

@@ -27,9 +27,13 @@ public interface PlainAttr<A extends Any<?>> extends Entity {
 
     void setOwner(A owner);
 
+    String getSchemaKey();
+
     PlainSchema getSchema();
 
     void setSchema(PlainSchema schema);
+
+    void add(PlainAttrValue attrValue);
 
     void add(PlainAttrValidationManager validator, String value, AnyUtils anyUtils);
 

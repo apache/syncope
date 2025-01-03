@@ -30,7 +30,9 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.AttrPatch;
@@ -42,6 +44,7 @@ import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -230,6 +233,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     }
 
     protected void linkedAccount(
+            final UserTO anyTO,
             final User user,
             final LinkedAccountTO accountTO,
             final AnyUtils anyUtils,
@@ -283,7 +287,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             attr.setOwner(user);
                             attr.setAccount(account);
                         }
-                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+                        fillAttr(anyTO, attrTO.getValues(), anyUtils, schema, attr, invalidValues);
 
                         if (attr.getValuesAsStrings().isEmpty()) {
                             attr.setOwner(null);
@@ -300,6 +304,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Override
     public void create(final User user, final UserCR userCR) {
+        UserTO anyTO = new UserTO();
+        EntityTOUtils.toAnyTO(userCR, anyTO);
+
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
         // set username
@@ -340,10 +347,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         userCR.getRelationships().forEach(relationshipTO -> {
             AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
             if (otherEnd == null) {
-                LOG.debug("Ignoring invalid anyObject " + relationshipTO.getOtherEndKey());
+                LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
+            } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
+                SyncopeClientException noRight =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                noRight.getElements().add(
+                        "Relationships shall be created or updated only from their left end");
+                scce.addException(noRight);
             } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                LOG.error("{} was already in relationship {} with {}", otherEnd, relationshipTO.getType(), user);
-
                 SyncopeClientException assigned =
                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                 assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
@@ -363,8 +374,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         },
                         () -> LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType()));
             } else {
-                LOG.error("{} cannot be related to {}", otherEnd, user);
-
                 SyncopeClientException unrelatable =
                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                 unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
@@ -399,20 +408,21 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.add(membership);
 
                 // membership attributes
-                fill(user, membership, membershipTO, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
+                fill(anyTO, user, membership, membershipTO,
+                        anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
             }
         });
 
         // linked accounts
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
-        userCR.getLinkedAccounts().
-                forEach(acct -> linkedAccount(user, acct, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
+        userCR.getLinkedAccounts().forEach(
+                acct -> linkedAccount(anyTO, user, acct, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
 
         // attributes and resources
-        fill(user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
+        fill(anyTO, user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -433,6 +443,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // Re-merge any pending change from workflow tasks
         User user = userDAO.save(toBeUpdated);
+
+        UserTO anyTO = AnyOperations.patch(getUserTO(user, true), userUR);
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         PropagationByResource<Pair<String, String>> propByLinkedAccount = new PropagationByResource<>();
@@ -518,7 +530,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // attributes and resources
-        fill(user, userUR, anyUtils, scce);
+        fill(anyTO, user, userUR, anyUtils, scce);
 
         // relationships
         Set<Pair<String, String>> relationships = new HashSet<>();
@@ -541,15 +553,18 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     } else if (relationships.contains(
                             Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
 
-                        LOG.error("{} was already in relationship {} with {}",
-                                user, patch.getRelationshipTO().getType(), otherEnd);
-
                         SyncopeClientException assigned =
                                 SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
                         assigned.getElements().add("User was already in relationship "
                                 + patch.getRelationshipTO().getType() + " with "
                                 + otherEnd.getType().getKey() + " " + otherEnd.getName());
                         scce.addException(assigned);
+                    } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
+                        SyncopeClientException noRight =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        noRight.getElements().add(
+                                "Relationships shall be created or updated only from their left end");
+                        scce.addException(noRight);
                     } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                         relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
 
@@ -618,8 +633,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     patch.getPlainAttrs().forEach(attrTO -> {
                         PlainSchema schema = getPlainSchema(attrTO.getSchema());
                         if (schema == null) {
-                            LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                                    + "{}, ignoring...", attrTO.getSchema());
+                            LOG.debug("Invalid {}{}, ignoring...",
+                                    PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
                             UPlainAttr attr = user.getPlainAttr(schema.getKey(), newMembership).orElse(null);
                             if (attr == null) {
@@ -633,6 +648,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                 user.add(attr);
 
                                 processAttrPatch(
+                                        anyTO,
                                         user,
                                         new AttrPatch.Builder(attrTO).build(),
                                         schema,
@@ -687,6 +703,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                 linkedAccount(
+                        anyTO,
                         user,
                         patch.getLinkedAccountTO(),
                         anyUtilsFactory.getLinkedAccountInstance(),
@@ -809,8 +826,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     flatMap(role -> role.getPrivileges().stream()).map(Privilege::getKey).collect(Collectors.toSet()));
 
             // relationships
-            userTO.getRelationships().addAll(user.getRelationships().stream().
-                    map(relationship -> getRelationshipTO(relationship.getType().getKey(), relationship.getRightEnd())).
+            userTO.getRelationships().addAll(user.getRelationships().stream().map(relationship -> getRelationshipTO(
+                    relationship.getType().getKey(), RelationshipTO.End.LEFT, relationship.getRightEnd())).
                     toList());
 
             // memberships

@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.persistence.EntityExistsException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
@@ -99,7 +97,7 @@ public class PlainSchemaTest extends AbstractTest {
 
         found = plainSchemaDAO.findByAnyTypeClasses(
                 List.of(anyTypeClassDAO.findById("other").orElseThrow()));
-        assertEquals(10, found.size());
+        assertEquals(11, found.size());
     }
 
     @Test
@@ -160,8 +158,6 @@ public class PlainSchemaTest extends AbstractTest {
         mapItems = getMappingItems("fullname");
         assertTrue(mapItems.isEmpty());
 
-        assertTrue(findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class).isEmpty());
-        assertTrue(findPlainAttr(UUID.randomUUID().toString(), UPlainAttr.class).isEmpty());
         assertFalse(userDAO.findByUsername("rossini").orElseThrow().getPlainAttr("fullname").isPresent());
         assertFalse(userDAO.findByUsername("vivaldi").orElseThrow().getPlainAttr("fullname").isPresent());
     }

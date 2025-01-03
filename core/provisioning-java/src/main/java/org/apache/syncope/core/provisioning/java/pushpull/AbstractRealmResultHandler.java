@@ -80,8 +80,15 @@ public abstract class AbstractRealmResultHandler<T extends ProvisioningTask<?>, 
      */
     protected ProvisioningProfile<T, A> profile;
 
+    protected volatile boolean stopRequested = false;
+
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {
         this.profile = profile;
+    }
+
+    @Override
+    public void stop() {
+        stopRequested = true;
     }
 }

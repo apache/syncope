@@ -26,12 +26,24 @@ public class RelationshipTO implements BaseBean {
 
     private static final long serialVersionUID = 360672942026613929L;
 
+    public enum End {
+        LEFT,
+        RIGHT;
+
+    }
+
     public static class Builder {
 
         private final RelationshipTO instance = new RelationshipTO();
 
         public Builder(final String type) {
             instance.setType(type);
+            instance.setEnd(End.LEFT);
+        }
+
+        public Builder(final String type, final End end) {
+            instance.setType(type);
+            instance.setEnd(end);
         }
 
         public Builder otherEnd(final String otherEndType, final String otherEndKey) {
@@ -53,6 +65,8 @@ public class RelationshipTO implements BaseBean {
     }
 
     private String type;
+
+    private End end;
 
     private String otherEndType;
 
@@ -92,6 +106,14 @@ public class RelationshipTO implements BaseBean {
         this.otherEndName = otherEndName;
     }
 
+    public End getEnd() {
+        return end;
+    }
+
+    public void setEnd(final End end) {
+        this.end = end;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -99,6 +121,7 @@ public class RelationshipTO implements BaseBean {
                 append(otherEndType).
                 append(otherEndKey).
                 append(otherEndName).
+                append(end).
                 build();
     }
 
@@ -119,6 +142,7 @@ public class RelationshipTO implements BaseBean {
                 append(otherEndType, other.otherEndType).
                 append(otherEndKey, other.otherEndKey).
                 append(otherEndName, other.otherEndName).
+                append(end, other.end).
                 build();
     }
 }

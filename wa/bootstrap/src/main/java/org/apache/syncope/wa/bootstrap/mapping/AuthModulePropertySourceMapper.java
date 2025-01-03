@@ -28,6 +28,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.auth.AbstractOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AppleOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
+import org.apache.syncope.common.lib.auth.AzureActiveDirectoryAuthModuleConf;
 import org.apache.syncope.common.lib.auth.AzureOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.GoogleMfaAuthModuleConf;
@@ -38,6 +39,7 @@ import org.apache.syncope.common.lib.auth.KeycloakOIDCAuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf;
 import org.apache.syncope.common.lib.auth.OIDCAuthModuleConf;
+import org.apache.syncope.common.lib.auth.OktaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SimpleMfaAuthModuleConf;
 import org.apache.syncope.common.lib.auth.SpnegoAuthModuleConf;
@@ -49,6 +51,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.model.core.authentication.AuthenticationHandlerStates;
+import org.apereo.cas.configuration.model.support.azuread.AzureActiveDirectoryAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.generic.AcceptAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jaas.JaasAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.jdbc.authn.QueryJdbcAuthenticationProperties;
@@ -59,6 +62,7 @@ import org.apereo.cas.configuration.model.support.mfa.duo.DuoSecurityMultifactor
 import org.apereo.cas.configuration.model.support.mfa.gauth.GoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
 import org.apereo.cas.configuration.model.support.mfa.simple.CasSimpleMultifactorAuthenticationProperties;
+import org.apereo.cas.configuration.model.support.okta.OktaAuthenticationProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oauth.Pac4jOAuth20ClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.BasePac4jOidcClientProperties;
 import org.apereo.cas.configuration.model.support.pac4j.oidc.Pac4jAppleOidcClientProperties;
@@ -93,6 +97,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setName(authModuleTO.getKey());
         props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
         props.setOrder(authModuleTO.getOrder());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
         String users = conf.getUsers().entrySet().stream().
                 map(entry -> entry.getKey() + "::" + entry.getValue()).
                 collect(Collectors.joining(","));
@@ -122,8 +127,8 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setAllowMultiplePrincipalAttributeValues(conf.isAllowMultiplePrincipalAttributeValues());
         props.setAdditionalAttributes(conf.getAdditionalAttributes());
         props.setAllowMissingPrincipalAttributeValue(conf.isAllowMissingPrincipalAttributeValue());
-        props.setCollectDnAttribute(props.isCollectDnAttribute());
-
+        props.setCollectDnAttribute(conf.isCollectDnAttribute());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
         props.getPasswordPolicy().setType(AbstractLdapProperties.LdapType.valueOf(conf.getLdapType().name()));
 
         fill(props, conf);
@@ -143,6 +148,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setFieldPassword(conf.getFieldPassword());
         props.setPrincipalAttributeList(authModuleTO.getItems().stream().
                 map(item -> item.getIntAttrName() + ":" + item.getExtAttrName()).toList());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
         fill(props, conf);
 
         return prefix("cas.authn.jdbc.query[].", WAConfUtils.asMap(props));
@@ -159,6 +165,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setKerberosRealmSystemProperty(conf.getKerberosRealmSystemProperty());
         props.setLoginConfigType(conf.getLoginConfigurationFile());
         props.setRealm(conf.getRealm());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
 
         return prefix("cas.authn.jaas[].", WAConfUtils.asMap(props));
     }
@@ -386,8 +393,38 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
         props.setAttributeMappings(authModuleTO.getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
+        props.setCredentialCriteria(conf.getCredentialCriteria());
 
         return prefix("cas.authn.syncope.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final AzureActiveDirectoryAuthModuleConf conf) {
+        AzureActiveDirectoryAuthenticationProperties props = new AzureActiveDirectoryAuthenticationProperties();
+        props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setLoginUrl(conf.getLoginUrl());
+        props.setResource(conf.getResource());
+        props.setClientId(conf.getClientId());
+        props.setClientSecret(conf.getClientSecret());
+        props.setTenant(conf.getTenant());
+        props.setScope(conf.getScope());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
+
+        return prefix("cas.authn.azure-active-directory.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(final AuthModuleTO authModuleTO, final OktaAuthModuleConf conf) {
+        OktaAuthenticationProperties props = new OktaAuthenticationProperties();
+        props.setName(authModuleTO.getKey());
+        props.setOrder(authModuleTO.getOrder());
+        props.setState(AuthenticationHandlerStates.valueOf(authModuleTO.getState().name()));
+        props.setOrganizationUrl(conf.getOrganizationUrl());
+        props.setCredentialCriteria(conf.getCredentialCriteria());
+
+        return prefix("cas.authn.okta.", WAConfUtils.asMap(props));
     }
 
     @Override

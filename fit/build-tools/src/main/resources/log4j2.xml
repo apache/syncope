@@ -32,6 +32,13 @@ under the License.
     <asyncLogger name="net.tirasa.connid" additivity="false" level="DEBUG">
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.apache.kafka" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
+
+    <asyncLogger name="org.apache.syncope.fit.buildtools" additivity="false" level="INFO">
+      <appender-ref ref="main"/>
+    </asyncLogger>
 
     <root level="WARN">
       <appenderRef ref="main"/>

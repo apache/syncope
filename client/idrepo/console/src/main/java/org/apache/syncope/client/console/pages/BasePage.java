@@ -71,6 +71,14 @@ public class BasePage extends BaseWebPage {
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
 
+    protected static String getLIContainerId(final String linkId) {
+        return linkId + "LI";
+    }
+
+    protected static String getULContainerId(final String linkId) {
+        return linkId + "UL";
+    }
+
     @SpringBean
     protected SyncopeRestClient syncopeRestClient;
 
@@ -376,8 +384,7 @@ public class BasePage extends BaseWebPage {
 
                     @Override
                     public void renderHead(final Component component, final IHeaderResponse response) {
-                        response.render(OnDomReadyHeaderItem.forScript(
-                                "$('#keymasterLink').addClass('active')"));
+                        response.render(OnDomReadyHeaderItem.forScript("$('#keymasterLink').addClass('active')"));
                     }
 
                     @Override
@@ -403,8 +410,7 @@ public class BasePage extends BaseWebPage {
 
                     @Override
                     public void renderHead(final Component component, final IHeaderResponse response) {
-                        response.render(OnDomReadyHeaderItem.forScript(
-                                "$('#configurationLink').addClass('active')"));
+                        response.render(OnDomReadyHeaderItem.forScript("$('#configurationLink').addClass('active')"));
                     }
 
                     @Override
@@ -483,8 +489,7 @@ public class BasePage extends BaseWebPage {
 
                         @Override
                         public void renderHead(final Component component, final IHeaderResponse response) {
-                            response.render(OnDomReadyHeaderItem.forScript(
-                                    "$('#extensionsLink').addClass('active')"));
+                            response.render(OnDomReadyHeaderItem.forScript("$('#extensionsLink').addClass('active')"));
                         }
 
                         @Override
@@ -532,13 +537,5 @@ public class BasePage extends BaseWebPage {
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
         response.render(new PriorityHeaderItem(META_IE_EDGE));
-    }
-
-    private static String getLIContainerId(final String linkId) {
-        return linkId + "LI";
-    }
-
-    private static String getULContainerId(final String linkId) {
-        return linkId + "UL";
     }
 }

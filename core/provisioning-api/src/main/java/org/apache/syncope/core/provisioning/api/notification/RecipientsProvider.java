@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.api.notification;
 
+import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 
 @FunctionalInterface
 public interface RecipientsProvider {
 
-    Set<String> provideRecipients(Notification notification);
+    Set<String> provideRecipients(Notification notification, Any<?> any, Map<String, Object> jexlVars);
 }

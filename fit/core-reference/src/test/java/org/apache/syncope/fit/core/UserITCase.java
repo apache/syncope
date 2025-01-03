@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import jakarta.ws.rs.NotAuthorizedException;
@@ -122,6 +123,18 @@ public class UserITCase extends AbstractITCase {
                 build();
     }
 
+    private static void verifyAsyncResult(final List<PropagationStatus> statuses) {
+        assertEquals(3, statuses.size());
+
+        Map<String, PropagationStatus> byResource = statuses.stream().collect(
+                Collectors.toMap(PropagationStatus::getResource, Function.identity()));
+        assertEquals(ExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
+        assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.CREATED
+                || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.SUCCESS);
+        assertTrue(byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == ExecStatus.CREATED
+                || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == ExecStatus.SUCCESS);
+    }
+
     @Test
     public void readPrivileges() {
         Set<String> privileges = USER_SERVICE.read("rossini").getPrivileges();
@@ -140,6 +153,7 @@ public class UserITCase extends AbstractITCase {
 
         // get the propagation task just created
         PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
+                resource(RESOURCE_NAME_NOPROPAGATION).
                 anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
@@ -772,6 +786,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void suspendReactivateOnResource() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         // Assert resources are present
         ResourceTO dbTable = RESOURCE_SERVICE.read(RESOURCE_NAME_TESTDB);
         assertNotNull(dbTable);
@@ -865,18 +881,6 @@ public class UserITCase extends AbstractITCase {
         assertEquals(2, loginDate.getValues().size());
     }
 
-    private static void verifyAsyncResult(final List<PropagationStatus> statuses) {
-        assertEquals(3, statuses.size());
-
-        Map<String, PropagationStatus> byResource = statuses.stream().collect(
-                Collectors.toMap(PropagationStatus::getResource, Function.identity()));
-        assertEquals(ExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
-        assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.CREATED
-                || byResource.get(RESOURCE_NAME_TESTDB).getStatus() == ExecStatus.SUCCESS);
-        assertTrue(byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == ExecStatus.CREATED
-                || byResource.get(RESOURCE_NAME_TESTDB2).getStatus() == ExecStatus.SUCCESS);
-    }
-
     @Test
     public void async() {
         SyncopeClient asyncClient = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
@@ -887,8 +891,7 @@ public class UserITCase extends AbstractITCase {
         userCR.getResources().add(RESOURCE_NAME_TESTDB2);
         userCR.getResources().add(RESOURCE_NAME_LDAP);
 
-        ProvisioningResult<UserTO> result = asyncService.create(userCR).readEntity(
-                new GenericType<>() {
+        ProvisioningResult<UserTO> result = asyncService.create(userCR).readEntity(new GenericType<>() {
         });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
@@ -899,14 +902,12 @@ public class UserITCase extends AbstractITCase {
                 onSyncope(true).resources(RESOURCE_NAME_LDAP, RESOURCE_NAME_TESTDB, RESOURCE_NAME_TESTDB2).
                 value("password321").build());
 
-        result = asyncService.update(userUR).readEntity(
-                new GenericType<>() {
+        result = asyncService.update(userUR).readEntity(new GenericType<>() {
         });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
 
-        result = asyncService.delete(result.getEntity().getKey()).readEntity(
-                new GenericType<>() {
+        result = asyncService.delete(result.getEntity().getKey()).readEntity(new GenericType<>() {
         });
         assertNotNull(result);
         verifyAsyncResult(result.getPropagationStatuses());
@@ -937,31 +938,31 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void customPolicyRules() {
-        ImplementationTO implementationTO = new ImplementationTO();
-        implementationTO.setKey("TestAccountRuleConf" + UUID.randomUUID().toString());
-        implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(IdRepoImplementationType.ACCOUNT_RULE);
-        implementationTO.setBody(POJOHelper.serialize(new TestAccountRuleConf()));
-        Response response = IMPLEMENTATION_SERVICE.create(implementationTO);
-        implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        ImplementationTO accountRule = new ImplementationTO();
+        accountRule.setKey("TestAccountRuleConf" + UUID.randomUUID().toString());
+        accountRule.setEngine(ImplementationEngine.JAVA);
+        accountRule.setType(IdRepoImplementationType.ACCOUNT_RULE);
+        accountRule.setBody(POJOHelper.serialize(new TestAccountRuleConf()));
+        Response response = IMPLEMENTATION_SERVICE.create(accountRule);
+        accountRule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         AccountPolicyTO accountPolicy = new AccountPolicyTO();
         accountPolicy.setName("Account Policy with custom rules");
-        accountPolicy.getRules().add(implementationTO.getKey());
+        accountPolicy.getRules().add(accountRule.getKey());
         accountPolicy = createPolicy(PolicyType.ACCOUNT, accountPolicy);
         assertNotNull(accountPolicy);
 
-        implementationTO = new ImplementationTO();
-        implementationTO.setKey("TestPasswordRuleConf" + UUID.randomUUID().toString());
-        implementationTO.setEngine(ImplementationEngine.JAVA);
-        implementationTO.setType(IdRepoImplementationType.PASSWORD_RULE);
-        implementationTO.setBody(POJOHelper.serialize(new TestPasswordRuleConf()));
-        response = IMPLEMENTATION_SERVICE.create(implementationTO);
-        implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+        ImplementationTO passwordRule = new ImplementationTO();
+        passwordRule.setKey("TestPasswordRuleConf" + UUID.randomUUID().toString());
+        passwordRule.setEngine(ImplementationEngine.JAVA);
+        passwordRule.setType(IdRepoImplementationType.PASSWORD_RULE);
+        passwordRule.setBody(POJOHelper.serialize(new TestPasswordRuleConf()));
+        response = IMPLEMENTATION_SERVICE.create(passwordRule);
+        passwordRule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
         PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
         passwordPolicy.setName("Password Policy with custom rules");
-        passwordPolicy.getRules().add(implementationTO.getKey());
+        passwordPolicy.getRules().add(passwordRule.getKey());
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
@@ -979,6 +980,7 @@ public class UserITCase extends AbstractITCase {
             try {
                 ANONYMOUS_CLIENT.getService(UserSelfService.class).compliance(
                         new ComplianceQuery.Builder().password(userCR.getPassword()).realm(userCR.getRealm()).build());
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidUser, e.getType());
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidPassword"));
@@ -995,6 +997,7 @@ public class UserITCase extends AbstractITCase {
             try {
                 ANONYMOUS_CLIENT.getService(UserSelfService.class).compliance(
                         new ComplianceQuery.Builder().username(userCR.getUsername()).realm(userCR.getRealm()).build());
+                fail("This should not happen");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidUser, e.getType());
                 assertTrue(e.getElements().iterator().next().startsWith("InvalidUsername"));
@@ -1400,7 +1403,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals("InvalidPassword: Password pwned", e.getElements().iterator().next());
         }
 
-        userCR.setPassword('1' + RandomStringUtils.randomAlphanumeric(10));
+        userCR.setPassword('1' + RandomStringUtils.insecure().nextAlphanumeric(10));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
     }

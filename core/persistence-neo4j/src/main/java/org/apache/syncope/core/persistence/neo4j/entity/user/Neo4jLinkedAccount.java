@@ -33,11 +33,9 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
-import org.apache.syncope.core.persistence.neo4j.entity.AttributableCheck;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAttributable;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -49,7 +47,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jLinkedAccount.NODE)
 @AttributableCheck
-public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements LinkedAccount, Neo4jAttributable<User> {
+public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements LinkedAccount {
 
     private static final long serialVersionUID = -5141654998687601522L;
 
@@ -77,7 +75,7 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     private Boolean suspended = false;
 
     @CompositeProperty(converterRef = "laPlainAttrsConverter")
-    protected Map<String, Neo4jLAPlainAttr> plainAttrs = new HashMap<>();
+    protected Map<String, JSONLAPlainAttr> plainAttrs = new HashMap<>();
 
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Set<Neo4jPrivilege> privileges = new HashSet<>();
@@ -180,14 +178,12 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
 
     @Override
     public boolean add(final LAPlainAttr attr) {
-        checkType(attr, Neo4jLAPlainAttr.class);
-        return plainAttrs.put(((Neo4jPlainAttr<User>) attr).getSchemaKey(), (Neo4jLAPlainAttr) attr) != null;
+        return plainAttrs.put(attr.getSchemaKey(), (JSONLAPlainAttr) attr) != null;
     }
 
     @Override
     public boolean remove(final LAPlainAttr attr) {
-        checkType(attr, Neo4jLAPlainAttr.class);
-        return plainAttrs.remove(((Neo4jPlainAttr<User>) attr).getSchemaKey()) != null;
+        return plainAttrs.put(attr.getSchemaKey(), null) != null;
     }
 
     @Override
@@ -198,6 +194,7 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     @Override
     public List<? extends LAPlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
+                filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(Map.Entry::getValue).toList();
     }
@@ -217,18 +214,17 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     public void completePlainAttrs() {
         for (var itor = plainAttrs.entrySet().iterator(); itor.hasNext();) {
             var entry = itor.next();
-            String schema = entry.getKey();
-            Neo4jLAPlainAttr attr = entry.getValue();
-
-            attr.setSchemaKey(schema);
-            if (attr.getSchema() == null) {
-                itor.remove();
-            } else {
-                attr.setOwner(getOwner());
-                attr.setAccount(this);
-                attr.getValues().forEach(value -> value.setAttr(attr));
-                Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-            }
+            Optional.ofNullable(entry.getValue()).ifPresent(attr -> {
+                attr.setSchema(entry.getKey());
+                if (attr.getSchema() == null) {
+                    itor.remove();
+                } else {
+                    attr.setOwner(getOwner());
+                    attr.setAccount(this);
+                    attr.getValues().forEach(value -> value.setAttr(attr));
+                    Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
+                }
+            });
         }
     }
 }

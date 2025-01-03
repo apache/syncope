@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
 import org.apache.syncope.common.lib.scim.types.IMCanonicalType;
 import org.apache.syncope.common.lib.scim.types.PhoneNumberCanonicalType;
 import org.apache.syncope.common.lib.scim.types.PhotoCanonicalType;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -62,13 +61,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         }
         scimUserConf = scimConf.getUserConf();
 
-        final AutoCompleteSettings settings = new AutoCompleteSettings();
-        settings.setShowCompleteListOnFocusGain(true);
-        settings.setShowListOnEmptyInput(true);
-        settings.setCssClassName("custom-autocomplete-box");
-
-        AjaxTextFieldPanel externalIdPanel = new AjaxTextFieldPanel("externalId", "externalId",
-                new PropertyModel<>("externalId", "externalId") {
+        AjaxTextFieldPanel externalIdPanel = new AjaxTextFieldPanel(
+                "externalId", "externalId", new PropertyModel<>("externalId", "externalId") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -84,8 +78,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         externalIdPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel displayNamePanel = new AjaxTextFieldPanel("displayName", "displayName",
-                new PropertyModel<>("displayName", "displayName") {
+        AjaxTextFieldPanel displayNamePanel = new AjaxTextFieldPanel(
+                "displayName", "displayName", new PropertyModel<>("displayName", "displayName") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -101,8 +95,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         displayNamePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel localePanel = new AjaxTextFieldPanel("locale", "locale",
-                new PropertyModel<>("locale", "locale") {
+        AjaxTextFieldPanel localePanel = new AjaxTextFieldPanel(
+                "locale", "locale", new PropertyModel<>("locale", "locale") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -118,8 +112,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         localePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel nickNamePanel = new AjaxTextFieldPanel("nickName", "nickName",
-                new PropertyModel<>("nickName", "nickName") {
+        AjaxTextFieldPanel nickNamePanel = new AjaxTextFieldPanel(
+                "nickName", "nickName", new PropertyModel<>("nickName", "nickName") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -135,7 +129,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         nickNamePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel preferredLanguagePanel = new AjaxTextFieldPanel("preferredLanguage", "preferredLanguage",
+        AjaxTextFieldPanel preferredLanguagePanel = new AjaxTextFieldPanel(
+                "preferredLanguage", "preferredLanguage",
                 new PropertyModel<>("preferredLanguage", "preferredLanguage") {
 
             private static final long serialVersionUID = -6427731218492117883L;
@@ -152,8 +147,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         preferredLanguagePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel profileUrlPanel = new AjaxTextFieldPanel("profileUrl", "profileUrl",
-                new PropertyModel<>("profileUrl", "profileUrl") {
+        AjaxTextFieldPanel profileUrlPanel = new AjaxTextFieldPanel(
+                "profileUrl", "profileUrl", new PropertyModel<>("profileUrl", "profileUrl") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -169,8 +164,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         profileUrlPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel timezonePanel = new AjaxTextFieldPanel("timezone", "timezone",
-                new PropertyModel<>("timezone", "timezone") {
+        AjaxTextFieldPanel timezonePanel = new AjaxTextFieldPanel(
+                "timezone", "timezone", new PropertyModel<>("timezone", "timezone") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -186,8 +181,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         timezonePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel titlePanel = new AjaxTextFieldPanel("title", "title",
-                new PropertyModel<>("title", "title") {
+        AjaxTextFieldPanel titlePanel = new AjaxTextFieldPanel(
+                "title", "title", new PropertyModel<>("title", "title") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -203,8 +198,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         titlePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel userTypePanel = new AjaxTextFieldPanel("userType", "userType",
-                new PropertyModel<>("userType", "userType") {
+        AjaxTextFieldPanel userTypePanel = new AjaxTextFieldPanel(
+                "userType", "userType", new PropertyModel<>("userType", "userType") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -224,8 +219,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         buildNameAccordion();
 
         // x509certificates
-        final AjaxTextFieldPanel x509CertificatesPanel = new AjaxTextFieldPanel("panel", "x509CertificatesPanel",
-                new Model<>(null));
+        AjaxTextFieldPanel x509CertificatesPanel = new AjaxTextFieldPanel(
+                "panel", "x509CertificatesPanel", new Model<>(null));
         x509CertificatesPanel.setChoices(userPlainSchemas.getObject());
         MultiFieldPanel<String> x509CertificatesMultiPanel = new MultiFieldPanel.Builder<>(
                 new ListModel<>(scimUserConf.getX509Certificates())).build(
@@ -349,8 +344,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
     private SCIMConfAccordionContainer buildNameAccordionContent(final String panelId) {
         List<AjaxTextFieldPanel> panelList = new ArrayList<>();
 
-        AjaxTextFieldPanel nameFamilyNamePanel = new AjaxTextFieldPanel("accordionContent", "name.familyName",
-                new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
+        AjaxTextFieldPanel nameFamilyNamePanel = new AjaxTextFieldPanel(
+                "accordionContent", "name.familyName", new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -366,7 +361,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         nameFamilyNamePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel nameFormattedPanel = new AjaxTextFieldPanel("accordionContent", "name.formatted",
+        AjaxTextFieldPanel nameFormattedPanel = new AjaxTextFieldPanel(
+                "accordionContent", "name.formatted",
                 new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
@@ -383,7 +379,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         nameFormattedPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel nameGivenNamePanel = new AjaxTextFieldPanel("accordionContent", "name.givenName",
+        AjaxTextFieldPanel nameGivenNamePanel = new AjaxTextFieldPanel(
+                "accordionContent", "name.givenName",
                 new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
@@ -400,7 +397,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         nameGivenNamePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel nameHonorificPrefixPanel = new AjaxTextFieldPanel("accordionContent", "name.honorificPrefix",
+        AjaxTextFieldPanel nameHonorificPrefixPanel = new AjaxTextFieldPanel(
+                "accordionContent", "name.honorificPrefix",
                 new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
@@ -417,7 +415,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         nameHonorificPrefixPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel nameHonorificSuffixPanel = new AjaxTextFieldPanel("accordionContent", "name.honorificSuffix",
+        AjaxTextFieldPanel nameHonorificSuffixPanel = new AjaxTextFieldPanel(
+                "accordionContent", "name.honorificSuffix",
                 new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
@@ -434,7 +433,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         nameHonorificSuffixPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel nameMiddleNamePanel = new AjaxTextFieldPanel("accordionContent", "name.middleName",
+        AjaxTextFieldPanel nameMiddleNamePanel = new AjaxTextFieldPanel(
+                "accordionContent", "name.middleName",
                 new PropertyModel<>(scimUserConf.getName(), "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
@@ -469,8 +469,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         List<AjaxTextFieldPanel> panelList = new ArrayList<>();
         String fieldName = panelId + '.' + canonicalType.name();
 
-        AjaxTextFieldPanel displayPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".display",
-                new PropertyModel<>(complex, "accordionContent") {
+        AjaxTextFieldPanel displayPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".display", new PropertyModel<>(complex, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -486,8 +486,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         displayPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel valuePanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".value",
-                new PropertyModel<>(complex, "accordionContent") {
+        AjaxTextFieldPanel valuePanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".value", new PropertyModel<>(complex, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -503,8 +503,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         valuePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel primaryPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".primary",
-                new PropertyModel<>(complex, "accordionContent") {
+        AjaxTextFieldPanel primaryPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".primary", new PropertyModel<>(complex, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -535,8 +535,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         List<AjaxTextFieldPanel> panelList = new ArrayList<>();
         String fieldName = "addresses." + canonicalType.name();
 
-        AjaxTextFieldPanel addressCountryPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".country",
-                new PropertyModel<>(address, "accordionContent") {
+        AjaxTextFieldPanel addressCountryPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".country", new PropertyModel<>(address, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -552,8 +552,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         addressCountryPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel addressFormattedPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".formatted",
-                new PropertyModel<>(address, "accordionContent") {
+        AjaxTextFieldPanel addressFormattedPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".formatted", new PropertyModel<>(address, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -569,8 +569,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         addressFormattedPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel addressLocalityPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".locality",
-                new PropertyModel<>(address, "accordionContent") {
+        AjaxTextFieldPanel addressLocalityPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".locality", new PropertyModel<>(address, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -586,8 +586,8 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         addressLocalityPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel addressRegionPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".region",
-                new PropertyModel<>(address, "accordionContent") {
+        AjaxTextFieldPanel addressRegionPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".region", new PropertyModel<>(address, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 
@@ -603,26 +603,25 @@ public class SCIMConfUserPanel extends SCIMConfTabPanel {
         });
         addressRegionPanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel addressPostalCodePanel =
-                new AjaxTextFieldPanel("accordionContent", fieldName + ".postalCode",
-                        new PropertyModel<>(address, "accordionContent") {
+        AjaxTextFieldPanel addressPostalCodePanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".postalCode", new PropertyModel<>(address, "accordionContent") {
 
-                    private static final long serialVersionUID = -6427731218492117883L;
+            private static final long serialVersionUID = -6427731218492117883L;
 
-                    @Override
-                    public String getObject() {
-                        return address.getPostalCode();
-                    }
+            @Override
+            public String getObject() {
+                return address.getPostalCode();
+            }
 
-                    @Override
-                    public void setObject(final String object) {
-                        address.setPostalCode(object);
-                    }
-                });
+            @Override
+            public void setObject(final String object) {
+                address.setPostalCode(object);
+            }
+        });
         addressPostalCodePanel.setChoices(userPlainSchemas.getObject());
 
-        AjaxTextFieldPanel addressPrimaryPanel = new AjaxTextFieldPanel("accordionContent", fieldName + ".primary",
-                new PropertyModel<>(address, "accordionContent") {
+        AjaxTextFieldPanel addressPrimaryPanel = new AjaxTextFieldPanel(
+                "accordionContent", fieldName + ".primary", new PropertyModel<>(address, "accordionContent") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 

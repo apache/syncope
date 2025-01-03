@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.rest;
 
 import jakarta.ws.rs.core.GenericType;
-import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -44,17 +43,15 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
     }
 
     public ProvisioningResult<GroupTO> create(final GroupCR groupCR) {
-        Response response = getService(GroupService.class).create(groupCR);
-        return response.readEntity(new GenericType<>() {
+        return getService(GroupService.class).create(groupCR).readEntity(new GenericType<>() {
         });
     }
 
     public ProvisioningResult<GroupTO> update(final String etag, final GroupUR updateReq) {
         ProvisioningResult<GroupTO> result;
         synchronized (this) {
-            result = getService(etag, GroupService.class).update(updateReq).
-                    readEntity(new GenericType<>() {
-                    });
+            result = getService(etag, GroupService.class).update(updateReq).readEntity(new GenericType<>() {
+            });
             resetClient(getAnyServiceClass());
         }
         return result;

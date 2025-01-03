@@ -47,7 +47,7 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
 
     @Override
     protected String paginatorRowsKey() {
-        return IdRepoConstants.PREF_PUSH_TASKS_PAGINATOR_ROWS;
+        return IdRepoConstants.PREF_PULL_TASKS_PAGINATOR_ROWS;
     }
 
     @Override

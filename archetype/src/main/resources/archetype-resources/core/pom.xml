@@ -169,14 +169,7 @@ under the License.
     
     <profile>
       <id>standalone</id>
-      
-      <dependencies>
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-      </dependencies>
-        
+       
       <build>
         <plugins>
           <plugin>

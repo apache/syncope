@@ -24,7 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.DestinationRegistry;
 import org.apache.syncope.common.rest.api.batch.BatchPayloadGenerator;
@@ -47,7 +46,21 @@ public class BatchProcess implements Runnable {
 
     private String boundary;
 
-    private String basePath;
+    private String scheme;
+
+    private String serverName;
+
+    private int serverPort;
+
+    private String contextPath;
+
+    private String servletPath;
+
+    private String pathInfo;
+
+    private String characterEncoding;
+
+    private String baseURI;
 
     private List<BatchRequestItem> batchRequestItems;
 
@@ -55,7 +68,7 @@ public class BatchProcess implements Runnable {
 
     private ServletConfig servletConfig;
 
-    private CommonBatchHttpServletRequest commonRequest;
+    private HttpServletRequest servletRequest;
 
     private Authentication authentication;
 
@@ -63,8 +76,36 @@ public class BatchProcess implements Runnable {
         this.boundary = boundary;
     }
 
-    public void setBasePath(final String basePath) {
-        this.basePath = basePath;
+    public void setScheme(final String scheme) {
+        this.scheme = scheme;
+    }
+
+    public void setServerName(final String serverName) {
+        this.serverName = serverName;
+    }
+
+    public void setServerPort(final int serverPort) {
+        this.serverPort = serverPort;
+    }
+
+    public void setContextPath(final String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    public void setServletPath(final String servletPath) {
+        this.servletPath = servletPath;
+    }
+
+    public void setPathInfo(final String pathInfo) {
+        this.pathInfo = pathInfo;
+    }
+
+    public void setCharacterEncoding(final String characterEncoding) {
+        this.characterEncoding = characterEncoding;
+    }
+
+    public void setBaseURI(final String baseURI) {
+        this.baseURI = baseURI;
     }
 
     public void setBatchRequestItems(final List<BatchRequestItem> batchRequestItems) {
@@ -80,7 +121,7 @@ public class BatchProcess implements Runnable {
     }
 
     public void setServletRequest(final HttpServletRequest servletRequest) {
-        this.commonRequest = new CommonBatchHttpServletRequest(servletRequest);
+        this.servletRequest = servletRequest;
     }
 
     public void setAuthentication(final Authentication authentication) {
@@ -96,9 +137,10 @@ public class BatchProcess implements Runnable {
         batchRequestItems.forEach(reqItem -> {
             LOG.debug("Batch Request item:\n{}", reqItem);
 
-            AbstractHTTPDestination dest =
-                    Optional.ofNullable(destinationRegistry.getDestinationForPath(reqItem.getRequestURI(), true)).
-                            orElseGet(() -> destinationRegistry.checkRestfulRequest(reqItem.getRequestURI()));
+            AbstractHTTPDestination dest = destinationRegistry.getDestinationForPath(reqItem.getRequestURI(), true);
+            if (dest == null) {
+                dest = destinationRegistry.checkRestfulRequest(reqItem.getRequestURI());
+            }
             LOG.debug("Destination found for {}: {}", reqItem.getRequestURI(), dest);
 
             BatchResponseItem resItem = new BatchResponseItem();
@@ -106,7 +148,9 @@ public class BatchProcess implements Runnable {
             if (dest == null) {
                 resItem.setStatus(HttpServletResponse.SC_NOT_FOUND);
             } else {
-                BatchItemRequest request = new BatchItemRequest(commonRequest, basePath, reqItem);
+                BatchItemRequest request = new BatchItemRequest(
+                        scheme, serverName, serverPort, contextPath, servletPath, pathInfo, characterEncoding,
+                        baseURI, servletRequest, reqItem);
                 BatchItemResponse response = new BatchItemResponse();
                 try {
                     dest.invoke(servletConfig, servletConfig.getServletContext(), request, response);

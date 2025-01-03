@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -277,6 +278,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_REST = "rest-target-resource";
 
+    protected static final String RESOURCE_NAME_KAFKA = "resource-kafka";
+
     protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
 
     protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
@@ -407,6 +410,8 @@ public abstract class AbstractITCase {
 
     protected static boolean IS_EXT_SEARCH_ENABLED = false;
 
+    protected static boolean IS_NEO4J_PERSISTENCE = false;
+
     private static void initExtSearch(
             final ImplementationService implementationService,
             final TaskService taskService,
@@ -478,13 +483,18 @@ public abstract class AbstractITCase {
         WEBAUTHN_REGISTRATION_SERVICE = ANONYMOUS_CLIENT.getService(WebAuthnRegistrationService.class);
         IMPERSONATION_SERVICE = ANONYMOUS_CLIENT.getService(ImpersonationService.class);
 
-        JsonNode beans = JSON_MAPPER.readTree(
-                (InputStream) WebClient.create(
-                        StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans",
+        String beansJSON = await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                return WebClient.create(StringUtils.substringBeforeLast(ADDRESS, "/") + "/actuator/beans",
                         ANONYMOUS_UNAME,
                         ANONYMOUS_KEY,
                         null).
-                        accept(MediaType.APPLICATION_JSON).get().getEntity());
+                        accept(MediaType.APPLICATION_JSON).get().readEntity(String.class);
+            } catch (Exception e) {
+                return null;
+            }
+        }, Objects::nonNull);
+        JsonNode beans = JSON_MAPPER.readTree(beansJSON);
 
         JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
@@ -493,6 +503,8 @@ public abstract class AbstractITCase {
         IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
         IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
+
+        IS_NEO4J_PERSISTENCE = anySearchDAO.get("type").asText().contains("Neo4j");
 
         if (!IS_EXT_SEARCH_ENABLED) {
             return;

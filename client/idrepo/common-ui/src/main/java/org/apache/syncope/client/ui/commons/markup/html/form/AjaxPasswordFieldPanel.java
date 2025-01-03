@@ -27,7 +27,7 @@ import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AjaxPasswordFieldPanel extends FieldPanel<String> {
+public class AjaxPasswordFieldPanel extends TextFieldPanel {
 
     private static final long serialVersionUID = -5490115280336667460L;
 
@@ -50,6 +50,7 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
         super(id, name, model);
 
         field = new PasswordTextField("passwordField", model);
+        setHTMLInputNotAllowed();
         add(field.setLabel(new ResourceModel(name, name)).setRequired(false).setOutputMarkupId(true));
         Optional.ofNullable(passwordStrengthBehavior).ifPresent(field::add);
 
@@ -64,6 +65,11 @@ public class AjaxPasswordFieldPanel extends FieldPanel<String> {
                 }
             });
         }
+    }
+
+    public AjaxPasswordFieldPanel setResetPassword(final boolean resetPassword) {
+        ((PasswordTextField) field).setResetPassword(resetPassword);
+        return this;
     }
 
     @Override

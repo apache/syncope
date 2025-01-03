@@ -22,7 +22,9 @@ import jakarta.annotation.Resource;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +41,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
+import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
@@ -54,6 +57,7 @@ import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 import org.springframework.util.ReflectionUtils;
@@ -69,26 +73,11 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
     protected Validator validator;
 
     @Resource(name = "batchExecutor")
-    protected VirtualThreadPoolTaskExecutor executor;
+    protected VirtualThreadPoolTaskExecutor taskExecutor;
 
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 
     protected final Map<String, Command<?>> perContextCommands = new ConcurrentHashMap<>();
-
-    protected boolean validate(final FormPropertyDef fpd, final String value, final Optional<MacroActions> actions) {
-        if (!fpd.isWritable()) {
-            return false;
-        }
-
-        return switch (fpd.getType()) {
-            case Enum ->
-                fpd.getEnumValues().containsKey(value);
-            case Dropdown ->
-                actions.map(a -> a.getDropdownValues(fpd.getKey()).containsKey(value)).orElse(false);
-            default ->
-                value != null;
-        };
-    }
 
     protected Optional<JexlContext> check(
             final SyncopeForm macroTaskForm,
@@ -103,8 +92,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         Set<String> missingFormProperties = task.getFormPropertyDefs().stream().
                 filter(FormPropertyDef::isRequired).
                 map(fpd -> Pair.of(
-                fpd.getKey(),
-                macroTaskForm.getProperty(fpd.getKey()).map(p -> p.getValue() != null))).
+                fpd.getName(),
+                macroTaskForm.getProperty(fpd.getName()).map(p -> p.getValue() != null))).
                 filter(pair -> pair.getRight().isEmpty()).
                 map(Pair::getLeft).
                 collect(Collectors.toSet());
@@ -112,46 +101,80 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             throw new JobExecutionException("Required form properties missing: " + missingFormProperties);
         }
 
+        // build the JEXL context where variables are mapped to property values, built according to the defined type
+        Map<String, Object> vars = new HashMap<>();
+        for (FormPropertyDef fpd : task.getFormPropertyDefs()) {
+            String value = macroTaskForm.getProperty(fpd.getName()).map(FormProperty::getValue).orElse(null);
+            if (value == null) {
+                continue;
+            }
+
+            switch (fpd.getType()) {
+                case String -> {
+                    if (Optional.ofNullable(fpd.getStringRegEx()).
+                            map(pattern -> !pattern.matcher(value).matches()).
+                            orElse(false)) {
+
+                        throw new JobExecutionException("RegEx not matching for " + fpd.getName() + ": " + value);
+                    }
+
+                    vars.put(fpd.getName(), value);
+                }
+
+                case Password ->
+                    vars.put(fpd.getName(), value);
+
+                case Boolean ->
+                    vars.put(fpd.getName(), BooleanUtils.toBoolean(value));
+
+                case Date -> {
+                    try {
+                        vars.put(fpd.getName(), StringUtils.isBlank(fpd.getDatePattern())
+                                ? FormatUtils.parseDate(value)
+                                : FormatUtils.parseDate(value, fpd.getDatePattern()));
+                    } catch (DateTimeParseException e) {
+                        throw new JobExecutionException("Unparseable date " + fpd.getName() + ": " + value, e);
+                    }
+                }
+
+                case Long ->
+                    vars.put(fpd.getName(), NumberUtils.toLong(value));
+
+                case Enum -> {
+                    if (!fpd.getEnumValues().containsKey(value)) {
+                        throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + value);
+                    }
+
+                    vars.put(fpd.getName(), value);
+                }
+
+                case Dropdown -> {
+                    if (!fpd.isDropdownFreeForm()) {
+                        List<String> values = fpd.isDropdownSingleSelection()
+                                ? List.of(value)
+                                : List.of(value.split(";"));
+
+                        if (!actions.map(a -> a.getDropdownValues(fpd.getName()).keySet()).
+                                orElse(Set.of()).containsAll(values)) {
+
+                            throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + values);
+                        }
+                    }
+
+                    vars.put(fpd.getName(), value);
+                }
+
+                default -> {
+                }
+            }
+        }
+
         // if validator is defined, validate the provided form
         try {
-            actions.ifPresent(a -> a.validate(macroTaskForm));
+            actions.ifPresent(a -> a.validate(macroTaskForm, vars));
         } catch (ValidationException e) {
             throw new JobExecutionException("Invalid form submitted for task " + task.getKey(), e);
         }
-
-        // build the JEXL context where variables are mapped to property values, built according to the defined type
-        Map<String, Object> vars = macroTaskForm.getProperties().stream().
-                map(p -> task.getFormPropertyDefs().stream().
-                filter(fpd -> fpd.getKey().equals(p.getId()) && validate(fpd, p.getValue(), actions)).findFirst().
-                map(fpd -> Pair.of(fpd, p.getValue()))).
-                filter(Optional::isPresent).map(Optional::get).
-                map(pair -> {
-                    Object value;
-                    switch (pair.getLeft().getType()) {
-                        case Boolean:
-                            value = BooleanUtils.toBoolean(pair.getRight());
-                            break;
-
-                        case Date:
-                            value = StringUtils.isBlank(pair.getLeft().getDatePattern())
-                                    ? FormatUtils.parseDate(pair.getRight())
-                                    : FormatUtils.parseDate(pair.getRight(), pair.getLeft().getDatePattern());
-                            break;
-
-                        case Long:
-                            value = NumberUtils.toLong(pair.getRight());
-                            break;
-
-                        case Enum:
-                        case Dropdown:
-                        case String:
-                        case Password:
-                        default:
-                            value = pair.getRight();
-                    }
-
-                    return Pair.of(pair.getLeft().getKey(), value);
-                }).collect(Collectors.toMap(Pair::getLeft, Pair::getRight));
 
         output.append("Form parameter values: ").append(vars).append("\n\n");
 
@@ -165,10 +188,10 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             final boolean dryRun)
             throws JobExecutionException {
 
-        Future<AtomicReference<Pair<String, Exception>>> future = executor.submit(
+        Future<AtomicReference<Pair<String, Throwable>>> future = taskExecutor.submit(
                 new DelegatingSecurityContextCallable<>(() -> {
 
-                    AtomicReference<Pair<String, Exception>> error = new AtomicReference<>();
+                    AtomicReference<Pair<String, Throwable>> error = new AtomicReference<>();
 
                     for (int i = 0; i < commands.size() && error.get() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
@@ -187,14 +210,14 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                                 output.append(cmdOut);
                             }
-                        } catch (Exception e) {
+                        } catch (Throwable t) {
                             if (task.isContinueOnError()) {
-                                output.append("Continuing on error: <").append(e.getMessage()).append('>');
+                                output.append("Continuing on error: <").append(t.getMessage()).append('>');
 
                                 LOG.error("While running {} with args {}, continuing on error",
-                                        command.getLeft().getClass().getName(), command.getRight(), e);
+                                        command.getLeft().getClass().getName(), command.getRight(), t);
                             } else {
-                                error.set(Pair.of(command.getLeft().getClass().getName(), e));
+                                error.set(Pair.of(AopUtils.getTargetClass(command.getLeft()).getName(), t));
                             }
                         }
                         output.append("\n\n");
@@ -204,7 +227,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                 }));
 
         try {
-            AtomicReference<Pair<String, Exception>> error = future.get();
+            AtomicReference<Pair<String, Throwable>> error = future.get();
             if (error.get() != null) {
                 throw new JobExecutionException("While running " + error.get().getLeft(), error.get().getRight());
             }
@@ -219,9 +242,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
     @SuppressWarnings("unchecked")
     @Override
-    protected String doExecute(final boolean dryRun, final String executor, final JobExecutionContext context)
-            throws JobExecutionException {
-
+    protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         Optional<MacroActions> actions;
         if (task.getMacroActions() == null) {
             actions = Optional.empty();
@@ -241,7 +262,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         SyncopeForm macroTaskForm = (SyncopeForm) context.getData().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
         Optional<JexlContext> jexlContext = check(macroTaskForm, actions, output);
 
-        if (!dryRun) {
+        if (!context.isDryRun()) {
             actions.ifPresent(MacroActions::beforeAll);
         }
 
@@ -286,14 +307,16 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                     throw new JobExecutionException(
                             "While running " + command.getKey(),
-                            new IllegalArgumentException(args.getClass().getName()));
+                            new IllegalArgumentException(violations.stream().
+                                    map(v -> v.getPropertyPath() + ": " + v.getMessage()).
+                                    collect(Collectors.joining(","))));
                 }
             }
 
             commands.add(Pair.of(runnable, args));
         }
 
-        return run(commands, actions, output, dryRun);
+        return run(commands, actions, output, context.isDryRun());
     }
 
     @Override

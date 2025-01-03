@@ -255,6 +255,10 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         return columns;
     }
 
+    protected void onDelete(final AjaxRequestTarget target) {
+        // nothing to do
+    }
+
     @Override
     public ActionsPanel<T> getActions(final IModel<T> model) {
         ActionsPanel<T> panel = super.getActions(model);
@@ -277,10 +281,10 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
+                SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                restClient.readTask(taskType, model.getObject().getKey()),
-                                target).setTitleModel(
+                                restClient.readTask(taskType, model.getObject().getKey()), target).setTitleModel(
                                 new StringResourceModel("inner.task.edit",
                                         SchedTaskDirectoryPanel.this,
                                         Model.of(Pair.of(ActionLink.ActionType.EDIT, model.getObject())))));
@@ -294,7 +298,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
-                final T clone = SerializationUtils.clone(model.getObject());
+                T clone = SerializationUtils.clone(model.getObject());
                 clone.setKey(null);
                 send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(clone, target).setTitleModel(
@@ -326,6 +330,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 try {
                     restClient.delete(taskType, taskTO.getKey());
+
+                    onDelete(target);
 
                     SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
                     target.add(container);

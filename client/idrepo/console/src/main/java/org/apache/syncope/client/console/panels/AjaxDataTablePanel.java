@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import org.apache.syncope.client.console.batch.BatchContent;
 import org.apache.syncope.client.console.batch.BatchModal;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -161,6 +162,10 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         protected ActionLinksTogglePanel<T> getTogglePanel() {
             return null;
         }
+
+        protected BiConsumer<AjaxRequestTarget, IModel<T>> onDoubleClick() {
+            return null;
+        }
     }
 
     protected final BaseModal<T> batchModal;
@@ -224,6 +229,12 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                 return builder.getTogglePanel();
             }
 
+            @Override
+            protected void onDoubleClick(final AjaxRequestTarget target, final IModel<T> model) {
+                Optional.ofNullable(builder.onDoubleClick()).ifPresentOrElse(
+                        odc -> odc.accept(target, model),
+                        () -> super.onDoubleClick(target, model));
+            }
         };
 
         dataTable.add(new AttributeModifier("class", "table table-bordered table-hover dataTable"));

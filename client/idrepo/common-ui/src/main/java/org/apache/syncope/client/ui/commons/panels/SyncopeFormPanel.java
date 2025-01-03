@@ -19,19 +19,24 @@
 package org.apache.syncope.client.ui.commons.panels;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.ui.commons.MapChoiceRenderer;
+import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.form.SyncopeForm;
@@ -39,8 +44,9 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.validation.validator.PatternValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,51 +59,42 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
     public SyncopeFormPanel(final String id, final F form) {
         super(id);
 
-        IModel<List<FormProperty>> formProps = new LoadableDetachableModel<>() {
+        ListModel<FormProperty> model = new ListModel<>(new ArrayList<>());
+        model.getObject().addAll(form.getProperties());
 
-            private static final long serialVersionUID = 3169142472626817508L;
-
-            @Override
-            protected List<FormProperty> load() {
-                return form.getProperties();
-            }
-        };
-
-        ListView<FormProperty> propView = new ListView<>("propView", formProps) {
+        ListView<FormProperty> propView = new ListView<>("propView", model) {
 
             private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
-            @SuppressWarnings({ "unchecked", "rawtypes" })
             protected void populateItem(final ListItem<FormProperty> item) {
                 FormProperty prop = item.getModelObject();
 
                 String label = StringUtils.isBlank(prop.getName()) ? prop.getId() : prop.getName();
 
-                FieldPanel field;
+                AbstractFieldPanel<?> field;
                 switch (prop.getType()) {
                     case Boolean:
-                        field = new AjaxDropDownChoicePanel("value", label, new PropertyModel<String>(prop, "value") {
+                        field = new AjaxCheckBoxPanel("value", label, new PropertyModel<Boolean>(prop, "value") {
 
                             private static final long serialVersionUID = -3743432456095828573L;
 
                             @Override
-                            public String getObject() {
-                                return StringUtils.isBlank(prop.getValue())
-                                        ? null
-                                        : prop.getValue().equals("true") ? "Yes" : "No";
+                            public Boolean getObject() {
+                                return BooleanUtils.toBoolean(prop.getValue());
                             }
 
                             @Override
-                            public void setObject(final String object) {
-                                prop.setValue(String.valueOf(object.equalsIgnoreCase("yes")));
+                            public void setObject(final Boolean object) {
+                                prop.setValue(BooleanUtils.toStringTrueFalse(object));
                             }
-
-                        }, false).setChoices(List.of("Yes", "No"));
+                        }, false);
                         break;
 
                     case Date:
-                        FastDateFormat formatter = FastDateFormat.getInstance(prop.getDatePattern());
+                        FastDateFormat formatter = StringUtils.isBlank(prop.getDatePattern())
+                                ? FastDateFormat.getInstance()
+                                : FastDateFormat.getInstance(prop.getDatePattern());
                         field = new AjaxDateTimeFieldPanel("value", label, new PropertyModel<>(prop, "value") {
 
                             private static final long serialVersionUID = -3743432456095828573L;
@@ -116,35 +113,66 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
 
                             @Override
                             public void setObject(final Date object) {
-                                prop.setValue(formatter.format(object));
+                                Optional.ofNullable(object).ifPresent(date -> prop.setValue(formatter.format(date)));
                             }
                         }, formatter);
                         break;
 
                     case Enum:
-                        field = new AjaxDropDownChoicePanel(
+                        field = new AjaxDropDownChoicePanel<>(
                                 "value", label, new PropertyModel<String>(prop, "value"), false).
                                 setChoiceRenderer(new MapChoiceRenderer(prop.getEnumValues().stream().
                                         collect(Collectors.toMap(
                                                 FormPropertyValue::getKey,
                                                 FormPropertyValue::getValue)))).
-                                setChoices(prop.getEnumValues().stream().
-                                        map(FormPropertyValue::getKey).collect(Collectors.toList()));
+                                setChoices(prop.getEnumValues().stream().map(FormPropertyValue::getKey).toList());
                         break;
 
                     case Dropdown:
-                        field = new AjaxDropDownChoicePanel(
-                                "value", label, new PropertyModel<String>(prop, "value"), false).
-                                setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
-                                        collect(Collectors.toMap(
-                                                FormPropertyValue::getKey,
-                                                FormPropertyValue::getValue)))).
-                                setChoices(prop.getDropdownValues().stream().
-                                        map(FormPropertyValue::getKey).collect(Collectors.toList()));
+                        if (prop.isDropdownFreeForm()) {
+                            field = new AjaxTextFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
+                            ((AjaxTextFieldPanel) field).setChoices(prop.getDropdownValues().stream().
+                                    map(FormPropertyValue::getKey).toList());
+                        } else if (prop.isDropdownSingleSelection()) {
+                            field = new AjaxDropDownChoicePanel<>(
+                                    "value", label, new PropertyModel<String>(prop, "value"), false).
+                                    setChoiceRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
+                                            collect(Collectors.toMap(
+                                                    FormPropertyValue::getKey,
+                                                    FormPropertyValue::getValue)))).
+                                    setChoices(prop.getDropdownValues().stream().
+                                            map(FormPropertyValue::getKey).toList());
+                        } else {
+                            field = new AjaxPalettePanel.Builder<String>().setName(label).
+                                    setRenderer(new MapChoiceRenderer(prop.getDropdownValues().stream().
+                                            collect(Collectors.toMap(
+                                                    FormPropertyValue::getKey,
+                                                    FormPropertyValue::getValue)))).build(
+                                    "value",
+                                    new IModel<List<String>>() {
+
+                                private static final long serialVersionUID = 1015030402166681242L;
+
+                                @Override
+                                public List<String> getObject() {
+                                    return Optional.ofNullable(prop.getValue()).
+                                            map(v -> List.of(v.split(";"))).
+                                            orElse(null);
+                                }
+
+                                @Override
+                                public void setObject(final List<String> object) {
+                                    prop.setValue(Optional.ofNullable(object).
+                                            map(v -> v.stream().collect(Collectors.joining(";"))).
+                                            orElse(null));
+                                }
+                            }, new ListModel<>(prop.getDropdownValues().stream().
+                                            map(FormPropertyValue::getKey).toList()));
+                        }
                         break;
 
                     case Long:
-                        field = new AjaxSpinnerFieldPanel.Builder<Long>().build(
+                        field = new AjaxNumberFieldPanel.Builder<Long>().build(
                                 "value",
                                 label,
                                 Long.class,
@@ -167,12 +195,15 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                         break;
 
                     case Password:
-                        field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
+                        field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false).
+                                setResetPassword(false);
                         break;
 
                     case String:
                     default:
                         field = new AjaxTextFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
+                        Optional.ofNullable(prop.getStringRegEx()).
+                                ifPresent(re -> ((AjaxTextFieldPanel) field).addValidator(new PatternValidator(re)));
                         break;
                 }
 
@@ -184,7 +215,6 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                 item.add(field);
             }
         };
-
-        add(propView);
+        add(propView.setReuseItems(true));
     }
 }

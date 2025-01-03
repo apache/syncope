@@ -99,7 +99,7 @@ public class PlainSchemaITCase extends AbstractITCase {
     }
 
     @Test
-    public void createEnumWithNoValues() {
+    public void createEnumWithoutValues() {
         PlainSchemaTO schemaTO = new PlainSchemaTO();
         schemaTO.setKey("enumcheck");
         schemaTO.setType(AttrSchemaType.Enum);
@@ -109,22 +109,22 @@ public class PlainSchemaITCase extends AbstractITCase {
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchemaEnum.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchema.name()));
         }
     }
 
     @Test
-    public void createUEnumWithoutEnumeration() {
+    public void createDropdownWithoutProvider() {
         PlainSchemaTO schemaTO = new PlainSchemaTO();
-        schemaTO.setKey("enumcheck");
-        schemaTO.setType(AttrSchemaType.Enum);
+        schemaTO.setKey("dropdowncheck");
+        schemaTO.setType(AttrSchemaType.Dropdown);
 
         try {
             createSchema(SchemaType.PLAIN, schemaTO);
             fail("This should not be reacheable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
-            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchemaEnum.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidSchema.name()));
         }
     }
 
@@ -180,10 +180,7 @@ public class PlainSchemaITCase extends AbstractITCase {
 
         createSchema(SchemaType.PLAIN, schemaTOjson2);
 
-        UserCR userCR = UserITCase.getUniqueSample("test@syncope.apache.org");
-
-        UserTO userTO = createUser(userCR).getEntity();
-        assertNotNull(userTO);
+        UserTO userTO = createUser(UserITCase.getUniqueSample("test@syncope.apache.org")).getEntity();
         try {
             UserUR userUR = new UserUR();
             userUR.setKey(userTO.getKey());

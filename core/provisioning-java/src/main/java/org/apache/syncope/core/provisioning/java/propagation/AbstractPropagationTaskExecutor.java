@@ -606,7 +606,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             propagationAttempted.set(true);
 
-            LOG.error("Exception during provision on resource " + taskInfo.getResource().getKey(), e);
+            LOG.error("Exception during provision on resource {}", taskInfo.getResource().getKey(), e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();
@@ -779,17 +779,19 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ExternalResource resource = taskInfo.getResource();
 
         boolean result;
-        result =
-                switch (taskInfo.getOperation()) {
+        result = switch (taskInfo.getOperation()) {
             case CREATE ->
-                (failed && resource.getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || resource.getCreateTraceLevel() == TraceLevel.ALL;
+                resource.getCreateTraceLevel() == TraceLevel.ALL
+                || (failed && resource.getCreateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal());
+
             case UPDATE ->
-                (failed && resource.getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || resource.getUpdateTraceLevel() == TraceLevel.ALL;
+                resource.getUpdateTraceLevel() == TraceLevel.ALL
+                || (failed && resource.getUpdateTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal());
+
             case DELETE ->
-                (failed && resource.getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal())
-                || resource.getDeleteTraceLevel() == TraceLevel.ALL;
+                resource.getDeleteTraceLevel() == TraceLevel.ALL
+                || (failed && resource.getDeleteTraceLevel().ordinal() >= TraceLevel.FAILURES.ordinal());
+
             default ->
                 false;
         };

@@ -116,7 +116,7 @@ endif::[]
 
 * maximum length - the maximum length to allow; `0` means no limit set;
 * minimum length - the minimum length to allow; `0` means no limit set;
-* pattern - https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html[Java regular expression pattern^] to
+* pattern - https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/regex/Pattern.html[Java regular expression pattern^] to
 match; `NULL` means no match is attempted;
 * all uppercase - are lowercase characters allowed?
 * all lowercase - are uppercase characters allowed?
@@ -320,7 +320,7 @@ endif::[]
 
 [NOTE]
 Access Policy instances are dynamically translated into
-https://apereo.github.io/cas/6.6.x/services/Configuring-Service-Access-Strategy.html#configure-service-access-strategy[CAS Service Access Strategy^].
+https://apereo.github.io/cas/7.1.x/services/Configuring-Service-Access-Strategy.html#configure-service-access-strategy[CAS Service Access Strategy^].
 
 [[policies-attribute-release]]
 ==== Attribute Release
@@ -332,7 +332,7 @@ values.
 
 [NOTE]
 Attribute Release Policy instances are dynamically translated into
-https://apereo.github.io/cas/6.6.x/integration/Attribute-Release-Policies.html#attribute-release-policies[CAS Attribute Release Policy^].
+https://apereo.github.io/cas/7.1.x/integration/Attribute-Release-Policies.html#attribute-release-policies[CAS Attribute Release Policy^].
 
 [[policies-authentication]]
 ==== Authentication
@@ -359,7 +359,7 @@ be considered successful.
 
 [NOTE]
 Authentication Policy instances are dynamically translated into
-https://apereo.github.io/cas/6.6.x/authentication/Configuring-Authentication-Policy.html#authentication-policy[CAS Authentication Policy^].
+https://apereo.github.io/cas/7.1.x/authentication/Configuring-Authentication-Policy.html#authentication-policy[CAS Authentication Policy^].
 
 [[policies-propagation]]
 ==== Propagation
@@ -381,10 +381,10 @@ attributes will be instead propagated
 ** `EXPONENTIAL` - increases the back off period for each retry attempt in a given set up to a limit
 ** `RANDOM` - chooses a random multiple of the interval that would come from a simple deterministic exponential
 
-[[policies-pull]]
-==== Pull
+[[policies-inbound]]
+==== Inbound
 
-Pull policies are evaluated during the execution of <<tasks-pull,pull tasks>> and are meant to:
+Inbound policies are evaluated during the execution of <<tasks-pull,pull tasks>> and are meant to:
 
 . help match existing Users, Groups and Any Objects during <<provisioning-pull,pull>>, thus generating update events
 (rather than create)
@@ -393,10 +393,10 @@ can be mapped to two distinct Users in Apache Syncope?)
 
 [NOTE]
 ====
-When set for resource R, a pull policy is enforced on all Users, Groups and Any Objects pulled from R.
+When set for resource R, an inbound policy is enforced on all Users, Groups and Any Objects pulled from R.
 ====
 
-When defining a pull policy, the following information must be provided:
+When defining an inbound policy, the following information must be provided:
 
 * conflict resolution action
 ** `IGNORE` - do nothing
@@ -406,29 +406,29 @@ When defining a pull policy, the following information must be provided:
 * rules - set of correlation rules to evaluate with the current policy; for each defined <<anytype,any type>>, a
 different rule is required
 
-===== Pull Correlation Rules
+===== Inbound Correlation Rules
 
-Pull correlation rules define how to match objects received from <<external-resources>>
+Inbound correlation rules define how to match objects received from <<external-resources>>
 with existing Users (including <<linked-accounts>>), Groups or Any Objects.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultInboundCorrelationRule.java[default^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultPullCorrelationRule.java[default^]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DefaultInboundCorrelationRule.java[default^]
 endif::[]
 implementation attempts to match entities on the basis of the values of the provided plain attributes,
 according to the available <<mapping,mapping>>.
 
 [TIP]
 ====
-Custom pull correlation rules can be provided by <<implementations,implementing>> the
+Custom inbound correlation rules can be provided by <<implementations,implementing>> the
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/InboundCorrelationRule.java[InboundCorrelationRule^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/PullCorrelationRule.java[PullCorrelationRule^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/rules/InboundCorrelationRule.java[InboundCorrelationRule^]
 endif::[]
 interface.
 ====
@@ -478,4 +478,4 @@ Ticket Expiration policies control the duration of various types of WA sessions.
 
 [NOTE]
 Ticket Expiration Policy instances are dynamically translated into
-https://apereo.github.io/cas/6.6.x/ticketing/Configuring-Ticket-Expiration-Policy.html[their CAS equivalent^].
+https://apereo.github.io/cas/7.1.x/ticketing/Configuring-Ticket-Expiration-Policy.html[their CAS equivalent^].

@@ -31,8 +31,8 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -41,8 +41,8 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -136,10 +136,10 @@ public final class ImplementationManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static Optional<PullCorrelationRule> buildPullCorrelationRule(
+    public static Optional<InboundCorrelationRule> buildInboundCorrelationRule(
             final Implementation impl,
-            final Supplier<PullCorrelationRule> cacheGetter,
-            final Consumer<PullCorrelationRule> cachePutter)
+            final Supplier<InboundCorrelationRule> cacheGetter,
+            final Consumer<InboundCorrelationRule> cachePutter)
             throws ClassNotFoundException {
 
         switch (impl.getEngine()) {
@@ -148,16 +148,16 @@ public final class ImplementationManager {
 
             case JAVA:
             default:
-                PullCorrelationRuleConf conf = POJOHelper.deserialize(impl.getBody(), PullCorrelationRuleConf.class);
-                Class<PullCorrelationRule> clazz =
-                        (Class<PullCorrelationRule>) ApplicationContextProvider.getApplicationContext().
-                                getBean(ImplementationLookup.class).getPullCorrelationRuleClass(conf.getClass());
-
+                InboundCorrelationRuleConf conf = POJOHelper.deserialize(
+                        impl.getBody(), InboundCorrelationRuleConf.class);
+                Class<InboundCorrelationRule> clazz =
+                        (Class<InboundCorrelationRule>) ApplicationContextProvider.getApplicationContext().
+                                getBean(ImplementationLookup.class).getInboundCorrelationRuleClass(conf.getClass());
                 if (clazz == null) {
                     return Optional.empty();
                 }
 
-                PullCorrelationRule rule = build(clazz, true, cacheGetter, cachePutter);
+                InboundCorrelationRule rule = build(clazz, true, cacheGetter, cachePutter);
                 rule.setConf(conf);
                 return Optional.of(rule);
         }

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -31,7 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -51,7 +49,7 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject, APlainAttr> 
     private Neo4jGroup rightEnd;
 
     @CompositeProperty(converterRef = "aPlainAttrsConverter")
-    protected Map<String, Neo4jAPlainAttr> plainAttrs = new HashMap<>();
+    protected Map<String, JSONAPlainAttr> plainAttrs = new HashMap<>();
 
     @Override
     public MembershipType getType() {
@@ -86,32 +84,33 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject, APlainAttr> 
     }
 
     @Override
-    protected Map<String, ? extends Neo4jPlainAttr<? extends Any<APlainAttr>>> plainAttrs() {
+    protected Map<String, ? extends APlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
     @Override
-    public List<? extends Neo4jAPlainAttr> getPlainAttrs() {
+    public List<? extends JSONAPlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
+                filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(Map.Entry::getValue).toList();
     }
 
     @Override
-    public Optional<? extends Neo4jAPlainAttr> getPlainAttr(final String plainSchema) {
+    public Optional<? extends JSONAPlainAttr> getPlainAttr(final String plainSchema) {
         return Optional.ofNullable(plainAttrs.get(plainSchema));
     }
 
     @Override
     public boolean add(final APlainAttr attr) {
-        checkType(attr, Neo4jAPlainAttr.class);
-        Neo4jAPlainAttr neo4jAttr = (Neo4jAPlainAttr) attr;
+        checkType(attr, JSONAPlainAttr.class);
+        JSONAPlainAttr neo4jAttr = (JSONAPlainAttr) attr;
         return getKey().equals(neo4jAttr.getMembershipKey())
                 && plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
     }
 
     @Override
     public boolean remove(final String plainSchema) {
-        return plainAttrs.remove(plainSchema) != null;
+        return plainAttrs.put(plainSchema, null) != null;
     }
 }

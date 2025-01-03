@@ -73,7 +73,7 @@ import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
@@ -111,7 +111,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     protected final SyncopeLogic syncopeLogic;
 
-    protected final RuleEnforcer ruleEnforcer;
+    protected final RuleProvider ruleEnforcer;
 
     public UserLogic(
             final RealmSearchDAO realmSearchDAO,
@@ -127,7 +127,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleEnforcer ruleEnforcer) {
+            final RuleProvider ruleEnforcer) {
 
         super(realmSearchDAO, anyTypeDAO, templateUtils);
 
@@ -398,7 +398,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                     orElseThrow(() -> new NotFoundException("Realm " + query.getRealm()));
         }
         Set<ExternalResource> resources = query.getResources().stream().
-                map(resourceDAO::findById).filter(Optional::isPresent).map(Optional::get).collect(Collectors.toSet());
+                map(resourceDAO::findById).flatMap(Optional::stream).collect(Collectors.toSet());
         if (realm == null && resources.isEmpty()) {
             sce.getElements().add("Nothing to check");
             throw sce;

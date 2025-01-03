@@ -44,7 +44,7 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             try {
                 CronExpression.parse(report.getCronExpression());
             } catch (IllegalArgumentException e) {
-                LOG.error("Invalid cron expression '" + report.getCronExpression() + '\'', e);
+                LOG.error("Invalid cron expression '{}'", report.getCronExpression(), e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();

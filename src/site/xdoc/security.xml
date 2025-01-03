@@ -36,6 +36,86 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="https://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2024-45031: Apache Syncope: Stored XSS in Console and Enduser">
+        <p>When editing objects in the Syncope Console, incomplete HTML tags could be used to bypass HTML sanitization. This made it possible to inject stored XSS payloads which would trigger for other users during ordinary usage of the application.<br/>
+XSS payloads could also be injected in Syncope Enduser when editing “Personal Information” or “User Requests”: such payloads would trigger for administrators in Syncope Console, thus enabling session hijacking.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>3.0 through 3.0.8</li>
+            <li>2.1 through 2.1.14</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 3.0.9, which fixes this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 3.0.9</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-45031">full CVE advisory</a>.</p>
+      </subsection>
+
+      <subsection name="CVE-2024-38503: HTML tags can be injected into Console or Enduser text fields">
+        <p>When editing a user, group or any object in the Syncope Console, HTML tags could be added to any text field and could lead to potential exploits.
+The same vulnerability was found in the Syncope Enduser, when editing “Personal Information” or “User Requests”.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>3.0 through 3.0.7</li>
+            <li>2.1 through 2.1.14</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 3.0.8, which fixes this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 3.0.8</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38503">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2020-11977: Remote Code Execution via Flowable workflow definition">
         <p>When the Flowable extension is enabled, an administrator with workflow entitlements can use Shell Service Tasks to perform malicious operations, including but not limited
            to file read, file write, and code execution.</p>

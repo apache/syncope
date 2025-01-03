@@ -47,8 +47,8 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.panels.WizardModalPanel;
@@ -205,7 +205,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                         max(Comparator.comparing(ClientAppTO::getClientAppId)).
                         ifPresent(app -> clientAppTO.setClientAppId(app.getClientAppId() + 1));
             }
-            fields.add(new AjaxSpinnerFieldPanel.Builder<Long>().build(
+            fields.add(new AjaxNumberFieldPanel.Builder<Long>().build(
                     "field", "clientAppId", Long.class,
                     new PropertyModel<>(clientAppTO, "clientAppId")).setRequired(true));
 
@@ -292,7 +292,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
 
                     AjaxTextFieldPanel clientSecret = new AjaxTextFieldPanel(
                             "field", "clientSecret", new PropertyModel<>(clientAppTO, "clientSecret"), false);
-                    clientSecret.setChoices(List.of(RandomStringUtils.randomAlphanumeric(15)));
+                    clientSecret.setChoices(List.of(RandomStringUtils.secure().nextNumeric(15)));
                     fields.add(clientSecret.setRequired(true));
 
                     fields.add(new AjaxCheckBoxPanel(
@@ -434,7 +434,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     requiredNameIdFormat.addRequiredLabel().setEnabled(true);
                     fields.add(requiredNameIdFormat);
 
-                    fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().min(0).build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                             "field", "skewAllowance", Integer.class,
                             new PropertyModel<>(clientAppTO, "skewAllowance")));
 

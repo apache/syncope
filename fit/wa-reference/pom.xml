@@ -131,6 +131,11 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>    
+    <dependency>
       <groupId>org.jsoup</groupId>
       <artifactId>jsoup</artifactId>
       <scope>test</scope>
@@ -217,15 +222,13 @@ under the License.
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
 
-              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
-
               <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
               <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
             </systemProperties>
             <dependencies>
               <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
               </dependency>
             </dependencies>
           </container>
@@ -238,7 +241,6 @@ under the License.
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
               <cargo.tomcat.connector.keystoreFile>${basedir}/src/test/resources/keystore.jks</cargo.tomcat.connector.keystoreFile>
-              <cargo.tomcat.connector.keystoreType>jks</cargo.tomcat.connector.keystoreType>
               <cargo.tomcat.connector.keystorePass>password</cargo.tomcat.connector.keystorePass>
               <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
               <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
@@ -416,7 +418,6 @@ under the License.
       </build>
     </profile>
     
-    <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
     <profile>
       <id>hotswap</id>
       

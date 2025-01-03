@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
 import java.io.InputStream;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -29,7 +28,6 @@ import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.wicket.util.io.IOUtils;
 import org.apache.wicket.util.resource.AbstractResourceStream;
 import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.resource.ResourceStreamNotFoundException;
 
 public class SAML2SPRestClient extends BaseRestClient {
 
@@ -48,12 +46,12 @@ public class SAML2SPRestClient extends BaseRestClient {
             private static final long serialVersionUID = -2268011115723452312L;
 
             @Override
-            public InputStream getInputStream() throws ResourceStreamNotFoundException {
+            public InputStream getInputStream() {
                 return inputStream;
             }
 
             @Override
-            public void close() throws IOException {
+            public void close() {
                 IOUtils.closeQuietly(inputStream);
             }
         };

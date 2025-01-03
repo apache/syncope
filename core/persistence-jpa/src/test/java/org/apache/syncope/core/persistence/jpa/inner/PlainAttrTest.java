@@ -42,12 +42,10 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,21 +64,6 @@ public class PlainAttrTest extends AbstractTest {
 
     @Autowired
     private PlainAttrValidationManager validator;
-
-    @Tag("plainAttrTable")
-    @Test
-    public void findByKey() {
-        assertTrue(findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class).isPresent());
-        assertTrue(findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class).isPresent());
-    }
-
-    @Tag("plainAttrTable")
-    @Test
-    public void read() {
-        UPlainAttr attribute = findPlainAttr("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class).orElseThrow();
-        assertTrue(attribute.getValues().isEmpty());
-        assertNotNull(attribute.getUniqueValue());
-    }
 
     @Test
     public void save() throws ClassNotFoundException {
@@ -110,38 +93,6 @@ public class PlainAttrTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithEnum() throws ClassNotFoundException {
-        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
-
-        PlainSchema gender = plainSchemaDAO.findById("gender").orElseThrow();
-        assertNotNull(gender.getType());
-        assertNotNull(gender.getEnumerationValues());
-
-        UPlainAttr attribute = entityFactory.newEntity(UPlainAttr.class);
-        attribute.setOwner(user);
-        attribute.setSchema(gender);
-        user.add(attribute);
-
-        Exception thrown = null;
-        try {
-            attribute.add(validator, "A", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        } catch (ValidationException e) {
-            thrown = e;
-        }
-        assertNotNull(thrown);
-
-        attribute.add(validator, "M", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-
-        InvalidEntityException iee = null;
-        try {
-            userDAO.save(user);
-        } catch (InvalidEntityException e) {
-            iee = e;
-        }
-        assertNull(iee);
-    }
-
-    @Test
     public void invalidValueList() {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
 
@@ -165,42 +116,6 @@ public class PlainAttrTest extends AbstractTest {
         assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
     }
 
-    @Tag("plainAttrTable")
-    @Test
-    public void invalidPlainAttr() {
-        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
-
-        PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
-
-        PlainSchema fullnameSchema = plainSchemaDAO.findById("fullname").orElseThrow();
-
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(emailSchema);
-
-        UPlainAttrUniqueValue uauv = entityFactory.newEntity(UPlainAttrUniqueValue.class);
-        uauv.setAttr(attr);
-        uauv.setSchema(fullnameSchema);
-        uauv.setStringValue("a value");
-
-        attr.setUniqueValue(uauv);
-
-        user.add(attr);
-
-        InvalidEntityException iee = null;
-        try {
-            userDAO.save(user);
-            fail("This should not happen");
-        } catch (InvalidEntityException e) {
-            iee = e;
-        }
-        assertNotNull(iee);
-        // for attr because no values are set
-        assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
-        // for uauv because uauv.schema and uauv.attr.schema are different
-        assertTrue(iee.hasViolation(EntityViolationType.InvalidPlainAttr));
-    }
-
     @Test
     public void saveWithEncrypted() throws Exception {
         User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
@@ -217,7 +132,7 @@ public class PlainAttrTest extends AbstractTest {
 
         userDAO.save(user);
 
-        UPlainAttr obscure = user.getPlainAttr("obscure").get();
+        UPlainAttr obscure = user.getPlainAttr("obscure").orElseThrow();
         assertNotNull(obscure);
         assertEquals(1, obscure.getValues().size());
         assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
@@ -292,20 +207,9 @@ public class PlainAttrTest extends AbstractTest {
 
         userDAO.save(user);
 
-        UPlainAttr photo = user.getPlainAttr("photo").get();
+        UPlainAttr photo = user.getPlainAttr("photo").orElseThrow();
         assertNotNull(photo);
         assertEquals(1, photo.getValues().size());
         assertTrue(Arrays.equals(bytes, photo.getValues().get(0).getBinaryValue()));
-    }
-
-    @Tag("plainAttrTable")
-    @Test
-    public void delete() {
-        UPlainAttr attribute = findPlainAttr("9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class).orElseThrow();
-        String attrSchemaName = attribute.getSchema().getKey();
-
-        plainSchemaDAO.delete(attribute);
-
-        assertTrue(plainSchemaDAO.findById(attrSchemaName).isPresent());
     }
 }

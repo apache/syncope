@@ -19,16 +19,13 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
-import org.apache.syncope.client.console.panels.ListViewPanel;
-import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
+import org.apache.syncope.client.console.panels.RelationshipViewPanel;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.AnyObjectSelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
@@ -47,7 +44,6 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -61,20 +57,17 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.wizard.IWizard;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
-import org.apache.wicket.markup.head.IHeaderResponse;
-import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
@@ -98,8 +91,6 @@ public class Relationships extends WizardStep implements ICondition {
 
     protected final AnyTO anyTO;
 
-    protected final Specification specification;
-
     protected final PageReference pageRef;
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
@@ -117,7 +108,6 @@ public class Relationships extends WizardStep implements ICondition {
         }
 
         this.anyTO = modelObject.getInnerObject();
-        this.specification = new Specification();
         this.pageRef = pageRef;
 
         // ------------------------
@@ -132,48 +122,21 @@ public class Relationships extends WizardStep implements ICondition {
         return super.getHeader(id, parent, wizard).setVisible(false);
     }
 
-    protected Fragment getViewFragment() {
-        Map<String, List<RelationshipTO>> relationships = new HashMap<>();
-        addRelationship(relationships, getCurrentRelationships().toArray(RelationshipTO[]::new));
+    protected Specification newSpecification() {
+        return new Specification();
+    }
 
+    protected Fragment getViewFragment() {
         Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().
-                map(relationship -> new AbstractTab(new ResourceModel("relationship", relationship)) {
-
-            private static final long serialVersionUID = 1037272333056449378L;
-
-            @Override
-            public Panel getPanel(final String panelId) {
-                return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
-                        setItems(relationships.get(relationship)).
-                        includes("otherEndType", "otherEndKey", "otherEndName").
-                        addAction(new ActionLink<>() {
-
-                            private static final long serialVersionUID = -6847033126124401556L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RelationshipTO modelObject) {
-                                removeRelationships(relationships, modelObject);
-                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
-                            }
-                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
-                        build(panelId);
-            }
-        }).collect(Collectors.toList())) {
-
-            private static final long serialVersionUID = 1037272333056449379L;
-
-            @Override
-            public void renderHead(final IHeaderResponse response) {
-                super.renderHead(response);
-                if (relationships.isEmpty()) {
-                    response.render(OnDomReadyHeaderItem.forScript(String.format(
-                            "$('#emptyPlaceholder').append(\"%s\")", getString("relationships.empty.list"))));
-                }
-            }
-        });
+        List<RelationshipTO> relationships = getCurrentRelationships();
+        viewFragment.add(relationships.isEmpty()
+                ? new Label("relationships", new Model<>(getString("relationships.empty.list")))
+                : new RelationshipViewPanel.Builder(pageRef).
+                        setAnyTO(anyTO).
+                        setRelationships(relationships).
+                        build("relationships"));
 
         ActionsPanel<RelationshipTO> panel = new ActionsPanel<>("actions", null);
         viewFragment.add(panel);
@@ -186,7 +149,7 @@ public class Relationships extends WizardStep implements ICondition {
             public void onClick(final AjaxRequestTarget target, final RelationshipTO ignore) {
                 Fragment addFragment = new Fragment("relationships", "addFragment", Relationships.this);
                 addOrReplace(addFragment);
-                addFragment.add(specification.setRenderBodyOnly(true));
+                addFragment.add(newSpecification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
         }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).hideLabel();
@@ -200,40 +163,8 @@ public class Relationships extends WizardStep implements ICondition {
                 : List.of();
     }
 
-    protected void addRelationship(
-            final Map<String, List<RelationshipTO>> relationships,
-            final RelationshipTO... rels) {
-
-        for (RelationshipTO relationship : rels) {
-            List<RelationshipTO> listrels;
-            if (relationships.containsKey(relationship.getType())) {
-                listrels = relationships.get(relationship.getType());
-            } else {
-                listrels = new ArrayList<>();
-                relationships.put(relationship.getType(), listrels);
-            }
-            listrels.add(relationship);
-        }
-    }
-
     protected void addNewRelationships(final RelationshipTO... rels) {
         getCurrentRelationships().addAll(List.of(rels));
-    }
-
-    protected void removeRelationships(
-            final Map<String, List<RelationshipTO>> relationships, final RelationshipTO... rels) {
-
-        List<RelationshipTO> currentRels = getCurrentRelationships();
-        for (RelationshipTO relationship : rels) {
-            currentRels.remove(relationship);
-            if (relationships.containsKey(relationship.getType())) {
-                List<RelationshipTO> rellist = relationships.get(relationship.getType());
-                rellist.remove(relationship);
-                if (rellist.isEmpty()) {
-                    relationships.remove(relationship.getType());
-                }
-            }
-        }
     }
 
     @Override
@@ -265,6 +196,7 @@ public class Relationships extends WizardStep implements ICondition {
         public Specification() {
             super("specification");
             rel = new RelationshipTO();
+            rel.setEnd(RelationshipTO.End.LEFT);
 
             List<String> availableRels = relationshipTypeRestClient.list().stream().
                     map(RelationshipTypeTO::getKey).collect(Collectors.toList());
@@ -396,6 +328,7 @@ public class Relationships extends WizardStep implements ICondition {
 
                 AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setOtherEndKey(right.getKey());
+                rel.setOtherEndName(AnyObjectTO.class.cast(right).getName());
 
                 Relationships.this.addNewRelationships(rel);
 

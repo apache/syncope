@@ -89,25 +89,25 @@ public class MembershipITCase extends AbstractITCase {
         }
 
         // remove fullname and try again
-        membership.getPlainAttrs().remove(membership.getPlainAttr("fullname").get());
+        membership.getPlainAttrs().remove(membership.getPlainAttr("fullname").orElseThrow());
         UserTO userTO = null;
         try {
             userTO = createUser(userCR).getEntity();
 
             // 1. verify that 'aLong' is correctly populated for user
-            assertEquals(1, userTO.getPlainAttr("aLong").get().getValues().size());
-            assertEquals("1976", userTO.getPlainAttr("aLong").get().getValues().get(0));
+            assertEquals(1, userTO.getPlainAttr("aLong").orElseThrow().getValues().size());
+            assertEquals("1976", userTO.getPlainAttr("aLong").orElseThrow().getValues().get(0));
 
             // 2. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, userCR.getMemberships().size());
-            membership = userTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").get();
+            membership = userTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").orElseThrow();
             assertNotNull(membership);
-            assertEquals(1, membership.getPlainAttr("aLong").get().getValues().size());
-            assertEquals("1977", membership.getPlainAttr("aLong").get().getValues().get(0));
+            assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
+            assertEquals("1977", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
 
-            // 3. verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
-            assertFalse(membership.getDerAttr("csvuserid").get().getValues().isEmpty());
-            assertFalse(membership.getDerAttr("noschema").get().getValues().isEmpty());
+            // 3. verify that derived attributes from 'csv' and 'other' are also populated for user's membership
+            assertFalse(membership.getDerAttr("csvuserid").orElseThrow().getValues().isEmpty());
+            assertFalse(membership.getDerAttr("noschema").orElseThrow().getValues().isEmpty());
 
             // update user - change some values and add new membership attribute
             UserUR userUR = new UserUR();
@@ -124,19 +124,19 @@ public class MembershipITCase extends AbstractITCase {
             userTO = updateUser(userUR).getEntity();
 
             // 4. verify that 'aLong' is correctly populated for user
-            assertEquals(1, userTO.getPlainAttr("aLong").get().getValues().size());
-            assertEquals("1977", userTO.getPlainAttr("aLong").get().getValues().get(0));
+            assertEquals(1, userTO.getPlainAttr("aLong").orElseThrow().getValues().size());
+            assertEquals("1977", userTO.getPlainAttr("aLong").orElseThrow().getValues().get(0));
             assertFalse(userTO.getPlainAttr("ctype").isPresent());
 
             // 5. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, userCR.getMemberships().size());
-            membership = userTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").get();
+            membership = userTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").orElseThrow();
             assertNotNull(membership);
-            assertEquals(1, membership.getPlainAttr("aLong").get().getValues().size());
-            assertEquals("1976", membership.getPlainAttr("aLong").get().getValues().get(0));
+            assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
+            assertEquals("1976", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
 
             // 6. verify that 'ctype' is correctly populated for user's membership
-            assertEquals("membership type", membership.getPlainAttr("ctype").get().getValues().get(0));
+            assertEquals("membership type", membership.getPlainAttr("ctype").orElseThrow().getValues().get(0));
 
             // finally remove membership
             userUR = new UserUR();
@@ -196,14 +196,14 @@ public class MembershipITCase extends AbstractITCase {
 
         // verify that 'aLong' is correctly populated for user's membership
         assertEquals(1, user.getMemberships().size());
-        membership = user.getMembership(groupTO.getKey()).get();
+        membership = user.getMembership(groupTO.getKey()).orElseThrow();
         assertNotNull(membership);
-        assertEquals(1, membership.getPlainAttr("aLong").get().getValues().size());
-        assertEquals("1454", membership.getPlainAttr("aLong").get().getValues().get(0));
+        assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
+        assertEquals("1454", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
 
         // verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
-        assertFalse(membership.getDerAttr("csvuserid").get().getValues().isEmpty());
-        assertFalse(membership.getDerAttr("noschema").get().getValues().isEmpty());
+        assertFalse(membership.getDerAttr("csvuserid").orElseThrow().getValues().isEmpty());
+        assertFalse(membership.getDerAttr("noschema").orElseThrow().getValues().isEmpty());
 
         // now remove the group -> all related memberships should have been removed as well
         GROUP_SERVICE.delete(groupTO.getKey());
@@ -219,15 +219,15 @@ public class MembershipITCase extends AbstractITCase {
         ResourceTO newResource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBPULL);
         newResource.setKey(getUUIDString());
 
-        Item item = newResource.getProvision("USER").get().getMapping().getItems().stream().
-                filter(object -> "firstname".equals(object.getIntAttrName())).findFirst().get();
+        Item item = newResource.getProvision("USER").orElseThrow().getMapping().getItems().stream().
+                filter(object -> "firstname".equals(object.getIntAttrName())).findFirst().orElseThrow();
         assertNotNull(item);
         assertEquals("ID", item.getExtAttrName());
         item.setIntAttrName("memberships[additional].aLong");
         item.setPurpose(MappingPurpose.BOTH);
 
-        item = newResource.getProvision("USER").get().getMapping().getItems().stream().
-                filter(object -> "fullname".equals(object.getIntAttrName())).findFirst().get();
+        item = newResource.getProvision("USER").orElseThrow().getMapping().getItems().stream().
+                filter(object -> "fullname".equals(object.getIntAttrName())).findFirst().orElseThrow();
         item.setPurpose(MappingPurpose.PULL);
 
         PullTaskTO newTask = null;
@@ -294,7 +294,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(1, users.getTotalCount());
             assertEquals(1, users.getResult().get(0).getMemberships().size());
             assertEquals("5432", users.getResult().get(0).getMemberships().get(0).
-                    getPlainAttr("aLong").get().getValues().get(0));
+                    getPlainAttr("aLong").orElseThrow().getValues().get(0));
         } catch (Exception e) {
             LOG.error("Unexpected error", e);
             fail(e::getMessage);

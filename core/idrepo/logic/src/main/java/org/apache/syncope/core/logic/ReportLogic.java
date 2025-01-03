@@ -100,7 +100,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                     AuthContextUtils.getUsername(),
                     false);
         } catch (Exception e) {
-            LOG.error("While registering job for report " + report.getKey(), e);
+            LOG.error("While registering job for report {}", report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -124,7 +124,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                     AuthContextUtils.getUsername(),
                     false);
         } catch (Exception e) {
-            LOG.error("While registering job for report " + report.getKey(), e);
+            LOG.error("While registering job for report {}", report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -312,10 +312,10 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @Override
     protected Triple<JobType, String, String> getReference(final String jobName) {
-        String key = JobNamer.getReportKeyFromJobName(jobName);
-
-        return reportDAO.findById(key).
-                map(r -> Triple.of(JobType.REPORT, key, binder.buildRefDesc(r))).orElse(null);
+        return JobNamer.getReportKeyFromJobName(jobName).
+                flatMap(reportDAO::findById).
+                map(r -> Triple.of(JobType.REPORT, r.getKey(), binder.buildRefDesc(r))).
+                orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_LIST + "')")

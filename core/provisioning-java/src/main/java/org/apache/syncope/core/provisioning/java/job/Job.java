@@ -57,18 +57,27 @@ public abstract class Job implements Runnable {
                 AuthContextUtils.getWho(),
                 false)));
 
-        if (AuthContextUtils.callAsAdmin(context.getDomain(), () -> jobStatusDAO.lock(context.getJobName()))) {
-            LOG.debug("Job {} locked, starting execution", context.getJobName());
+        boolean locked = false;
+        try {
+            locked = AuthContextUtils.callAsAdmin(context.getDomain(), () -> jobStatusDAO.lock(context.getJobName()));
+        } catch (Exception e) {
+            LOG.debug("While attempting to lock job {}", context.getJobName(), e);
+        }
+        if (!locked) {
+            LOG.debug("Could not lock job {}, skipping execution", context.getJobName());
+            return;
+        }
 
-            try {
-                execute(context);
-            } catch (JobExecutionException e) {
-                LOG.error("While executing job {}", context.getJobName(), e);
-            } finally {
-                AuthContextUtils.runAsAdmin(context.getDomain(), () -> jobStatusDAO.unlock(context.getJobName()));
-            }
-        } else {
-            LOG.info("Could not lock job {}, skipping execution", context.getJobName());
+        LOG.debug("Job {} locked, starting execution", context.getJobName());
+
+        try {
+            execute(context);
+        } catch (JobExecutionException e) {
+            LOG.error("While executing job {}", context.getJobName(), e);
+        } finally {
+            LOG.debug("Job {} execution completed", context.getJobName());
+
+            AuthContextUtils.runAsAdmin(context.getDomain(), () -> jobStatusDAO.unlock(context.getJobName()));
         }
     }
 }

@@ -55,11 +55,11 @@ public interface PropagationManager {
     String MANDATORY_NULL_OR_EMPTY_ATTR_NAME = "__MANDATORY_NULL_OR_EMPTY__";
 
     /**
-     * Create the any object tasks for every associated resource, unless in {@code excludedResources}.
+     * Create the tasks for every associated resource, unless in {@code excludedResources}.
      *
-     * @param kind any object type kind
-     * @param key any object key
-     * @param enable whether any object should be enabled or not
+     * @param kind any type kind
+     * @param key any key
+     * @param enable whether any should be enabled or not
      * @param propByRes operation to be performed per resource
      * @param vAttrs virtual attributes to be set
      * @param excludedResources external resources performing not to be considered for propagation
@@ -95,12 +95,13 @@ public interface PropagationManager {
             Collection<String> excludedResources);
 
     /**
-     * Create the update tasks for the any object on each resource associated, unless in {@code excludedResources}.
+     * Create the update tasks on each resource associated, unless in {@code excludedResources}.
      *
-     * @param kind any object type kind
-     * @param key any object key
+     * @param anyUR update request
+     * @param kind any type kind
+     * @param key any key
      * @param changePwd whether password should be included for propagation attributes or not
-     * @param enable whether any object should be enabled or not, may be null to leave unchanged
+     * @param enable whether any should be enabled or not, may be null to leave unchanged
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
      * @param vAttrs virtual attributes to be set
@@ -108,6 +109,7 @@ public interface PropagationManager {
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUpdateTasks(
+            AnyUR anyUR,
             AnyTypeKind kind,
             String key,
             boolean changePwd,
@@ -140,10 +142,10 @@ public interface PropagationManager {
     List<PropagationTaskInfo> getUserUpdateTasks(UserWorkflowResult<Pair<UserUR, Boolean>> wfResult);
 
     /**
-     * Create the delete tasks for the any object from each resource associated, unless in {@code excludedResources}.
+     * Create the delete tasks from each resource associated, unless in {@code excludedResources}.
      *
-     * @param kind any object type kind
-     * @param key any object key
+     * @param kind any type kind
+     * @param key any key
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
      * @param excludedResources external resource keys not to be considered for propagation
@@ -181,11 +183,11 @@ public interface PropagationManager {
     /**
      * Prepare attributes for propagation.
      *
-     * @param kind any object type kind
-     * @param key any object key
+     * @param kind any type kind
+     * @param key any key
      * @param password to be set (for users)
      * @param changePwd whether password should be included for propagation attributes or not (for users)
-     * @param enable whether any object should be enabled or not, may be null to leave unchanged
+     * @param enable whether any should be enabled or not, may be null to leave unchanged
      * @param excludedResources external resource keys not to be considered for propagation
      * @return map with prepared attributes per External Resource
      */
@@ -210,11 +212,9 @@ public interface PropagationManager {
      *
      * @param tasks propagation tasks
      * @param beforeAttrs attribute values before update
-     * @param updateRequest effective any update request
      * @return enriched propagation tasks
      */
     List<PropagationTaskInfo> setAttributeDeltas(
             List<PropagationTaskInfo> tasks,
-            Map<Pair<String, String>, Set<Attribute>> beforeAttrs,
-            AnyUR updateRequest);
+            Map<Pair<String, String>, Set<Attribute>> beforeAttrs);
 }

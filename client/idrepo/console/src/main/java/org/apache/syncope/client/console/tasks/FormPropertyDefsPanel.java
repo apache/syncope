@@ -21,6 +21,10 @@ package org.apache.syncope.client.console.tasks;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
@@ -49,6 +53,9 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.IValidatable;
+import org.apache.wicket.validation.IValidator;
+import org.apache.wicket.validation.ValidationError;
 
 public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
 
@@ -70,8 +77,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
         this.task = task;
 
         WebMarkupContainer propertyDefContainer = new WebMarkupContainer("propertyDefContainer");
-        propertyDefContainer.setOutputMarkupId(true);
-        add(propertyDefContainer);
+        add(propertyDefContainer.setOutputMarkupId(true));
 
         model = new ListModel<>(new ArrayList<>());
         model.getObject().addAll(task.getFormPropertyDefs());
@@ -84,19 +90,18 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
             protected void populateItem(final ListItem<FormPropertyDefTO> item) {
                 FormPropertyDefTO fpd = item.getModelObject();
 
-                AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                        "key",
-                        "key",
-                        new PropertyModel<>(fpd, "key"),
-                        true);
-                item.add(key.setRequired(true).hideLabel());
-
                 AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                         "name",
                         "name",
                         new PropertyModel<>(fpd, "name"),
                         true);
                 item.add(name.setRequired(true).hideLabel());
+
+                AjaxGridFieldPanel<Locale, String> labels = new AjaxGridFieldPanel<>(
+                        "labels",
+                        "labels",
+                        new PropertyModel<>(fpd, "labels"));
+                item.add(labels.hideLabel());
 
                 AjaxCheckBoxPanel readable = new AjaxCheckBoxPanel(
                         "readable",
@@ -127,20 +132,69 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                 type.setChoices(List.of(FormPropertyType.values())).setNullValid(false);
                 item.add(type.setRequired(true).hideLabel());
 
+                AjaxTextFieldPanel stringRegEx = new AjaxTextFieldPanel(
+                        "stringRegEx",
+                        "stringRegEx",
+                        new IModel<String>() {
+
+                    private static final long serialVersionUID = 1015030402166681242L;
+
+                    @Override
+                    public String getObject() {
+                        return Optional.ofNullable(fpd.getStringRegEx()).map(Pattern::pattern).orElse(null);
+                    }
+
+                    @Override
+                    public void setObject(final String object) {
+                        fpd.setStringRegEx(Optional.ofNullable(object).map(Pattern::compile).orElse(null));
+                    }
+                }, true);
+                stringRegEx.getField().add(new IValidator<String>() {
+
+                    private static final long serialVersionUID = 3978328825079032964L;
+
+                    @Override
+                    public void validate(final IValidatable<String> validatable) {
+                        try {
+                            Pattern.compile(validatable.getValue());
+                        } catch (PatternSyntaxException e) {
+                            validatable.error(new ValidationError(fpd.getKey() + ": invalid RegEx"));
+                        }
+                    }
+                });
+                stringRegEx.setVisible(fpd.getType() == FormPropertyType.String);
+                item.add(stringRegEx.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+
                 AjaxTextFieldPanel datePattern = new AjaxTextFieldPanel(
                         "datePattern",
                         "datePattern",
                         new PropertyModel<>(fpd, "datePattern"),
                         true);
-                datePattern.setEnabled(fpd.getType() == FormPropertyType.Date);
-                item.add(datePattern.hideLabel().setOutputMarkupId(true));
+                datePattern.setVisible(fpd.getType() == FormPropertyType.Date);
+                item.add(datePattern.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 
                 AjaxGridFieldPanel<String, String> enumValues = new AjaxGridFieldPanel<>(
                         "enumValues",
                         "enumValues",
                         new PropertyModel<>(fpd, "enumValues"));
-                enumValues.setEnabled(fpd.getType() == FormPropertyType.Enum);
-                item.add(enumValues.hideLabel().setOutputMarkupId(true));
+                enumValues.setVisible(fpd.getType() == FormPropertyType.Enum);
+                item.add(enumValues.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+
+                WebMarkupContainer dropdownConf = new WebMarkupContainer("dropdownConf");
+                dropdownConf.setVisible(fpd.getType() == FormPropertyType.Dropdown);
+                item.add(dropdownConf.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+                AjaxCheckBoxPanel dropdownSingleSelection = new AjaxCheckBoxPanel(
+                        "dropdownSingleSelection",
+                        "dropdownSingleSelection",
+                        new PropertyModel<>(fpd, "dropdownSingleSelection"),
+                        true);
+                dropdownConf.add(dropdownSingleSelection.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+                AjaxCheckBoxPanel dropdownFreeForm = new AjaxCheckBoxPanel(
+                        "dropdownFreeForm",
+                        "dropdownFreeForm",
+                        new PropertyModel<>(fpd, "dropdownFreeForm"),
+                        true);
+                dropdownConf.add(dropdownFreeForm.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 
                 type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -149,30 +203,59 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         switch (type.getModelObject()) {
-                            case Date -> {
-                                datePattern.setEnabled(true);
-                                enumValues.setEnabled(false);
+                            case String -> {
+                                stringRegEx.setVisible(true);
+                                datePattern.setVisible(false);
+                                enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
+                                dropdownConf.setVisible(false);
+                            }
+
+                            case Date -> {
+                                stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
+                                datePattern.setVisible(true);
+                                enumValues.setVisible(false);
+                                fpd.getEnumValues().clear();
+                                dropdownConf.setVisible(false);
                             }
 
                             case Enum -> {
-                                datePattern.setEnabled(false);
-                                enumValues.setEnabled(true);
+                                stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
+                                datePattern.setVisible(false);
+                                enumValues.setVisible(true);
+                                dropdownConf.setVisible(false);
+                            }
+
+                            case Dropdown -> {
+                                stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
+                                datePattern.setVisible(false);
+                                enumValues.setVisible(false);
+                                fpd.getEnumValues().clear();
+                                dropdownConf.setVisible(true);
                             }
 
                             default -> {
-                                datePattern.setEnabled(false);
-                                enumValues.setEnabled(false);
+                                stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
+                                datePattern.setVisible(false);
+                                enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
+                                dropdownConf.setVisible(false);
                             }
                         }
 
+                        target.add(stringRegEx);
                         target.add(datePattern);
                         target.add(enumValues);
+                        target.add(dropdownConf);
                     }
                 });
 
-                ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
+                ActionsPanel<Serializable> actions = new ActionsPanel<>("actions", null);
+                item.add(actions);
                 actions.add(new ActionLink<>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -180,15 +263,48 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         model.getObject().remove(item.getIndex());
+
                         item.getParent().removeAll();
                         target.add(propertyDefContainer);
                     }
                 }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true).hideLabel();
-                item.add(actions);
+                if (model.getObject().size() > 1) {
+                    if (item.getIndex() > 0) {
+                        actions.add(new ActionLink<>() {
+
+                            private static final long serialVersionUID = 2041211756396714619L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                                FormPropertyDefTO pre = model.getObject().get(item.getIndex() - 1);
+                                model.getObject().set(item.getIndex(), pre);
+                                model.getObject().set(item.getIndex() - 1, fpd);
+
+                                item.getParent().removeAll();
+                                target.add(propertyDefContainer);
+                            }
+                        }, ActionLink.ActionType.UP, StringUtils.EMPTY).hideLabel();
+                    }
+                    if (item.getIndex() < model.getObject().size() - 1) {
+                        actions.add(new ActionLink<>() {
+
+                            private static final long serialVersionUID = 2041211756396714619L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                                FormPropertyDefTO post = model.getObject().get(item.getIndex() + 1);
+                                model.getObject().set(item.getIndex(), post);
+                                model.getObject().set(item.getIndex() + 1, fpd);
+
+                                item.getParent().removeAll();
+                                target.add(propertyDefContainer);
+                            }
+                        }, ActionLink.ActionType.DOWN, StringUtils.EMPTY).hideLabel();
+                    }
+                }
             }
         };
-        propertyDefs.setReuseItems(true);
-        propertyDefContainer.add(propertyDefs);
+        propertyDefContainer.add(propertyDefs.setReuseItems(true));
 
         IndicatingAjaxButton addPropertyDef = new IndicatingAjaxButton("addPropertyDef") {
 

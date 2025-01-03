@@ -28,7 +28,10 @@ import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.JPADomain;
 import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.persistence.jpa.MasterDomain;
+import org.apache.syncope.core.persistence.jpa.MariaDBPersistenceContext;
+import org.apache.syncope.core.persistence.jpa.MySQLPersistenceContext;
+import org.apache.syncope.core.persistence.jpa.OraclePersistenceContext;
+import org.apache.syncope.core.persistence.jpa.PGPersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -44,8 +47,18 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSender;
 
 @PropertySource("classpath:core-test.properties")
-@Import({ IdRepoLogicContext.class, IdMLogicContext.class, SecurityContext.class,
-    PersistenceContext.class, MasterDomain.class, ProvisioningContext.class, WorkflowContext.class })
+@Import({
+    SecurityContext.class,
+    WorkflowContext.class,
+    PersistenceContext.class,
+    PGPersistenceContext.class,
+    MySQLPersistenceContext.class,
+    MariaDBPersistenceContext.class,
+    OraclePersistenceContext.class,
+    ProvisioningContext.class,
+    IdRepoLogicContext.class,
+    IdMLogicContext.class
+})
 @Configuration(proxyBeanMethods = false)
 public class IdMLogicTestContext {
 

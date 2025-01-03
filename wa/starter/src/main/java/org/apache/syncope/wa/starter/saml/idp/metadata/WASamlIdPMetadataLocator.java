@@ -33,6 +33,7 @@ import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
@@ -43,9 +44,10 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
     public WASamlIdPMetadataLocator(
             final CipherExecutor<String, String> metadataCipherExecutor,
             final Cache<String, SamlIdPMetadataDocument> metadataCache,
+            final ApplicationContext applicationContext,
             final WARestClient waRestClient) {
 
-        super(metadataCipherExecutor, metadataCache);
+        super(metadataCipherExecutor, metadataCache, applicationContext);
         this.waRestClient = waRestClient;
     }
 

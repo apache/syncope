@@ -46,15 +46,13 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public boolean remove(final P attr) {
-        Neo4jPlainAttr<L> neo4jAttr = (Neo4jPlainAttr<L>) attr;
-
-        if (neo4jAttr.getMembershipKey() == null) {
-            return plainAttrs().remove(neo4jAttr.getSchemaKey()) != null;
+        if (attr.getMembershipKey() == null) {
+            return plainAttrs().put(attr.getSchemaKey(), null) != null;
         }
 
         return memberships().stream().
-                filter(m -> m.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
-                map(membership -> membership.remove(neo4jAttr.getSchemaKey())).
+                filter(m -> m.getKey().equals(attr.getMembershipKey())).findFirst().
+                map(membership -> membership.plainAttrs().put(attr.getSchemaKey(), null) != null).
                 orElse(false);
     }
 
@@ -69,6 +67,7 @@ public abstract class AbstractGroupableRelatable<
     @Override
     public List<? extends P> getPlainAttrs() {
         return plainAttrs().entrySet().stream().
+                filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(e -> (P) e.getValue()).toList();
     }
@@ -77,7 +76,7 @@ public abstract class AbstractGroupableRelatable<
     public Collection<? extends P> getPlainAttrs(final String plainSchema) {
         return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElse(Stream.empty()),
                 memberships().stream().map(m -> m.getPlainAttr(plainSchema)).
-                        filter(Optional::isPresent).map(Optional::get)).
+                        flatMap(Optional::stream)).
                 toList();
     }
 

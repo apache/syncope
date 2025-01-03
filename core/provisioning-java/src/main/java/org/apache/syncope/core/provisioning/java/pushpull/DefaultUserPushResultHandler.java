@@ -124,6 +124,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue())));
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUpdateTasks(
+                null,
                 any.getType().getKind(),
                 any.getKey(),
                 true,
@@ -174,7 +175,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
     @Override
     protected WorkflowResult<? extends AnyUR> update(final AnyUR req) {
         WorkflowResult<Pair<UserUR, Boolean>> update =
-                uwfAdapter.update((UserUR) req, null, profile.getExecutor(), getContext());
+                uwfAdapter.update((UserUR) req, null, profile.getExecutor(), profile.getContext());
         return new WorkflowResult<>(update.getResult().getLeft(), update.getPropByRes(), update.getPerformedTasks());
     }
 

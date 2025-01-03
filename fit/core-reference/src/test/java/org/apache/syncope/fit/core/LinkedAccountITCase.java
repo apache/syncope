@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -38,7 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.common.lib.policy.InboundPolicyTO;
 import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -54,6 +56,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
@@ -69,8 +72,8 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRule;
-import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRuleConf;
+import org.apache.syncope.fit.core.reference.LinkedAccountSampleInboundCorrelationRule;
+import org.apache.syncope.fit.core.reference.LinkedAccountSampleInboundCorrelationRuleConf;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -79,7 +82,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     public void createWithLinkedAccountThenUpdateThenRemove() throws NamingException {
         // 1. create user with linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "firstAccountOf" + userCR.getUsername();
         String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
@@ -155,7 +158,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     public void createWithLinkedAccountThenUpdateUsingPutThenRemove() throws NamingException {
         // 1. create user with linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
         String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
@@ -195,7 +198,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     public void createWithoutLinkedAccountThenAdd() throws NamingException {
         // 1. create user without linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
 
         UserTO user = createUser(userCR).getEntity();
@@ -244,7 +247,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         // 2. create user without linked account
         UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
 
         UserTO user = createUser(userCR).getEntity();
@@ -267,6 +270,20 @@ public class LinkedAccountITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(user.getKey());
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
+
+        // 4.1 SYNCOPE-1824 update with a wrong password, a error must be raised
+        account.setPassword("password");
+        try {
+            updateUser(userUR);
+            fail("Should not arrive here due to wrong linked account password");
+        } catch (SyncopeClientException sce) {
+            assertEquals(ClientExceptionType.InvalidUser, sce.getType());
+            assertEquals("InvalidUser [InvalidPassword: Password must be 10 or more characters in length.]",
+                    sce.getMessage());
+        }
+
+        // set a correct password
+        account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().get(0).getPassword());
 
@@ -307,7 +324,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         try {
             // 1. create user with linked account
             UserCR userCR = UserITCase.getSample(
-                    "linkedAccount" + RandomStringUtils.randomNumeric(5) + "@syncope.apache.org");
+                    "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
 
             LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_REST, connObjectKeyValue).build();
             userCR.getLinkedAccounts().add(account);
@@ -361,10 +378,9 @@ public class LinkedAccountITCase extends AbstractITCase {
             assertEquals(1, task.getExecutions().size());
             assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
 
-            tasks = TASK_SERVICE.search(
-                    new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
-                            anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
-            assertEquals(3, tasks.getTotalCount());
+            await().until(() -> TASK_SERVICE.search(
+                    new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
+                            .anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build()).getTotalCount() == 3);
 
             // 6. verify that both user and account are now found on resource
             response = webClient.get();
@@ -394,18 +410,19 @@ public class LinkedAccountITCase extends AbstractITCase {
         // Add a custom policy with correlation rule
         // -----------------------------
         ResourceTO restResource = RESOURCE_SERVICE.read(RESOURCE_NAME_REST);
-        if (restResource.getPullPolicy() == null) {
+        if (restResource.getInboundPolicy() == null) {
             ImplementationTO rule = null;
             try {
                 rule = IMPLEMENTATION_SERVICE.read(
-                        IdMImplementationType.PULL_CORRELATION_RULE, "LinkedAccountSamplePullCorrelationRule");
+                        IdMImplementationType.INBOUND_CORRELATION_RULE,
+                        "LinkedAccountSampleInboundCorrelationrrelationRule");
             } catch (SyncopeClientException e) {
                 if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                     rule = new ImplementationTO();
-                    rule.setKey("LinkedAccountSamplePullCorrelationRule");
+                    rule.setKey("LinkedAccountSampleInboundCorrelationrrelationRule");
                     rule.setEngine(ImplementationEngine.JAVA);
-                    rule.setType(IdMImplementationType.PULL_CORRELATION_RULE);
-                    rule.setBody(POJOHelper.serialize(new LinkedAccountSamplePullCorrelationRuleConf()));
+                    rule.setType(IdMImplementationType.INBOUND_CORRELATION_RULE);
+                    rule.setBody(POJOHelper.serialize(new LinkedAccountSampleInboundCorrelationRuleConf()));
                     Response response = IMPLEMENTATION_SERVICE.create(rule);
                     rule = IMPLEMENTATION_SERVICE.read(
                             rule.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
@@ -414,14 +431,14 @@ public class LinkedAccountITCase extends AbstractITCase {
             }
             assertNotNull(rule);
 
-            PullPolicyTO policy = new PullPolicyTO();
-            policy.setName("Linked Account sample Pull policy");
+            InboundPolicyTO policy = new InboundPolicyTO();
+            policy.setName("Linked Account sample inbound policy");
             policy.getCorrelationRules().put(AnyTypeKind.USER.name(), rule.getKey());
-            Response response = POLICY_SERVICE.create(PolicyType.PULL, policy);
-            policy = POLICY_SERVICE.read(PolicyType.PULL, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+            Response response = POLICY_SERVICE.create(PolicyType.INBOUND, policy);
+            policy = POLICY_SERVICE.read(PolicyType.INBOUND, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
             assertNotNull(policy.getKey());
 
-            restResource.setPullPolicy(policy.getKey());
+            restResource.setInboundPolicy(policy.getKey());
             RESOURCE_SERVICE.update(restResource);
         }
 
@@ -579,7 +596,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         } finally {
             // clean up
             UserUR patch = new UserUR();
-            patch.setKey(LinkedAccountSamplePullCorrelationRule.VIVALDI_KEY);
+            patch.setKey(LinkedAccountSampleInboundCorrelationRule.VIVALDI_KEY);
             patch.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                     operation(PatchOperation.DELETE).
                     linkedAccountTO(new LinkedAccountTO.Builder(RESOURCE_NAME_REST, user2Key).build()).

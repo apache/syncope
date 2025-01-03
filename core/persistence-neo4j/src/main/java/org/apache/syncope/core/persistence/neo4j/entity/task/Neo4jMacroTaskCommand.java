@@ -25,14 +25,14 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jMacroTaskCommand.NODE)
-public class Neo4jMacroTaskCommand extends AbstractProvidedKeyNode implements MacroTaskCommand {
+public class Neo4jMacroTaskCommand extends AbstractGeneratedKeyNode implements MacroTaskCommand {
 
     private static final long serialVersionUID = -8388668645348044783L;
 

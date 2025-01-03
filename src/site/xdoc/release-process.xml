@@ -244,23 +244,6 @@ cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip .
 cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
-# only for 2_1_X
-cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar .
-cp $SYNCOPE_RELEASE_DIR/installer/target/syncope-installer-*-uber.jar.asc .
-cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb .           
-cp $SYNCOPE_RELEASE_DIR/deb/core/target/apache-syncope-*.deb.asc .
-cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb .
-cp $SYNCOPE_RELEASE_DIR/deb/console/target/apache-syncope-console-*.deb.asc .
-cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb .
-cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb.asc .
-cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip .
-cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip.asc .
-cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip .
-cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip.asc .
-cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm .
-cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm.asc .
-cp $SYNCOPE_RELEASE_DIR/core/upgrade/target/syncope-core-upgrade-*.zip .
-cp $SYNCOPE_RELEASE_DIR/core/upgrade/target/syncope-core-upgrade-*.zip.asc .
               
 for file in `find . -type f -iname '*.asc'`
 do
@@ -284,6 +267,7 @@ mvn -PskipTests,all
 
 cd standalone/target/standalone/apache-tomcat-* && chmod 755 bin/*.sh && ./bin/startup.sh
 curl -o /tmp/openapi.json http://localhost:9080/syncope/rest/openapi.json
+curl -o /tmp/keymaster-openapi.json http://localhost:9080/syncope/rest/keymaster/openapi.json
 ./bin/shutdown.sh && cd -
 
 cd syncope-$VERSION                            
@@ -294,43 +278,41 @@ mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 
 cd <absolute path to/site>/$VERSION
 
-# if releasing from 2_1_X
-mkdir -p rest/2.1
-mv /tmp/openapi.json rest/2.1/
-cp -r $SYNCOPE_RELEASE_DIR/ext/swagger-ui/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/2.1/
-sed 's/..\/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/ext/swagger-ui/target/classes/META-INF/resources/swagger/index.html > rest/2.1/index.html
-mkdir -p docs/2.1
-cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/2.1/
-cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/2.1/
-cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/2.1/
-cd docs
-ln -s 3.0/reference-guide.html .
-ln -s 3.0/getting-started.html .
-ln -s 3.0/images/ .
+mkdir -p rest/$MAJOR_VERSION
+mv /tmp/openapi.json rest/$MAJOR_VERSION/
+mv /tmp/keymaster-openapi.json rest/$MAJOR_VERSION/
+cp -r $SYNCOPE_RELEASE_DIR/core/starter/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/$MAJOR_VERSION/
+sed 's/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/target/classes/META-INF/resources/index.html | \
+  sed 's/rest\/keymaster\//keymaster-/' > rest/$MAJOR_VERSION/index.html
+mkdir -p docs/$MAJOR_VERSION
+cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/$MAJOR_VERSION/
+cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/$MAJOR_VERSION/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/$MAJOR_VERSION/
+
+cd ../apidocs
+mkdir $MAJOR_VERSION
+mv * $MAJOR_VERSION/
+
 cd ../..
 svn add $VERSION
+
+# if releasing from 4_0_X              
 svn copy apidocs/3.0 $VERSION/apidocs/
 svn copy rest/3.0 $VERSION/rest/
 svn copy docs/3.0 $VERSION/docs/
+# else if releasing from 3_0_X
+svn copy apidocs/4.0 $VERSION/apidocs/
+svn copy rest/4.0 $VERSION/rest/
+svn copy docs/4.0 $VERSION/docs/              
 
-# else if releasing from master
-mkdir -p rest/3.0
-mv /tmp/openapi.json rest/3.0/              
-cp -r $SYNCOPE_RELEASE_DIR/core/starter/target/swagger-ui/META-INF/resources/webjars/swagger-ui/*/* rest/3.0/
-sed 's/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/target/classes/META-INF/resources/index.html > rest/3.0/index.html
-mkdir -p docs/3.0
-cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/3.0/
-cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/3.0/
-cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/3.0/
-cd docs
-ln -s 3.0/reference-guide.html .
-ln -s 3.0/getting-started.html .
-ln -s 3.0/images/ .
+cd $VERSION/docs
+ln -s 4.0/reference-guide.html .
+ln -s 4.0/getting-started.html .
+ln -s 4.0/images/ .
+svn add 4.0/reference-guide.html
+svn add 4.0/getting-started.html
+svn add 4.0/images/
 cd ../..
-svn add $VERSION
-svn copy apidocs/2.1 $VERSION/apidocs/
-svn copy rest/2.1 $VERSION/rest/
-svn copy docs/2.1 $VERSION/docs/
 
 svn commit -m "Staging site for release"]]></source>
           </li>
@@ -496,10 +478,8 @@ svn mv -m "Moving the voted release artifacts to dist/release" \
 https://dist.apache.org/repos/dist/dev/syncope/$VERSION
 https://dist.apache.org/repos/dist/release/syncope/
 
-svn co https://dist.apache.org/repos/dist/release/syncope syncope-dist-release
-cd syncope-dist-release
-svn rm <any older release artifact (if present)>
-svn commit -m "Cleaning up older releases"]]></source>
+svn rm -m "Cleaning up older releases" \
+https://dist.apache.org/repos/dist/release/syncope/$OLD_VERSION/]]></source>
           </li>
           <li>
             Add appropriate release notes to
@@ -516,14 +496,14 @@ svn commit -m "Cleaning up older releases"]]></source>
             <source><![CDATA[
 svn co https://svn.apache.org/repos/asf/syncope/site/
 cd site
-svn rm *.html apidocs rest css images img js fonts docs
+svn rm *.html apidocs rest css images img js fonts docs xref*
 svn mv $VERSION/* .
 svn rm $VERSION
 svn commit -m "Promoting the staging site"]]></source>
           </li>
           <li>
             Deploy the updated Docker images to <a href="https://hub.docker.com/">DockerHub</a> by adjusting the GIT tag
-            name then running the <a href="https://ci-builds.apache.org./job/Syncope/job/Syncope-Release-Docker/">dedicated Jenkins job</a>.
+            name then running the <a href="https://ci-builds.apache.org/job/Syncope/job/Syncope-Release-Docker/">dedicated Jenkins job</a>.
           </li>
         </ol>
       </subsection>

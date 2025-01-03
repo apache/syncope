@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
@@ -33,16 +34,18 @@ import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationExcept
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
-import org.apache.syncope.core.persistence.common.validation.PlainAttrValueCheck;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties({ "valueAsString", "value" })
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@PlainAttrValueCheck
-public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode implements PlainAttrValue {
+public abstract class AbstractPlainAttrValue implements PlainAttrValue {
 
     private static final long serialVersionUID = -9141923816611244785L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(PlainAttrValue.class);
 
     private static final Pattern SPRING_ENV_PROPERTY = Pattern.compile("^\\$\\{.*\\}$");
 
@@ -57,6 +60,12 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
     private Double doubleValue;
 
     private byte[] binaryValue;
+
+    @JsonIgnore
+    @Override
+    public String getKey() {
+        return null;
+    }
 
     @Override
     public Boolean getBooleanValue() {
@@ -100,15 +109,7 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
 
     @Override
     public String getStringValue() {
-        // workaround for Oracle DB considering empty string values as NULL (SYNCOPE-664)
-        return dateValue == null
-                && booleanValue == null
-                && longValue == null
-                && doubleValue == null
-                && binaryValue == null
-                && stringValue == null
-                        ? StringUtils.EMPTY
-                        : stringValue;
+        return stringValue;
     }
 
     @Override
@@ -187,6 +188,7 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
                 break;
 
             case String:
+            case Dropdown:
             case Enum:
             default:
                 this.setStringValue(value);
@@ -239,6 +241,7 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
                 break;
 
             case String:
+            case Dropdown:
             case Enum:
             case Encrypted:
                 value = getStringValue();
@@ -305,8 +308,9 @@ public abstract class AbstractPlainAttrValue extends AbstractProvidedKeyNode imp
                 }
                 break;
 
-            case String:
             case Enum:
+            case Dropdown:
+            case String:
             default:
                 result = getStringValue();
         }

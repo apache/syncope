@@ -32,7 +32,7 @@ public class SchedTaskValidator extends AbstractValidator<SchedTaskCheck, SchedT
             try {
                 CronExpression.parse(task.getCronExpression());
             } catch (IllegalArgumentException e) {
-                LOG.error("Invalid cron expression '" + task.getCronExpression() + '\'', e);
+                LOG.error("Invalid cron expression '{}'", task.getCronExpression(), e);
                 isValid = false;
 
                 context.disableDefaultConstraintViolation();

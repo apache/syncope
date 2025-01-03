@@ -39,8 +39,15 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.fit</groupId>
+      <artifactId>persistence-embedded</artifactId>
+      <version>${syncope.version}</version>
+      <classifier>bundle</classifier>
       <scope>test</scope>
     </dependency>
 
@@ -144,6 +151,9 @@ under the License.
                 <copy file="../core/target/test-classes/core-all.properties" 
                       todir="../core/target/syncope/WEB-INF/classes" 
                       overwrite="true"/>
+                <copy file="${settings.localRepository}/org/apache/syncope/fit/persistence-embedded/${syncope.version}/persistence-embedded-${syncope.version}-bundle.jar" 
+                      todir="../core/target/syncope/WEB-INF/lib" 
+                      overwrite="true"/>
 
                 <copy file="../console/target/test-classes/console-embedded.properties" 
                       todir="../console/target/syncope-console/WEB-INF/classes" 
@@ -226,16 +236,14 @@ under the License.
 
             <dependencies>
               <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
               </dependency>
             </dependencies>
 
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
-
-              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
 
               <javax.net.ssl.trustStore>${basedir}/src/test/resources/keystore.jks</javax.net.ssl.trustStore>
               <javax.net.ssl.trustStorePassword>password</javax.net.ssl.trustStorePassword>
@@ -253,7 +261,6 @@ under the License.
               <cargo.servlet.port>9443</cargo.servlet.port>
               <cargo.protocol>https</cargo.protocol>
               <cargo.tomcat.connector.keystoreFile>${basedir}/src/test/resources/keystore.jks</cargo.tomcat.connector.keystoreFile>
-              <cargo.tomcat.connector.keystoreType>jks</cargo.tomcat.connector.keystoreType>
               <cargo.tomcat.connector.keystorePass>password</cargo.tomcat.connector.keystorePass>
               <cargo.tomcat.connector.keyAlias>tomcat</cargo.tomcat.connector.keyAlias>
               <cargo.tomcat.connector.clientAuth>false</cargo.tomcat.connector.clientAuth>
@@ -331,7 +338,7 @@ under the License.
       </properties>
 
       <build>
-        <defaultGoal>clean verify cargo:run</defaultGoal>  
+        <defaultGoal>clean verify cargo:run</defaultGoal>
       </build>
     </profile>
 

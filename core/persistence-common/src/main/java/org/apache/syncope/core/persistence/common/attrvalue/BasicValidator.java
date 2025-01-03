@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.persistence.common.attrvalue;
 
-import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
@@ -30,21 +27,6 @@ public class BasicValidator extends AbstractValidator {
 
     @Override
     protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
-        if (AttrSchemaType.Enum == schema.getType()) {
-            final String[] enumeration = schema.getEnumerationValues().split(SyncopeConstants.ENUM_VALUES_SEPARATOR);
-            final String value = attrValue.getStringValue();
-
-            boolean found = false;
-            for (int i = 0; i < enumeration.length && !found; i++) {
-                if (enumeration[i].trim().equals(value)) {
-                    found = true;
-                }
-            }
-
-            if (!found) {
-                throw new InvalidPlainAttrValueException(
-                        '\'' + value + "' is not one of: " + schema.getEnumerationValues());
-            }
-        }
+        // nothing to do
     }
 }

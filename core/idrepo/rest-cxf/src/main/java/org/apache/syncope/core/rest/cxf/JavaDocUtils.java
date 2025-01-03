@@ -23,6 +23,7 @@ import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +42,7 @@ public final class JavaDocUtils {
 
     private static URL toURL(final String classPathEntry) {
         try {
-            return new File(classPathEntry).toURI().toURL();
+            return Path.of(classPathEntry).toUri().toURL();
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException("URL could not be created from '" + classPathEntry + "'", e);
         }

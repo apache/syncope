@@ -22,10 +22,10 @@ import org.apache.syncope.common.lib.policy.AccessPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
+import org.apache.syncope.common.lib.policy.InboundPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.policy.PropagationPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.policy.PushPolicyTO;
 import org.apache.syncope.common.lib.policy.TicketExpirationPolicyTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -41,11 +41,11 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
@@ -113,7 +113,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
             accountPolicyTO.getRules().forEach(ruleKey -> implementationDAO.findById(ruleKey).ifPresentOrElse(
                     accountPolicy::add,
-                    () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", ruleKey)));
+                    () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), ruleKey)));
             // remove all implementations not contained in the TO
             accountPolicy.getRules().
                     removeIf(implementation -> !accountPolicyTO.getRules().contains(implementation.getKey()));
@@ -129,24 +129,24 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             propagationPolicy.setBackOffStrategy(propagationPolicyTO.getBackOffStrategy());
             propagationPolicy.setBackOffParams(propagationPolicyTO.getBackOffParams());
             propagationPolicy.setMaxAttempts(propagationPolicyTO.getMaxAttempts());
-        } else if (policyTO instanceof PullPolicyTO pullPolicyTO) {
+        } else if (policyTO instanceof InboundPolicyTO inboundPolicyTO) {
             if (result == null) {
-                result = (T) entityFactory.newEntity(PullPolicy.class);
+                result = (T) entityFactory.newEntity(InboundPolicy.class);
             }
 
-            PullPolicy pullPolicy = PullPolicy.class.cast(result);
+            InboundPolicy inboundPolicy = InboundPolicy.class.cast(result);
 
-            pullPolicy.setConflictResolutionAction(pullPolicyTO.getConflictResolutionAction());
+            inboundPolicy.setConflictResolutionAction(inboundPolicyTO.getConflictResolutionAction());
 
-            pullPolicyTO.getCorrelationRules().forEach((type, impl) -> anyTypeDAO.findById(type).ifPresentOrElse(
+            inboundPolicyTO.getCorrelationRules().forEach((type, impl) -> anyTypeDAO.findById(type).ifPresentOrElse(
                     anyType -> {
-                        PullCorrelationRuleEntity correlationRule = pullPolicy.
+                        InboundCorrelationRuleEntity correlationRule = inboundPolicy.
                                 getCorrelationRule(anyType.getKey()).orElse(null);
                         if (correlationRule == null) {
-                            correlationRule = entityFactory.newEntity(PullCorrelationRuleEntity.class);
+                            correlationRule = entityFactory.newEntity(InboundCorrelationRuleEntity.class);
                             correlationRule.setAnyType(anyType);
-                            correlationRule.setPullPolicy(pullPolicy);
-                            pullPolicy.add(correlationRule);
+                            correlationRule.setInboundPolicy(inboundPolicy);
+                            inboundPolicy.add(correlationRule);
                         }
 
                         Implementation rule = implementationDAO.findById(impl).
@@ -155,7 +155,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                     },
                     () -> LOG.debug("Invalid AnyType {} specified, ignoring...", type)));
             // remove all rules not contained in the TO
-            pullPolicy.getCorrelationRules().removeIf(anyFilter -> !pullPolicyTO.getCorrelationRules().
+            inboundPolicy.getCorrelationRules().removeIf(anyFilter -> !inboundPolicyTO.getCorrelationRules().
                     containsKey(anyFilter.getAnyType().getKey()));
         } else if (policyTO instanceof PushPolicyTO pushPolicyTO) {
             if (result == null) {
@@ -280,13 +280,13 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             propagationPolicyTO.setBackOffStrategy(propagationPolicy.getBackOffStrategy());
             propagationPolicyTO.setBackOffParams(propagationPolicy.getBackOffParams());
             propagationPolicyTO.setMaxAttempts(propagationPolicy.getMaxAttempts());
-        } else if (policy instanceof PullPolicy pullPolicy) {
-            PullPolicyTO pullPolicyTO = new PullPolicyTO();
-            policyTO = (T) pullPolicyTO;
+        } else if (policy instanceof InboundPolicy inboundPolicy) {
+            InboundPolicyTO inboundPolicyTO = new InboundPolicyTO();
+            policyTO = (T) inboundPolicyTO;
 
-            pullPolicyTO.setConflictResolutionAction(pullPolicy.getConflictResolutionAction());
-            pullPolicy.getCorrelationRules().
-                    forEach(rule -> pullPolicyTO.getCorrelationRules().
+            inboundPolicyTO.setConflictResolutionAction(inboundPolicy.getConflictResolutionAction());
+            inboundPolicy.getCorrelationRules().
+                    forEach(rule -> inboundPolicyTO.getCorrelationRules().
                     put(rule.getAnyType().getKey(), rule.getImplementation().getKey()));
         } else if (policy instanceof PushPolicy pushPolicy) {
             PushPolicyTO pushPolicyTO = new PushPolicyTO();

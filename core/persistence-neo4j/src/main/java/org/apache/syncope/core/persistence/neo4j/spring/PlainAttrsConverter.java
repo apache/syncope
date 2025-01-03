@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractPlainAttr;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.neo4j.driver.Value;
+import org.neo4j.driver.internal.value.NullValue;
 import org.neo4j.driver.internal.value.StringValue;
 import org.springframework.data.neo4j.core.convert.Neo4jConversionService;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapConverter;
@@ -47,8 +48,11 @@ public class PlainAttrsConverter<PA extends AbstractPlainAttr<?>>
         }
 
         Map<String, Value> decomposed = new HashMap<>(property.size());
-        property.forEach((k, v) -> Optional.ofNullable(POJOHelper.serialize(v)).
-                ifPresent(s -> decomposed.put(k, new StringValue(s))));
+        property.forEach((k, v) -> Optional.ofNullable(v).
+                flatMap(n -> Optional.ofNullable(POJOHelper.serialize(n))).
+                ifPresentOrElse(
+                        s -> decomposed.put(k, new StringValue(s)),
+                        () -> decomposed.put(k, NullValue.NULL)));
         return decomposed;
     }
 
@@ -58,7 +62,11 @@ public class PlainAttrsConverter<PA extends AbstractPlainAttr<?>>
             final Neo4jConversionService neo4jConversionService) {
 
         Map<String, PA> composed = new HashMap<>(source.size());
-        source.forEach((k, v) -> composed.put(k, POJOHelper.deserialize(v.asString(), reference)));
+        source.forEach((k, v) -> {
+            if (v instanceof StringValue) {
+                composed.put(k, POJOHelper.deserialize(v.asString(), reference));
+            }
+        });
         return composed;
     }
 }

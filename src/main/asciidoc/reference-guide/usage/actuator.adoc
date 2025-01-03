@@ -23,7 +23,7 @@ Spring Boot's actuator endpoints let you monitor and interact with Syncope compo
 Each individual endpoint can be enabled / disabled and exposed over HTTP (pre-defined, under the `/actuator` subcontext)
 or JMX.
 
-Besides a number of https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator.endpoints[built-in endpoints^],
+Besides a number of https://docs.spring.io/spring-boot/3.3/reference/actuator/endpoints.html[built-in endpoints^],
 more are made available for each component, as reported below.
 
 [NOTE]
@@ -40,7 +40,7 @@ The pre-defined `health` endpoint is typically used for liveness and readiness p
 |===
 
 | `entityCache`
-a| Allows to work with https://openjpa.apache.org/builds/3.2.2/apache-openjpa/docs/#ref_guide_cache_statistics[JPA cache statistics^]
+a| Allows to work with https://openjpa.apache.org/builds/4.0.1/apache-openjpa/docs/ref_guide_caching.html#ref_guide_cache_statistics[JPA cache statistics^]
 
 * `GET` - shows JPA cache statistics
 * `POST {ENABLE,DISABLE,RESET}` - performs the requested operation onto JPA cache
@@ -55,15 +55,15 @@ a| Allows to work with https://openjpa.apache.org/builds/3.2.2/apache-openjpa/do
 |===
 
 | `ssoSessions`
-| https://apereo.github.io/cas/6.6.x/authentication/Configuring-SSO.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.1.x/authentication/Configuring-SSO.html#actuator-endpoints[More details^]
 | `registeredServices`
-| https://apereo.github.io/cas/6.6.x/services/Service-Management.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.1.x/services/Service-Management.html#actuator-endpoints[More details^]
 | `authenticationHandlers`
-| https://apereo.github.io/cas/6.6.x/authentication/Configuring-Authentication-Components.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.1.x/authentication/Configuring-Authentication-Components.html#actuator-endpoints[More details^]
 | `authenticationPolicies`
-| https://apereo.github.io/cas/6.6.x/authentication/Configuring-Authentication-Policy.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.1.x/authentication/Configuring-Authentication-Policy.html#actuator-endpoints[More details^]
 | `resolveAttributes`
-| https://apereo.github.io/cas/6.6.x/integration/Attribute-Resolution.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution.html#actuator-endpoints[More details^]
 
 |===
 
@@ -80,6 +80,6 @@ a|
 * `DELETE {id}` - removes the session with given `id`
 
 | `gateway`
-| https://docs.spring.io/spring-cloud-gateway/docs/3.1.x/reference/html/#actuator-api[More details^]
+| https://docs.spring.io/spring-cloud-gateway/docs/4.1.x/reference/html/#actuator-api[More details^]
 
 |===

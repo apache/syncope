@@ -59,7 +59,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
     }
 
     @Override
-    public JsonWebKeySet store(final JsonWebKeySet jsonWebKeySet) throws Exception {
+    public JsonWebKeySet store(final JsonWebKeySet jsonWebKeySet) {
         OIDCJWKSService service = waRestClient.getService(OIDCJWKSService.class);
         OIDCJWKSTO to = new OIDCJWKSTO();
         to.setJson(jsonWebKeySet.toJson(JsonWebKey.OutputControlLevel.INCLUDE_PRIVATE));
@@ -80,8 +80,7 @@ public class WAOIDCJWKSGeneratorService implements OidcJsonWebKeystoreGeneratorS
             jwksTO = service.get();
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound) {
-                try {
-                    Response response = service.generate(jwksKeyId, jwksType, jwksKeySize);
+                try (Response response = service.generate(jwksKeyId, jwksType, jwksKeySize)) {
                     jwksTO = response.readEntity(OIDCJWKSTO.class);
                 } catch (Exception ge) {
                     LOG.error("While generating new OIDC JWKS", ge);

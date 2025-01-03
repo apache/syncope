@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -28,8 +28,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -45,7 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPrivilege;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -55,7 +55,8 @@ import org.apache.syncope.core.spring.security.Encryptor;
 @Entity
 @Table(name = JPALinkedAccount.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "connObjectKeyValue", "resource_id" }))
-public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements LinkedAccount {
+@EntityListeners({ JSONLinkedAccountListener.class })
+public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implements LinkedAccount {
 
     private static final long serialVersionUID = -5141654998687601522L;
 
@@ -82,9 +83,10 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
 
     private Boolean suspended = false;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "account")
-    @Valid
-    private List<JPALAPlainAttr> plainAttrs = new ArrayList<>();
+    private String plainAttrs;
+
+    @Transient
+    private final List<JSONLAPlainAttr> plainAttrsList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -193,27 +195,42 @@ public class JPALinkedAccount extends AbstractGeneratedKeyEntity implements Link
     }
 
     @Override
+    public List<? extends LAPlainAttr> getPlainAttrsList() {
+        return plainAttrsList;
+    }
+
+    @Override
+    public String getPlainAttrsJSON() {
+        return plainAttrs;
+    }
+
+    @Override
+    public void setPlainAttrsJSON(final String plainAttrs) {
+        this.plainAttrs = plainAttrs;
+    }
+
+    @Override
     public boolean add(final LAPlainAttr attr) {
-        checkType(attr, JPALAPlainAttr.class);
-        return plainAttrs.add((JPALAPlainAttr) attr);
+        checkType(attr, JSONLAPlainAttr.class);
+        return plainAttrsList.add((JSONLAPlainAttr) attr);
     }
 
     @Override
     public boolean remove(final LAPlainAttr attr) {
-        checkType(attr, JPALAPlainAttr.class);
-        return plainAttrs.remove((JPALAPlainAttr) attr);
+        checkType(attr, JSONLAPlainAttr.class);
+        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey()));
     }
 
     @Override
     public Optional<? extends LAPlainAttr> getPlainAttr(final String plainSchema) {
-        return getPlainAttrs().stream().
-                filter(plainAttr -> plainAttr != null && plainAttr.getSchema() != null
-                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
+        return plainAttrsList.stream().
+                filter(attr -> plainSchema.equals(attr.getSchemaKey())).
+                findFirst();
     }
 
     @Override
     public List<? extends LAPlainAttr> getPlainAttrs() {
-        return plainAttrs;
+        return plainAttrsList.stream().toList();
     }
 
     @Override

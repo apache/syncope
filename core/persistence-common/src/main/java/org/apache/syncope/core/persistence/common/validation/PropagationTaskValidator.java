@@ -37,7 +37,7 @@ public class PropagationTaskValidator extends AbstractValidator<PropagationTaskC
                 try {
                     ExecStatus.valueOf(execution.getStatus());
                 } catch (IllegalArgumentException e) {
-                    LOG.error("Invalid execution status '" + execution.getStatus() + '\'', e);
+                    LOG.error("Invalid execution status '{}'", execution.getStatus(), e);
                     isValid = false;
                 }
             }

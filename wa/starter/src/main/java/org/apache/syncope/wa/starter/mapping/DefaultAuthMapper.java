@@ -39,6 +39,7 @@ import org.apereo.cas.services.AnyAuthenticationHandlerRegisteredServiceAuthenti
 import org.apereo.cas.services.DefaultRegisteredServiceAuthenticationPolicy;
 import org.apereo.cas.services.DefaultRegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.DefaultRegisteredServiceMultifactorPolicy;
+import org.apereo.cas.services.RegisteredServiceAuthenticationPolicyCriteria;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -50,6 +51,13 @@ public class DefaultAuthMapper implements AuthMapper {
     @Override
     public boolean supports(final AuthPolicyConf conf) {
         return DefaultAuthPolicyConf.class.equals(conf.getClass());
+    }
+
+    protected RegisteredServiceAuthenticationPolicyCriteria buildCriteria(final DefaultAuthPolicyConf policyConf) {
+        AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria criteria =
+                new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
+        criteria.setTryAll(policyConf.isTryAll());
+        return criteria;
     }
 
     @Override
@@ -90,17 +98,13 @@ public class DefaultAuthMapper implements AuthMapper {
             authPolicy.setRequiredAuthenticationHandlers(authHandlers);
         }
 
-        AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria criteria =
-                new AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria();
-        criteria.setTryAll(policyConf.isTryAll());
-        authPolicy.setCriteria(criteria);
+        authPolicy.setCriteria(buildCriteria(policyConf));
 
         DefaultRegisteredServiceMultifactorPolicy mfaPolicy = null;
         if (!mfaAuthHandlers.isEmpty()) {
             Set<String> fns = mfaAuthHandlers.stream().
                     map(handler -> authModules.stream().filter(am -> handler.equals(am.getKey())).findFirst()).
-                    filter(Optional::isPresent).
-                    map(Optional::get).
+                    flatMap(Optional::stream).
                     filter(am -> am.getConf() instanceof MFAAuthModuleConf).
                     map(am -> ((MFAAuthModuleConf) am.getConf()).getFriendlyName()).
                     collect(Collectors.toSet());

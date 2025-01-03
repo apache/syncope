@@ -15,8 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM eclipse-temurin:21-jdk-jammy
-MAINTAINER dev@syncope.apache.org
+FROM eclipse-temurin:21-jdk-alpine
+LABEL org.opencontainers.image.authors="dev@syncope.apache.org"
 
 RUN set -x
 
@@ -40,6 +40,6 @@ COPY startup.sh /opt/syncope/bin
 RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]
 
-RUN curl -o /usr/local/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
+RUN wget -O /usr/local/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
 
 EXPOSE 8080

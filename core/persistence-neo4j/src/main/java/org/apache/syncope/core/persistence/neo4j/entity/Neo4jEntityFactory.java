@@ -80,15 +80,16 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
+import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTaskCommand;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
@@ -118,16 +119,16 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2IdPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jWAConfigEntry;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jConfParam;
@@ -137,15 +138,16 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jAnyTemplatePullTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jFormPropertyDef;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jLiveSyncTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommand;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jNotificationTask;
@@ -153,16 +155,16 @@ import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPropagationTas
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPullTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jPushTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jSchedTask;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jSecurityQuestion;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUPlainAttrValue;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
@@ -190,10 +192,10 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jPropagationPolicy();
         } else if (reference.equals(PushPolicy.class)) {
             result = (E) new Neo4jPushPolicy();
-        } else if (reference.equals(PullPolicy.class)) {
-            result = (E) new Neo4jPullPolicy();
-        } else if (reference.equals(PullCorrelationRuleEntity.class)) {
-            result = (E) new Neo4jPullCorrelationRuleEntity();
+        } else if (reference.equals(InboundPolicy.class)) {
+            result = (E) new Neo4jInboundPolicy();
+        } else if (reference.equals(InboundCorrelationRuleEntity.class)) {
+            result = (E) new Neo4jInboundCorrelationRuleEntity();
         } else if (reference.equals(PushCorrelationRuleEntity.class)) {
             result = (E) new Neo4jPushCorrelationRuleEntity();
         } else if (reference.equals(AnyTypeClass.class)) {
@@ -239,33 +241,33 @@ public class Neo4jEntityFactory implements EntityFactory {
         } else if (reference.equals(PlainSchema.class)) {
             result = (E) new Neo4jPlainSchema();
         } else if (reference.equals(APlainAttr.class)) {
-            result = (E) new Neo4jAPlainAttr();
+            result = (E) new JSONAPlainAttr();
         } else if (reference.equals(APlainAttrValue.class)) {
-            result = (E) new Neo4jAPlainAttrValue();
+            result = (E) new JSONAPlainAttrValue();
         } else if (reference.equals(APlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jAPlainAttrUniqueValue();
+            result = (E) new JSONAPlainAttrUniqueValue();
         } else if (reference.equals(UPlainAttr.class)) {
-            result = (E) new Neo4jUPlainAttr();
+            result = (E) new JSONUPlainAttr();
         } else if (reference.equals(UPlainAttrValue.class)) {
-            result = (E) new Neo4jUPlainAttrValue();
+            result = (E) new JSONUPlainAttrValue();
         } else if (reference.equals(UPlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jUPlainAttrUniqueValue();
+            result = (E) new JSONUPlainAttrUniqueValue();
         } else if (reference.equals(LAPlainAttr.class)) {
-            result = (E) new Neo4jLAPlainAttr();
+            result = (E) new JSONLAPlainAttr();
         } else if (reference.equals(LAPlainAttrValue.class)) {
-            result = (E) new Neo4jLAPlainAttrValue();
+            result = (E) new JSONLAPlainAttrValue();
         } else if (reference.equals(LAPlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jLAPlainAttrUniqueValue();
+            result = (E) new JSONLAPlainAttrUniqueValue();
         } else if (reference.equals(DerSchema.class)) {
             result = (E) new Neo4jDerSchema();
         } else if (reference.equals(VirSchema.class)) {
             result = (E) new Neo4jVirSchema();
         } else if (reference.equals(GPlainAttr.class)) {
-            result = (E) new Neo4jGPlainAttr();
+            result = (E) new JSONGPlainAttr();
         } else if (reference.equals(GPlainAttrValue.class)) {
-            result = (E) new Neo4jGPlainAttrValue();
+            result = (E) new JSONGPlainAttrValue();
         } else if (reference.equals(GPlainAttrUniqueValue.class)) {
-            result = (E) new Neo4jGPlainAttrUniqueValue();
+            result = (E) new JSONGPlainAttrUniqueValue();
         } else if (reference.equals(Report.class)) {
             result = (E) new Neo4jReport();
         } else if (reference.equals(ReportExec.class)) {
@@ -276,6 +278,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jPropagationTask();
         } else if (reference.equals(PushTask.class)) {
             result = (E) new Neo4jPushTask();
+        } else if (reference.equals(LiveSyncTask.class)) {
+            result = (E) new Neo4jLiveSyncTask();
         } else if (reference.equals(PullTask.class)) {
             result = (E) new Neo4jPullTask();
         } else if (reference.equals(MacroTask.class)) {

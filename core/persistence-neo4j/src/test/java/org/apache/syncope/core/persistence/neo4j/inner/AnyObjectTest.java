@@ -124,6 +124,18 @@ public class AnyObjectTest extends AbstractTest {
     }
 
     @Test
+    public void deleteAttr() {
+        AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
+        APlainAttr attr = anyObject.getPlainAttr("location").orElseThrow();
+        anyObject.remove(attr);
+
+        anyObjectDAO.save(anyObject);
+
+        anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
+        assertTrue(anyObject.getPlainAttr("location").isEmpty());
+    }
+
+    @Test
     public void delete() {
         AnyObject anyObject = anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow();
         anyObjectDAO.deleteById(anyObject.getKey());

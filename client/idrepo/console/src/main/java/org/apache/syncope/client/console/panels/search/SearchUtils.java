@@ -132,7 +132,7 @@ public final class SearchUtils implements Serializable {
                 reduce(sc.getCondition().get(property), (s, v) -> s.replace(v, ENCODINGS.getKey(v)));
         clause.setValue(value);
 
-        LOG.debug("Condition: " + sc.getCondition());
+        LOG.debug("Condition: {}", sc.getCondition());
 
         if (SpecialAttr.ROLES.toString().equals(property)) {
             clause.setType(SearchClause.Type.ROLE_MEMBERSHIP);
@@ -166,8 +166,8 @@ public final class SearchUtils implements Serializable {
         }
 
         ConditionType ct = sc.getConditionType();
-        if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
-            SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
+        if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
+            && sc.getConditionType() == ConditionType.CUSTOM) {
             if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
                 ct = ConditionType.EQUALS;
             } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {

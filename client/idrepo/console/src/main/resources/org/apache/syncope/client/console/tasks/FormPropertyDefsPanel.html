@@ -25,26 +25,22 @@ under the License.
              wicket:id="propertyDefContainer">
         <tbody>
           <tr>
-            <th><wicket:message key="key"/></th>
             <th><wicket:message key="name"/></th>
-            <th><wicket:message key="type"/></th>
+            <th><wicket:message key="labels"/></th>
             <th><wicket:message key="readable"/></th>
             <th><wicket:message key="writable"/></th>
             <th><wicket:message key="required"/></th>
-            <th><wicket:message key="datePattern"/></th>
-            <th><wicket:message key="enumValues"/></th>
+            <th><wicket:message key="type"/></th>
+            <th><wicket:message key="conf"/></th>
             <th></th>
           </tr>
 
           <tr wicket:id="propertyDefs">
             <td>
-              <span wicket:id="key"/>
-            </td>
-            <td>
               <span wicket:id="name"/>
             </td>
             <td>
-              <span wicket:id="type"/>
+              <span wicket:id="labels"/>
             </td>
             <td>
               <span wicket:id="readable"/>
@@ -56,14 +52,20 @@ under the License.
               <span wicket:id="required"/>
             </td>
             <td>
-              <span wicket:id="datePattern"/>
+              <span wicket:id="type"/>
             </td>
             <td>
+              <span wicket:id="stringRegEx"/>
+              <span wicket:id="datePattern"/>
               <span wicket:id="enumValues"/>
+              <div wicket:id="dropdownConf">
+                <span wicket:id="dropdownSingleSelection"/>
+                <span wicket:id="dropdownFreeForm"/>
+              </div>
             </td>
             <td>
               <div id="inline-actions">
-                <span wicket:id="toRemove"/>
+                <span wicket:id="actions"/>
               </div>
             </td>
           </tr>

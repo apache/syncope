@@ -20,14 +20,18 @@ package org.apache.syncope.core.rest.cxf.batch;
 
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.security.Principal;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.rest.api.batch.BatchRequestItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,22 +41,49 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
 
     private static final Logger LOG = LoggerFactory.getLogger(BatchItemRequest.class);
 
-    private final CommonBatchHttpServletRequest commonRequest;
+    private final String scheme;
 
-    private final String basePath;
+    private final String serverName;
+
+    private final int serverPort;
+
+    private final String contextPath;
+
+    private final String servletPath;
+
+    private final String pathInfo;
+
+    private final String characterEncoding;
+
+    private final String baseURI;
 
     private final BatchRequestItem batchItem;
 
     private final ServletInputStream inputStream;
 
+    private final Map<String, Object> attributes = new HashMap<>();
+
     public BatchItemRequest(
-            final CommonBatchHttpServletRequest commonRequest,
-            final String basePath,
+            final String scheme,
+            final String serverName,
+            final int serverPort,
+            final String contextPath,
+            final String servletPath,
+            final String pathInfo,
+            final String characterEncoding,
+            final String baseURI,
+            final HttpServletRequest request,
             final BatchRequestItem batchItem) {
 
-        super(commonRequest.getServletRequest());
-        this.commonRequest = commonRequest;
-        this.basePath = basePath;
+        super(request);
+        this.scheme = scheme;
+        this.serverName = serverName;
+        this.serverPort = serverPort;
+        this.contextPath = contextPath;
+        this.servletPath = servletPath;
+        this.pathInfo = pathInfo;
+        this.characterEncoding = characterEncoding;
+        this.baseURI = baseURI;
         this.batchItem = batchItem;
         this.inputStream = new ServletInputStream() {
 
@@ -87,28 +118,33 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     }
 
     @Override
+    public String getScheme() {
+        return scheme;
+    }
+
+    @Override
+    public String getServerName() {
+        return serverName;
+    }
+
+    @Override
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    @Override
     public String getContextPath() {
-        return commonRequest.getContextPath();
+        return contextPath;
     }
 
     @Override
     public String getServletPath() {
-        return commonRequest.getServletPath();
+        return servletPath;
     }
 
     @Override
     public String getPathInfo() {
-        return commonRequest.getPathInfo();
-    }
-
-    @Override
-    public Principal getUserPrincipal() {
-        return commonRequest.getUserPrincipal();
-    }
-
-    @Override
-    public boolean isUserInRole(final String role) {
-        return false;
+        return pathInfo;
     }
 
     @Override
@@ -117,18 +153,8 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     }
 
     @Override
-    public String getServerName() {
-        return commonRequest.getServerName();
-    }
-
-    @Override
-    public int getServerPort() {
-        return commonRequest.getServerPort();
-    }
-
-    @Override
     public StringBuffer getRequestURL() {
-        return new StringBuffer(basePath).append(getRequestURI());
+        return new StringBuffer(baseURI).append(getRequestURI());
     }
 
     @Override
@@ -174,46 +200,44 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
                 ? batchItem.getHeaders().get(name).get(0).toString()
                 : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
                 ? MediaType.ALL_VALUE
-                : commonRequest.getHeader(name);
+                : null;
     }
 
     @Override
     public Enumeration<String> getHeaders(final String name) {
         return batchItem.getHeaders().containsKey(name)
                 ? Collections.enumeration(batchItem.getHeaders().get(name).stream().
-                        map(Object::toString).toList())
+                        map(Object::toString).collect(Collectors.toList()))
                 : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
                 ? Collections.enumeration(List.of(MediaType.ALL_VALUE))
-                : commonRequest.getHeaders(name);
+                : Collections.emptyEnumeration();
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return commonRequest.getHeaderNames();
+        Set<String> names = new HashSet<>(batchItem.getHeaders().keySet());
+        names.add(HttpHeaders.CONTENT_TYPE);
+        names.add(HttpHeaders.ACCEPT);
+        return Collections.enumeration(names);
     }
 
     @Override
     public Object getAttribute(final String name) {
-        return commonRequest.getAttribute(name);
+        return attributes.get(name);
     }
 
     @Override
-    public void setAttribute(final String name, final Object o) {
-        commonRequest.setAttribute(name, o);
-    }
-
-    @Override
-    public Enumeration<String> getAttributeNames() {
-        return commonRequest.getAttributeNames();
+    public void setAttribute(final String name, final Object value) {
+        attributes.put(name, value);
     }
 
     @Override
     public String getCharacterEncoding() {
-        return commonRequest.getCharacterEncoding();
+        return characterEncoding;
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
+    public ServletInputStream getInputStream() {
         return inputStream;
     }
 }

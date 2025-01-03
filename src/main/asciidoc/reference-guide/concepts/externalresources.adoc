@@ -35,10 +35,13 @@ Several Connector Bundles come included with Apache Syncope:
 
 * https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^]
 * https://connid.atlassian.net/wiki/display/BASE/Azure[Azure^]
+* https://connid.atlassian.net/wiki/display/BASE/CMD[CMD  ^]
 * https://connid.atlassian.net/wiki/display/BASE/CSV+Directory[CSV Directory^]
 * https://connid.atlassian.net/wiki/display/BASE/Database[Database^]
 * https://connid.atlassian.net/wiki/display/BASE/Google+Apps[Google Apps^]
+* https://connid.atlassian.net/wiki/display/BASE/Kafka[Apache Kafka^]
 * https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^]
+* https://connid.atlassian.net/wiki/display/BASE/Okta[Okta^]
 * https://connid.atlassian.net/wiki/display/BASE/REST[Scripted REST^]
 * https://connid.atlassian.net/wiki/display/BASE/ServiceNow[ServiceNow^]
 * https://connid.atlassian.net/wiki/display/BASE/SCIM[SCIM^]
@@ -73,6 +76,7 @@ action is performed on the underlying connector; the capabilities are:
 `FULL RECONCILIATION` or `FILTERED RECONCILIATION` <<pull-mode,mode>>
 ** `SYNC` - synchronize objects from the underlying connector; used during <<provisioning-pull,pull>> with 
 `INCREMENTAL` <<pull-mode,mode>> 
+** `LIVE_SYNC` - synchronize objects by subscribing to queue systems; used during <<provisioning-livesync,live sync>>
 
 [TIP]
 .Configuration and capability override
@@ -91,17 +95,18 @@ Given a selected connector instance, the following information is required to de
 * priority - integer value, in use by the default <<propagation,propagation task executor>>
 * propagation actions - which <<propagationactions,actions>> shall be executed during propagation
 * trace levels - control how much tracing (including logs and execution details) shall be carried over during
-<<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>
-* configuration - see <<connector-instance-details,above>>
-* capabilities - see <<connector-instance-details,above>>
-* account policy - which <<policies-account,account policy>> to enforce on Users, Groups and Any Objects assigned to
+<<propagation,propagation>>, <<provisioning-pull,pull>>, <<provisioning-livesync,live sync>> and
+<<provisioning-push,push>>
+* <<connector-instance-details,configuration>>
+* <<connector-instance-details,capabilities>>
+* <<policies-account,account policy>> to enforce on Users, Groups and Any Objects assigned to
 this external resource
-* password policy - which <<policies-password,password policy>> to enforce on Users, Groups and Any Objects assigned to
+* <<policies-password,password policy>> to enforce on Users, Groups and Any Objects assigned to
 this external resource
-* pull policy - which <<policies-pull,pull policy>> to apply during <<provisioning-pull,pull>> on this external
-resource
-* push policy - which <<policies-push,push policy>> to apply during <<provisioning-push,push>> on this external
-resource
+* <<policies-propagation,propagation policy>> to apply during <<propagation,propagation>> on this external resource
+* <<policies-inbound,inbound policy>> to apply during <<provisioning-pull,pull>> or
+<<provisioning-livesync,live sync>> on this external resource
+* <<policies-push,push policy>> to apply during <<provisioning-push,push>> on this external resource
 
 ==== Mapping
 
@@ -145,7 +150,7 @@ endif::[]
 this mapping item must be necessarily available or not; compared to a simple boolean value, such condition allows
 complex statements to be expressed such as 'be mandatory only if this other attribute value is above 14', and so on
 * remote key flag - should this item be considered as the key value on the Identity Store, if no
-<<pull-correlation-rules,pull>> or <<push-correlation-rules,push>> correlation rules are applicable?
+<<inbound-correlation-rules,inbound>> or <<push-correlation-rules,push>> correlation rules are applicable?
 * password flag (Users only) - should this item be treated as the password value?
 * purpose - should this item be considered for <<propagation,propagation>> / <<provisioning-push,push>>,
 <<provisioning-pull,pull>>, both or none? 
@@ -153,7 +158,7 @@ complex statements to be expressed such as 'be mandatory only if this other attr
 Besides the items documented above, some more data needs to be specified for a complete mapping:
 
 * which
-http://connid.tirasa.net/apidocs/1.5/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
+http://connid.tirasa.net/apidocs/1.6/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
 shall be used during communication with the Identity Store; predefined are `\\__ACCOUNT__` for Users and 
 `\\__GROUP__` for Groups
 * whether matches between user / group / any object's attribute values and their counterparts on the Identity Store
@@ -236,7 +241,7 @@ attribute values override, with reference to the owning User.
 
 Linked Accounts are propagated alongside with owning User - following the existing
 <<push-correlation-rules,push correation rule>> if available - and pulled according to the given
-<<pull-correlation-rules,pull correation rule>>, if present.
+<<inbound-correlation-rules,inbound correation rule>>, if present.
 
 [.text-center]
 image::linked_accounts.png[title="Linked Accounts",alt="Linked Accounts"]

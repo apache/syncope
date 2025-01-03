@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.ITabComponent;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -38,7 +39,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
+public class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -47,22 +48,19 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
     @SpringBean
     protected SCIMConfRestClient scimConfRestClient;
 
-    protected final SCIMConf scimConfTO;
+    protected final SCIMConf scimConf;
 
     public SCIMConfPanel(
             final String id,
-            final SCIMConf scimConfTO,
+            final SCIMConf scimConf,
             final PageReference pageRef) {
 
         super(id, true);
 
-        this.scimConfTO = scimConfTO;
+        this.scimConf = scimConf;
         this.pageRef = pageRef;
 
-        setPageRef(pageRef);
-
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
-                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList());
         tabbedPanel.setSelectedTab(0);
         addInnerObject(tabbedPanel);
 
@@ -72,88 +70,74 @@ public abstract class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                scimConfRestClient.set(SCIMConfPanel.this.scimConfTO);
+                try {
+                    scimConfRestClient.set(SCIMConfPanel.this.scimConf);
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While setting SCIM configuration", e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         addInnerObject(saveButton);
 
         setShowResultPanel(true);
-
-        modal.size(Modal.Size.Large);
-        setWindowClosedReloadCallback(modal);
     }
 
     protected List<ITab> buildTabList() {
         List<ITab> tabs = new ArrayList<>();
 
-        tabs.add(new ITabComponent(new Model<>(getString("tab1"))) {
+        tabs.add(new ITabComponent(new Model<>(getString("tab1")), getString("tab1")) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SCIMConfGeneralPanel(panelId, scimConfTO);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return true;
+                return new SCIMConfGeneralPanel(panelId, scimConf);
             }
         });
 
-        tabs.add(new ITabComponent(
-                new Model<>(getString("tab2")), getString("tab2")) {
+        tabs.add(new ITabComponent(new Model<>(getString("tab2")), getString("tab2")) {
 
             private static final long serialVersionUID = 1998052474181916792L;
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new SCIMConfUserPanel(panelId, scimConfTO);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return true;
+                return new SCIMConfUserPanel(panelId, scimConf);
             }
         });
 
-        tabs.add(new ITabComponent(
-                new Model<>(getString("tab3")), getString("tab3")) {
+        tabs.add(new ITabComponent(new Model<>(getString("tab3")), getString("tab3")) {
 
             private static final long serialVersionUID = 1998052474181916792L;
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new SCIMConfEnterpriseUserPanel(panelId, scimConfTO);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return true;
+                return new SCIMConfEnterpriseUserPanel(panelId, scimConf);
             }
         });
 
-        tabs.add(new ITabComponent(
-                new Model<>(getString("tab4")), getString("tab4")) {
+        tabs.add(new ITabComponent(new Model<>(getString("tab4")), getString("tab4")) {
+
+            private static final long serialVersionUID = 6645614456650987567L;
+
+            @Override
+            public WebMarkupContainer getPanel(final String panelId) {
+                return new SCIMConfExtensionUserPanel(panelId, scimConf);
+            }
+        });
+
+        tabs.add(new ITabComponent(new Model<>(getString("tab5")), getString("tab5")) {
 
             private static final long serialVersionUID = 1998052474181916792L;
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new SCIMConfGroupPanel(panelId, scimConfTO);
-            }
-
-            @Override
-            public boolean isVisible() {
-                return true;
+                return new SCIMConfGroupPanel(panelId, scimConf);
             }
         });
 
         return tabs;
-    }
-
-    @Override
-    protected Panel customResultBody(final String panelId, final SCIMConf item, final Serializable result) {
-        return null;
     }
 }

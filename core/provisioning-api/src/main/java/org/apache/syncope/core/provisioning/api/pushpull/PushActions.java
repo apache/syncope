@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
 /**
  * Interface for actions to be performed during push.
@@ -47,11 +46,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -62,11 +60,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -77,11 +74,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be updated.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeUpdate(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -92,11 +88,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeLink(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -107,11 +102,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeUnlink(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -122,11 +116,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeUnassign(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -137,11 +130,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -152,11 +144,10 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity entity to be created.
      * @return entity.
-     * @throws JobExecutionException in case of generic failure
      */
     default Entity beforeDelete(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException {
+            Entity entity) {
 
         return entity;
     }
@@ -168,13 +159,12 @@ public interface PushActions extends ProvisioningActions {
      * @param entity pushed entity.
      * @param result operation result.
      * @param error error being reported
-     * @throws JobExecutionException in case of generic failure
      */
     default void onError(
             ProvisioningProfile<?, ?> profile,
             Entity entity,
             ProvisioningReport result,
-            Exception error) throws JobExecutionException {
+            Exception error) {
 
         // do nothing
     }
@@ -185,12 +175,11 @@ public interface PushActions extends ProvisioningActions {
      * @param profile profile of the push being executed.
      * @param entity pushed entity.
      * @param result operation result.
-     * @throws JobExecutionException in case of generic failure
      */
     default void after(
             ProvisioningProfile<?, ?> profile,
             Entity entity,
-            ProvisioningReport result) throws JobExecutionException {
+            ProvisioningReport result) {
 
         // do nothing
     }

@@ -22,26 +22,27 @@ under the License.
 
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>
-  <AnyType_AnyTypeClass anyType_id="USER" anyTypeClass_id="BaseUser"/>
+  <AnyType_AnyTypeClass left="USER" right="BaseUser"/>
 
   <AnyType id="GROUP" kind="GROUP"/>
   <AnyTypeClass id="BaseGroup"/>
-  <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
-        
+  <AnyType_AnyTypeClass left="GROUP" right="BaseGroup"/>
+
   <!-- Actual plain schemas -->
   <Implementation id="EmailAddressValidator" type="ATTR_VALUE_VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
-  <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
-               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               validator_id="EmailAddressValidator"/>
+  <PlainSchema id="email" type="String" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <PlainSchema_AnyTypeClass left="email" right="BaseUser"/>
+  <PlainSchema_Implementation type="PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR" left="email" right="EmailAddressValidator"/>
   
   <Implementation id="BinaryValidator" type="ATTR_VALUE_VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator"/>
 
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
-
+  <Implementation id="LiveSyncJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate"/>
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
@@ -52,11 +53,12 @@ under the License.
   <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
   <SchedTask id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
-             jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
+             cronExpression="0 0/5 * * * ?"/>
+  <SchedTask_Implementation left="89de5014-e3f5-4462-84d8-d97575740baf" right="ExpiredAccessTokenCleanup"/>           
   <Implementation id="ExpiredBatchCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup"/>
-  <SchedTask id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"
-             jobDelegate_id="ExpiredBatchCleanup" cronExpression="0 0/5 * * * ?"/>
+  <SchedTask id="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" name="Expired Batch Operations Cleanup Task"  active="1"/>
+  <SchedTask_Implementation type="SCHED_TASK_JOB_DELEGATE" left="8ea0ea51-ce08-4fe3-a0c8-c281b31b5893" right="ExpiredBatchCleanup"/>
 
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"
@@ -98,13 +100,17 @@ we are happy to inform you that the password request was successfully executed f
 &lt;/html&gt;"/>
 
   <Notification id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" active="1" recipientAttrName="email" selfAsRecipient="1" 
-                sender="admin@syncope.apache.org" subject="Password Reset request" template_id="requestPasswordReset" 
+                sender="admin@syncope.apache.org" subject="Password Reset request"
                 traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[requestPasswordReset]:[SUCCESS]"]'/> 
-  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39" anyType_id="USER" notification_id="e00945b5-1184-4d43-8e45-4318a8dcdfd4" anyType_filter="token!=$null"/>
+  <Notification_MailTemplate left="e00945b5-1184-4d43-8e45-4318a8dcdfd4" right="requestPasswordReset"/>
+  <AnyAbout id="a328f2e6-25e9-4cc1-badf-7425d7be4b39"/>
+  <AnyAbout_AnyType left="a328f2e6-25e9-4cc1-badf-7425d7be4b39" right="USER"/>
+  <AnyAbout_Notification left="a328f2e6-25e9-4cc1-badf-7425d7be4b39" right="e00945b5-1184-4d43-8e45-4318a8dcdfd4"/>
   
   <Notification id="bef0c250-e8a7-4848-bb63-2564fc409ce2" active="1" recipientAttrName="email" selfAsRecipient="1" 
-                sender="admin@syncope.apache.org" subject="Password Reset successful" template_id="confirmPasswordReset" 
+                sender="admin@syncope.apache.org" subject="Password Reset successful"
                 traceLevel="FAILURES" events='["[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"]'/> 
+  <Notification_MailTemplate left="bef0c250-e8a7-4848-bb63-2564fc409ce2" right="confirmPasswordReset"/>
 
   <SyncopeRole id="GROUP_OWNER" entitlements='["USER_SEARCH","USER_READ","USER_CREATE","USER_UPDATE","USER_DELETE","ANYTYPECLASS_READ","ANYTYPE_LIST","ANYTYPECLASS_LIST","RELATIONSHIPTYPE_LIST","ANYTYPE_READ","REALM_SEARCH","GROUP_SEARCH","GROUP_READ","GROUP_UPDATE","GROUP_DELETE"]'/>
 </dataset>

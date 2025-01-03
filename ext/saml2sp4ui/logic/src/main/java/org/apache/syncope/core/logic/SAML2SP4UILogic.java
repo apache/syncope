@@ -237,16 +237,17 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
     protected static SAML2Request buildRequest(final String idpEntityID, final RedirectionAction action) {
         SAML2Request requestTO = new SAML2Request();
         requestTO.setIdpEntityID(idpEntityID);
-        if (action instanceof WithLocationAction) {
-            WithLocationAction withLocationAction = (WithLocationAction) action;
-
-            requestTO.setBindingType(SAML2BindingType.REDIRECT);
-            requestTO.setContent(withLocationAction.getLocation());
-        } else if (action instanceof WithContentAction) {
-            WithContentAction withContentAction = (WithContentAction) action;
-
-            requestTO.setBindingType(SAML2BindingType.POST);
-            requestTO.setContent(Base64.getMimeEncoder().encodeToString(withContentAction.getContent().getBytes()));
+        switch (action) {
+            case WithLocationAction withLocationAction -> {
+                requestTO.setBindingType(SAML2BindingType.REDIRECT);
+                requestTO.setContent(withLocationAction.getLocation());
+            }
+            case WithContentAction withContentAction -> {
+                requestTO.setBindingType(SAML2BindingType.POST);
+                requestTO.setContent(Base64.getMimeEncoder().encodeToString(withContentAction.getContent().getBytes()));
+            }
+            default -> {
+            }
         }
         return requestTO;
     }

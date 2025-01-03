@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -157,7 +158,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     false,
                     Map.of());
         } catch (Exception e) {
-            LOG.error("While registering job for task " + task.getKey(), e);
+            LOG.error("While registering job for task {}", task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -194,7 +195,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                     false,
                     Map.of());
         } catch (Exception e) {
-            LOG.error("While registering job for task " + task.getKey(), e);
+            LOG.error("While registering job for task {}", task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());
@@ -277,14 +278,14 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_READ + "')")
     @Transactional(readOnly = true)
-    public SyncopeForm getMacroTaskForm(final String key) {
+    public SyncopeForm getMacroTaskForm(final String key, final Locale locale) {
         MacroTask task = taskDAO.findById(TaskType.MACRO, key).
                 filter(MacroTask.class::isInstance).map(MacroTask.class::cast).
                 orElseThrow(() -> new NotFoundException("MacroTask " + key));
 
         securityChecks(IdRepoEntitlement.TASK_READ, task.getRealm().getFullPath());
 
-        return binder.getMacroTaskForm(task);
+        return binder.getMacroTaskForm(task, locale);
     }
 
     protected ExecTO doExecute(
@@ -330,6 +331,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 break;
 
             case SCHEDULED:
+            case LIVE_SYNC:
             case PULL:
             case PUSH:
             case MACRO:
@@ -419,8 +421,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         T taskToDelete = binder.getTaskTO(task, taskUtils, true);
 
         if (TaskType.SCHEDULED == taskUtils.getType()
+                || TaskType.LIVE_SYNC == taskUtils.getType()
                 || TaskType.PULL == taskUtils.getType()
-                || TaskType.PUSH == taskUtils.getType()) {
+                || TaskType.PUSH == taskUtils.getType()
+                || TaskType.MACRO == taskUtils.getType()) {
 
             jobManager.unregister(task);
         }
@@ -521,10 +525,10 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
 
     @Override
     protected Triple<JobType, String, String> getReference(final String jobName) {
-        String key = JobNamer.getTaskKeyFromJobName(jobName);
-
-        return taskDAO.findById(key).filter(SchedTask.class::isInstance).
-                map(t -> Triple.of(JobType.TASK, key, binder.buildRefDesc(t))).orElse(null);
+        return JobNamer.getTaskKeyFromJobName(jobName).
+                flatMap(taskDAO::findById).filter(SchedTask.class::isInstance).
+                map(t -> Triple.of(JobType.TASK, t.getKey(), binder.buildRefDesc(t))).
+                orElse(null);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.TASK_LIST + "')")

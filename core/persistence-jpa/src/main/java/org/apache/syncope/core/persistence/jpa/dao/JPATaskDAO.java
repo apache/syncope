@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTask;
+import org.apache.syncope.core.persistence.jpa.entity.task.JPAMacroTaskCommand;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPANotificationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTask;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPAPropagationTaskExec;
@@ -171,11 +172,11 @@ public class JPATaskDAO implements TaskDAO {
     }
 
     @Override
-    public List<PullTask> findByPullActions(final Implementation pullActions) {
+    public List<PullTask> findByInboundActions(final Implementation inboundActions) {
         TypedQuery<PullTask> query = entityManager.createQuery(
                 "SELECT e FROM " + JPAPullTask.class.getSimpleName() + " e "
-                + "WHERE :pullActions MEMBER OF e.actions", PullTask.class);
-        query.setParameter("pullActions", pullActions);
+                + "WHERE :inboundActions MEMBER OF e.actions", PullTask.class);
+        query.setParameter("inboundActions", inboundActions);
 
         return query.getResultList();
     }
@@ -202,8 +203,9 @@ public class JPATaskDAO implements TaskDAO {
 
     @Override
     public List<MacroTask> findByCommand(final Implementation command) {
-        TypedQuery<MacroTask> query = entityManager.createQuery("SELECT e FROM " + JPAMacroTask.class.getSimpleName()
-                + " e WHERE :command MEMBER OF e.commands", MacroTask.class);
+        TypedQuery<MacroTask> query = entityManager.createQuery(
+                "SELECT e.macroTask FROM " + JPAMacroTaskCommand.class.getSimpleName() + " e "
+                + "WHERE e.command=:command", MacroTask.class);
         query.setParameter("command", command);
 
         return query.getResultList();
@@ -268,7 +270,10 @@ public class JPATaskDAO implements TaskDAO {
             final List<Object> parameters) {
 
         if (resource != null
-                && type != TaskType.PROPAGATION && type != TaskType.PUSH && type != TaskType.PULL) {
+                && type != TaskType.PROPAGATION
+                && type != TaskType.LIVE_SYNC
+                && type != TaskType.PUSH
+                && type != TaskType.PULL) {
 
             throw new IllegalArgumentException(type + " is not related to " + ExternalResource.class.getSimpleName());
         }
@@ -283,11 +288,11 @@ public class JPATaskDAO implements TaskDAO {
             throw new IllegalArgumentException(type + " is not related to notifications");
         }
 
-        String taskTable = taskUtilsFactory.getInstance(type).getTaskTable();
+        String taskTable = taskUtilsFactory.getInstance(type).getTaskStorage();
         StringBuilder queryString = new StringBuilder("SELECT ").append(taskTable).append(".*");
 
         if (orderByTaskExecInfo) {
-            String taskExecTable = taskUtilsFactory.getInstance(type).getTaskExecTable();
+            String taskExecTable = taskUtilsFactory.getInstance(type).getTaskExecStorage();
             queryString.append(',').append(taskExecTable).append(".startDate AS startDate").
                     append(',').append(taskExecTable).append(".endDate AS endDate").
                     append(',').append(taskExecTable).append(".status AS status").
@@ -433,7 +438,7 @@ public class JPATaskDAO implements TaskDAO {
                             parameters)).
                     append(" AND id NOT IN ").
                     append("(SELECT task_id AS id FROM ").
-                    append(taskUtilsFactory.getInstance(type).getTaskExecTable()).
+                    append(taskUtilsFactory.getInstance(type).getTaskExecStorage()).
                     append(')').
                     append(")) T");
         } else {
@@ -483,7 +488,7 @@ public class JPATaskDAO implements TaskDAO {
         StringBuilder queryString =
                 buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey, false, parameters);
 
-        String table = taskUtilsFactory.getInstance(type).getTaskTable();
+        String table = taskUtilsFactory.getInstance(type).getTaskStorage();
         Query query = entityManager.createNativeQuery(StringUtils.replaceOnce(
                 queryString.toString(),
                 "SELECT " + table + ".*, null AS startDate, null AS endDate, null AS status",

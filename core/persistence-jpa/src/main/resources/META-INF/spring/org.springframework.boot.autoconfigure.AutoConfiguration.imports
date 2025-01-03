@@ -16,3 +16,7 @@
 # under the License.
 org.apache.syncope.core.persistence.jpa.PersistenceContext
 org.apache.syncope.core.persistence.jpa.MasterDomain
+org.apache.syncope.core.persistence.jpa.PGPersistenceContext
+org.apache.syncope.core.persistence.jpa.MySQLPersistenceContext
+org.apache.syncope.core.persistence.jpa.MariaDBPersistenceContext
+org.apache.syncope.core.persistence.jpa.OraclePersistenceContext

@@ -45,6 +45,8 @@ under the License.
   <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultPasswordRuleConf3"/>
   <PropagationPolicy id="89d322db-9878-420c-b49c-67be13df9a12" name="sample propagation policy"
                      fetchAroundProvisioning="1" updateDelta="0" maxAttempts="5" backOffStrategy="FIXED" backOffParams="10000"/>
+  <PropagationPolicy id="01938c04-65a1-7944-884d-8a26b76bc01e" name="queue propagation policy"
+                     fetchAroundProvisioning="0" updateDelta="0" maxAttempts="3" backOffParams="1000" backOffStrategy="FIXED"/>
 
   <!-- Authentication policies -->
   <AuthPolicy id="659b9906-4b6e-4bc0-aca0-6809dff346d4" name="MyDefaultAuthPolicyConf"
@@ -61,7 +63,7 @@ under the License.
                      jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":{},"allowedAttrs":[],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
   <AttrReleasePolicy arporder="0" name="AllowedAttrReleasePolicy" id="319935c7-deb3-40b3-8a9a-683037e523a2"
                      jsonConf='{"_class":"org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf","releaseAttrs":{},"allowedAttrs":["cn","givenName","uid"],"excludedAttrs":[],"includeOnlyAttrs":[],"principalIdAttr":null,"principalAttrRepoConf":{"mergingStrategy":"MULTIVALUED","ignoreResolvedAttributes":false,"expiration":0,"timeUnit":"HOURS","attrRepos":[]}}'/>
-
+      
   <!-- Authentication modules -->
   <AuthModule id="DefaultLDAPAuthModule" authModuleState="ACTIVE"
               description="LDAP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.LDAPAuthModuleConf","principalAttributeId":"cn","bindDn": "${testds.bindDn}", "bindCredential":"${testds.password}","ldapUrl":"ldap://localhost:${testds.port}","searchFilter":"cn={user}","baseDn":"ou=People,${testds.rootDn}","subtreeSearch":true}'
@@ -85,7 +87,7 @@ under the License.
   <AuthModule id="DefaultSyncopeAuthModule" authModuleState="ACTIVE"
               description="Syncope auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SyncopeAuthModuleConf","domain":"Master"}'
               items='[{"intAttrName":"syncopeUserAttr_surname","extAttrName":"family_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_fullname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_firstname","extAttrName":"given_name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"syncopeUserAttr_email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"memberships","extAttrName":"groups","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}]'/>
-  <AuthModule id="DefaultOAuth20AuthModule" description="OAuth20 auth module" authModuleOrder="0"
+  <AuthModule id="DefaultOAuth20AuthModule" description="OAuth20 auth module" authModuleOrder="0" 
               jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OAuth20AuthModuleConf","clientName":"oauth20","clientId":"OAUTH20","clientSecret":"secret","enabled":true,"customParams":{},"tokenUrl":"https://localhost/oauth2/token","responseType":"code","scope":"oauth test","userIdAttribute":"username","authUrl":"https://localhost/oauth2/auth","profileUrl":"https://localhost/oauth2/profile","withState":false,"profileVerb":"POST"}' authModuleState="ACTIVE"/>
 
   <!-- Attribute repositories -->
@@ -119,183 +121,6 @@ under the License.
   <AnyType_AnyTypeClass anyType_id="PRINTER" anyTypeClass_id="minimal printer"/>
       
   <AnyTypeClass id="csv"/>
-
-  <Realm id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" name="/"  fullPath="/"
-         passwordPolicy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1"/>
-  <Realm id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" name="odd" fullPath="/odd" 
-         parent_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-         accountPolicy_id="06e2ed52-6966-44aa-a177-a0ca7434201f"/>
-  <Realm id="c5b75db1-fce7-470f-b780-3b9934d82a9d" name="even" fullPath="/even" 
-         parent_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
-  <Realm id="0679e069-7355-4b20-bd11-a5a0a5453c7c" name="two" fullPath="/even/two"
-         parent_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
-         accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"
-         passwordPolicy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85"/>
-  
-  <AnyObject id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" name="HP LJ 1300n"
-             realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
-             creator="admin" lastModifier="admin" 
-             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <AnyObject id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" name="Canon MF 8030cn"
-             realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
-             creator="admin" lastModifier="admin" 
-             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <AnyObject id="9e1d130c-d6a3-48b1-98b3-182477ed0688" name="Epson Stylus Color"
-             realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c" type_id="PRINTER"
-             creator="admin" lastModifier="admin" 
-             creationDate="2021-04-15 12:45:00" lastChangeDate="2010-10-20 11:00:00"/>
-  
-  <ARelationship id="11a0ec66-b59b-428a-af3d-f856950ff1c5" type_id="neighborhood"
-                 left_anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5"
-                 right_anyObject_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
-  
-  <Application id="mightyApp" description="A cool application"/>
-  <Privilege id="postMighty" description="Ability to POST"
-             spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
-             application_id="mightyApp"/>
-  <Privilege id="getMighty" description="Ability to GET"
-             spec="{ &quot;method&quot;: &quot;GET&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
-             application_id="mightyApp"/>
-
-  <SyncopeRole id="User reviewer" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ"]'/>
-  <SyncopeRole_Realm role_id="User reviewer" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
-  <SyncopeRole_Realm role_id="User reviewer" realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
-  
-  <SyncopeRole id="User manager" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ","USER_REQUEST_FORM_LIST","USER_REQUEST_FORM_CLAIM","USER_REQUEST_FORM_SUBMIT"]'/>
-  <SyncopeRole_Realm role_id="User manager" realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
-
-  <SyncopeRole id="Other" entitlements='["SCHEMA_READ","GROUP_READ","USER_REQUEST_FORM_CLAIM"]'/>
-  <SyncopeRole_Realm role_id="Other" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
-  <SyncopeRole_Privilege role_id="Other" privilege_id="postMighty"/>
-  
-  <SyncopeRole id="Search for realm evenTwo" entitlements='["USER_READ","USER_SEARCH"]'/>
-  <SyncopeRole_Realm role_id="Search for realm evenTwo" realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
-
-  <SyncopeRole id="Connector and Resource for realm evenTwo" entitlements='["CONNECTOR_READ","CONNECTOR_UPDATE","CONNECTOR_DELETE","CONNECTOR_LIST","RESOURCE_READ","RESOURCE_UPDATE","RESOURCE_DELETE","RESOURCE_LIST"]'/>
-  <SyncopeRole_Realm role_id="Connector and Resource for realm evenTwo"
-                     realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
-
-  <SyncopeUser mustChangePassword="0" id="1417acbe-cbf6-4277-9372-e75e04f97000" status="active"
-               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
-               username="rossini" creator="admin" lastModifier="admin"
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="1417acbe-cbf6-4277-9372-e75e04f97000" role_id="Other"/>
-  <SyncopeUser mustChangePassword="0" id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" status="active"
-               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-               username="verdi" creator="admin" lastModifier="admin"
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser mustChangePassword="0" id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" status="active"
-               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-               username="vivaldi" creator="admin" lastModifier="admin"
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser mustChangePassword="0" id="c9b2dec2-00a7-4855-97c0-d854842b4b24" status="active"
-               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-               username="bellini" creator="admin" lastModifier="admin"
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" role_id="User reviewer"/>
-  <SyncopeUser_SyncopeRole user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" role_id="User manager"/>
-  <SyncopeUser mustChangePassword="0" id="823074dc-d280-436d-a7dd-07399fae48ec" status="active"
-               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
-               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-               username="puccini" creator="admin" lastModifier="admin" 
-               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
-  <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Search for realm evenTwo"/>
-  <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Connector and Resource for realm evenTwo"/>
-  
-  <SyncopeGroup id="37d15e4c-cdc1-460b-a591-8505c8133806" name="root"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" name="child"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="29f96485-729e-4d31-88a1-6fc60e4677f3" name="citizen"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="8fb2d51e-c605-4e80-a72b-13ffecf1aa9a" name="employee"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="a3c1a693-a6be-483f-a2b3-5cfec146f4bf" name="secretary"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="ebf97068-aa4b-4a85-9f01-680e8c4cf227" name="director"
-                userOwner_id="823074dc-d280-436d-a7dd-07399fae48ec"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="bf825fe1-7320-4a54-bd64-143b5c18ab97" name="managingDirector"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" name="otherchild"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="b8d38784-57e7-4595-859a-076222644b55" name="managingConsultant"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="268fed79-f440-4390-9435-b273768eb5d6" name="groupForWorkflowOptIn"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup id="0626100b-a4ba-4e00-9971-86fad52a6216" name="aGroupForPropagation"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup_AnyTypeClass group_id="0626100b-a4ba-4e00-9971-86fad52a6216" anyTypeClass_id="csv"/>  
-  <SyncopeGroup id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" name="bGroupForPropagation"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <SyncopeGroup_AnyTypeClass group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" anyTypeClass_id="csv"/>  
-  <SyncopeGroup id="ece66293-8f31-4a84-8e8d-23da36e70846" name="artDirector"
-                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>  
-  <SyncopeGroup id="034740a9-fa10-453b-af37-dc7897e98fb1" name="additional"
-                realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  <TypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"
-                 group_id="034740a9-fa10-453b-af37-dc7897e98fb1" anyType_id="USER"/>
-  <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="csv"/>
-  <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="other"/>
-  <SyncopeGroup id="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" name="fake"
-                realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"
-                creator="admin" lastModifier="admin" 
-                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
-  
-  <URelationship id="ca20ffca-1305-442f-be9a-3723a0cd88ca"
-                 user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24"
-                 anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" type_id="neighborhood"/>
-
-  <UMembership id="3d5e91f6-305e-45f9-ad30-4897d3d43bd9"
-               user_id="1417acbe-cbf6-4277-9372-e75e04f97000" group_id="37d15e4c-cdc1-460b-a591-8505c8133806"/>
-  <UMembership id="d53f7657-2b22-4e10-a2cd-c3379a4d1a31"
-               user_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" group_id="37d15e4c-cdc1-460b-a591-8505c8133806"/>
-  <UMembership id="8e42a132-55ae-4860-bebd-2ca00ba5e959"
-               user_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" group_id="b1f7c12d-ec83-441f-a50e-1691daaedf3b"/>
-  <UMembership id="40e409a4-d870-4792-b820-30668f1269b9"
-               user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" group_id="bf825fe1-7320-4a54-bd64-143b5c18ab97"/>
-  <UMembership id="6d8a7dc0-d4bc-4b7e-b058-abcd3df28f28"
-               user_id="1417acbe-cbf6-4277-9372-e75e04f97000" group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5"/>
-  <UMembership id="34f2d776-58b1-4640-8e64-e979b4242a18"
-               user_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" group_id="29f96485-729e-4d31-88a1-6fc60e4677f3"/>
-  <UMembership id="8cfb78fc-d0e7-4f08-a0ae-d7abf3223b6f"
-               user_id="823074dc-d280-436d-a7dd-07399fae48ec" group_id="ece66293-8f31-4a84-8e8d-23da36e70846"/>
 
   <SyncopeSchema id="fullname"/>
   <PlainSchema id="fullname" type="String" anyTypeClass_id="minimal user"
@@ -336,7 +161,13 @@ under the License.
   <SyncopeSchema id="gender"/>
   <PlainSchema id="gender" type="Enum" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               enumerationValues="M;F"/>
+               enumValues='{"M":"Male","F":"Female"}'/>
+  <Implementation id="TestDropdownValueProvider" type="DROPDOWN_VALUE_PROVIDER" engine="GROOVY"
+                  body='import groovy.transform.CompileStatic&#13;&#10;import java.util.List&#13;&#10;import org.apache.syncope.common.lib.to.AnyTO&#13;&#10;import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider&#13;&#10;&#13;&#10;@CompileStatic&#13;&#10;class TestDropdownValueProvider implements DropdownValueProvider {&#13;&#10;List&lt;String&gt; getChoices(AnyTO anyTO) {&#13;&#10;return ["A", "B"]&#13;&#10;}&#13;&#10;}'/>
+  <SyncopeSchema id="dd"/>
+  <PlainSchema id="dd" type="Dropdown" anyTypeClass_id="other"
+               mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
+               dropdownValueProvider_id="TestDropdownValueProvider"/>
   <SyncopeSchema id="aLong"/>
   <PlainSchema id="aLong" type="Long" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
@@ -422,116 +253,211 @@ under the License.
   <SyncopeSchema id="location"/>
   <PlainSchema id="location" type="String" anyTypeClass_id="minimal printer"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
+
+  <Realm id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" name="/"  fullPath="/"
+         passwordPolicy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1"/>
+  <Realm id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c" name="odd" fullPath="/odd" 
+         parent_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+         accountPolicy_id="06e2ed52-6966-44aa-a177-a0ca7434201f"/>
+  <Realm id="c5b75db1-fce7-470f-b780-3b9934d82a9d" name="even" fullPath="/even" 
+         parent_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+  <Realm id="0679e069-7355-4b20-bd11-a5a0a5453c7c" name="two" fullPath="/even/two"
+         parent_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
+         accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"
+         passwordPolicy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85"/>
+  
+  <AnyObject id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" name="HP LJ 1300n"
+             realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+             plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;Canon MFC8030&quot;}],&quot;schema&quot;:&quot;model&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;1st floor&quot;}],&quot;schema&quot;:&quot;location&quot;}]"/>
+  <AnyObject id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" name="Canon MF 8030cn"
+             realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" type_id="PRINTER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+             plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;HP Laserjet 1300n&quot;}],&quot;schema&quot;:&quot;model&quot;},{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;2nd floor&quot;}],&quot;schema&quot;:&quot;location&quot;}]"/>
+  <AnyObject id="9e1d130c-d6a3-48b1-98b3-182477ed0688" name="Epson Stylus Color"
+             realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c" type_id="PRINTER"
+             creator="admin" lastModifier="admin" 
+             creationDate="2021-04-15 12:45:00" lastChangeDate="2010-10-20 11:00:00"
+             plainAttrs="[]"/>
+
+  <ARelationship id="11a0ec66-b59b-428a-af3d-f856950ff1c5" type_id="neighborhood"
+                 left_anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5"
+                 right_anyObject_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
+  
+  <Application id="mightyApp" description="A cool application"/>
+  <Privilege id="postMighty" description="Ability to POST"
+             spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
+             application_id="mightyApp"/>
+  <Privilege id="getMighty" description="Ability to GET"
+             spec="{ &quot;method&quot;: &quot;GET&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
+             application_id="mightyApp"/>
+
+  <SyncopeRole id="User reviewer" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ"]'/>
+  <SyncopeRole_Realm role_id="User reviewer" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
+  <SyncopeRole_Realm role_id="User reviewer" realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"/>
+  
+  <SyncopeRole id="User manager" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ","USER_REQUEST_FORM_LIST","USER_REQUEST_FORM_CLAIM","USER_REQUEST_FORM_SUBMIT"]'/>
+  <SyncopeRole_Realm role_id="User manager" realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"/>
+
+  <SyncopeRole id="Other" entitlements='["SCHEMA_READ","GROUP_READ","USER_REQUEST_FORM_CLAIM"]'/>
+  <SyncopeRole_Realm role_id="Other" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
+  <SyncopeRole_Privilege role_id="Other" privilege_id="postMighty"/>
+  
+  <SyncopeRole id="Search for realm evenTwo" entitlements='["USER_READ","USER_SEARCH"]'/>
+  <SyncopeRole_Realm role_id="Search for realm evenTwo" realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
+
+  <SyncopeRole id="Connector and Resource for realm evenTwo" entitlements='["CONNECTOR_READ","CONNECTOR_UPDATE","CONNECTOR_DELETE","CONNECTOR_LIST","RESOURCE_READ","RESOURCE_UPDATE","RESOURCE_DELETE","RESOURCE_LIST"]'/>
+  <SyncopeRole_Realm role_id="Connector and Resource for realm evenTwo"
+                     realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
+
+  <SyncopeUser mustChangePassword="0" id="1417acbe-cbf6-4277-9372-e75e04f97000" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
+               username="rossini" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs='[{"values":[{"stringValue":"G"}],"schema":"ctype"},{"values":[{"stringValue":"Gioacchino"}],"schema":"firstname"},{"values":[{"stringValue":"Rossini"}],"schema":"surname"},{"values":[{"dateValue":"2009-05-26T00:00:00+02:00"},{"dateValue":"2010-05-26T00:00:00+02:00"}],"schema":"loginDate"},{"uniqueValue":{"stringValue":"Gioacchino Rossini"},"schema":"fullname"},{"uniqueValue":{"stringValue":"rossini@apache.org"},"schema":"userId"}]'/>
+  <SyncopeUser_SyncopeRole user_id="1417acbe-cbf6-4277-9372-e75e04f97000" role_id="Other"/>
+  <SyncopeUser mustChangePassword="0" id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+               username="verdi" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs='[{"values":[{"stringValue":"Giuseppe"}],"schema":"firstname"},{"values":[{"stringValue":"Verdi"}],"schema":"surname"},{"values":[{"stringValue":"verdi@syncope.org"}],"schema":"email"},{"uniqueValue":{"stringValue":"Giuseppe Verdi"},"schema":"fullname"},{"uniqueValue":{"stringValue":"verdi@apache.org"},"schema":"userId"}]'/>
+  <SyncopeUser mustChangePassword="0" id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+               username="vivaldi" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs='[{"values":[{"stringValue":"Antonio"}],"schema":"firstname"},{"values":[{"stringValue":"Vivaldi"}],"schema":"surname"},{"values":[{"stringValue":"vivaldi@syncope.org"}],"schema":"email"},{"values":[{"stringValue":"F"}],"schema":"ctype"},{"uniqueValue":{"stringValue":"Antonio Vivaldi"},"schema":"fullname"},{"uniqueValue":{"stringValue":"vivaldi@apache.org"},"schema":"userId"}]'/>
+  <SyncopeUser mustChangePassword="0" id="c9b2dec2-00a7-4855-97c0-d854842b4b24" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+               username="bellini" creator="admin" lastModifier="admin"
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+               lastLoginDate="2016-03-03 15:21:22" suspended="0"
+               plainAttrs='[{"values":[{"stringValue":"Vincenzo"}],"schema":"firstname"},{"values":[{"stringValue":"Bellini"}],"schema":"surname"},{"values":[{"dateValue":"2009-06-24T00:00:00+02:00"}],"schema":"loginDate"},{"values":[{"booleanValue":true}],"schema":"cool"},{"values":[{"stringValue":"M"}],"schema":"gender"},{"uniqueValue":{"stringValue":"Vincenzo Bellini"},"schema":"fullname"},{"uniqueValue":{"stringValue":"bellini@apache.org"},"schema":"userId"}]'/>
+  <SyncopeUser_SyncopeRole user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" role_id="User reviewer"/>
+  <SyncopeUser_SyncopeRole user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" role_id="User manager"/>
+  <SyncopeUser mustChangePassword="0" id="823074dc-d280-436d-a7dd-07399fae48ec" status="active"
+               password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
+               realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+               username="puccini" creator="admin" lastModifier="admin" 
+               creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"
+               plainAttrs='[{"values":[{"stringValue":"Giacomo"}],"schema":"firstname"},{"values":[{"stringValue":"Puccini"}],"schema":"surname"},{"uniqueValue":{"stringValue":"Giacomo Puccini"},"schema":"fullname"},{"uniqueValue":{"stringValue":"puccini@apache.org"},"schema":"userId"}]'/>
+  <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Search for realm evenTwo"/>
+  <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Connector and Resource for realm evenTwo"/>
+  
+  <SyncopeGroup id="37d15e4c-cdc1-460b-a591-8505c8133806" name="root"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs='[{"values":[{"stringValue":"niceIcon"}],"schema":"icon"},{"values":[{"booleanValue":true}],"schema":"show"},{"values":[{"stringValue":"sx"}],"schema":"rderived_sx"},{"values":[{"stringValue":"dx"}],"schema":"rderived_dx"}]'/>
+  <SyncopeGroup id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" name="child"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;badIcon&quot;}],&quot;schema&quot;:&quot;icon&quot;}]"/>
+  <SyncopeGroup id="29f96485-729e-4d31-88a1-6fc60e4677f3" name="citizen"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="8fb2d51e-c605-4e80-a72b-13ffecf1aa9a" name="employee"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;icon4&quot;}],&quot;schema&quot;:&quot;icon&quot;}]"/>
+  <SyncopeGroup id="a3c1a693-a6be-483f-a2b3-5cfec146f4bf" name="secretary"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="ebf97068-aa4b-4a85-9f01-680e8c4cf227" name="director"
+                userOwner_id="823074dc-d280-436d-a7dd-07399fae48ec"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;icon6&quot;}],&quot;schema&quot;:&quot;icon&quot;}]"/>
+  <SyncopeGroup id="bf825fe1-7320-4a54-bd64-143b5c18ab97" name="managingDirector"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" name="otherchild"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <TypeExtension id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264"
+                 group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5" anyType_id="PRINTER"/>
+  <TypeExtension_AnyTypeClass typeExtension_id="88a71478-30aa-4ee0-8b2b-6cb32e7ba264" anyTypeClass_id="other"/>
+  <SyncopeGroup id="0cbcabd2-4410-4b6b-8f05-a052b451d18f" name="groupForWorkflowApproval"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="b8d38784-57e7-4595-859a-076222644b55" name="managingConsultant"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="268fed79-f440-4390-9435-b273768eb5d6" name="groupForWorkflowOptIn"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <SyncopeGroup id="0626100b-a4ba-4e00-9971-86fad52a6216" name="aGroupForPropagation"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;r12&quot;}],&quot;schema&quot;:&quot;title&quot;}]"/>
+  <SyncopeGroup_AnyTypeClass group_id="0626100b-a4ba-4e00-9971-86fad52a6216" anyTypeClass_id="csv"/>  
+  <SyncopeGroup id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" name="bGroupForPropagation"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"
+                plainAttrs="[{&quot;values&quot;:[{&quot;stringValue&quot;:&quot;r13&quot;}],&quot;schema&quot;:&quot;title&quot;}]"/>
+  <SyncopeGroup_AnyTypeClass group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" anyTypeClass_id="csv"/>  
+  <SyncopeGroup id="ece66293-8f31-4a84-8e8d-23da36e70846" name="artDirector"
+                realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>  
+  <SyncopeGroup id="034740a9-fa10-453b-af37-dc7897e98fb1" name="additional"
+                realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  <TypeExtension id="84c1490c-a1d9-4b91-859c-fafbb0113a85"
+                 group_id="034740a9-fa10-453b-af37-dc7897e98fb1" anyType_id="USER"/>
+  <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="csv"/>
+  <TypeExtension_AnyTypeClass typeExtension_id="84c1490c-a1d9-4b91-859c-fafbb0113a85" anyTypeClass_id="other"/>
+  <SyncopeGroup id="e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed" name="fake"
+                realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"
+                creator="admin" lastModifier="admin" 
+                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00"/>
+  
+  <URelationship id="ca20ffca-1305-442f-be9a-3723a0cd88ca"
+                 user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24"
+                 anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" type_id="neighborhood"/>
+
+  <UMembership id="3d5e91f6-305e-45f9-ad30-4897d3d43bd9"
+               user_id="1417acbe-cbf6-4277-9372-e75e04f97000" group_id="37d15e4c-cdc1-460b-a591-8505c8133806"/>
+  <UMembership id="d53f7657-2b22-4e10-a2cd-c3379a4d1a31"
+               user_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" group_id="37d15e4c-cdc1-460b-a591-8505c8133806"/>
+  <UMembership id="8e42a132-55ae-4860-bebd-2ca00ba5e959"
+               user_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" group_id="b1f7c12d-ec83-441f-a50e-1691daaedf3b"/>
+  <UMembership id="40e409a4-d870-4792-b820-30668f1269b9"
+               user_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" group_id="bf825fe1-7320-4a54-bd64-143b5c18ab97"/>
+  <UMembership id="6d8a7dc0-d4bc-4b7e-b058-abcd3df28f28"
+               user_id="1417acbe-cbf6-4277-9372-e75e04f97000" group_id="f779c0d4-633b-4be5-8f57-32eb478a3ca5"/>
+  <UMembership id="34f2d776-58b1-4640-8e64-e979b4242a18"
+               user_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" group_id="29f96485-729e-4d31-88a1-6fc60e4677f3"/>
+  <UMembership id="8cfb78fc-d0e7-4f08-a0ae-d7abf3223b6f"
+               user_id="823074dc-d280-436d-a7dd-07399fae48ec" group_id="ece66293-8f31-4a84-8e8d-23da36e70846"/>
     
-  <APlainAttr id="956a8440-1df7-4ed6-b156-04173ca47528" owner_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" schema_id="model"/>
-  <APlainAttrValue id="15f64e99-20cc-42ec-a77a-3396dea4248f" attribute_id="956a8440-1df7-4ed6-b156-04173ca47528" stringValue="Canon MFC8030"/>
-  <APlainAttr id="1fa796fd-c7e2-414e-8ad3-ac86b729d62c" owner_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5" schema_id="location"/>
-  <APlainAttrValue id="ad0452c9-93b9-4248-b2ca-48ef8a1cf5b5" attribute_id="1fa796fd-c7e2-414e-8ad3-ac86b729d62c" stringValue="1st floor"/>
-    
-  <APlainAttr id="b8342732-81bd-440b-91ac-b8cdad288ed5" owner_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" schema_id="model"/>
-  <APlainAttrValue id="50e852ac-68ba-4b12-85ca-e366987fd855" attribute_id="b8342732-81bd-440b-91ac-b8cdad288ed5" stringValue="HP Laserjet 1300n"/>
-  <APlainAttr id="c4cb0684-a033-425c-8b1b-d283597f999b" owner_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8" schema_id="location"/>
-  <APlainAttrValue id="7b954dee-8a14-4fa1-a433-cff0d1f888f8" attribute_id="c4cb0684-a033-425c-8b1b-d283597f999b" stringValue="2nd floor"/>
-
-  <UPlainAttr id="57eed138-a94f-475c-b2de-fdb4ae8cb0fb" owner_id="1417acbe-cbf6-4277-9372-e75e04f97000" schema_id="ctype"/>
-  <UPlainAttrValue id="56189459-5ea3-4051-8f88-39c5c07d3e44" attribute_id="57eed138-a94f-475c-b2de-fdb4ae8cb0fb" stringValue="G"/>
-  <UPlainAttr id="01f22fbd-b672-40af-b528-686d9b27ebc4" owner_id="1417acbe-cbf6-4277-9372-e75e04f97000" schema_id="fullname"/>
-  <UPlainAttrUniqueValue id="5e06f081-4859-422c-bbac-e44f2e09a7fc" attribute_id="01f22fbd-b672-40af-b528-686d9b27ebc4" schema_id="fullname" stringValue="Gioacchino Rossini"/>
-  <UPlainAttr id="9d137d0c-1b04-4e9c-81f6-6203ae8baab4" owner_id="1417acbe-cbf6-4277-9372-e75e04f97000" schema_id="firstname"/>
-  <UPlainAttrValue id="c56d9faa-4192-4e6c-92c5-345189352d2e" attribute_id="9d137d0c-1b04-4e9c-81f6-6203ae8baab4" stringValue="Gioacchino"/>
-  <UPlainAttr id="65f4ef2c-f249-424b-9390-7faacebf1725" owner_id="1417acbe-cbf6-4277-9372-e75e04f97000" schema_id="surname"/>
-  <UPlainAttrValue id="c8d941b5-b64b-44ed-8f5d-a87520f773cb" attribute_id="65f4ef2c-f249-424b-9390-7faacebf1725" stringValue="Rossini"/>
-  <UPlainAttr id="1861e249-fc54-4aea-b8b8-3eed7a4d14c8" owner_id="1417acbe-cbf6-4277-9372-e75e04f97000" schema_id="userId"/>
-  <UPlainAttrUniqueValue id="25b0bdc7-ef0d-4aca-8cb6-fcaff45a1041" attribute_id="1861e249-fc54-4aea-b8b8-3eed7a4d14c8" schema_id="userId" stringValue="rossini@apache.org"/>
-  <UPlainAttr id="9d0d9e40-1b18-488e-9482-37dab82163c9" owner_id="1417acbe-cbf6-4277-9372-e75e04f97000" schema_id="loginDate"/>
-  <UPlainAttrValue id="7034de3b-3687-4db5-8454-363468f1a9de" attribute_id="9d0d9e40-1b18-488e-9482-37dab82163c9" dateValue="2009-05-26"/>
-  <UPlainAttrValue id="bd8278a7-adcd-4627-9fba-3b621c26b64d" attribute_id="9d0d9e40-1b18-488e-9482-37dab82163c9" dateValue="2010-05-26 15:40:04"/>
-
-  <UPlainAttr id="b8cde98a-16e7-446c-9bf3-db0fac6bc5cf" owner_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" schema_id="fullname"/>
-  <UPlainAttrUniqueValue id="1fbda591-9421-4511-ae8e-35b59b68487c" attribute_id="b8cde98a-16e7-446c-9bf3-db0fac6bc5cf" schema_id="fullname" stringValue="Giuseppe Verdi"/>
-  <UPlainAttr id="f67e6ade-5d5e-467a-869a-b29653ec8c89" owner_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" schema_id="firstname"/>
-  <UPlainAttrValue id="f80b0c29-99db-47a7-a5aa-b4e054d25741" attribute_id="f67e6ade-5d5e-467a-869a-b29653ec8c89" stringValue="Giuseppe"/>
-  <UPlainAttr id="24348fd6-d6a6-4cb7-a97e-f184b91395bc" owner_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" schema_id="surname"/>
-  <UPlainAttrValue id="4d19a121-511d-414e-b082-c72581700961" attribute_id="24348fd6-d6a6-4cb7-a97e-f184b91395bc" stringValue="Verdi"/>
-  <UPlainAttr id="bf296d5f-10df-421d-a2c0-bc489371b48c" owner_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" schema_id="userId"/>
-  <UPlainAttrUniqueValue id="5812647b-86b3-4cd9-85db-2639dd19af3d" attribute_id="bf296d5f-10df-421d-a2c0-bc489371b48c" schema_id="userId" stringValue="verdi@apache.org"/>
-
-  <UPlainAttr id="ef97c9bd-f899-4d23-b43f-2fb27064fee5" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="firstname"/>
-  <UPlainAttrValue id="39ee0a93-0cb9-4921-b033-2715b2b72131" attribute_id="ef97c9bd-f899-4d23-b43f-2fb27064fee5" stringValue="Antonio"/>
-  <UPlainAttr id="d610b2e3-81d9-4a9a-8a1e-26a96e7eeb6e" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="surname"/>
-  <UPlainAttrValue id="8531b8d3-0214-412f-b115-f6cc81124576" attribute_id="d610b2e3-81d9-4a9a-8a1e-26a96e7eeb6e" stringValue="Vivaldi"/>
-  <UPlainAttr id="75c2e13f-8d17-4232-ae70-6ac8d6b6b95e" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="fullname"/>
-  <UPlainAttrUniqueValue id="fbbdc4cb-c7da-42dd-9fc2-1516ac2a8672" attribute_id="75c2e13f-8d17-4232-ae70-6ac8d6b6b95e" schema_id="fullname" stringValue="Antonio Vivaldi"/>
-  <UPlainAttr id="d4fe3920-903a-4168-b151-d53dc0297284" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="userId"/>
-  <UPlainAttrUniqueValue id="aa8a6cbf-5afb-43a6-862b-f2da32c71d09" attribute_id="d4fe3920-903a-4168-b151-d53dc0297284" schema_id="userId" stringValue="vivaldi@apache.org"/>
-
-  <UPlainAttr id="c2511535-dfc1-4141-8ffd-9bbbca4b0f6b" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="firstname"/>
-  <UPlainAttrValue id="24" attribute_id="c2511535-dfc1-4141-8ffd-9bbbca4b0f6b" stringValue="Vincenzo"/>
-  <UPlainAttr id="05b10553-343b-4703-977f-21b2e16c64ab" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="surname"/>
-  <UPlainAttrValue id="e88156c6-73eb-47a5-985c-878b8d18cca4" attribute_id="05b10553-343b-4703-977f-21b2e16c64ab" stringValue="Bellini"/>
-  <UPlainAttr id="33cefe5c-c708-46f5-9588-d9bd862e9b51" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="fullname"/>
-  <UPlainAttrUniqueValue id="14da5ad6-8204-45c6-81e5-332a1260837e" attribute_id="33cefe5c-c708-46f5-9588-d9bd862e9b51" schema_id="fullname" stringValue="Vincenzo Bellini"/>
-  <UPlainAttr id="0f71c875-82dd-40d6-b352-ced78e041be5" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="userId"/>
-  <UPlainAttrUniqueValue id="c052271f-84ac-4cc4-9156-2159544e5ae2" attribute_id="0f71c875-82dd-40d6-b352-ced78e041be5" schema_id="userId" stringValue="bellini@apache.org"/>
-  <UPlainAttr id="35f407a2-d254-4890-9e45-5a7dd8c8df7d" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="loginDate"/>
-  <UPlainAttrValue id="0c67225a-030a-4c56-b337-17cf7a311f0f" attribute_id="35f407a2-d254-4890-9e45-5a7dd8c8df7d" dateValue="2009-06-24"/>
-  <UPlainAttr id="a38423c2-4c29-4eeb-aa14-d984f78c083d" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="cool"/>
-  <UPlainAttrValue id="16dd73d3-4f89-4ebc-a446-41a06848bdb3" attribute_id="a38423c2-4c29-4eeb-aa14-d984f78c083d" booleanValue="1"/>
-  <UPlainAttr id="3e86f9fa-a19b-4f7b-b19a-f28e1b052a68" owner_id="c9b2dec2-00a7-4855-97c0-d854842b4b24" schema_id="gender"/>
-  <UPlainAttrValue id="55efeccf-c124-4115-99e1-50e04dfc18e1" attribute_id="3e86f9fa-a19b-4f7b-b19a-f28e1b052a68" stringValue="M"/>
-  
-  <UPlainAttr id="185ce8e4-fc28-4b0b-9f41-595b6ca53e6f" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="firstname"/>
-  <UPlainAttrValue id="1e76b9b8-2fa3-4a96-8098-f96b6bfe3284" attribute_id="185ce8e4-fc28-4b0b-9f41-595b6ca53e6f" stringValue="Giacomo"/>
-  <UPlainAttr id="28023d9c-18bc-431c-80e2-412741d235e6" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="surname"/>
-  <UPlainAttrValue id="506d5503-d963-4005-aae9-22c16a20e81d" attribute_id="28023d9c-18bc-431c-80e2-412741d235e6" stringValue="Puccini"/>
-  <UPlainAttr id="17141999-5e09-4364-9cd2-dc05632e0a63" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="fullname"/>
-  <UPlainAttrUniqueValue id="c9afa8f6-9a8a-4c8e-b4d1-a46f50996a38" attribute_id="17141999-5e09-4364-9cd2-dc05632e0a63" schema_id="fullname" stringValue="Giacomo Puccini"/>
-  <UPlainAttr id="15704022-315d-4740-8f79-7d60dd6165d4" owner_id="823074dc-d280-436d-a7dd-07399fae48ec" schema_id="userId"/>
-  <UPlainAttrUniqueValue id="1e565925-30e3-4ed0-8894-2b70d2ebaa6a" attribute_id="15704022-315d-4740-8f79-7d60dd6165d4" schema_id="userId" stringValue="puccini@apache.org"/>
-  
-  <UPlainAttr id="cf2eb45f-0877-49f3-9eb7-844fea0e1a64" owner_id="74cd8ece-715a-44a4-a736-e17b46c4e7e6" schema_id="email"/>
-  <UPlainAttrValue id="e5cfa8e0-6089-415a-bf5d-54a123c2cb6b" attribute_id="cf2eb45f-0877-49f3-9eb7-844fea0e1a64" stringValue="verdi@syncope.org"/>
-  <UPlainAttr id="514f586e-fd38-45a8-a2af-730d297f1022" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="email"/>
-  <UPlainAttrValue id="272b5971-15b5-4435-b816-34ca3b8184f3" attribute_id="514f586e-fd38-45a8-a2af-730d297f1022" stringValue="vivaldi@syncope.org"/>
-  <UPlainAttr id="4192de6e-11dd-4435-80a8-4340d3586af1" owner_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" schema_id="ctype"/>
-  <UPlainAttrValue id="e171e555-b47e-45b9-b291-d027a5bf9596" attribute_id="4192de6e-11dd-4435-80a8-4340d3586af1" stringValue="F"/>
-   
-  <GPlainAttr id="86eeb796-e419-4409-b5e2-7c2adb342ca4" owner_id="37d15e4c-cdc1-460b-a591-8505c8133806" schema_id="icon"/>
-  <GPlainAttrValue attribute_id="86eeb796-e419-4409-b5e2-7c2adb342ca4" id="4a6a769e-a9c8-40f1-9746-b23d5af5a50a" stringValue="niceIcon"/>
-
-  <GPlainAttr id="f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9" owner_id="b1f7c12d-ec83-441f-a50e-1691daaedf3b" schema_id="icon"/>
-  <GPlainAttrValue attribute_id="f82fc61f-8e74-4a4b-9f9e-b8a41f38aad9" id="49f35879-2510-4f11-a901-24152f753538" stringValue="badIcon"/>
-
-  <GPlainAttr id="8a9eb141-a946-4f50-9dfa-7a59b5e54e47" owner_id="37d15e4c-cdc1-460b-a591-8505c8133806"  schema_id="show"/>
-  <GPlainAttrValue attribute_id="8a9eb141-a946-4f50-9dfa-7a59b5e54e47" id="06dc6390-ca18-4d13-86e3-06aaae247c1b" booleanValue="1"/>
-
-  <GPlainAttr id="03f91f9f-95ce-44f9-a3e2-681fba8a0bc9" owner_id="ebf97068-aa4b-4a85-9f01-680e8c4cf227" schema_id="icon"/>
-  <GPlainAttrValue attribute_id="03f91f9f-95ce-44f9-a3e2-681fba8a0bc9" id="88c44e8f-c3c6-40f6-a564-5872d1b14299" stringValue="icon6"/>
-
-  <GPlainAttr id="cd3d4567-aeca-4f73-98c1-545136080abd" owner_id="8fb2d51e-c605-4e80-a72b-13ffecf1aa9a" schema_id="icon"/>
-  <GPlainAttrValue attribute_id="cd3d4567-aeca-4f73-98c1-545136080abd" id="5d59450a-2f50-4249-8548-64e529b75e21" stringValue="icon4"/>
-
-  <GPlainAttr id="ddfda04c-62ad-4a6f-bc15-f25f848a575e" owner_id="37d15e4c-cdc1-460b-a591-8505c8133806" schema_id="rderived_sx"/>
-  <GPlainAttrValue id="caf45fb5-f91d-4bdb-b9c5-c3fe75890f24" attribute_id="ddfda04c-62ad-4a6f-bc15-f25f848a575e" stringValue="sx"/>
-
-  <GPlainAttr id="4fcba413-8097-4cd3-8629-21a56ebb95ba" owner_id="37d15e4c-cdc1-460b-a591-8505c8133806" schema_id="rderived_dx"/>
-  <GPlainAttrValue attribute_id="4fcba413-8097-4cd3-8629-21a56ebb95ba" id="04b7b7ca-c2e9-44a4-8e86-000d9b982bf8" stringValue="dx"/>
-
-  <GPlainAttr id="1be7cf7e-b05c-4089-8ecb-fcafe0a162b9" owner_id="0626100b-a4ba-4e00-9971-86fad52a6216" schema_id="title"/>
-  <GPlainAttrValue attribute_id="1be7cf7e-b05c-4089-8ecb-fcafe0a162b9" id="0f5255af-34f5-4372-93a3-ede2778303d8" stringValue="r12"/>
-  
-  <GPlainAttr id="22690472-ed3f-4972-8979-4c9251fab044" owner_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" schema_id="title"/>
-  <GPlainAttrValue attribute_id="22690472-ed3f-4972-8979-4c9251fab044" id="e16765e6-f806-469e-ae34-1ddf56f2102a" stringValue="r13"/>
-  
-  <!-- pull policies -->
-  <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" name="a pull policy" conflictResolutionAction="IGNORE"/>
-  <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" name="another pull policy" conflictResolutionAction="ALL"/>
-  <Implementation id="TestPullCorrelationRule" type="PULL_CORRELATION_RULE" engine="JAVA"
-                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf","schemas":["username","firstname"]}'/>
-  <PullCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
-                             anyType_id="USER" implementation_id="TestPullCorrelationRule"/>
-  <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" name="pull policy 1" conflictResolutionAction="IGNORE"/>
-  <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" name="pull policy for java rule" conflictResolutionAction="IGNORE"/>
+  <!-- inbound policies -->
+  <InboundPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" name="a pull policy" conflictResolutionAction="IGNORE"/>
+  <InboundPolicy id="880f8553-069b-4aed-9930-2cd53873f544" name="another pull policy" conflictResolutionAction="ALL"/>
+  <Implementation id="TestInboundCorrelationRule" type="INBOUND_CORRELATION_RULE" engine="JAVA"
+                  body='{"_class":"org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf","schemas":["username","firstname"]}'/>
+  <InboundCorrelationRuleEntity id="10e3d196-7486-4c88-aefd-59e40d93a0c1" inboundPolicy_id="880f8553-069b-4aed-9930-2cd53873f544" 
+                                anyType_id="USER" implementation_id="TestInboundCorrelationRule"/>
+  <InboundPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" name="pull policy 1" conflictResolutionAction="IGNORE"/>
+  <InboundPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" name="pull policy for java rule" conflictResolutionAction="IGNORE"/>
 
   <!-- push policies -->
   <PushPolicy id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" name="a push policy" conflictResolutionAction="IGNORE"/>
@@ -539,7 +465,7 @@ under the License.
                   body='{"_class":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","name":"org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf","schemas":["surname"]}'/>
   <PushCorrelationRuleEntity id="24463935-32a0-4272-bc78-04d6d0adc69e" pushPolicy_id="fb6530e5-892d-4f47-a46b-180c5b6c5c83" 
                              anyType_id="USER" implementation_id="TestPushCorrelationRule"/>
-  
+
   <ConnInstance id="413bf072-678a-41d3-9d20-8c453b3a39d1" displayName="Errored"
                 adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${syncope.connid.location}"
@@ -635,58 +561,68 @@ under the License.
                 jsonconf="[{&quot;schema&quot;:{&quot;name&quot;:&quot;authenticateScript&quot;,&quot;displayName&quot;:&quot;authenticateScript&quot;,&quot;helpMessage&quot;:&quot;authenticateScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;contentType&quot;,&quot;displayName&quot;:&quot;contentType&quot;,&quot;helpMessage&quot;:&quot;contentType&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:true,&quot;order&quot;:-1,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;application/json&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;application/json&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;resolveUsernameScriptFileName&quot;,&quot;displayName&quot;:&quot;resolveUsernameScriptFileName&quot;,&quot;helpMessage&quot;:&quot;resolveUsernameScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:15,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScriptFileName&quot;,&quot;displayName&quot;:&quot;createScriptFileName&quot;,&quot;helpMessage&quot;:&quot;createScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:10,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/CreateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;username&quot;,&quot;displayName&quot;:&quot;username&quot;,&quot;helpMessage&quot;:&quot;username&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScript&quot;,&quot;displayName&quot;:&quot;updateScript&quot;,&quot;helpMessage&quot;:&quot;updateScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:4,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScript&quot;,&quot;displayName&quot;:&quot;searchScript&quot;,&quot;helpMessage&quot;:&quot;searchScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;clearTextPasswordToScript&quot;,&quot;displayName&quot;:&quot;clearTextPasswordToScript&quot;,&quot;helpMessage&quot;:&quot;clearTextPasswordToScript&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:1,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[true]},&quot;overridable&quot;:false,&quot;values&quot;:[true]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScript&quot;,&quot;displayName&quot;:&quot;syncScript&quot;,&quot;helpMessage&quot;:&quot;syncScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:7,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScriptFileName&quot;,&quot;displayName&quot;:&quot;deleteScriptFileName&quot;,&quot;helpMessage&quot;:&quot;deleteScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:12,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/DeleteScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;resolveUsernameScript&quot;,&quot;displayName&quot;:&quot;resolveUsernameScript&quot;,&quot;helpMessage&quot;:&quot;resolveUsernameScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:6,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;searchScriptFileName&quot;,&quot;displayName&quot;:&quot;searchScriptFileName&quot;,&quot;helpMessage&quot;:&quot;searchScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:13,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/SearchScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;syncScriptFileName&quot;,&quot;displayName&quot;:&quot;syncScriptFileName&quot;,&quot;helpMessage&quot;:&quot;syncScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:16,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/SyncScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;schemaScriptFileName&quot;,&quot;displayName&quot;:&quot;schemaScriptFileName&quot;,&quot;helpMessage&quot;:&quot;schemaScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:17,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/SchemaScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;password&quot;,&quot;displayName&quot;:&quot;password&quot;,&quot;helpMessage&quot;:&quot;password&quot;,&quot;type&quot;:&quot;org.identityconnectors.common.security.GuardedString&quot;,&quot;required&quot;:false,&quot;order&quot;:1,&quot;confidential&quot;:true,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;updateScriptFileName&quot;,&quot;displayName&quot;:&quot;updateScriptFileName&quot;,&quot;helpMessage&quot;:&quot;updateScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:11,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/UpdateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScriptFileName&quot;,&quot;displayName&quot;:&quot;testScriptFileName&quot;,&quot;helpMessage&quot;:&quot;testScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:18,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/TestScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;accept&quot;,&quot;displayName&quot;:&quot;accept&quot;,&quot;helpMessage&quot;:&quot;accept&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:true,&quot;order&quot;:-2,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;application/json&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;application/json&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;baseAddress&quot;,&quot;displayName&quot;:&quot;baseAddress&quot;,&quot;helpMessage&quot;:&quot;baseAddress&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:true,&quot;order&quot;:-3,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/cxf/rest&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;authenticateScriptFileName&quot;,&quot;displayName&quot;:&quot;authenticateScriptFileName&quot;,&quot;helpMessage&quot;:&quot;authenticateScriptFileName&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:14,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;${syncope.conf.dir}/rest/AuthenticateScript.groovy&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;deleteScript&quot;,&quot;displayName&quot;:&quot;deleteScript&quot;,&quot;helpMessage&quot;:&quot;deleteScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:5,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;schemaScript&quot;,&quot;displayName&quot;:&quot;schemaScript&quot;,&quot;helpMessage&quot;:&quot;schemaScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:8,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;createScript&quot;,&quot;displayName&quot;:&quot;createScript&quot;,&quot;helpMessage&quot;:&quot;createScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:3,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;scriptingLanguage&quot;,&quot;displayName&quot;:&quot;scriptingLanguage&quot;,&quot;helpMessage&quot;:&quot;scriptingLanguage&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:0,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;GROOVY&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[&quot;GROOVY&quot;]},{&quot;schema&quot;:{&quot;name&quot;:&quot;testScript&quot;,&quot;displayName&quot;:&quot;testScript&quot;,&quot;helpMessage&quot;:&quot;testScript&quot;,&quot;type&quot;:&quot;java.lang.String&quot;,&quot;required&quot;:false,&quot;order&quot;:9,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[&quot;&quot;]},&quot;overridable&quot;:false,&quot;values&quot;:[]},{&quot;schema&quot;:{&quot;name&quot;:&quot;reloadScriptOnExecution&quot;,&quot;displayName&quot;:&quot;reloadScriptOnExecution&quot;,&quot;helpMessage&quot;:&quot;reloadScriptOnExecution&quot;,&quot;type&quot;:&quot;boolean&quot;,&quot;required&quot;:false,&quot;order&quot;:2,&quot;confidential&quot;:false,&quot;defaultValues&quot;:[false]},&quot;overridable&quot;:false,&quot;values&quot;:[false]}]"
                 capabilities='["AUTHENTICATE","CREATE","UPDATE","DELETE","SEARCH","SYNC"]'/>
 
+  <ConnInstance id="01938bdf-7ac6-7149-a103-3ec9e74cc824"
+                displayName="Kafka" adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
+                location="${syncope.connid.location}"
+                bundleName="net.tirasa.connid.bundles.kafka"
+                connectorName="net.tirasa.connid.bundles.kafka.KafkaConnector"
+                version="${connid.kafka.version}"
+                jsonConf='[{"schema":{"name":"bootstrapServers","displayName":"Bootstrap servers","helpMessage":"A list of host/port pairs used to establish the initial connection to the Kafka cluster","type":"java.lang.String","required":true,"order":1,"confidential":false,"defaultValues":[]},"values":["localhost:19092"],"overridable":false},{"schema":{"name":"clientId","displayName":"Client id","helpMessage":"Client id for subscription","type":"java.lang.String","required":true,"order":2,"confidential":false,"defaultValues":[]},"values":["syncope"],"overridable":false},{"schema":{"name":"consumerGroupId","displayName":"Consumer Group id","helpMessage":"A unique string that identifies the consumer group this consumer belongs to.","type":"java.lang.String","required":true,"order":3,"confidential":false,"defaultValues":[]},"values":["syncope"],"overridable":false},{"schema":{"name":"autoOffsetReset","displayName":"Auto offset reset","helpMessage":"What to do when there is no initial offset in Kafka or if the current offset does not exist any more on the server (e.g. because that data has been deleted); defaults to earliest in order to make sure the producer sent all messages before the consumer starts.","type":"java.lang.String","required":true,"order":4,"confidential":false,"defaultValues":["earliest"]},"values":["earliest"],"overridable":false},{"schema":{"name":"valueSerializerClassName","displayName":"Value serializer class","helpMessage":"Serializer class for value that implements the org.apache.kafka.common.serialization.Serializer interface. Defaults to net.tirasa.connid.bundles.kafka.serialization.SyncDeltaSerializer","type":"java.lang.String","required":true,"order":5,"confidential":false,"defaultValues":["net.tirasa.connid.bundles.kafka.serialization.SyncDeltaSerializer"]},"values":["net.tirasa.connid.bundles.kafka.serialization.SyncDeltaSerializer"],"overridable":false},{"schema":{"name":"valueDeserializerClassName","displayName":"Value deserializer class","helpMessage":"Deserializer class for value that implements the org.apache.kafka.common.serialization.Deserializer interface. Defaults to org.apache.kafka.common.serialization.StringDeserializer","type":"java.lang.String","required":true,"order":6,"confidential":false,"defaultValues":["org.apache.kafka.common.serialization.StringDeserializer"]},"values":["org.apache.kafka.common.serialization.StringDeserializer"],"overridable":false},{"schema":{"name":"accountTopic","displayName":"Topic to publish to and being subscribed to for object class __ACCOUNT__","helpMessage":"A topic is similar to a folder in a filesystem, and the events are the files in that folder.","type":"java.lang.String","required":false,"order":7,"confidential":false,"defaultValues":["__ACCOUNT__"]},"values":["account-provisioning"],"overridable":false},{"schema":{"name":"groupTopic","displayName":"Topic to publish to and being subscribed to for object class __GROUP__","helpMessage":"A topic is similar to a folder in a filesystem, and the events are the files in that folder.","type":"java.lang.String","required":false,"order":8,"confidential":false,"defaultValues":["__GROUP__"]},"values":["group-provisioning"],"overridable":false},{"schema":{"name":"allTopic","displayName":"Topic to publish to and being subscribed to for object class __ALL__","helpMessage":"A topic is similar to a folder in a filesystem, and the events are the files in that folder.","type":"java.lang.String","required":false,"order":9,"confidential":false,"defaultValues":["__ALL__"]},"values":["__ALL__"],"overridable":false},{"schema":{"name":"consumerPollMillis","displayName":"The maximum number of milliseconds to block while polling","helpMessage":"Polling returns immediately if there are records available or if the position advances past control records; otherwise, it will await the passed timeout: if the timeout expires, an empty record set will be returned.","type":"long","required":false,"order":10,"confidential":false,"defaultValues":[100]},"values":["100"],"overridable":false}]'
+                poolConf='{"maxObjects":5,"minIdle":2,"maxIdle":3,"maxWait":10,"minEvictableIdleTimeMillis":5}'
+                capabilities='["DELETE","LIVE_SYNC","CREATE","UPDATE"]'/>
+
   <ExternalResource id="ws-target-resource-1" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    enforceMandatoryCondition="0"
                     propagationPriority="1" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"fullname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"ctype","extAttrName":"type","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"NONE","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-2" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
-                    pullPolicy_id="9454b0d7-2610-400a-be82-fc23cf553dd6"
+                    inboundPolicy_id="9454b0d7-2610-400a-be82-fc23cf553dd6"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"ctype","extAttrName":"type","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"type == &#39;F&#39;","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"virtualdata","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"type == &#39;F&#39;","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"cn","extAttrName":"fullname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-timeout" connector_id="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     propagationPriority="1" createTraceLevel="FAILURES" deleteTraceLevel="NONE" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":true,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/services/provisioning"]}]'
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-list-mappings-1" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    enforceMandatoryCondition="0"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"email","extAttrName":"email","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"email","extAttrName":"email","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-list-mappings-2" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
   <ExternalResource id="ws-target-resource-delete" connector_id="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    enforceMandatoryCondition="0"
                     propagationPriority="2" createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-update" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"test3","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="resource-testdb" connector_id="5aa5b8be-7521-481a-9651-c557aea078c1"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="resource-testdb2" connector_id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <Implementation id="GenerateRandomPasswordPropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPasswordPropagationActions"/>
   <ExternalResourcePropAction resource_id="resource-testdb2" implementation_id="GenerateRandomPasswordPropagationActions"/>
   <ExternalResource id="resource-csv" connector_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
-                    pullPolicy_id="880f8553-069b-4aed-9930-2cd53873f544"
+                    enforceMandatoryCondition="0"
+                    inboundPolicy_id="880f8553-069b-4aed-9930-2cd53873f544"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":["csv","generic membership","minimal group"],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"username","extAttrName":"id","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"id","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"name","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"csvuserid","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"groups[root].rderToBePropagated","extAttrName":"theirgroup","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"csvuserid","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-update-resetsynctoken" connector_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":"{\"value\":null}","ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"userId","extAttrName":"userId","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="resource-ldap" connector_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     propagationPriority="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":["generic membership","minimal group"],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":"&#39;uid=&#39; + username + &#39;,ou=people,${testds.rootDn}&#39;","items":[{"intAttrName":"username","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"sn","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"cn","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"mail","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"title","extAttrName":"title","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"postalAddress","extAttrName":"postalAddress","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"mail","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"obscure","extAttrName":"registeredAddress","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"photo","extAttrName":"jpegPhoto","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[{"intAttrName":"virtualReadOnly","extAttrName":"givenname","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"username","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":["virtualReadOnly"]},{"anyType":"GROUP","objectClass":"__GROUP__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":"&#39;cn=&#39; + name + &#39;,ou=groups,${testds.rootDn}&#39;","items":[{"intAttrName":"name","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userOwner","extAttrName":"owner","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"title","extAttrName":"description","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[{"intAttrName":"rvirtualdata","extAttrName":"businessCategory","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"name","extAttrName":"cn","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":["rvirtualdata"]}]'/>
@@ -695,51 +631,57 @@ under the License.
                   body="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
   <ExternalResourcePropAction resource_id="resource-ldap" implementation_id="LDAPMembershipPropagationActions"/>
   <ExternalResource id="resource-ldap-orgunit" connector_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     propagationPriority="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     jsonConf='[{"schema":{"name":"uidAttribute","displayName":"Uid Attribute","helpMessage":"The name of the LDAP attribute which is mapped to the Uid attribute. Default is \"entryUUID\".","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":["entryUUID"]},"overridable":true,"values":["l"]},{"schema":{"name":"baseContexts","displayName":"Base Contexts","helpMessage":"One or more starting points in the LDAP tree that will be used when searching the tree. Searches are performed when discovering users from the LDAP server or when looking for the groups of which a user is a member.","type":"[Ljava.lang.String;","required":true,"order":7,"confidential":false,"defaultValues":[]},"overridable":true,"values":["${testds.rootDn}"]}]'
                     orgUnit='{"objectClass":"organizationalUnit","syncToken":null,"ignoreCaseMatch":false,"connObjectLink":"syncope:fullPath2Dn(fullPath, &#39;ou&#39;) + &#39;,${testds.rootDn}&#39;","items":[{"intAttrName":"fullpath","extAttrName":"l","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"name","extAttrName":"ou","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"fullpath","extAttrName":"l","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}}'/>
   
   <ExternalResource id="ws-target-resource-nopropagation" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     passwordPolicy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   
   <ExternalResource id="ws-target-resource-nopropagation2" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" 
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-nopropagation3" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" 
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
   <ExternalResource id="ws-target-resource-nopropagation4" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" 
-                    enforceMandatoryCondition="1" overrideCapabilities="0"
+                    enforceMandatoryCondition="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"PROPAGATION","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
                     
   <ExternalResource id="resource-db-pull" connector_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    enforceMandatoryCondition="0"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"email","extAttrName":"EMAIL","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"SURNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"SURNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"username","extAttrName":"USERNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"EMAIL","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"mustChangePassword","extAttrName":"MUSTCHANGEPASSWORD","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"firstname","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
                     
   <ExternalResource id="resource-db-virattr" connector_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    enforceMandatoryCondition="0"
                     provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[{"intAttrName":"virtualdata","extAttrName":"USERNAME","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":["virtualdata"]}]'/>
 
   <ExternalResource id="resource-db-scripted" connector_id="a6d017fd-a705-4507-bb7c-6ab6a6745997"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" provisioningTraceLevel="ALL" updateTraceLevel="ALL"
-                    enforceMandatoryCondition="0" overrideCapabilities="0"
+                    enforceMandatoryCondition="0"
                     propagationPolicy_id="89d322db-9878-420c-b49c-67be13df9a12"
                     provisions='[{"anyType":"PRINTER","objectClass":"__PRINTER__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"name","extAttrName":"PRINTERNAME","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"location","extAttrName":"LOCATION","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"ID","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
 
   <ExternalResource id="rest-target-resource" connector_id="44c02549-19c3-483c-8025-4919c3283c37"
                     createTraceLevel="ALL" updateTraceLevel="ALL"  deleteTraceLevel="ALL" provisioningTraceLevel="ALL" 
-                    enforceMandatoryCondition="1" overrideCapabilities="0" propagationPriority="0"
-                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"firstname","extAttrName":"firstName","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"key","extAttrName":"key","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"username","extAttrName":"username","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"key","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+                    enforceMandatoryCondition="1"
+                    propagationPriority="0" provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"connObjectLink":null,"items":[{"intAttrName":"firstname","extAttrName":"firstName","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"key","extAttrName":"key","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"username","extAttrName":"username","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"surname","connObjectKey":false,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"linkingItems":[],"connObjectKeyItem":{"intAttrName":"key","extAttrName":"key","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}},"virSchemas":[]}]'/>
+
+  <ExternalResource id="resource-kafka" connector_id="01938bdf-7ac6-7149-a103-3ec9e74cc824"
+                    provisions='[{"anyType":"USER","objectClass":"__ACCOUNT__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"items":[{"intAttrName":"username","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"password","extAttrName":"__PASSWORD__","connObjectKey":false,"password":true,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"email","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"firstname","extAttrName":"givenName","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"surname","extAttrName":"lastName","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"userId","extAttrName":"email","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"PULL","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]},{"intAttrName":"fullname","extAttrName":"fullname","connObjectKey":false,"password":false,"mandatoryCondition":"false","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectLink":null,"linkingItems":[]},"virSchemas":[]},{"anyType":"GROUP","objectClass":"__GROUP__","auxClasses":[],"syncToken":null,"ignoreCaseMatch":false,"uidOnCreate":null,"mapping":{"items":[{"intAttrName":"name","extAttrName":"__NAME__","connObjectKey":true,"password":false,"mandatoryCondition":"true","purpose":"BOTH","propagationJEXLTransformer":null,"pullJEXLTransformer":null,"transformers":[]}],"connObjectLink":null,"linkingItems":[]},"virSchemas":[]}]'
+                    provisioningTraceLevel="ALL" deleteTraceLevel="ALL" createTraceLevel="ALL" updateTraceLevel="ALL"
+                    enforceMandatoryCondition="0"
+                    propagationPolicy_id="01938c04-65a1-7944-884d-8a26b76bc01e"/>
 
   <SyncopeUser_ExternalResource user_id="1417acbe-cbf6-4277-9372-e75e04f97000" resource_id="resource-testdb2"/>
   <SyncopeUser_ExternalResource user_id="b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee" resource_id="ws-target-resource-delete"/>
@@ -753,7 +695,7 @@ under the License.
   <SyncopeGroup_ExternalResource group_id="b8d38784-57e7-4595-859a-076222644b55" resource_id="ws-target-resource-nopropagation3"/>
   <SyncopeGroup_ExternalResource group_id="0626100b-a4ba-4e00-9971-86fad52a6216" resource_id="resource-csv"/>
   <SyncopeGroup_ExternalResource group_id="ba9ed509-b1f5-48ab-a334-c8530a6422dc" resource_id="resource-csv"/>
-        
+     
   <SyncopeSchema id="virtualReadOnly"/>
   <VirSchema id="virtualReadOnly" READONLY="1" anyTypeClass_id="minimal user"
              resource_id="resource-ldap" anyType_id="USER" extAttrName="givenname"/>
@@ -765,10 +707,11 @@ under the License.
   <SyncopeSchema id="virtualdata"/>
   <VirSchema id="virtualdata" READONLY="0" anyTypeClass_id="minimal user"
              resource_id="resource-db-virattr" anyType_id="USER" extAttrName="USERNAME"/>
-  
+
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
-
+  <Implementation id="LiveSyncJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate"/>
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
@@ -833,7 +776,7 @@ under the License.
                        template='{"_class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":"&apos;/&apos; + title","status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["minimal group"],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[]}'/>
   <AnyTemplatePullTask id="fda22ff3-98f3-42e4-a2ae-cd9a28282d57" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="GROUP"
                        template='{"_class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","values":["true"]}]}'/>
-  <Implementation id="LDAPMembershipPullActions" type="PULL_ACTIONS"  engine="JAVA"
+  <Implementation id="LDAPMembershipPullActions" type="INBOUND_ACTIONS"  engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
   <PullTaskAction task_id="1e419ca4-ea81-4493-a14f-28b90113686d" implementation_id="LDAPMembershipPullActions"/>
   <PullTask remediation="0" id="38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1" name="VirAttrCache test" resource_id="resource-csv"
@@ -1032,7 +975,7 @@ $$ }&#10;
                 traceLevel="FAILURES" recipientsFIQL="$groups==7" recipientAttrName="email" active="1"
                 events='["[CUSTOM]:[]:[]:[unexisting1]:[FAILURE]", "[CUSTOM]:[]:[]:[unexisting2]:[SUCCESS]"]'/>
   <AnyAbout id="2e2ee845-2abf-43c6-b543-49243a84e2f1" anyType_id="USER" notification_id="9e2b911c-25de-4c77-bcea-b86ed9451050" anyType_filter="fullname==*o*;fullname==*i*"/>
-  
+
   <Implementation id="SampleReportJobDelegate" type="REPORT_DELEGATE" engine="JAVA"
                   body='{"_class":"org.apache.syncope.fit.core.reference.SampleReportConf","stringValue":"a string","intValue":1,"longValue":45,"floatValue":1.2,"doubleValue":2.1}'/>
   <Report id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" name="test" active="1" jobDelegate_id="SampleReportJobDelegate"
@@ -1074,6 +1017,7 @@ $$ }&#10;
   <AuditConf id="[LOGIC]:[UserLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
   <AuditConf id="[LOGIC]:[UserLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
   <AuditConf id="[LOGIC]:[UserLogic]:[]:[update]:[SUCCESS]" active="1"/>
+
   <AuditConf id="[LOGIC]:[GroupLogic]:[]:[assign]:[SUCCESS]" active="1"/>
   <AuditConf id="[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]" active="1"/>
   <AuditConf id="[LOGIC]:[GroupLogic]:[]:[deprovision]:[SUCCESS]" active="1"/>
@@ -1091,5 +1035,4 @@ $$ }&#10;
   <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[unassign]:[SUCCESS]" active="1"/>
   <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[unlink]:[SUCCESS]" active="1"/>
   <AuditConf id="[LOGIC]:[AnyObjectLogic]:[]:[update]:[SUCCESS]" active="1"/>
-
 </dataset>

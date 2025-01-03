@@ -37,6 +37,8 @@ public final class IdRepoImplementationType {
 
     public static final String ATTR_VALUE_VALIDATOR = "ATTR_VALUE_VALIDATOR";
 
+    public static final String DROPDOWN_VALUE_PROVIDER = "DROPDOWN_VALUE_PROVIDER";
+
     public static final String COMMAND = "COMMAND";
 
     public static final String RECIPIENTS_PROVIDER = "RECIPIENTS_PROVIDER";
@@ -51,7 +53,9 @@ public final class IdRepoImplementationType {
             Pair.of(LOGIC_ACTIONS, "org.apache.syncope.core.logic.api.LogicActions"),
             Pair.of(MACRO_ACTIONS, "org.apache.syncope.core.provisioning.api.macro.MacroActions"),
             Pair.of(ATTR_VALUE_VALIDATOR,
-                    "org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator"),
+                    "org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValueValidator"),
+            Pair.of(DROPDOWN_VALUE_PROVIDER,
+                    "org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider"),
             Pair.of(COMMAND, "org.apache.syncope.core.provisioning.api.macro.Command"),
             Pair.of(RECIPIENTS_PROVIDER, "org.apache.syncope.core.provisioning.api.notification.RecipientsProvider"),
             Pair.of(ITEM_TRANSFORMER, "org.apache.syncope.core.provisioning.api.data.ItemTransformer"));

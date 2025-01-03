@@ -41,6 +41,17 @@ public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleCo
      */
     private String fieldDisabled;
 
+    /**
+     * A number of authentication handlers are allowed to determine whether they can operate on the provided credential
+     * and as such lend themselves to be tried and tested during the authentication handler selection phase.
+     * The credential criteria may be one of the following options:<ul>
+     * <li>A regular expression pattern that is tested against the credential identifier.</li>
+     * <li>A fully qualified class name of your own design that implements {@code Predicate}.</li>
+     * <li>Path to an external Groovy script that implements the same interface.</li>
+     * </ul>
+     */
+    private String credentialCriteria;
+
     public String getFieldPassword() {
         return fieldPassword;
     }
@@ -63,6 +74,14 @@ public class JDBCAuthModuleConf extends AbstractJDBCConf implements AuthModuleCo
 
     public void setFieldDisabled(final String fieldDisabled) {
         this.fieldDisabled = fieldDisabled;
+    }
+
+    public String getCredentialCriteria() {
+        return credentialCriteria;
+    }
+
+    public void setCredentialCriteria(final String credentialCriteria) {
+        this.credentialCriteria = credentialCriteria;
     }
 
     @Override

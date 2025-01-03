@@ -33,9 +33,8 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTe
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.validation.IValidator;
 
-public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable {
+public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
 
     private static final long serialVersionUID = 238940918106696068L;
 
@@ -70,7 +69,9 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
 
             @Override
             protected AutoCompleteBehavior<String> newAutoCompleteBehavior(
-                final IAutoCompleteRenderer<String> renderer, final AutoCompleteSettings settings) {
+                    final IAutoCompleteRenderer<String> renderer,
+                    final AutoCompleteSettings settings) {
+
                 return new IndicatorAutoCompleteBehavior<>(renderer, settings) {
 
                     private static final long serialVersionUID = 1070808433195962931L;
@@ -82,6 +83,7 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 };
             }
         };
+        setHTMLInputNotAllowed();
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
@@ -95,10 +97,6 @@ public class AjaxTextFieldPanel extends FieldPanel<String> implements Cloneable 
                 }
             });
         }
-    }
-
-    public void addValidator(final IValidator<? super String> validator) {
-        this.field.add(validator);
     }
 
     public void setChoices(final List<String> choices) {

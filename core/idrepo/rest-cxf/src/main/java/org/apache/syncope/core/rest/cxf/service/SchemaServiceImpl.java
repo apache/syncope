@@ -21,6 +21,8 @@ package org.apache.syncope.core.rest.cxf.service;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
+import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -68,5 +70,10 @@ public class SchemaServiceImpl extends AbstractService implements SchemaService 
     @Override
     public void update(final SchemaType schemaType, final SchemaTO schemaTO) {
         logic.update(schemaType, schemaTO);
+    }
+
+    @Override
+    public Attr getDropdownValues(final String key, final AnyTO anyTO) {
+        return logic.getDropdownValues(key, anyTO);
     }
 }

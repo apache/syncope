@@ -155,11 +155,21 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
         SearchCondVisitor visitor = new SearchCondVisitor(type, confManager.get());
 
-        int startIndex = request.getStartIndex() < 0
-                ? 0
-                : request.getStartIndex() / AnyDAO.DEFAULT_PAGE_SIZE;
+        int startIndex = request.getStartIndex() <= 1 ? 1 : request.getStartIndex();
 
         int itemsPerPage = request.getCount() <= 1 ? AnyDAO.DEFAULT_PAGE_SIZE : request.getCount();
+
+        int page = request.getStartIndex() <= 0 ? 0 : request.getStartIndex() / itemsPerPage;
+
+        /*
+         * startIndex=1 and count=10 is supported
+         * startIndex=11 and count=10 is supported
+         * startIndex=21 and count=10 is supported
+         * startIndex=2 and count=10 is not supported
+         */
+        if ((startIndex - 1) % itemsPerPage != 0) {
+            throw new BadRequestException(ErrorType.invalidValue, "Unsupported startIndex value provided");
+        }
 
         List<Sort.Order> sort;
         if (request.getSortBy() == null) {
@@ -176,16 +186,16 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                 StringUtils.isBlank(request.getFilter())
                 ? null
                 : SearchCondConverter.convert(visitor, request.getFilter()),
-                PageRequest.of(startIndex, itemsPerPage, Sort.by(sort)),
+                PageRequest.of(page, itemsPerPage, Sort.by(sort)),
                 SyncopeConstants.ROOT_REALM,
                 true,
-                false);
+                true);
 
         if (result.getTotalElements() > confManager.get().getGeneralConf().getFilterMaxResults()) {
             throw new BadRequestException(ErrorType.tooMany, "Too many results found");
         }
 
-        ListResponse<R> response = new ListResponse<>(result.getTotalElements(), startIndex + 1, itemsPerPage);
+        ListResponse<R> response = new ListResponse<>(result.getTotalElements(), startIndex, itemsPerPage);
 
         result.forEach(anyTO -> {
             SCIMResource resource = null;

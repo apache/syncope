@@ -99,7 +99,7 @@ public class ElasticsearchIndexManager {
                 value();
     }
 
-    public IndexSettings defaultSettings() throws IOException {
+    public IndexSettings defaultSettings() {
         return new IndexSettings.Builder().
                 analysis(new IndexSettingsAnalysis.Builder().
                         normalizer("string_lowercase", new Normalizer.Builder().
@@ -114,7 +114,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultAnyMapping() throws IOException {
+    public TypeMapping defaultAnyMapping() {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -127,7 +127,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultRealmMapping() throws IOException {
+    public TypeMapping defaultRealmMapping() {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -140,7 +140,7 @@ public class ElasticsearchIndexManager {
                 build();
     }
 
-    public TypeMapping defaultAuditMapping() throws IOException {
+    public TypeMapping defaultAuditMapping() {
         return new TypeMapping.Builder().
                 dynamicTemplates(List.of(Map.of(
                         "strings",
@@ -296,8 +296,7 @@ public class ElasticsearchIndexManager {
     public void entity(final EntityLifecycleEvent<Entity> event) throws IOException {
         LOG.debug("About to {} index for {}", event.getType().name(), event.getEntity());
 
-        if (event.getEntity() instanceof Any) {
-            Any<?> any = (Any<?>) event.getEntity();
+        if (event.getEntity() instanceof final Any<?> any) {
 
             if (event.getType() == SyncDeltaType.DELETE) {
                 DeleteRequest request = new DeleteRequest.Builder().index(

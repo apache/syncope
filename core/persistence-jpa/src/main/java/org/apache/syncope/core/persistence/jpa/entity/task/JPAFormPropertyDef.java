@@ -24,31 +24,56 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import org.apache.syncope.common.lib.form.FormPropertyType;
 import org.apache.syncope.core.persistence.api.entity.task.FormPropertyDef;
 import org.apache.syncope.core.persistence.api.entity.task.MacroTask;
 import org.apache.syncope.core.persistence.common.validation.FormPropertyDefCheck;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAFormPropertyDef.TABLE)
 @FormPropertyDefCheck
-public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements FormPropertyDef {
+public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements FormPropertyDef {
 
     private static final long serialVersionUID = -5839990371546587373L;
 
     public static final String TABLE = "FormPropertyDef";
+
+    protected static final TypeReference<Map<String, String>> ENUMVALUES_TYPEREF =
+            new TypeReference<Map<String, String>>() {
+    };
+
+    protected static final TypeReference<HashMap<Locale, String>> LABEL_TYPEREF =
+            new TypeReference<HashMap<Locale, String>>() {
+    };
+
+    private int idx;
 
     @ManyToOne(optional = false)
     private JPAMacroTask macroTask;
 
     @NotNull
     private String name;
+
+    @Lob
+    private String labels;
+
+    @Transient
+    private Map<Locale, String> labelMap = new HashMap<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -63,10 +88,22 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     @NotNull
     private Boolean required = Boolean.FALSE;
 
+    private String stringRegEx;
+
     private String datePattern;
 
     @Lob
     private String enumValues;
+
+    @NotNull
+    private Boolean dropdownSingleSelection = Boolean.TRUE;
+
+    @NotNull
+    private Boolean dropdownFreeForm = Boolean.FALSE;
+
+    public void setIdx(final int idx) {
+        this.idx = idx;
+    }
 
     @Override
     public JPAMacroTask getMacroTask() {
@@ -87,6 +124,16 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public Optional<String> getLabel(final Locale locale) {
+        return Optional.ofNullable(labelMap.get(locale));
+    }
+
+    @Override
+    public Map<Locale, String> getLabels() {
+        return labelMap;
     }
 
     @Override
@@ -130,6 +177,16 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
     }
 
     @Override
+    public Pattern getStringRegEx() {
+        return Optional.ofNullable(stringRegEx).map(Pattern::compile).orElse(null);
+    }
+
+    @Override
+    public void setStringRegExp(final Pattern stringRegEx) {
+        this.stringRegEx = Optional.ofNullable(stringRegEx).map(Pattern::pattern).orElse(null);
+    }
+
+    @Override
     public String getDatePattern() {
         return datePattern;
     }
@@ -141,13 +198,57 @@ public class JPAFormPropertyDef extends AbstractProvidedKeyEntity implements For
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).
-                map(v -> POJOHelper.deserialize(v, new TypeReference<Map<String, String>>() {
-        })).orElse(Map.of());
+        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).orElse(Map.of());
     }
 
     @Override
     public void setEnumValues(final Map<String, String> enumValues) {
         this.enumValues = Optional.ofNullable(enumValues).map(POJOHelper::serialize).orElse(null);
+    }
+
+    @Override
+    public boolean isDropdownSingleSelection() {
+        return dropdownSingleSelection == null ? false : dropdownSingleSelection;
+    }
+
+    @Override
+    public void setDropdownSingleSelection(final boolean dropdownSingleSelection) {
+        this.dropdownSingleSelection = dropdownSingleSelection;
+    }
+
+    @Override
+    public boolean isDropdownFreeForm() {
+        return dropdownFreeForm == null ? false : dropdownFreeForm;
+    }
+
+    @Override
+    public void setDropdownFreeForm(final boolean dropdownFreeForm) {
+        this.dropdownFreeForm = dropdownFreeForm;
+    }
+
+    protected void json2map(final boolean clearFirst) {
+        if (clearFirst) {
+            getLabels().clear();
+        }
+        if (labels != null) {
+            getLabels().putAll(POJOHelper.deserialize(labels, LABEL_TYPEREF));
+        }
+    }
+
+    @PostLoad
+    public void postLoad() {
+        json2map(false);
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void postSave() {
+        json2map(true);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void map2json() {
+        labels = POJOHelper.serialize(getLabels());
     }
 }

@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -126,9 +127,9 @@ public class GroupITCase extends AbstractITCase {
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
 
-        assertNotNull(groupTO.getVirAttr("rvirtualdata").get().getValues());
-        assertFalse(groupTO.getVirAttr("rvirtualdata").get().getValues().isEmpty());
-        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").get().getValues().get(0));
+        assertNotNull(groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues());
+        assertFalse(groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().isEmpty());
+        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().get(0));
 
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
@@ -223,9 +224,7 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        GroupCR groupCR = getSample("latestGroup" + getUUIDString());
-        GroupTO groupTO = createGroup(groupCR).getEntity();
-
+        GroupTO groupTO = createGroup(getSample("latestGroup" + getUUIDString())).getEntity();
         assertEquals(1, groupTO.getPlainAttrs().size());
 
         GroupUR groupUR = new GroupUR();
@@ -239,7 +238,7 @@ public class GroupITCase extends AbstractITCase {
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
 
-        groupTO.getPlainAttr("show").get().getValues().clear();
+        groupTO.getPlainAttr("show").orElseThrow().getValues().clear();
 
         groupUR = new GroupUR.Builder(groupTO.getKey()).
                 plainAttr(new AttrPatch.Builder(new Attr.Builder("show").build()).
@@ -605,7 +604,31 @@ public class GroupITCase extends AbstractITCase {
             ANY_TYPE_CLASS_SERVICE.update(typeClass);
             typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
             assertFalse(typeClass.getPlainSchemas().contains(badge.getKey()));
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, badge.getKey());
         }
+    }
+
+    @Test
+    public void dropdown() {
+        List<String> values = SCHEMA_SERVICE.getDropdownValues("dd", new GroupTO()).getValues();
+        assertEquals(List.of("A", "B"), values);
+
+        GroupCR groupCR = getSample("dropdown");
+        groupCR.getAuxClasses().add("other");
+        groupCR.getPlainAttrs().add(attr("dd", "M"));
+
+        try {
+            createGroup(groupCR);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidValues, e.getType());
+        }
+
+        groupCR.getPlainAttrs().removeIf(a -> "dd".equals(a.getSchema()));
+        groupCR.getPlainAttrs().add(attr("dd", "A"));
+
+        GroupTO group = createGroup(groupCR).getEntity();
+        assertEquals("A", group.getPlainAttr("dd").orElseThrow().getValues().get(0));
     }
 
     @Test
@@ -634,7 +657,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertEquals(Encryptor.getInstance(System.getProperty("obscureSecretKey")).
                 encode("testvalue", encrypted.getCipherAlgorithm()),
-                group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+                group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
 
         // 4. update schema to return cleartext values
         encrypted.setAnyTypeClass(typeClassName);
@@ -649,14 +672,14 @@ public class GroupITCase extends AbstractITCase {
                 new Attr.Builder(encrypted.getKey()).value("testvalue").build()).build());
         group = updateGroup(groupUR).getEntity();
 
-        assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+        assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
 
         // 6. update schema again to disallow cleartext values
         encrypted.setConversionPattern(null);
         SCHEMA_SERVICE.update(SchemaType.PLAIN, encrypted);
 
         group = GROUP_SERVICE.read(group.getKey());
-        assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).get().getValues().get(0));
+        assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
     }
 
     @Test
@@ -820,7 +843,6 @@ public class GroupITCase extends AbstractITCase {
         // resource with no capability override
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(ldap);
-        assertFalse(ldap.isOverrideCapabilities());
         assertTrue(ldap.getCapabilitiesOverride().isEmpty());
 
         // connector with all required for create and update
@@ -843,63 +865,33 @@ public class GroupITCase extends AbstractITCase {
             GroupTO group = result.getEntity();
 
             // 2. update succeeds
-            GroupUR groupUR = new GroupUR();
-            groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("title", "second")).
-                    operation(PatchOperation.ADD_REPLACE).build());
-
-            result = updateGroup(groupUR);
+            result = updateGroup(new GroupUR.Builder(group.getKey()).
+                    plainAttr(new AttrPatch.Builder(attr("title", "second")).build()).
+                    build());
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
             assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
             group = result.getEntity();
 
-            // 3. set capability override with only search allowed, but not enable
-            ldap.getCapabilitiesOverride().add(ConnectorCapability.SEARCH);
+            // 3. enable capability override with only search allowed
+            ldap.setCapabilitiesOverride(Optional.of(Set.of(ConnectorCapability.SEARCH)));
             RESOURCE_SERVICE.update(ldap);
             ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             assertNotNull(ldap);
-            assertFalse(ldap.isOverrideCapabilities());
-            assertEquals(1, ldap.getCapabilitiesOverride().size());
-            assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
+            assertEquals(1, ldap.getCapabilitiesOverride().orElseThrow().size());
+            assertTrue(ldap.getCapabilitiesOverride().orElseThrow().contains(ConnectorCapability.SEARCH));
 
-            // 4. update succeeds again
-            groupUR = new GroupUR();
-            groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("title", "third")).
-                    operation(PatchOperation.ADD_REPLACE).build());
-
-            result = updateGroup(groupUR);
-            assertNotNull(result);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-            group = result.getEntity();
-
-            // 5. enable capability override
-            ldap.setOverrideCapabilities(true);
-            RESOURCE_SERVICE.update(ldap);
-            ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-            assertNotNull(ldap);
-            assertTrue(ldap.isOverrideCapabilities());
-            assertEquals(1, ldap.getCapabilitiesOverride().size());
-            assertTrue(ldap.getCapabilitiesOverride().contains(ConnectorCapability.SEARCH));
-
-            // 6. update now fails
-            groupUR = new GroupUR();
-            groupUR.setKey(group.getKey());
-            groupUR.getPlainAttrs().add(new AttrPatch.Builder(attr("title", "fourth")).
-                    operation(PatchOperation.ADD_REPLACE).build());
-
-            result = updateGroup(groupUR);
+            // 4. update now fails
+            result = updateGroup(new GroupUR.Builder(group.getKey()).
+                    plainAttr(new AttrPatch.Builder(attr("title", "fourth")).build()).
+                    build());
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
             assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
             assertEquals(ExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().get(0).getStatus());
         } finally {
-            ldap.getCapabilitiesOverride().clear();
-            ldap.setOverrideCapabilities(false);
+            ldap.setCapabilitiesOverride(Optional.empty());
             RESOURCE_SERVICE.update(ldap);
         }
     }
@@ -916,8 +908,8 @@ public class GroupITCase extends AbstractITCase {
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
         assertEquals(1, groupTO.getTypeExtensions().size());
-        assertEquals(1, groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().size());
-        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().contains("csv"));
+        assertEquals(1, groupTO.getTypeExtension(AnyTypeKind.USER.name()).orElseThrow().getAuxClasses().size());
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).orElseThrow().getAuxClasses().contains("csv"));
 
         typeExtension = new TypeExtensionTO();
         typeExtension.setAnyType(AnyTypeKind.USER.name());
@@ -931,9 +923,9 @@ public class GroupITCase extends AbstractITCase {
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);
         assertEquals(1, groupTO.getTypeExtensions().size());
-        assertEquals(2, groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().size());
-        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().contains("csv"));
-        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().contains("other"));
+        assertEquals(2, groupTO.getTypeExtension(AnyTypeKind.USER.name()).orElseThrow().getAuxClasses().size());
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).orElseThrow().getAuxClasses().contains("csv"));
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).orElseThrow().getAuxClasses().contains("other"));
     }
 
     @Test
@@ -1059,9 +1051,9 @@ public class GroupITCase extends AbstractITCase {
                 provision.getVirSchemas().clear();
             }
 
-            Mapping mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).get().getMapping();
+            Mapping mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping();
 
-            Item connObjectKey = mapping.getConnObjectKeyItem().get();
+            Item connObjectKey = mapping.getConnObjectKeyItem().orElseThrow();
             connObjectKey.setIntAttrName("displayProperty");
             connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
             mapping.setConnObjectKeyItem(connObjectKey);
@@ -1154,7 +1146,7 @@ public class GroupITCase extends AbstractITCase {
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
 
         // 3. update schema, set conversion pattern
         schema = SCHEMA_SERVICE.read(SchemaType.PLAIN, schema.getKey());
@@ -1164,7 +1156,7 @@ public class GroupITCase extends AbstractITCase {
         // 4. re-read group, verify that pattern was applied
         groupTO = GROUP_SERVICE.read(groupTO.getKey());
         assertNotNull(groupTO);
-        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
+        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
 
         // 5. modify group with new double value
         GroupUR groupUR = new GroupUR();
@@ -1173,7 +1165,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
+        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
 
         // 6. update schema, unset conversion pattern
         schema.setConversionPattern(null);
@@ -1186,7 +1178,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
     }
 
     @Test
@@ -1205,7 +1197,7 @@ public class GroupITCase extends AbstractITCase {
             ConnObject connObjectTO =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
-            assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
+            assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").orElseThrow().getValues().get(0));
 
             GroupUR groupUR = new GroupUR();
             groupUR.setKey(groupTO.getKey());
@@ -1219,7 +1211,7 @@ public class GroupITCase extends AbstractITCase {
             connObjectTO = RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
-            assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").get().getValues().get(0));
+            assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").orElseThrow().getValues().get(0));
         } finally {
             Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
         }

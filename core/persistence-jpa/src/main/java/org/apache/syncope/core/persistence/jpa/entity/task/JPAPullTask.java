@@ -26,7 +26,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -38,17 +37,15 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
-import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
 @Table(name = JPAPullTask.TABLE)
-public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements PullTask {
+public class JPAPullTask extends AbstractInboundTask<PullTask> implements PullTask {
 
     private static final long serialVersionUID = -4141057723006682563L;
 
@@ -60,9 +57,6 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
 
     @OneToOne
     private JPAImplementation reconFilterBuilder;
-
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    private JPARealm destinationRealm;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "PullTaskAction",
@@ -80,9 +74,6 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
     @OneToMany(targetEntity = JPAPullTaskExec.class,
             cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<TaskExec<SchedTask>> executions = new ArrayList<>();
-
-    @NotNull
-    private Boolean remediation = false;
 
     @Override
     public PullMode getPullMode() {
@@ -107,20 +98,9 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
     }
 
     @Override
-    public Realm getDestinationRealm() {
-        return destinationRealm;
-    }
-
-    @Override
-    public void setDestinationRealm(final Realm destinationRealm) {
-        checkType(destinationRealm, JPARealm.class);
-        this.destinationRealm = (JPARealm) destinationRealm;
-    }
-
-    @Override
     public boolean add(final Implementation action) {
         checkType(action, JPAImplementation.class);
-        checkImplementationType(action, IdMImplementationType.PULL_ACTIONS);
+        checkImplementationType(action, IdMImplementationType.INBOUND_ACTIONS);
         return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
     }
 
@@ -145,16 +125,6 @@ public class JPAPullTask extends AbstractProvisioningTask<PullTask> implements P
     @Override
     public List<? extends AnyTemplatePullTask> getTemplates() {
         return templates;
-    }
-
-    @Override
-    public void setRemediation(final boolean remediation) {
-        this.remediation = remediation;
-    }
-
-    @Override
-    public boolean isRemediation() {
-        return concurrentSettings != null ? true : remediation;
     }
 
     @Override

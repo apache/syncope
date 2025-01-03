@@ -34,11 +34,13 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.InboundTaskTO;
+import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
 import org.apache.syncope.common.lib.to.MacroTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -97,7 +99,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             wrapper.fillFilterConditions();
         }
 
-        modelObject.setCronExpression(crontabPanel.getCronExpression());
+        Optional.ofNullable(crontabPanel).ifPresent(cp -> modelObject.setCronExpression(cp.getCronExpression()));
         if (modelObject.getKey() == null) {
             taskRestClient.create(type, modelObject);
         } else {
@@ -109,11 +111,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
     @Override
     protected WizardModel buildModelSteps(final SchedTaskTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject));
-        if (modelObject instanceof PushTaskTO) {
-            wrapper = new PushTaskWrapper(PushTaskTO.class.cast(modelObject));
+        if (modelObject instanceof PushTaskTO pushTask) {
+            wrapper = new PushTaskWrapper(pushTask);
             wizardModel.add(new PushTaskFilters(wrapper, pageRef));
         }
-        wizardModel.add(new Schedule(modelObject));
+        if (!(modelObject instanceof LiveSyncTaskTO)) {
+            wizardModel.add(new Schedule(modelObject));
+        }
         return wizardModel;
     }
 
@@ -124,26 +128,29 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 getResult().stream().map(RealmTO::getFullPath).collect(Collectors.toList());
     }
 
-    public class Profile extends WizardStep {
+    protected class Profile extends WizardStep {
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        private final IModel<List<String>> taskJobDelegates = SyncopeWebApplication.get().
+        protected final IModel<List<String>> taskJobDelegates = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getTaskJobDelegates();
 
-        private final IModel<List<String>> reconFilterBuilders = SyncopeWebApplication.get().
+        protected final IModel<List<String>> reconFilterBuilders = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getReconFilterBuilders();
 
-        private final IModel<List<String>> macroActions = SyncopeWebApplication.get().
+        protected final IModel<List<String>> liveSyncDeltaMappers = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getLiveSyncDeltaMappers();
+
+        protected final IModel<List<String>> macroActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getMacroActions();
 
-        private final IModel<List<String>> pullActions = SyncopeWebApplication.get().
-                getImplementationInfoProvider().getPullActions();
+        protected final IModel<List<String>> inboundActions = SyncopeWebApplication.get().
+                getImplementationInfoProvider().getInboundActions();
 
-        private final IModel<List<String>> pushActions = SyncopeWebApplication.get().
+        protected final IModel<List<String>> pushActions = SyncopeWebApplication.get().
                 getImplementationInfoProvider().getPushActions();
 
-        public Profile(final SchedTaskTO taskTO) {
+        protected Profile(final SchedTaskTO taskTO) {
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                     Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME,
                     new PropertyModel<>(taskTO, Constants.NAME_FIELD_NAME),
@@ -191,9 +198,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                             : List.<String>of()).iterator();
                 }
             };
-            if (taskTO instanceof MacroTaskTO) {
+            if (taskTO instanceof MacroTaskTO macroTask) {
                 realm.addRequiredLabel();
-                if (StringUtils.isBlank(MacroTaskTO.class.cast(taskTO).getRealm())) {
+                if (StringUtils.isBlank(macroTask.getRealm())) {
                     // add a default destination realm if missing in the task
                     realm.setModelObject(SyncopeConstants.ROOT_REALM);
                 }
@@ -213,14 +220,39 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             macroTaskSpecifics.add(saveExecs);
 
             // ------------------------------
-            // Only for pull tasks
+            // Only for live sync tasks
             // ------------------------------            
+            WebMarkupContainer liveSyncTaskSpecifics = new WebMarkupContainer("liveSyncTaskSpecifics");
+            add(liveSyncTaskSpecifics.setRenderBodyOnly(true));
+
+            boolean isMapped = false;
+            if (taskTO instanceof LiveSyncTaskTO) {
+                isMapped = true;
+            } else {
+                liveSyncTaskSpecifics.setEnabled(false).setVisible(false);
+            }
+
+            liveSyncTaskSpecifics.add(destinationRealm("liveSyncDestinationRealm", taskTO, settings));
+
+            liveSyncTaskSpecifics.add(remediation("liveSyncRemediation", taskTO));
+
+            AjaxDropDownChoicePanel<String> liveSyncDeltaMapper = new AjaxDropDownChoicePanel<>(
+                    "liveSyncDeltaMapper", "liveSyncDeltaMapper",
+                    new PropertyModel<>(taskTO, "liveSyncDeltaMapper"), false);
+            liveSyncDeltaMapper.setChoices(liveSyncDeltaMappers.getObject());
+            liveSyncDeltaMapper.setEnabled(isMapped);
+            liveSyncDeltaMapper.setRequired(isMapped);
+            liveSyncTaskSpecifics.add(liveSyncDeltaMapper);
+
+            // ------------------------------
+            // Only for pull tasks
+            // ------------------------------
             WebMarkupContainer pullTaskSpecifics = new WebMarkupContainer("pullTaskSpecifics");
             add(pullTaskSpecifics.setRenderBodyOnly(true));
 
             boolean isFiltered = false;
-            if (taskTO instanceof PullTaskTO) {
-                isFiltered = PullTaskTO.class.cast(taskTO).getPullMode() == PullMode.FILTERED_RECONCILIATION;
+            if (taskTO instanceof PullTaskTO pullTask) {
+                isFiltered = pullTask.getPullMode() == PullMode.FILTERED_RECONCILIATION;
             } else {
                 pullTaskSpecifics.setEnabled(false).setVisible(false);
             }
@@ -254,32 +286,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                 }
             });
 
-            AjaxSearchFieldPanel destinationRealm =
-                    new AjaxSearchFieldPanel("destinationRealm", "destinationRealm",
-                            new PropertyModel<>(taskTO, "destinationRealm"), settings) {
+            pullTaskSpecifics.add(destinationRealm("pullDestinationRealm", taskTO, settings));
 
-                private static final long serialVersionUID = -6390474600233486704L;
-
-                @Override
-                protected Iterator<String> getChoices(final String input) {
-                    return (RealmsUtils.checkInput(input)
-                            ? searchRealms(input)
-                            : List.<String>of()).iterator();
-                }
-            };
-
-            if (taskTO instanceof PullTaskTO) {
-                destinationRealm.addRequiredLabel();
-                if (StringUtils.isBlank(PullTaskTO.class.cast(taskTO).getDestinationRealm())) {
-                    // add a default destination realm if missing in the task
-                    destinationRealm.setModelObject(SyncopeConstants.ROOT_REALM);
-                }
-            }
-            pullTaskSpecifics.add(destinationRealm);
-
-            AjaxCheckBoxPanel remediation = new AjaxCheckBoxPanel(
-                    "remediation", "remediation", new PropertyModel<>(taskTO, "remediation"), false);
-            pullTaskSpecifics.add(remediation);
+            pullTaskSpecifics.add(remediation("pullRemediation", taskTO));
 
             // ------------------------------
             // Only for push tasks
@@ -331,7 +340,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                     build("actions",
                             new PropertyModel<>(taskTO, "actions"),
                             new ListModel<>(taskTO instanceof PushTaskTO
-                                    ? pushActions.getObject() : pullActions.getObject()));
+                                    ? pushActions.getObject() : inboundActions.getObject()));
             provisioningTaskSpecifics.add(actions.setOutputMarkupId(true));
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
@@ -382,7 +391,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
             provisioningTaskSpecifics.add(enableConcurrentSettings.
                     setVisible(taskTO instanceof ProvisioningTaskTO).setOutputMarkupId(true));
 
-            FieldPanel<Integer> poolSize = new AjaxSpinnerFieldPanel.Builder<Integer>().min(1).build(
+            FieldPanel<Integer> poolSize = new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
                     "poolSize",
                     "poolSize",
                     Integer.class,
@@ -411,6 +420,42 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
                     target.add(provisioningTaskSpecifics);
                 }
             });
+        }
+
+        private AjaxSearchFieldPanel destinationRealm(
+                final String id,
+                final SchedTaskTO taskTO,
+                final AutoCompleteSettings settings) {
+
+            AjaxSearchFieldPanel destinationRealm = new AjaxSearchFieldPanel(
+                    id,
+                    "destinationRealm",
+                    new PropertyModel<>(taskTO, "destinationRealm"),
+                    settings) {
+
+                private static final long serialVersionUID = -6390474600233486704L;
+
+                @Override
+                protected Iterator<String> getChoices(final String input) {
+                    return (RealmsUtils.checkInput(input)
+                            ? searchRealms(input)
+                            : List.<String>of()).iterator();
+                }
+            };
+
+            if (taskTO instanceof InboundTaskTO inboundTask) {
+                destinationRealm.addRequiredLabel();
+                if (StringUtils.isBlank(inboundTask.getDestinationRealm())) {
+                    // add a default destination realm if missing in the task
+                    destinationRealm.setModelObject(SyncopeConstants.ROOT_REALM);
+                }
+            }
+
+            return destinationRealm;
+        }
+
+        private AjaxCheckBoxPanel remediation(final String id, final SchedTaskTO taskTO) {
+            return new AjaxCheckBoxPanel(id, "remediation", new PropertyModel<>(taskTO, "remediation"), false);
         }
     }
 
@@ -444,11 +489,11 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
         }
     }
 
-    public class Schedule extends WizardStep {
+    protected class Schedule extends WizardStep {
 
         private static final long serialVersionUID = -785981096328637758L;
 
-        public Schedule(final SchedTaskTO taskTO) {
+        protected Schedule(final SchedTaskTO taskTO) {
             crontabPanel = new CrontabPanel(
                     "schedule", new PropertyModel<>(taskTO, "cronExpression"), taskTO.getCronExpression());
             add(crontabPanel);

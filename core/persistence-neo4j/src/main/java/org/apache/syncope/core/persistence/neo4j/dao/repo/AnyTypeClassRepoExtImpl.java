@@ -33,16 +33,21 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
+import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
+public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClassRepoExt {
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -55,8 +60,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
     protected final GroupDAO groupDAO;
 
     protected final ExternalResourceDAO resourceDAO;
-
-    protected final Neo4jTemplate neo4jTemplate;
 
     protected final NodeValidator nodeValidator;
 
@@ -74,10 +77,13 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             final GroupDAO groupDAO,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
             final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache,
             final Cache<EntityCacheKey, Neo4jExternalResource> resourceCache,
             final Cache<EntityCacheKey, Neo4jGroup> groupCache) {
+
+        super(neo4jTemplate, neo4jClient);
 
         this.anyTypeDAO = anyTypeDAO;
         this.plainSchemaDAO = plainSchemaDAO;
@@ -85,7 +91,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
         this.virSchemaDAO = virSchemaDAO;
         this.groupDAO = groupDAO;
         this.resourceDAO = resourceDAO;
-        this.neo4jTemplate = neo4jTemplate;
         this.nodeValidator = nodeValidator;
         this.anyTypeCache = anyTypeCache;
         this.resourceCache = resourceCache;
@@ -100,35 +105,52 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
 
     @Override
     public AnyTypeClass save(final AnyTypeClass anyTypeClass) {
+        // unlink any schema that was unlinked from anyTypeClass
+        neo4jTemplate.findById(anyTypeClass.getKey(), Neo4jAnyTypeClass.class).ifPresent(before -> {
+            before.getPlainSchemas().stream().filter(schema -> !anyTypeClass.getPlainSchemas().contains(schema)).
+                    forEach(schema -> deleteRelationship(
+                    Neo4jPlainSchema.NODE,
+                    Neo4jAnyTypeClass.NODE,
+                    schema.getKey(),
+                    anyTypeClass.getKey(),
+                    Neo4jAnyTypeClass.ANY_TYPE_CLASS_PLAIN_REL));
+            before.getDerSchemas().stream().filter(schema -> !anyTypeClass.getDerSchemas().contains(schema)).
+                    forEach(schema -> deleteRelationship(
+                    Neo4jDerSchema.NODE,
+                    Neo4jAnyTypeClass.NODE,
+                    schema.getKey(),
+                    anyTypeClass.getKey(),
+                    Neo4jAnyTypeClass.ANY_TYPE_CLASS_DER_REL));
+            before.getVirSchemas().stream().filter(schema -> !anyTypeClass.getVirSchemas().contains(schema)).
+                    forEach(schema -> deleteRelationship(
+                    Neo4jVirSchema.NODE,
+                    Neo4jAnyTypeClass.NODE,
+                    schema.getKey(),
+                    anyTypeClass.getKey(),
+                    Neo4jAnyTypeClass.ANY_TYPE_CLASS_VIR_REL));
+        });
+
         AnyTypeClass merged = neo4jTemplate.save(nodeValidator.validate(anyTypeClass));
 
         for (PlainSchema schema : merged.getPlainSchemas()) {
             schema.setAnyTypeClass(merged);
+            plainSchemaDAO.save(schema);
         }
         for (DerSchema schema : merged.getDerSchemas()) {
             schema.setAnyTypeClass(merged);
+            derSchemaDAO.save(schema);
         }
         for (VirSchema schema : merged.getVirSchemas()) {
             schema.setAnyTypeClass(merged);
+            virSchemaDAO.save(schema);
         }
 
         for (AnyType anyType : anyTypeDAO.findByClassesContaining(merged)) {
-            anyType.getClasses().remove(merged);
+            anyType.getClasses().removeIf(c -> c.getKey().equals(merged.getKey()));
             anyType.add(merged);
 
             anyTypeCache.put(EntityCacheKey.of(anyType.getKey()), (Neo4jAnyType) anyType);
         }
-
-        resourceDAO.findAll().stream().filter(resource -> resource.getProvisions().stream().
-                anyMatch(provision -> provision.getAuxClasses().contains(merged.getKey()))).
-                forEach(resource -> {
-
-                    resource.getProvisions().stream().
-                            filter(provision -> provision.getAuxClasses().contains(merged.getKey())).
-                            forEach(provision -> provision.getAuxClasses().remove(anyTypeClass.getKey()));
-
-                    resourceCache.put(EntityCacheKey.of(resource.getKey()), (Neo4jExternalResource) resource);
-                });
 
         return merged;
     }
@@ -142,12 +164,15 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
 
         for (PlainSchema schema : plainSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
+            plainSchemaDAO.save(schema);
         }
         for (DerSchema schema : derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
+            derSchemaDAO.save(schema);
         }
         for (VirSchema schema : virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
+            virSchemaDAO.save(schema);
         }
 
         for (AnyType anyType : anyTypeDAO.findByClassesContaining(anyTypeClass)) {
@@ -161,17 +186,16 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             typeExt.getAuxClasses().remove(anyTypeClass);
 
             if (typeExt.getAuxClasses().isEmpty()) {
+                groupCache.remove(EntityCacheKey.of(typeExt.getGroup().getKey()));
+
                 typeExt.getGroup().getTypeExtensions().remove(typeExt);
                 typeExt.setGroup(null);
-
-                groupCache.remove(EntityCacheKey.of(typeExt.getGroup().getKey()));
             }
         }
 
         resourceDAO.findAll().stream().filter(resource -> resource.getProvisions().stream().
                 anyMatch(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey()))).
                 forEach(resource -> {
-
                     resource.getProvisions().stream().
                             filter(provision -> provision.getAuxClasses().contains(anyTypeClass.getKey())).
                             forEach(provision -> provision.getAuxClasses().remove(anyTypeClass.getKey()));

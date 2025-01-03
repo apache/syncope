@@ -56,23 +56,9 @@ under the License.
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-maven-plugin</artifactId>
         <inherited>true</inherited>
-        <dependencies>
-          <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <persistenceXmlFile>${rootpom.basedir}/core/persistence-jpa/src/main/resources/persistence-enhance.xml</persistenceXmlFile> 
           <includes>org/apache/syncope/core/persistence/jpa/entity/**/*.class</includes>
-          <connectionDriverName>org.springframework.jdbc.datasource.DriverManagerDataSource</connectionDriverName>
-          <connectionProperties>
-            driverClassName=org.h2.Driver,
-            url=jdbc:h2:mem:syncopedb
-            username=sa,
-            password=
-          </connectionProperties>
         </configuration>
         <executions>
           <execution>

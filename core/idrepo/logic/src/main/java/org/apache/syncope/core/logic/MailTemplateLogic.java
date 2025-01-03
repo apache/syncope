@@ -99,7 +99,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
                 ? mailTemplate.getHTMLTemplate()
                 : mailTemplate.getTextTemplate();
         if (StringUtils.isBlank(template)) {
-            LOG.error("Could not find mail template '" + key + "' in " + format + " format");
+            LOG.error("Could not find mail template '{}' in {} format", key, format);
 
             throw new NotFoundException(key + " in " + format);
         }

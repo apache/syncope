@@ -24,7 +24,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.HttpHeaders;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +55,7 @@ public class BatchItemResponse implements HttpServletResponse {
         }
 
         @Override
-        public void write(final int b) throws IOException {
+        public void write(final int b) {
             baos.write(b);
         }
     };
@@ -179,17 +178,17 @@ public class BatchItemResponse implements HttpServletResponse {
     }
 
     @Override
-    public void sendError(final int sc, final String msg) throws IOException {
+    public void sendError(final int sc, final String msg) {
         setStatus(sc);
     }
 
     @Override
-    public void sendError(final int sc) throws IOException {
+    public void sendError(final int sc) {
         setStatus(sc);
     }
 
     @Override
-    public void sendRedirect(final String location) throws IOException {
+    public void sendRedirect(final String location) {
         setStatus(SC_MOVED_TEMPORARILY);
         setHeader(HttpHeaders.LOCATION, location);
     }
@@ -219,12 +218,12 @@ public class BatchItemResponse implements HttpServletResponse {
     }
 
     @Override
-    public ServletOutputStream getOutputStream() throws IOException {
+    public ServletOutputStream getOutputStream() {
         return servletOuputStream;
     }
 
     @Override
-    public PrintWriter getWriter() throws IOException {
+    public PrintWriter getWriter() {
         return writer;
     }
 
@@ -259,7 +258,7 @@ public class BatchItemResponse implements HttpServletResponse {
     }
 
     @Override
-    public void flushBuffer() throws IOException {
+    public void flushBuffer() {
         throw new UnsupportedOperationException();
     }
 

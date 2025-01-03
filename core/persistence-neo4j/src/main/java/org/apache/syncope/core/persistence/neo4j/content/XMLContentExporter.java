@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jJobStatus;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jInboundTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTask;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jMacroTaskCommandRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jProvisioningTask;
@@ -60,7 +61,7 @@ import org.xml.sax.helpers.AttributesImpl;
 public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected static final Set<String> LABELS_TO_BE_EXCLUDED = Set.of(
-            Neo4jSchema.NODE, Neo4jPolicy.NODE, Neo4jProvisioningTask.NODE,
+            Neo4jSchema.NODE, Neo4jPolicy.NODE, Neo4jProvisioningTask.NODE, Neo4jInboundTask.NODE,
             Neo4jJobStatus.NODE, Neo4jAuditEvent.NODE);
 
     protected static final Comparator<Record> REALM_COMPARATOR =
@@ -203,6 +204,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 StringBuilder query = new StringBuilder("MATCH (n:" + entity.getPrimaryLabel() + ")-[r]-() ");
                 if (Neo4jSchedTask.NODE.equals(entity.getPrimaryLabel())) {
                     query.append("WHERE NOT n:").append(Neo4jMacroTask.NODE).
+                            append(" AND NOT n:").append(Neo4jInboundTask.NODE).
                             append(" AND NOT n:").append(Neo4jProvisioningTask.NODE).append(' ');
                 }
                 query.append("RETURN n, collect(r) AS rels ORDER BY n.id");

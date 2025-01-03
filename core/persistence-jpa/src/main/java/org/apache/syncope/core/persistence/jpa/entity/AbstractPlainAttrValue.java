@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import jakarta.persistence.Lob;
-import jakarta.persistence.MappedSuperclass;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Optional;
@@ -33,15 +34,18 @@ import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationExcept
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
-import org.apache.syncope.core.persistence.common.validation.PlainAttrValueCheck;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-@MappedSuperclass
-@PlainAttrValueCheck
-public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity implements PlainAttrValue {
+@JsonIgnoreProperties({ "valueAsString", "value" })
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public abstract class AbstractPlainAttrValue implements PlainAttrValue {
 
     private static final long serialVersionUID = -9141923816611244785L;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(PlainAttrValue.class);
 
     private static final Pattern SPRING_ENV_PROPERTY = Pattern.compile("^\\$\\{.*\\}$");
 
@@ -55,8 +59,13 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
     private Double doubleValue;
 
-    @Lob
     private byte[] binaryValue;
+
+    @JsonIgnore
+    @Override
+    public String getKey() {
+        return null;
+    }
 
     @Override
     public Boolean getBooleanValue() {
@@ -187,6 +196,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 break;
 
             case String:
+            case Dropdown:
             case Enum:
             default:
                 this.setStringValue(value);
@@ -240,6 +250,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
 
             case String:
             case Enum:
+            case Dropdown:
             case Encrypted:
                 value = getStringValue();
                 break;
@@ -305,8 +316,9 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 }
                 break;
 
-            case String:
+            case Dropdown:
             case Enum:
+            case String:
             default:
                 result = getStringValue();
         }

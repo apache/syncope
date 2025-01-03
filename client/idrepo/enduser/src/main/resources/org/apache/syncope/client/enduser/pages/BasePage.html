@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org" wicket:message="lang:lang">
-<head>
+  <head>
     <meta charset="UTF-8"/>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
 
@@ -45,40 +45,40 @@ under the License.
       // global variable for IndicatingOnConfirmAjaxLink
       var proceed = false;
     </script>
-</head>
-<body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded sidebar-open" wicket:id="body">
+  </head>
+  <body class="layout-fixed sidebar-expand-lg sidebar-mini bg-body-tertiary app-loaded sidebar-open" wicket:id="body">
 
-<div class="app-wrapper">
-    <span wicket:id="feedback"></span>
-    <nav wicket:id="navbar" class="app-header navbar navbar-expand navbar-red navbar-light bg-red" aria-label="primary">
+    <div class="app-wrapper">
+      <span wicket:id="feedback"></span>
+      <nav wicket:id="navbar" class="app-header navbar navbar-expand navbar-red navbar-light bg-red" aria-label="primary">
         <div class="container-fluid">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a href="#" class="nav-link" data-lte-toggle="sidebar" role="button" wicket:id="collapse">
-                        <i class="fas fa-bars"></i>
-                    </a>
-                </li>
-            </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a href="#" class="nav-link" data-lte-toggle="sidebar" role="button" wicket:id="collapse">
+                <i class="fas fa-bars"></i>
+              </a>
+            </li>
+          </ul>
 
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#" wicket:id="logout">
-                        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                    </a>
-                </li>
-            </ul>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="#" wicket:id="logout">
+                <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+              </a>
+            </li>
+          </ul>
         </div>
-    </nav>
-    <aside wicket:id="sidebar" class="app-sidebar bg-body-secondary sidebar-light-red elevation-4"
-           aria-label="secondary" data-bs-theme="white">[SIDEBAR]
-    </aside>
+      </nav>
+      <aside wicket:id="sidebar" class="app-sidebar bg-body-secondary sidebar-light-red elevation-4"
+             aria-label="secondary" data-bs-theme="white">[SIDEBAR]
+      </aside>
 
-    <div class="app-main content-wrapper accent-success" wicket:id="contentWrapper" role="main">
+      <div class="app-main content-wrapper accent-success" wicket:id="contentWrapper" role="main">
         <section class="content-header ms-3">
-            <h1><span wicket:id="pageTitle"/></h1>
+          <h1><span wicket:id="pageTitle"/></h1>
         </section>
         <wicket:child/>
-    </div>
+      </div>
 
       <footer class="app-footer">
         <strong>Copyright &copy; 2010&#45;${year}
@@ -86,14 +86,14 @@ under the License.
         All rights reserved.
       </footer>
 
-    <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
-</div>
-
-<div id="veil">
-    <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+      <div class="control-sidebar-bg" style="position: fixed; height: auto;"></div>
     </div>
-    <div class="modal-backdrop fade show"></div>
-</div>
-</body>
+
+    <div id="veil">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <div class="modal-backdrop fade show"></div>
+    </div>
+  </body>
 </html>

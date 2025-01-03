@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.panels;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGroupConf;
-import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteSettings;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +41,8 @@ public class SCIMConfGroupPanel extends SCIMConfTabPanel {
         }
         scimGroupConf = scimConf.getGroupConf();
 
-        final AutoCompleteSettings settings = new AutoCompleteSettings();
-        settings.setShowCompleteListOnFocusGain(true);
-        settings.setShowListOnEmptyInput(true);
-        settings.setCssClassName("custom-autocomplete-box");
-
-        AjaxTextFieldPanel externalIdPanel = new AjaxTextFieldPanel("externalId", "externalId",
-                new PropertyModel<>("externalId", "externalId") {
+        AjaxTextFieldPanel externalIdPanel = new AjaxTextFieldPanel(
+                "externalId", "externalId", new PropertyModel<>("externalId", "externalId") {
 
             private static final long serialVersionUID = -6427731218492117883L;
 

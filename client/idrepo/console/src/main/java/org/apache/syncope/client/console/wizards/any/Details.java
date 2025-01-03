@@ -45,9 +45,17 @@ import org.slf4j.LoggerFactory;
 
 public class Details<T extends AnyTO> extends WizardStep {
 
+    private static final long serialVersionUID = -8995647450549098844L;
+
     protected static final Logger LOG = LoggerFactory.getLogger(Details.class);
 
-    private static final long serialVersionUID = -8995647450549098844L;
+    protected static List<RealmTO> getRealmsFromLinks(final List<AbstractLink> realmLinks) {
+        return realmLinks.stream().
+                map(Component::getDefaultModelObject).
+                filter(RealmTO.class::isInstance).
+                map(RealmTO.class::cast).
+                toList();
+    }
 
     @SpringBean
     protected RealmRestClient realmRestClient;
@@ -112,13 +120,5 @@ public class Details<T extends AnyTO> extends WizardStep {
 
     protected AnnotatedBeanPanel getGeneralStatusInformation(final String id, final T anyTO) {
         return new AnnotatedBeanPanel(id, anyTO);
-    }
-
-    private static List<RealmTO> getRealmsFromLinks(final List<AbstractLink> realmLinks) {
-        return realmLinks.stream().
-                map(Component::getDefaultModelObject).
-                filter(RealmTO.class::isInstance).
-                map(RealmTO.class::cast).
-                collect(Collectors.toList());
     }
 }

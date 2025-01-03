@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Optional;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -38,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
@@ -106,82 +104,34 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.setName(realmTO.getName());
         realm.setParent(parent);
 
-        if (realmTO.getPasswordPolicy() != null) {
-            Policy policy = policyDAO.findById(realmTO.getPasswordPolicy()).orElse(null);
-            if (policy instanceof PasswordPolicy passwordPolicy) {
-                realm.setPasswordPolicy(passwordPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getAccountPolicy() != null) {
-            Policy policy = policyDAO.findById(realmTO.getAccountPolicy()).orElse(null);
-            if (policy instanceof AccountPolicy accountPolicy) {
-                realm.setAccountPolicy(accountPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AccountPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getAuthPolicy() != null) {
-            Policy policy = policyDAO.findById(realmTO.getAuthPolicy()).orElse(null);
-            if (policy instanceof AuthPolicy authPolicy) {
-                realm.setAuthPolicy(authPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getAccessPolicy() != null) {
-            Policy policy = policyDAO.findById(realmTO.getAccessPolicy()).orElse(null);
-            if (policy instanceof AccessPolicy accessPolicy) {
-                realm.setAccessPolicy(accessPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getAttrReleasePolicy() != null) {
-            Policy policy = policyDAO.findById(realmTO.getAttrReleasePolicy()).orElse(null);
-            if (policy instanceof AttrReleasePolicy attrReleasePolicy) {
-                realm.setAttrReleasePolicy(attrReleasePolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getTicketExpirationPolicy() != null) {
-            Policy policy = policyDAO.findById(realmTO.getTicketExpirationPolicy()).orElse(null);
-            if (policy instanceof TicketExpirationPolicy ticketExpirationPolicy) {
-                realm.setTicketExpirationPolicy(ticketExpirationPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + TicketExpirationPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setPasswordPolicy(realmTO.getPasswordPolicy() == null
+                ? null : policyDAO.findById(realmTO.getPasswordPolicy(), PasswordPolicy.class).orElse(null));
+
+        realm.setAccountPolicy(realmTO.getAccountPolicy() == null
+                ? null : policyDAO.findById(realmTO.getAccountPolicy(), AccountPolicy.class).orElse(null));
+
+        realm.setAuthPolicy(realmTO.getAuthPolicy() == null
+                ? null : policyDAO.findById(realmTO.getAuthPolicy(), AuthPolicy.class).orElse(null));
+
+        realm.setAccessPolicy(realmTO.getAccessPolicy() == null
+                ? null : policyDAO.findById(realmTO.getAccessPolicy(), AccessPolicy.class).orElse(null));
+
+        realm.setAttrReleasePolicy(realmTO.getAttrReleasePolicy() == null
+                ? null : policyDAO.findById(realmTO.getAttrReleasePolicy(), AttrReleasePolicy.class).orElse(null));
+
+        realm.setTicketExpirationPolicy(realmTO.getTicketExpirationPolicy() == null
+                ? null
+                : policyDAO.findById(realmTO.getTicketExpirationPolicy(), TicketExpirationPolicy.class).orElse(null));
 
         realmTO.getActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 realm::add,
-                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key)));
 
         setTemplates(realmTO, realm);
 
         realmTO.getResources().forEach(key -> resourceDAO.findById(key).ifPresentOrElse(
                 realm::add,
-                () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), key)));
 
         return realm;
     }
@@ -191,92 +141,28 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.setName(realmTO.getName());
         realm.setParent(realmTO.getParent() == null ? null : realmDAO.findById(realmTO.getParent()).orElse(null));
 
-        if (realmTO.getAccountPolicy() == null) {
-            realm.setAccountPolicy(null);
-        } else {
-            Policy policy = policyDAO.findById(realmTO.getAccountPolicy()).orElse(null);
-            if (policy instanceof AccountPolicy accountPolicy) {
-                realm.setAccountPolicy(accountPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AccountPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setPasswordPolicy(realmTO.getPasswordPolicy() == null
+                ? null : policyDAO.findById(realmTO.getPasswordPolicy(), PasswordPolicy.class).orElse(null));
 
-        if (realmTO.getPasswordPolicy() == null) {
-            realm.setPasswordPolicy(null);
-        } else {
-            Policy policy = policyDAO.findById(realmTO.getPasswordPolicy()).orElse(null);
-            if (policy instanceof PasswordPolicy passwordPolicy) {
-                realm.setPasswordPolicy(passwordPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setAccountPolicy(realmTO.getAccountPolicy() == null
+                ? null : policyDAO.findById(realmTO.getAccountPolicy(), AccountPolicy.class).orElse(null));
 
-        if (realmTO.getAuthPolicy() == null) {
-            realm.setAuthPolicy(null);
-        } else {
-            Policy policy = policyDAO.findById(realmTO.getAuthPolicy()).orElse(null);
-            if (policy instanceof AuthPolicy authPolicy) {
-                realm.setAuthPolicy(authPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AuthPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setAuthPolicy(realmTO.getAuthPolicy() == null
+                ? null : policyDAO.findById(realmTO.getAuthPolicy(), AuthPolicy.class).orElse(null));
 
-        if (realmTO.getAccessPolicy() == null) {
-            realm.setAccessPolicy(null);
-        } else {
-            Policy policy = policyDAO.findById(realmTO.getAccessPolicy()).orElse(null);
-            if (policy instanceof AccessPolicy accessPolicy) {
-                realm.setAccessPolicy(accessPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AccessPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setAccessPolicy(realmTO.getAccessPolicy() == null
+                ? null : policyDAO.findById(realmTO.getAccessPolicy(), AccessPolicy.class).orElse(null));
 
-        if (realmTO.getAttrReleasePolicy() == null) {
-            realm.setAttrReleasePolicy(null);
-        } else {
-            Policy policy = policyDAO.findById(realmTO.getAttrReleasePolicy()).orElse(null);
-            if (policy instanceof AttrReleasePolicy attrReleasePolicy) {
-                realm.setAttrReleasePolicy(attrReleasePolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + AttrReleasePolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setAttrReleasePolicy(realmTO.getAttrReleasePolicy() == null
+                ? null : policyDAO.findById(realmTO.getAttrReleasePolicy(), AttrReleasePolicy.class).orElse(null));
 
-        if (realmTO.getTicketExpirationPolicy() == null) {
-            realm.setTicketExpirationPolicy(null);
-        } else {
-            Policy policy = policyDAO.findById(realmTO.getTicketExpirationPolicy()).orElse(null);
-            if (policy instanceof TicketExpirationPolicy ticketExpirationPolicy) {
-                realm.setTicketExpirationPolicy(ticketExpirationPolicy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + TicketExpirationPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
+        realm.setTicketExpirationPolicy(realmTO.getTicketExpirationPolicy() == null
+                ? null
+                : policyDAO.findById(realmTO.getTicketExpirationPolicy(), TicketExpirationPolicy.class).orElse(null));
+
         realmTO.getActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 realm::add,
-                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key)));
         // remove all implementations not contained in the TO
         realm.getActions().
                 removeIf(implementation -> !realmTO.getActions().contains(implementation.getKey()));
@@ -289,7 +175,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
                     realm.add(resource);
                     propByRes.add(ResourceOperation.CREATE, resource.getKey());
                 },
-                () -> LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", ExternalResource.class.getSimpleName(), key)));
         // remove all resources not contained in the TO
         realm.getResources().removeIf(resource -> {
             boolean contained = realmTO.getResources().contains(resource.getKey());

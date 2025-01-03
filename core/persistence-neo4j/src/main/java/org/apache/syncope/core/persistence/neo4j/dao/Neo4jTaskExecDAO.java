@@ -100,7 +100,7 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
     protected <T extends Task<T>> List<TaskExec<T>> findRecent(final TaskType type, final int max) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
         return toList(neo4jClient.query(
-                "MATCH (n:" + taskUtils.getTaskExecTable() + ")-[]-(p:" + taskUtils.getTaskTable() + " {id: $id}) "
+                "MATCH (n:" + taskUtils.getTaskExecStorage() + ")-[]-(p:" + taskUtils.getTaskStorage() + " {id: $id}) "
                 + "WHERE n.endDate IS NOT NULL "
                 + "RETURN n.id ORDER BY n.endDate DESC LIMIT " + max).fetch().all(),
                 "n.id",
@@ -126,7 +126,7 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
     protected Optional<? extends TaskExec<?>> findLatest(final TaskType type, final Task<?> task, final String field) {
         TaskUtils taskUtils = taskUtilsFactory.getInstance(type);
         return neo4jClient.query(
-                "MATCH (n:" + taskUtils.getTaskExecTable() + ")-[]-(p:" + taskUtils.getTaskTable() + " {id: $id}) "
+                "MATCH (n:" + taskUtils.getTaskExecStorage() + ")-[]-(p:" + taskUtils.getTaskStorage() + " {id: $id}) "
                 + "RETURN n.id ORDER BY n." + field + " DESC LIMIT 1").
                 bindAll(Map.of("id", task.getKey())).fetch().one().
                 flatMap(toOptional("n.id", (Class<AbstractTaskExec<?>>) taskUtils.getTaskExecEntity(), null));
@@ -158,8 +158,9 @@ public class Neo4jTaskExecDAO extends AbstractDAO implements TaskExecDAO {
         parameters.put("id", task.getKey());
 
         StringBuilder query = new StringBuilder(
-                "MATCH (n:").append(taskUtils.getTaskExecTable()).append(")-[]-").
-                append("(p:").append(taskUtils.getTaskTable()).append(" {id: $id}) ").
+                "MATCH (n:").append(taskUtils.getTaskExecStorage()).append(")-").
+                append("[:").append(Neo4jTaskDAO.execRelationship(taskUtils.getType())).append("]-").
+                append("(p:").append(taskUtils.getTaskStorage()).append(" {id: $id}) ").
                 append("WHERE 1=1 ");
 
         if (before != null) {

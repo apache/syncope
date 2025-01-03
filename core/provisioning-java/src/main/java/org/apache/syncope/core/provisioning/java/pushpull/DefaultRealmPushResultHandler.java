@@ -115,6 +115,12 @@ public class DefaultRealmPushResultHandler
         try {
             realm = realmDAO.findById(realmKey).orElseThrow(() -> new NotFoundException("Realm " + realmKey));
             doHandle(realm);
+
+            if (stopRequested) {
+                LOG.debug("Stop was requested");
+                return false;
+            }
+
             return true;
         } catch (IgnoreProvisionException e) {
             ProvisioningReport result = new ProvisioningReport();
@@ -150,8 +156,7 @@ public class DefaultRealmPushResultHandler
 
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.createTasks(realm, propByRes, null),
-                beforeAttrs,
-                null);
+                beforeAttrs);
         if (!taskInfos.isEmpty()) {
             taskInfos.get(0).setBeforeObj(Optional.ofNullable(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();

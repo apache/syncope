@@ -25,8 +25,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.client.enduser.layout.CustomizationOption;
 import org.apache.syncope.client.enduser.rest.SchemaRestClient;
 import org.apache.syncope.client.enduser.rest.SyncopeRestClient;
@@ -129,8 +129,8 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
     protected boolean renderAsReadonly(final String schema, final String groupName) {
         // whether to render the attribute as readonly or not, without considering schema readonly property
-        String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
-                ? org.apache.commons.lang3.StringUtils.EMPTY
+        String schemaName = (StringUtils.isBlank(groupName)
+                ? StringUtils.EMPTY
                 : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null ? false : whichAttrs.get(schemaName).isReadonly();
@@ -141,8 +141,8 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
     }
 
     protected List<String> getDefaultValues(final String schema, final String groupName) {
-        String schemaName = (org.apache.commons.lang3.StringUtils.isBlank(groupName)
-                ? org.apache.commons.lang3.StringUtils.EMPTY
+        String schemaName = (StringUtils.isBlank(groupName)
+                ? StringUtils.EMPTY
                 : groupName + '#')
                 + schema;
         return whichAttrs.get(schemaName) == null
@@ -181,7 +181,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
         if (filterSchemas()) {
             // 1. remove attributes not selected for display
             allSchemas.removeAll(allSchemas.stream().
-                    filter(schemaTO -> org.apache.commons.lang3.StringUtils.isBlank(groupName)
+                    filter(schemaTO -> StringUtils.isBlank(groupName)
                     ? !whichAttrs.containsKey(schemaTO.getKey())
                     : !whichAttrs.containsKey(groupName + '#' + schemaTO.getKey())).collect(Collectors.toSet()));
         }
@@ -224,9 +224,9 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
     @Override
     public void onEvent(final IEvent<?> event) {
         super.onEvent(event);
-        if (event.getPayload() instanceof AjaxPalettePanel.UpdateActionEvent) {
+        if (event.getPayload() instanceof AjaxPalettePanel.UpdateActionEvent updateActionEvent) {
             evaluate();
-            AjaxPalettePanel.UpdateActionEvent updateEvent = (AjaxPalettePanel.UpdateActionEvent) event.getPayload();
+            AjaxPalettePanel.UpdateActionEvent updateEvent = updateActionEvent;
             updateEvent.getTarget().add(this);
         }
     }
@@ -237,10 +237,10 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
 
         @Override
         public int compare(final Attr left, final Attr right) {
-            if (left == null || StringUtils.isEmpty(left.getSchema())) {
+            if (left == null || StringUtils.isBlank(left.getSchema())) {
                 return -1;
             }
-            if (right == null || StringUtils.isEmpty(right.getSchema())) {
+            if (right == null || StringUtils.isBlank(right.getSchema())) {
                 return 1;
             } else if (AbstractAttrs.this.filterSchemas()) {
                 int leftIndex = new ArrayList<>(AbstractAttrs.this.whichAttrs.keySet()).indexOf(left.getSchema());

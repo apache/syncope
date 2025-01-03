@@ -20,11 +20,10 @@ package org.apache.syncope.core.provisioning.api.notification;
 
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
 public interface NotificationJobDelegate {
 
     TaskExec<NotificationTask> executeSingle(NotificationTask task, String executor);
 
-    void execute(String executor) throws JobExecutionException;
+    void execute(String executor);
 }

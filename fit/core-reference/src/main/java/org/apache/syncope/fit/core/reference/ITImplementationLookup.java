@@ -26,26 +26,25 @@ import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
+import org.apache.syncope.common.lib.policy.DefaultInboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.policy.DefaultPullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPushCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
+import org.apache.syncope.common.lib.policy.InboundCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.attrvalue.AlwaysTrueValidator;
-import org.apache.syncope.core.persistence.common.attrvalue.BasicValidator;
 import org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator;
 import org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate;
 import org.apache.syncope.core.provisioning.api.rules.AccountRule;
+import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
-import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
 import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
@@ -56,11 +55,12 @@ import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagati
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
+import org.apache.syncope.core.provisioning.java.pushpull.DefaultInboundCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultProvisionSorter;
-import org.apache.syncope.core.provisioning.java.pushpull.DefaultPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.DefaultPushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
+import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.policy.DefaultAccountRule;
@@ -93,11 +93,13 @@ public class ITImplementationLookup implements ImplementationLookup {
                     HaveIBeenPwnedPasswordRuleConf.class, HaveIBeenPwnedPasswordRule.class);
 
     private static final Map<
-            Class<? extends PullCorrelationRuleConf>, Class<? extends PullCorrelationRule>> PULL_CR_CLASSES =
-            Map.of(
-                    DummyPullCorrelationRuleConf.class, DummyPullCorrelationRule.class,
-                    DefaultPullCorrelationRuleConf.class, DefaultPullCorrelationRule.class,
-                    LinkedAccountSamplePullCorrelationRuleConf.class, LinkedAccountSamplePullCorrelationRule.class);
+            Class<? extends InboundCorrelationRuleConf>, Class<? extends InboundCorrelationRule>> INBOUND_CR_CLASSES =
+            Map.of(DummyInboundCorrelationRuleConf.class,
+                    DummyInboundCorrelationRule.class,
+                    DefaultInboundCorrelationRuleConf.class,
+                    DefaultInboundCorrelationRule.class,
+                    LinkedAccountSampleInboundCorrelationRuleConf.class,
+                    LinkedAccountSampleInboundCorrelationRule.class);
 
     private static final Map<
             Class<? extends PushCorrelationRuleConf>, Class<? extends PushCorrelationRule>> PUSH_CR_CLASSES =
@@ -105,11 +107,9 @@ public class ITImplementationLookup implements ImplementationLookup {
                     DummyPushCorrelationRuleConf.class, DummyPushCorrelationRule.class,
                     DefaultPushCorrelationRuleConf.class, DefaultPushCorrelationRule.class);
 
-    private static final Set<Class<?>> PROVISION_SORTER_CLASSES =
-            Set.of(DefaultProvisionSorter.class);
+    private static final Set<Class<?>> PROVISION_SORTER_CLASSES = Set.of(DefaultProvisionSorter.class);
 
-    private static final Set<Class<?>> COMMAND_CLASSES =
-            Set.of(TestCommand.class);
+    private static final Set<Class<?>> COMMAND_CLASSES = Set.of(TestCommand.class);
 
     private static final Map<String, Set<String>> CLASS_NAMES = new HashMap<>() {
 
@@ -134,19 +134,25 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdRepoImplementationType.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(MacroJobDelegate.class.getName());
-            classNames.add(PullJobDelegate.class.getName());
-            classNames.add(PushJobDelegate.class.getName());
             classNames.add(ExpiredAccessTokenCleanup.class.getName());
             classNames.add(ExpiredBatchCleanup.class.getName());
             classNames.add(TestSampleJobDelegate.class.getName());
+            classNames.add(MacroJobDelegate.class.getName());
+            classNames.add(LiveSyncJobDelegate.class.getName());
+            classNames.add(PullJobDelegate.class.getName());
+            classNames.add(PushJobDelegate.class.getName());
             put(IdRepoImplementationType.TASKJOB_DELEGATE, classNames);
 
             classNames = new HashSet<>();
             put(IdMImplementationType.RECON_FILTER_BUILDER, classNames);
 
             classNames = new HashSet<>();
+            classNames.add(TestLiveSyncDeltaMapper.class.getName());
+            put(IdMImplementationType.LIVE_SYNC_DELTA_MAPPER, classNames);
+
+            classNames = new HashSet<>();
             put(IdRepoImplementationType.LOGIC_ACTIONS, classNames);
+
             classNames = new HashSet<>();
             classNames.add(TestMacroActions.class.getName());
             put(IdRepoImplementationType.MACRO_ACTIONS, classNames);
@@ -161,24 +167,23 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             classNames.add(LDAPPasswordPullActions.class.getName());
-            classNames.add(TestPullActions.class.getName());
+            classNames.add(TestInboundActions.class.getName());
             classNames.add(LDAPMembershipPullActions.class.getName());
             classNames.add(DBPasswordPullActions.class.getName());
-            put(IdMImplementationType.PULL_ACTIONS, classNames);
+            put(IdMImplementationType.INBOUND_ACTIONS, classNames);
 
             classNames = new HashSet<>();
             put(IdMImplementationType.PUSH_ACTIONS, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(DummyPullCorrelationRule.class.getName());
-            put(IdMImplementationType.PULL_CORRELATION_RULE, classNames);
+            classNames.add(DummyInboundCorrelationRule.class.getName());
+            put(IdMImplementationType.INBOUND_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
             classNames.add(DummyPushCorrelationRule.class.getName());
             put(IdMImplementationType.PUSH_CORRELATION_RULE, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(BasicValidator.class.getName());
             classNames.add(EmailAddressValidator.class.getName());
             classNames.add(AlwaysTrueValidator.class.getName());
             classNames.add(BinaryValidator.class.getName());
@@ -258,10 +263,10 @@ public class ITImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Class<? extends PullCorrelationRule> getPullCorrelationRuleClass(
-            final Class<? extends PullCorrelationRuleConf> pullCorrelationRuleConfClass) {
+    public Class<? extends InboundCorrelationRule> getInboundCorrelationRuleClass(
+            final Class<? extends InboundCorrelationRuleConf> inboundCorrelationRuleConfClass) {
 
-        return PULL_CR_CLASSES.get(pullCorrelationRuleConfClass);
+        return INBOUND_CR_CLASSES.get(inboundCorrelationRuleConfClass);
     }
 
     @Override

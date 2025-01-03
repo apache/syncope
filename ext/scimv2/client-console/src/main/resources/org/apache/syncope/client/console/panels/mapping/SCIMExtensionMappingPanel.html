@@ -1,0 +1,105 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations!
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:panel>
+    <div class="table-responsive no-padding">
+      <table id="mappings"
+             class="table table-hover"
+             style="font-size: 1em;margin-top:2px;"
+             wicket:id="mappingContainer">
+        <tbody>
+          <tr>
+            <th>
+              <wicket:message key="intAttrName"/>
+              <span id="intAttrNameInfo" wicket:id="intAttrNameInfo"></span>
+            </th>
+            <th>
+              <wicket:message key="extAttrName"/>
+            </th>
+            <th wicket:id="mandatoryHeader">
+              <wicket:message key="mandatoryCondition"/>
+            </th>
+            <th>
+              <wicket:message key="caseExact"/>
+              <span id="caseExactLabel" wicket:id="caseExactLabel"></span>
+            </th>
+            <th>
+              <wicket:message key="mutability"/>
+              <span id="mutabilityLabel" wicket:id="mutabilityLabel"></span>
+            </th>
+            <th>
+              <wicket:message key="returned"/>
+              <span id="returnedLabel" wicket:id="returnedLabel"></span>
+            </th>
+            <th>
+              <wicket:message key="uniqueness"/>
+              <span id="uniquenessLabel" wicket:id="uniquenessLabel"></span>
+            </th>
+            <th>
+              <wicket:message key="multiValued"/>
+              <span id="multiValuedLabel" wicket:id="multiValuedLabel"></span>
+            </th>
+            <th></th>
+          </tr>
+          <tr wicket:id="mappings">
+            <td>
+              <span wicket:id="intAttrName">[intAttrNames]</span>
+            </td>
+            <td>
+              <span wicket:id="extAttrName">[extAttrName]</span>
+            </td>
+            <td>
+              <span wicket:id="mandatoryCondition">[mandatoryCondition]</span>
+            </td>
+            <td>
+              <span wicket:id="caseExact">[caseExact]</span>
+            </td>
+            <td>
+              <span wicket:id="mutability">[mutability]</span>
+            </td>
+            <td>
+              <span wicket:id="returned">[returned]</span>
+            </td>
+            <td>
+              <span wicket:id="uniqueness">[uniqueness]</span>
+            </td>
+            <td>
+              <span wicket:id="multiValued">[multiValued]</span>
+            </td>
+            <td>
+              <div id="inline-actions">
+                <span wicket:id="toRemove"/>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <td colspan="10" style="padding: 5px; text-align: right">
+              <button type="submit" class="btn btn-success btn-circle btn-lg" wicket:id="addMappingBtn">
+                <i class="fa fa-plus"></i>
+              </button>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </wicket:panel>
+</html>

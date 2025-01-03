@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.am;
 
-import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
@@ -31,10 +30,8 @@ public class Neo4jSAML2SPEntity extends AbstractProvidedKeyNode implements SAML2
 
     private static final long serialVersionUID = 12342617217394093L;
 
-    @NotNull
     private byte[] keystore;
 
-    @NotNull
     private byte[] metadata;
 
     @Override

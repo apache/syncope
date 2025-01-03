@@ -26,7 +26,26 @@ public class StaticAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -7775771400318503131L;
 
+    /**
+     * A number of authentication handlers are allowed to determine whether they can operate on the provided credential
+     * and as such lend themselves to be tried and tested during the authentication handler selection phase.
+     * The credential criteria may be one of the following options:<ul>
+     * <li>A regular expression pattern that is tested against the credential identifier.</li>
+     * <li>A fully qualified class name of your own design that implements {@code Predicate}.</li>
+     * <li>Path to an external Groovy script that implements the same interface.</li>
+     * </ul>
+     */
+    private String credentialCriteria;
+
     private final Map<String, String> users = new HashMap<>();
+
+    public String getCredentialCriteria() {
+        return credentialCriteria;
+    }
+
+    public void setCredentialCriteria(final String credentialCriteria) {
+        this.credentialCriteria = credentialCriteria;
+    }
 
     public Map<String, String> getUsers() {
         return users;

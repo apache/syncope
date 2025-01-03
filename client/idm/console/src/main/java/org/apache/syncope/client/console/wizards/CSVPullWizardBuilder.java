@@ -240,24 +240,24 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
 
         private static final long serialVersionUID = -8954789648303078732L;
 
-        private final IModel<List<String>> pullActions = new LoadableDetachableModel<>() {
+        private final IModel<List<String>> inboundActions = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
 
             @Override
             protected List<String> load() {
-                return implementationRestClient.list(IdMImplementationType.PULL_ACTIONS).stream().
+                return implementationRestClient.list(IdMImplementationType.INBOUND_ACTIONS).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
 
-        private final IModel<List<String>> pullCorrelationRules = new LoadableDetachableModel<>() {
+        private final IModel<List<String>> inboundCorrelationRules = new LoadableDetachableModel<>() {
 
             private static final long serialVersionUID = 4659376149825914247L;
 
             @Override
             protected List<String> load() {
-                return implementationRestClient.list(IdMImplementationType.PULL_CORRELATION_RULE).stream().
+                return implementationRestClient.list(IdMImplementationType.INBOUND_CORRELATION_RULE).stream().
                         map(ImplementationTO::getKey).sorted().collect(Collectors.toList());
             }
         };
@@ -278,9 +278,10 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
             unmatchingRule.setChoices(List.of(UnmatchingRule.values()));
             add(unmatchingRule);
 
-            AjaxPalettePanel<String> provisioningActions =
-                    new AjaxPalettePanel.Builder<String>().build("provisioningActions",
-                            new PropertyModel<>(spec, "provisioningActions"), new ListModel<>(pullActions.getObject()));
+            AjaxPalettePanel<String> provisioningActions = new AjaxPalettePanel.Builder<String>().build(
+                    "provisioningActions",
+                    new PropertyModel<>(spec, "provisioningActions"),
+                    new ListModel<>(inboundActions.getObject()));
             add(provisioningActions);
 
             AjaxDropDownChoicePanel<ConflictResolutionAction> conflictResolutionAction = new AjaxDropDownChoicePanel<>(
@@ -290,11 +291,12 @@ public class CSVPullWizardBuilder extends BaseAjaxWizardBuilder<CSVPullSpec> {
             conflictResolutionAction.setRequired(true);
             add(conflictResolutionAction);
 
-            AjaxDropDownChoicePanel<String> pullCorrelationRule = new AjaxDropDownChoicePanel<>(
-                    "pullCorrelationRule", "pullCorrelationRule", new PropertyModel<>(spec, "pullCorrelationRule"),
+            AjaxDropDownChoicePanel<String> inboundCorrelationRule = new AjaxDropDownChoicePanel<>(
+                    "inboundCorrelationRule", "inboundCorrelationRule",
+                    new PropertyModel<>(spec, "inboundCorrelationRule"),
                     false);
-            pullCorrelationRule.setChoices(pullCorrelationRules);
-            add(pullCorrelationRule);
+            inboundCorrelationRule.setChoices(inboundCorrelationRules);
+            add(inboundCorrelationRule);
         }
     }
 }

@@ -71,7 +71,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     public void getPushActionsClasses() {
         Set<String> actions = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdMImplementationType.PUSH_ACTIONS).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PUSH_ACTIONS).orElseThrow().getClasses();
         assertNotNull(actions);
     }
 
@@ -436,7 +436,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             newResourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
             assertNotNull(newResourceTO);
             assertFalse(newResourceTO.getProvision(AnyTypeKind.USER.name()).isPresent());
-            assertNotNull(newResourceTO.getProvision(AnyTypeKind.GROUP.name()).get().getMapping());
+            assertNotNull(newResourceTO.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping());
 
             // create push task ad-hoc
             PushTaskTO task = new PushTaskTO();

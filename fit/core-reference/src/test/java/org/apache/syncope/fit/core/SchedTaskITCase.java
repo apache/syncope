@@ -31,7 +31,6 @@ import java.time.OffsetDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
@@ -40,10 +39,10 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.TaskTO;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -56,7 +55,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void getJobClasses() {
         Set<String> jobClasses = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).get().getClasses();
+                getJavaImplInfo(IdRepoImplementationType.TASKJOB_DELEGATE).orElseThrow().getClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
@@ -96,38 +95,74 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
         SchedTaskTO task = new SchedTaskTO();
         task.setActive(true);
-        task.setName("deferred");
+        task.setName("deferred" + getUUIDString());
         task.setJobDelegate(taskJobDelegate.getKey());
 
         Response response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
-        task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
-        assertNotNull(task);
-        String taskKey = task.getKey();
-        assertNotNull(task);
+        String taskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(taskKey);
 
         OffsetDateTime initial = OffsetDateTime.now();
         OffsetDateTime later = initial.plusSeconds(2);
 
-        AtomicReference<TaskTO> taskTO = new AtomicReference<>(task);
-        int preSyncSize = taskTO.get().getExecutions().size();
-        ExecTO execution = TASK_SERVICE.execute(new ExecSpecs.Builder().key(task.getKey()).startAt(later).build());
-        assertNotNull(execution.getExecutor());
+        TASK_SERVICE.execute(new ExecSpecs.Builder().key(taskKey).startAt(later).build());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                taskTO.set(TASK_SERVICE.read(TaskType.SCHEDULED, taskKey, true));
-                return preSyncSize < taskTO.get().getExecutions().size();
+                return !TASK_SERVICE.read(TaskType.SCHEDULED, taskKey, true).getExecutions().isEmpty();
             } catch (Exception e) {
                 return false;
             }
         });
 
-        PagedResult<ExecTO> execs =
-                TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
+        PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(taskKey).build());
         assertEquals(1, execs.getTotalCount());
+
         assertTrue(execs.getResult().get(0).getStart().isAfter(initial));
         // round 1 sec for safety
         assertTrue(execs.getResult().get(0).getStart().plusSeconds(1).isAfter(later));
+    }
+
+    @Test
+    public void multistart() {
+        ImplementationTO taskJobDelegate = IMPLEMENTATION_SERVICE.read(
+                IdRepoImplementationType.TASKJOB_DELEGATE, TestSampleJobDelegate.class.getSimpleName());
+        assertNotNull(taskJobDelegate);
+
+        SchedTaskTO task = new SchedTaskTO();
+        task.setActive(true);
+        task.setName("multistart" + getUUIDString());
+        task.setJobDelegate(taskJobDelegate.getKey());
+
+        Response response = TASK_SERVICE.create(TaskType.SCHEDULED, task);
+        String taskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(taskKey);
+
+        TASK_SERVICE.actionJob(taskKey, JobAction.START);
+
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                return !TASK_SERVICE.read(TaskType.SCHEDULED, taskKey, true).getExecutions().isEmpty();
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+        PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(taskKey).build());
+        assertEquals(1, execs.getTotalCount());
+
+        TASK_SERVICE.actionJob(taskKey, JobAction.START);
+
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                return TASK_SERVICE.read(TaskType.SCHEDULED, taskKey, true).getExecutions().size() >= 2;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+
+        execs = TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(taskKey).build());
+        assertEquals(2, execs.getTotalCount());
     }
 
     @Test

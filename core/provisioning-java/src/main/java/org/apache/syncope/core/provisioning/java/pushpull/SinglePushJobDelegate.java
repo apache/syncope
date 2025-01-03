@@ -52,7 +52,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final ExternalResource resource,
             final Connector connector,
             final PushTaskTO pushTaskTO,
-            final String executor) throws JobExecutionException {
+            final String executor) {
 
         LOG.debug("Executing push on {}", resource);
 
@@ -69,12 +69,16 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
         task.setPerformDelete(pushTaskTO.isPerformDelete());
         task.setSyncStatus(pushTaskTO.isSyncStatus());
 
-        profile = new ProvisioningProfile<>(connector, task);
-        profile.setExecutor(executor);
-        profile.getActions().addAll(getPushActions(pushTaskTO.getActions().stream().
-                map(implementationDAO::findById).filter(Optional::isPresent).map(Optional::get).
-                toList()));
-        profile.setConflictResolutionAction(ConflictResolutionAction.FIRSTMATCH);
+        profile = new ProvisioningProfile<>(
+                connector,
+                taskType,
+                task,
+                ConflictResolutionAction.FIRSTMATCH,
+                getPushActions(pushTaskTO.getActions().stream().
+                        map(implementationDAO::findById).flatMap(Optional::stream).
+                        toList()),
+                executor,
+                false);
 
         for (PushActions action : profile.getActions()) {
             action.beforeAll(profile);
@@ -92,7 +96,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
         try {
             before(resource, connector, pushTaskTO, executor);
-            PushResultHandlerDispatcher dispatcher = new PushResultHandlerDispatcher(profile, this);
+            dispatcher = new PushResultHandlerDispatcher(profile, this);
 
             AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
                     orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));

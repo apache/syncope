@@ -28,7 +28,7 @@ under the License.
   <body>    
     <section name="Jenkins">
       <p>
-        <source><a href="https://ci-builds.apache.org./job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a></source>
+        <source><a href="https://ci-builds.apache.org/job/Syncope/">https://ci-builds.apache.org./job/Syncope/</a></source>
       </p>
     </section>
 
@@ -41,14 +41,16 @@ under the License.
           <img src="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml/badge.svg" style="max-width:100%;"/>
         </a>
       </p>
+      
+      <p>See more at <a href="https://github.com/apache/syncope/actions/">GitHub</a>.</p>
     </section>
 
     <section name="Buildbot">
       <p>
-        <source><a href="https://ci2.apache.org/#/builders/56">master</a></source>
+        <source><a href="https://ci2.apache.org/#/builders/56">4_0_X</a></source>
       </p>
       <p>
-        <source><a href="https://ci2.apache.org/#/builders/55">2_1_X</a></source>
+        <source><a href="https://ci2.apache.org/#/builders/115">3_0_X</a></source>
       </p>
     </section>
   </body>

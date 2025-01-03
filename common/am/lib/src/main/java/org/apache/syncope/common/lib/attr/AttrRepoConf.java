@@ -35,6 +35,10 @@ public interface AttrRepoConf extends BaseBean {
         Map<String, Object> map(AttrRepoTO attrRepo, JDBCAttrRepoConf conf);
 
         Map<String, Object> map(AttrRepoTO attrRepo, SyncopeAttrRepoConf conf);
+
+        Map<String, Object> map(AttrRepoTO attrRepo, AzureActiveDirectoryAttrRepoConf conf);
+
+        Map<String, Object> map(AttrRepoTO attrRepo, OktaAttrRepoConf conf);
     }
 
     Map<String, Object> map(AttrRepoTO attrRepo, Mapper mapper);

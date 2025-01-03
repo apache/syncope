@@ -31,8 +31,8 @@ public abstract class AbstractMembership<L extends Any<?>, P extends PlainAttr<?
 
     private static final long serialVersionUID = -6360036936818368868L;
 
-    protected abstract Map<String, ? extends Neo4jPlainAttr<? extends Any<P>>> plainAttrs();
-    
+    protected abstract Map<String, ? extends P> plainAttrs();
+
     public abstract List<? extends P> getPlainAttrs();
 
     public abstract Optional<? extends P> getPlainAttr(String plainSchema);

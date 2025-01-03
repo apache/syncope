@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.EntityCacheDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -33,10 +34,10 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AttrReleasePolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
@@ -45,11 +46,11 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundCorrelationRuleEntity;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullCorrelationRuleEntity;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
@@ -70,8 +71,8 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
                 ? Neo4jPasswordPolicy.class
                 : PropagationPolicy.class.isAssignableFrom(reference)
                 ? Neo4jPropagationPolicy.class
-                : PullPolicy.class.isAssignableFrom(reference)
-                ? Neo4jPullPolicy.class
+                : InboundPolicy.class.isAssignableFrom(reference)
+                ? Neo4jInboundPolicy.class
                 : PushPolicy.class.isAssignableFrom(reference)
                 ? Neo4jPushPolicy.class
                 : AuthPolicy.class.isAssignableFrom(reference)
@@ -95,6 +96,8 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
 
     protected final SAML2SPClientAppDAO saml2SPClientAppDAO;
 
+    protected final EntityCacheDAO entityCacheDAO;
+
     protected final NodeValidator nodeValidator;
 
     public Neo4jPolicyDAO(
@@ -103,6 +106,7 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
             final CASSPClientAppDAO casSPClientAppDAO,
             final OIDCRPClientAppDAO oidcRPClientAppDAO,
             final SAML2SPClientAppDAO saml2SPClientAppDAO,
+            final EntityCacheDAO entityCacheDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
@@ -113,6 +117,7 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
         this.casSPClientAppDAO = casSPClientAppDAO;
         this.oidcRPClientAppDAO = oidcRPClientAppDAO;
         this.saml2SPClientAppDAO = saml2SPClientAppDAO;
+        this.entityCacheDAO = entityCacheDAO;
         this.nodeValidator = nodeValidator;
     }
 
@@ -174,12 +179,12 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
     }
 
     @Override
-    public List<PullPolicy> findByPullCorrelationRule(final Implementation correlationRule) {
+    public List<InboundPolicy> findByInboundCorrelationRule(final Implementation correlationRule) {
         return findByRelationship(
-                Neo4jPullPolicy.NODE,
+                Neo4jInboundPolicy.NODE,
                 Neo4jImplementation.NODE,
                 correlationRule.getKey(),
-                Neo4jPullPolicy.class,
+                Neo4jInboundPolicy.class,
                 null);
     }
 
@@ -232,6 +237,16 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
             }
         }
 
+        if (policy instanceof AccountPolicy
+                || policy instanceof PasswordPolicy
+                || policy instanceof PropagationPolicy
+                || policy instanceof InboundPolicy
+                || policy instanceof PushPolicy) {
+
+            resourceDAO.findByPolicy(policy).
+                    forEach(resource -> entityCacheDAO.evict(Neo4jExternalResource.class, resource.getKey()));
+        }
+
         return saved;
     }
 
@@ -245,12 +260,11 @@ public class Neo4jPolicyDAO extends AbstractDAO implements PolicyDAO {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPasswordPolicy(null));
         } else if (policy instanceof PropagationPolicy) {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPropagationPolicy(null));
-        } else if (policy instanceof PullPolicy) {
-            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPullPolicy(null));
+        } else if (policy instanceof InboundPolicy) {
+            resourceDAO.findByPolicy(policy).forEach(resource -> resource.setInboundPolicy(null));
 
-            cascadeDelete(
-                    Neo4jPullCorrelationRuleEntity.NODE,
-                    Neo4jPullPolicy.NODE,
+            cascadeDelete(Neo4jInboundCorrelationRuleEntity.NODE,
+                    Neo4jInboundPolicy.NODE,
                     policy.getKey());
         } else if (policy instanceof PushPolicy) {
             resourceDAO.findByPolicy(policy).forEach(resource -> resource.setPushPolicy(null));

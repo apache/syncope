@@ -30,7 +30,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
@@ -129,7 +129,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
             state.setNullValid(false);
             add(state);
 
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().build(
                     "order",
                     "order",
                     Integer.class,

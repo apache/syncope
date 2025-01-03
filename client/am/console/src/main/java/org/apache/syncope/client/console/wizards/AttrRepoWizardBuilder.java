@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.wizards.mapping.AttrRepoMappingPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
@@ -125,7 +125,7 @@ public class AttrRepoWizardBuilder extends BaseAjaxWizardBuilder<AttrRepoTO> {
             state.setNullValid(false);
             add(state);
 
-            add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+            add(new AjaxNumberFieldPanel.Builder<Integer>().build(
                     "order",
                     "order",
                     Integer.class,

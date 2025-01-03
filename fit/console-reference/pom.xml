@@ -83,11 +83,6 @@ under the License.
     
     <!-- TEST -->
     <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -99,6 +94,11 @@ under the License.
       <artifactId>syncope-fit-core-reference</artifactId>
       <version>${project.version}</version>
       <type>war</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -137,13 +137,11 @@ under the License.
             <systemProperties>
               <java.security.egd>file:/dev/./urandom</java.security.egd>
               <java.util.secureRandomSeed>true</java.util.secureRandomSeed>
-
-              <h2.returnOffsetDateTime>true</h2.returnOffsetDateTime>
             </systemProperties>
             <dependencies>
               <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
               </dependency>
             </dependencies>
           </container>
@@ -248,7 +246,6 @@ under the License.
       </build>
     </profile>
     
-    <!-- requires JAVA_HOME set to the latest JDK from https://github.com/TravaOpenJDK/trava-jdk-11-dcevm -->
     <profile>
       <id>hotswap</id>
 

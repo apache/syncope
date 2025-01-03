@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.buildtools;
 
-import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,11 +40,10 @@ public class ServiceTimeoutServlet extends HttpServlet {
      *
      * @param request servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected static void processRequest(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         response.setContentType("text/html;charset=UTF-8");
 
@@ -66,12 +64,11 @@ public class ServiceTimeoutServlet extends HttpServlet {
      *
      * @param request servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         processRequest(request, response);
     }
@@ -82,12 +79,11 @@ public class ServiceTimeoutServlet extends HttpServlet {
      *
      * @param request servlet request
      * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
-            throws ServletException, IOException {
+            throws IOException {
 
         processRequest(request, response);
     }

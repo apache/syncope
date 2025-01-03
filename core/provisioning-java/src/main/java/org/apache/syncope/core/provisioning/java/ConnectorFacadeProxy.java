@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -44,6 +45,7 @@ import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
+import org.identityconnectors.framework.common.objects.LiveSyncResultsHandler;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -296,7 +298,10 @@ public class ConnectorFacadeProxy implements Connector {
     }
 
     @Override
-    public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
+    public void sync(
+            final ObjectClass objectClass,
+            final SyncToken token,
+            final SyncResultsHandler handler,
             final OperationOptions options) {
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SYNC)) {
@@ -333,6 +338,20 @@ public class ConnectorFacadeProxy implements Connector {
         }
 
         return result;
+    }
+
+    @Override
+    public void livesync(
+            final ObjectClass objectClass,
+            final LiveSyncResultsHandler handler,
+            final OperationOptions options) {
+
+        if (connInstance.getCapabilities().contains(ConnectorCapability.LIVE_SYNC)) {
+            connector.livesync(objectClass, handler, options);
+        } else {
+            LOG.info("livesync was attempted, although the connector only has these capabilities: {}. No action.",
+                    connInstance.getCapabilities());
+        }
     }
 
     @Override
@@ -521,7 +540,7 @@ public class ConnectorFacadeProxy implements Connector {
             } else if (URI.class.equals(propertySchemaClass)) {
                 value = URI.create(values.get(0).toString());
             } else if (File.class.equals(propertySchemaClass)) {
-                value = new File(values.get(0).toString());
+                value = Path.of(values.get(0).toString()).toFile();
             } else if (String[].class.equals(propertySchemaClass)) {
                 value = values.toArray(String[]::new);
             } else {

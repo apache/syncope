@@ -74,7 +74,11 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
 
     @Relationship(type = MACRO_TASK_FORM_PROPERTY_DEF_REL, direction = Relationship.Direction.INCOMING)
     @Valid
-    private List<Neo4jFormPropertyDef> formPropertyDefs = new ArrayList<>();
+    private SortedSet<Neo4jFormPropertyDefRelationship> formPropertyDefs = new TreeSet<>();
+
+    @Transient
+    private List<Neo4jFormPropertyDef> sortedFormPropertyDefs = new SortedSetList<>(
+            formPropertyDefs, Neo4jFormPropertyDefRelationship.builder());
 
     @Relationship(type = MACRO_TASK_MACRO_ACTIONS_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation macroActions;
@@ -142,12 +146,12 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     @Override
     public void add(final FormPropertyDef formPropertyDef) {
         checkType(formPropertyDef, Neo4jFormPropertyDef.class);
-        this.formPropertyDefs.add((Neo4jFormPropertyDef) formPropertyDef);
+        sortedFormPropertyDefs.add((Neo4jFormPropertyDef) formPropertyDef);
     }
 
     @Override
     public List<? extends FormPropertyDef> getFormPropertyDefs() {
-        return formPropertyDefs;
+        return sortedFormPropertyDefs;
     }
 
     @Override
@@ -165,5 +169,6 @@ public class Neo4jMacroTask extends Neo4jSchedTask implements MacroTask {
     @PostLoad
     public void postLoad() {
         sortedCommands = new SortedSetList<>(commands, Neo4jMacroTaskCommandRelationship.builder());
+        sortedFormPropertyDefs = new SortedSetList<>(formPropertyDefs, Neo4jFormPropertyDefRelationship.builder());
     }
 }

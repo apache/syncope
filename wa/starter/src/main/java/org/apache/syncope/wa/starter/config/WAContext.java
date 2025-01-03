@@ -97,6 +97,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -251,11 +252,13 @@ public class WAContext {
             final CipherExecutor<String, String> cipherExecutor,
             @Qualifier("samlIdPMetadataCache")
             final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache,
+            final ApplicationContext applicationContext,
             final WARestClient waRestClient) {
 
         return new WASamlIdPMetadataLocator(
                 cipherExecutor,
                 samlIdPMetadataCache,
+                applicationContext,
                 waRestClient);
     }
 

@@ -97,11 +97,11 @@ public class ReportExecRepoExtImpl extends AbstractDAO implements ReportExecRepo
                 append("(p:").append(Neo4jReport.NODE).append(" {id: $id}) WHERE 1=1 ");
 
         if (before != null) {
-            query.append("AND e.startDate <= $before ");
+            query.append("AND n.startDate <= $before ");
             parameters.put("before", before);
         }
         if (after != null) {
-            query.append("AND e.startDate >= $after ");
+            query.append("AND n.startDate >= $after ");
             parameters.put("after", after);
         }
 
@@ -126,7 +126,7 @@ public class ReportExecRepoExtImpl extends AbstractDAO implements ReportExecRepo
         orderByClauses.forEach(clause -> {
             String field = clause.getProperty().trim();
             if (ReflectionUtils.findField(Neo4jReportExec.class, field) != null) {
-                statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
+                statement.append("n.").append(field).append(' ').append(clause.getDirection().name());
             }
         });
 

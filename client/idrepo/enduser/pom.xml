@@ -66,11 +66,6 @@ under the License.
       <artifactId>syncope-client-idrepo-common-ui</artifactId>      
       <version>${project.version}</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.pdfbox</groupId>
-      <artifactId>pdfbox</artifactId>
-    </dependency>
       
     <dependency>
       <groupId>org.webjars</groupId>
@@ -79,10 +74,6 @@ under the License.
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>ionicons</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>bootbox</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars</groupId>
@@ -96,12 +87,16 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>jQuery-slimScroll</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.webjars.npm</groupId>
+      <artifactId>bootbox</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-text</artifactId>
     </dependency>
-            
+
     <dependency>
       <groupId>com.lmax</groupId>
       <artifactId>disruptor</artifactId>
@@ -293,11 +288,6 @@ under the License.
       </build>
       
       <dependencies>
-        <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-undertow</artifactId>
-        </dependency>
-
         <dependency>
           <groupId>org.apache.syncope.common.keymaster.self</groupId>
           <artifactId>syncope-common-keymaster-client-self</artifactId>

@@ -58,7 +58,7 @@ public class AnnotatedBeanPanel extends Panel {
         // ------------------------
         // Last modifier
         // ------------------------
-        add(new Label("lastModifier", new Model<>(anyTO.getLastModifier() != null
+        add(new Label("lastModifier", new Model<>(anyTO.getLastModifier() == null
                 ? StringUtils.EMPTY : anyTO.getLastModifier())));
         // ------------------------
 
@@ -72,7 +72,7 @@ public class AnnotatedBeanPanel extends Panel {
         // ------------------------
         // Last modifier
         // ------------------------
-        add(new Label("lastChangeContext", new Model<>(anyTO.getLastChangeContext() != null
+        add(new Label("lastChangeContext", new Model<>(anyTO.getLastChangeContext() == null
                 ? StringUtils.EMPTY : anyTO.getLastChangeContext())));
         // ------------------------
     }

@@ -28,7 +28,7 @@ public class PersistenceProperties extends AbstractPersistenceProperties<DomainP
 
     private String metaDataFactory;
 
-    private String viewsXML = "classpath:views.xml";
+    private String viewsXML = "classpath:META-INF/views.xml";
 
     public String getRemoteCommitProvider() {
         return remoteCommitProvider;

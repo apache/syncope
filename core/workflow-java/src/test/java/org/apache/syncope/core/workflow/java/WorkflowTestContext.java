@@ -32,7 +32,10 @@ import org.apache.syncope.core.persistence.api.DomainRegistry;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.MasterDomain;
+import org.apache.syncope.core.persistence.jpa.MariaDBPersistenceContext;
+import org.apache.syncope.core.persistence.jpa.MySQLPersistenceContext;
+import org.apache.syncope.core.persistence.jpa.OraclePersistenceContext;
+import org.apache.syncope.core.persistence.jpa.PGPersistenceContext;
 import org.apache.syncope.core.persistence.jpa.PersistenceContext;
 import org.apache.syncope.core.persistence.jpa.StartupDomainLoader;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -47,7 +50,15 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 
 @PropertySource("classpath:core-test.properties")
-@Import({ SecurityContext.class, PersistenceContext.class, MasterDomain.class, WorkflowContext.class })
+@Import({
+    SecurityContext.class,
+    WorkflowContext.class,
+    PersistenceContext.class,
+    PGPersistenceContext.class,
+    MySQLPersistenceContext.class,
+    MariaDBPersistenceContext.class,
+    OraclePersistenceContext.class
+})
 @Configuration(proxyBeanMethods = false)
 public class WorkflowTestContext {
 

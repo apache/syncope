@@ -19,8 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -57,9 +55,9 @@ import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -205,7 +203,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     Stream.concat(
                             anyType.getClasses().stream(),
                             provision.getAuxClasses().stream().map(anyTypeClassDAO::findById).
-                                    filter(Optional::isPresent).map(Optional::get)).forEach(anyTypeClass -> {
+                                    flatMap(Optional::stream)).forEach(anyTypeClass -> {
 
                         allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
                                 map(PlainSchema::getKey).toList());
@@ -318,8 +316,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
-                                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        key)));
+                                () -> LOG.debug("Invalid {} {}, ignoring...",
+                                    Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -361,8 +359,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.setPropagationPolicy(resourceTO.getPropagationPolicy() == null
                 ? null : policyDAO.findById(resourceTO.getPropagationPolicy(), PropagationPolicy.class).orElse(null));
 
-        resource.setPullPolicy(resourceTO.getPullPolicy() == null
-                ? null : policyDAO.findById(resourceTO.getPullPolicy(), PullPolicy.class).orElse(null));
+        resource.setInboundPolicy(resourceTO.getInboundPolicy() == null
+                ? null : policyDAO.findById(resourceTO.getInboundPolicy(), InboundPolicy.class).orElse(null));
 
         resource.setPushPolicy(resourceTO.getPushPolicy() == null
                 ? null : policyDAO.findById(resourceTO.getPushPolicy(), PushPolicy.class).orElse(null));
@@ -370,21 +368,21 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         if (resourceTO.getProvisionSorter() == null) {
             resource.setProvisionSorter(null);
         } else {
-            implementationDAO.findById(resourceTO.getProvisionSorter()).
-                    ifPresentOrElse(resource::setProvisionSorter,
-                            () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                    resourceTO.getProvisionSorter()));
+            implementationDAO.findById(resourceTO.getProvisionSorter()).ifPresentOrElse(
+                    resource::setProvisionSorter,
+                    () -> LOG.debug("Invalid {} {}, ignoring...",
+                            Implementation.class.getSimpleName(), resourceTO.getProvisionSorter()));
         }
 
-        resource.setConfOverride(new HashSet<>(resourceTO.getConfOverride()));
+        resource.setConfOverride(
+                Optional.ofNullable(resourceTO.getConfOverride()).orElse(Optional.empty()));
 
-        resource.setOverrideCapabilities(resourceTO.isOverrideCapabilities());
-        resource.getCapabilitiesOverride().clear();
-        resource.getCapabilitiesOverride().addAll(resourceTO.getCapabilitiesOverride());
+        resource.setCapabilitiesOverride(
+                Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElse(Optional.empty()));
 
         resourceTO.getPropagationActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 resource::add,
-                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", key)));
+                () -> LOG.debug("Invalid {} {}, ignoring...", Implementation.class.getSimpleName(), key)));
         // remove all implementations not contained in the TO
         resource.getPropagationActions().
                 removeIf(propActions -> !resourceTO.getPropagationActions().contains(propActions.getKey()));
@@ -475,8 +473,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
-                                () -> LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
-                                        key)));
+                                () -> LOG.debug("Invalid {} {}, ignoring...",
+                                    Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -658,8 +656,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setPropagationPolicy(resource.getPropagationPolicy() == null
                 ? null : resource.getPropagationPolicy().getKey());
 
-        resourceTO.setPullPolicy(resource.getPullPolicy() == null
-                ? null : resource.getPullPolicy().getKey());
+        resourceTO.setInboundPolicy(resource.getInboundPolicy() == null
+                ? null : resource.getInboundPolicy().getKey());
 
         resourceTO.setPushPolicy(resource.getPushPolicy() == null
                 ? null : resource.getPushPolicy().getKey());
@@ -667,11 +665,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setProvisionSorter(resource.getProvisionSorter() == null
                 ? null : resource.getProvisionSorter().getKey());
 
-        resourceTO.getConfOverride().addAll(resource.getConfOverride());
-        Collections.sort(resourceTO.getConfOverride());
+        resourceTO.setConfOverride(resource.getConfOverride());
 
-        resourceTO.setOverrideCapabilities(resource.isOverrideCapabilities());
-        resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());
+        resourceTO.setCapabilitiesOverride(resource.getCapabilitiesOverride());
 
         resourceTO.getPropagationActions().addAll(
                 resource.getPropagationActions().stream().map(Implementation::getKey).toList());

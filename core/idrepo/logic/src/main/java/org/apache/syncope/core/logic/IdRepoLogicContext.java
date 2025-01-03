@@ -93,7 +93,7 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
+import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -422,13 +422,14 @@ public class IdRepoLogicContext {
     @ConditionalOnMissingBean
     @Bean
     public SchemaLogic schemaLogic(
-            final SchemaDataBinder binder,
+            final PlainSchemaDAO plainSchemaDAO,
+            final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
-            final DerSchemaDAO derSchemaDAO,
-            final PlainSchemaDAO plainSchemaDAO) {
+            final ImplementationDAO implementationDAO,
+            final SchemaDataBinder binder) {
 
-        return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, binder);
+        return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, implementationDAO, binder);
     }
 
     @ConditionalOnMissingBean
@@ -507,7 +508,7 @@ public class IdRepoLogicContext {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleEnforcer ruleEnforcer) {
+            final RuleProvider ruleProvider) {
 
         return new UserLogic(
                 realmSearchDAO,
@@ -523,6 +524,6 @@ public class IdRepoLogicContext {
                 binder,
                 provisioningManager,
                 syncopeLogic,
-                ruleEnforcer);
+                ruleProvider);
     }
 }

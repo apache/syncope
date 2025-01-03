@@ -183,6 +183,6 @@ public class Neo4jAuditEventDAO implements AuditEventDAO {
         return neo4jClient.query(query.toString()).
                 bindAll(parameters).fetch().all().stream().
                 map(found -> neo4jTemplate.findById(found.get("n.id"), Neo4jAuditEvent.class)).
-                filter(Optional::isPresent).map(Optional::get).map(this::toAuditEventTO).toList();
+                flatMap(Optional::stream).map(this::toAuditEventTO).toList();
     }
 }

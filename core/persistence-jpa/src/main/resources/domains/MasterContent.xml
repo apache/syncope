@@ -8,7 +8,7 @@ to you under the Apache License, Version 2.0 (the
 "License"); you may not use this file except in compliance
 with the License.  You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+     http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing,
 software distributed under the License is distributed on an
@@ -18,7 +18,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 <dataset>
-  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/" fullPath="/"/>
+  <Realm id="ea696a4f-e77a-4ef1-be67-8f8093bc8686" name="/" fullPath="/"/>  
 
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>
@@ -28,19 +28,21 @@ under the License.
   <AnyTypeClass id="BaseGroup"/>
   <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
         
+  <!-- Actual plain schemas -->
   <Implementation id="EmailAddressValidator" type="ATTR_VALUE_VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.common.attrvalue.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
                validator_id="EmailAddressValidator"/>
-
+  
   <Implementation id="BinaryValidator" type="ATTR_VALUE_VALIDATOR" engine="JAVA"
                   body="org.apache.syncope.core.persistence.common.attrvalue.BinaryValidator"/>
 
   <Implementation id="MacroJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.job.MacroJobDelegate"/>
-
+  <Implementation id="LiveSyncJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate"/>
   <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
                   body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
   <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"

@@ -51,16 +51,16 @@ public class ImplementationTest extends AbstractTest {
         List<? extends Implementation> implementations = implementationDAO.findAll();
         assertFalse(implementations.isEmpty());
 
-        assertEquals(20, implementations.size());
+        assertEquals(22, implementations.size());
 
-        implementations = implementationDAO.findByType(IdMImplementationType.PULL_ACTIONS);
+        implementations = implementationDAO.findByType(IdMImplementationType.INBOUND_ACTIONS);
         assertEquals(1, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PROPAGATION_ACTIONS);
         assertEquals(2, implementations.size());
 
         implementations = implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE);
-        assertEquals(7, implementations.size());
+        assertEquals(8, implementations.size());
 
         implementations = implementationDAO.findByType(IdRepoImplementationType.REPORT_DELEGATE);
         assertEquals(1, implementations.size());
@@ -74,7 +74,10 @@ public class ImplementationTest extends AbstractTest {
         implementations = implementationDAO.findByType(IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         assertEquals(2, implementations.size());
 
-        implementations = implementationDAO.findByType(IdMImplementationType.PULL_CORRELATION_RULE);
+        implementations = implementationDAO.findByType(IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
+        assertEquals(1, implementations.size());
+
+        implementations = implementationDAO.findByType(IdMImplementationType.INBOUND_CORRELATION_RULE);
         assertEquals(1, implementations.size());
 
         implementations = implementationDAO.findByType(IdMImplementationType.PUSH_CORRELATION_RULE);

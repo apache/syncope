@@ -216,22 +216,27 @@ public class KeymasterITCase extends AbstractITCase {
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
         assumeTrue(initial.get(0) instanceof JPADomain);
 
+        JPADomain two = (JPADomain) initial.get(0);
+        String newdb = "syncopetest";
+
         // 1. create new domain
         String newDomain = UUID.randomUUID().toString();
 
         domainOps.create(new JPADomain.Builder(newDomain).
-                jdbcDriver("org.h2.Driver").
-                jdbcURL("jdbc:h2:mem:syncopetest" + newDomain + ";DB_CLOSE_DELAY=-1").
-                dbUsername("sa").
-                dbPassword("").
-                databasePlatform("org.apache.openjpa.jdbc.sql.H2Dictionary").
-                transactionIsolation(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED).
+                jdbcDriver(two.getJdbcDriver()).
+                jdbcURL(two.getJdbcURL().replace("/syncopetwo", "/" + newdb)).
+                dbSchema("SYNCOPETWO".equals(two.getDbSchema()) ? newdb.toUpperCase() : null).
+                dbUsername(newdb).
+                dbPassword(newdb).
+                databasePlatform(two.getDatabasePlatform()).
+                orm(two.getOrm()).
+                transactionIsolation(two.getTransactionIsolation()).
                 adminPassword(Encryptor.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
                 build());
 
         JPADomain domain = (JPADomain) domainOps.read(newDomain);
-        assertEquals(JPADomain.TransactionIsolation.TRANSACTION_READ_UNCOMMITTED, domain.getTransactionIsolation());
+        assertEquals(two.getTransactionIsolation(), domain.getTransactionIsolation());
         assertEquals(CipherAlgorithm.BCRYPT, domain.getAdminCipherAlgorithm());
         assertEquals(10, domain.getPoolMaxActive());
         assertEquals(2, domain.getPoolMinIdle());

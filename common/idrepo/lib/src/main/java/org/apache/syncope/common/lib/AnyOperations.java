@@ -451,14 +451,14 @@ public final class AnyOperations {
     }
 
     public static AnyTO patch(final AnyTO anyTO, final AnyUR anyUR) {
-        if (anyTO instanceof UserTO) {
-            return patch((UserTO) anyTO, (UserUR) anyUR);
+        if (anyTO instanceof UserTO userTO) {
+            return patch(userTO, (UserUR) anyUR);
         }
-        if (anyTO instanceof GroupTO) {
-            return patch((GroupTO) anyTO, (GroupUR) anyUR);
+        if (anyTO instanceof GroupTO groupTO) {
+            return patch(groupTO, (GroupUR) anyUR);
         }
-        if (anyTO instanceof AnyObjectTO) {
-            return patch((AnyObjectTO) anyTO, (AnyObjectUR) anyUR);
+        if (anyTO instanceof AnyObjectTO anyObjectTO) {
+            return patch(anyObjectTO, (AnyObjectUR) anyUR);
         }
         return null;
     }
@@ -494,17 +494,17 @@ public final class AnyOperations {
         }
 
         // 1. relationships
-        anyObjectUR.getRelationships().
-                forEach(relPatch -> {
-                    if (relPatch.getRelationshipTO() == null) {
-                        LOG.warn("Invalid {} specified: {}", RelationshipUR.class.getName(), relPatch);
-                    } else {
-                        result.getRelationships().remove(relPatch.getRelationshipTO());
-                        if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            result.getRelationships().add(relPatch.getRelationshipTO());
-                        }
-                    }
-                });
+        anyObjectUR.getRelationships().forEach(relPatch -> {
+            if (relPatch.getRelationshipTO() == null) {
+                LOG.warn("Invalid {} specified, no {} provided",
+                        RelationshipUR.class.getName(), RelationshipTO.class.getName());
+            } else {
+                result.getRelationships().remove(relPatch.getRelationshipTO());
+                if (relPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    result.getRelationships().add(relPatch.getRelationshipTO());
+                }
+            }
+        });
 
         // 2. memberships
         anyObjectUR.getMemberships().forEach(membPatch -> {

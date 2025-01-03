@@ -73,6 +73,7 @@ public class SAML2ClientCache {
         cfg.setIdentityProviderMetadataResource(new ByteArrayResource(IOUtils.readBytesFromStream(metadata)));
         SAML2IdentityProviderMetadataResolver metadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
         metadataResolver.init();
+        cfg.setIdentityProviderMetadataResolver(metadataResolver);
 
         String entityId = metadataResolver.getEntityId();
 
@@ -81,15 +82,16 @@ public class SAML2ClientCache {
         idpTO.setName(entityId);
 
         EntityDescriptor entityDescriptor = (EntityDescriptor) metadataResolver.getEntityDescriptorElement();
-        entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleSignOnServices().forEach(sso -> {
-            if (idpTO.getBindingType() == null) {
+
+        if (idpTO.getBindingType() == null) {
+            entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleSignOnServices().forEach(sso -> {
                 if (SAML2BindingType.POST.getUri().equals(sso.getBinding())) {
                     idpTO.setBindingType(SAML2BindingType.POST);
                 } else if (SAML2BindingType.REDIRECT.getUri().equals(sso.getBinding())) {
                     idpTO.setBindingType(SAML2BindingType.REDIRECT);
                 }
-            }
-        });
+            });
+        }
         if (idpTO.getBindingType() == null) {
             throw new IllegalArgumentException("Neither POST nor REDIRECT artifacts supported by " + entityId);
         }
@@ -126,7 +128,11 @@ public class SAML2ClientCache {
             final SAML2SP4UIIdP idp, final SAML2Configuration cfg, final String spEntityID, final String callbackUrl) {
 
         cfg.setIdentityProviderEntityId(idp.getEntityID());
+
         cfg.setIdentityProviderMetadataResource(new ByteArrayResource(idp.getMetadata()));
+        SAML2IdentityProviderMetadataResolver metadataResolver = new SAML2IdentityProviderMetadataResolver(cfg);
+        metadataResolver.init();
+        cfg.setIdentityProviderMetadataResolver(metadataResolver);
 
         cfg.setServiceProviderEntityId(spEntityID);
         getSPMetadataPath(spEntityID).ifPresent(cfg::setServiceProviderMetadataResourceFilepath);

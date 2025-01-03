@@ -20,6 +20,8 @@ package org.apache.syncope.core.persistence.api.entity;
 
 public interface GroupablePlainAttr<A extends Any<?>, M extends Membership<A>> extends PlainAttr<A> {
 
+    String getMembershipKey();
+
     M getMembership();
 
     void setMembership(M membership);

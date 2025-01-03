@@ -89,8 +89,7 @@ public class ConnectorDirectoryPanel extends
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ConnectorSearchEvent) {
-            ConnectorSearchEvent payload = (ConnectorSearchEvent) event.getPayload();
+        if (event.getPayload() instanceof final ConnectorSearchEvent payload) {
             AjaxRequestTarget target = payload.getTarget();
             if (StringUtils.isNotBlank(payload.getKeyword())) {
                 keyword = payload.getKeyword().toLowerCase();

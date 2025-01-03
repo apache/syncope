@@ -31,22 +31,17 @@ public abstract class AbstractGroupsModel extends ListModel<GroupTO> {
 
     protected List<MembershipTO> memberships;
 
-    protected String realm;
-
-    @Override
-    public List<GroupTO> getObject() {
-        reload();
-        return groups;
-    }
-
     /**
      * Retrieve the first MAX_GROUP_LIST_CARDINALITY assignable.
      */
     protected abstract void reloadObject();
 
-    public List<MembershipTO> getMemberships() {
-        reload();
-        return memberships;
+    @Override
+    public List<GroupTO> getObject() {
+        if (groups == null) {
+            reloadObject();
+        }
+        return groups;
     }
 
     /**
@@ -54,15 +49,17 @@ public abstract class AbstractGroupsModel extends ListModel<GroupTO> {
      */
     protected abstract void reloadMemberships();
 
-    public abstract List<String> getDynMemberships();
+    public List<MembershipTO> getMemberships() {
+        if (memberships == null) {
+            reloadMemberships();
+        }
+        return memberships;
+    }
 
     /**
      * Retrieve dyn group memberships.
      */
     protected abstract void reloadDynMemberships();
 
-    /**
-     * Reload data if the realm changes (see SYNCOPE-1135).
-     */
-    protected abstract void reload();
+    public abstract List<String> getDynMemberships();
 }

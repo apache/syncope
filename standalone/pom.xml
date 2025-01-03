@@ -43,6 +43,11 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -139,6 +144,7 @@ under the License.
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/core"/>
                 </copy>
+                <copy file="${settings.localRepository}/org/postgresql/postgresql/${jdbc.postgresql.version}/postgresql-${jdbc.postgresql.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/lib" overwrite="true"/>
                 <copy file="../fit/core-reference/target/test-classes/saml.keystore.jks" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true"/>
 
                 <!-- Syncope console -->
@@ -193,9 +199,7 @@ under the License.
                   <replacetoken><![CDATA[<Service name="Catalina">]]></replacetoken>
                   <replacevalue><![CDATA[<Service name="Catalina">
 
-<Connector protocol="org.apache.coyote.http11.Http11NioProtocol" port="9443" maxThreads="200"
-scheme="https" secure="true" SSLEnabled="true" keystoreFile="conf/keystore.jks" keystorePass="password"
-keystoreType="JKS" clientAuth="false" sslProtocol="TLS"/>]]></replacevalue>
+<Connector SSLEnabled="true" URIEncoding="UTF-8" connectionTimeout="20000" emptySessionPath="cargo.tomcat.connector.emptySessionPath" maxParameterCount="1000" port="9443" protocol="HTTP/1.1"><SSLHostConfig><Certificate certificateKeystoreFile="conf/keystore.jks" certificateKeystorePassword="password" type="RSA"/></SSLHostConfig></Connector>]]></replacevalue>
                 </replace>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8009" value="${cargo.tomcat.ajp.port}"/>
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8005" value="${cargo.rmi.port}"/>

@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPane
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxSpinnerFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -128,13 +128,13 @@ public class ParametersWizardAttrStep extends WizardStep {
                 break;
 
             case Long:
-                panel = new AjaxSpinnerFieldPanel.Builder<Long>().
+                panel = new AjaxNumberFieldPanel.Builder<Long>().
                         convertValuesToString(false).
                         build(id, valueHeaderName, Long.class, new Model<>());
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().
+                panel = new AjaxNumberFieldPanel.Builder<Double>().
                         convertValuesToString(false).
                         build(id, valueHeaderName, Double.class, new Model<>());
                 break;

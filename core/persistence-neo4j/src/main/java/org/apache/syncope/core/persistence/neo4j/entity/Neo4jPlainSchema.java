@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -26,7 +29,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.common.validation.PlainSchemaCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jPlainSchema.NODE)
@@ -36,6 +42,14 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     private static final long serialVersionUID = -4249639444022112516L;
 
     public static final String NODE = "PlainSchema";
+
+    public static final String PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL = "PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER";
+
+    public static final String PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL = "PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR";
+
+    protected static final TypeReference<HashMap<String, String>> ENUMVALUES_TYPEREF =
+            new TypeReference<HashMap<String, String>>() {
+    };
 
     @NotNull
     private AttrSchemaType type = AttrSchemaType.String;
@@ -51,9 +65,13 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
 
     private String conversionPattern;
 
-    private String enumerationValues;
+    private String enumValues;
 
-    private String enumerationKeys;
+    @Transient
+    private Map<String, String> enumValuesMap = new HashMap<>();
+
+    @Relationship(type = PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER_REL, direction = Relationship.Direction.OUTGOING)
+    private Neo4jImplementation dropdownValueProvider;
 
     private String secretKey;
 
@@ -64,7 +82,7 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     @Relationship(type = Neo4jAnyTypeClass.ANY_TYPE_CLASS_PLAIN_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jAnyTypeClass anyTypeClass;
 
-    @Relationship(direction = Relationship.Direction.OUTGOING)
+    @Relationship(type = PLAIN_SCHEMA_ATTR_VALUE_VALIDATOR_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation validator;
 
     @Override
@@ -118,26 +136,6 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     }
 
     @Override
-    public String getEnumerationValues() {
-        return enumerationValues;
-    }
-
-    @Override
-    public void setEnumerationValues(final String enumerationValues) {
-        this.enumerationValues = enumerationValues;
-    }
-
-    @Override
-    public String getEnumerationKeys() {
-        return enumerationKeys;
-    }
-
-    @Override
-    public void setEnumerationKeys(final String enumerationKeys) {
-        this.enumerationKeys = enumerationKeys;
-    }
-
-    @Override
     public String getConversionPattern() {
         return conversionPattern;
     }
@@ -145,6 +143,18 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
     @Override
     public void setConversionPattern(final String conversionPattern) {
         this.conversionPattern = conversionPattern;
+    }
+
+    @Override
+    public Implementation getDropdownValueProvider() {
+        return dropdownValueProvider;
+    }
+
+    @Override
+    public void setDropdownValueProvider(final Implementation dropdownValueProvider) {
+        checkType(dropdownValueProvider, Neo4jImplementation.class);
+        checkImplementationType(dropdownValueProvider, IdRepoImplementationType.DROPDOWN_VALUE_PROVIDER);
+        this.dropdownValueProvider = (Neo4jImplementation) dropdownValueProvider;
     }
 
     @Override
@@ -198,5 +208,39 @@ public class Neo4jPlainSchema extends Neo4jSchema implements PlainSchema {
         checkType(validator, Neo4jImplementation.class);
         checkImplementationType(validator, IdRepoImplementationType.ATTR_VALUE_VALIDATOR);
         this.validator = (Neo4jImplementation) validator;
+    }
+
+    @Override
+    public Map<String, String> getEnumValues() {
+        return enumValuesMap;
+    }
+
+    @Override
+    protected void json2map(final boolean clearFirst) {
+        super.json2map(clearFirst);
+
+        if (clearFirst) {
+            getEnumValues().clear();
+        }
+        if (enumValues != null) {
+            getEnumValues().putAll(POJOHelper.deserialize(enumValues, ENUMVALUES_TYPEREF));
+        }
+    }
+
+    @PostLoad
+    @Override
+    public void postLoad() {
+        json2map(false);
+    }
+
+    @Override
+    public void postSave() {
+        json2map(true);
+    }
+
+    @Override
+    public void map2json() {
+        super.map2json();
+        enumValues = POJOHelper.serialize(getEnumValues());
     }
 }

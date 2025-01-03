@@ -36,10 +36,12 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional
 @Tag("multitenancy")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@Transactional
 public class MultitenancyTest extends AbstractTest {
 
     static {

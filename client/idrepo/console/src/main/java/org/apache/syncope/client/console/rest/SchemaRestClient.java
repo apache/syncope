@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -110,5 +111,9 @@ public class SchemaRestClient extends BaseRestClient {
 
     public void delete(final SchemaType schemaType, final String key) {
         getService(SchemaService.class).delete(schemaType, key);
+    }
+
+    public List<String> getDropdownValues(final String key, final AnyTO anyTO) {
+        return getService(SchemaService.class).getDropdownValues(key, anyTO).getValues();
     }
 }

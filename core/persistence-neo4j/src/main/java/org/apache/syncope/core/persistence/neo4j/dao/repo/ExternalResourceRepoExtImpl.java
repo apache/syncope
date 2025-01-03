@@ -34,10 +34,10 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
@@ -45,10 +45,10 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jConnInstance;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
+import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jInboundPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPropagationPolicy;
-import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPullPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPushPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
@@ -171,9 +171,9 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
         } else if (policy instanceof PushPolicy) {
             relationship = Neo4jExternalResource.RESOURCE_PUSH_POLICY_REL;
             label = Neo4jPushPolicy.NODE + ":" + Neo4jPolicy.NODE;
-        } else if (policy instanceof PullPolicy) {
-            relationship = Neo4jExternalResource.RESOURCE_PULL_POLICY_REL;
-            label = Neo4jPullPolicy.NODE + ":" + Neo4jPolicy.NODE;
+        } else if (policy instanceof InboundPolicy) {
+            relationship = Neo4jExternalResource.RESOURCE_INBOUND_POLICY_REL;
+            label = Neo4jInboundPolicy.NODE + ":" + Neo4jPolicy.NODE;
         }
 
         return findByRelationship(
@@ -207,6 +207,64 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
     @Transactional(rollbackFor = { Throwable.class })
     @Override
     public ExternalResource save(final ExternalResource resource) {
+        // unlink any policy or implementation that was unlinked from resource
+        neo4jTemplate.findById(resource.getKey(), Neo4jExternalResource.class).ifPresent(before -> {
+            if (before.getPasswordPolicy() != null && resource.getPasswordPolicy() == null) {
+                deleteRelationship(
+                        Neo4jExternalResource.NODE,
+                        Neo4jPasswordPolicy.NODE,
+                        resource.getKey(),
+                        before.getPasswordPolicy().getKey(),
+                        Neo4jExternalResource.RESOURCE_PASSWORD_POLICY_REL);
+            }
+            if (before.getAccountPolicy() != null && resource.getAccountPolicy() == null) {
+                deleteRelationship(
+                        Neo4jExternalResource.NODE,
+                        Neo4jAccountPolicy.NODE,
+                        resource.getKey(),
+                        before.getAccountPolicy().getKey(),
+                        Neo4jExternalResource.RESOURCE_ACCOUNT_POLICY_REL);
+            }
+            if (before.getPropagationPolicy() != null && resource.getPropagationPolicy() == null) {
+                deleteRelationship(
+                        Neo4jExternalResource.NODE,
+                        Neo4jPropagationPolicy.NODE,
+                        resource.getKey(),
+                        before.getPropagationPolicy().getKey(),
+                        Neo4jExternalResource.RESOURCE_PROPAGATION_POLICY_REL);
+            }
+            if (before.getInboundPolicy() != null && resource.getInboundPolicy() == null) {
+                deleteRelationship(Neo4jExternalResource.NODE,
+                        Neo4jInboundPolicy.NODE,
+                        resource.getKey(),
+                        before.getInboundPolicy().getKey(),
+                        Neo4jExternalResource.RESOURCE_INBOUND_POLICY_REL);
+            }
+            if (before.getPushPolicy() != null && resource.getPushPolicy() == null) {
+                deleteRelationship(
+                        Neo4jExternalResource.NODE,
+                        Neo4jPushPolicy.NODE,
+                        resource.getKey(),
+                        before.getPushPolicy().getKey(),
+                        Neo4jExternalResource.RESOURCE_PUSH_POLICY_REL);
+            }
+            if (before.getProvisionSorter() != null && resource.getProvisionSorter() == null) {
+                deleteRelationship(
+                        Neo4jExternalResource.NODE,
+                        Neo4jImplementation.NODE,
+                        resource.getKey(),
+                        before.getProvisionSorter().getKey(),
+                        Neo4jExternalResource.RESOURCE_PROVISION_SORTER_REL);
+            }
+            before.getPropagationActions().stream().filter(impl -> !resource.getPropagationActions().contains(impl)).
+                    forEach(impl -> deleteRelationship(
+                    Neo4jExternalResource.NODE,
+                    Neo4jImplementation.NODE,
+                    resource.getKey(),
+                    impl.getKey(),
+                    Neo4jExternalResource.RESOURCE_PROPAGATION_ACTIONS_REL));
+        });
+
         ((Neo4jExternalResource) resource).list2json();
         ExternalResource saved = neo4jTemplate.save(nodeValidator.validate(resource));
         ((Neo4jExternalResource) saved).postSave();

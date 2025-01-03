@@ -42,12 +42,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
-import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jLinkedAccount;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,7 +162,7 @@ public class UserTest extends AbstractTest {
 
         AnyUtils anyUtils = anyUtilsFactory.getLinkedAccountInstance();
 
-        Neo4jLAPlainAttr attr = anyUtils.newPlainAttr();
+        LAPlainAttr attr = anyUtils.newPlainAttr();
         attr.setOwner(user);
         attr.setAccount(account);
         attr.setSchema(plainSchemaDAO.findById("obscure").orElseThrow());

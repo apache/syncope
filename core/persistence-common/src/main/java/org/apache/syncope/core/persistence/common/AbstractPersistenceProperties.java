@@ -24,7 +24,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 public abstract class AbstractPersistenceProperties<D extends AbstractDomainProperties> {
 
-    private String indexesXML = "classpath:indexes.xml";
+    private String indexesXML = "classpath:META-INF/indexes.xml";
 
     @NestedConfigurationProperty
     private final List<D> domain = new ArrayList<>();

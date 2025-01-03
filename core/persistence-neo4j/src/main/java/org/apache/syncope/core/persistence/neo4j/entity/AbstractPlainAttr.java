@@ -21,12 +21,12 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -35,36 +35,28 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.common.validation.PlainAttrCheck;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @JsonIgnoreProperties("valuesAsStrings")
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-@PlainAttrCheck
-public abstract class AbstractPlainAttr<O extends Any<?>>
-        extends AbstractProvidedKeyNode
-        implements PlainAttr<O>, Neo4jPlainAttr<O> {
+public abstract class AbstractPlainAttr<O extends Any<?>> implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;
 
     @JsonIgnore
     @NotNull
-    protected String schemaKey;
+    private String schemaKey;
 
-    /**
-     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
-     */
-    @JsonProperty("membership")
-    protected String membershipKey;
+    @JsonIgnore
+    @Override
+    public String getKey() {
+        return null;
+    }
 
+    @JsonIgnore
     @Override
     public String getSchemaKey() {
         return schemaKey;
-    }
-
-    @Override
-    public void setSchemaKey(final String schemaKey) {
-        this.schemaKey = schemaKey;
     }
 
     @JsonIgnore
@@ -79,24 +71,22 @@ public abstract class AbstractPlainAttr<O extends Any<?>>
     @JsonIgnore
     @Override
     public void setSchema(final PlainSchema schema) {
-        checkType(schema, Neo4jPlainSchema.class);
         if (schema != null) {
             this.schemaKey = schema.getKey();
         }
     }
 
-    @Override
-    public String getMembershipKey() {
-        return membershipKey;
-    }
-
-    @JsonSetter("membership")
-    @Override
-    public void setMembershipKey(final String membershipKey) {
-        this.membershipKey = membershipKey;
+    @JsonIgnore
+    public void setSchema(final String schemaKey) {
+        this.schemaKey = schemaKey;
     }
 
     protected abstract boolean addForMultiValue(PlainAttrValue attrValue);
+
+    @Override
+    public void add(final PlainAttrValue attrValue) {
+        addForMultiValue(attrValue);
+    }
 
     private void checkNonNullSchema() {
         if (getSchema() == null) {
@@ -146,5 +136,30 @@ public abstract class AbstractPlainAttr<O extends Any<?>>
         }
 
         return Collections.unmodifiableList(result);
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().
+                append(schemaKey).
+                build();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        @SuppressWarnings("unchecked")
+        final AbstractPlainAttr<O> other = (AbstractPlainAttr<O>) obj;
+        return new EqualsBuilder().
+                append(schemaKey, other.schemaKey).
+                build();
     }
 }

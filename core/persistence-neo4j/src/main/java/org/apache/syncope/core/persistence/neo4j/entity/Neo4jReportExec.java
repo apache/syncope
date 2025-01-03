@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.neo4j.entity;
 
 import jakarta.validation.constraints.NotNull;
-import java.util.Optional;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -41,9 +40,9 @@ public class Neo4jReportExec extends AbstractExec implements ReportExec {
     private Neo4jReport report;
 
     /**
-     * Report execution result, stored as an XML stream.
+     * Report execution result.
      */
-    private Byte[] execResult;
+    private byte[] execResult;
 
     @Override
     public Report getReport() {
@@ -58,11 +57,11 @@ public class Neo4jReportExec extends AbstractExec implements ReportExec {
 
     @Override
     public byte[] getExecResult() {
-        return Optional.ofNullable(execResult).map(ArrayUtils::toPrimitive).orElse(null);
+        return execResult;
     }
 
     @Override
     public void setExecResult(final byte[] execResult) {
-        this.execResult = Optional.ofNullable(execResult).map(ArrayUtils::toObject).orElse(null);
+        this.execResult = ArrayUtils.clone(execResult);
     }
 }

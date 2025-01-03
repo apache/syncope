@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
 
                 case IdRepoImplementationType.ACCOUNT_RULE:
                 case IdRepoImplementationType.PASSWORD_RULE:
-                case IdMImplementationType.PULL_CORRELATION_RULE:
+                case IdMImplementationType.INBOUND_CORRELATION_RULE:
                 case IdMImplementationType.PUSH_CORRELATION_RULE:
                     RuleConf rule = POJOHelper.deserialize(implementation.getBody(), RuleConf.class);
                     if (rule == null) {
@@ -132,6 +133,15 @@ public class ImplementationDataBinderImpl implements ImplementationDataBinder {
                         throw sce;
                     }
                     break;
+            }
+        } else if (implementation.getEngine() == ImplementationEngine.GROOVY) {
+            try {
+                ImplementationManager.build(implementation);
+            } catch (Exception e) {
+                LOG.error("While building Groovy class {}", implementation.getKey(), e);
+
+                sce.getElements().add(e.getMessage());
+                throw sce;
             }
         }
     }
