@@ -412,7 +412,7 @@ under the License.
 
     <cxf.version>4.1.0</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
-    <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.0</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.3.7</spring-boot.version>
     <spring-cloud-gateway.version>4.1.6</spring-cloud-gateway.version>
@@ -1741,7 +1741,7 @@ under the License.
                   <version>${targetJdk}</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
-                  <version>3.9.9</version>
+                  <version>3.9.5</version>
                 </requireMavenVersion>
               </rules>
             </configuration>
@@ -1816,7 +1816,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
@@ -2332,7 +2332,7 @@ under the License.
       </activation>
 
       <properties>
-        <mockito.version>5.14.2</mockito.version>
+        <mockito.version>5.15.2</mockito.version>
         <byte-buddy.version>1.15.11</byte-buddy.version>
       </properties>
 

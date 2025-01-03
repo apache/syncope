@@ -24,8 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
@@ -38,50 +40,69 @@ import org.springframework.scheduling.support.CronTrigger;
 
 public class SyncopeTaskScheduler {
 
+    public static final String CACHE = "jobCache";
+
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeTaskScheduler.class);
 
     protected final TaskScheduler scheduler;
 
     protected final JobStatusDAO jobStatusDAO;
 
-    protected final Map<Pair<String, String>, Pair<Job, ScheduledFuture<?>>> jobs = new ConcurrentHashMap<>();
+    protected final Map<Pair<String, String>, Pair<Job, Optional<ScheduledFuture<?>>>> jobs = new ConcurrentHashMap<>();
 
     public SyncopeTaskScheduler(final TaskScheduler scheduler, final JobStatusDAO jobStatusDAO) {
         this.scheduler = scheduler;
         this.jobStatusDAO = jobStatusDAO;
     }
 
-    public void register(final Job job) {
-        jobs.put(
+    protected void register(final Job job, final Optional<ScheduledFuture<?>> future) {
+        jobs.putIfAbsent(
                 Pair.of(job.getContext().getDomain(), job.getContext().getJobName()),
-                Pair.of(job, null));
+                MutablePair.of(job, future));
     }
 
-    public void start(final String domain, final String jobName) {
-        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).
-                ifPresent(pair -> schedule(pair.getLeft(), Instant.now()));
-    }
-
-    public void start(final Job job) {
-        schedule(job, Instant.now());
+    public void register(final Job job) {
+        register(job, Optional.empty());
     }
 
     public void schedule(final Job job, final CronTrigger trigger) {
-        ScheduledFuture<?> future = scheduler.schedule(job, trigger);
-        jobs.put(
-                Pair.of(job.getContext().getDomain(), job.getContext().getJobName()),
-                Pair.of(job, future));
+        register(job, Optional.of(scheduler.schedule(job, trigger)));
     }
 
     public void schedule(final Job job, final Instant startTime) {
-        ScheduledFuture<?> future = scheduler.schedule(job, startTime);
-        jobs.put(
-                Pair.of(job.getContext().getDomain(), job.getContext().getJobName()),
-                Pair.of(job, future));
+        register(job, Optional.of(scheduler.schedule(job, startTime)));
     }
 
     public boolean contains(final String domain, final String jobName) {
         return jobs.containsKey(Pair.of(domain, jobName));
+    }
+
+    public void start(final String domain, final String jobName) {
+        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).
+                filter(pair -> pair.getRight().map(Future::isDone).orElse(true)).
+                ifPresent(pair -> pair.setValue(Optional.of(scheduler.schedule(pair.getLeft(), Instant.now()))));
+    }
+
+    public void cancel(final String domain, final String jobName) {
+        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).ifPresent(pair -> {
+            boolean mayInterruptIfRunning;
+            if (pair.getLeft() instanceof TaskJob taskJob
+                    && taskJob.getDelegate() instanceof StoppableSchedTaskJobDelegate stoppable) {
+
+                stoppable.stop();
+                mayInterruptIfRunning = false;
+            } else {
+                mayInterruptIfRunning = true;
+            }
+
+            pair.getRight().ifPresent(f -> f.cancel(mayInterruptIfRunning));
+            pair.setValue(Optional.empty());
+        });
+    }
+
+    public void delete(final String domain, final String jobName) {
+        jobs.remove(Pair.of(domain, jobName));
+        AuthContextUtils.runAsAdmin(domain, () -> jobStatusDAO.unlock(jobName));
     }
 
     public Optional<Class<?>> getJobClass(final String domain, final String jobName) {
@@ -91,31 +112,11 @@ public class SyncopeTaskScheduler {
 
     public Optional<OffsetDateTime> getNextTrigger(final String domain, final String jobName) {
         return Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).
-                filter(pair -> pair.getRight() != null).
-                map(pair -> pair.getRight().getDelay(TimeUnit.SECONDS)).
+                filter(pair -> pair.getRight().map(f -> !f.isDone()).orElse(false)).
+                flatMap(Pair::getRight).
+                map(f -> f.getDelay(TimeUnit.SECONDS)).
                 filter(delay -> delay > 0).
                 map(delay -> OffsetDateTime.now().plusSeconds(delay));
-    }
-
-    public void cancel(final String domain, final String jobName) {
-        Optional.ofNullable(jobs.get(Pair.of(domain, jobName))).ifPresent(pair -> {
-            boolean mayInterruptIfRunning = true;
-            if (pair.getLeft() instanceof TaskJob taskJob
-                    && taskJob.getDelegate() instanceof StoppableSchedTaskJobDelegate stoppable) {
-
-                stoppable.stop();
-                mayInterruptIfRunning = false;
-            }
-
-            if (pair.getRight() != null) {
-                pair.getRight().cancel(mayInterruptIfRunning);
-            }
-        });
-    }
-
-    public void delete(final String domain, final String jobName) {
-        jobs.remove(Pair.of(domain, jobName));
-        AuthContextUtils.runAsAdmin(domain, () -> jobStatusDAO.unlock(jobName));
     }
 
     public List<String> getJobNames(final String domain) {

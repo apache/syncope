@@ -103,11 +103,13 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
 
     @Override
     public boolean isRunning(final String jobName) {
-        boolean locked = jobStatusDAO.lock(jobName);
-        if (locked) {
-            jobStatusDAO.unlock(jobName);
+        synchronized (jobName) {
+            boolean locked = jobStatusDAO.lock(jobName);
+            if (locked) {
+                jobStatusDAO.unlock(jobName);
+            }
+            return !locked;
         }
-        return !locked;
     }
 
     protected void registerJob(
@@ -247,28 +249,21 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     @Transactional
     @Override
     public void load(final String domain) {
-        String notificationJobCronExp = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-            String result = StringUtils.EMPTY;
-
-            String conf = confParamOps.get(
-                    SyncopeConstants.MASTER_DOMAIN, "notificationjob.cronExpression", null, String.class);
-            if (conf == null) {
-                result = NotificationJob.DEFAULT_CRON_EXP;
-            } else if (!StringUtils.EMPTY.equals(conf)) {
-                result = conf;
-            }
-            return result;
-        });
-
         AuthContextUtils.runAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
             tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
             tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PUSH));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.MACRO));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.LIVE_SYNC));
 
             boolean loadException = false;
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
                 SchedTask task = it.next();
+
+                LOG.debug("Loading job for {} Task {} {}",
+                        taskUtilsFactory.getInstance(task).getType(), task.getKey(), task.getName());
+
                 try {
                     register(domain, task, task.getStartAt(), securityProperties.getAdminUser(), false, Map.of());
                 } catch (Exception e) {
@@ -278,11 +273,14 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             }
 
             if (loadException) {
-                LOG.debug("Errors while loading job instances for tasks, aborting");
+                LOG.error("Errors while loading job for tasks, aborting");
             } else {
                 // 2. jobs for Reports
                 for (Iterator<? extends Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
                     Report report = it.next();
+
+                    LOG.debug("Loading job for Report {} {}", report.getKey(), report.getName());
+
                     try {
                         register(domain, report, null, securityProperties.getAdminUser(), false);
                     } catch (Exception e) {
@@ -292,12 +290,25 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 }
 
                 if (loadException) {
-                    LOG.debug("Errors while loading job instances for reports, aborting");
+                    LOG.error("Errors while loading job for reports, aborting");
                 }
             }
         });
 
         if (SyncopeConstants.MASTER_DOMAIN.equals(domain)) {
+            String notificationJobCronExp = AuthContextUtils.callAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
+                String result = StringUtils.EMPTY;
+
+                String conf = confParamOps.get(
+                        SyncopeConstants.MASTER_DOMAIN, "notificationjob.cronExpression", null, String.class);
+                if (conf == null) {
+                    result = NotificationJob.DEFAULT_CRON_EXP;
+                } else if (!StringUtils.EMPTY.equals(conf)) {
+                    result = conf;
+                }
+                return result;
+            });
+
             // 3. NotificationJob
             if (StringUtils.isBlank(notificationJobCronExp)) {
                 LOG.debug("Empty value provided for {}'s cron, not scheduling", NotificationJob.class.getSimpleName());
@@ -348,21 +359,28 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
             tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
             tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PUSH));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.MACRO));
+            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.LIVE_SYNC));
 
             tasks.forEach(task -> {
+                LOG.debug("Unloading job for {} Task {} {}",
+                        taskUtilsFactory.getInstance(task).getType(), task.getKey(), task.getName());
+
                 try {
                     unregister(task);
                 } catch (Exception e) {
-                    LOG.error("While unloading job instance for task {}", task.getKey(), e);
+                    LOG.error("While unloading job for task {}", task.getKey(), e);
                 }
             });
 
             // 2. jobs for Reports
             reportDAO.findAll().forEach(report -> {
+                LOG.debug("Unloading job for Report {} {}", report.getKey(), report.getName());
+
                 try {
                     unregister(report);
                 } catch (Exception e) {
-                    LOG.error("While unloading job instance for report {}", report.getName(), e);
+                    LOG.error("While unloading job for report {}", report.getName(), e);
                 }
             });
         });
