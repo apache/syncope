@@ -1823,7 +1823,7 @@ under the License.
                   <version>${targetJdk}</version>
                 </requireJavaVersion>
                 <requireMavenVersion>
-                  <version>3.9.9</version>
+                  <version>3.9.5</version>
                 </requireMavenVersion>
               </rules>
             </configuration>
@@ -1898,7 +1898,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>4.1.0</version>
+        <version>4.1.1</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>

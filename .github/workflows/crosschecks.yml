@@ -47,7 +47,7 @@ jobs:
     - name: Setup Maven
       uses: stCarolas/setup-maven@v5
       with:
-        maven-version: 3.9.9
+        maven-version: 3.9.6
     - uses: actions/cache@v4
       with:
         path: ~/.m2/repository
