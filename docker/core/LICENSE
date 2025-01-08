@@ -203,17 +203,17 @@
 
 ==
 
-For JCommander (https://jcommander.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Jackson (http://wiki.fasterxml.com/JacksonHome):
 This is licensed under the AL 2.0, see above.
 
 ==
 
 For Java Uuid Generator (JUG) (http://wiki.fasterxml.com/JugHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For ClassMate (https://github.com/FasterXML/java-classmate):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -248,7 +248,121 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For mchange-commons-java (https://github.com/swaldman/mchange-commons-java):
+For Nimbus Content Type (https://bitbucket.org/connect2id/nimbus-content-type/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Nimbus Language Tags (https://bitbucket.org/connect2id/nimbus-language-tags/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Nimbus JOSE-JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OAuth 2.0 SDK with OpenID Connect extensions (https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Configuration library for JVM languages (https://github.com/lightbend/config):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For HikariCP (http://brettwooldridge.github.io/HikariCP/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
+This is licensed under the EDL 1.0:
+
+Eclipse Distribution License - v 1.0
+
+Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+  disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of the Eclipse Foundation, Inc. nor the names of its contributors may be used to endorse or promote
+  products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+==
+
+For Eclipse Implementation of JAXB (https://projects.eclipse.org/projects/ee4j.jaxb-impl):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Jakarta XML Web Services https://projects.eclipse.org/projects/ee4j.jaxws):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Metrics (http://dropwizard.github.io/metrics/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For ClassGraph (https://github.com/classgraph/classgraph):
+This is licensed under the MIT license:
+
+ Permission is hereby granted, free  of charge, to any person obtaining
+ a  copy  of this  software  and  associated  documentation files  (the
+ "Software"), to  deal in  the Software without  restriction, including
+ without limitation  the rights to  use, copy, modify,  merge, publish,
+ distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ permit persons to whom the Software  is furnished to do so, subject to
+ the following conditions:
+ 
+ The  above  copyright  notice  and  this permission  notice  shall  be
+ included in all copies or substantial portions of the Software.
+ 
+ THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==
+
+For Micrometer Application Metrics (https://micrometer.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Netty (https://netty.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Swagger (http://swagger.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Annotations https://projects.eclipse.org/projects/ee4j.ca):
 This is licensed under the EPL 1.0:
 
 Eclipse Public License - v 1.0
@@ -457,131 +571,17 @@ any resulting litigation.
 
 ==
 
-For Nimbus Content Type (https://bitbucket.org/connect2id/nimbus-content-type/):
+For Jakarta Contexts and Dependency Injection (https://projects.eclipse.org/projects/ee4j.cdi):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Nimbus Language Tags (https://bitbucket.org/connect2id/nimbus-language-tags/):
-This is licensed under the AL 2.0, see above.
+For Jakarta Messaging (https://projects.eclipse.org/projects/ee4j.messaging):
+This is licensed under the EPL 1.0, see above.
 
 ==
 
-For Nimbus JOSE-JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For OAuth 2.0 SDK with OpenID Connect extensions (https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
-This is licensed under the EDL 1.0:
-
-Eclipse Distribution License - v 1.0
-
-Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-  disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-  disclaimer in the documentation and/or other materials provided with the distribution.
-* Neither the name of the Eclipse Foundation, Inc. nor the names of its contributors may be used to endorse or promote
-  products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-
-==
-
-For QDox (https://github.com/paul-hammant/qdox):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For HikariCP (http://brettwooldridge.github.io/HikariCP/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
-This is licensed under the EDL 1.0, see above.
-
-==
-
-For Eclipse Implementation of JAXB (https://projects.eclipse.org/projects/ee4j.jaxb-impl):
-This is licensed under the EDL 1.0, see above.
-
-==
-
-For Jakarta XML Web Services https://projects.eclipse.org/projects/ee4j.jaxws):
-This is licensed under the EDL 1.0, see above.
-
-==
-
-For Metrics (http://dropwizard.github.io/metrics/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For ClassGraph (https://github.com/classgraph/classgraph):
-This is licensed under the MIT license:
-
- Permission is hereby granted, free  of charge, to any person obtaining
- a  copy  of this  software  and  associated  documentation files  (the
- "Software"), to  deal in  the Software without  restriction, including
- without limitation  the rights to  use, copy, modify,  merge, publish,
- distribute,  sublicense, and/or sell  copies of  the Software,  and to
- permit persons to whom the Software  is furnished to do so, subject to
- the following conditions:
- 
- The  above  copyright  notice  and  this permission  notice  shall  be
- included in all copies or substantial portions of the Software.
- 
- THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
- EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
- MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-==
-
-For Micrometer Application Metrics (https://micrometer.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Netty (https://netty.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Swagger (http://swagger.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Undertow (https://undertow.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Jakarta Annotations https://projects.eclipse.org/projects/ee4j.ca):
+For Jakarta Mail (https://projects.eclipse.org/projects/ee4j.mail):
 This is licensed under the EPL 1.0, see above.
 
 ==
@@ -591,7 +591,7 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For Jakarta WebSocket API (https://projects.eclipse.org/projects/ee4j.websocket):
+For Jakarta Transactions (https://projects.eclipse.org/projects/ee4j.jta):
 This is licensed under the EPL 1.0, see above.
 
 ==
@@ -601,7 +601,32 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
+For JSR107 (JCache) (https://github.com/jsr107/jsr107spec):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Bean Validation API (http://beanvalidation.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For json-smart-v2 (https://github.com/netplex/json-smart-v2):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Shibboleth (https://shibboleth.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For ConnId (http://connid.tirasa.net/):
 This is licensed under the CDDL 1.0:
 
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0
@@ -987,27 +1012,12 @@ of liability.
 
 ==
 
-For Bean Validation API (http://beanvalidation.org/):
+For Flowable Leftovers (https://github.com/Tirasa/flowable-leftovers/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Joda Time (http://www.joda.org/joda-time/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For json-smart-v2 (https://github.com/netplex/json-smart-v2):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Shibboleth (https://shibboleth.net/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For SERP (http://serp.sourceforge.net/):
+For ANTLR (https://www.antlr.org/):
 This is licensed under the BSD license:
 
 Redistribution and use in source and binary forms, with or without 
@@ -1037,16 +1047,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For ConnId (http://connid.tirasa.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For ANTLR (https://www.antlr.org/):
-This is licensed under the BSD license, see above.
-
-==
-
 For AspectJ (http://www.eclipse.org/aspectj/):
 This is licensed under the EPL 1.0, see above.
 
@@ -1058,11 +1058,6 @@ This is licensed under the MIT license, see above.
 ==
 
 For The Checker Framework (https://checkerframework.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For MojoHaus AnimalSniffer Maven Plugin (https://github.com/mojohaus/animal-sniffer):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1079,6 +1074,21 @@ This is licensed under the AL 2.0, see above.
 
 For Cryptacular (https://github.com/vt-middleware/cryptacular):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
 
 ==
 
@@ -1232,6 +1242,11 @@ obligation with respect to this CC0 or use of the Work.
 
 ==
 
+For Hibernate Validator (https://hibernate.org/validator/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For jasypt (http://www.jasypt.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -1247,23 +1262,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For JBoss Threads (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JBoss XNIO (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
 This is licensed under the CC0 1.0, see above.
-
-==
-
-For Liquibase (https://www.liquibase.org/):
-This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1273,6 +1273,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Open SAML-Java (https://shibboleth.net/products/opensaml-java.html):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OSGi (https://www.osgi.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1292,17 +1297,17 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Postgresql JDBC Driver (http://jdbc.postgresql.org/):
+This is licensed under the BSD license, see above.
+
+==
+
 For Simple Logging Facade for Java - SLF4J (http://www.slf4j.org/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Spring (https://spring.io/projects):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Wildfly (https://www.wildfly.org/):
 This is licensed under the AL 2.0, see above.
 
 ==

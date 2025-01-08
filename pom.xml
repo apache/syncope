@@ -1009,12 +1009,22 @@ under the License.
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
         <version>${pac4j.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+          </exclusion>          
+        </exclusions>
       </dependency>
       <!-- PAC4J -->
 

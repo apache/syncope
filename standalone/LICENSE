@@ -227,12 +227,12 @@ This is licensed under the MIT license:
 
 ==
 
-For AOP Alliance (http://aopalliance.sourceforge.net/):
-This is Public Domain.
+For balanced-match (https://github.com/juliangruber/balanced-match):
+This is licensed under the MIT license, see above.
 
 ==
 
-For args4j (http://args4j.kohsuke.org):
+For base64-js (https://github.com/beatgammit/base64-js):
 This is licensed under the MIT license, see above.
 
 ==
@@ -252,7 +252,17 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For cglib (https://github.com/cglib/cglib):
+For bootstrap5-toggle (https://github.com/palcarazm/bootstrap5-toggle):
+This is licensed under the MIT license, see above.
+
+==
+
+For Chart.js (http://www.chartjs.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For ClientJS (https://github.com/jackspirou/clientjs):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -262,7 +272,17 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For COSE-JAVA (https://github.com/cose-wg/cose-java):
+For Auth0 Java JWT (https://github.com/auth0/java-jwt):
+This is licensed under the MIT license, see above.
+
+==
+
+For Bucket4j (https://bucket4j.com/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Duo Auth API (https://github.com/duosecurity/duo_client_java):
 This is licensed under the BSD license:
 
 Redistribution and use in source and binary forms, with or without 
@@ -292,17 +312,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For Auth0 Java JWT (https://github.com/auth0/java-jwt):
-This is licensed under the MIT license, see above.
+For Kryo (https://github.com/EsotericSoftware/kryo):
+This is licensed under the BSD license, see above.
 
 ==
 
-For JCommander (https://jcommander.org/):
-This is licensed under the AL 2.0, see above.
+For MinLog (https://github.com/EsotericSoftware/minlog):
+This is licensed under the BSD license, see above.
 
 ==
 
-For Duo Auth API (https://github.com/duosecurity/duo_client_java):
+For ReflectASM (https://github.com/EsotericSoftware/reflectasm):
 This is licensed under the BSD license, see above.
 
 ==
@@ -317,6 +337,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For ClassMate (https://github.com/FasterXML/java-classmate):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Wicket autoconfiguration with Spring Boot (https://github.com/MarcGiffing/wicket-spring-boot):
 This is licensed under the AL 2.0, see above.
 
@@ -327,6 +352,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For JNI binding for Zstd (https://github.com/luben/zstd-jni):
+This is licensed under the BSD license, see above.
+
+==
+
 For Open JSON (https://github.com/openjson/openjson):
 This is licensed under the AL 2.0, see above.
 
@@ -334,6 +364,11 @@ This is licensed under the AL 2.0, see above.
 
 For Operating System and Hardware Information (https://oshi.github.io/oshi/):
 This is licensed under the MIT license, see above.
+
+==
+
+For DataUtilities (https://github.com/peteroupc/DataUtilities):
+This is Public Domain.
 
 ==
 
@@ -487,17 +522,12 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Bucket4j (https://bucket4j.com/):
+For Thymeleaf Layout Dialect (https://github.com/zhanhb/thymeleaf-layout-dialect):
 This is licensed under the AL 2.0, see above.
 
 ==
 
 For Gson (https://github.com/google/gson):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Elemental2 (https://github.com/google/elemental2):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -517,32 +547,17 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Google Closure Compiler (https://developers.google.com/closure/compiler/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JsInterop Base (https://github.com/google/jsinterop-base):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JsInterop Annotations (https://github.com/google/jsinterop-annotations):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Protocol Buffers (https://developers.google.com/protocol-buffers/):
-This is licensed under the BSD license, see above.
-
-==
-
-For RE2/J (https://github.com/google/re2j):
-This is licensed under the BSD license, see above.
-
-==
-
 For ZXing (https://github.com/zxing/zxing):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Concurrent Trees (https://github.com/npgall/concurrent-trees):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For CQEngine (https://github.com/npgall/cqengine):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -781,7 +796,7 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For Microsoft OAuth 2.0 User Agent library for Java (https://github.com/Microsoft/oauth2-useragent):
+For Microsoft Authentication Library (MSAL) for Java (https://github.com/AzureAD/microsoft-authentication-library-for-java):
 This is licensed under the MIT license, see above.
 
 ==
@@ -806,6 +821,16 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Okta Java Management SDK (https://github.com/okta/okta-sdk-java):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Java implementation of the Mustache template language (https://github.com/samskivert/jmustache):
+This is licensed under the BSD license, see above.
+
+==
+
 For Moshi (https://square.github.io/moshi/1.x):
 This is licensed under the AL 2.0, see above.
 
@@ -823,11 +848,6 @@ This is licensed under the AL 2.0, see above.
 
 For Retrofit (https://square.github.io/retrofit/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Jakarta Mail:
-This is licensed under the EPL 1.0, see above.
 
 ==
 
@@ -1247,7 +1267,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For QDox (https://github.com/paul-hammant/qdox):
+For JAX-WS RI Runtime (jaxws-rt) (https://github.com/samskivert/jmustache):
+This is licensed under the BSD license, see above.
+
+==
+
+For Method Parameter Name Access for Java (https://github.com/paul-hammant/paranamer):
+This is licensed under the BSD license, see above.
+
+==
+
+For Scala Logging (https://github.com/lightbend-labs/scala-logging):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Configuration library for JVM languages (https://github.com/lightbend/config):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1267,6 +1307,11 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For Yammer Metrics (https://github.com/StoyanTc/yammer-metrics):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Yubico (https://developers.yubico.com/):
 This is licensed under the BSD license, see above.
 
@@ -1277,8 +1322,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Dough Lea's util.concurrent package:
-This is Public Domain.
+For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1287,8 +1332,18 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For cronn reflection-util (https://github.com/cronn/reflection-util):
+For More kryo serializers (https://github.com/magro/kryo-serializers/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For define-data-property (https://github.com/ljharb/define-data-property):
+This is licensed under the MIT license, see above.
+
+==
+
+For define-properties (https://github.com/ljharb/define-properties):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1307,6 +1362,21 @@ This is licensed under the EDL 1.0, see above.
 
 ==
 
+For eonasdan__tempus-dominus (https://github.com/Eonasdan/tempus-dominus):
+This is licensed under the MIT license, see above.
+
+==
+
+For es-define-property (https://github.com/ljharb/es-define-property/):
+This is licensed under the MIT license, see above.
+
+==
+
+For MIT:
+This is licensed under the AL 2.0, see above.
+
+==
+
 For es5-shim (https://github.com/es-shims/es5-shim):
 This is licensed under the MIT license, see above.
 
@@ -1317,18 +1387,43 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For get-css-data (https://github.com/jhildenbiddle/get-css-data):
+This is licensed under the MIT license, see above.
+
+==
+
+For globalThis (https://github.com/es-shims/globalThis):
+This is licensed under the MIT license, see above.
+
+==
+
 For google-diff-match-patch (https://code.google.com/archive/p/google-diff-match-patch/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For HAL Explorer (https://github.com/toedter/hal-explorer/):
+For gopd (https://github.com/ljharb/gopd):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For has-property-descriptors (https://github.com/inspect-js/has-property-descriptors):
 This is licensed under the MIT license, see above.
 
 ==
 
 For highlight.js (http://highlightjs.org/):
 This is licensed under the BSD license, see above.
+
+==
+
+For inherits (https://github.com/isaacs/inherits):
+This is licensed under the MIT license, see above.
+
+==
+
+For Inputmask (https://github.com/RobinHerbots/Inputmask):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1339,6 +1434,11 @@ This is licensed under the AL 2.0, see above.
 
 For ClassGraph (https://github.com/classgraph/classgraph):
 This is licensed under the MIT license, see above.
+
+==
+
+For jsonwebtoken.io (https://jsonwebtoken.io):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1362,6 +1462,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Embedded Postgres (https://github.com/zonkyio/embedded-postgres):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Ionicons (http://ionicons.com/):
 This is licensed under the MIT license, see above.
 
@@ -1377,7 +1482,37 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
+For Jakarta Expression Language (https://projects.eclipse.org/projects/ee4j.el):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Contexts and Dependency Injection (https://projects.eclipse.org/projects/ee4j.cdi):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Messaging (https://projects.eclipse.org/projects/ee4j.messaging):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Mail (https://projects.eclipse.org/projects/ee4j.mail):
+This is licensed under the EPL 1.0, see above.
+
+==
+
 For Jakarta Persistence project(https://github.com/eclipse-ee4j/jpa-api):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Standard Tag Library (https://projects.eclipse.org/projects/ee4j.jstl):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Transactions (https://projects.eclipse.org/projects/ee4j.jta):
 This is licensed under the EPL 1.0, see above.
 
 ==
@@ -1387,48 +1522,13 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Expression Language 3.0 API (https://javaee.github.io/uel-ri/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For JSR-330: Dependency Injection for Java (https://code.google.com/archive/p/atinject/):
+For JSR107 (JCache) (https://github.com/jsr107/jsr107spec):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Java(TM) Persistence API (https://github.com/javaee/jpa-spec):
-This is licensed under the EDL 1.0, see above.
-
-==
-
-For Java Servlet API (https://javaee.github.io/servlet-spec/):
-This is licensed under the CDDL 1.0, see above.
 
 ==
 
 For Bean Validation API (http://beanvalidation.org/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For SAAJ Standard Implementation (https://saaj.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For javax.ws.rs-api (https://jax-ws.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Jline v2 (http://jline.github.io/jline2/):
-This is licensed under the BSD license, see above.
 
 ==
 
@@ -1457,7 +1557,22 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For js-cookie (https://github.com/js-cookie/js-cookie):
+This is licensed under the MIT license, see above.
+
+==
+
 For jsPlumb (http://jsplumbtoolkit.com/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Material Components for the web (https://github.com/material-components/material-components-web):
+This is licensed under the MIT license, see above.
+
+==
+
+For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1467,13 +1582,23 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Moment.js (http://momentjs.com/):
+This is licensed under the MIT license, see above.
+
+==
+
+For murmurhash-js (https://github.com/mikolalysenko/murmurhash-js):
+This is licensed under the MIT license, see above.
+
+==
+
 For Byte Buddy (https://bytebuddy.net/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For EdDSA-Java (https://github.com/str4d/ed25519-java):
-This is licensed under the CC0 1.0, see above.
+For TypeTools (https://github.com/jhalterman/typetools/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1482,13 +1607,18 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For JOpt Simple (https://jopt-simple.github.io/jopt-simple/):
+This is licensed under the MIT license, see above.
+
+==
+
 For Shibboleth (https://shibboleth.net/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For SERP (http://serp.sourceforge.net/):
-This is licensed under the BSD license, see above.
+For Argparse4j (https://argparse4j.github.io/):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1497,28 +1627,23 @@ This is licensed under the CDDL 1.0, see above.
 
 ==
 
-For Groovy Extensions (https://github.com/ultraq/groovy-extensions/):
+For Flowable Leftovers (https://github.com/Tirasa/flowable-leftovers/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Thymeleaf Expression Processor (https://github.com/ultraq/thymeleaf-expression-processor):
-This is licensed under the AL 2.0, see above.
+For normalize.css (http://necolas.github.io/normalize.css/):
+This is licensed under the MIT license, see above.
 
 ==
 
-For Thymeleaf Layout Dialect (https://github.com/ultraq/thymeleaf-layout-dialect):
-This is licensed under the AL 2.0, see above.
+For object-keys (https://github.com/ljharb/object-keys):
+This is licensed under the MIT license, see above.
 
 ==
 
 For OGNL (https://github.com/jkuhnert/ognl/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For OSCache (http://www.opensymphony.com/oscache/):
-This is licensed under the MIT license, see above.
 
 ==
 
@@ -1532,12 +1657,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Inspektr (https://github.com/apereo/inspektr):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Person Directory (https://github.com/apereo/person-directory):
+For Java Apereo CAS Client (https://www.apereo.org/cas):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1567,11 +1687,6 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For MojoHaus AnimalSniffer Maven Plugin (https://github.com/mojohaus/animal-sniffer):
-This is licensed under the MIT license, see above.
-
-==
-
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
 This is licensed under the BSD license, see above.
 
@@ -1592,18 +1707,28 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
 For Flowable (http://www.flowable.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Java EE API modules repackaged as OSGi bundles in GlassFish:
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Glassfish Expression Language Implementation:
-This is licensed under the CDDL 1.0, see above.
+For Eclipse ExpressLy (https://projects.eclipse.org/projects/ee4j.expressly):
+This is licensed under the EPL 1.0, see above.
 
 ==
 
@@ -1617,13 +1742,13 @@ This is licensed under the CC0 1.0, see above.
 
 ==
 
-For Hjson Library (https://github.com/hjson/hjson-java):
-This is licensed under the MIT license, see above.
+For Hibernate Validator (https://hibernate.org/validator/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For Java Apereo CAS Client (https://www.apereo.org/cas):
-This is licensed under the AL 2.0, see above.
+For Hjson Library (https://github.com/hjson/hjson-java):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1633,6 +1758,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Javassist (https://jboss-javassist.github.io/javassist/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JBoss Logging (http://www.jboss.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1672,7 +1802,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Liquibase (https://www.liquibase.org/):
+For LZ4 compression for Java (https://github.com/lz4/lz4-java):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1692,6 +1822,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For OSGi (https://www.osgi.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For ASM (http://asm.ow2.org/):
 This is licensed under the BSD license, see above.
 
@@ -1707,8 +1842,13 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Project Lombok (https://projectlombok.org/):
+For PCollections (https://github.com/hrldcpr/pcollections):
 This is licensed under the MIT license, see above.
+
+==
+
+For Postgresql JDBC Driver (http://jdbc.postgresql.org/):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -1727,6 +1867,16 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For RocksDB (https://rocksdb.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For The Scala programming language (https://www.scala-lang.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Simple Logging Facade for Java - SLF4J (http://www.slf4j.org/):
 This is licensed under the MIT license, see above.
 
@@ -1742,13 +1892,13 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For spring-modules-cache:
+For Thymeleaf (https://www.thymeleaf.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Thymeleaf (https://www.thymeleaf.org/):
-This is licensed under the AL 2.0, see above.
+For XZ for Java (https://github.com/tukaani-project/xz-java):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -1757,62 +1907,37 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Chart.js (http://www.chartjs.org/):
+For WicketStuff (https://wicketstuff.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Moment.js (http://momentjs.com/):
+For snappy-java (https://github.com/xerial/snappy-java):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For SnakeYAML (http://www.snakeyaml.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For floating-ui (https://github.com/floating-ui/floating-ui):
 This is licensed under the MIT license, see above.
 
 ==
 
-For zxcvbn (https://github.com/dropbox/zxcvbn):
-This is licensed under the MIT license, see above.
-
-==
-
-For balanced-match (https://github.com/juliangruber/balanced-match):
-This is licensed under the MIT license, see above.
-
-==
-
-For base64-js (https://github.com/beatgammit/base64-js):
-This is licensed under the MIT license, see above.
-
-==
-
-For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
-This is licensed under the MIT license, see above.
-
-==
-
-For get-css-data (https://github.com/jhildenbiddle/get-css-data):
-This is licensed under the MIT license, see above.
-
-==
-
-For Inputmask (https://github.com/RobinHerbots/Inputmask):
-This is licensed under the MIT license, see above.
-
-==
-
-For Material Components for the web (https://github.com/material-components/material-components-web):
-This is licensed under the MIT license, see above.
-
-==
-
-For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
-This is licensed under the MIT license, see above.
-
-==
-
-For normalize.css (http://necolas.github.io/normalize.css/):
+For spin.js (http://spin.js.org/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Summernote (https://summernote.org/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Tempus Dominus Bootstrap 4 Datetime Picker (https://github.com/tempusdominus/bootstrap-4):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1827,42 +1952,12 @@ This is licensed under the BSD license, see above.
 
 ==
 
-For window.fetch polyfill (https://github.github.io/fetch/):
-This is licensed under the MIT license, see above.
-
-==
-
-For WicketStuff (https://wicketstuff.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For SnakeYAML (http://www.snakeyaml.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For popper.js (https://github.com/FezVrasta/popper.js):
-This is licensed under the MIT license, see above.
-
-==
-
-For spin.js (http://spin.js.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Tempus Dominus Bootstrap 4 Datetime Picker (https://github.com/tempusdominus/bootstrap-4):
-This is licensed under the MIT license, see above.
-
-==
-
 For typeahead.js (http://twitter.github.io/typeahead.js/):
 This is licensed under the MIT license, see above.
 
 ==
 
-For Webjars-locator core functionality (https://github.com/webjars/webjars-locator-core):
+For window.fetch polyfill (https://github.github.io/fetch/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -2086,3 +2181,8 @@ intellectual property laws of the United States of America. No party to this
 Agreement will bring a legal action under this Agreement more than one year
 after the cause of action arose. Each party waives its rights to a jury trial in
 any resulting litigation.
+
+==
+
+For zxcvbn (https://github.com/dropbox/zxcvbn):
+This is licensed under the MIT license, see above.
