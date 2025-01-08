@@ -1,5 +1,5 @@
 Apache Syncope
-Copyright 2012-2023 The Apache Software Foundation
+Copyright 2012-2025 The Apache Software Foundation
 
 This product includes software developed by:
 The Apache Software Foundation (http://www.apache.org/).
@@ -14,11 +14,6 @@ Copyright (c) 2016 Daniel Eden
 
 ==
 
-This product includes software developed by the args4j project.
-Copyright (c) 2013 Kohsuke Kawaguchi and other contributors
-
-==
-
 This product includes software developed by the Bootbox.js project.
 Copyright (C) 2011-2015 by Nick Payne nick@kurai.co.uk
 
@@ -29,21 +24,16 @@ Copyright (c) 2011-2016 Twitter, Inc.
 
 ==
 
+This product includes software developed by the bootstrap-select project.
+Copyright (c) 2013-2015 bootstrap-select]
+
+==
+
 This product includes software developed by the Jackson project.
 
 ==
 
 This product includes software developed by the Open JSON project.
-
-==
-
-This product includes software developed by the Gson project.
-Copyright (c) 2008 Google Inc.
-
-==
-
-This product includes software developed by Elemental2
-Copyright 2018 Google Inc.
 
 ==
 
@@ -60,31 +50,6 @@ This product includes software developed by J2ObjC: Java to Objective-C Translat
 
 ==
 
-This product includes software developed by The Closure Compiler.
-Copyright (c) 2009 The Closure Compiler Authors.
-
-==
-
-This product includes software developed by JsInterop Base
-Copyright 2017 Google Inc.
-
-==
-
-This product includes software developed by JsInterop Annotations.
-Copyright (c) 2019 Google Inc. All Rights Reserved.
-
-==
-
-This product includes software developed by Protocol Buffers
-Copyright 2008 Google Inc. All rights reserved.
-
-==
-
-This product includes software developed by RE2/J
-Copyright (c) 2009 The Go Authors. All rights reserved.
-
-==
-
 This product includes software developed by OWASP Java HTML Sanitizer.
 Copyright (c) 2011, Mike Samuel
 All rights reserved.
@@ -93,11 +58,6 @@ All rights reserved.
 
 This product includes software developed by the Wicket - jQuery UI project.
 Copyright 2012-2013 Sebastien Briquet
-
-==
-
-This product includes software produced and maintained by Eclipse Metro
-All content is the property of the respective authors or their employers.
 
 ==
 
@@ -116,7 +76,17 @@ All content is the property of the respective authors or their employers.
 
 ==
 
-This product includes software developed by Micrometer Application Metrics
+This product includes software developed by eonasdan__tempus-dominus
+Copyright (c) 2021 Jonathan Peterson (@Eonasdan)
+
+==
+
+This product includes software developed by Inputmask
+Copyright (c) 2010 - 2018 Robin Herbots
+
+==
+
+This product includes software developed by Micrometer Application Metrics.
 Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
@@ -146,8 +116,8 @@ All content is the property of the respective authors or their employers.
 
 ==
 
-This product includes software produced and maintained by the Jakarta WebSocket project.
-All content is the property of the respective authors or their employers.
+This product includes software developed by the Eclipse Project for Jakarta Contexts and Dependency Injection.
+Copyright (c) 2018,2020 Eclipse Foundation
 
 ==
 
@@ -159,11 +129,6 @@ All content is the property of the respective authors or their employers. For mo
 
 This product includes software developed by the Bean Validation Project (http://beanvalidation.org).
 Copyright (c) Red Hat, Inc., Emmanuel Bernard
-
-==
-
-This product includes software developed by the Joda Time project.
-Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
 
 ==
 
@@ -187,8 +152,18 @@ Copyright (C) 2012 Bitovi
 
 ==
 
+This product includes software developed by js-cookie
+Copyright (c) 2018 Copyright 2018 Klaus Hartl, Fagner Brack, GitHub Contributors
+
+==
+
 This product includes software developed by the jsPlumb project.
 Copyright (c) 2010 - 2014 jsPlumb, http://jsplumbtoolkit.com/
+
+==
+
+This product includes software developed by the Moment.js project.
+Copyright (c) 2011-2016 Tim Wood, Iskren Chernev, Moment.js contributors
 
 ==
 
@@ -199,11 +174,6 @@ Copyright 2014 - Present Rafael Winterhalter
 
 This product includes software developed by The Checker Framework.
 Copyright (c) 2004-present by the Checker Framework developers
-
-==
-
-This product includes software developed by MojoHaus AnimalSniffer Maven Plugin
-Copyright (c) 2009, codehaus.org
 
 ==
 
@@ -220,8 +190,13 @@ Copyright (c) 2015 Jakub Danek
 
 ==
 
-This product includes software developed by JBoss Logging
-Copyright 2020 Red Hat, Inc.
+This product includes software developed by the Eclipse Angus Project.
+Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software developed by Objenesis
+Copyright 2006-2022 the original author or authors.
 
 ==
 
@@ -236,21 +211,6 @@ All rights reserved.
 
 ==
 
-This product includes software developed by Moment.js.
-Copyright (c) JS Foundation and other contributors
-
-==
-
-This product includes software developed by Inputmask
-Copyright (c) 2010 - 2018 Robin Herbots
-
-==
-
-This product includes software developed by Summernote
-Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
-
-==
-
 This product includes software developed by WicketStuff
 Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
 
@@ -260,8 +220,13 @@ This product includes software developed by the SnakeYAML project.
 
 ==
 
-This product includes software developed by popper.js
+This product includes software developed by floating-ui
 Copyright (c) 2021 Floating UI contributors
+
+==
+
+This product includes software developed by Summernote
+Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
 
 ==
 

@@ -227,17 +227,17 @@ This is licensed under the MIT license:
 
 ==
 
-For args4j (http://args4j.kohsuke.org):
-This is licensed under the MIT license, see above.
-
-==
-
 For Bootbox.js (http://bootboxjs.com/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Bootstrap (http://getbootstrap.com/):
+This is licensed under the MIT license, see above.
+
+==
+
+For bootstrap-select (http://silviomoreto.github.io/bootstrap-select/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -257,16 +257,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Gson (https://github.com/google/gson):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Elemental2 (https://github.com/google/elemental2):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Error Prone (https://errorprone.info/):
 This is licensed under the AL 2.0, see above.
 
@@ -279,56 +269,6 @@ This is licensed under the AL 2.0, see above.
 
 For J2ObjC: Java to Objective-C Translator and Runtime (http://j2objc.org/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Google Closure Compiler (https://developers.google.com/closure/compiler/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JsInterop Base (https://github.com/google/jsinterop-base):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JsInterop Annotations (https://github.com/google/jsinterop-annotations):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Protocol Buffers (https://developers.google.com/protocol-buffers/):
-This is licensed under the BSD license:
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-==
-
-For RE2/J (https://github.com/google/re2j):
-This is licensed under the BSD license, see above.
 
 ==
 
@@ -347,7 +287,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0:
 
 Eclipse Distribution License - v 1.0
@@ -377,11 +317,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
-This is licensed under the EDL 1.0, see above.
-
-==
-
 For Eclipse Implementation of JAXB (https://projects.eclipse.org/projects/ee4j.jaxb-impl):
 This is licensed under the EDL 1.0, see above.
 
@@ -392,7 +327,17 @@ This is licensed under the EDL 1.0, see above.
 
 ==
 
+For eonasdan__tempus-dominus (https://github.com/Eonasdan/tempus-dominus):
+This is licensed under the MIT license, see above.
+
+==
+
 For Font Awesome (http://fontawesome.io/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Inputmask (https://github.com/RobinHerbots/Inputmask):
 This is licensed under the MIT license, see above.
 
 ==
@@ -408,11 +353,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Swagger (http://swagger.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Undertow (https://undertow.io/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -636,8 +576,8 @@ any resulting litigation.
 
 ==
 
-For Jakarta WebSocket API (https://projects.eclipse.org/projects/ee4j.websocket):
-This is licensed under the EPL 1.0, see above.
+For Jakarta Contexts and Dependency Injection (https://projects.eclipse.org/projects/ee4j.cdi):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -646,17 +586,7 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For JSR-330: Dependency Injection for Java (https://code.google.com/archive/p/atinject/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Bean Validation API (http://beanvalidation.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Joda Time (http://www.joda.org/joda-time/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -681,12 +611,22 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For js-cookie (https://github.com/js-cookie/js-cookie):
+This is licensed under the MIT license, see above.
+
+==
+
 For jsPlumb (http://jsplumbtoolkit.com/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Modernizr (https://modernizr.com):
+This is licensed under the MIT license, see above.
+
+==
+
+For Moment.js (http://momentjs.com/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -701,13 +641,33 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For MojoHaus AnimalSniffer Maven Plugin (https://github.com/mojohaus/animal-sniffer):
-This is licensed under the MIT license, see above.
-
-==
-
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
-This is licensed under the BSD license, see above.
+This is licensed under the BSD license:
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation 
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors 
+may be used to endorse or promote products derived from this software without 
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
@@ -718,6 +678,11 @@ This is licensed under the AL 2.0, see above.
 
 For Serializable java.util.function Interfaces (https://github.com/danekja/jdk-serializable-functional):
 This is licensed under the MIT license, see above.
+
+==
+
+For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
+This is licensed under the EDL 1.0, see above.
 
 ==
 
@@ -861,23 +826,13 @@ obligation with respect to this CC0 or use of the Work.
 
 ==
 
-For JBoss Logging (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JBoss Threads (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JBoss XNIO (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For LatencyUtils (https://latencyutils.github.io/LatencyUtils/):
 This is licensed under the CC0 1.0, see above.
+
+==
+
+For Objenesis (http://objenesis.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -891,27 +846,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Moment.js (http://momentjs.com/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Inputmask (https://github.com/RobinHerbots/Inputmask):
-This is licensed under the MIT license, see above.
-
-==
-
-For Summernote (https://summernote.org/):
-This is licensed under the MIT license, see above.
-
-==
-
 For WicketStuff (https://wicketstuff.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Wildfly (https://www.wildfly.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -921,12 +856,17 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For popper.js (https://github.com/FezVrasta/popper.js):
+For floating-ui (https://github.com/floating-ui/floating-ui):
 This is licensed under the MIT license, see above.
 
 ==
 
 For spin.js (http://spin.js.org/):
+This is licensed under the MIT license, see above.
+
+==
+
+For Summernote (https://summernote.org/):
 This is licensed under the MIT license, see above.
 
 ==

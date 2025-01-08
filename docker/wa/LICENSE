@@ -203,12 +203,7 @@
 
 ==
 
-For AOP Alliance (http://aopalliance.sourceforge.net/):
-This is Public Domain.
-
-==
-
-For Bootstrap (http://getbootstrap.com/):
+For balanced-match (https://github.com/juliangruber/balanced-match):
 This is licensed under the MIT license:
 
  Permission is hereby granted, free  of charge, to any person obtaining
@@ -232,17 +227,37 @@ This is licensed under the MIT license:
 
 ==
 
+For base64-js (https://github.com/beatgammit/base64-js):
+This is licensed under the MIT license, see above.
+
+==
+
+For Bootstrap (http://getbootstrap.com/):
+This is licensed under the MIT license, see above.
+
+==
+
 For bootstrap-select (http://silviomoreto.github.io/bootstrap-select/):
 This is licensed under the MIT license, see above.
 
 ==
 
-For cglib (https://github.com/cglib/cglib):
+For ClientJS (https://github.com/jackspirou/clientjs):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For COSE-JAVA (https://github.com/cose-wg/cose-java):
+For Auth0 Java JWT (https://github.com/auth0/java-jwt):
+This is licensed under the MIT license, see above.
+
+==
+
+For Bucket4j (https://bucket4j.com/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Duo Auth API (https://github.com/duosecurity/duo_client_java):
 This is licensed under the BSD license:
 
 Redistribution and use in source and binary forms, with or without 
@@ -272,22 +287,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For Auth0 Java JWT (https://github.com/auth0/java-jwt):
-This is licensed under the MIT license, see above.
+For Kryo (https://github.com/EsotericSoftware/kryo):
+This is licensed under the BSD license, see above.
 
 ==
 
-For JCommander (https://jcommander.org/):
-This is licensed under the AL 2.0, see above.
+For MinLog (https://github.com/EsotericSoftware/minlog):
+This is licensed under the BSD license, see above.
 
 ==
 
-For Duo Auth API (https://github.com/duosecurity/duo_client_java):
+For ReflectASM (https://github.com/EsotericSoftware/reflectasm):
 This is licensed under the BSD license, see above.
 
 ==
 
 For Jackson (http://wiki.fasterxml.com/JacksonHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For ClassMate (https://github.com/FasterXML/java-classmate):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -299,6 +319,11 @@ This is licensed under the AL 2.0, see above.
 
 For Operating System and Hardware Information (https://oshi.github.io/oshi/):
 This is licensed under the MIT license, see above.
+
+==
+
+For DataUtilities (https://github.com/peteroupc/DataUtilities):
+This is Public Domain.
 
 ==
 
@@ -452,7 +477,12 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Bucket4j (https://bucket4j.com/):
+For Thymeleaf Layout Dialect (https://github.com/zhanhb/thymeleaf-layout-dialect):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Gson (https://github.com/google/gson):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -473,6 +503,16 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For ZXing (https://github.com/zxing/zxing):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Concurrent Trees (https://github.com/npgall/concurrent-trees):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For CQEngine (https://github.com/npgall/cqengine):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -691,7 +731,7 @@ any resulting litigation.
 
 ==
 
-For Microsoft OAuth 2.0 User Agent library for Java (https://github.com/Microsoft/oauth2-useragent):
+For Microsoft Authentication Library (MSAL) for Java (https://github.com/AzureAD/microsoft-authentication-library-for-java):
 This is licensed under the MIT license, see above.
 
 ==
@@ -716,6 +756,16 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Okta Java Management SDK (https://github.com/okta/okta-sdk-java):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Java implementation of the Mustache template language (https://github.com/samskivert/jmustache):
+This is licensed under the BSD license, see above.
+
+==
+
 For Moshi (https://square.github.io/moshi/1.x):
 This is licensed under the AL 2.0, see above.
 
@@ -733,11 +783,6 @@ This is licensed under the AL 2.0, see above.
 
 For Retrofit (https://square.github.io/retrofit/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Jakarta Mail:
-This is licensed under the EPL 1.0, see above.
 
 ==
 
@@ -1157,8 +1202,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For QDox (https://github.com/paul-hammant/qdox):
-This is licensed under the AL 2.0, see above.
+For JAX-WS RI Runtime (jaxws-rt) (https://github.com/samskivert/jmustache):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -1187,8 +1232,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Dough Lea's util.concurrent package:
-This is Public Domain.
+For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1197,8 +1242,18 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For cronn reflection-util (https://github.com/cronn/reflection-util):
+For More kryo serializers (https://github.com/magro/kryo-serializers/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For define-data-property (https://github.com/ljharb/define-data-property):
+This is licensed under the MIT license, see above.
+
+==
+
+For define-properties (https://github.com/ljharb/define-properties):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1217,6 +1272,16 @@ This is licensed under the EDL 1.0, see above.
 
 ==
 
+For es-define-property (https://github.com/ljharb/es-define-property/):
+This is licensed under the MIT license, see above.
+
+==
+
+For MIT:
+This is licensed under the AL 2.0, see above.
+
+==
+
 For es5-shim (https://github.com/es-shims/es5-shim):
 This is licensed under the MIT license, see above.
 
@@ -1227,13 +1292,33 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For HAL Explorer (https://github.com/toedter/hal-explorer/):
+For get-css-data (https://github.com/jhildenbiddle/get-css-data):
+This is licensed under the MIT license, see above.
+
+==
+
+For globalThis (https://github.com/es-shims/globalThis):
+This is licensed under the MIT license, see above.
+
+==
+
+For gopd (https://github.com/ljharb/gopd):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For has-property-descriptors (https://github.com/inspect-js/has-property-descriptors):
 This is licensed under the MIT license, see above.
 
 ==
 
 For highlight.js (http://highlightjs.org/):
 This is licensed under the BSD license, see above.
+
+==
+
+For inherits (https://github.com/isaacs/inherits):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1244,6 +1329,11 @@ This is licensed under the AL 2.0, see above.
 
 For ClassGraph (https://github.com/classgraph/classgraph):
 This is licensed under the MIT license, see above.
+
+==
+
+For jsonwebtoken.io (https://jsonwebtoken.io):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1267,17 +1357,32 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Undertow (https://undertow.io/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Jakarta Annotations https://projects.eclipse.org/projects/ee4j.ca):
 This is licensed under the EPL 1.0, see above.
 
 ==
 
-For Jakarta WebSocket API (https://projects.eclipse.org/projects/ee4j.websocket):
+For Jakarta Expression Language (https://projects.eclipse.org/projects/ee4j.el):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Mail (https://projects.eclipse.org/projects/ee4j.mail):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Persistence project(https://github.com/eclipse-ee4j/jpa-api):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Standard Tag Library (https://projects.eclipse.org/projects/ee4j.jstl):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Transactions (https://projects.eclipse.org/projects/ee4j.jta):
 This is licensed under the EPL 1.0, see above.
 
 ==
@@ -1287,43 +1392,13 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Expression Language 3.0 API (https://javaee.github.io/uel-ri/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Java(TM) Persistence API (https://github.com/javaee/jpa-spec):
-This is licensed under the EDL 1.0, see above.
-
-==
-
-For Java Servlet API (https://javaee.github.io/servlet-spec/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
 For Bean Validation API (http://beanvalidation.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For SAAJ Standard Implementation (https://saaj.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For javax.ws.rs-api (https://jax-ws.java.net/):
-This is licensed under the CDDL 1.0, see above.
-
-==
-
-For Jline v2 (http://jline.github.io/jline2/):
-This is licensed under the BSD license, see above.
+For Joda Time (http://www.joda.org/joda-time/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1332,13 +1407,23 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For Byte Buddy (https://bytebuddy.net/):
-This is licensed under the AL 2.0, see above.
+For Material Components for the web (https://github.com/material-components/material-components-web):
+This is licensed under the MIT license, see above.
 
 ==
 
-For EdDSA-Java (https://github.com/str4d/ed25519-java):
-This is licensed under the CC0 1.0, see above.
+For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
+This is licensed under the MIT license, see above.
+
+==
+
+For murmurhash-js (https://github.com/mikolalysenko/murmurhash-js):
+This is licensed under the MIT license, see above.
+
+==
+
+For TypeTools (https://github.com/jhalterman/typetools/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1352,18 +1437,13 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Groovy Extensions (https://github.com/ultraq/groovy-extensions/):
-This is licensed under the AL 2.0, see above.
+For normalize.css (http://necolas.github.io/normalize.css/):
+This is licensed under the MIT license, see above.
 
 ==
 
-For Thymeleaf Expression Processor (https://github.com/ultraq/thymeleaf-expression-processor):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Thymeleaf Layout Dialect (https://github.com/ultraq/thymeleaf-layout-dialect):
-This is licensed under the AL 2.0, see above.
+For object-keys (https://github.com/ljharb/object-keys):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1372,8 +1452,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For OSCache (http://www.opensymphony.com/oscache/):
-This is licensed under the MIT license, see above.
+For ANTLR (https://www.antlr.org/):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -1382,12 +1462,7 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Inspektr (https://github.com/apereo/inspektr):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Person Directory (https://github.com/apereo/person-directory):
+For Java Apereo CAS Client (https://www.apereo.org/cas):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1432,8 +1507,23 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Java EE API modules repackaged as OSGi bundles in GlassFish:
-This is licensed under the CDDL 1.0, see above.
+For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse ExpressLy (https://projects.eclipse.org/projects/ee4j.expressly):
+This is licensed under the EPL 1.0, see above.
 
 ==
 
@@ -1447,13 +1537,13 @@ This is licensed under the CC0 1.0, see above.
 
 ==
 
-For Hjson Library (https://github.com/hjson/hjson-java):
-This is licensed under the MIT license, see above.
+For Hibernate Validator (https://hibernate.org/validator/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For Java Apereo CAS Client (https://www.apereo.org/cas):
-This is licensed under the AL 2.0, see above.
+For Hjson Library (https://github.com/hjson/hjson-java):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1468,16 +1558,6 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For JBoss Logging (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JBoss Threads (http://www.jboss.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For JBoss XNIO (http://www.jboss.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1532,18 +1612,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For ASM (http://asm.ow2.org/):
-This is licensed under the BSD license, see above.
-
-==
-
 For Reactive Streams (https://www.pac4j.org/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Project Lombok (https://projectlombok.org/):
-This is licensed under the MIT license, see above.
 
 ==
 
@@ -1577,11 +1647,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For spring-modules-cache:
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Thymeleaf (https://www.thymeleaf.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -1592,43 +1657,8 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For zxcvbn (https://github.com/dropbox/zxcvbn):
-This is licensed under the MIT license, see above.
-
-==
-
-For balanced-match (https://github.com/juliangruber/balanced-match):
-This is licensed under the MIT license, see above.
-
-==
-
-For base64-js (https://github.com/beatgammit/base64-js):
-This is licensed under the MIT license, see above.
-
-==
-
-For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
-This is licensed under the MIT license, see above.
-
-==
-
-For get-css-data (https://github.com/jhildenbiddle/get-css-data):
-This is licensed under the MIT license, see above.
-
-==
-
-For Material Components for the web (https://github.com/material-components/material-components-web):
-This is licensed under the MIT license, see above.
-
-==
-
-For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
-This is licensed under the MIT license, see above.
-
-==
-
-For normalize.css (http://necolas.github.io/normalize.css/):
-This is licensed under the MIT license, see above.
+For SnakeYAML (http://www.snakeyaml.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1647,409 +1677,5 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For Wildfly (https://www.wildfly.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For SnakeYAML (http://www.snakeyaml.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Webjars-locator core functionality (https://github.com/webjars/webjars-locator-core):
-This is licensed under the MIT license, see above.
-tis.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Objenesis (http://objenesis.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Open SAML-Java (https://shibboleth.net/products/opensaml-java.html):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For ASM (http://asm.ow2.org/):
-This is licensed under the BSD license, see above.
-
-==
-
-For Reactive Streams (https://www.pac4j.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Passay (https://www.passay.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Project Lombok (https://projectlombok.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Reactive Streams (http://www.reactive-streams.org/):
-This is licensed under the CC0 1.0, see above.
-
-==
-
-For Reflections (https://github.com/ronmamo/reflections):
-This is licensed under the BSD license, see above.
-
-==
-
-For Simple Logging Facade for Java - SLF4J (http://www.slf4j.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Spring openapi documentation (https://springdoc.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Spring (https://spring.io/projects):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For spring-modules-cache:
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Thymeleaf (https://www.thymeleaf.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For unbescape (https://www.unbescape.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Chart.js (http://www.chartjs.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Moment.js (http://momentjs.com/):
-This is licensed under the MIT license, see above.
-
-==
-
 For zxcvbn (https://github.com/dropbox/zxcvbn):
 This is licensed under the MIT license, see above.
-
-==
-
-For balanced-match (https://github.com/juliangruber/balanced-match):
-This is licensed under the MIT license, see above.
-
-==
-
-For base64-js (https://github.com/beatgammit/base64-js):
-This is licensed under the MIT license, see above.
-
-==
-
-For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
-This is licensed under the MIT license, see above.
-
-==
-
-For get-css-data (https://github.com/jhildenbiddle/get-css-data):
-This is licensed under the MIT license, see above.
-
-==
-
-For Inputmask (https://github.com/RobinHerbots/Inputmask):
-This is licensed under the MIT license, see above.
-
-==
-
-For Material Components for the web (https://github.com/material-components/material-components-web):
-This is licensed under the MIT license, see above.
-
-==
-
-For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
-This is licensed under the MIT license, see above.
-
-==
-
-For normalize.css (http://necolas.github.io/normalize.css/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Summernote (https://summernote.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For text-encoding (https://github.com/inexorabletash/text-encoding):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For tslib (https://github.com/Microsoft/tslib):
-This is licensed under the BSD license, see above.
-
-==
-
-For window.fetch polyfill (https://github.github.io/fetch/):
-This is licensed under the MIT license, see above.
-
-==
-
-For SnakeYAML (http://www.snakeyaml.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For popper.js (https://github.com/FezVrasta/popper.js):
-This is licensed under the MIT license, see above.
-
-==
-
-For spin.js (http://spin.js.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Tempus Dominus Bootstrap 4 Datetime Picker (https://github.com/tempusdominus/bootstrap-4):
-This is licensed under the MIT license, see above.
-
-==
-
-For typeahead.js (http://twitter.github.io/typeahead.js/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Webjars-locator core functionality (https://github.com/webjars/webjars-locator-core):
-This is licensed under the MIT license, see above.
-
-==
-
-For Web Services Description Language for Java (http://wsdl4j.sourceforge.net/):
-This is licensed under the CPL:
-
-THE ACCOMPANYING PROGRAM IS PROVIDED UNDER THE TERMS OF THIS COMMON PUBLIC
-LICENSE ("AGREEMENT"). ANY USE, REPRODUCTION OR DISTRIBUTION OF THE PROGRAM
-CONSTITUTES RECIPIENT'S ACCEPTANCE OF THIS AGREEMENT.
-
-1. DEFINITIONS
-
-"Contribution" means:
-
-a) in the case of the initial Contributor, the initial code and
-documentation distributed under this Agreement, and
-
-b) in the case of each subsequent Contributor:
-
-i) changes to the Program, and
-
-ii) additions to the Program;
-
-where such changes and/or additions to the Program originate from and are
-distributed by that particular Contributor. A Contribution 'originates' from a
-Contributor if it was added to the Program by such Contributor itself or anyone
-acting on such Contributor's behalf. Contributions do not include additions to
-the Program which: (i) are separate modules of software distributed in
-conjunction with the Program under their own license agreement, and (ii) are not
-derivative works of the Program.
-
-"Contributor" means any person or entity that distributes the Program.
-
-"Licensed Patents " mean patent claims licensable by a Contributor which are
-necessarily infringed by the use or sale of its Contribution alone or when
-combined with the Program.
-
-"Program" means the Contributions distributed in accordance with this Agreement.
-
-"Recipient" means anyone who receives the Program under this Agreement,
-including all Contributors.
-
-2. GRANT OF RIGHTS
-
-a) Subject to the terms of this Agreement, each Contributor hereby grants
-Recipient a non-exclusive, worldwide, royalty-free copyright license to
-reproduce, prepare derivative works of, publicly display, publicly perform,
-distribute and sublicense the Contribution of such Contributor, if any, and such
-derivative works, in source code and object code form.
-
-b) Subject to the terms of this Agreement, each Contributor hereby grants
-Recipient a non-exclusive, worldwide, royalty-free patent license under Licensed
-Patents to make, use, sell, offer to sell, import and otherwise transfer the
-Contribution of such Contributor, if any, in source code and object code form.
-This patent license shall apply to the combination of the Contribution and the
-Program if, at the time the Contribution is added by the Contributor, such
-addition of the Contribution causes such combination to be covered by the
-Licensed Patents. The patent license shall not apply to any other combinations
-which include the Contribution. No hardware per se is licensed hereunder.
-
-c) Recipient understands that although each Contributor grants the licenses
-to its Contributions set forth herein, no assurances are provided by any
-Contributor that the Program does not infringe the patent or other intellectual
-property rights of any other entity. Each Contributor disclaims any liability to
-Recipient for claims brought by any other entity based on infringement of
-intellectual property rights or otherwise. As a condition to exercising the
-rights and licenses granted hereunder, each Recipient hereby assumes sole
-responsibility to secure any other intellectual property rights needed, if any.
-For example, if a third party patent license is required to allow Recipient to
-distribute the Program, it is Recipient's responsibility to acquire that license
-before distributing the Program.
-
-d) Each Contributor represents that to its knowledge it has sufficient
-copyright rights in its Contribution, if any, to grant the copyright license set
-forth in this Agreement.
-
-3. REQUIREMENTS
-
-A Contributor may choose to distribute the Program in object code form under its
-own license agreement, provided that:
-
-a) it complies with the terms and conditions of this Agreement; and
-
-b) its license agreement:
-
-i) effectively disclaims on behalf of all Contributors all warranties and
-conditions, express and implied, including warranties or conditions of title and
-non-infringement, and implied warranties or conditions of merchantability and
-fitness for a particular purpose;
-
-ii) effectively excludes on behalf of all Contributors all liability for
-damages, including direct, indirect, special, incidental and consequential
-damages, such as lost profits;
-
-iii) states that any provisions which differ from this Agreement are offered
-by that Contributor alone and not by any other party; and
-
-iv) states that source code for the Program is available from such
-Contributor, and informs licensees how to obtain it in a reasonable manner on or
-through a medium customarily used for software exchange.
-
-When the Program is made available in source code form:
-
-a) it must be made available under this Agreement; and
-
-b) a copy of this Agreement must be included with each copy of the Program.
-
-Contributors may not remove or alter any copyright notices contained within the
-Program.
-
-Each Contributor must identify itself as the originator of its Contribution, if
-any, in a manner that reasonably allows subsequent Recipients to identify the
-originator of the Contribution.
-
-4. COMMERCIAL DISTRIBUTION
-
-Commercial distributors of software may accept certain responsibilities with
-respect to end users, business partners and the like. While this license is
-intended to facilitate the commercial use of the Program, the Contributor who
-includes the Program in a commercial product offering should do so in a manner
-which does not create potential liability for other Contributors. Therefore, if
-a Contributor includes the Program in a commercial product offering, such
-Contributor ("Commercial Contributor") hereby agrees to defend and indemnify
-every other Contributor ("Indemnified Contributor") against any losses, damages
-and costs (collectively "Losses") arising from claims, lawsuits and other legal
-actions brought by a third party against the Indemnified Contributor to the
-extent caused by the acts or omissions of such Commercial Contributor in
-connection with its distribution of the Program in a commercial product
-offering. The obligations in this section do not apply to any claims or Losses
-relating to any actual or alleged intellectual property infringement. In order
-to qualify, an Indemnified Contributor must: a) promptly notify the Commercial
-Contributor in writing of such claim, and b) allow the Commercial Contributor to
-control, and cooperate with the Commercial Contributor in, the defense and any
-related settlement negotiations. The Indemnified Contributor may participate in
-any such claim at its own expense.
-
-For example, a Contributor might include the Program in a commercial product
-offering, Product X. That Contributor is then a Commercial Contributor. If that
-Commercial Contributor then makes performance claims, or offers warranties
-related to Product X, those performance claims and warranties are such
-Commercial Contributor's responsibility alone. Under this section, the
-Commercial Contributor would have to defend claims against the other
-Contributors related to those performance claims and warranties, and if a court
-requires any other Contributor to pay any damages as a result, the Commercial
-Contributor must pay those damages.
-
-5. NO WARRANTY
-
-EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, THE PROGRAM IS PROVIDED ON AN
-"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, EITHER EXPRESS OR
-IMPLIED INCLUDING, WITHOUT LIMITATION, ANY WARRANTIES OR CONDITIONS OF TITLE,
-NON-INFRINGEMENT, MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. Each
-Recipient is solely responsible for determining the appropriateness of using and
-distributing the Program and assumes all risks associated with its exercise of
-rights under this Agreement, including but not limited to the risks and costs of
-program errors, compliance with applicable laws, damage to or loss of data,
-programs or equipment, and unavailability or interruption of operations.
-
-6. DISCLAIMER OF LIABILITY
-
-EXCEPT AS EXPRESSLY SET FORTH IN THIS AGREEMENT, NEITHER RECIPIENT NOR ANY
-CONTRIBUTORS SHALL HAVE ANY LIABILITY FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING WITHOUT LIMITATION LOST
-PROFITS), HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-OUT OF THE USE OR DISTRIBUTION OF THE PROGRAM OR THE EXERCISE OF ANY RIGHTS
-GRANTED HEREUNDER, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-
-7. GENERAL
-
-If any provision of this Agreement is invalid or unenforceable under applicable
-law, it shall not affect the validity or enforceability of the remainder of the
-terms of this Agreement, and without further action by the parties hereto, such
-provision shall be reformed to the minimum extent necessary to make such
-provision valid and enforceable.
-
-If Recipient institutes patent litigation against a Contributor with respect to
-a patent applicable to software (including a cross-claim or counterclaim in a
-lawsuit), then any patent licenses granted by that Contributor to such Recipient
-under this Agreement shall terminate as of the date such litigation is filed. In
-addition, if Recipient institutes patent litigation against any entity
-(including a cross-claim or counterclaim in a lawsuit) alleging that the Program
-itself (excluding combinations of the Program with other software or hardware)
-infringes such Recipient's patent(s), then such Recipient's rights granted under
-Section 2(b) shall terminate as of the date such litigation is filed.
-
-All Recipient's rights under this Agreement shall terminate if it fails to
-comply with any of the material terms or conditions of this Agreement and does
-not cure such failure in a reasonable period of time after becoming aware of
-such noncompliance. If all Recipient's rights under this Agreement terminate,
-Recipient agrees to cease use and distribution of the Program as soon as
-reasonably practicable. However, Recipient's obligations under this Agreement
-and any licenses granted by Recipient relating to the Program shall continue and
-survive.
-
-Everyone is permitted to copy and distribute copies of this Agreement, but in
-order to avoid inconsistency the Agreement is copyrighted and may only be
-modified in the following manner. The Agreement Steward reserves the right to
-publish new versions (including revisions) of this Agreement from time to time.
-No one other than the Agreement Steward has the right to modify this Agreement.
-IBM is the initial Agreement Steward. IBM may assign the responsibility to serve
-as the Agreement Steward to a suitable separate entity. Each new version of the
-Agreement will be given a distinguishing version number. The Program (including
-Contributions) may always be distributed subject to the version of the Agreement
-under which it was received. In addition, after a new version of the Agreement
-is published, Contributor may elect to distribute the Program (including its
-Contributions) under the new version. Except as expressly stated in Sections
-2(a) and 2(b) above, Recipient receives no rights or licenses to the
-intellectual property of any Contributor under this Agreement, whether
-expressly, by implication, estoppel or otherwise. All rights in the Program not
-expressly granted under this Agreement are reserved.
-
-This Agreement is governed by the laws of the State of New York and the
-intellectual property laws of the United States of America. No party to this
-Agreement will bring a legal action under this Agreement more than one year
-after the cause of action arose. Each party waives its rights to a jury trial in
-any resulting litigation.
