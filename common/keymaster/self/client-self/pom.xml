@@ -60,7 +60,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-transports-http-hc</artifactId>
+      <artifactId>cxf-rt-transports-http-hc5</artifactId>
     </dependency>
 
     <dependency>

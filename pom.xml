@@ -410,7 +410,7 @@ under the License.
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0</connid.kafka.version>
 
-    <cxf.version>4.1.0</cxf.version>
+    <cxf.version>4.0.6</cxf.version>
     <bouncycastle.version>1.79</bouncycastle.version>
     <nimbus-jose-jwt.version>10.0.1</nimbus-jose-jwt.version>
 
@@ -589,7 +589,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-rt-transports-http-hc</artifactId>
+        <artifactId>cxf-rt-transports-http-hc5</artifactId>
         <version>${cxf.version}</version>
       </dependency>
       <dependency>
