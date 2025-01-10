@@ -31,6 +31,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.ui.commons.MapChoiceRenderer;
 import org.apache.syncope.client.ui.commons.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
@@ -95,7 +96,8 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                         FastDateFormat formatter = StringUtils.isBlank(prop.getDatePattern())
                                 ? FastDateFormat.getInstance()
                                 : FastDateFormat.getInstance(prop.getDatePattern());
-                        field = new AjaxDateTimeFieldPanel("value", label, new PropertyModel<>(prop, "value") {
+
+                        PropertyModel<Date> dateModel = new PropertyModel<>(prop, "value") {
 
                             private static final long serialVersionUID = -3743432456095828573L;
 
@@ -115,7 +117,13 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                             public void setObject(final Date object) {
                                 Optional.ofNullable(object).ifPresent(date -> prop.setValue(formatter.format(date)));
                             }
-                        }, formatter);
+                        };
+
+                        if (StringUtils.containsIgnoreCase(prop.getDatePattern(), "H")) {
+                            field = new AjaxDateTimeFieldPanel("value", label, dateModel, formatter);
+                        } else {
+                            field = new AjaxDateFieldPanel("value", label, dateModel, formatter);
+                        }
                         break;
 
                     case Enum:
