@@ -173,11 +173,15 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.password = ENCRYPTOR.encode(
+                    password,
+                    Optional.ofNullable(cipherAlgorithm).
+                            orElseGet(() -> CipherAlgorithm.valueOf(
+                            ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                    AuthContextUtils.getDomain(),
+                                    "password.cipher.algorithm",
+                                    CipherAlgorithm.AES.name(),
+                                    String.class))));
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;

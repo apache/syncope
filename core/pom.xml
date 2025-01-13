@@ -91,5 +91,6 @@ under the License.
     <module>workflow-java</module>
     <module>starter</module>
     <module>self-keymaster-starter</module>
+    <module>persistence-jpa-upgrader</module>
   </modules>
 </project>
