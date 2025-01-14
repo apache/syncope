@@ -411,7 +411,7 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
 
     <cxf.version>4.1.0</cxf.version>
-    <bouncycastle.version>1.79</bouncycastle.version>
+    <bouncycastle.version>1.80</bouncycastle.version>
     <nimbus-jose-jwt.version>10.0.1</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.3.7</spring-boot.version>
