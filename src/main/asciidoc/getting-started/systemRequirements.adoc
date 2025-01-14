@@ -32,13 +32,13 @@ managed entities (Users, Groups and Any Objects), their attributes and resources
 
 Apache Syncope {docVersion} requires the latest JDK 21 that is available. Works with later versions.
 
-=== Java EE Container
+=== Jakarta EE Container
 
-Apache Syncope {docVersion} is verified with the following Java EE containers:
+Apache Syncope {docVersion} is verified with the following Jakarta EE containers:
 
  . https://tomcat.apache.org/download-10.cgi[Apache Tomcat 10^]
  . https://www.payara.fish/[Payara Server 6^]
- . https://www.wildfly.org/[Wildfly 34^]
+ . https://www.wildfly.org/[Wildfly 35^]
 
 === Internal Storage
 

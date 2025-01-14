@@ -561,7 +561,7 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 
 [NOTE]
 ====
-Before actual deployment as executable or onto a Java EE container, you need to further check the **Customization**
+Before actual deployment as executable or onto a Jakarta EE container, you need to further check the **Customization**
 chapter of the
 ifeval::["{backend}" == "html5"]
 https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
