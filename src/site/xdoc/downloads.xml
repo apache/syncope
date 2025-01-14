@@ -77,6 +77,15 @@ under the License.
                 <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-standalone-4.0.0-M0-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M0/syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar">syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar</a>
+              </td>
+              <td>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar.sha512">sha512</a>
+              </td>
+            </tr>
           </tbody>
         </table>
       </subsection>

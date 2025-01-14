@@ -16,22 +16,123 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Upgrade from 2.1
+=== Upgrade from 3.0
 
-The distance between earlier releases and Syncope 3.0 Maggiore is relevant under different aspects: architecture,
-technology, project organization and naturally internal data representation.
+Planning the upgrade of an existing Apache Syncope 3.0 deployment to Syncope 4.0 can be achieved by following the
+indications below.
 
-For this reason [.underline]#there is no practical way to migrate an old project# to Syncope 3.0.
+==== Preparation
 
-It is possible, however, to setup a new Syncope 3.0 project, replicate configurations and finally migrate the existing
-data. Here is the outlined approach:
+First of all, update the existing Syncope 3.0 deployment's code / Docker images to the latest
+https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore[3.0 release^] available.
 
-. create a new Maven project based on Syncope 3.0
-. update code customization and extensions made from your previous Syncope project to the new classes and interfaces
-provided by Syncope 3.0
-. with both projects up and running:
-    .. download relevant configurations - especially connectors and resources - via REST from your previous Syncope
-project
-    .. upload via REST to the new Syncope 3.0 project
-    .. configure a new REST resource in the new Syncope 3.0 project to pull users, groups and any objects from your
-previous Syncope project
+Also, ensure to have a full backup of the existing database used as <<persistence,internal storage>>.
+
+==== Persistence Storage upgrade
+
+[CAUTION]
+Ensure to <<dbms,check the compatibility>> of the existing DBMS and upgrade, if needed.
+
+[WARNING]
+====
+The existing persistence data from Syncope 3.0 can be migrated to Syncope 4.0 only if one of the 
+JSON persistence flavors were in use:
+
+* https://syncope.apache.org/docs/3.0/reference-guide.html#postgresql-jsonb[PostgreSQL JSONB^]
+* https://syncope.apache.org/docs/3.0/reference-guide.html#mysql-json[MySQL JSON^]
+* https://syncope.apache.org/docs/3.0/reference-guide.html#mariadb-json[MariaDB JSON^]
+* https://syncope.apache.org/docs/3.0/reference-guide.html#oracle-database-json[Oracle Database JSON^]
+
+If it is not your case, then you can apply 
+https://syncope.apache.org/docs/3.0/reference-guide.html#upgrade-from-2-1[the same strategy provided^] for the migration
+from Syncope 2.1 to Syncope 3.0.
+====
+
+Download https://syncope.apache.org/downloads[`syncope-core-persistence-jpa-upgrader-{docVersion}.jar`^]:
+this tool will generate the full set of SQL statements required to upgrade the internal storage to Syncope 4.0.
+
+Run the tool depending on your actual DBMS by using the latest JDK 21 available; the generated SQL statements will be
+sent to a new `upgrade.sql` file.
+
+[discrete]
+===== PostgreSQL
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/postgresql.jar
+ -Ddb.jdbcURL="jdbc:postgresql://localhost:5432/syncope?stringtype=unspecified" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/postgresql.jar` is the full path to the latest JDBC driver available for PostgreSQL
+ * you have a PostgreSQL instance running on `localhost`, listening on its default port `5432` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+[discrete]
+===== MySQL
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/mysql.jar
+ -Dspring.profiles.active=mysql
+ -Ddb.jdbcURL="jdbc:mysql://localhost:3306/syncope?useSSL=false&allowPublicKeyRetrieval=true" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/mysql.jar` is the full path to the latest JDBC driver available for MySQL
+ * you have a MySQL instance running on `localhost`, listening on its default port `3306` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+[discrete]
+===== MariaDB
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/mariadb.jar
+ -Dspring.profiles.active=mariadb
+ -Ddb.jdbcURL="jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/mariadb.jar` is the full path to the latest JDBC driver available for MariaDB
+ * you have a MariaDB instance running on `localhost`, listening on its default port `3306` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+[discrete]
+===== Oracle Database
+
+[source,bash,subs="verbatim,attributes"]
+$ java \
+ -Dloader.path=/path/to/ojdbc11.jar
+ -Dspring.profiles.active=oracle
+ -Ddb.jdbcURL="jdbc:oracle:thin:@localhost}:1521/FREEPDB1" \
+ -Ddb.username=syncope -Ddb.password=syncope \
+ -jar syncope-core-persistence-jpa-upgrader-{docVersion}.jar \
+ upgrade.sql
+
+assuming that:
+
+ * `/path/to/ojdbc11.jar` is the full path to the latest JDBC driver available for Oracle Database
+ * you have an Oracle instance running on `localhost`, listening on its default port `1521` with a database
+`syncope` fully accessible by user `syncope` with password `syncope`
+
+==== Finalization
+
+. shutdown the standalone process or the Java EE container running Apache Syncope 3.0 Core, to ensure no changes
+are pushed to the internal storage
+
+. execute the SQL statements as generated above against the internal storage: in case of errors, apply manual
+corrections until everything runs clear; consider to restore from the backup taken above if needed, before executing
+the updated SQL statements again
+
+. start the standalone process or the Jakarta EE container of Apache Syncope 4.0 Core, and watch the log files
+to check for any error

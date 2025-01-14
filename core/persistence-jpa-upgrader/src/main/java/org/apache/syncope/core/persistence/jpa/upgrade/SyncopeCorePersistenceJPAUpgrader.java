@@ -47,8 +47,8 @@ public class SyncopeCorePersistenceJPAUpgrader implements CommandLineRunner {
     public void run(final String... args) throws Exception {
         Writer out;
         if (args.length > 0) {
-            LOG.info("Sending upgrade statements to {}", args[1]);
-            out = Files.newBufferedWriter(Path.of(args[1]), StandardCharsets.UTF_8);
+            LOG.info("Sending upgrade statements to {}", args[0]);
+            out = Files.newBufferedWriter(Path.of(args[0]), StandardCharsets.UTF_8);
         } else {
             LOG.info("Sending upgrade statements to stdout");
             out = new PrintWriter(System.out);

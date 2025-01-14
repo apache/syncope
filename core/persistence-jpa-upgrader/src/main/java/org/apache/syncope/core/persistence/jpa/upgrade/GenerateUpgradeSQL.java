@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.upgrade;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.io.Writer;
 import java.sql.SQLException;
@@ -27,11 +30,11 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.openjpa.jdbc.conf.JDBCConfiguration;
 import org.apache.openjpa.jdbc.schema.SchemaTool;
-import org.apache.syncope.common.lib.types.ConnPoolConf;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class GenerateUpgradeSQL {
+
+    private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     private static final List<String> INIT_SQL_STATEMENTS = List.of(
             "ALTER TABLE PullPolicy RENAME TO InboundPolicy",
@@ -63,28 +66,28 @@ public class GenerateUpgradeSQL {
         this.jdbcTemplate = new JdbcTemplate(jdbcConf.getDataSource2(null));
     }
 
-    private String connInstances() {
+    private String connInstances() throws JsonProcessingException {
         StringBuilder result = new StringBuilder();
 
         List<Map<String, Object>> poolConfs = jdbcTemplate.queryForList(
-                "SELECT id, maxidle, maxobjects, maxwait, minevictableidletimemillis, minidle FROM ConnInstance "
-                + "WHERE maxidle IS NOT NULL OR maxobjects IS NOT NULL OR maxwait IS NOT NULL "
-                + "OR minevictableidletimemillis IS NOT NULL OR minidle IS NOT NULL");
+                "SELECT id, maxIdle, maxObjects, maxWait, minEvictableIdleTimeMillis, minIdle FROM ConnInstance "
+                + "WHERE maxidle IS NOT NULL OR maxobjects IS NOT NULL OR maxWait IS NOT NULL "
+                + "OR minEvictableIdleTimeMillis IS NOT NULL OR minIdle IS NOT NULL");
 
-        poolConfs.forEach(poolConf -> {
-            ConnPoolConf cpc = new ConnPoolConf();
-            Optional.ofNullable(poolConf.get("maxidle")).ifPresent(v -> cpc.setMaxIdle((Integer) v));
-            Optional.ofNullable(poolConf.get("maxobjects")).ifPresent(v -> cpc.setMaxObjects((Integer) v));
-            Optional.ofNullable(poolConf.get("maxwait")).ifPresent(v -> cpc.setMaxWait((Long) v));
-            Optional.ofNullable(poolConf.get("minevictableidletimemillis")).
-                    ifPresent(v -> cpc.setMinEvictableIdleTimeMillis((Long) v));
-            Optional.ofNullable(poolConf.get("minidle")).ifPresent(v -> cpc.setMinIdle((Integer) v));
+        for (Map<String, Object> poolConf : poolConfs) {
+            ObjectNode cpc = MAPPER.createObjectNode();
+            Optional.ofNullable(poolConf.get("maxIdle")).ifPresent(v -> cpc.put("maxIdle", (Integer) v));
+            Optional.ofNullable(poolConf.get("maxObjects")).ifPresent(v -> cpc.put("maxObjects", (Integer) v));
+            Optional.ofNullable(poolConf.get("maxWait")).ifPresent(v -> cpc.put("maxWait", (Long) v));
+            Optional.ofNullable(poolConf.get("minEvictableIdleTimeMillis")).
+                    ifPresent(v -> cpc.put("minEvictableIdleTimeMillis", (Long) v));
+            Optional.ofNullable(poolConf.get("minIdle")).ifPresent(v -> cpc.put("minIdle", (Integer) v));
 
             result.append(String.format(
                     "UPDATE ConnInstance SET poolConf='%s' WHERE id='%s';\n",
-                    POJOHelper.serialize(cpc),
+                    MAPPER.writeValueAsString(cpc),
                     poolConf.get("id").toString()));
-        });
+        }
 
         result.append("ALTER TABLE ConnInstance DROP COLUMN maxidle;\n");
         result.append("ALTER TABLE ConnInstance DROP COLUMN maxobjects;\n");
@@ -115,14 +118,14 @@ public class GenerateUpgradeSQL {
         return result.toString();
     }
 
-    private String plainSchemas() {
+    private String plainSchemas() throws JsonProcessingException {
         StringBuilder result = new StringBuilder();
 
         List<Map<String, Object>> enumerations = jdbcTemplate.queryForList(
                 "SELECT id, enumerationKeys, enumerationValues FROM PlainSchema "
                 + "WHERE enumerationValues IS NOT NULL");
 
-        enumerations.forEach(enumeration -> {
+        for (Map<String, Object> enumeration : enumerations) {
             String[] keys = enumeration.get("enumerationValues").toString().split(";");
             String[] values = Optional.ofNullable(enumeration.get("enumerationKeys")).
                     map(v -> v.toString().split(";")).
@@ -135,9 +138,9 @@ public class GenerateUpgradeSQL {
 
             result.append(String.format(
                     "UPDATE PlainSchema SET enumValues='%s' WHERE id='%s';\n",
-                    POJOHelper.serialize(enumValues),
+                    MAPPER.writeValueAsString(enumValues),
                     enumeration.get("id").toString()));
-        });
+        }
 
         result.append("ALTER TABLE PlainSchema DROP COLUMN enumerationKeys;\n");
         result.append("ALTER TABLE PlainSchema DROP COLUMN enumerationValues;\n");
