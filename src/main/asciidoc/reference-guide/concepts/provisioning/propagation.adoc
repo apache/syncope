@@ -18,9 +18,10 @@
 //
 ==== Propagation
 
-Whenever a change is performed via REST on Users, Groups or Any Objects:
+Whenever a change is performed via REST on Realms, Users, Groups or Any Objects:
 
-. a set of <<tasks-propagation,propagation tasks>> is generated, one for each associated external resource;
+. a set of <<tasks-propagation,propagation tasks>> is generated, one for each associated external resource for which the
+<<mapping,mapping>> is defined for the given <<anytype, any type>> or <<realm-provisioning, realm>>;
 . the generated propagation tasks are executed, e.g. the corresponding operations (create, update or delete) are sent
 out, via connectors, to the configured Identity Stores, according to the configured
 <<policies-propagation,propagation policy>>, if defined; the tasks can be saved for later re-execution.
