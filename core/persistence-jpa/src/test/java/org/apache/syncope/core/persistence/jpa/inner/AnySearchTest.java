@@ -758,8 +758,7 @@ public class AnySearchTest extends AbstractTest {
         likeCond.setSchema("username");
         likeCond.setExpression("%ossin%");
 
-        SearchCond searchCond = SearchCond.getOr(
-                SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
+        SearchCond searchCond = SearchCond.getOr(SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
 
         int count = searchDAO.count(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);
@@ -778,9 +777,9 @@ public class AnySearchTest extends AbstractTest {
 
         SearchCond orCond = SearchCond.getOr(SearchCond.getLeaf(rossiniCond), SearchCond.getLeaf(genderCond));
 
-        AttrCond belliniCond = new AttrCond(AttrCond.Type.EQ);
-        belliniCond.setSchema("surname");
-        belliniCond.setExpression("Bellini");
+        AnyCond belliniCond = new AnyCond(AttrCond.Type.EQ);
+        belliniCond.setSchema("username");
+        belliniCond.setExpression("bellini");
 
         SearchCond searchCond = SearchCond.getAnd(orCond, SearchCond.getLeaf(belliniCond));
 

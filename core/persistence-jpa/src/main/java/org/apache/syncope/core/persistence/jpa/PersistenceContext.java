@@ -85,10 +85,10 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.DefaultPlain
 import org.apache.syncope.core.persistence.jpa.content.KeymasterConfParamLoader;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
+import org.apache.syncope.core.persistence.jpa.dao.AnySearchNodeDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAccessTokenDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyObjectDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyTypeClassDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyTypeDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAApplicationDAO;
@@ -384,7 +384,7 @@ public class PersistenceContext {
             final AnyUtilsFactory anyUtilsFactory,
             final PlainAttrValidationManager validator) {
 
-        return new JPAAnySearchDAO(
+        return new AnySearchNodeDAO(
                 realmDAO,
                 dynRealmDAO,
                 userDAO,
