@@ -1067,9 +1067,13 @@ public class AnySearchNodeDAO extends AbstractAnySearchDAO {
                 getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
         // 1. get query string from search condition
-        Pair<AnySearchNode, Set<String>> queryInfo = getQuery(
-                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs).
-                orElseThrow(syncopeClientException("Invalid search condition"));
+        Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
+                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
+        if (optionalQueryInfo.isEmpty()) {
+            LOG.error("Invalid search condition: {}", cond);
+            return List.of();
+        }
+        Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
 
         // 2. take realms into account
         AnySearchNode root;
@@ -1093,6 +1097,7 @@ public class AnySearchNodeDAO extends AbstractAnySearchDAO {
         StringBuilder queryString = new StringBuilder("SELECT DISTINCT sv.any_id");
         obs.items.forEach(item -> queryString.append(',').append(item.select));
 
+        from.addAll(obs.views);
         queryString.append(" FROM ").append(buildFrom(from));
 
         queryString.append(" WHERE ").append(buildWhere(where, root));

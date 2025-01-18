@@ -63,6 +63,11 @@ public class SearchSupport {
                     append(name, other.name).
                     build();
         }
+
+        @Override
+        public String toString() {
+            return "SearchView{" + "alias=" + alias + ", name=" + name + '}';
+        }
     }
 
     protected final AnyTypeKind anyTypeKind;
