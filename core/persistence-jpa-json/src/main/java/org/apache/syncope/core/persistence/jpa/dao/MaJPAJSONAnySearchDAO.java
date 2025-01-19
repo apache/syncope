@@ -29,7 +29,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -66,13 +65,12 @@ public class MaJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     @Override
-    protected String getQuery(
+    protected AnySearchNode getQuery(
             final AttrCond cond,
             final boolean not,
+            final Pair<PlainSchema, PlainAttrValue> checked,
             final List<Object> parameters,
             final SearchSupport svs) {
-
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, svs.anyTypeKind);
 
         // normalize NULL / NOT NULL checks
         if (not) {
@@ -83,20 +81,20 @@ public class MaJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             }
         }
 
-        StringBuilder query =
-                new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name).append(" WHERE ");
         switch (cond.getType()) {
             case ISNOTNULL:
-                query.append("JSON_SEARCH(plainAttrs, 'one', '").
-                        append(checked.getLeft().getKey()).
-                        append("', NULL, '$[*].schema') IS NOT NULL");
-                break;
+                return new AnySearchNode.Leaf(
+                        svs.field(),
+                        "JSON_SEARCH("
+                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + ") IS NOT NULL");
 
             case ISNULL:
-                query.append("JSON_SEARCH(plainAttrs, 'one', '").
-                        append(checked.getLeft().getKey()).
-                        append("', NULL, '$[*].schema') IS NULL");
-                break;
+                return new AnySearchNode.Leaf(
+                        svs.field(),
+                        "JSON_SEARCH("
+                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + ") IS NULL");
 
             default:
                 if (!not && cond.getType() == AttrCond.Type.EQ) {
@@ -108,20 +106,12 @@ public class MaJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         ((JSONPlainAttr) container).add(checked.getRight());
                     }
 
-                    query.append("JSON_CONTAINS(plainAttrs, '").
-                            append(POJOHelper.serialize(List.of(container)).replace("'", "''")).
-                            append("')");
+                    return new AnySearchNode.Leaf(
+                            svs.field(),
+                            "JSON_CONTAINS("
+                            + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
+                            + "')");
                 } else {
-                    query = new StringBuilder("SELECT DISTINCT any_id FROM ");
-                    if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
-                        query.append(svs.field().name).append(" WHERE ");
-                    } else {
-                        query.append((checked.getLeft().isUniqueConstraint()
-                                ? svs.asSearchViewSupport().uniqueAttr().name
-                                : svs.asSearchViewSupport().attr().name)).
-                                append(" WHERE schema_id='").append(checked.getLeft().getKey());
-                    }
-
                     Optional.ofNullable(checked.getRight().getDateValue()).
                             map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                             ifPresent(formatted -> {
@@ -129,10 +119,8 @@ public class MaJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                                 checked.getRight().setStringValue(formatted);
                             });
 
-                    fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
+                    return super.getQuery(cond, not, checked, parameters, svs);
                 }
         }
-
-        return query.toString();
     }
 }

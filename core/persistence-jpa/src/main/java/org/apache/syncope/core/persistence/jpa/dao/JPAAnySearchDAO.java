@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.persistence.Query;
 import org.apache.commons.lang3.ArrayUtils;
@@ -76,6 +77,106 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             + "lastChangeDate,lastModifier,status,changePwdDate,cipherAlgorithm,failedLogins,"
             + "lastLoginDate,mustChangePassword,suspended,username";
 
+    protected static final String ALWAYS_FALSE_CLAUSE = "1=2";
+
+    protected static int setParameter(final List<Object> parameters, final Object parameter) {
+        parameters.add(parameter);
+        return parameters.size();
+    }
+
+    protected static void fillWithParameters(final Query query, final List<Object> parameters) {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (parameters.get(i) instanceof Boolean) {
+                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
+            } else {
+                query.setParameter(i + 1, parameters.get(i));
+            }
+        }
+    }
+
+    protected static String key(final AttrSchemaType schemaType) {
+        String key;
+        switch (schemaType) {
+            case Boolean:
+                key = "booleanValue";
+                break;
+
+            case Date:
+                key = "dateValue";
+                break;
+
+            case Double:
+                key = "doubleValue";
+                break;
+
+            case Long:
+                key = "longValue";
+                break;
+
+            case Binary:
+                key = "binaryValue";
+                break;
+
+            default:
+                key = "stringValue";
+        }
+
+        return key;
+    }
+
+    protected static void visitNode(
+            final AnySearchNode node,
+            final Set<SearchSupport.SearchView> from,
+            final List<String> where) {
+
+        node.asLeaf().ifPresentOrElse(
+                leaf -> {
+                    from.add(leaf.getFrom());
+                    where.add(leaf.getClause());
+                },
+                () -> {
+                    List<String> nodeWhere = new ArrayList<>();
+                    node.getChildren().forEach(child -> visitNode(child, from, nodeWhere));
+                    where.add(nodeWhere.stream().
+                            map(w -> "(" + w + ")").
+                            collect(Collectors.joining(" " + node.getType().name() + " ")));
+                });
+    }
+
+    protected static String buildFrom(final Set<SearchSupport.SearchView> from) {
+        String fromString;
+        if (from.size() == 1) {
+            SearchSupport.SearchView sv = from.iterator().next();
+            fromString = sv.name + " " + sv.alias;
+        } else {
+            List<SearchSupport.SearchView> joins = new ArrayList<>(from);
+            StringBuilder join = new StringBuilder(joins.get(0).name + " " + joins.get(0).alias);
+            for (int i = 1; i < joins.size(); i++) {
+                SearchSupport.SearchView sv = joins.get(i);
+                join.append(" LEFT JOIN ").
+                        append(sv.name).append(" ").append(sv.alias).
+                        append(" ON ").
+                        append(joins.get(0).alias).append(".any_id=").append(sv.alias).append(".any_id");
+            }
+            fromString = join.toString();
+        }
+        return fromString;
+    }
+
+    protected static String buildWhere(final List<String> where, final AnySearchNode root) {
+        return where.stream().
+                map(w -> "(" + w + ")").
+                collect(Collectors.joining(" " + root.getType().name() + " "));
+    }
+
+    protected static Supplier<SyncopeClientException> syncopeClientException(final String message) {
+        return () -> {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
+            sce.getElements().add(message);
+            return sce;
+        };
+    }
+
     public JPAAnySearchDAO(
             final RealmDAO realmDAO,
             final DynRealmDAO dynRealmDAO,
@@ -99,23 +200,650 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 validator);
     }
 
-    protected String buildAdminRealmsFilter(
+    protected Optional<AnySearchNode> getQueryForCustomConds(
+            final SearchCond cond,
+            final List<Object> parameters,
+            final SearchSupport svs,
+            final boolean not) {
+
+        // do nothing by default, leave it open for subclasses
+        return Optional.empty();
+    }
+
+    protected Optional<Pair<AnySearchNode, Set<String>>> getQuery(
+            final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
+
+        boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
+
+        Optional<AnySearchNode> node = Optional.empty();
+        Set<String> involvedPlainAttrs = new HashSet<>();
+
+        switch (cond.getType()) {
+            case LEAF:
+            case NOT_LEAF:
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(AnyTypeCond.class).
+                            filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(AuxClassCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(RelationshipTypeCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(RelationshipCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(MembershipCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(MemberCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(RoleCond.class).
+                            filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(PrivilegeCond.class).
+                            filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(DynRealmCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(ResourceCond.class).
+                            map(leaf -> getQuery(leaf, not, parameters, svs));
+                }
+
+                if (node.isEmpty()) {
+                    node = cond.getLeaf(AnyCond.class).
+                            map(anyCond -> getQuery(anyCond, not, parameters, svs)).
+                            or(() -> cond.getLeaf(AttrCond.class).
+                            map(attrCond -> {
+                                try {
+                                    Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
+                                    involvedPlainAttrs.add(checked.getLeft().getKey());
+                                    return getQuery(attrCond, not, checked, parameters, svs);
+                                } catch (IllegalArgumentException e) {
+                                    // ignore
+                                    return null;
+                                }
+                            }));
+                }
+
+                // allow for additional search conditions
+                if (node.isEmpty()) {
+                    node = getQueryForCustomConds(cond, parameters, svs, not);
+                }
+                break;
+
+            case AND:
+                AnySearchNode andNode = new AnySearchNode(AnySearchNode.Type.AND);
+
+                getQuery(cond.getLeft(), parameters, svs).ifPresent(left -> {
+                    andNode.add(left.getLeft());
+                    involvedPlainAttrs.addAll(left.getRight());
+                });
+
+                getQuery(cond.getRight(), parameters, svs).ifPresent(right -> {
+                    andNode.add(right.getLeft());
+                    involvedPlainAttrs.addAll(right.getRight());
+                });
+
+                if (!andNode.getChildren().isEmpty()) {
+                    node = Optional.of(andNode);
+                }
+                break;
+
+            case OR:
+                AnySearchNode orNode = new AnySearchNode(AnySearchNode.Type.OR);
+
+                getQuery(cond.getLeft(), parameters, svs).ifPresent(left -> {
+                    orNode.add(left.getLeft());
+                    involvedPlainAttrs.addAll(left.getRight());
+                });
+
+                getQuery(cond.getRight(), parameters, svs).ifPresent(right -> {
+                    orNode.add(right.getLeft());
+                    involvedPlainAttrs.addAll(right.getRight());
+                });
+
+                if (!orNode.getChildren().isEmpty()) {
+                    node = Optional.of(orNode);
+                }
+                break;
+
+            default:
+        }
+
+        return node.map(n -> Pair.of(n, involvedPlainAttrs));
+    }
+
+    protected AnySearchNode getQuery(
+            final AnyTypeCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder("type_id");
+        if (not) {
+            clause.append("<>");
+        } else {
+            clause.append('=');
+        }
+        clause.append('?').append(setParameter(parameters, cond.getAnyTypeKey()));
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final AuxClassCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder();
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+        clause.append("SELECT any_id FROM ").
+                append(svs.auxClass().name).
+                append(" WHERE anyTypeClass_id=?").
+                append(setParameter(parameters, cond.getAuxClass())).
+                append(')');
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final RelationshipTypeCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder();
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+        clause.append("SELECT any_id ").append("FROM ").
+                append(svs.relationship().name).
+                append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
+                append(" UNION SELECT right_any_id AS any_id FROM ").
+                append(svs.relationship().name).
+                append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
+                append(')');
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final RelationshipCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        Set<String> rightAnyObjects = check(cond);
+
+        StringBuilder clause = new StringBuilder();
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.relationship().name).append(" WHERE ").
+                append(rightAnyObjects.stream().
+                        map(key -> "right_any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
+                append(')');
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final MembershipCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        List<String> groupKeys = check(cond);
+
+        String subwhere = groupKeys.stream().
+                map(key -> "group_id=?" + setParameter(parameters, key)).
+                collect(Collectors.joining(" OR "));
+
+        StringBuilder clause = new StringBuilder("(");
+
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.membership().name).append(" WHERE ").
+                append(subwhere).
+                append(") ");
+
+        if (not) {
+            clause.append("AND sv.any_id NOT IN (");
+        } else {
+            clause.append("OR sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.dyngroupmembership().name).append(" WHERE ").
+                append(subwhere).
+                append("))");
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final RoleCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder("(");
+
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.role().name).append(" WHERE ").
+                append("role_id=?").append(setParameter(parameters, cond.getRole())).
+                append(") ");
+
+        if (not) {
+            clause.append("AND sv.any_id NOT IN (");
+        } else {
+            clause.append("OR sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(SearchSupport.dynrolemembership().name).append(" WHERE ").
+                append("role_id=?").append(setParameter(parameters, cond.getRole())).
+                append("))");
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final PrivilegeCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder("(");
+
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.priv().name).append(" WHERE ").
+                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
+                append(") ");
+
+        if (not) {
+            clause.append("AND sv.any_id NOT IN (");
+        } else {
+            clause.append("OR sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.dynpriv().name).append(" WHERE ").
+                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
+                append("))");
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final DynRealmCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder("(");
+
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(SearchSupport.dynrealmmembership().name).append(" WHERE ").
+                append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
+                append("))");
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final ResourceCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        StringBuilder clause = new StringBuilder();
+
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT any_id FROM ").
+                append(svs.resource().name).
+                append(" WHERE resource_id=?").
+                append(setParameter(parameters, cond.getResource()));
+
+        if (svs.anyTypeKind == AnyTypeKind.USER || svs.anyTypeKind == AnyTypeKind.ANY_OBJECT) {
+            clause.append(" UNION SELECT DISTINCT any_id FROM ").
+                    append(svs.groupResource().name).
+                    append(" WHERE resource_id=?").
+                    append(setParameter(parameters, cond.getResource()));
+        }
+
+        clause.append(')');
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode getQuery(
+            final MemberCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        Set<String> members = check(cond);
+
+        StringBuilder clause = new StringBuilder();
+
+        if (not) {
+            clause.append("sv.any_id NOT IN (");
+        } else {
+            clause.append("sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT group_id AS any_id FROM ").
+                append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE ").
+                append(members.stream().
+                        map(key -> "any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
+                append(") ");
+
+        if (not) {
+            clause.append("AND sv.any_id NOT IN (");
+        } else {
+            clause.append("OR sv.any_id IN (");
+        }
+
+        clause.append("SELECT DISTINCT group_id AS any_id FROM ").
+                append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
+                append(members.stream().
+                        map(key -> "any_id=?" + setParameter(parameters, key)).
+                        collect(Collectors.joining(" OR "))).
+                append(')');
+
+        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+    }
+
+    protected AnySearchNode.Leaf fillAttrQuery(
+            final String column,
+            final SearchSupport.SearchView from,
+            final PlainAttrValue attrValue,
+            final PlainSchema schema,
+            final AttrCond cond,
+            final boolean not,
+            final List<Object> parameters) {
+
+        // activate ignoreCase only for EQ and LIKE operators
+        boolean ignoreCase = AttrCond.Type.ILIKE == cond.getType() || AttrCond.Type.IEQ == cond.getType();
+
+        String left = column;
+        if (ignoreCase && (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)) {
+            left = "LOWER(" + left + ')';
+        }
+
+        StringBuilder clause = new StringBuilder(left);
+        switch (cond.getType()) {
+
+            case ILIKE:
+            case LIKE:
+                if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
+                    if (not) {
+                        clause.append(" NOT ");
+                    }
+                    clause.append(" LIKE ");
+                    if (ignoreCase) {
+                        clause.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
+                    } else {
+                        clause.append('?').append(setParameter(parameters, cond.getExpression()));
+                    }
+                    // workaround for Oracle DB adding explicit escape, to search for literal _ (underscore)
+                    if (isOracle()) {
+                        clause.append(" ESCAPE '\\' ");
+                    }
+                } else {
+                    LOG.error("LIKE is only compatible with string or enum schemas");
+                    return new AnySearchNode.Leaf(from, ALWAYS_FALSE_CLAUSE);
+                }
+                break;
+
+            case IEQ:
+            case EQ:
+            default:
+                if (not) {
+                    clause.append("<>");
+                } else {
+                    clause.append('=');
+                }
+                if ((schema.getType() == AttrSchemaType.String
+                        || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
+                    clause.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
+                } else {
+                    clause.append('?').append(setParameter(parameters, attrValue.getValue()));
+                }
+                break;
+
+            case GE:
+                if (not) {
+                    clause.append('<');
+                } else {
+                    clause.append(">=");
+                }
+                clause.append('?').append(setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case GT:
+                if (not) {
+                    clause.append("<=");
+                } else {
+                    clause.append('>');
+                }
+                clause.append('?').append(setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case LE:
+                if (not) {
+                    clause.append('>');
+                } else {
+                    clause.append("<=");
+                }
+                clause.append('?').append(setParameter(parameters, attrValue.getValue()));
+                break;
+
+            case LT:
+                if (not) {
+                    clause.append(">=");
+                } else {
+                    clause.append('<');
+                }
+                clause.append('?').append(setParameter(parameters, attrValue.getValue()));
+                break;
+        }
+
+        return new AnySearchNode.Leaf(
+                from,
+                cond instanceof AnyCond
+                        ? clause.toString()
+                        : from.alias + ".schema_id='" + schema.getKey() + "' AND " + clause);
+    }
+
+    protected AnySearchNode getQuery(
+            final AttrCond cond,
+            final boolean not,
+            final Pair<PlainSchema, PlainAttrValue> checked,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        // normalize NULL / NOT NULL checks
+        if (not) {
+            if (cond.getType() == AttrCond.Type.ISNULL) {
+                cond.setType(AttrCond.Type.ISNOTNULL);
+            } else if (cond.getType() == AttrCond.Type.ISNOTNULL) {
+                cond.setType(AttrCond.Type.ISNULL);
+            }
+        }
+
+        SearchSupport.SearchView sv = checked.getLeft().isUniqueConstraint()
+                ? svs.asSearchViewSupport().uniqueAttr()
+                : svs.asSearchViewSupport().attr();
+
+        switch (cond.getType()) {
+            case ISNOTNULL:
+                return new AnySearchNode.Leaf(
+                        sv,
+                        sv.alias + ".schema_id='" + checked.getLeft().getKey() + "'");
+
+            case ISNULL:
+                String clause = new StringBuilder("sv.any_id NOT IN ").
+                        append('(').
+                        append("SELECT DISTINCT any_id FROM ").
+                        append(sv.name).
+                        append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'").
+                        append(')').toString();
+                return new AnySearchNode.Leaf(svs.field(), clause);
+
+            default:
+                AnySearchNode.Leaf node;
+                if (not && checked.getLeft().isMultivalue()) {
+                    AnySearchNode.Leaf notNode = fillAttrQuery(
+                            sv.alias + "." + key(checked.getLeft().getType()),
+                            sv,
+                            checked.getRight(),
+                            checked.getLeft(),
+                            cond,
+                            false,
+                            parameters);
+                    node = new AnySearchNode.Leaf(
+                            sv,
+                            "sv.any_id NOT IN ("
+                            + "SELECT any_id FROM " + sv.name
+                            + " WHERE " + notNode.getClause().replace(sv.alias + ".", "")
+                            + ")");
+                } else {
+                    node = fillAttrQuery(
+                            sv.alias + "." + key(checked.getLeft().getType()),
+                            sv,
+                            checked.getRight(),
+                            checked.getLeft(),
+                            cond,
+                            not,
+                            parameters);
+                }
+                return node;
+        }
+    }
+
+    protected AnySearchNode getQuery(
+            final AnyCond cond,
+            final boolean not,
+            final List<Object> parameters,
+            final SearchSupport svs) {
+
+        if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
+                && !SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
+
+            Realm realm = realmDAO.findByFullPath(cond.getExpression());
+            if (realm == null) {
+                throw new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression());
+            }
+            cond.setExpression(realm.getKey());
+        }
+
+        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, svs.anyTypeKind);
+
+        switch (checked.getRight().getType()) {
+            case ISNULL:
+                return new AnySearchNode.Leaf(
+                        svs.field(),
+                        checked.getRight().getSchema() + (not ? " IS NOT NULL" : " IS NULL"));
+
+            case ISNOTNULL:
+                return new AnySearchNode.Leaf(
+                        svs.field(),
+                        checked.getRight().getSchema() + (not ? " IS NULL" : " IS NOT NULL"));
+
+            default:
+                return fillAttrQuery(
+                        checked.getRight().getSchema(),
+                        svs.field(),
+                        checked.getMiddle(),
+                        checked.getLeft(),
+                        checked.getRight(),
+                        not,
+                        parameters);
+        }
+    }
+
+    protected AnySearchNode.Leaf buildAdminRealmsFilter(
             final Set<String> realmKeys,
             final SearchSupport svs,
             final List<Object> parameters) {
 
         if (realmKeys.isEmpty()) {
-            return "u.any_id IS NOT NULL";
+            return new AnySearchNode.Leaf(svs.field(), "any_id IS NOT NULL");
         }
 
         String realmKeysArg = realmKeys.stream().
                 map(realmKey -> "?" + setParameter(parameters, realmKey)).
                 collect(Collectors.joining(","));
-        return "u.any_id IN (SELECT any_id FROM " + svs.field().name
-                + " WHERE realm_id IN (" + realmKeysArg + "))";
+        return new AnySearchNode.Leaf(svs.field(), "realm_id IN (" + realmKeysArg + ")");
     }
 
-    protected Triple<String, Set<String>, Set<String>> getAdminRealmsFilter(
+    protected Triple<AnySearchNode.Leaf, Set<String>, Set<String>> getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
@@ -160,10 +888,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return Triple.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
     }
 
-    SearchSupport buildSearchSupport(final AnyTypeKind kind) {
-        return new SearchViewSupport(kind);
-    }
-
     @Override
     protected int doCount(
             final Realm base,
@@ -174,234 +898,43 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         List<Object> parameters = new ArrayList<>();
 
-        SearchSupport svs = buildSearchSupport(kind);
+        SearchSupport svs = new SearchViewSupport(kind);
 
-        Triple<String, Set<String>, Set<String>> filter =
+        Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
                 getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
-        // 1. get the query string from the search condition
-        Pair<StringBuilder, Set<String>> queryInfo =
-                getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
-
-        StringBuilder queryString = queryInfo.getLeft();
+        // 1. get query string from search condition
+        Pair<AnySearchNode, Set<String>> queryInfo = getQuery(
+                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs).
+                orElseThrow(syncopeClientException("Invalid search condition"));
 
         // 2. take realms into account
-        queryString.insert(0, "SELECT u.any_id FROM (");
-        queryString.append(") u WHERE ").append(filter.getLeft());
+        AnySearchNode root;
+        if (queryInfo.getLeft().getType() == AnySearchNode.Type.AND) {
+            root = queryInfo.getLeft();
+        } else {
+            root = new AnySearchNode(AnySearchNode.Type.AND);
+            root.add(queryInfo.getLeft());
+        }
+        root.add(filter.getLeft());
 
-        // 3. prepare the COUNT query
-        queryString.insert(0, "SELECT COUNT(any_id) FROM (");
-        queryString.append(") count_any_id");
+        Set<SearchSupport.SearchView> from = new HashSet<>();
+        List<String> where = new ArrayList<>();
 
-        Query countQuery = entityManager().createNativeQuery(queryString.toString());
+        visitNode(root, from, where);
+
+        // 3. generate the query string
+        String queryString = "SELECT COUNT(DISTINCT sv.any_id)"
+                + " FROM " + buildFrom(from)
+                + " WHERE " + buildWhere(where, root);
+        LOG.debug("Query: {}, parameters: {}", queryString, parameters);
+
+        // 4. populate the search query with parameter values
+        Query countQuery = entityManager().createNativeQuery(queryString);
         fillWithParameters(countQuery, parameters);
 
+        // 5. execute the query and return the result
         return ((Number) countQuery.getSingleResult()).intValue();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    protected <T extends Any<?>> List<T> doSearch(
-            final Realm base,
-            final boolean recursive,
-            final Set<String> adminRealms,
-            final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
-            final AnyTypeKind kind) {
-
-        try {
-            List<Object> parameters = new ArrayList<>();
-
-            SearchSupport svs = buildSearchSupport(kind);
-
-            Triple<String, Set<String>, Set<String>> filter =
-                    getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
-
-            // 1. get the query string from the search condition
-            Pair<StringBuilder, Set<String>> queryInfo =
-                    getQuery(buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
-
-            StringBuilder queryString = queryInfo.getLeft();
-
-            LOG.debug("Query: {}, parameters: {}", queryString, parameters);
-
-            // 2. take into account realms and ordering
-            OrderBySupport obs = parseOrderBy(svs, orderBy);
-            if (queryString.charAt(0) == '(') {
-                queryString.insert(0, buildSelect(obs));
-            } else {
-                queryString.insert(0, buildSelect(obs).append('('));
-                queryString.append(')');
-            }
-            queryString.
-                    append(buildWhere(svs, obs)).
-                    append(filter.getLeft()).
-                    append(buildOrderBy(obs));
-
-            LOG.debug("Query with auth and order by statements: {}, parameters: {}", queryString, parameters);
-
-            // 3. prepare the search query
-            Query query = entityManager().createNativeQuery(queryString.toString());
-
-            // 4. page starts from 1, while setFirtResult() starts from 0
-            query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-            if (itemsPerPage >= 0) {
-                query.setMaxResults(itemsPerPage);
-            }
-
-            // 5. populate the search query with parameter values
-            fillWithParameters(query, parameters);
-
-            // 6. Prepare the result (avoiding duplicates)
-            return buildResult(query.getResultList(), kind);
-        } catch (SyncopeClientException e) {
-            throw e;
-        } catch (Exception e) {
-            LOG.error("While searching for {}", kind, e);
-        }
-
-        return List.of();
-    }
-
-    protected int setParameter(final List<Object> parameters, final Object parameter) {
-        parameters.add(parameter);
-        return parameters.size();
-    }
-
-    protected void fillWithParameters(final Query query, final List<Object> parameters) {
-        for (int i = 0; i < parameters.size(); i++) {
-            if (parameters.get(i) instanceof Boolean) {
-                query.setParameter(i + 1, ((Boolean) parameters.get(i)) ? 1 : 0);
-            } else {
-                query.setParameter(i + 1, parameters.get(i));
-            }
-        }
-    }
-
-    protected StringBuilder buildSelect(final OrderBySupport obs) {
-        StringBuilder select = new StringBuilder("SELECT DISTINCT u.any_id");
-
-        obs.items.forEach(item -> select.append(',').append(item.select));
-        select.append(" FROM ");
-
-        return select;
-    }
-
-    protected void processOBS(
-            final SearchSupport svs,
-            final OrderBySupport obs,
-            final StringBuilder where) {
-
-        Set<String> attrs = obs.items.stream().
-                map(item -> item.orderBy.substring(0, item.orderBy.indexOf(' '))).collect(Collectors.toSet());
-
-        obs.views.forEach(searchView -> {
-            where.append(',');
-
-            boolean searchViewAddedToWhere = false;
-            if (searchView.name.equals(svs.asSearchViewSupport().attr().name)) {
-                StringBuilder attrWhere = new StringBuilder();
-                StringBuilder nullAttrWhere = new StringBuilder();
-
-                if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
-                    where.append(" (SELECT * FROM ").append(searchView.name);
-                    searchViewAddedToWhere = true;
-
-                    attrs.forEach(field -> {
-                        if (attrWhere.length() == 0) {
-                            attrWhere.append(" WHERE ");
-                        } else {
-                            attrWhere.append(" OR ");
-                        }
-                        attrWhere.append("schema_id='").append(field).append("'");
-
-                        nullAttrWhere.append(" UNION SELECT any_id, ").
-                                append("'").
-                                append(field).
-                                append("' AS schema_id, ").
-                                append("null AS booleanvalue, ").
-                                append("null AS datevalue, ").
-                                append("null AS doublevalue, ").
-                                append("null AS longvalue, ").
-                                append("null AS stringvalue FROM ").append(svs.field().name).
-                                append(" WHERE ").
-                                append("any_id NOT IN (").
-                                append("SELECT any_id FROM ").
-                                append(svs.asSearchViewSupport().attr().name).append(' ').append(searchView.alias).
-                                append(" WHERE ").append("schema_id='").append(field).append("')");
-                    });
-                    where.append(attrWhere).append(nullAttrWhere).append(')');
-                }
-            }
-            if (!searchViewAddedToWhere) {
-                where.append(searchView.name);
-            }
-
-            where.append(' ').append(searchView.alias);
-        });
-    }
-
-    protected StringBuilder buildWhere(
-            final SearchSupport svs,
-            final OrderBySupport obs) {
-
-        StringBuilder where = new StringBuilder(" u");
-        processOBS(svs, obs, where);
-        where.append(" WHERE ");
-
-        obs.views.forEach(searchView -> where.append("u.any_id=").append(searchView.alias).append(".any_id AND "));
-
-        obs.items.stream().
-                filter(item -> StringUtils.isNotBlank(item.where)).
-                forEach(item -> where.append(item.where).append(" AND "));
-
-        return where;
-    }
-
-    protected StringBuilder buildOrderBy(final OrderBySupport obs) {
-        StringBuilder orderBy = new StringBuilder();
-
-        if (!obs.items.isEmpty()) {
-            obs.items.forEach(item -> orderBy.append(item.orderBy).append(','));
-
-            orderBy.insert(0, " ORDER BY ");
-            orderBy.deleteCharAt(orderBy.length() - 1);
-        }
-
-        return orderBy;
-    }
-
-    protected String key(final AttrSchemaType schemaType) {
-        String key;
-        switch (schemaType) {
-            case Boolean:
-                key = "booleanValue";
-                break;
-
-            case Date:
-                key = "dateValue";
-                break;
-
-            case Double:
-                key = "doubleValue";
-                break;
-
-            case Long:
-                key = "longValue";
-                break;
-
-            case Binary:
-                key = "binaryValue";
-                break;
-
-            default:
-                key = "stringValue";
-        }
-
-        return key;
     }
 
     protected void parseOrderByForPlainSchema(
@@ -484,12 +1017,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                             orderByNonUniquePlainSchemas.add(schema.getKey());
                         }
                         if (orderByUniquePlainSchemas.size() > 1 || orderByNonUniquePlainSchemas.size() > 1) {
-                            SyncopeClientException invalidSearch =
-                                    SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
-                            invalidSearch.getElements().add("Order by more than one attribute is not allowed; "
+                            throw syncopeClientException("Order by more than one attribute is not allowed; "
                                     + "remove one from " + (orderByUniquePlainSchemas.size() > 1
-                                    ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas));
-                            throw invalidSearch;
+                                    ? orderByUniquePlainSchemas : orderByNonUniquePlainSchemas)).get();
                         }
                         parseOrderByForPlainSchema(svs, obs, item, clause, schema, clause.getField());
                     }
@@ -518,624 +1048,82 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return obs;
     }
 
-    protected void getQueryForCustomConds(
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
             final SearchCond cond,
-            final List<Object> parameters,
-            final SearchSupport svs,
-            final boolean not,
-            final StringBuilder query) {
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderBy,
+            final AnyTypeKind kind) {
 
-        // do nothing by default, leave it open for subclasses
-    }
+        List<Object> parameters = new ArrayList<>();
 
-    protected void queryOp(
-            final StringBuilder query,
-            final String op,
-            final Pair<StringBuilder, Set<String>> leftInfo,
-            final Pair<StringBuilder, Set<String>> rightInfo) {
+        SearchSupport svs = new SearchViewSupport(kind);
 
-        String subQuery = leftInfo.getKey().toString();
-        // Add extra parentheses
-        subQuery = subQuery.replaceFirst("WHERE ", "WHERE (");
-        query.append(subQuery).
-                append(' ').append(op).append(" any_id IN ( ").append(rightInfo.getKey()).append("))");
-    }
+        Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
+                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
-    protected Pair<StringBuilder, Set<String>> getQuery(
-            final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
-
-        boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
-
-        StringBuilder query = new StringBuilder();
-        Set<String> involvedPlainAttrs = new HashSet<>();
-
-        switch (cond.getType()) {
-            case LEAF:
-            case NOT_LEAF:
-                cond.getLeaf(AnyTypeCond.class).
-                        filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(AuxClassCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(RelationshipTypeCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(RelationshipCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(MembershipCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP != svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(MemberCond.class).
-                        filter(leaf -> AnyTypeKind.GROUP == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(RoleCond.class).
-                        filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(PrivilegeCond.class).
-                        filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(DynRealmCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(ResourceCond.class).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters, svs)));
-
-                cond.getLeaf(AnyCond.class).ifPresentOrElse(
-                        anyCond -> {
-                            query.append(getQuery(anyCond, not, parameters, svs));
-                        },
-                        () -> {
-                            cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
-                                query.append(getQuery(leaf, not, parameters, svs));
-                                try {
-                                    involvedPlainAttrs.add(check(leaf, svs.anyTypeKind).getLeft().getKey());
-                                } catch (IllegalArgumentException e) {
-                                    // ignore
-                                }
-                            });
-                        });
-
-                // allow for additional search conditions
-                getQueryForCustomConds(cond, parameters, svs, not, query);
-                break;
-
-            case AND:
-                Pair<StringBuilder, Set<String>> leftAndInfo = getQuery(cond.getLeft(), parameters, svs);
-                involvedPlainAttrs.addAll(leftAndInfo.getRight());
-
-                Pair<StringBuilder, Set<String>> rigthAndInfo = getQuery(cond.getRight(), parameters, svs);
-                involvedPlainAttrs.addAll(rigthAndInfo.getRight());
-
-                queryOp(query, "AND", leftAndInfo, rigthAndInfo);
-                break;
-
-            case OR:
-                Pair<StringBuilder, Set<String>> leftOrInfo = getQuery(cond.getLeft(), parameters, svs);
-                involvedPlainAttrs.addAll(leftOrInfo.getRight());
-
-                Pair<StringBuilder, Set<String>> rigthOrInfo = getQuery(cond.getRight(), parameters, svs);
-                involvedPlainAttrs.addAll(rigthOrInfo.getRight());
-
-                queryOp(query, "OR", leftOrInfo, rigthOrInfo);
-                break;
-
-            default:
+        // 1. get query string from search condition
+        Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
+                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
+        if (optionalQueryInfo.isEmpty()) {
+            LOG.error("Invalid search condition: {}", cond);
+            return List.of();
         }
+        Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
 
-        return Pair.of(query, involvedPlainAttrs);
-    }
-
-    protected String getQuery(
-            final AnyTypeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE type_id");
-
-        if (not) {
-            query.append("<>");
+        // 2. take realms into account
+        AnySearchNode root;
+        if (queryInfo.getLeft().getType() == AnySearchNode.Type.AND) {
+            root = queryInfo.getLeft();
         } else {
-            query.append('=');
+            root = new AnySearchNode(AnySearchNode.Type.AND);
+            root.add(queryInfo.getLeft());
+        }
+        root.add(filter.getLeft());
+
+        Set<SearchSupport.SearchView> from = new HashSet<>();
+        List<String> where = new ArrayList<>();
+
+        visitNode(root, from, where);
+
+        // 3. take ordering into account
+        OrderBySupport obs = parseOrderBy(svs, orderBy);
+
+        // 4. generate the query string
+        StringBuilder queryString = new StringBuilder("SELECT DISTINCT sv.any_id");
+        obs.items.forEach(item -> queryString.append(',').append(item.select));
+
+        from.addAll(obs.views);
+        queryString.append(" FROM ").append(buildFrom(from));
+
+        queryString.append(" WHERE ").append(buildWhere(where, root));
+
+        if (!obs.items.isEmpty()) {
+            queryString.append(" ORDER BY ").
+                    append(obs.items.stream().map(item -> item.orderBy).collect(Collectors.joining(",")));
         }
 
-        query.append('?').append(setParameter(parameters, cond.getAnyTypeKey()));
+        LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
-        return query.toString();
-    }
+        // 5. prepare the search query
+        Query query = entityManager().createNativeQuery(queryString.toString());
 
-    protected String getQuery(
-            final AuxClassCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+        // 6. page starts from 1, while setFirtResult() starts from 0
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
         }
 
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.auxClass().name).
-                append(" WHERE anyTypeClass_id=?").
-                append(setParameter(parameters, cond.getAuxClass())).
-                append(')');
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final RelationshipTypeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT any_id ").append("FROM ").
-                append(svs.relationship().name).
-                append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
-                append(" UNION SELECT right_any_id AS any_id FROM ").
-                append(svs.relationship().name).
-                append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
-                append(')');
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final RelationshipCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        Set<String> rightAnyObjects = check(cond);
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.relationship().name).append(" WHERE ").
-                append(rightAnyObjects.stream().
-                        map(key -> "right_any_id=?" + setParameter(parameters, key)).
-                        collect(Collectors.joining(" OR "))).
-                append(')');
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final MembershipCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        List<String> groupKeys = check(cond);
-
-        String where = groupKeys.stream().
-                map(key -> "group_id=?" + setParameter(parameters, key)).
-                collect(Collectors.joining(" OR "));
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE (");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.membership().name).append(" WHERE ").
-                append(where).
-                append(") ");
-
-        if (not) {
-            query.append("AND any_id NOT IN (");
-        } else {
-            query.append("OR any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dyngroupmembership().name).append(" WHERE ").
-                append(where).
-                append("))");
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final RoleCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE (");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.role().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRole())).
-                append(") ");
-
-        if (not) {
-            query.append("AND any_id NOT IN (");
-        } else {
-            query.append("OR any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(SearchSupport.dynrolemembership().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRole())).
-                append("))");
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final PrivilegeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE (");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.priv().name).append(" WHERE ").
-                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
-                append(") ");
-
-        if (not) {
-            query.append("AND any_id NOT IN (");
-        } else {
-            query.append("OR any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dynpriv().name).append(" WHERE ").
-                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
-                append("))");
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final DynRealmCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE (");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(SearchSupport.dynrealmmembership().name).append(" WHERE ").
-                append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
-                append("))");
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final ResourceCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT any_id FROM ").
-                append(svs.resource().name).
-                append(" WHERE resource_id=?").
-                append(setParameter(parameters, cond.getResource()));
-
-        if (svs.anyTypeKind == AnyTypeKind.USER || svs.anyTypeKind == AnyTypeKind.ANY_OBJECT) {
-            query.append(" UNION SELECT DISTINCT any_id FROM ").
-                    append(svs.groupResource().name).
-                    append(" WHERE resource_id=?").
-                    append(setParameter(parameters, cond.getResource()));
-        }
-
-        query.append(')');
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final MemberCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        Set<String> members = check(cond);
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
-
-        if (not) {
-            query.append("any_id NOT IN (");
-        } else {
-            query.append("any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT group_id AS any_id FROM ").
-                append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE ").
-                append(members.stream().
-                        map(key -> "any_id=?" + setParameter(parameters, key)).
-                        collect(Collectors.joining(" OR "))).
-                append(") ");
-
-        if (not) {
-            query.append("AND any_id NOT IN (");
-        } else {
-            query.append("OR any_id IN (");
-        }
-
-        query.append("SELECT DISTINCT group_id AS any_id FROM ").
-                append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
-                append(members.stream().
-                        map(key -> "any_id=?" + setParameter(parameters, key)).
-                        collect(Collectors.joining(" OR "))).
-                append(')');
-
-        return query.toString();
-    }
-
-    protected void fillAttrQuery(
-            final StringBuilder query,
-            final PlainAttrValue attrValue,
-            final PlainSchema schema,
-            final AttrCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && schema.isMultivalue()
-                && !(cond instanceof AnyCond)
-                && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
-
-            query.append("any_id NOT IN (SELECT DISTINCT any_id FROM ").
-                    append((schema.isUniqueConstraint()
-                            ? svs.asSearchViewSupport().uniqueAttr().name
-                            : svs.asSearchViewSupport().attr().name)).
-                    append(" WHERE schema_id='").append(schema.getKey());
-            fillAttrQuery(query, attrValue, schema, cond, false, parameters, svs);
-            query.append(')');
-        } else {
-            // activate ignoreCase only for EQ and LIKE operators
-            boolean ignoreCase = AttrCond.Type.ILIKE == cond.getType() || AttrCond.Type.IEQ == cond.getType();
-
-            String column = (cond instanceof AnyCond) ? cond.getSchema() : key(schema.getType());
-            if ((schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
-                column = "LOWER (" + column + ')';
-            }
-            if (!(cond instanceof AnyCond)) {
-                column = "' AND " + column;
-            }
-
-            switch (cond.getType()) {
-
-                case ISNULL:
-                    query.append(column).append(not
-                            ? " IS NOT NULL"
-                            : " IS NULL");
-                    break;
-
-                case ISNOTNULL:
-                    query.append(column).append(not
-                            ? " IS NULL"
-                            : " IS NOT NULL");
-                    break;
-
-                case ILIKE:
-                case LIKE:
-                    if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
-                        query.append(column);
-                        if (not) {
-                            query.append(" NOT ");
-                        }
-                        query.append(" LIKE ");
-                        if (ignoreCase) {
-                            query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
-                        } else {
-                            query.append('?').append(setParameter(parameters, cond.getExpression()));
-                        }
-                        // workaround for Oracle DB adding explicit escaping string, to search 
-                        // for literal _ (underscore) (SYNCOPE-1779)
-                        if (isOracle()) {
-                            query.append(" ESCAPE '\\' ");
-                        }
-                    } else {
-                        if (!(cond instanceof AnyCond)) {
-                            query.append("' AND");
-                        }
-                        query.append(" 1=2");
-                        LOG.error("LIKE is only compatible with string or enum schemas");
-                    }
-                    break;
-
-                case IEQ:
-                case EQ:
-                    query.append(column);
-                    if (not) {
-                        query.append("<>");
-                    } else {
-                        query.append('=');
-                    }
-                    if ((schema.getType() == AttrSchemaType.String
-                            || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
-                        query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
-                    } else {
-                        query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    }
-                    break;
-
-                case GE:
-                    query.append(column);
-                    if (not) {
-                        query.append('<');
-                    } else {
-                        query.append(">=");
-                    }
-                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
-
-                case GT:
-                    query.append(column);
-                    if (not) {
-                        query.append("<=");
-                    } else {
-                        query.append('>');
-                    }
-                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
-
-                case LE:
-                    query.append(column);
-                    if (not) {
-                        query.append('>');
-                    } else {
-                        query.append("<=");
-                    }
-                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
-
-                case LT:
-                    query.append(column);
-                    if (not) {
-                        query.append(">=");
-                    } else {
-                        query.append('<');
-                    }
-                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
-                    break;
-
-                default:
-            }
-        }
-    }
-
-    protected String getQuery(
-            final AttrCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, svs.anyTypeKind);
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ");
-        switch (cond.getType()) {
-            case ISNOTNULL:
-                query.append(checked.getLeft().isUniqueConstraint()
-                        ? svs.asSearchViewSupport().uniqueAttr().name
-                        : svs.asSearchViewSupport().attr().name).
-                        append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'");
-                break;
-
-            case ISNULL:
-                query.append(svs.field().name).
-                        append(" WHERE any_id NOT IN ").
-                        append('(').
-                        append("SELECT DISTINCT any_id FROM ").
-                        append(checked.getLeft().isUniqueConstraint()
-                                ? svs.asSearchViewSupport().uniqueAttr().name
-                                : svs.asSearchViewSupport().attr().name).
-                        append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'").
-                        append(')');
-                break;
-
-            default:
-                if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
-                    query.append(svs.field().name).append(" WHERE ");
-                } else {
-                    query.append((checked.getLeft().isUniqueConstraint()
-                            ? svs.asSearchViewSupport().uniqueAttr().name
-                            : svs.asSearchViewSupport().attr().name)).
-                            append(" WHERE schema_id='").append(checked.getLeft().getKey());
-                }
-                fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
-        }
-
-        return query.toString();
-    }
-
-    protected String getQuery(
-            final AnyCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        if (JAXRSService.PARAM_REALM.equals(cond.getSchema())
-                && !SyncopeConstants.UUID_PATTERN.matcher(cond.getExpression()).matches()) {
-
-            Realm realm = realmDAO.findByFullPath(cond.getExpression());
-            if (realm == null) {
-                throw new IllegalArgumentException("Invalid Realm full path: " + cond.getExpression());
-            }
-            cond.setExpression(realm.getKey());
-        }
-
-        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = check(cond, svs.anyTypeKind);
-
-        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
-                append(svs.field().name).append(" WHERE ");
-
-        fillAttrQuery(query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters, svs);
-
-        return query.toString();
+        // 7. populate the search query with parameter values
+        fillWithParameters(query, parameters);
+
+        // 8. prepare the result (avoiding duplicates)
+        return buildResult(query.getResultList(), kind);
     }
 }

@@ -21,8 +21,6 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -33,10 +31,8 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -68,68 +64,6 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     @Override
-    protected void processOBS(
-            final SearchSupport svs,
-            final OrderBySupport obs,
-            final StringBuilder where) {
-
-        Set<String> attrs = obs.items.stream().
-                map(item -> item.orderBy.substring(0, item.orderBy.indexOf(" "))).collect(Collectors.toSet());
-
-        obs.views.forEach(searchView -> {
-            boolean searchViewAddedToWhere = false;
-            if (searchView.name.equals(svs.field().name)) {
-                StringBuilder attrWhere = new StringBuilder();
-                StringBuilder nullAttrWhere = new StringBuilder();
-
-                if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
-                    where.append(", (SELECT ").append(SELECT_COLS_FROM_VIEW).append(",plainSchema,"
-                            + "ubinaryValue,ubooleanValue,udateValue,udoubleValue,ulongValue,ustringValue,"
-                            + "binaryValue,booleanValue,dateValue,doubleValue,longValue,stringValue FROM ").
-                            append(searchView.name);
-                    searchViewAddedToWhere = true;
-
-                    attrs.forEach(field -> {
-                        if (attrWhere.length() == 0) {
-                            attrWhere.append(" WHERE ");
-                        } else {
-                            attrWhere.append(" OR ");
-                        }
-                        attrWhere.append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(field).append("\")')");
-
-                        nullAttrWhere.append(" UNION SELECT DISTINCT ").append(SELECT_COLS_FROM_VIEW).append(",").
-                                append("'").append(field).append("'").append(" AS plainSchema, ").
-                                append("null AS ubinaryValue, ").
-                                append("null AS ubooleanValue, ").
-                                append("null AS udateValue, ").
-                                append("null AS udoubleValue, ").
-                                append("null AS ulongValue, ").
-                                append("null AS ustringValue, ").
-                                append("null AS binaryValue, ").
-                                append("null AS booleanValue, ").
-                                append("null AS dateValue, ").
-                                append("null AS doubleValue, ").
-                                append("null AS longValue, ").
-                                append("null AS stringValue ").
-                                append("FROM ").append(svs.field().name).
-                                append(" WHERE any_id NOT IN ").
-                                append("(SELECT DISTINCT any_id FROM ").
-                                append(svs.field().name).
-                                append(" WHERE ").
-                                append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").append(field).append("\")'))");
-                    });
-                    where.append(attrWhere).append(nullAttrWhere).append(')');
-                }
-            }
-            if (!searchViewAddedToWhere) {
-                where.append(',').append(searchView.name);
-            }
-
-            where.append(' ').append(searchView.alias);
-        });
-    }
-
-    @Override
     protected void parseOrderByForPlainSchema(
             final SearchSupport svs,
             final OrderBySupport obs,
@@ -150,116 +84,105 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
 
-    protected void fillAttrQuery(
-            final AnyUtils anyUtils,
-            final StringBuilder query,
+    protected AnySearchNode.Leaf filJSONAttrQuery(
+            final SearchSupport.SearchView from,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
             final AttrCond cond,
             final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
+            final List<Object> parameters) {
 
-        // This first branch is required for handling with not conditions given on multivalue fields (SYNCOPE-1419)
-        if (not && schema.isMultivalue()
-                && !(cond instanceof AnyCond)
-                && cond.getType() != AttrCond.Type.ISNULL && cond.getType() != AttrCond.Type.ISNOTNULL) {
+        String key = key(schema.getType());
 
-            query.append("id NOT IN (SELECT DISTINCT any_id FROM ");
-            query.append(svs.field().name).append(" WHERE ");
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters, svs);
-            query.append(')');
+        String value = Optional.ofNullable(attrValue.getDateValue()).
+                map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
+                orElseGet(() -> schema.getType() == AttrSchemaType.Boolean
+                ? BooleanUtils.toStringTrueFalse(attrValue.getBooleanValue())
+                : cond.getExpression());
+
+        boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
+                && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
+
+        StringBuilder clause = new StringBuilder("plainSchema=?").append(setParameter(parameters, cond.getSchema())).
+                append(" AND ").
+                append(lower ? "LOWER(" : "");
+        if (schema.isUniqueConstraint()) {
+            clause.append("u").append(key);
         } else {
-            String key = key(schema.getType());
-
-            String value = Optional.ofNullable(attrValue.getDateValue()).
-                    map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                    orElseGet(() -> schema.getType() == AttrSchemaType.Boolean
-                    ? BooleanUtils.toStringTrueFalse(attrValue.getBooleanValue())
-                    : cond.getExpression());
-
-            boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
-                    && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
-
-            query.append("plainSchema=?").append(setParameter(parameters, cond.getSchema())).
-                    append(" AND ").
-                    append(lower ? "LOWER(" : "");
-            if (schema.isUniqueConstraint()) {
-                query.append("u").append(key);
-            } else {
-                query.append("JSON_VALUE(").append(key).append(", '$[*]')");
-            }
-            query.append(lower ? ')' : "");
-
-            switch (cond.getType()) {
-                case LIKE:
-                case ILIKE:
-                    if (not) {
-                        query.append("NOT ");
-                    }
-                    query.append(" LIKE ");
-                    break;
-
-                case GE:
-                    if (not) {
-                        query.append('<');
-                    } else {
-                        query.append(">=");
-                    }
-                    break;
-
-                case GT:
-                    if (not) {
-                        query.append("<=");
-                    } else {
-                        query.append('>');
-                    }
-                    break;
-
-                case LE:
-                    if (not) {
-                        query.append('>');
-                    } else {
-                        query.append("<=");
-                    }
-                    break;
-
-                case LT:
-                    if (not) {
-                        query.append(">=");
-                    } else {
-                        query.append('<');
-                    }
-                    break;
-
-                case EQ:
-                case IEQ:
-                default:
-                    if (not) {
-                        query.append('!');
-                    }
-                    query.append('=');
-            }
-
-            query.append(lower ? "LOWER(" : "").
-                    append('?').append(setParameter(parameters, value)).
-                    append(lower ? ")" : "");
-            // workaround for Oracle DB adding explicit escaping string, to search 
-            // for literal _ (underscore) (SYNCOPE-1779)
-            if (cond.getType() == AttrCond.Type.ILIKE || cond.getType() == AttrCond.Type.LIKE) {
-                query.append(" ESCAPE '\\' ");
-            }
+            clause.append("JSON_VALUE(").append(key).append(", '$[*]')");
         }
+        clause.append(lower ? ')' : "");
+
+        switch (cond.getType()) {
+            case LIKE:
+            case ILIKE:
+                if (not) {
+                    clause.append("NOT ");
+                }
+                clause.append(" LIKE ");
+                break;
+
+            case GE:
+                if (not) {
+                    clause.append('<');
+                } else {
+                    clause.append(">=");
+                }
+                break;
+
+            case GT:
+                if (not) {
+                    clause.append("<=");
+                } else {
+                    clause.append('>');
+                }
+                break;
+
+            case LE:
+                if (not) {
+                    clause.append('>');
+                } else {
+                    clause.append("<=");
+                }
+                break;
+
+            case LT:
+                if (not) {
+                    clause.append(">=");
+                } else {
+                    clause.append('<');
+                }
+                break;
+
+            case EQ:
+            case IEQ:
+            default:
+                if (not) {
+                    clause.append('!');
+                }
+                clause.append('=');
+        }
+
+        clause.append(lower ? "LOWER(" : "").
+                append('?').append(setParameter(parameters, value)).
+                append(lower ? ")" : "");
+
+        // workaround for Oracle DB adding explicit escaping string, to search 
+        // for literal _ (underscore) (SYNCOPE-1779)
+        if (cond.getType() == AttrCond.Type.ILIKE || cond.getType() == AttrCond.Type.LIKE) {
+            clause.append(" ESCAPE '\\' ");
+        }
+
+        return new AnySearchNode.Leaf(from, clause.toString());
     }
 
     @Override
-    protected String getQuery(
+    protected AnySearchNode getQuery(
             final AttrCond cond,
             final boolean not,
+            final Pair<PlainSchema, PlainAttrValue> checked,
             final List<Object> parameters,
             final SearchSupport svs) {
-
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, svs.anyTypeKind);
 
         // normalize NULL / NOT NULL checks
         if (not) {
@@ -270,28 +193,43 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             }
         }
 
-        StringBuilder query =
-                new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name).append(" WHERE ");
         switch (cond.getType()) {
             case ISNOTNULL:
-                query.append("JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
-                        append(checked.getLeft().getKey()).append("\")')");
-                break;
+                return new AnySearchNode.Leaf(
+                        svs.field(),
+                        "JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')");
 
             case ISNULL:
-                query.append("NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"").
-                        append(checked.getLeft().getKey()).append("\")')");
-                break;
+                return new AnySearchNode.Leaf(
+                        svs.field(),
+                        "NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')");
 
             default:
-                if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
-                    query = new StringBuilder("SELECT DISTINCT id AS any_id FROM ").append(svs.table().name).
-                            append(" WHERE ");
+                AnySearchNode.Leaf node;
+                if (not && checked.getLeft().isMultivalue()) {
+                    AnySearchNode.Leaf notNode = filJSONAttrQuery(
+                            svs.field(),
+                            checked.getRight(),
+                            checked.getLeft(),
+                            cond,
+                            false,
+                            parameters);
+                    node = new AnySearchNode.Leaf(
+                            notNode.getFrom(),
+                            "sv.any_id NOT IN ("
+                            + "SELECT any_id FROM " + notNode.getFrom().name
+                            + " WHERE " + notNode.getClause().replace(notNode.getFrom().alias + ".", "")
+                            + ")");
+                } else {
+                    node = filJSONAttrQuery(
+                            svs.field(),
+                            checked.getRight(),
+                            checked.getLeft(),
+                            cond,
+                            not,
+                            parameters);
                 }
-                fillAttrQuery(anyUtilsFactory.getInstance(svs.anyTypeKind),
-                        query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
+                return node;
         }
-
-        return query.toString();
     }
 }
