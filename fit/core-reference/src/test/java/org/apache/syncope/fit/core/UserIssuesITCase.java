@@ -1831,50 +1831,53 @@ public class UserIssuesITCase extends AbstractITCase {
     void issueSYNCOPE1853() {
         UserTO bellini = USER_SERVICE.read("bellini");
         UserTO vivaldi = USER_SERVICE.read("vivaldi");
-            GroupTO cGroupForPropagation = createGroup(
-                    new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "cGroupForPropagation").resource(RESOURCE_NAME_CSV)
-                            .build()).getEntity();
-            GroupTO dGroupForPropagation = createGroup(
-                    new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "dGroupForPropagation").resource(RESOURCE_NAME_CSV)
-                            .build()).getEntity();
-            // 1. assign both groups cGroupForPropagation and dGroupForPropagation with resource-csv to bellini
-            updateUser(new UserUR.Builder(bellini.getKey()).memberships(
-                    new MembershipUR.Builder(cGroupForPropagation.getKey()).build(),
-                    new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
-            // 2. assign cGroupForPropagation also to vivaldi
-            updateUser(new UserUR.Builder(vivaldi.getKey()).membership(
-                    new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
+        GroupTO cGroupForPropagation = createGroup(
+                new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "cGroupForPropagation")
+                        .resource(RESOURCE_NAME_CSV)
+                        .build()).getEntity();
+        GroupTO dGroupForPropagation = createGroup(
+                new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "dGroupForPropagation")
+                        .resource(RESOURCE_NAME_CSV)
+                        .build()).getEntity();
+        // 1. assign both groups cGroupForPropagation and dGroupForPropagation with resource-csv to bellini
+        updateUser(new UserUR.Builder(bellini.getKey()).memberships(
+                new MembershipUR.Builder(cGroupForPropagation.getKey()).build(),
+                new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
+        // 2. assign cGroupForPropagation also to vivaldi
+        updateUser(new UserUR.Builder(vivaldi.getKey()).membership(
+                new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
         // 3. propagation tasks cleanup
         TASK_SERVICE.search(
-                        new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
+                        new TaskQuery.Builder(TaskType.PROPAGATION)
+                                .anyTypeKind(AnyTypeKind.USER)
+                                .resource(RESOURCE_NAME_CSV)
+                                .entityKey(bellini.getKey())
+                                .build()).getResult()
+                .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
+        TASK_SERVICE.search(
+                        new TaskQuery.Builder(TaskType.PROPAGATION)
+                                .anyTypeKind(AnyTypeKind.USER)
+                                .resource(RESOURCE_NAME_CSV)
+                                .entityKey(vivaldi.getKey())
+                                .build()).getResult()
+                .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
+        // 4. delete group cGroupForPropagation: no deprovision should be fired on bellini, since there is already
+        // bGroupForPropagation, deprovision instead must be fired for vivaldi
+        GROUP_SERVICE.delete(cGroupForPropagation.getKey());
+        Awaitility.await().during(5, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> TASK_SERVICE.search(
+                        new TaskQuery.Builder(TaskType.PROPAGATION)
+                                .anyTypeKind(AnyTypeKind.USER)
                                 .resource(RESOURCE_NAME_CSV)
                                 .entityKey(bellini.getKey()).build())
-                .getResult().forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
-        TASK_SERVICE.search(
-                        new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
+                .getResult().stream().map(PropagationTaskTO.class::cast)
+                .collect(Collectors.toList()).stream().noneMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
+        GROUP_SERVICE.delete(dGroupForPropagation.getKey());
+        Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() -> TASK_SERVICE.search(
+                        new TaskQuery.Builder(TaskType.PROPAGATION)
+                                .anyTypeKind(AnyTypeKind.USER)
                                 .resource(RESOURCE_NAME_CSV)
                                 .entityKey(vivaldi.getKey()).build())
-                .getResult().forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
-            // 4. delete group cGroupForPropagation: no deprovision should be fired on bellini, since there is already
-            // bGroupForPropagation, deprovision instead must be fired for vivaldi
-            GROUP_SERVICE.delete(cGroupForPropagation.getKey());
-            Awaitility.await()
-                    .during(5, TimeUnit.SECONDS)
-                    .atMost(10, TimeUnit.SECONDS)
-                    .until(() -> TASK_SERVICE.search(
-                            new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
-                                    .resource(RESOURCE_NAME_CSV)
-                                    .entityKey(bellini.getKey()).build()).getResult().stream()
-                    .map(PropagationTaskTO.class::cast).collect(Collectors.toList()).stream()
-                    .noneMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
-            GROUP_SERVICE.delete(dGroupForPropagation.getKey());
-            Awaitility.await()
-                    .atMost(10, TimeUnit.SECONDS)
-                    .until(() -> TASK_SERVICE.search(
-                                    new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
-                                            .resource(RESOURCE_NAME_CSV)
-                                            .entityKey(vivaldi.getKey()).build()).getResult().stream()
-                            .map(PropagationTaskTO.class::cast).collect(Collectors.toList()).stream()
-                            .anyMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
+                .getResult().stream().map(PropagationTaskTO.class::cast)
+                .collect(Collectors.toList()).stream().anyMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
     }
 }
