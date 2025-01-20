@@ -736,7 +736,7 @@ public class SearchITCase extends AbstractITCase {
     public void issueSYNCOPE929() {
         PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql("(surname==Rossini,gender==M);username==bellini").build());
+                        fiql("(surname==Rossini,gender==M);surname==Bellini").build());
 
         assertNotNull(matchingUsers);
 

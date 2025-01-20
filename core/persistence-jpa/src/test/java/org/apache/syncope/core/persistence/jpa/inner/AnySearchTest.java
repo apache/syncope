@@ -832,9 +832,9 @@ public class AnySearchTest extends AbstractTest {
 
         SearchCond orCond = SearchCond.getOr(SearchCond.getLeaf(rossiniCond), SearchCond.getLeaf(genderCond));
 
-        AnyCond belliniCond = new AnyCond(AttrCond.Type.EQ);
-        belliniCond.setSchema("username");
-        belliniCond.setExpression("bellini");
+        AttrCond belliniCond = new AttrCond(AttrCond.Type.EQ);
+        belliniCond.setSchema("surname");
+        belliniCond.setExpression("Bellini");
 
         SearchCond searchCond = SearchCond.getAnd(orCond, SearchCond.getLeaf(belliniCond));
 
