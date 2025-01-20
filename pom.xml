@@ -2355,7 +2355,7 @@ under the License.
 
       <properties>
         <mockito.version>5.15.2</mockito.version>
-        <byte-buddy.version>1.15.11</byte-buddy.version>
+        <byte-buddy.version>1.16.1</byte-buddy.version>
       </properties>
 
       <dependencyManagement>
