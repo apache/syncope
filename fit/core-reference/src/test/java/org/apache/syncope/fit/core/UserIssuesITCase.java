@@ -36,6 +36,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.naming.NamingException;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.core.GenericType;
@@ -71,6 +73,7 @@ import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -93,6 +96,7 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -100,6 +104,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
@@ -107,6 +112,7 @@ import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPassw
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.awaitility.Awaitility;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.BeforeAll;
@@ -1819,5 +1825,56 @@ public class UserIssuesITCase extends AbstractITCase {
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
             jdbcTemplate.update("DELETE FROM TESTPULL WHERE USERNAME = 'rossini'");
         }
+    }
+
+    @Test
+    void issueSYNCOPE1853() {
+        UserTO bellini = USER_SERVICE.read("bellini");
+        UserTO vivaldi = USER_SERVICE.read("vivaldi");
+            GroupTO cGroupForPropagation = createGroup(
+                    new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "cGroupForPropagation").resource(RESOURCE_NAME_CSV)
+                            .build()).getEntity();
+            GroupTO dGroupForPropagation = createGroup(
+                    new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "dGroupForPropagation").resource(RESOURCE_NAME_CSV)
+                            .build()).getEntity();
+            // 1. assign both groups cGroupForPropagation and dGroupForPropagation with resource-csv to bellini
+            updateUser(new UserUR.Builder(bellini.getKey()).memberships(
+                    new MembershipUR.Builder(cGroupForPropagation.getKey()).build(),
+                    new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
+            // 2. assign cGroupForPropagation also to vivaldi
+            updateUser(new UserUR.Builder(vivaldi.getKey()).membership(
+                    new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
+        // 3. propagation tasks cleanup
+        TASK_SERVICE.search(
+                        new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
+                                .resource(RESOURCE_NAME_CSV)
+                                .entityKey(bellini.getKey()).build())
+                .getResult().forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
+        TASK_SERVICE.search(
+                        new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
+                                .resource(RESOURCE_NAME_CSV)
+                                .entityKey(vivaldi.getKey()).build())
+                .getResult().forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
+            // 4. delete group cGroupForPropagation: no deprovision should be fired on bellini, since there is already
+            // bGroupForPropagation, deprovision instead must be fired for vivaldi
+            GROUP_SERVICE.delete(cGroupForPropagation.getKey());
+            Awaitility.await()
+                    .during(5, TimeUnit.SECONDS)
+                    .atMost(10, TimeUnit.SECONDS)
+                    .until(() -> TASK_SERVICE.search(
+                            new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
+                                    .resource(RESOURCE_NAME_CSV)
+                                    .entityKey(bellini.getKey()).build()).getResult().stream()
+                    .map(PropagationTaskTO.class::cast).collect(Collectors.toList()).stream()
+                    .noneMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
+            GROUP_SERVICE.delete(dGroupForPropagation.getKey());
+            Awaitility.await()
+                    .atMost(10, TimeUnit.SECONDS)
+                    .until(() -> TASK_SERVICE.search(
+                                    new TaskQuery.Builder(TaskType.PROPAGATION).anyTypeKind(AnyTypeKind.USER)
+                                            .resource(RESOURCE_NAME_CSV)
+                                            .entityKey(vivaldi.getKey()).build()).getResult().stream()
+                            .map(PropagationTaskTO.class::cast).collect(Collectors.toList()).stream()
+                            .anyMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
     }
 }
