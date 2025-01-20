@@ -126,32 +126,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return key;
     }
 
-    protected static String buildFrom(final Set<SearchSupport.SearchView> from) {
-        String fromString;
-        if (from.size() == 1) {
-            SearchSupport.SearchView sv = from.iterator().next();
-            fromString = sv.name + " " + sv.alias;
-        } else {
-            List<SearchSupport.SearchView> joins = new ArrayList<>(from);
-            StringBuilder join = new StringBuilder(joins.get(0).name + " " + joins.get(0).alias);
-            for (int i = 1; i < joins.size(); i++) {
-                SearchSupport.SearchView sv = joins.get(i);
-                join.append(" LEFT JOIN ").
-                        append(sv.name).append(" ").append(sv.alias).
-                        append(" ON ").
-                        append(joins.get(0).alias).append(".any_id=").append(sv.alias).append(".any_id");
-            }
-            fromString = join.toString();
-        }
-        return fromString;
-    }
-
-    protected static String buildWhere(final List<String> where, final AnySearchNode root) {
-        return where.stream().
-                map(w -> "(" + w + ")").
-                collect(Collectors.joining(" " + root.getType().name() + " "));
-    }
-
     protected static Supplier<SyncopeClientException> syncopeClientException(final String message) {
         return () -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
@@ -183,6 +157,14 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 validator);
     }
 
+    protected SearchSupport.SearchView defaultSV(final SearchSupport svs) {
+        return svs.field();
+    }
+
+    protected String anyId(final SearchSupport svs) {
+        return defaultSV(svs).alias + ".any_id";
+    }
+
     protected Optional<AnySearchNode> getQueryForCustomConds(
             final SearchCond cond,
             final List<Object> parameters,
@@ -193,12 +175,13 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return Optional.empty();
     }
 
-    protected Optional<AnySearchNode> getQuery(
+    protected Optional<Pair<AnySearchNode, Set<String>>> getQuery(
             final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
 
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
 
         Optional<AnySearchNode> node = Optional.empty();
+        Set<String> plainSchemas = new HashSet<>();
 
         switch (cond.getType()) {
             case LEAF:
@@ -262,6 +245,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                             or(() -> cond.getLeaf(AttrCond.class).
                             map(attrCond -> {
                                 Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
+                                plainSchemas.add(checked.getLeft().getKey());
                                 return getQuery(attrCond, not, checked, parameters, svs);
                             }));
                 }
@@ -275,9 +259,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             case AND:
                 AnySearchNode andNode = new AnySearchNode(AnySearchNode.Type.AND);
 
-                getQuery(cond.getLeft(), parameters, svs).ifPresent(andNode::add);
+                getQuery(cond.getLeft(), parameters, svs).ifPresent(left -> {
+                    andNode.add(left.getLeft());
+                    plainSchemas.addAll(left.getRight());
+                });
 
-                getQuery(cond.getRight(), parameters, svs).ifPresent(andNode::add);
+                getQuery(cond.getRight(), parameters, svs).ifPresent(right -> {
+                    andNode.add(right.getLeft());
+                    plainSchemas.addAll(right.getRight());
+                });
 
                 if (!andNode.getChildren().isEmpty()) {
                     node = Optional.of(andNode);
@@ -287,9 +277,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             case OR:
                 AnySearchNode orNode = new AnySearchNode(AnySearchNode.Type.OR);
 
-                getQuery(cond.getLeft(), parameters, svs).ifPresent(orNode::add);
+                getQuery(cond.getLeft(), parameters, svs).ifPresent(left -> {
+                    orNode.add(left.getLeft());
+                    plainSchemas.addAll(left.getRight());
+                });
 
-                getQuery(cond.getRight(), parameters, svs).ifPresent(orNode::add);
+                getQuery(cond.getRight(), parameters, svs).ifPresent(right -> {
+                    orNode.add(right.getLeft());
+                    plainSchemas.addAll(right.getRight());
+                });
 
                 if (!orNode.getChildren().isEmpty()) {
                     node = Optional.of(orNode);
@@ -299,7 +295,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             default:
         }
 
-        return node;
+        return node.map(n -> Pair.of(n, plainSchemas));
     }
 
     protected AnySearchNode getQuery(
@@ -316,7 +312,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         }
         clause.append('?').append(setParameter(parameters, cond.getAnyTypeKey()));
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -327,9 +323,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         StringBuilder clause = new StringBuilder();
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
         clause.append("SELECT any_id FROM ").
                 append(svs.auxClass().name).
@@ -337,7 +333,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(setParameter(parameters, cond.getAuxClass())).
                 append(')');
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -348,9 +344,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         StringBuilder clause = new StringBuilder();
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
         clause.append("SELECT any_id ").append("FROM ").
                 append(svs.relationship().name).
@@ -360,7 +356,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(" WHERE type=?").append(setParameter(parameters, cond.getRelationshipTypeKey())).
                 append(')');
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -373,9 +369,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         StringBuilder clause = new StringBuilder();
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
         clause.append("SELECT DISTINCT any_id FROM ").
                 append(svs.relationship().name).append(" WHERE ").
@@ -384,7 +380,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         collect(Collectors.joining(" OR "))).
                 append(')');
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -402,9 +398,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder clause = new StringBuilder("(");
 
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
         clause.append("SELECT DISTINCT any_id FROM ").
                 append(svs.membership().name).append(" WHERE ").
@@ -412,9 +408,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(") ");
 
         if (not) {
-            clause.append("AND sv.any_id NOT IN (");
+            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("OR sv.any_id IN (");
+            clause.append("OR ").append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -422,7 +418,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(subwhere).
                 append("))");
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -434,9 +430,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder clause = new StringBuilder("(");
 
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -445,9 +441,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(") ");
 
         if (not) {
-            clause.append("AND sv.any_id NOT IN (");
+            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("OR sv.any_id IN (");
+            clause.append("OR ").append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -455,7 +451,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append("role_id=?").append(setParameter(parameters, cond.getRole())).
                 append("))");
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -467,9 +463,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder clause = new StringBuilder("(");
 
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -478,9 +474,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(") ");
 
         if (not) {
-            clause.append("AND sv.any_id NOT IN (");
+            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("OR sv.any_id IN (");
+            clause.append("OR ").append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -488,7 +484,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
                 append("))");
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -500,9 +496,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder clause = new StringBuilder("(");
 
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -510,7 +506,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
                 append("))");
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -522,9 +518,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder clause = new StringBuilder();
 
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT any_id FROM ").
@@ -541,7 +537,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         clause.append(')');
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode getQuery(
@@ -555,9 +551,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         StringBuilder clause = new StringBuilder();
 
         if (not) {
-            clause.append("sv.any_id NOT IN (");
+            clause.append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("sv.any_id IN (");
+            clause.append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT group_id AS any_id FROM ").
@@ -568,9 +564,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 append(") ");
 
         if (not) {
-            clause.append("AND sv.any_id NOT IN (");
+            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
         } else {
-            clause.append("OR sv.any_id IN (");
+            clause.append("OR ").append(anyId(svs)).append(" IN (");
         }
 
         clause.append("SELECT DISTINCT group_id AS any_id FROM ").
@@ -580,7 +576,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         collect(Collectors.joining(" OR "))).
                 append(')');
 
-        return new AnySearchNode.Leaf(svs.field(), clause.toString());
+        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
     }
 
     protected AnySearchNode.Leaf fillAttrQuery(
@@ -712,13 +708,13 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         sv.alias + ".schema_id='" + checked.getLeft().getKey() + "'");
 
             case ISNULL:
-                String clause = new StringBuilder("sv.any_id NOT IN ").
+                String clause = new StringBuilder(anyId(svs)).append(" NOT IN ").
                         append('(').
                         append("SELECT DISTINCT any_id FROM ").
                         append(sv.name).
                         append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'").
                         append(')').toString();
-                return new AnySearchNode.Leaf(svs.field(), clause);
+                return new AnySearchNode.Leaf(defaultSV(svs), clause);
 
             default:
                 AnySearchNode.Leaf node;
@@ -733,7 +729,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                             parameters);
                     node = new AnySearchNode.Leaf(
                             sv,
-                            "sv.any_id NOT IN ("
+                            anyId(svs) + " NOT IN ("
                             + "SELECT any_id FROM " + sv.name
                             + " WHERE " + notNode.getClause().replace(sv.alias + ".", "")
                             + ")");
@@ -772,18 +768,18 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         switch (checked.getRight().getType()) {
             case ISNULL:
                 return new AnySearchNode.Leaf(
-                        svs.field(),
+                        defaultSV(svs),
                         checked.getRight().getSchema() + (not ? " IS NOT NULL" : " IS NULL"));
 
             case ISNOTNULL:
                 return new AnySearchNode.Leaf(
-                        svs.field(),
+                        defaultSV(svs),
                         checked.getRight().getSchema() + (not ? " IS NULL" : " IS NOT NULL"));
 
             default:
                 return fillAttrQuery(
                         checked.getRight().getSchema(),
-                        svs.field(),
+                        defaultSV(svs),
                         checked.getMiddle(),
                         checked.getLeft(),
                         checked.getRight(),
@@ -798,21 +794,21 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final List<Object> parameters) {
 
         if (realmKeys.isEmpty()) {
-            return new AnySearchNode.Leaf(svs.field(), "any_id IS NOT NULL");
+            return new AnySearchNode.Leaf(defaultSV(svs), StringUtils.substringAfter(anyId(svs), '.') + " IS NOT NULL");
         }
 
         String realmKeysArg = realmKeys.stream().
                 map(realmKey -> "?" + setParameter(parameters, realmKey)).
                 collect(Collectors.joining(","));
-        return new AnySearchNode.Leaf(svs.field(), "realm_id IN (" + realmKeysArg + ")");
+        return new AnySearchNode.Leaf(defaultSV(svs), "realm_id IN (" + realmKeysArg + ")");
     }
 
     protected Triple<AnySearchNode.Leaf, Set<String>, Set<String>> getAdminRealmsFilter(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
-            final SearchSupport svs,
-            final List<Object> parameters) {
+            final List<Object> parameters,
+            final SearchSupport svs) {
 
         Set<String> realmKeys = new HashSet<>();
         Set<String> dynRealmKeys = new HashSet<>();
@@ -856,14 +852,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final AnySearchNode node,
             final Map<SearchSupport.SearchView, Boolean> counters,
             final Set<SearchSupport.SearchView> from,
-            final List<String> where) {
+            final List<String> where,
+            final SearchSupport svs) {
 
         node.asLeaf().ifPresentOrElse(
                 leaf -> {
                     from.add(leaf.getFrom());
 
                     if (counters.computeIfAbsent(leaf.getFrom(), view -> false) && !leaf.getClause().contains(" IN ")) {
-                        where.add("sv.any_id IN ("
+                        where.add(anyId(svs) + " IN ("
                                 + "SELECT any_id FROM " + leaf.getFrom().name
                                 + " WHERE " + leaf.getClause().replace(leaf.getFrom().alias + ".", "")
                                 + ")");
@@ -874,38 +871,72 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 },
                 () -> {
                     List<String> nodeWhere = new ArrayList<>();
-                    node.getChildren().forEach(child -> visitNode(child, counters, from, nodeWhere));
+                    node.getChildren().forEach(child -> visitNode(child, counters, from, nodeWhere, svs));
                     where.add(nodeWhere.stream().
                             map(w -> "(" + w + ")").
                             collect(Collectors.joining(" " + node.getType().name() + " ")));
                 });
     }
 
+    protected String buildFrom(
+            final Set<SearchSupport.SearchView> from,
+            final Set<String> plainSchemas,
+            final OrderBySupport obs) {
+
+        String fromString;
+        if (from.size() == 1) {
+            SearchSupport.SearchView sv = from.iterator().next();
+            fromString = sv.name + " " + sv.alias;
+        } else {
+            List<SearchSupport.SearchView> joins = new ArrayList<>(from);
+            StringBuilder join = new StringBuilder(joins.get(0).name + " " + joins.get(0).alias);
+            for (int i = 1; i < joins.size(); i++) {
+                SearchSupport.SearchView sv = joins.get(i);
+                join.append(" LEFT JOIN ").
+                        append(sv.name).append(" ").append(sv.alias).
+                        append(" ON ").
+                        append(joins.get(0).alias).append(".any_id=").append(sv.alias).append(".any_id");
+            }
+            fromString = join.toString();
+        }
+        return fromString;
+    }
+
+    protected String buildWhere(final List<String> where, final AnySearchNode root) {
+        return where.stream().
+                map(w -> "(" + w + ")").
+                collect(Collectors.joining(" " + root.getType().name() + " "));
+    }
+
     protected String buildCountQuery(
-            final AnySearchNode queryInfoNode,
+            final Pair<AnySearchNode, Set<String>> queryInfo,
             final AnySearchNode.Leaf filterNode,
-            final List<Object> parameters) {
+            final List<Object> parameters,
+            final SearchSupport svs) {
 
         AnySearchNode root;
-        if (queryInfoNode.getType() == AnySearchNode.Type.AND) {
-            root = queryInfoNode;
+        if (queryInfo.getLeft().getType() == AnySearchNode.Type.AND) {
+            root = queryInfo.getLeft();
         } else {
             root = new AnySearchNode(AnySearchNode.Type.AND);
-            root.add(queryInfoNode);
+            root.add(queryInfo.getLeft());
         }
         root.add(filterNode);
 
         Set<SearchSupport.SearchView> from = new HashSet<>();
         List<String> where = new ArrayList<>();
         Map<SearchSupport.SearchView, Boolean> counters = new HashMap<>();
-        visitNode(root, counters, from, where);
+        visitNode(root, counters, from, where, svs);
 
-        String queryString = "SELECT COUNT(DISTINCT sv.any_id)"
-                + " FROM " + buildFrom(from)
-                + " WHERE " + buildWhere(where, root);
+        StringBuilder queryString = new StringBuilder("SELECT COUNT(DISTINCT ").append(anyId(svs)).append(") ");
+
+        queryString.append("FROM ").append(buildFrom(from, queryInfo.getRight(), null));
+
+        queryString.append(" WHERE ").append(buildWhere(where, root));
+
         LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
-        return queryString;
+        return queryString.toString();
     }
 
     @Override
@@ -922,19 +953,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 1. get admin realms filter
         Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
-                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
+                getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
 
         // 2. transform search condition
-        Optional<AnySearchNode> optionalQueryInfoNode = getQuery(
+        Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
                 buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
-        if (optionalQueryInfoNode.isEmpty()) {
+        if (optionalQueryInfo.isEmpty()) {
             LOG.error("Invalid search condition: {}", cond);
             return 0;
         }
-        AnySearchNode queryInfoNode = optionalQueryInfoNode.get();
+        Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
 
         // 3. generate the query string
-        String queryString = buildCountQuery(queryInfoNode, filter.getLeft(), parameters);
+        String queryString = buildCountQuery(queryInfo, filter.getLeft(), parameters, svs);
 
         // 4. populate the search query with parameter values
         Query countQuery = entityManager().createNativeQuery(queryString);
@@ -985,9 +1016,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             final String fieldName,
             final OrderByClause clause) {
 
-        item.select = svs.field().alias + '.' + fieldName;
+        item.select = defaultSV(svs).alias + '.' + fieldName;
         item.where = StringUtils.EMPTY;
-        item.orderBy = svs.field().alias + '.' + fieldName + ' ' + clause.getDirection().name();
+        item.orderBy = defaultSV(svs).alias + '.' + fieldName + ' ' + clause.getDirection().name();
     }
 
     protected void parseOrderByForCustom(
@@ -1039,7 +1070,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                         fieldName += "_id";
                     }
 
-                    obs.views.add(svs.field());
+                    obs.views.add(defaultSV(svs));
 
                     parseOrderByForField(svs, item, fieldName, clause);
                 }
@@ -1056,35 +1087,35 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected String buildSearchQuery(
-            final AnySearchNode queryInfoNode,
+            final Pair<AnySearchNode, Set<String>> queryInfo,
             final AnySearchNode.Leaf filterNode,
             final List<Object> parameters,
             final SearchSupport svs,
             final List<OrderByClause> orderBy) {
 
         AnySearchNode root;
-        if (queryInfoNode.getType() == AnySearchNode.Type.AND) {
-            root = queryInfoNode;
+        if (queryInfo.getLeft().getType() == AnySearchNode.Type.AND) {
+            root = queryInfo.getLeft();
         } else {
             root = new AnySearchNode(AnySearchNode.Type.AND);
-            root.add(queryInfoNode);
+            root.add(queryInfo.getLeft());
         }
         root.add(filterNode);
 
         Set<SearchSupport.SearchView> from = new HashSet<>();
         List<String> where = new ArrayList<>();
         Map<SearchSupport.SearchView, Boolean> counters = new HashMap<>();
-        visitNode(root, counters, from, where);
+        visitNode(root, counters, from, where, svs);
 
         // 3. take ordering into account
         OrderBySupport obs = parseOrderBy(svs, orderBy);
 
         // 4. generate the query string
-        StringBuilder queryString = new StringBuilder("SELECT DISTINCT sv.any_id");
+        StringBuilder queryString = new StringBuilder("SELECT DISTINCT ").append(anyId(svs));
         obs.items.forEach(item -> queryString.append(',').append(item.select));
 
         from.addAll(obs.views);
-        queryString.append(" FROM ").append(buildFrom(from));
+        queryString.append(" FROM ").append(buildFrom(from, queryInfo.getRight(), obs));
 
         queryString.append(" WHERE ").append(buildWhere(where, root));
 
@@ -1116,19 +1147,19 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         // 1. get admin realms filter
         Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
-                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
+                getAdminRealmsFilter(base, recursive, adminRealms, parameters, svs);
 
         // 2. transform search condition
-        Optional<AnySearchNode> optionalQueryInfoNode = getQuery(
+        Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
                 buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
-        if (optionalQueryInfoNode.isEmpty()) {
+        if (optionalQueryInfo.isEmpty()) {
             LOG.error("Invalid search condition: {}", cond);
             return List.of();
         }
-        AnySearchNode queryInfoNode = optionalQueryInfoNode.get();
+        Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
 
         // 3. generate the query string
-        String queryString = buildSearchQuery(queryInfoNode, filter.getLeft(), parameters, svs, orderBy);
+        String queryString = buildSearchQuery(queryInfo, filter.getLeft(), parameters, svs, orderBy);
 
         // 4. prepare the search query
         Query query = entityManager().createNativeQuery(queryString);

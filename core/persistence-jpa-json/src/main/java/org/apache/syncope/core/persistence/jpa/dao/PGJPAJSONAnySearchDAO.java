@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
+
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -77,6 +82,16 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 entityFactory,
                 anyUtilsFactory,
                 validator);
+    }
+
+    @Override
+    protected SearchSupport.SearchView defaultSV(final SearchSupport svs) {
+        return svs.table();
+    }
+
+    @Override
+    protected String anyId(final SearchSupport svs) {
+        return defaultSV(svs).alias + ".id";
     }
 
     @Override
@@ -264,5 +279,47 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                         cond,
                         not);
         }
+    }
+
+    @Override
+    protected void visitNode(
+            final AnySearchNode node,
+            final Map<SearchSupport.SearchView, Boolean> counters,
+            final Set<SearchSupport.SearchView> from,
+            final List<String> where,
+            final SearchSupport svs) {
+
+        counters.clear();
+        super.visitNode(node, counters, from, where, svs);
+    }
+
+    @Override
+    protected String buildFrom(
+            final Set<SearchSupport.SearchView> from,
+            final Set<String> plainSchemas,
+            final OrderBySupport obs) {
+
+        StringBuilder prefix = new StringBuilder(super.buildFrom(from, plainSchemas, obs));
+
+        Set<String> schemas = new HashSet<>(plainSchemas);
+
+        if (obs != null) {
+            obs.items.forEach(item -> {
+                String schema = StringUtils.substringBefore(item.orderBy, ' ');
+                if (StringUtils.isNotBlank(schema)) {
+                    schemas.add(schema);
+                }
+            });
+        }
+
+        schemas.forEach(schema -> Optional.ofNullable(plainSchemaDAO.find(schema)).ifPresentOrElse(
+                pschema -> prefix.append(',').
+                        append("jsonb_path_query_array(plainattrs, '$[*] ? (@.schema==\"").
+                        append(schema).append("\").").
+                        append("\"").append(pschema.isUniqueConstraint() ? "uniqueValue" : "values").append("\"')").
+                        append(" AS ").append(schema),
+                () -> LOG.warn("Ignoring invalid schema '{}'", schema)));
+
+        return prefix.toString();
     }
 }
