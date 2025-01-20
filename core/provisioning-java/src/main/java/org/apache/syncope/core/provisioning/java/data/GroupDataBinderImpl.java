@@ -460,7 +460,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         return getGroupTO(groupDAO.authFind(key), true);
     }
 
-    protected void populateTransitiveResources(
+    protected static void populateTransitiveResources(
             final Group group,
             final GroupableRelatable<?, ?, ?, ?, ?> any,
             final Map<String, PropagationByResource<String>> result) {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -112,7 +113,6 @@ import org.apache.syncope.core.provisioning.java.propagation.GenerateRandomPassw
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
-import org.awaitility.Awaitility;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.BeforeAll;
@@ -1829,54 +1829,52 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     void issueSYNCOPE1853() {
-        UserTO bellini = USER_SERVICE.read("bellini");
-        UserTO vivaldi = USER_SERVICE.read("vivaldi");
         GroupTO cGroupForPropagation = createGroup(
                 new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "cGroupForPropagation")
-                        .resource(RESOURCE_NAME_CSV)
+                        .resource(RESOURCE_NAME_LDAP)
                         .build()).getEntity();
         GroupTO dGroupForPropagation = createGroup(
                 new GroupCR.Builder(SyncopeConstants.ROOT_REALM, "dGroupForPropagation")
-                        .resource(RESOURCE_NAME_CSV)
+                        .resource(RESOURCE_NAME_LDAP)
                         .build()).getEntity();
         // 1. assign both groups cGroupForPropagation and dGroupForPropagation with resource-csv to bellini
-        updateUser(new UserUR.Builder(bellini.getKey()).memberships(
+        updateUser(new UserUR.Builder("c9b2dec2-00a7-4855-97c0-d854842b4b24").memberships(
                 new MembershipUR.Builder(cGroupForPropagation.getKey()).build(),
                 new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
         // 2. assign cGroupForPropagation also to vivaldi
-        updateUser(new UserUR.Builder(vivaldi.getKey()).membership(
+        updateUser(new UserUR.Builder("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").membership(
                 new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
         // 3. propagation tasks cleanup
         TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.PROPAGATION)
                                 .anyTypeKind(AnyTypeKind.USER)
-                                .resource(RESOURCE_NAME_CSV)
-                                .entityKey(bellini.getKey())
+                                .resource(RESOURCE_NAME_LDAP)
+                                .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24")
                                 .build()).getResult()
                 .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
         TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.PROPAGATION)
                                 .anyTypeKind(AnyTypeKind.USER)
-                                .resource(RESOURCE_NAME_CSV)
-                                .entityKey(vivaldi.getKey())
+                                .resource(RESOURCE_NAME_LDAP)
+                                .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee")
                                 .build()).getResult()
                 .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
         // 4. delete group cGroupForPropagation: no deprovision should be fired on bellini, since there is already
         // bGroupForPropagation, deprovision instead must be fired for vivaldi
         GROUP_SERVICE.delete(cGroupForPropagation.getKey());
-        Awaitility.await().during(5, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> TASK_SERVICE.search(
+        await().during(5, TimeUnit.SECONDS).atMost(10, TimeUnit.SECONDS).until(() -> TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.PROPAGATION)
                                 .anyTypeKind(AnyTypeKind.USER)
-                                .resource(RESOURCE_NAME_CSV)
-                                .entityKey(bellini.getKey()).build())
+                                .resource(RESOURCE_NAME_LDAP)
+                                .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24").build())
                 .getResult().stream().map(PropagationTaskTO.class::cast)
                 .collect(Collectors.toList()).stream().noneMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
         GROUP_SERVICE.delete(dGroupForPropagation.getKey());
-        Awaitility.await().atMost(10, TimeUnit.SECONDS).until(() -> TASK_SERVICE.search(
+        await().atMost(10, TimeUnit.SECONDS).until(() -> TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.PROPAGATION)
                                 .anyTypeKind(AnyTypeKind.USER)
-                                .resource(RESOURCE_NAME_CSV)
-                                .entityKey(vivaldi.getKey()).build())
+                                .resource(RESOURCE_NAME_LDAP)
+                                .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").build())
                 .getResult().stream().map(PropagationTaskTO.class::cast)
                 .collect(Collectors.toList()).stream().anyMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
     }
