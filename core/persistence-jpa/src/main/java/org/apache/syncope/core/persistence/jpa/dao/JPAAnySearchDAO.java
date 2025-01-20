@@ -19,8 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -124,25 +126,6 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return key;
     }
 
-    protected static void visitNode(
-            final AnySearchNode node,
-            final Set<SearchSupport.SearchView> from,
-            final List<String> where) {
-
-        node.asLeaf().ifPresentOrElse(
-                leaf -> {
-                    from.add(leaf.getFrom());
-                    where.add(leaf.getClause());
-                },
-                () -> {
-                    List<String> nodeWhere = new ArrayList<>();
-                    node.getChildren().forEach(child -> visitNode(child, from, nodeWhere));
-                    where.add(nodeWhere.stream().
-                            map(w -> "(" + w + ")").
-                            collect(Collectors.joining(" " + node.getType().name() + " ")));
-                });
-    }
-
     protected static String buildFrom(final Set<SearchSupport.SearchView> from) {
         String fromString;
         if (from.size() == 1) {
@@ -210,13 +193,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return Optional.empty();
     }
 
-    protected Optional<Pair<AnySearchNode, Set<String>>> getQuery(
+    protected Optional<AnySearchNode> getQuery(
             final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
 
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
 
         Optional<AnySearchNode> node = Optional.empty();
-        Set<String> involvedPlainAttrs = new HashSet<>();
 
         switch (cond.getType()) {
             case LEAF:
@@ -279,14 +261,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                             map(anyCond -> getQuery(anyCond, not, parameters, svs)).
                             or(() -> cond.getLeaf(AttrCond.class).
                             map(attrCond -> {
-                                try {
-                                    Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
-                                    involvedPlainAttrs.add(checked.getLeft().getKey());
-                                    return getQuery(attrCond, not, checked, parameters, svs);
-                                } catch (IllegalArgumentException e) {
-                                    // ignore
-                                    return null;
-                                }
+                                Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
+                                return getQuery(attrCond, not, checked, parameters, svs);
                             }));
                 }
 
@@ -299,15 +275,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             case AND:
                 AnySearchNode andNode = new AnySearchNode(AnySearchNode.Type.AND);
 
-                getQuery(cond.getLeft(), parameters, svs).ifPresent(left -> {
-                    andNode.add(left.getLeft());
-                    involvedPlainAttrs.addAll(left.getRight());
-                });
+                getQuery(cond.getLeft(), parameters, svs).ifPresent(andNode::add);
 
-                getQuery(cond.getRight(), parameters, svs).ifPresent(right -> {
-                    andNode.add(right.getLeft());
-                    involvedPlainAttrs.addAll(right.getRight());
-                });
+                getQuery(cond.getRight(), parameters, svs).ifPresent(andNode::add);
 
                 if (!andNode.getChildren().isEmpty()) {
                     node = Optional.of(andNode);
@@ -317,15 +287,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             case OR:
                 AnySearchNode orNode = new AnySearchNode(AnySearchNode.Type.OR);
 
-                getQuery(cond.getLeft(), parameters, svs).ifPresent(left -> {
-                    orNode.add(left.getLeft());
-                    involvedPlainAttrs.addAll(left.getRight());
-                });
+                getQuery(cond.getLeft(), parameters, svs).ifPresent(orNode::add);
 
-                getQuery(cond.getRight(), parameters, svs).ifPresent(right -> {
-                    orNode.add(right.getLeft());
-                    involvedPlainAttrs.addAll(right.getRight());
-                });
+                getQuery(cond.getRight(), parameters, svs).ifPresent(orNode::add);
 
                 if (!orNode.getChildren().isEmpty()) {
                     node = Optional.of(orNode);
@@ -335,7 +299,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             default:
         }
 
-        return node.map(n -> Pair.of(n, involvedPlainAttrs));
+        return node;
     }
 
     protected AnySearchNode getQuery(
@@ -888,6 +852,62 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return Triple.of(buildAdminRealmsFilter(realmKeys, svs, parameters), dynRealmKeys, groupOwners);
     }
 
+    protected void visitNode(
+            final AnySearchNode node,
+            final Map<SearchSupport.SearchView, Boolean> counters,
+            final Set<SearchSupport.SearchView> from,
+            final List<String> where) {
+
+        node.asLeaf().ifPresentOrElse(
+                leaf -> {
+                    from.add(leaf.getFrom());
+
+                    if (counters.computeIfAbsent(leaf.getFrom(), view -> false) && !leaf.getClause().contains(" IN ")) {
+                        where.add("sv.any_id IN ("
+                                + "SELECT any_id FROM " + leaf.getFrom().name
+                                + " WHERE " + leaf.getClause().replace(leaf.getFrom().alias + ".", "")
+                                + ")");
+                    } else {
+                        counters.put(leaf.getFrom(), true);
+                        where.add(leaf.getClause());
+                    }
+                },
+                () -> {
+                    List<String> nodeWhere = new ArrayList<>();
+                    node.getChildren().forEach(child -> visitNode(child, counters, from, nodeWhere));
+                    where.add(nodeWhere.stream().
+                            map(w -> "(" + w + ")").
+                            collect(Collectors.joining(" " + node.getType().name() + " ")));
+                });
+    }
+
+    protected String buildCountQuery(
+            final AnySearchNode queryInfoNode,
+            final AnySearchNode.Leaf filterNode,
+            final List<Object> parameters) {
+
+        AnySearchNode root;
+        if (queryInfoNode.getType() == AnySearchNode.Type.AND) {
+            root = queryInfoNode;
+        } else {
+            root = new AnySearchNode(AnySearchNode.Type.AND);
+            root.add(queryInfoNode);
+        }
+        root.add(filterNode);
+
+        Set<SearchSupport.SearchView> from = new HashSet<>();
+        List<String> where = new ArrayList<>();
+        Map<SearchSupport.SearchView, Boolean> counters = new HashMap<>();
+        visitNode(root, counters, from, where);
+
+        String queryString = "SELECT COUNT(DISTINCT sv.any_id)"
+                + " FROM " + buildFrom(from)
+                + " WHERE " + buildWhere(where, root);
+        LOG.debug("Query: {}, parameters: {}", queryString, parameters);
+
+        return queryString;
+    }
+
     @Override
     protected int doCount(
             final Realm base,
@@ -900,34 +920,21 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         SearchSupport svs = new SearchViewSupport(kind);
 
+        // 1. get admin realms filter
         Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
                 getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
 
-        // 1. get query string from search condition
-        Pair<AnySearchNode, Set<String>> queryInfo = getQuery(
-                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs).
-                orElseThrow(syncopeClientException("Invalid search condition"));
-
-        // 2. take realms into account
-        AnySearchNode root;
-        if (queryInfo.getLeft().getType() == AnySearchNode.Type.AND) {
-            root = queryInfo.getLeft();
-        } else {
-            root = new AnySearchNode(AnySearchNode.Type.AND);
-            root.add(queryInfo.getLeft());
+        // 2. transform search condition
+        Optional<AnySearchNode> optionalQueryInfoNode = getQuery(
+                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
+        if (optionalQueryInfoNode.isEmpty()) {
+            LOG.error("Invalid search condition: {}", cond);
+            return 0;
         }
-        root.add(filter.getLeft());
-
-        Set<SearchSupport.SearchView> from = new HashSet<>();
-        List<String> where = new ArrayList<>();
-
-        visitNode(root, from, where);
+        AnySearchNode queryInfoNode = optionalQueryInfoNode.get();
 
         // 3. generate the query string
-        String queryString = "SELECT COUNT(DISTINCT sv.any_id)"
-                + " FROM " + buildFrom(from)
-                + " WHERE " + buildWhere(where, root);
-        LOG.debug("Query: {}, parameters: {}", queryString, parameters);
+        String queryString = buildCountQuery(queryInfoNode, filter.getLeft(), parameters);
 
         // 4. populate the search query with parameter values
         Query countQuery = entityManager().createNativeQuery(queryString);
@@ -1048,48 +1055,26 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return obs;
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    protected <T extends Any<?>> List<T> doSearch(
-            final Realm base,
-            final boolean recursive,
-            final Set<String> adminRealms,
-            final SearchCond cond,
-            final int page,
-            final int itemsPerPage,
-            final List<OrderByClause> orderBy,
-            final AnyTypeKind kind) {
+    protected String buildSearchQuery(
+            final AnySearchNode queryInfoNode,
+            final AnySearchNode.Leaf filterNode,
+            final List<Object> parameters,
+            final SearchSupport svs,
+            final List<OrderByClause> orderBy) {
 
-        List<Object> parameters = new ArrayList<>();
-
-        SearchSupport svs = new SearchViewSupport(kind);
-
-        Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
-                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
-
-        // 1. get query string from search condition
-        Optional<Pair<AnySearchNode, Set<String>>> optionalQueryInfo = getQuery(
-                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
-        if (optionalQueryInfo.isEmpty()) {
-            LOG.error("Invalid search condition: {}", cond);
-            return List.of();
-        }
-        Pair<AnySearchNode, Set<String>> queryInfo = optionalQueryInfo.get();
-
-        // 2. take realms into account
         AnySearchNode root;
-        if (queryInfo.getLeft().getType() == AnySearchNode.Type.AND) {
-            root = queryInfo.getLeft();
+        if (queryInfoNode.getType() == AnySearchNode.Type.AND) {
+            root = queryInfoNode;
         } else {
             root = new AnySearchNode(AnySearchNode.Type.AND);
-            root.add(queryInfo.getLeft());
+            root.add(queryInfoNode);
         }
-        root.add(filter.getLeft());
+        root.add(filterNode);
 
         Set<SearchSupport.SearchView> from = new HashSet<>();
         List<String> where = new ArrayList<>();
-
-        visitNode(root, from, where);
+        Map<SearchSupport.SearchView, Boolean> counters = new HashMap<>();
+        visitNode(root, counters, from, where);
 
         // 3. take ordering into account
         OrderBySupport obs = parseOrderBy(svs, orderBy);
@@ -1110,20 +1095,55 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         LOG.debug("Query: {}, parameters: {}", queryString, parameters);
 
-        // 5. prepare the search query
-        Query query = entityManager().createNativeQuery(queryString.toString());
+        return queryString.toString();
+    }
 
-        // 6. page starts from 1, while setFirtResult() starts from 0
+    @Override
+    @SuppressWarnings("unchecked")
+    protected <T extends Any<?>> List<T> doSearch(
+            final Realm base,
+            final boolean recursive,
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderBy,
+            final AnyTypeKind kind) {
+
+        List<Object> parameters = new ArrayList<>();
+
+        SearchSupport svs = new SearchViewSupport(kind);
+
+        // 1. get admin realms filter
+        Triple<AnySearchNode.Leaf, Set<String>, Set<String>> filter =
+                getAdminRealmsFilter(base, recursive, adminRealms, svs, parameters);
+
+        // 2. transform search condition
+        Optional<AnySearchNode> optionalQueryInfoNode = getQuery(
+                buildEffectiveCond(cond, filter.getMiddle(), filter.getRight(), kind), parameters, svs);
+        if (optionalQueryInfoNode.isEmpty()) {
+            LOG.error("Invalid search condition: {}", cond);
+            return List.of();
+        }
+        AnySearchNode queryInfoNode = optionalQueryInfoNode.get();
+
+        // 3. generate the query string
+        String queryString = buildSearchQuery(queryInfoNode, filter.getLeft(), parameters, svs, orderBy);
+
+        // 4. prepare the search query
+        Query query = entityManager().createNativeQuery(queryString);
+
+        // page starts from 1, while setFirtResult() starts from 0
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage >= 0) {
             query.setMaxResults(itemsPerPage);
         }
 
-        // 7. populate the search query with parameter values
+        // 5. populate the search query with parameter values
         fillWithParameters(query, parameters);
 
-        // 8. prepare the result (avoiding duplicates)
+        // 6. prepare the result (avoiding duplicates)
         return buildResult(query.getResultList(), kind);
     }
 }
