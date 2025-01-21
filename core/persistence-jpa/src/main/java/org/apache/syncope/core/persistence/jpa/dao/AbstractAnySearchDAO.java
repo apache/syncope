@@ -199,10 +199,8 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
-        PlainSchema schema = plainSchemaDAO.find(cond.getSchema());
-        if (schema == null) {
-            throw new IllegalArgumentException("Invalid schema " + cond.getSchema());
-        }
+        PlainSchema schema = Optional.ofNullable(plainSchemaDAO.find(cond.getSchema())).
+                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
         PlainAttrValue attrValue = schema.isUniqueConstraint()
                 ? anyUtils.newPlainAttrUniqueValue()
@@ -229,10 +227,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
 
-        Field anyField = anyUtils.getField(computed.getSchema());
-        if (anyField == null) {
-            throw new IllegalArgumentException("Invalid schema " + computed.getSchema());
-        }
+        Field anyField = Optional.ofNullable(anyUtils.getField(computed.getSchema())).
+                orElseThrow(() -> new IllegalArgumentException("Invalid schema " + computed.getSchema()));
+
         // Keeps track of difference between entity's getKey() and JPA @Id fields
         if ("key".equals(computed.getSchema())) {
             computed.setSchema("id");

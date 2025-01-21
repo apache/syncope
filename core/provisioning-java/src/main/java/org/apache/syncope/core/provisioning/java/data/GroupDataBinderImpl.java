@@ -468,10 +468,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         group.getResources().forEach(resource -> {
             // exclude from propagation those objects that have that resource assigned by some other membership(s)
-            if (!any.getResources().contains(resource) && any.getMemberships().stream()
-                    .filter(otherGrpMemb -> !otherGrpMemb.getRightEnd().equals(group))
-                    .noneMatch(otherGrpMemb -> otherGrpMemb.getRightEnd().getResources().stream()
-                            .anyMatch(r -> resource.getKey().equals(r.getKey())))) {
+            if (!any.getResources().contains(resource)
+                    && any.getMemberships().stream().
+                            filter(m -> !m.getRightEnd().equals(group)).
+                            noneMatch(m -> m.getRightEnd().getResources().contains(resource))) {
+
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
             }
 
