@@ -69,6 +69,8 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
+    protected static final String ALWAYS_FALSE_CLAUSE = "1=2";
+
     private static final String[] ORDER_BY_NOT_ALLOWED = {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
     };
@@ -280,6 +282,9 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             if (anyField.getType().isAssignableFrom(attrSchemaType.getType())) {
                 schema.setType(attrSchemaType);
             }
+        }
+        if (schema.getType() == null || schema.getType() == AttrSchemaType.Dropdown) {
+            schema.setType(AttrSchemaType.String);
         }
 
         // Deal with any Integer fields logically mapping to boolean values

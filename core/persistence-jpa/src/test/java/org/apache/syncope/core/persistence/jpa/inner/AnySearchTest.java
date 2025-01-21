@@ -117,6 +117,61 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchTwoPlainSchemas() {
+        AttrCond firstnameCond = new AttrCond(AttrCond.Type.EQ);
+        firstnameCond.setSchema("firstname");
+        firstnameCond.setExpression("Gioacchino");
+
+        AttrCond surnameCond = new AttrCond(AttrCond.Type.EQ);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("Rossini");
+
+        SearchCond cond = SearchCond.getAnd(SearchCond.getLeaf(firstnameCond), SearchCond.getLeaf(surnameCond));
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        surnameCond = new AttrCond(AttrCond.Type.EQ);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("Verdi");
+
+        cond = SearchCond.getAnd(SearchCond.getLeaf(firstnameCond), SearchCond.getNotLeaf(surnameCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        AttrCond fullnameCond = new AttrCond(AttrCond.Type.EQ);
+        fullnameCond.setSchema("fullname");
+        fullnameCond.setExpression("Vincenzo Bellini");
+
+        AttrCond userIdCond = new AttrCond(AttrCond.Type.EQ);
+        userIdCond.setSchema("userId");
+        userIdCond.setExpression("bellini@apache.org");
+
+        cond = SearchCond.getAnd(SearchCond.getLeaf(fullnameCond), SearchCond.getLeaf(userIdCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        userIdCond = new AttrCond(AttrCond.Type.EQ);
+        userIdCond.setSchema("userId");
+        userIdCond.setExpression("rossini@apache.org");
+
+        cond = SearchCond.getAnd(SearchCond.getLeaf(fullnameCond), SearchCond.getNotLeaf(userIdCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
     public void searchWithLikeCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");
@@ -756,8 +811,7 @@ public class AnySearchTest extends AbstractTest {
         likeCond.setSchema("username");
         likeCond.setExpression("%ossin%");
 
-        SearchCond searchCond = SearchCond.getOr(
-                SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
+        SearchCond searchCond = SearchCond.getOr(SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
 
         long count = searchDAO.count(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);

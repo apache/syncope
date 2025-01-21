@@ -108,8 +108,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
     }
 
-    protected static final String ALWAYS_FALSE_ASSERTION = "1=2";
-
     protected static String setParameter(final Map<String, Object> parameters, final Object parameter) {
         String name = "param" + parameters.size();
         parameters.put(name, parameter);
@@ -480,7 +478,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                             " =~ \"" + (lower ? "(?i)" : "")
                             + AnyRepoExt.escapeForLikeRegex(value).replace("%", ".*") + '"');
                 } else {
-                    query.append(ALWAYS_FALSE_ASSERTION);
+                    query.append(ALWAYS_FALSE_CLAUSE);
                     LOG.error("LIKE is only compatible with string or enum schemas");
                 }
             }
@@ -582,7 +580,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                         query.append('$').append(setParameter(parameters, cond.getExpression().replace("%", ".*")));
                     }
                 } else {
-                    query.append(' ').append(ALWAYS_FALSE_ASSERTION);
+                    query.append(' ').append(ALWAYS_FALSE_CLAUSE);
                     LOG.error("LIKE is only compatible with string or enum schemas");
                 }
             }
