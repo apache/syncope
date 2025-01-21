@@ -1845,40 +1845,38 @@ public class UserIssuesITCase extends AbstractITCase {
                 new MembershipUR.Builder(dGroupForPropagation.getKey()).build()).build());
 
         // 3. propagation tasks cleanup
-        TASK_SERVICE.search(
-                new TaskQuery.Builder(TaskType.PROPAGATION)
-                        .anyTypeKind(AnyTypeKind.USER)
-                        .resource(RESOURCE_NAME_LDAP)
-                        .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24")
-                        .build()).getResult()
+        TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
+                .anyTypeKind(AnyTypeKind.USER)
+                .resource(RESOURCE_NAME_LDAP)
+                .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24")
+                .build()).getResult()
                 .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
-        TASK_SERVICE.search(
-                new TaskQuery.Builder(TaskType.PROPAGATION)
-                        .anyTypeKind(AnyTypeKind.USER)
-                        .resource(RESOURCE_NAME_LDAP)
-                        .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee")
-                        .build()).getResult()
+        TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
+                .anyTypeKind(AnyTypeKind.USER)
+                .resource(RESOURCE_NAME_LDAP)
+                .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee")
+                .build()).getResult()
                 .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
 
         // 4. delete group cGroupForPropagation: no deprovision should be fired on bellini, since there is already
         // bGroupForPropagation, deprovision instead must be fired for vivaldi
         GROUP_SERVICE.delete(cGroupForPropagation.getKey());
-        await().during(MAX_WAIT_SECONDS, TimeUnit.SECONDS).atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS)
-                .until(() -> TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
-                .anyTypeKind(AnyTypeKind.USER)
-                .resource(RESOURCE_NAME_LDAP)
-                .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24").build())
-                .getResult().stream().map(PropagationTaskTO.class::cast)
-                .collect(Collectors.toList()).stream()
-                .noneMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
+        await().during(5, TimeUnit.SECONDS).atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
+                () -> TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
+                        .anyTypeKind(AnyTypeKind.USER)
+                        .resource(RESOURCE_NAME_LDAP)
+                        .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24").build())
+                        .getResult().stream().map(PropagationTaskTO.class::cast)
+                        .collect(Collectors.toList()).stream().noneMatch(pt -> ResourceOperation.DELETE == pt.
+                        getOperation()));
         GROUP_SERVICE.delete(dGroupForPropagation.getKey());
-        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS)
-                .until(() -> TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
-                .anyTypeKind(AnyTypeKind.USER)
-                .resource(RESOURCE_NAME_LDAP)
-                .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").build())
-                .getResult().stream().map(PropagationTaskTO.class::cast)
-                .collect(Collectors.toList()).stream()
-                .anyMatch(pt -> ResourceOperation.DELETE == pt.getOperation()));
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
+                () -> TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
+                        .anyTypeKind(AnyTypeKind.USER)
+                        .resource(RESOURCE_NAME_LDAP)
+                        .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").build())
+                        .getResult().stream().map(PropagationTaskTO.class::cast)
+                        .collect(Collectors.toList()).stream().anyMatch(pt -> ResourceOperation.DELETE == pt.
+                        getOperation()));
     }
 }
