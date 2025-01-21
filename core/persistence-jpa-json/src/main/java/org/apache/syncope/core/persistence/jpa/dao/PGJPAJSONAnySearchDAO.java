@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
@@ -299,7 +297,7 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             final Set<String> plainSchemas,
             final OrderBySupport obs) {
 
-        StringBuilder prefix = new StringBuilder(super.buildFrom(from, plainSchemas, obs));
+        StringBuilder clause = new StringBuilder(super.buildFrom(from, plainSchemas, obs));
 
         Set<String> schemas = new HashSet<>(plainSchemas);
 
@@ -313,13 +311,13 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
         }
 
         schemas.forEach(schema -> Optional.ofNullable(plainSchemaDAO.find(schema)).ifPresentOrElse(
-                pschema -> prefix.append(',').
+                pschema -> clause.append(',').
                         append("jsonb_path_query_array(plainattrs, '$[*] ? (@.schema==\"").
                         append(schema).append("\").").
                         append("\"").append(pschema.isUniqueConstraint() ? "uniqueValue" : "values").append("\"')").
                         append(" AS ").append(schema),
                 () -> LOG.warn("Ignoring invalid schema '{}'", schema)));
 
-        return prefix.toString();
+        return clause.toString();
     }
 }
