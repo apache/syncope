@@ -48,13 +48,13 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -445,11 +445,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     protected static void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<String, PropagationByResource<String>> result) {
+            final Group group,
+            final GroupableRelatable<?, ?, ?, ?, ?> any,
+            final Map<String, PropagationByResource<String>> result) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         group.getResources().forEach(resource -> {
-            if (!any.getResources().contains(resource)) {
+            // exclude from propagation those objects that have that resource assigned by some other membership(s)
+            if (!any.getResources().contains(resource) && any.getMemberships().stream()
+                    .filter(otherGrpMemb -> !otherGrpMemb.getRightEnd().equals(group))
+                    .noneMatch(otherGrpMemb -> otherGrpMemb.getRightEnd().getResources().stream()
+                            .anyMatch(r -> resource.getKey().equals(r.getKey())))) {
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
             }
 
