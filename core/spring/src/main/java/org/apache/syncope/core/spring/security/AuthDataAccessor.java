@@ -200,7 +200,7 @@ public class AuthDataAccessor {
                 attrCond.setSchema(authAttrValues[i]);
                 attrCond.setExpression(authentication.getName());
                 try {
-                    List<User> users = anySearchDAO.search(SearchCond.getLeaf(attrCond), AnyTypeKind.USER);
+                    List<User> users = anySearchDAO.search(SearchCond.of(attrCond), AnyTypeKind.USER);
                     if (users.size() == 1) {
                         user = users.get(0);
                     } else {

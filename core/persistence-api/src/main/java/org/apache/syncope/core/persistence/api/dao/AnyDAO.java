@@ -73,7 +73,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     default SearchCond getAllMatchingCond() {
         AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         idCond.setSchema("id");
-        return SearchCond.getLeaf(idCond);
+        return SearchCond.of(idCond);
     }
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);

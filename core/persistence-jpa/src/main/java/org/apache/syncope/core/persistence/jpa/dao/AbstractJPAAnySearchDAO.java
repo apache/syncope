@@ -184,62 +184,62 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             case LEAF:
             case NOT_LEAF:
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(AnyTypeCond.class).
+                    node = cond.of(AnyTypeCond.class).
                             filter(leaf -> AnyTypeKind.ANY_OBJECT == svs.anyTypeKind).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(AuxClassCond.class).
+                    node = cond.of(AuxClassCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(RelationshipTypeCond.class).
+                    node = cond.of(RelationshipTypeCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(RelationshipCond.class).
+                    node = cond.of(RelationshipCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(MembershipCond.class).
+                    node = cond.of(MembershipCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(MemberCond.class).
+                    node = cond.of(MemberCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(RoleCond.class).
+                    node = cond.of(RoleCond.class).
                             filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(PrivilegeCond.class).
+                    node = cond.of(PrivilegeCond.class).
                             filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(DynRealmCond.class).
+                    node = cond.of(DynRealmCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(ResourceCond.class).
+                    node = cond.of(ResourceCond.class).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
 
                 if (node.isEmpty()) {
-                    node = cond.getLeaf(AnyCond.class).
+                    node = cond.of(AnyCond.class).
                             map(anyCond -> getQuery(anyCond, not, parameters, svs)).
-                            or(() -> cond.getLeaf(AttrCond.class).
+                            or(() -> cond.of(AttrCond.class).
                             map(attrCond -> {
                                 Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
                                 plainSchemas.add(checked.getLeft().getKey());

@@ -93,7 +93,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
         return "ne".equals(operator)
                 ? SearchCond.getNotLeaf(attrCond)
-                : SearchCond.getLeaf(attrCond);
+                : SearchCond.of(attrCond);
     }
 
     private static <E extends Enum<?>> SearchCond complex(
@@ -106,7 +106,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 AttrCond attrCond = new AttrCond();
                 attrCond.setSchema(item.get().getValue());
                 attrCond.setType(AttrCond.Type.ISNOTNULL);
-                return SearchCond.getLeaf(attrCond);
+                return SearchCond.of(attrCond);
             }
         } else if (MULTIVALUE.contains(left) || left.endsWith(".value")) {
             List<SearchCond> orConds = items.stream().
@@ -118,7 +118,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                         return setOperator(cond, operator);
                     }).collect(Collectors.toList());
             if (!orConds.isEmpty()) {
-                return SearchCond.getOr(orConds);
+                return SearchCond.or(orConds);
             }
         }
 
@@ -135,7 +135,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 AttrCond attrCond = new AttrCond();
                 attrCond.setSchema(item.get().getFormatted());
                 attrCond.setType(AttrCond.Type.ISNOTNULL);
-                return SearchCond.getLeaf(attrCond);
+                return SearchCond.of(attrCond);
             }
         } else if (MULTIVALUE.contains(left) || left.endsWith(".value")) {
             List<SearchCond> orConds = items.stream().
@@ -147,7 +147,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                         return setOperator(cond, operator);
                     }).collect(Collectors.toList());
             if (!orConds.isEmpty()) {
-                return SearchCond.getOr(orConds);
+                return SearchCond.or(orConds);
             }
         }
 
@@ -326,7 +326,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     public SearchCond visitATTR_PR(final SCIMFilterParser.ATTR_PRContext ctx) {
         AttrCond cond = createAttrCond(ctx.ATTRNAME().getText());
         cond.setType(AttrCond.Type.ISNOTNULL);
-        return SearchCond.getLeaf(cond);
+        return SearchCond.of(cond);
     }
 
     @Override
@@ -337,7 +337,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     @Override
     public SearchCond visitNOT_EXPR(final SCIMFilterParser.NOT_EXPRContext ctx) {
         SearchCond cond = visit(ctx.expression());
-        Optional<AnyCond> anyCond = cond.getLeaf(AnyCond.class);
+        Optional<AnyCond> anyCond = cond.of(AnyCond.class);
         if (anyCond.isPresent()) {
             if (anyCond.get().getType() == AttrCond.Type.ISNULL) {
                 anyCond.get().setType(AttrCond.Type.ISNOTNULL);
@@ -345,7 +345,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 anyCond.get().setType(AttrCond.Type.ISNULL);
             }
         } else {
-            Optional<AttrCond> attrCond = cond.getLeaf(AttrCond.class);
+            Optional<AttrCond> attrCond = cond.of(AttrCond.class);
             if (attrCond.isPresent()) {
                 if (attrCond.get().getType() == AnyCond.Type.ISNULL) {
                     attrCond.get().setType(AnyCond.Type.ISNOTNULL);
@@ -362,11 +362,11 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
     @Override
     public SearchCond visitEXPR_AND_EXPR(final SCIMFilterParser.EXPR_AND_EXPRContext ctx) {
-        return SearchCond.getAnd(visit(ctx.expression(0)), visit(ctx.expression(1)));
+        return SearchCond.and(visit(ctx.expression(0)), visit(ctx.expression(1)));
     }
 
     @Override
     public SearchCond visitEXPR_OR_EXPR(final SCIMFilterParser.EXPR_OR_EXPRContext ctx) {
-        return SearchCond.getOr(visit(ctx.expression(0)), visit(ctx.expression(1)));
+        return SearchCond.or(visit(ctx.expression(0)), visit(ctx.expression(1)));
     }
 }

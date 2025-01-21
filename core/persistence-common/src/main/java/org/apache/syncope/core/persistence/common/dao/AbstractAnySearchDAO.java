@@ -89,10 +89,10 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         List<SearchCond> dynRealmConds = dynRealmKeys.stream().map(key -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(key);
-            return SearchCond.getLeaf(dynRealmCond);
+            return SearchCond.of(dynRealmCond);
         }).toList();
         if (!dynRealmConds.isEmpty()) {
-            result.add(SearchCond.getOr(dynRealmConds));
+            result.add(SearchCond.or(dynRealmConds));
         }
 
         List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
@@ -107,13 +107,13 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 membershipCond.setGroup(key);
                 asc = membershipCond;
             }
-            return SearchCond.getLeaf(asc);
+            return SearchCond.of(asc);
         }).toList();
         if (!groupOwnerConds.isEmpty()) {
-            result.add(SearchCond.getOr(groupOwnerConds));
+            result.add(SearchCond.or(groupOwnerConds));
         }
 
-        return SearchCond.getAnd(result);
+        return SearchCond.and(result);
     }
 
     protected static String key(final AttrSchemaType schemaType) {

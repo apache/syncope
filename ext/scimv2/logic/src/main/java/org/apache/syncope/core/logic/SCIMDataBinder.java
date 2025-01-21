@@ -1011,7 +1011,7 @@ public class SCIMDataBinder {
 
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(groupTO.getKey());
-        SearchCond searchCond = SearchCond.getLeaf(membCond);
+        SearchCond searchCond = SearchCond.of(membCond);
 
         if (output(attributes, excludedAttributes, "members")) {
             long count = userLogic.search(

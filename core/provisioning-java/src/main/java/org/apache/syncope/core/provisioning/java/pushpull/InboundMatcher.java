@@ -272,7 +272,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("username");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
+                        anys.addAll(anySearchDAO.search(SearchCond.of(cond), AnyTypeKind.USER));
                     } else {
                         userDAO.findByUsername(finalConnObjectKeyValue).ifPresent(anys::add);
                     }
@@ -283,7 +283,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.GROUP));
+                        anys.addAll(anySearchDAO.search(SearchCond.of(cond), AnyTypeKind.GROUP));
                     } else {
                         groupDAO.findByName(finalConnObjectKeyValue).ifPresent(anys::add);
                     }
@@ -292,7 +292,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.ANY_OBJECT));
+                        anys.addAll(anySearchDAO.search(SearchCond.of(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
                         anys.addAll(anyObjectDAO.findByName(finalConnObjectKeyValue));
                     }

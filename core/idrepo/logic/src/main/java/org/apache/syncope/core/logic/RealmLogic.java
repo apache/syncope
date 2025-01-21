@@ -203,7 +203,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         Set<String> adminRealms = Set.of(realm.getFullPath());
         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
-        SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
+        SearchCond allMatchingCond = SearchCond.of(keyCond);
         long users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
         long groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         long anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);

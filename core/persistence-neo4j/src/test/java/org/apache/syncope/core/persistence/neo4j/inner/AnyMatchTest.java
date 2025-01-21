@@ -62,10 +62,10 @@ public class AnyMatchTest extends AbstractTest {
 
         ResourceCond resourceCond = new ResourceCond();
         resourceCond.setResource("resource-testdb2");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.of(resourceCond)));
 
         resourceCond.setResource("ws-target-resource-delete");
-        assertFalse(anyMatcher.matches(user, SearchCond.getLeaf(resourceCond)));
+        assertFalse(anyMatcher.matches(user, SearchCond.of(resourceCond)));
     }
 
     @Test
@@ -74,11 +74,11 @@ public class AnyMatchTest extends AbstractTest {
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
-        assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeaf(relationshipCond)));
+        assertTrue(anyMatcher.matches(anyObject, SearchCond.of(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipTypeKey("neighborhood");
-        assertTrue(anyMatcher.matches(anyObject, SearchCond.getLeaf(relationshipTypeCond)));
+        assertTrue(anyMatcher.matches(anyObject, SearchCond.of(relationshipTypeCond)));
     }
 
     @Test
@@ -87,24 +87,24 @@ public class AnyMatchTest extends AbstractTest {
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("secretary");
-        assertFalse(anyMatcher.matches(user, SearchCond.getLeaf(groupCond)));
+        assertFalse(anyMatcher.matches(user, SearchCond.of(groupCond)));
 
         groupCond.setGroup("root");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(groupCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.of(groupCond)));
 
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("Other");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(roleCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.of(roleCond)));
 
         user = userDAO.findById("c9b2dec2-00a7-4855-97c0-d854842b4b24").orElseThrow();
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(relationshipCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.of(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipTypeKey("neighborhood");
-        assertTrue(anyMatcher.matches(user, SearchCond.getLeaf(relationshipTypeCond)));
+        assertTrue(anyMatcher.matches(user, SearchCond.of(relationshipTypeCond)));
     }
 
     @Test
@@ -115,11 +115,11 @@ public class AnyMatchTest extends AbstractTest {
         anyCond.setSchema("name");
         anyCond.setExpression("root");
         anyCond.setType(AttrCond.Type.EQ);
-        assertTrue(anyMatcher.matches(group, SearchCond.getLeaf(anyCond)));
+        assertTrue(anyMatcher.matches(group, SearchCond.of(anyCond)));
 
         AttrCond attrCond = new AttrCond();
         attrCond.setSchema("show");
         attrCond.setType(AttrCond.Type.ISNOTNULL);
-        assertTrue(anyMatcher.matches(group, SearchCond.getLeaf(attrCond)));
+        assertTrue(anyMatcher.matches(group, SearchCond.of(attrCond)));
     }
 }

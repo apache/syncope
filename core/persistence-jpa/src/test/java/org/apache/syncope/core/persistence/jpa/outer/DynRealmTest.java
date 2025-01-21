@@ -96,11 +96,11 @@ public class DynRealmTest extends AbstractTest {
 
         DynRealmCond dynRealmCond = new DynRealmCond();
         dynRealmCond.setDynRealm(actual.getKey());
-        List<User> matching = searchDAO.search(SearchCond.getLeaf(dynRealmCond), AnyTypeKind.USER);
+        List<User> matching = searchDAO.search(SearchCond.of(dynRealmCond), AnyTypeKind.USER);
         assertNotNull(matching);
         assertFalse(matching.isEmpty());
         User user = matching.get(0);
-        assertTrue(anyMatchDAO.matches(user, SearchCond.getLeaf(dynRealmCond)));
+        assertTrue(anyMatchDAO.matches(user, SearchCond.of(dynRealmCond)));
 
         assertTrue(userDAO.findDynRealms(user.getKey()).contains(actual.getKey()));
     }
@@ -139,11 +139,11 @@ public class DynRealmTest extends AbstractTest {
         // 2. verify that dynamic members are the same
         DynRealmCond dynRealmCond1 = new DynRealmCond();
         dynRealmCond1.setDynRealm(realm1.getKey());
-        List<User> matching1 = searchDAO.search(SearchCond.getLeaf(dynRealmCond1), AnyTypeKind.USER);
+        List<User> matching1 = searchDAO.search(SearchCond.of(dynRealmCond1), AnyTypeKind.USER);
 
         DynRealmCond dynRealmCond2 = new DynRealmCond();
         dynRealmCond2.setDynRealm(realm2.getKey());
-        List<User> matching2 = searchDAO.search(SearchCond.getLeaf(dynRealmCond2), AnyTypeKind.USER);
+        List<User> matching2 = searchDAO.search(SearchCond.of(dynRealmCond2), AnyTypeKind.USER);
 
         assertEquals(matching1, matching2);
         assertEquals(1, matching1.size());
@@ -159,8 +159,8 @@ public class DynRealmTest extends AbstractTest {
         entityManager.flush();
 
         // 4. verify that dynamic members are still the same
-        matching1 = searchDAO.search(SearchCond.getLeaf(dynRealmCond1), AnyTypeKind.USER);
-        matching2 = searchDAO.search(SearchCond.getLeaf(dynRealmCond2), AnyTypeKind.USER);
+        matching1 = searchDAO.search(SearchCond.of(dynRealmCond1), AnyTypeKind.USER);
+        matching2 = searchDAO.search(SearchCond.of(dynRealmCond2), AnyTypeKind.USER);
         assertEquals(matching1, matching2);
         assertEquals(2, matching1.size());
         assertTrue(matching1.stream().anyMatch(u -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(u.getKey())));

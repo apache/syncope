@@ -134,67 +134,67 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                                 : AttrCond.Type.LIKE);
                     }
 
-                    leaf = SearchCond.getLeaf(attrCond);
+                    leaf = SearchCond.of(attrCond);
                 } else {
                     switch (specialAttrName.get()) {
                         case TYPE:
                             AnyTypeCond typeCond = new AnyTypeCond();
                             typeCond.setAnyTypeKey(value);
-                            leaf = SearchCond.getLeaf(typeCond);
+                            leaf = SearchCond.of(typeCond);
                             break;
 
                         case AUX_CLASSES:
                             AuxClassCond auxClassCond = new AuxClassCond();
                             auxClassCond.setAuxClass(value);
-                            leaf = SearchCond.getLeaf(auxClassCond);
+                            leaf = SearchCond.of(auxClassCond);
                             break;
 
                         case RESOURCES:
                             ResourceCond resourceCond = new ResourceCond();
                             resourceCond.setResource(value);
-                            leaf = SearchCond.getLeaf(resourceCond);
+                            leaf = SearchCond.of(resourceCond);
                             break;
 
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
                             groupCond.setGroup(value);
-                            leaf = SearchCond.getLeaf(groupCond);
+                            leaf = SearchCond.of(groupCond);
                             break;
 
                         case RELATIONSHIPS:
                             RelationshipCond relationshipCond = new RelationshipCond();
                             relationshipCond.setAnyObject(value);
-                            leaf = SearchCond.getLeaf(relationshipCond);
+                            leaf = SearchCond.of(relationshipCond);
                             break;
 
                         case RELATIONSHIP_TYPES:
                             RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
                             relationshipTypeCond.setRelationshipTypeKey(value);
-                            leaf = SearchCond.getLeaf(relationshipTypeCond);
+                            leaf = SearchCond.of(relationshipTypeCond);
                             break;
 
                         case ROLES:
                             RoleCond roleCond = new RoleCond();
                             roleCond.setRole(value);
-                            leaf = SearchCond.getLeaf(roleCond);
+                            leaf = SearchCond.of(roleCond);
                             break;
 
                         case PRIVILEGES:
                             PrivilegeCond privilegeCond = new PrivilegeCond();
                             privilegeCond.setPrivilege(value);
-                            leaf = SearchCond.getLeaf(privilegeCond);
+                            leaf = SearchCond.of(privilegeCond);
                             break;
 
                         case DYNREALMS:
                             DynRealmCond dynRealmCond = new DynRealmCond();
                             dynRealmCond.setDynRealm(value);
-                            leaf = SearchCond.getLeaf(dynRealmCond);
+                            leaf = SearchCond.of(dynRealmCond);
                             break;
 
                         case MEMBER:
                             MemberCond memberCond = new MemberCond();
                             memberCond.setMember(value);
-                            leaf = SearchCond.getLeaf(memberCond);
+                            leaf = SearchCond.of(memberCond);
                             break;
 
                         default:
@@ -203,7 +203,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     }
                 }
                 if (ct == ConditionType.NOT_EQUALS) {
-                    Optional<AttrCond> notEquals = leaf.getLeaf(AttrCond.class);
+                    Optional<AttrCond> notEquals = leaf.of(AttrCond.class);
                     if (notEquals.isPresent() && notEquals.get().getType() == AttrCond.Type.ISNULL) {
                         notEquals.get().setType(AttrCond.Type.ISNOTNULL);
                     } else {
@@ -214,22 +214,22 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
             case GREATER_OR_EQUALS:
                 attrCond.setType(AttrCond.Type.GE);
-                leaf = SearchCond.getLeaf(attrCond);
+                leaf = SearchCond.of(attrCond);
                 break;
 
             case GREATER_THAN:
                 attrCond.setType(AttrCond.Type.GT);
-                leaf = SearchCond.getLeaf(attrCond);
+                leaf = SearchCond.of(attrCond);
                 break;
 
             case LESS_OR_EQUALS:
                 attrCond.setType(AttrCond.Type.LE);
-                leaf = SearchCond.getLeaf(attrCond);
+                leaf = SearchCond.of(attrCond);
                 break;
 
             case LESS_THAN:
                 attrCond.setType(AttrCond.Type.LT);
-                leaf = SearchCond.getLeaf(attrCond);
+                leaf = SearchCond.of(attrCond);
                 break;
 
             default:
@@ -237,7 +237,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         }
 
         // SYNCOPE-1293: explicitly re-process to allow 'token==$null' or 'token!=$null'
-        Optional<AttrCond> reprocess = leaf.getLeaf(AttrCond.class).
+        Optional<AttrCond> reprocess = leaf.of(AttrCond.class).
                 filter(cond -> "token".equals(cond.getSchema())
                 && (cond.getType() == AttrCond.Type.ISNULL || cond.getType() == AttrCond.Type.ISNOTNULL)
                 && cond.getExpression() == null);
@@ -246,7 +246,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
             tokenCond.setSchema(reprocess.get().getSchema());
             tokenCond.setType(reprocess.get().getType());
             tokenCond.setExpression(null);
-            leaf = SearchCond.getLeaf(tokenCond);
+            leaf = SearchCond.of(tokenCond);
         }
 
         return leaf;
@@ -263,11 +263,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         SearchCond compound;
         switch (sc.getConditionType()) {
             case AND:
-                compound = SearchCond.getAnd(searchConds);
+                compound = SearchCond.and(searchConds);
                 break;
 
             case OR:
-                compound = SearchCond.getOr(searchConds);
+                compound = SearchCond.or(searchConds);
                 break;
 
             default:

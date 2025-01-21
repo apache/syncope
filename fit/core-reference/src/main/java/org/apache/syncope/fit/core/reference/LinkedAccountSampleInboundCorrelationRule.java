@@ -55,7 +55,7 @@ public class LinkedAccountSampleInboundCorrelationRule implements InboundCorrela
             cond.setSchema("");
         }
 
-        return SearchCond.getLeaf(cond);
+        return SearchCond.of(cond);
     }
 
     @Transactional(readOnly = true)

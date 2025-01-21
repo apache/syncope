@@ -114,7 +114,7 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
             termCond = new AnyCond(AttrCond.Type.ISNOTNULL);
             termCond.setSchema("key");
         }
-        SearchCond searchCond = SearchCond.getLeaf(termCond);
+        SearchCond searchCond = SearchCond.of(termCond);
 
         long count = anySearchDAO.count(base, true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
 

@@ -760,50 +760,50 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
-                cond.getLeaf(AnyTypeCond.class).
+                cond.of(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(AuxClassCond.class).
+                cond.of(AuxClassCond.class).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(RelationshipTypeCond.class).
+                cond.of(RelationshipTypeCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
-                cond.getLeaf(RelationshipCond.class).
+                cond.of(RelationshipCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
-                cond.getLeaf(MembershipCond.class).
+                cond.of(MembershipCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(MemberCond.class).
+                cond.of(MemberCond.class).
                         filter(leaf -> AnyTypeKind.GROUP == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(RoleCond.class).
+                cond.of(RoleCond.class).
                         filter(leaf -> AnyTypeKind.USER == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(PrivilegeCond.class).
+                cond.of(PrivilegeCond.class).
                         filter(leaf -> AnyTypeKind.USER == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(DynRealmCond.class).
+                cond.of(DynRealmCond.class).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(ResourceCond.class).
+                cond.of(ResourceCond.class).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
-                cond.getLeaf(AnyCond.class).ifPresentOrElse(
+                cond.of(AnyCond.class).ifPresentOrElse(
                         anyCond -> {
                             Pair<String, String> anyCondResult = getQuery(kind, anyCond, not, parameters);
                             query.append(anyCondResult.getLeft());
                             Optional.ofNullable(anyCondResult.getRight()).ifPresent(involvedFields::add);
                         },
-                        () -> cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
+                        () -> cond.of(AttrCond.class).ifPresent(leaf -> {
                             Pair<String, PlainSchema> attrCondResult = getQuery(kind, leaf, not, parameters);
                             query.append(attrCondResult.getLeft());
                             involvedPlainSchemas.add(attrCondResult.getRight());

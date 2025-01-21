@@ -89,11 +89,11 @@ public class DefaultInboundCorrelationRule implements InboundCorrelationRule {
             cond.setType(type);
             cond.setExpression(expression);
 
-            searchConds.add(SearchCond.getLeaf(cond));
+            searchConds.add(SearchCond.of(cond));
         });
 
         return conf.isOrSchemas()
-                ? SearchCond.getOr(searchConds)
-                : SearchCond.getAnd(searchConds);
+                ? SearchCond.or(searchConds)
+                : SearchCond.and(searchConds);
     }
 }
