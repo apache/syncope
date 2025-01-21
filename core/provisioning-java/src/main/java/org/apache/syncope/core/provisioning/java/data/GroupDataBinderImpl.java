@@ -471,7 +471,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             if (!any.getResources().contains(resource)
                     && any.getMemberships().stream().
                             filter(m -> !m.getRightEnd().equals(group)).
-                            noneMatch(m -> m.getRightEnd().getResources().contains(resource))) {
+                            noneMatch(m -> m.getRightEnd().getResources().stream().
+                            anyMatch(r -> resource.getKey().equals(r.getKey())))) {
 
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
             }
