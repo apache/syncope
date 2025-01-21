@@ -1834,7 +1834,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
