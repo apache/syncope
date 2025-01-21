@@ -24,9 +24,11 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.layout.AnyLayout;
@@ -40,12 +42,12 @@ import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.client.ui.commons.ConnIdSpecialName;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.status.StatusUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
@@ -273,47 +275,55 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         @Override
         public Panel getPanel(final String panelId) {
             ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
+            if (securityCheck(Set.of(IdRepoEntitlement.REALM_CREATE, IdRepoEntitlement.REALM_UPDATE,
+                    IdRepoEntitlement.REALM_DELETE))) {
+                if (securityCheck(IdRepoEntitlement.REALM_CREATE)) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
-            if (StringUtils.startsWith(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM)) {
-                actionPanel.add(new ActionLink<>(realmTO) {
+                        private static final long serialVersionUID = 2802988981431379827L;
 
-                    private static final long serialVersionUID = 2802988981431379827L;
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                            onClickCreate(target);
+                        }
+                    }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
+                }
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickCreate(target);
-                    }
-                }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
+                if (securityCheck(IdRepoEntitlement.REALM_UPDATE)) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
-                actionPanel.add(new ActionLink<>(realmTO) {
+                        private static final long serialVersionUID = 2802988981431379828L;
 
-                    private static final long serialVersionUID = 2802988981431379828L;
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                            onClickEdit(target, realmTO);
+                        }
+                    }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+                }
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickEdit(target, realmTO);
-                    }
-                }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+                if (securityCheck(IdRepoEntitlement.REALM_UPDATE)) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
-                actionPanel.add(new ActionLink<>(realmTO) {
+                        private static final long serialVersionUID = 2802988981431379827L;
 
-                    private static final long serialVersionUID = 2802988981431379827L;
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                            onClickTemplate(target);
+                        }
+                    }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+                }
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickTemplate(target);
-                    }
-                }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+                if (securityCheck(IdRepoEntitlement.REALM_DELETE)) {
+                    actionPanel.add(new ActionLink<>(realmTO) {
 
-                actionPanel.add(new ActionLink<>(realmTO) {
+                        private static final long serialVersionUID = 2802988981431379829L;
 
-                    private static final long serialVersionUID = 2802988981431379829L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                        onClickDelete(target, realmTO);
-                    }
-                }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REALM_DELETE, true).hideLabel();
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                            onClickDelete(target, realmTO);
+                        }
+                    }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REALM_DELETE, true).hideLabel();
+                }
             }
 
             RealmDetails panel = new RealmDetails(panelId, realmTO, actionPanel, false);
@@ -326,6 +336,28 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         public boolean isVisible() {
             return SyncopeWebApplication.get().getSecuritySettings().getAuthorizationStrategy().
                     isActionAuthorized(this, RENDER);
+        }
+
+        private boolean securityCheck(final String entitlement) {
+            return securityCheck(Set.of(entitlement));
+        }
+
+        private boolean securityCheck(final Set<String> entitlements) {
+            UserTO user = SyncopeConsoleSession.get().getSelfTO();
+            if (user.getUsername().equals("admin")) {
+                return true;
+            }
+            List<String> effectiveRealms = SyncopeConsoleSession.get()
+                    .getSelfTO()
+                    .getRoles()
+                    .stream()
+                    .map(role -> roleRestClient.read(role))
+                    .filter(role -> role.getEntitlements().stream()
+                                        .anyMatch(entitlements::contains))
+                    .flatMap(role -> role.getRealms().stream())
+                    .collect(Collectors.toList());
+
+            return effectiveRealms.stream().anyMatch(realmTO.getFullPath()::startsWith);
         }
     }
 }
