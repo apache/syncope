@@ -629,8 +629,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 } else {
                     clause.append('=');
                 }
-                if ((schema.getType() == AttrSchemaType.String
-                        || schema.getType() == AttrSchemaType.Enum) && ignoreCase) {
+                if (ignoreCase
+                        && (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)) {
+
                     clause.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
                 } else {
                     clause.append('?').append(setParameter(parameters, attrValue.getValue()));

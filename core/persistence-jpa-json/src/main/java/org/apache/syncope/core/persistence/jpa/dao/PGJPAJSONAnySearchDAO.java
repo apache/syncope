@@ -169,14 +169,6 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         StringBuilder clause = new StringBuilder();
         switch (cond.getType()) {
-            case ISNULL:
-                // shouldn't occour: processed before
-                break;
-
-            case ISNOTNULL:
-                clause.append("jsonb_path_exists(").append(schema.getKey()).append(", '$[*]')");
-                break;
-
             case ILIKE:
             case LIKE:
                 // jsonb_path_exists(Nome, '$[*] ? (@.stringValue like_regex "EL.*" flag "i")')
@@ -187,8 +179,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                             append("\"").
                             append(lower ? " flag \"i\"" : "").append(")')");
                 } else {
-                    clause.append(' ').append(ALWAYS_FALSE_CLAUSE);
                     LOG.error("LIKE is only compatible with string or enum schemas");
+                    clause.append(' ').append(ALWAYS_FALSE_CLAUSE);
                 }
                 break;
 
@@ -310,13 +302,12 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
             });
         }
 
-        schemas.forEach(schema -> Optional.ofNullable(plainSchemaDAO.find(schema)).ifPresentOrElse(
+        schemas.forEach(schema -> Optional.ofNullable(plainSchemaDAO.find(schema)).ifPresent(
                 pschema -> clause.append(',').
                         append("jsonb_path_query_array(plainattrs, '$[*] ? (@.schema==\"").
                         append(schema).append("\").").
                         append("\"").append(pschema.isUniqueConstraint() ? "uniqueValue" : "values").append("\"')").
-                        append(" AS ").append(schema),
-                () -> LOG.warn("Ignoring invalid schema '{}'", schema)));
+                        append(" AS ").append(schema)));
 
         return clause.toString();
     }
