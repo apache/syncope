@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
@@ -89,6 +90,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyFinder anyFinder,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -101,6 +103,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                 derSchemaDAO,
                 virSchemaDAO,
                 dynRealmDAO,
+                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT),
                 neo4jTemplate,
                 neo4jClient);

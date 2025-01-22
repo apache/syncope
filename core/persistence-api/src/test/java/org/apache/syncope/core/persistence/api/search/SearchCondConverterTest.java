@@ -78,7 +78,7 @@ public class SearchCondConverterTest {
         AnyCond anyCond = new AnyCond(AttrCond.Type.IEQ);
         anyCond.setSchema("username");
         anyCond.setExpression("rossini");
-        SearchCond leaf = SearchCond.getNotLeaf(anyCond);
+        SearchCond leaf = SearchCond.negate(anyCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }
@@ -117,7 +117,7 @@ public class SearchCondConverterTest {
         AttrCond attrCond = new AnyCond(AttrCond.Type.ILIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
-        SearchCond leaf = SearchCond.getNotLeaf(attrCond);
+        SearchCond leaf = SearchCond.negate(attrCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
     }

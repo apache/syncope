@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
-import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -51,9 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
@@ -77,7 +73,6 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncToken;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
@@ -304,29 +299,15 @@ public class InboundMatcher {
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {
-                    PlainAttrValue value = intAttrName.getSchema().isUniqueConstraint()
-                            ? anyUtils.newPlainAttrUniqueValue()
-                            : anyUtils.newPlainAttrValue();
-                    try {
-                        value.parseValue((PlainSchema) intAttrName.getSchema(), finalConnObjectKeyValue);
-                    } catch (ParsingValidationException e) {
-                        LOG.error("While parsing provided {} {}", Uid.NAME, value, e);
-                        value.setStringValue(finalConnObjectKeyValue);
-                    }
-
-                    if (intAttrName.getSchema().isUniqueConstraint()) {
-                        anyUtils.dao().findByPlainAttrUniqueValue((PlainSchema) intAttrName.getSchema(),
-                                (PlainAttrUniqueValue) value, ignoreCaseMatch).
-                                ifPresent(anys::add);
-                    } else {
-                        anys.addAll(anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(),
-                                value, ignoreCaseMatch));
-                    }
+                    AttrCond attrCond = new AttrCond(ignoreCaseMatch ? AttrCond.Type.IEQ : AttrCond.Type.EQ);
+                    attrCond.setSchema(intAttrName.getSchema().getKey());
+                    attrCond.setExpression(finalConnObjectKeyValue);
+                    anys.addAll(anySearchDAO.search(SearchCond.of(attrCond), anyTypeKind));
                 }
 
                 case DERIVED ->
-                    anys.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
-                            finalConnObjectKeyValue, ignoreCaseMatch));
+                    anys.addAll(anyUtils.dao().findByDerAttrValue(
+                            (DerSchema) intAttrName.getSchema(), finalConnObjectKeyValue, ignoreCaseMatch));
 
                 default -> {
                 }

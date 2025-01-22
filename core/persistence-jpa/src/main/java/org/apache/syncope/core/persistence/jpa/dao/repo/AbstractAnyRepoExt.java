@@ -40,15 +40,13 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -140,27 +138,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<A> findByPlainAttrValue(
-            final PlainSchema schema,
-            final PlainAttrValue attrValue,
-            final boolean ignoreCaseMatch) {
-
-        return anyFinder.findByPlainAttrValue(table, anyUtils, schema, attrValue, ignoreCaseMatch);
-    }
-
-    @Override
-    public Optional<A> findByPlainAttrUniqueValue(
-            final PlainSchema schema,
-            final PlainAttrUniqueValue attrUniqueValue,
-            final boolean ignoreCaseMatch) {
-
-        return anyFinder.findByPlainAttrUniqueValue(table, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
-    }
-
-    @Override
     public List<A> findByDerAttrValue(final DerSchema derSchema, final String value, final boolean ignoreCaseMatch) {
-        return anyFinder.findByDerAttrValue(table, anyUtils, derSchema, value, ignoreCaseMatch);
+        return anyFinder.findByDerAttrValue(anyUtils.anyTypeKind(), derSchema, value, ignoreCaseMatch);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -239,7 +218,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         new ArrayList<>(((AbstractAttributable<?>) any).getPlainAttrsList()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
-                    Optional<A> other = findByPlainAttrUniqueValue(attr.getSchema(), attr.getUniqueValue(), false);
+                    Optional<A> other = anyFinder.findByPlainAttrUniqueValue(
+                            anyUtils.anyTypeKind(), attr.getSchema(), attr.getUniqueValue());
                     if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
                         LOG.debug("No duplicate value found for {}={}",
                                 attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());

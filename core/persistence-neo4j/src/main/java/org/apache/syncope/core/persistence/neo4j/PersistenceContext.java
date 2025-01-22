@@ -90,6 +90,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.neo4j.content.XMLContentLoader;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnyMatchDAO;
@@ -469,6 +470,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
+        return new AnyFinder(plainSchemaDAO, anySearchDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AccessTokenDAO accessTokenDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
         return neo4jRepositoryFactory.getRepository(AccessTokenRepo.class);
     }
@@ -519,6 +526,7 @@ public class PersistenceContext {
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
+            final @Lazy AnyFinder anyFinder,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -534,6 +542,7 @@ public class PersistenceContext {
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
+                anyFinder,
                 neo4jTemplate,
                 neo4jClient,
                 nodeValidator,
@@ -955,6 +964,7 @@ public class PersistenceContext {
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
             final AnySearchDAO anySearchDAO,
+            final @Lazy AnyFinder anyFinder,
             final SearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -974,6 +984,7 @@ public class PersistenceContext {
                 userDAO,
                 anyObjectDAO,
                 anySearchDAO,
+                anyFinder,
                 searchCondVisitor,
                 neo4jTemplate,
                 neo4jClient,
@@ -1476,6 +1487,7 @@ public class PersistenceContext {
             final @Lazy GroupDAO groupDAO,
             final DelegationDAO delegationDAO,
             final FIQLQueryDAO fiqlQueryDAO,
+            final @Lazy AnyFinder anyFinder,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -1494,6 +1506,7 @@ public class PersistenceContext {
                 groupDAO,
                 delegationDAO,
                 fiqlQueryDAO,
+                anyFinder,
                 securityProperties,
                 neo4jTemplate,
                 neo4jClient,

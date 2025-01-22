@@ -88,9 +88,9 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
 import org.apache.syncope.core.persistence.common.RuntimeDomainLoader;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentExporter;
 import org.apache.syncope.core.persistence.jpa.content.XMLContentLoader;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAnyMatchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAAuditEventDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPABatchDAO;
@@ -369,6 +369,12 @@ public class PersistenceContext {
                 return SyncopeJPARepository.class;
             }
         };
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final @Lazy AnySearchDAO anySearchDAO) {
+        return new AnyFinder(plainSchemaDAO, anySearchDAO);
     }
 
     @ConditionalOnMissingBean

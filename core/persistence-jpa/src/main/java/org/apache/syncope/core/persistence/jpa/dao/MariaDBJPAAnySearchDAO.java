@@ -70,7 +70,7 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     }
 
     @Override
-    protected AnySearchNode getQuery(
+    protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
             final Pair<PlainSchema, PlainAttrValue> checked,
@@ -88,19 +88,19 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL -> {
-                return new AnySearchNode.Leaf(
+                return Pair.of(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
                         + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
-                        + ") IS NOT NULL");
+                        + ") IS NOT NULL"));
             }
 
             case ISNULL -> {
-                return new AnySearchNode.Leaf(
+                return Pair.of(true, new AnySearchNode.Leaf(
                         svs.field(),
                         "JSON_SEARCH("
                         + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
-                        + ") IS NULL");
+                        + ") IS NULL"));
             }
 
             default -> {
@@ -113,11 +113,11 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                         container.add(checked.getRight());
                     }
 
-                    return new AnySearchNode.Leaf(
+                    return Pair.of(true, new AnySearchNode.Leaf(
                             svs.field(),
                             "JSON_CONTAINS("
                             + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
-                            + "')");
+                            + "')"));
                 } else {
                     Optional.ofNullable(checked.getRight().getDateValue()).
                             map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).

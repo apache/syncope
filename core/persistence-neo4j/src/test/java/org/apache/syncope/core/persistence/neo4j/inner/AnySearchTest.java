@@ -142,6 +142,61 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchTwoPlainSchemas() {
+        AttrCond firstnameCond = new AttrCond(AttrCond.Type.EQ);
+        firstnameCond.setSchema("firstname");
+        firstnameCond.setExpression("Gioacchino");
+
+        AttrCond surnameCond = new AttrCond(AttrCond.Type.EQ);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("Rossini");
+
+        SearchCond cond = SearchCond.and(SearchCond.of(firstnameCond), SearchCond.of(surnameCond));
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        surnameCond = new AttrCond(AttrCond.Type.EQ);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("Verdi");
+
+        cond = SearchCond.and(SearchCond.of(firstnameCond), SearchCond.negate(surnameCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        AttrCond fullnameCond = new AttrCond(AttrCond.Type.EQ);
+        fullnameCond.setSchema("fullname");
+        fullnameCond.setExpression("Vincenzo Bellini");
+
+        AttrCond userIdCond = new AttrCond(AttrCond.Type.EQ);
+        userIdCond.setSchema("userId");
+        userIdCond.setExpression("bellini@apache.org");
+
+        cond = SearchCond.and(SearchCond.of(fullnameCond), SearchCond.of(userIdCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        userIdCond = new AttrCond(AttrCond.Type.EQ);
+        userIdCond.setSchema("userId");
+        userIdCond.setExpression("rossini@apache.org");
+
+        cond = SearchCond.and(SearchCond.of(fullnameCond), SearchCond.negate(userIdCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
     public void searchWithLikeCondition() {
         AttrCond fullnameLeafCond = new AttrCond(AttrCond.Type.LIKE);
         fullnameLeafCond.setSchema("fullname");
@@ -201,7 +256,7 @@ public class AnySearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
 
-        SearchCond cond = SearchCond.getNotLeaf(fullnameLeafCond);
+        SearchCond cond = SearchCond.negate(fullnameLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -219,7 +274,7 @@ public class AnySearchTest extends AbstractTest {
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("verdi");
 
-        SearchCond cond = SearchCond.getNotLeaf(usernameLeafCond);
+        SearchCond cond = SearchCond.negate(usernameLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -235,7 +290,7 @@ public class AnySearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("giuseppe verdi");
 
-        SearchCond cond = SearchCond.getNotLeaf(fullnameLeafCond);
+        SearchCond cond = SearchCond.negate(fullnameLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -410,7 +465,7 @@ public class AnySearchTest extends AbstractTest {
         ResourceCond ws1 = new ResourceCond();
         ws1.setResource("ws-target-resource-list-mappings-2");
 
-        SearchCond searchCondition = SearchCond.and(SearchCond.getNotLeaf(ws2), SearchCond.of(ws1));
+        SearchCond searchCondition = SearchCond.and(SearchCond.negate(ws2), SearchCond.of(ws1));
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -720,7 +775,7 @@ public class AnySearchTest extends AbstractTest {
         AnyCond changePwdDateCond = new AnyCond(AttrCond.Type.ISNULL);
         changePwdDateCond.setSchema("changePwdDate");
 
-        SearchCond cond = SearchCond.and(SearchCond.getNotLeaf(statusCond), SearchCond.of(changePwdDateCond));
+        SearchCond cond = SearchCond.and(SearchCond.negate(statusCond), SearchCond.of(changePwdDateCond));
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -737,7 +792,7 @@ public class AnySearchTest extends AbstractTest {
         ws1.setResource("ws-target-resource-list-mappings-1");
 
         SearchCond searchCondition =
-                SearchCond.and(SearchCond.getNotLeaf(ws2), SearchCond.getNotLeaf(ws1));
+                SearchCond.and(SearchCond.negate(ws2), SearchCond.negate(ws1));
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -923,7 +978,7 @@ public class AnySearchTest extends AbstractTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
-        SearchCond cond = SearchCond.getNotLeaf(loginDateCond);
+        SearchCond cond = SearchCond.negate(loginDateCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);

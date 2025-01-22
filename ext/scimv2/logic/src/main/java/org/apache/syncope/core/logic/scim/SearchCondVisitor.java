@@ -92,7 +92,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         }
 
         return "ne".equals(operator)
-                ? SearchCond.getNotLeaf(attrCond)
+                ? SearchCond.negate(attrCond)
                 : SearchCond.of(attrCond);
     }
 
@@ -353,7 +353,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                     attrCond.get().setType(AnyCond.Type.ISNULL);
                 }
             } else {
-                cond = SearchCond.getNotLeaf(cond);
+                cond = SearchCond.negate(cond);
             }
         }
 

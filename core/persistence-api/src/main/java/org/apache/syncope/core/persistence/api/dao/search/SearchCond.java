@@ -60,7 +60,7 @@ public class SearchCond extends AbstractSearchCond {
         return cond;
     }
 
-    public static SearchCond getNotLeaf(final AbstractSearchCond leaf) {
+    public static SearchCond negate(final AbstractSearchCond leaf) {
         SearchCond cond = of(leaf);
 
         cond.type = Type.NOT_LEAF;
@@ -68,7 +68,7 @@ public class SearchCond extends AbstractSearchCond {
         return cond;
     }
 
-    public static SearchCond and(final SearchCond left, final SearchCond right) {
+    private static SearchCond and(final SearchCond left, final SearchCond right) {
         SearchCond cond = new SearchCond();
 
         cond.type = Type.AND;
@@ -89,10 +89,10 @@ public class SearchCond extends AbstractSearchCond {
     }
 
     public static SearchCond and(final SearchCond... conditions) {
-        return or(Arrays.asList(conditions));
+        return and(Arrays.asList(conditions));
     }
 
-    public static SearchCond or(final SearchCond left, final SearchCond right) {
+    private static SearchCond or(final SearchCond left, final SearchCond right) {
         SearchCond cond = new SearchCond();
 
         cond.type = Type.OR;
@@ -135,10 +135,11 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                if (leaf instanceof AnyTypeCond) {
-                    anyTypeName = ((AnyTypeCond) leaf).getAnyTypeKey();
+                if (leaf instanceof AnyTypeCond anyTypeCond) {
+                    anyTypeName = anyTypeCond.getAnyTypeKey();
                 }
                 break;
+
 
             case AND:
             case OR:

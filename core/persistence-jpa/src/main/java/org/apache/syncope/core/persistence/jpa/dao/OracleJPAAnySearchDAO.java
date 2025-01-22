@@ -22,8 +22,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.BooleanUtils;
+import java.util.Set;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -41,6 +43,22 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.springframework.data.domain.Sort;
 
 public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
+
+    /**
+     *
+     * @param schema
+     * @return JSON_TABLE(plainAttrs, '$[*]?(@.schema == "fullname").uniqueValue' \
+     * COLUMNS uniqueValue PATH '$.stringValue') AS fullname
+     * or JSON_TABLE(plainAttrs, '$[*]?(@.schema == "loginDate").values[*]' \
+     * COLUMNS valuez PATH '$.dateValue') AS loginDate
+     */
+    public static String from(final PlainSchema schema) {
+        return new StringBuilder("JSON_TABLE(plainAttrs, '$[*]?(@.schema == \"").append(schema.getKey()).append("\").").
+                append(schema.isUniqueConstraint() ? "uniqueValue" : "values[*]").
+                append("' COLUMNS ").append(schema.isUniqueConstraint() ? "uniqueValue" : "valuez").
+                append(" PATH '$.").append(key(schema.getType())).append("') AS ").append(schema.getKey()).
+                toString();
+    }
 
     public OracleJPAAnySearchDAO(
             final RealmSearchDAO realmSearchDAO,
@@ -70,6 +88,16 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     }
 
     @Override
+    protected SearchSupport.SearchView defaultSV(final SearchSupport svs) {
+        return svs.table();
+    }
+
+    @Override
+    protected String anyId(final SearchSupport svs) {
+        return defaultSV(svs).alias() + ".id";
+    }
+
+    @Override
     protected void parseOrderByForPlainSchema(
             final SearchSupport svs,
             final OrderBySupport obs,
@@ -81,13 +109,25 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
         // keep track of involvement of non-mandatory schemas in the order by clauses
         obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
 
-        obs.views.add(svs.field());
+        obs.views.add(svs.table());
 
-        item.select = svs.field().alias() + '.'
-                + (schema.isUniqueConstraint() ? "u" : "") + key(schema.getType())
-                + " AS " + fieldName;
-        item.where = "plainSchema = '" + fieldName + '\'';
+        item.select = schema.getKey() + "."
+                + (schema.isUniqueConstraint() ? "uniqueValue" : "valuez")
+                + " AS " + schema.getKey();
+        item.where = StringUtils.EMPTY;
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
+    }
+
+    @Override
+    protected void parseOrderByForField(
+            final SearchSupport svs,
+            final OrderBySupport.Item item,
+            final String fieldName,
+            final Sort.Order clause) {
+
+        item.select = svs.table().alias() + '.' + fieldName;
+        item.where = StringUtils.EMPTY;
+        item.orderBy = svs.table().alias() + '.' + fieldName + ' ' + clause.getDirection().name();
     }
 
     protected AnySearchNode.Leaf filJSONAttrQuery(
@@ -98,26 +138,16 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             final boolean not,
             final List<Object> parameters) {
 
-        String key = key(schema.getType());
-
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                orElseGet(() -> schema.getType() == AttrSchemaType.Boolean
-                ? BooleanUtils.toStringTrueFalse(attrValue.getBooleanValue())
-                : cond.getExpression());
+                orElse(cond.getExpression());
 
         boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
                 && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
 
-        StringBuilder clause = new StringBuilder("plainSchema=?").append(setParameter(parameters, cond.getSchema())).
-                append(" AND ").
-                append(lower ? "LOWER(" : "");
-        if (schema.isUniqueConstraint()) {
-            clause.append("u").append(key);
-        } else {
-            clause.append("JSON_VALUE(").append(key).append(", '$[*]')");
-        }
-        clause.append(lower ? ')' : "");
+        StringBuilder clause = new StringBuilder(lower ? "LOWER(" : "").
+                append(schema.getKey()).append('.').append(schema.isUniqueConstraint() ? "uniqueValue" : "valuez").
+                append(lower ? ')' : "");
 
         switch (cond.getType()) {
             case LIKE:
@@ -173,17 +203,15 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 append('?').append(setParameter(parameters, value)).
                 append(lower ? ")" : "");
 
-        // workaround for Oracle DB adding explicit escaping string, to search 
-        // for literal _ (underscore) (SYNCOPE-1779)
+        // workaround for Oracle DB adding explicit escaping string, to search for literal _ (underscore)
         if (cond.getType() == AttrCond.Type.ILIKE || cond.getType() == AttrCond.Type.LIKE) {
-            clause.append(" ESCAPE '\\' ");
+            clause.append(" ESCAPE '\\'");
         }
-
         return new AnySearchNode.Leaf(from, clause.toString());
     }
 
     @Override
-    protected AnySearchNode getQuery(
+    protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
             final Pair<PlainSchema, PlainAttrValue> checked,
@@ -201,22 +229,22 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL -> {
-                return new AnySearchNode.Leaf(
-                        svs.field(),
-                        "JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')");
+                return Pair.of(false, new AnySearchNode.Leaf(
+                        svs.table(),
+                        "JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')"));
             }
 
             case ISNULL -> {
-                return new AnySearchNode.Leaf(
-                        svs.field(),
-                        "NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')");
+                return Pair.of(false, new AnySearchNode.Leaf(
+                        svs.table(),
+                        "NOT JSON_EXISTS(plainAttrs, '$[*]?(@.schema == \"" + checked.getLeft().getKey() + "\")')"));
             }
 
             default -> {
                 AnySearchNode.Leaf node;
                 if (not && checked.getLeft().isMultivalue()) {
                     AnySearchNode.Leaf notNode = filJSONAttrQuery(
-                            svs.field(),
+                            svs.table(),
                             checked.getRight(),
                             checked.getLeft(),
                             cond,
@@ -224,21 +252,58 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                             parameters);
                     node = new AnySearchNode.Leaf(
                             notNode.getFrom(),
-                            "sv.any_id NOT IN ("
-                            + "SELECT any_id FROM " + notNode.getFrom().name()
+                            "id NOT IN ("
+                            + "SELECT id FROM " + notNode.getFrom().name() + "," + from(checked.getLeft())
                             + " WHERE " + notNode.getClause().replace(notNode.getFrom().alias() + ".", "")
                             + ")");
+                    return Pair.of(false, node);
                 } else {
                     node = filJSONAttrQuery(
-                            svs.field(),
+                            svs.table(),
                             checked.getRight(),
                             checked.getLeft(),
                             cond,
                             not,
                             parameters);
                 }
-                return node;
+                return Pair.of(true, node);
             }
         }
+    }
+
+    @Override
+    protected void visitNode(
+            final AnySearchNode node,
+            final Map<SearchSupport.SearchView, Boolean> counters,
+            final Set<SearchSupport.SearchView> from,
+            final List<String> where,
+            final SearchSupport svs) {
+
+        counters.clear();
+        super.visitNode(node, counters, from, where, svs);
+    }
+
+    @Override
+    protected String buildFrom(
+            final Set<SearchSupport.SearchView> from,
+            final Set<String> plainSchemas,
+            final OrderBySupport obs) {
+
+        StringBuilder clause = new StringBuilder(super.buildFrom(from, plainSchemas, obs));
+
+        plainSchemas.forEach(schema -> plainSchemaDAO.findById(schema).
+                ifPresent(pschema -> clause.append(",").append(from(pschema))));
+
+        if (obs != null) {
+            obs.items.forEach(item -> {
+                String schema = StringUtils.substringBefore(item.orderBy, ' ');
+                if (StringUtils.isNotBlank(schema) && !plainSchemas.contains(schema)) {
+                    plainSchemaDAO.findById(schema).ifPresent(
+                            pschema -> clause.append(" LEFT OUTER JOIN ").append(from(pschema)).append(" ON 1=1"));
+                }
+            });
+        }
+
+        return clause.toString();
     }
 }

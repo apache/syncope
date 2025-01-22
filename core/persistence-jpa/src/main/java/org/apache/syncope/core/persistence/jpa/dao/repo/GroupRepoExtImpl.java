@@ -56,7 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;

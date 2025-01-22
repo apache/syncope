@@ -207,7 +207,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     if (notEquals.isPresent() && notEquals.get().getType() == AttrCond.Type.ISNULL) {
                         notEquals.get().setType(AttrCond.Type.ISNOTNULL);
                     } else {
-                        leaf = SearchCond.getNotLeaf(leaf);
+                        leaf = SearchCond.negate(leaf);
                     }
                 }
                 break;

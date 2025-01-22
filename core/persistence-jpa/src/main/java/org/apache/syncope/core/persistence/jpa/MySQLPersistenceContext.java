@@ -31,8 +31,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
-import org.apache.syncope.core.persistence.jpa.dao.MySQLAnyFinder;
 import org.apache.syncope.core.persistence.jpa.dao.MySQLJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MySQLPlainSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
@@ -51,12 +49,6 @@ public class MySQLPersistenceContext {
     @Bean
     public EntityFactory entityFactory() {
         return new MySQLEntityFactory();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
-        return new MySQLAnyFinder(plainSchemaDAO, entityManager);
     }
 
     @ConditionalOnMissingBean

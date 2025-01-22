@@ -28,9 +28,6 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,11 +41,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     Optional<OffsetDateTime> findLastChange(String key);
 
     A authFind(String key);
-
-    List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
-
-    Optional<A> findByPlainAttrUniqueValue(
-            PlainSchema schema, PlainAttrUniqueValue attrUniqueValue, boolean ignoreCaseMatch);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained

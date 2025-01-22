@@ -28,12 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.cache.Cache;
-import org.apache.commons.jexl3.parser.Parser;
-import org.apache.commons.jexl3.parser.ParserConstants;
-import org.apache.commons.jexl3.parser.Token;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -49,21 +44,18 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -108,6 +100,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
 
     protected final DynRealmDAO dynRealmDAO;
 
+    protected final AnyFinder anyFinder;
+
     protected final AnyUtils anyUtils;
 
     protected AbstractAnyRepoExt(
@@ -117,6 +111,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
+            final AnyFinder anyFinder,
             final AnyUtils anyUtils,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient) {
@@ -128,6 +123,7 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
         this.derSchemaDAO = derSchemaDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;
+        this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
     }
 
@@ -175,172 +171,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<A> findByPlainAttrValue(
-            final PlainSchema schema,
-            final PlainAttrValue attrValue,
-            final boolean ignoreCaseMatch) {
-
-        if (schema == null) {
-            LOG.error("No PlainSchema");
-            return List.of();
-        }
-
-        PlainAttr<?> attr = anyUtils.newPlainAttr();
-        attr.setSchema(schema);
-        if (attrValue instanceof PlainAttrUniqueValue plainAttrUniqueValue) {
-            attr.setUniqueValue(plainAttrUniqueValue);
-        } else {
-            attr.add(attrValue);
-        }
-
-        String op;
-        Map<String, Object> parameters;
-        if (ignoreCaseMatch) {
-            op = "=~";
-            parameters = Map.of("value", "(?i)" + AnyRepoExt.escapeForLikeRegex(POJOHelper.serialize(attr)));
-        } else {
-            op = "=";
-            parameters = Map.of("value", POJOHelper.serialize(attr));
-        }
-        return toList(
-                neo4jClient.query(
-                        "MATCH (n:" + AnyRepoExt.node(anyUtils.anyTypeKind()) + ") "
-                        + "WHERE n.`plainAttrs." + schema.getKey() + "` " + op + " $value RETURN n.id").
-                        bindAll(parameters).fetch().all(),
-                "n.id",
-                anyUtils.anyClass(),
-                cache());
-    }
-
-    @Override
-    public Optional<A> findByPlainAttrUniqueValue(
-            final PlainSchema schema,
-            final PlainAttrUniqueValue attrUniqueValue,
-            final boolean ignoreCaseMatch) {
-
-        if (schema == null) {
-            LOG.error("No PlainSchema");
-            return Optional.empty();
-        }
-        if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'", schema.getKey());
-            return Optional.empty();
-        }
-
-        List<A> result = findByPlainAttrValue(schema, attrUniqueValue, ignoreCaseMatch);
-        return result.isEmpty()
-                ? Optional.empty()
-                : Optional.of(result.get(0));
-    }
-
-    @Override
     public List<A> findByDerAttrValue(final DerSchema derSchema, final String value, final boolean ignoreCaseMatch) {
-        if (derSchema == null) {
-            LOG.error("No DerSchema");
-            return List.of();
-        }
-
-        Parser parser = new Parser(derSchema.getExpression());
-
-        // Schema keys
-        List<String> identifiers = new ArrayList<>();
-
-        // Literals
-        List<String> literals = new ArrayList<>();
-
-        // Get schema keys and literals
-        for (Token token = parser.getNextToken(); token != null && StringUtils.isNotBlank(token.toString());
-                token = parser.getNextToken()) {
-
-            if (token.kind == ParserConstants.STRING_LITERAL) {
-                literals.add(token.toString().substring(1, token.toString().length() - 1));
-            }
-
-            if (token.kind == ParserConstants.IDENTIFIER) {
-                identifiers.add(token.toString());
-            }
-        }
-
-        // Sort literals in order to process later literals included into others
-        literals.sort((l1, l2) -> {
-            if (l1 == null && l2 == null) {
-                return 0;
-            } else if (l1 != null && l2 == null) {
-                return -1;
-            } else if (l1 == null) {
-                return 1;
-            } else if (l1.length() == l2.length()) {
-                return 0;
-            } else if (l1.length() > l2.length()) {
-                return -1;
-            } else {
-                return 1;
-            }
-        });
-
-        // Split value on provided literals
-        List<String> attrValues = split(value, literals);
-
-        if (attrValues.size() != identifiers.size()) {
-            LOG.error("Ambiguous JEXL expression resolution: literals and values have different size");
-            return List.of();
-        }
-
-        // Contains used identifiers in order to avoid replications
-        Set<String> used = new HashSet<>();
-
-        // Create several clauses: one for eanch identifiers
-        List<String> clauses = new ArrayList<>();
-        Map<String, Object> parameters = new HashMap<>();
-        for (int i = 0; i < identifiers.size(); i++) {
-            if (!used.contains(identifiers.get(i))) {
-                // verify schema existence and get schema type
-                PlainSchema schema = plainSchemaDAO.findById(identifiers.get(i)).orElse(null);
-
-                if (schema == null) {
-                    LOG.error("Invalid schema '{}', ignoring", identifiers.get(i));
-                } else {
-                    PlainAttr<?> attr = anyUtils.newPlainAttr();
-                    attr.setSchema(schema);
-                    if (schema.isUniqueConstraint()) {
-                        PlainAttrUniqueValue attrValue = anyUtils.newPlainAttrUniqueValue();
-                        attrValue.setStringValue(attrValues.get(i));
-                        attr.setUniqueValue(attrValue);
-                    } else {
-                        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                        attrValue.setStringValue(attrValues.get(i));
-                        attr.add(attrValue);
-                    }
-
-                    String op;
-                    if (ignoreCaseMatch) {
-                        op = "=~";
-                        parameters.put(
-                                identifiers.get(i),
-                                "(?i)" + AnyRepoExt.escapeForLikeRegex(POJOHelper.serialize(attr)));
-                    } else {
-                        op = "=";
-                        parameters.put(identifiers.get(i), POJOHelper.serialize(attr));
-                    }
-                    clauses.add("n.`plainAttrs." + schema.getKey() + "` " + op + " $" + identifiers.get(i));
-
-                    used.add(identifiers.get(i));
-                }
-            }
-        }
-
-        LOG.debug("Generated where clauses {}", clauses);
-
-        return toList(
-                neo4jClient.query(
-                        "MATCH (n:" + AnyRepoExt.node(anyUtils.anyTypeKind()) + ") "
-                        + "WHERE " + clauses.stream().collect(Collectors.joining(" AND "))
-                        + " RETURN n.id").
-                        bindAll(parameters).fetch().all(),
-                "n.id",
-                anyUtils.anyClass(),
-                cache());
+        return anyFinder.findByDerAttrValue(anyUtils.anyTypeKind(), derSchema, value, ignoreCaseMatch);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -462,7 +294,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
     protected void checkBeforeSave(final A any) {
         // check UNIQUE constraints
         any.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
-            Optional<A> other = findByPlainAttrUniqueValue(attr.getSchema(), attr.getUniqueValue(), false);
+            Optional<A> other = anyFinder.findByPlainAttrUniqueValue(
+                    anyUtils.anyTypeKind(), attr.getSchema(), attr.getUniqueValue());
             if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
                 LOG.debug("No duplicate value found for {}={}",
                         attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());

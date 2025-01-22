@@ -242,8 +242,11 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                             or(() -> cond.of(AttrCond.class).
                             map(attrCond -> {
                                 Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
-                                plainSchemas.add(checked.getLeft().getKey());
-                                return getQuery(attrCond, not, checked, parameters, svs);
+                                Pair<Boolean, AnySearchNode> query = getQuery(attrCond, not, checked, parameters, svs);
+                                if (query.getLeft()) {
+                                    plainSchemas.add(checked.getLeft().getKey());
+                                }
+                                return query.getRight();
                             }));
                 }
 
@@ -608,9 +611,8 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                     } else {
                         clause.append('?').append(setParameter(parameters, cond.getExpression()));
                     }
-                    // workaround for Oracle DB adding explicit escape, to search for literal _ (underscore)
                     if (isOracle()) {
-                        clause.append(" ESCAPE '\\' ");
+                        clause.append(" ESCAPE '\\'");
                     }
                 } else {
                     LOG.error("LIKE is only compatible with string or enum schemas");
@@ -679,7 +681,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                         : from.alias() + ".schema_id='" + schema.getKey() + "' AND " + clause);
     }
 
-    protected AnySearchNode getQuery(
+    protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
             final Pair<PlainSchema, PlainAttrValue> checked,
@@ -701,9 +703,9 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL -> {
-                return new AnySearchNode.Leaf(
+                return Pair.of(true, new AnySearchNode.Leaf(
                         sv,
-                        sv.alias() + ".schema_id='" + checked.getLeft().getKey() + "'");
+                        sv.alias() + ".schema_id='" + checked.getLeft().getKey() + "'"));
             }
 
             case ISNULL -> {
@@ -713,7 +715,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                         append(sv.name()).
                         append(" WHERE schema_id=").append("'").append(checked.getLeft().getKey()).append("'").
                         append(')').toString();
-                return new AnySearchNode.Leaf(defaultSV(svs), clause);
+                return Pair.of(true, new AnySearchNode.Leaf(defaultSV(svs), clause));
             }
 
             default -> {
@@ -743,7 +745,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                             not,
                             parameters);
                 }
-                return node;
+                return Pair.of(true, node);
             }
         }
     }
