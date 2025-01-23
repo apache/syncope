@@ -426,6 +426,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     TASK_SERVICE, TaskType.PULL, "83f7e85d-9774-43fe-adba-ccd856312994", MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
 
+            if (IS_EXT_SEARCH_ENABLED) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ex) {
+                    // ignore
+                }
+            }
+
             userTO = USER_SERVICE.read("testuser1");
             assertNotNull(userTO);
             assertEquals("active", userTO.getStatus());

@@ -101,6 +101,14 @@ public class ExceptionMapperITCase extends AbstractITCase {
         userTO2.getPlainAttrs().add(attr("surname", userId2));
         userTO2.getPlainAttrs().add(attr("unique" + schemaUID, "unique" + schemaUID));
 
+        if (IS_EXT_SEARCH_ENABLED) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         try {
             createUser(userTO2);
             fail("This should not happen");
