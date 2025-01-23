@@ -24,6 +24,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
 
 public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
@@ -40,9 +41,8 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
     public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
-                + new SearchSupport(getAnyTypeKind(reference)).field().name()
-                + " WHERE plainSchema = ?");
-        query.setParameter(1, schema.getKey());
+                + new SearchSupport(getAnyTypeKind(reference)).table().name() + ","
+                + OracleJPAAnySearchDAO.from(schema));
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }

@@ -60,6 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
@@ -114,7 +115,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
-            final AnySearchDAO searchDAO,
+            final AnySearchDAO anySearchDAO,
+            final AnyFinder anyFinder,
             final SearchCondVisitor searchCondVisitor,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -128,6 +130,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 derSchemaDAO,
                 virSchemaDAO,
                 dynRealmDAO,
+                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP),
                 neo4jTemplate,
                 neo4jClient);
@@ -135,7 +138,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
-        this.anySearchDAO = searchDAO;
+        this.anySearchDAO = anySearchDAO;
         this.searchCondVisitor = searchCondVisitor;
         this.nodeValidator = nodeValidator;
         this.groupCache = groupCache;

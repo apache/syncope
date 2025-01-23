@@ -110,7 +110,7 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole(role.getKey());
 
-        List<User> users = searchDAO.search(SearchCond.getLeaf(roleCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.of(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
@@ -138,7 +138,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(
                 realmDAO.getRoot(), true,
                 Set.of(SyncopeConstants.ROOT_REALM),
-                SearchCond.getLeaf(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
+                SearchCond.of(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.stream().anyMatch(user -> rossini.getKey().equals(user.getKey())));
 
@@ -146,7 +146,7 @@ public class AnySearchTest extends AbstractTest {
         users = searchDAO.search(
                 group.getRealm(), true,
                 Set.of(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
-                SearchCond.getLeaf(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
+                SearchCond.of(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
         assertEquals(rossini.getKey(), users.get(0).getKey());
@@ -160,7 +160,7 @@ public class AnySearchTest extends AbstractTest {
         AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
         attrCond.setSchema("ctype");
         attrCond.setExpression("otherchildctype");
-        SearchCond cond = SearchCond.getAnd(SearchCond.getLeaf(typeCond), SearchCond.getLeaf(attrCond));
+        SearchCond cond = SearchCond.and(SearchCond.of(typeCond), SearchCond.of(attrCond));
 
         long count = searchDAO.count(
                 realmSearchDAO.findByFullPath(SyncopeConstants.ROOT_REALM).orElseThrow(),
@@ -209,7 +209,7 @@ public class AnySearchTest extends AbstractTest {
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        SearchCond cond = SearchCond.getLeaf(coolLeafCond);
+        SearchCond cond = SearchCond.of(coolLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -227,8 +227,8 @@ public class AnySearchTest extends AbstractTest {
         AttrCond idRightCond = new AttrCond(AttrCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
-        SearchCond searchCondition = SearchCond.getOr(
-                SearchCond.getLeaf(usernameLeafCond), SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.or(
+                SearchCond.of(usernameLeafCond), SearchCond.of(idRightCond));
 
         List<Sort.Order> orderByClauses = new ArrayList<>();
         orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "surname"));
@@ -266,7 +266,7 @@ public class AnySearchTest extends AbstractTest {
         titleCond.setSchema("title");
         titleCond.setExpression("syncope's group");
 
-        List<Group> matching = searchDAO.search(SearchCond.getLeaf(titleCond), AnyTypeKind.GROUP);
+        List<Group> matching = searchDAO.search(SearchCond.of(titleCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
         assertEquals(group.getKey(), matching.get(0).getKey());
 
@@ -274,7 +274,7 @@ public class AnySearchTest extends AbstractTest {
         originalNameCond.setSchema("originalName");
         originalNameCond.setExpression("syncope's group");
 
-        matching = searchDAO.search(SearchCond.getLeaf(originalNameCond), AnyTypeKind.GROUP);
+        matching = searchDAO.search(SearchCond.of(originalNameCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
         assertEquals(group.getKey(), matching.get(0).getKey());
     }
@@ -286,7 +286,7 @@ public class AnySearchTest extends AbstractTest {
         emailCond.setSchema("email");
         emailCond.setExpression("verdi@syncope.org");
 
-        SearchCond cond = SearchCond.getLeaf(emailCond);
+        SearchCond cond = SearchCond.of(emailCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);

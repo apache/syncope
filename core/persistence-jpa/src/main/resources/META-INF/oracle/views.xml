@@ -47,28 +47,6 @@ under the License.
   </entry>
 
   <!-- user -->
-  <entry key="user_search">
-    CREATE VIEW user_search AS
-
-    SELECT u.id as any_id, u.*, attrs.*
-    FROM SyncopeUser u LEFT OUTER JOIN JSON_TABLE(u.plainAttrs, '$[*]' COLUMNS (
-    plainSchema PATH '$.schema', 
-    NESTED PATH '$.uniqueValue' COLUMNS(
-    ubinaryValue PATH '$.binaryValue', 
-    ubooleanValue PATH '$.booleanValue',
-    udateValue PATH '$.dateValue',
-    ulongValue PATH '$.longValue',
-    udoubleValue PATH '$.doubleValue',
-    ustringValue PATH '$.stringValue'),
-    NESTED PATH '$.values[*]' COLUMNS(
-    binaryValue FORMAT JSON WITH WRAPPER PATH '$.binaryValue',
-    booleanValue FORMAT JSON WITH WRAPPER PATH '$.booleanValue',
-    dateValue FORMAT JSON WITH WRAPPER PATH '$.dateValue',
-    longValue FORMAT JSON WITH WRAPPER PATH '$.longValue',
-    doubleValue FORMAT JSON WITH WRAPPER PATH '$.doubleValue',
-    stringValue FORMAT JSON WITH WRAPPER PATH '$.stringValue')
-    )) AS attrs ON 1=1
-  </entry>
   <entry key="user_search_urelationship">
     CREATE VIEW user_search_urelationship AS
 

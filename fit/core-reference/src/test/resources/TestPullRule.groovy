@@ -36,6 +36,6 @@ class TestPullRule implements InboundCorrelationRule {
     cond.setType(AttrCond.Type.EQ);
     cond.setExpression(syncDelta.getObject().getName().getNameValue());
 
-    return SearchCond.getLeaf(cond);
+    return SearchCond.of(cond);
   }
 }

@@ -414,7 +414,7 @@ under the License.
     <bouncycastle.version>1.80</bouncycastle.version>
     <nimbus-jose-jwt.version>10.0.1</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.3.7</spring-boot.version>
+    <spring-boot.version>3.3.8</spring-boot.version>
     <spring-cloud-gateway.version>4.1.6</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.1</openjpa.version>
@@ -500,14 +500,14 @@ under the License.
 
     <tomcat.version>10.1.33</tomcat.version>
     <wildfly.version>35.0.0.Final</wildfly.version>
-    <payara.version>6.2024.12</payara.version>
+    <payara.version>6.2025.1</payara.version>
     <jakarta.faces.version>4.1.2</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
-    <docker.neo4j.version>5.26.0</docker.neo4j.version>
+    <docker.neo4j.version>5.26.1</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
     <jdbc.mysql.version>9.2.0</jdbc.mysql.version>

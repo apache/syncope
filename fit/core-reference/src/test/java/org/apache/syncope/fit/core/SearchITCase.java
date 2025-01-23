@@ -984,46 +984,14 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1779() {
         // 1. create user with underscore
-        UserTO userWithUnderscore = createUser(UserITCase.getSample("syncope1779_test@syncope.apache.org")).getEntity();
+        UserTO userWith = createUser(UserITCase.getSample("syncope1779_test@syncope.apache.org")).getEntity();
         // 2 create second user without underscore
-        createUser(UserITCase.getSample("syncope1779test@syncope.apache.org")).getEntity();
-
-        // 3. search for user
-        if (IS_EXT_SEARCH_ENABLED) {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException ex) {
-                // ignore
-            }
-        }
-
-        // Search by username
-        PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*").
-                        and().is("firstname").equalTo("syncope1779_*").
-                        and().is("userId").equalTo("syncope1779_*").query()).
-                build());
-        assertEquals(1, users.getResult().size());
-        assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());
-        // Search also by attribute
-        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779_*").query()).
-                build());
-        assertEquals(1, users.getResult().size());
-        assertEquals(userWithUnderscore.getKey(), users.getResult().get(0).getKey());
-        // search for both
-        users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779*").query()).
-                build());
-        assertEquals(2, users.getResult().size());
-
-        users.getResult().forEach(u -> USER_SERVICE.delete(u.getKey()));
-
-        // 4. create any object with underscore
+        UserTO userWithout = createUser(UserITCase.getSample("syncope1779test@syncope.apache.org")).getEntity();
+        // 3. create printer with underscore
         AnyObjectTO printer = createAnyObject(
                 new AnyObjectCR.Builder(SyncopeConstants.ROOT_REALM, PRINTER, "_syncope1779").build()).getEntity();
 
-        // 5. search for printer
+        // 4. search
         if (IS_EXT_SEARCH_ENABLED) {
             try {
                 Thread.sleep(2000);
@@ -1032,14 +1000,38 @@ public class SearchITCase extends AbstractITCase {
             }
         }
 
-        PagedResult<AnyObjectTO> printers = ANY_OBJECT_SERVICE.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql("$type==PRINTER;name==_syncope1779").
-                        build());
-        assertEquals(1, printers.getResult().size());
-        assertEquals(printer.getKey(), printers.getResult().get(0).getKey());
+        try {
+            // Search by username
+            PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("syncope1779_*").
+                            and().is("firstname").equalTo("syncope1779_*").
+                            and().is("userId").equalTo("syncope1779_*").query()).
+                    build());
+            assertEquals(1, users.getResult().size());
+            assertEquals(userWith.getKey(), users.getResult().get(0).getKey());
+            // Search also by attribute
+            users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779_*").query()).
+                    build());
+            assertEquals(1, users.getResult().size());
+            assertEquals(userWith.getKey(), users.getResult().get(0).getKey());
+            // search for both
+            users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779*").query()).
+                    build());
+            assertEquals(2, users.getResult().size());
 
-        printers.getResult().forEach(u -> ANY_OBJECT_SERVICE.delete(u.getKey()));
+            // search for printer
+            PagedResult<AnyObjectTO> printers = ANY_OBJECT_SERVICE.search(
+                    new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                            fiql("$type==PRINTER;name==_syncope1779").build());
+            assertEquals(1, printers.getResult().size());
+            assertEquals(printer.getKey(), printers.getResult().get(0).getKey());
+        } finally {
+            USER_SERVICE.delete(userWith.getKey());
+            USER_SERVICE.delete(userWithout.getKey());
+            ANY_OBJECT_SERVICE.delete(printer.getKey());
+        }
     }
 
     @Test

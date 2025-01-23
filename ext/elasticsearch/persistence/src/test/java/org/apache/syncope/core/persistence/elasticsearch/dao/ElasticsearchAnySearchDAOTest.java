@@ -190,7 +190,7 @@ public class ElasticsearchAnySearchDAOTest {
                     index(ElasticsearchUtils.getAnyIndex(AuthContextUtils.getDomain(), AnyTypeKind.USER)).
                     searchType(SearchType.QueryThenFetch).
                     query(searchDAO.getQuery(mock(Realm.class), true,
-                            adminRealms, SearchCond.getLeaf(anyCond), AnyTypeKind.USER)).
+                            adminRealms, SearchCond.of(anyCond), AnyTypeKind.USER)).
                     from(1).
                     size(10).
                     build();
@@ -250,14 +250,13 @@ public class ElasticsearchAnySearchDAOTest {
             utils.when(() -> ElasticsearchUtils.getAnyIndex(
                     SyncopeConstants.MASTER_DOMAIN, AnyTypeKind.USER)).thenReturn("master_user");
 
-            Query query = searchDAO.getQuery(
-                    SearchCond.getAnd(
-                            List.of(SearchCond.getLeaf(cond1),
-                                    SearchCond.getLeaf(cond2),
-                                    SearchCond.getLeaf(cond3),
-                                    SearchCond.getLeaf(cond4),
-                                    SearchCond.getLeaf(cond5),
-                                    SearchCond.getLeaf(cond6))),
+            Query query = searchDAO.getQuery(SearchCond.and(
+                    SearchCond.of(cond1),
+                    SearchCond.of(cond2),
+                    SearchCond.of(cond3),
+                    SearchCond.of(cond4),
+                    SearchCond.of(cond5),
+                    SearchCond.of(cond6)),
                     AnyTypeKind.USER);
             assertEquals(Query.Kind.Bool, query._kind());
             assertEquals(6, ((BoolQuery) query._get()).must().size());
@@ -278,14 +277,13 @@ public class ElasticsearchAnySearchDAOTest {
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
-            query = searchDAO.getQuery(
-                    SearchCond.getOr(
-                            List.of(SearchCond.getLeaf(cond1),
-                                    SearchCond.getLeaf(cond2),
-                                    SearchCond.getLeaf(cond3),
-                                    SearchCond.getLeaf(cond4),
-                                    SearchCond.getLeaf(cond5),
-                                    SearchCond.getLeaf(cond6))),
+            query = searchDAO.getQuery(SearchCond.or(
+                    SearchCond.of(cond1),
+                    SearchCond.of(cond2),
+                    SearchCond.of(cond3),
+                    SearchCond.of(cond4),
+                    SearchCond.of(cond5),
+                    SearchCond.of(cond6)),
                     AnyTypeKind.USER);
             assertEquals(Query.Kind.DisMax, query._kind());
             assertEquals(6, ((DisMaxQuery) query._get()).queries().size());
@@ -306,16 +304,15 @@ public class ElasticsearchAnySearchDAOTest {
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
-            query = searchDAO.getQuery(
-                    SearchCond.getAnd(List.of(
-                            SearchCond.getOr(List.of(
-                                    SearchCond.getLeaf(cond1),
-                                    SearchCond.getLeaf(cond2),
-                                    SearchCond.getLeaf(cond3))),
-                            SearchCond.getOr(List.of(
-                                    SearchCond.getLeaf(cond4),
-                                    SearchCond.getLeaf(cond5),
-                                    SearchCond.getLeaf(cond6))))),
+            query = searchDAO.getQuery(SearchCond.and(
+                    SearchCond.or(
+                            SearchCond.of(cond1),
+                            SearchCond.of(cond2),
+                            SearchCond.of(cond3)),
+                    SearchCond.or(
+                            SearchCond.of(cond4),
+                            SearchCond.of(cond5),
+                            SearchCond.of(cond6))),
                     AnyTypeKind.USER);
             assertEquals(Query.Kind.Bool, query._kind());
             assertEquals(2, ((BoolQuery) query._get()).must().size());
@@ -346,16 +343,15 @@ public class ElasticsearchAnySearchDAOTest {
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
-            query = searchDAO.getQuery(
-                    SearchCond.getOr(List.of(
-                            SearchCond.getAnd(List.of(
-                                    SearchCond.getLeaf(cond1),
-                                    SearchCond.getLeaf(cond2),
-                                    SearchCond.getLeaf(cond3))),
-                            SearchCond.getAnd(List.of(
-                                    SearchCond.getLeaf(cond4),
-                                    SearchCond.getLeaf(cond5),
-                                    SearchCond.getLeaf(cond6))))),
+            query = searchDAO.getQuery(SearchCond.or(
+                    SearchCond.and(
+                            SearchCond.of(cond1),
+                            SearchCond.of(cond2),
+                            SearchCond.of(cond3)),
+                    SearchCond.and(
+                            SearchCond.of(cond4),
+                            SearchCond.of(cond5),
+                            SearchCond.of(cond6))),
                     AnyTypeKind.USER);
             assertEquals(Query.Kind.DisMax, query._kind());
             assertEquals(2, ((DisMaxQuery) query._get()).queries().size());

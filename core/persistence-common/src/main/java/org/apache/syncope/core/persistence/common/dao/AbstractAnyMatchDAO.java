@@ -123,68 +123,68 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
-                Boolean match = cond.getLeaf(AnyTypeCond.class).
+                Boolean match = cond.asLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == any.getType().getKind()).
                         map(leaf -> matches(any, leaf, not)).
                         orElse(null);
 
                 if (match == null) {
-                    match = cond.getLeaf(RelationshipTypeCond.class).
+                    match = cond.asLeaf(RelationshipTypeCond.class).
                             filter(leaf -> any instanceof GroupableRelatable).
                             map(leaf -> matches((GroupableRelatable) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(RelationshipCond.class).
+                    match = cond.asLeaf(RelationshipCond.class).
                             filter(leaf -> any instanceof GroupableRelatable).
                             map(leaf -> matches((GroupableRelatable) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(MembershipCond.class).
+                    match = cond.asLeaf(MembershipCond.class).
                             filter(leaf -> any instanceof GroupableRelatable).
                             map(leaf -> matches((GroupableRelatable) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(RoleCond.class).
+                    match = cond.asLeaf(RoleCond.class).
                             filter(leaf -> any instanceof User).
                             map(leaf -> matches((User) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(DynRealmCond.class).
+                    match = cond.asLeaf(DynRealmCond.class).
                             map(leaf -> matches(any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(MemberCond.class).
+                    match = cond.asLeaf(MemberCond.class).
                             filter(leaf -> any instanceof Group).
                             map(leaf -> matches((Group) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(ResourceCond.class).
+                    match = cond.asLeaf(ResourceCond.class).
                             map(leaf -> matches(any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(AnyCond.class).
+                    match = cond.asLeaf(AnyCond.class).
                             map(value -> matches(any, value, not)).
-                            orElseGet(() -> cond.getLeaf(AttrCond.class).
+                            orElseGet(() -> cond.asLeaf(AttrCond.class).
                             map(leaf -> matches(any, leaf, not)).
                             orElse(null));
                 }
 
                 if (match == null) {
-                    match = cond.getLeaf(AttrCond.class).
+                    match = cond.asLeaf(AttrCond.class).
                             map(leaf -> matches(any, leaf, not)).
                             orElse(null);
                 }

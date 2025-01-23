@@ -40,7 +40,7 @@ public class PrintersValueProvider implements DropdownValueProvider {
     static {
         AnyTypeCond anyTypeCond = new AnyTypeCond();
         anyTypeCond.setAnyTypeKey("PRINTER");
-        PRINTER_COND = SearchCond.getLeaf(anyTypeCond);
+        PRINTER_COND = SearchCond.of(anyTypeCond);
 
         Sort.Order orderByNameAsc = new Sort.Order(Sort.Direction.ASC, "name");
         ORDER_BY = List.of(orderByNameAsc);

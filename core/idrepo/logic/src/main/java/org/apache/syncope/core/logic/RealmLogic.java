@@ -46,8 +46,8 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -219,7 +219,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         Set<String> adminRealms = Set.of(realm.getFullPath());
         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
         keyCond.setSchema("key");
-        SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
+        SearchCond allMatchingCond = SearchCond.of(keyCond);
         long users = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.USER);
         long groups = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.GROUP);
         long anyObjects = searchDAO.count(realm, true, adminRealms, allMatchingCond, AnyTypeKind.ANY_OBJECT);

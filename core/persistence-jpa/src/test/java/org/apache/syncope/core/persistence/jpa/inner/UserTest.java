@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -36,10 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -139,35 +135,6 @@ public class UserTest extends AbstractTest {
     public void findByInvalidDerAttrExpression() {
         assertTrue(userDAO.findByDerAttrValue(
                 derSchemaDAO.findById("noschema").orElseThrow(), "Antonio, Maria", false).isEmpty());
-    }
-
-    @Test
-    public void findByPlainAttrUniqueValue() {
-        UPlainAttrUniqueValue fullnameValue = entityFactory.newEntity(UPlainAttrUniqueValue.class);
-        fullnameValue.setStringValue("Gioacchino Rossini");
-
-        PlainSchema fullname = plainSchemaDAO.findById("fullname").orElseThrow();
-
-        Optional<User> found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, false);
-        assertTrue(found.isPresent());
-
-        fullnameValue.setStringValue("Gioacchino ROSSINI");
-
-        found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, false);
-        assertFalse(found.isPresent());
-
-        found = userDAO.findByPlainAttrUniqueValue(fullname, fullnameValue, true);
-        assertTrue(found.isPresent());
-    }
-
-    @Test
-    public void findByPlainAttrBooleanValue() {
-        UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
-        coolValue.setBooleanValue(true);
-
-        List<User> list = userDAO.findByPlainAttrValue(
-                plainSchemaDAO.findById("cool").orElseThrow(), coolValue, false);
-        assertEquals(1, list.size());
     }
 
     @Test

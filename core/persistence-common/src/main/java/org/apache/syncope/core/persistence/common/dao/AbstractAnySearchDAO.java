@@ -69,6 +69,8 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
+    protected static final String ALWAYS_FALSE_CLAUSE = "1=2";
+
     private static final String[] ORDER_BY_NOT_ALLOWED = {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
     };
@@ -87,10 +89,10 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         List<SearchCond> dynRealmConds = dynRealmKeys.stream().map(key -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(key);
-            return SearchCond.getLeaf(dynRealmCond);
+            return SearchCond.of(dynRealmCond);
         }).toList();
         if (!dynRealmConds.isEmpty()) {
-            result.add(SearchCond.getOr(dynRealmConds));
+            result.add(SearchCond.or(dynRealmConds));
         }
 
         List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
@@ -105,13 +107,13 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 membershipCond.setGroup(key);
                 asc = membershipCond;
             }
-            return SearchCond.getLeaf(asc);
+            return SearchCond.of(asc);
         }).toList();
         if (!groupOwnerConds.isEmpty()) {
-            result.add(SearchCond.getOr(groupOwnerConds));
+            result.add(SearchCond.or(groupOwnerConds));
         }
 
-        return SearchCond.getAnd(result);
+        return SearchCond.and(result);
     }
 
     protected static String key(final AttrSchemaType schemaType) {
@@ -280,6 +282,9 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             if (anyField.getType().isAssignableFrom(attrSchemaType.getType())) {
                 schema.setType(attrSchemaType);
             }
+        }
+        if (schema.getType() == null || schema.getType() == AttrSchemaType.Dropdown) {
+            schema.setType(AttrSchemaType.String);
         }
 
         // Deal with any Integer fields logically mapping to boolean values

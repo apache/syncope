@@ -108,8 +108,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
     }
 
-    protected static final String ALWAYS_FALSE_ASSERTION = "1=2";
-
     protected static String setParameter(final Map<String, Object> parameters, final Object parameter) {
         String name = "param" + parameters.size();
         parameters.put(name, parameter);
@@ -480,7 +478,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                             " =~ \"" + (lower ? "(?i)" : "")
                             + AnyRepoExt.escapeForLikeRegex(value).replace("%", ".*") + '"');
                 } else {
-                    query.append(ALWAYS_FALSE_ASSERTION);
+                    query.append(ALWAYS_FALSE_CLAUSE);
                     LOG.error("LIKE is only compatible with string or enum schemas");
                 }
             }
@@ -582,7 +580,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                         query.append('$').append(setParameter(parameters, cond.getExpression().replace("%", ".*")));
                     }
                 } else {
-                    query.append(' ').append(ALWAYS_FALSE_ASSERTION);
+                    query.append(' ').append(ALWAYS_FALSE_CLAUSE);
                     LOG.error("LIKE is only compatible with string or enum schemas");
                 }
             }
@@ -762,50 +760,50 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
-                cond.getLeaf(AnyTypeCond.class).
+                cond.asLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(AuxClassCond.class).
+                cond.asLeaf(AuxClassCond.class).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(RelationshipTypeCond.class).
+                cond.asLeaf(RelationshipTypeCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
-                cond.getLeaf(RelationshipCond.class).
+                cond.asLeaf(RelationshipCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
-                cond.getLeaf(MembershipCond.class).
+                cond.asLeaf(MembershipCond.class).
                         filter(leaf -> AnyTypeKind.GROUP != kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(MemberCond.class).
+                cond.asLeaf(MemberCond.class).
                         filter(leaf -> AnyTypeKind.GROUP == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(RoleCond.class).
+                cond.asLeaf(RoleCond.class).
                         filter(leaf -> AnyTypeKind.USER == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(PrivilegeCond.class).
+                cond.asLeaf(PrivilegeCond.class).
                         filter(leaf -> AnyTypeKind.USER == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(DynRealmCond.class).
+                cond.asLeaf(DynRealmCond.class).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.getLeaf(ResourceCond.class).
+                cond.asLeaf(ResourceCond.class).
                         ifPresent(leaf -> query.append(getQuery(kind, leaf, not, parameters)));
 
-                cond.getLeaf(AnyCond.class).ifPresentOrElse(
+                cond.asLeaf(AnyCond.class).ifPresentOrElse(
                         anyCond -> {
                             Pair<String, String> anyCondResult = getQuery(kind, anyCond, not, parameters);
                             query.append(anyCondResult.getLeft());
                             Optional.ofNullable(anyCondResult.getRight()).ifPresent(involvedFields::add);
                         },
-                        () -> cond.getLeaf(AttrCond.class).ifPresent(leaf -> {
+                        () -> cond.asLeaf(AttrCond.class).ifPresent(leaf -> {
                             Pair<String, PlainSchema> attrCondResult = getQuery(kind, leaf, not, parameters);
                             query.append(attrCondResult.getLeft());
                             involvedPlainSchemas.add(attrCondResult.getRight());
