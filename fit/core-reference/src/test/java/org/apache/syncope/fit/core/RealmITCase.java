@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -30,6 +31,7 @@ import java.util.UUID;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -40,17 +42,23 @@ import org.apache.syncope.common.lib.policy.DefaultAccessPolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ExecStatus;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
@@ -400,5 +408,52 @@ public class RealmITCase extends AbstractITCase {
         }).getEntity();
 
         assertFalse(realmTO.getResources().contains("resource-ldap-orgunit"), "Should not contain removed resources");
+    }
+
+    @Test
+    public void issueSYNCOPE1856() {
+        try {
+            // CREATE ROLE
+            RoleTO roleTO = new RoleTO();
+            roleTO.getEntitlements()
+                    .addAll(List.of(IdRepoEntitlement.REALM_SEARCH, IdRepoEntitlement.REALM_CREATE,
+                            IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.REALM_DELETE));
+            roleTO.getRealms().add("/even");
+            roleTO.setKey("REALM_ADMIN");
+            roleTO = createRole(roleTO);
+            // CREATE REALM MANAGER
+            UserCR userCR = UserITCase.getUniqueSample("manager@syncope.apache.org");
+            userCR.setUsername("manager");
+            userCR.setRealm("/even");
+            userCR.getRoles().add(roleTO.getKey());
+            UserTO manager = createUser(userCR).getEntity();
+
+            RealmService managerRealmService = CLIENT_FACTORY.create(manager.getUsername(), "password123")
+                    .getService(RealmService.class);
+
+            // MANAGER CANNOT CREATE REALM CHILD OF /
+            RealmTO realmTO = new RealmTO();
+            realmTO.setName("child");
+            assertThrows(SyncopeClientException.class, () -> managerRealmService.create("/", realmTO));
+
+            Response response = REALM_SERVICE.create("/", realmTO);
+            assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
+            RealmTO childRealm = REALM_SERVICE.search(new RealmQuery.Builder().base("/").keyword("child").build())
+                    .getResult()
+                    .get(0);
+
+            // MANAGER CANNOT UPDATE /child
+            assertThrows(SyncopeClientException.class, () -> managerRealmService.update(childRealm));
+
+            // MANAGER CANNOT DELETE /child
+            assertThrows(SyncopeClientException.class, () -> managerRealmService.delete(childRealm.getFullPath()));
+        } finally {
+            USER_SERVICE.search(new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder()
+                    .is("username")
+                    .equalTo("manager")
+                    .query()).build()).getResult().forEach(userTO -> deleteUser(userTO.getKey()));
+            ROLE_SERVICE.delete("REALM_ADMIN");
+            REALM_SERVICE.delete("/child");
+        }
     }
 }

@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -54,6 +55,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,6 +102,14 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         this.taskExecutor = taskExecutor;
     }
 
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm) {
+        boolean authorized = effectiveRealms.stream().anyMatch(realm::startsWith);
+        if (!authorized) {
+            throw new DelegatedAdministrationException(realm, User.class.getSimpleName(),
+                    AuthContextUtils.getUsername());
+        }
+    }
+
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<Integer, List<RealmTO>> search(
@@ -144,6 +154,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             }
         }
 
+         securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_CREATE), parent.getFullPath());
+
         String fullPath = StringUtils.appendIfMissing(parent.getFullPath(), "/") + realmTO.getName();
         if (realmDAO.findByFullPath(fullPath) != null) {
             throw new DuplicateException(fullPath);
@@ -168,6 +180,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         Realm realm = Optional.ofNullable(realmDAO.findByFullPath(realmTO.getFullPath())).
                 orElseThrow(() -> new NotFoundException(realmTO.getFullPath()));
 
+        securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_UPDATE), realm.getFullPath());
+
         Map<Pair<String, String>, Set<Attribute>> beforeAttrs = propagationManager.prepareAttrs(realm);
 
         PropagationByResource<String> propByRes = binder.update(realm, realmTO);
@@ -190,6 +204,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     public ProvisioningResult<RealmTO> delete(final String fullPath) {
         Realm realm = Optional.ofNullable(realmDAO.findByFullPath(fullPath)).
                 orElseThrow(() -> new NotFoundException(fullPath));
+
+        securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_DELETE), realm.getFullPath());
 
         if (!realmDAO.findChildren(realm).isEmpty()) {
             throw SyncopeClientException.build(ClientExceptionType.RealmContains);
