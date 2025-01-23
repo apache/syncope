@@ -140,7 +140,6 @@ public class SearchCond extends AbstractSearchCond {
                 }
                 break;
 
-
             case AND:
             case OR:
                 if (left != null) {
@@ -158,7 +157,7 @@ public class SearchCond extends AbstractSearchCond {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSearchCond> Optional<T> of(final Class<T> clazz) {
+    public <T extends AbstractSearchCond> Optional<T> asLeaf(final Class<T> clazz) {
         return Optional.ofNullable((T) (clazz.isInstance(leaf) ? leaf : null));
     }
 

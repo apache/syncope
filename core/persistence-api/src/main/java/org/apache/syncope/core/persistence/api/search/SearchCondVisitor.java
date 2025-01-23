@@ -203,7 +203,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     }
                 }
                 if (ct == ConditionType.NOT_EQUALS) {
-                    Optional<AttrCond> notEquals = leaf.of(AttrCond.class);
+                    Optional<AttrCond> notEquals = leaf.asLeaf(AttrCond.class);
                     if (notEquals.isPresent() && notEquals.get().getType() == AttrCond.Type.ISNULL) {
                         notEquals.get().setType(AttrCond.Type.ISNOTNULL);
                     } else {
@@ -237,7 +237,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         }
 
         // SYNCOPE-1293: explicitly re-process to allow 'token==$null' or 'token!=$null'
-        Optional<AttrCond> reprocess = leaf.of(AttrCond.class).
+        Optional<AttrCond> reprocess = leaf.asLeaf(AttrCond.class).
                 filter(cond -> "token".equals(cond.getSchema())
                 && (cond.getType() == AttrCond.Type.ISNULL || cond.getType() == AttrCond.Type.ISNOTNULL)
                 && cond.getExpression() == null);

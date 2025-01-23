@@ -300,74 +300,74 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         switch (cond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                query = cond.of(AnyTypeCond.class).
+                query = cond.asLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == kind).
                         map(this::getQuery).
                         orElse(null);
 
                 if (query == null) {
-                    query = cond.of(RelationshipTypeCond.class).
+                    query = cond.asLeaf(RelationshipTypeCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(RelationshipCond.class).
+                    query = cond.asLeaf(RelationshipCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(MembershipCond.class).
+                    query = cond.asLeaf(MembershipCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(MemberCond.class).
+                    query = cond.asLeaf(MemberCond.class).
                             filter(leaf -> AnyTypeKind.GROUP == kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(RoleCond.class).
+                    query = cond.asLeaf(RoleCond.class).
                             filter(leaf -> AnyTypeKind.USER == kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(PrivilegeCond.class).
+                    query = cond.asLeaf(PrivilegeCond.class).
                             filter(leaf -> AnyTypeKind.USER == kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(DynRealmCond.class).
+                    query = cond.asLeaf(DynRealmCond.class).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(AuxClassCond.class).
+                    query = cond.asLeaf(AuxClassCond.class).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(ResourceCond.class).
+                    query = cond.asLeaf(ResourceCond.class).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.of(AnyCond.class).map(ac -> getQuery(ac, kind)).
-                            or(() -> cond.of(AttrCond.class).map(ac -> getQuery(ac, kind))).
+                    query = cond.asLeaf(AnyCond.class).map(ac -> getQuery(ac, kind)).
+                            or(() -> cond.asLeaf(AttrCond.class).map(ac -> getQuery(ac, kind))).
                             orElse(null);
                 }
 
