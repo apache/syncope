@@ -200,7 +200,7 @@ public class RealmChoicePanel extends Panel {
                     protected void onInitialize() {
                         super.onInitialize();
                         String fullPath = RealmsUtils.getFullPath(item.getModelObject());
-                        if (!fullPath.equals("/") && fullPath.lastIndexOf("/") == 0) {
+                        if (!SyncopeConstants.ROOT_REALM.equals(fullPath) && fullPath.lastIndexOf("/") == 0) {
                             item.add(new AttributeModifier("class", "breadcrumb-item no-separator"));
                         }
                     }

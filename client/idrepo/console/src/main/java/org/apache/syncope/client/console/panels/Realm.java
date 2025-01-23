@@ -47,7 +47,6 @@ import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ExecStatus;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.Component;
@@ -277,7 +276,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
             if (securityCheck(Set.of(IdRepoEntitlement.REALM_CREATE, IdRepoEntitlement.REALM_UPDATE,
                     IdRepoEntitlement.REALM_DELETE))) {
-                if (securityCheck(IdRepoEntitlement.REALM_CREATE)) {
+                if (securityCheck(Set.of(IdRepoEntitlement.REALM_CREATE))) {
                     actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379827L;
@@ -289,7 +288,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
                 }
 
-                if (securityCheck(IdRepoEntitlement.REALM_UPDATE)) {
+                if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
                     actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379828L;
@@ -301,7 +300,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
                 }
 
-                if (securityCheck(IdRepoEntitlement.REALM_UPDATE)) {
+                if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
                     actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379827L;
@@ -313,7 +312,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
                 }
 
-                if (securityCheck(IdRepoEntitlement.REALM_DELETE)) {
+                if (securityCheck(Set.of(IdRepoEntitlement.REALM_DELETE))) {
                     actionPanel.add(new ActionLink<>(realmTO) {
 
                         private static final long serialVersionUID = 2802988981431379829L;
@@ -338,26 +337,9 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     isActionAuthorized(this, RENDER);
         }
 
-        private boolean securityCheck(final String entitlement) {
-            return securityCheck(Set.of(entitlement));
-        }
-
         private boolean securityCheck(final Set<String> entitlements) {
-            UserTO user = SyncopeConsoleSession.get().getSelfTO();
-            if (user.getUsername().equals("admin")) {
-                return true;
-            }
-            List<String> effectiveRealms = SyncopeConsoleSession.get()
-                    .getSelfTO()
-                    .getRoles()
-                    .stream()
-                    .map(role -> roleRestClient.read(role))
-                    .filter(role -> role.getEntitlements().stream()
-                                        .anyMatch(entitlements::contains))
-                    .flatMap(role -> role.getRealms().stream())
-                    .collect(Collectors.toList());
-
-            return effectiveRealms.stream().anyMatch(realmTO.getFullPath()::startsWith);
+            return entitlements.stream()
+                    .anyMatch(entitlement -> SyncopeConsoleSession.get().owns(entitlement, realmTO.getFullPath()));
         }
     }
 }
