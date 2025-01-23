@@ -116,3 +116,7 @@ body {
 .running-col {
   width: 65px;
 }
+
+/* BreadCrumb
+============================================================================= */
+.no-separator::before{content:none !important;}
