@@ -43,8 +43,8 @@ import java.lang.invoke.MethodHandles;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -258,6 +258,7 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         checkLogout(response);
     }
 
+    @SuppressWarnings("unchecked")
     private void checkJWT(final String token, final boolean idToken) throws ParseException {
         assertNotNull(token);
         SignedJWT jwt = SignedJWT.parse(token);
@@ -271,7 +272,11 @@ public class OIDCSRAITCase extends AbstractSRAITCase {
         assertEquals("Verdi", idTokenClaimsSet.getStringClaim("family_name"));
         assertEquals("Giuseppe", idTokenClaimsSet.getStringClaim("given_name"));
         assertEquals("Giuseppe Verdi", idTokenClaimsSet.getStringClaim("name"));
-        assertEquals(Set.of("root", "child", "citizen"), Set.of(idTokenClaimsSet.getStringArrayClaim("groups")));
+        List<Object> groups = idTokenClaimsSet.getListClaim("groups");
+        assertEquals(3, groups.size());
+        groups.stream().anyMatch(g -> ((Map<String, String>) g).equals(Map.of("groupName", "root")));
+        groups.stream().anyMatch(g -> ((Map<String, String>) g).equals(Map.of("groupName", "child")));
+        groups.stream().anyMatch(g -> ((Map<String, String>) g).equals(Map.of("groupName", "citizen")));
     }
 
     protected boolean checkIdToken() {
