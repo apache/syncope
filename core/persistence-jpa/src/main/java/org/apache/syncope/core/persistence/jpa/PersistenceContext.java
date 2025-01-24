@@ -411,6 +411,7 @@ public class PersistenceContext {
     public AnyObjectRepoExt anyObjectRepoExt(
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
             final EntityManager entityManager,
@@ -419,6 +420,7 @@ public class PersistenceContext {
         return new AnyObjectRepoExtImpl(
                 anyUtilsFactory,
                 dynRealmDAO,
+                plainSchemaDAO,
                 userDAO,
                 groupDAO,
                 entityManager,
@@ -667,8 +669,8 @@ public class PersistenceContext {
     public GroupRepoExt groupRepoExt(
             final ApplicationEventPublisher publisher,
             final AnyUtilsFactory anyUtilsFactory,
-            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final AnyMatchDAO anyMatchDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy AnyObjectDAO anyObjectDAO,
@@ -680,8 +682,8 @@ public class PersistenceContext {
         return new GroupRepoExtImpl(
                 anyUtilsFactory,
                 publisher,
-                plainSchemaDAO,
                 dynRealmDAO,
+                plainSchemaDAO,
                 anyMatchDAO,
                 userDAO,
                 anyObjectDAO,
@@ -1017,6 +1019,7 @@ public class PersistenceContext {
             final SecurityProperties securityProperties,
             final AnyUtilsFactory anyUtilsFactory,
             final @Lazy DynRealmDAO dynRealmDAO,
+            final @Lazy PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final @Lazy GroupDAO groupDAO,
@@ -1028,6 +1031,7 @@ public class PersistenceContext {
         return new UserRepoExtImpl(
                 anyUtilsFactory,
                 dynRealmDAO,
+                plainSchemaDAO,
                 roleDAO,
                 accessTokenDAO,
                 groupDAO,

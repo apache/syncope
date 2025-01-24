@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -43,6 +44,22 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
                 "SELECT COUNT(id) FROM "
                 + new SearchSupport(getAnyTypeKind(reference)).table().name() + ","
                 + OracleJPAAnySearchDAO.from(schema));
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final PlainAttr<?> attr) {
+
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(id) FROM "
+                + new SearchSupport(anyTypeKind).table().name() + "," + OracleJPAAnySearchDAO.from(attr.getSchema())
+                + " WHERE " + attr.getSchema().getKey() + ".uniqueValue=?1 AND id <> ?2");
+        query.setParameter(1, attr.getUniqueValue().getValue());
+        query.setParameter(2, anyKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }

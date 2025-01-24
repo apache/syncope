@@ -116,7 +116,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         return SearchCond.and(result);
     }
 
-    protected static String key(final AttrSchemaType schemaType) {
+    public static String key(final AttrSchemaType schemaType) {
         String key;
         switch (schemaType) {
             case Boolean:

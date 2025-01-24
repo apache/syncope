@@ -294,14 +294,12 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
     protected void checkBeforeSave(final A any) {
         // check UNIQUE constraints
         any.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
-            Optional<A> other = anyFinder.findByPlainAttrUniqueValue(
-                    anyUtils.anyTypeKind(), attr.getSchema(), attr.getUniqueValue());
-            if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
-                LOG.debug("No duplicate value found for {}={}",
-                        attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
-            } else {
+            if (plainSchemaDAO.existsPlainAttrUniqueValue(anyUtils.anyTypeKind(), any.getKey(), attr)) {
                 throw new DuplicateException("Duplicate value found for "
                         + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+            } else {
+                LOG.debug("No duplicate value found for {}={}",
+                        attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
             }
         });
 

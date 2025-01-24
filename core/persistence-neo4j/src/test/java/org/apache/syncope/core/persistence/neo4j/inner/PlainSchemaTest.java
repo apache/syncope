@@ -27,11 +27,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -78,6 +82,24 @@ public class PlainSchemaTest extends AbstractTest {
 
         schema = plainSchemaDAO.findById("aLong").orElseThrow();
         assertFalse(plainSchemaDAO.hasAttrs(schema, UPlainAttr.class));
+    }
+
+    @Test
+    public void existsPlainAttrUniqueValue() {
+        PlainAttrUniqueValue value = anyUtilsFactory.getInstance(AnyTypeKind.USER).newPlainAttrUniqueValue();
+        value.setStringValue("rossini@apache.org");
+        PlainAttr<?> attr = anyUtilsFactory.getInstance(AnyTypeKind.USER).newPlainAttr();
+        attr.setSchema(plainSchemaDAO.findById("userId").orElseThrow());
+        attr.setUniqueValue(value);
+
+        assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
+                AnyTypeKind.USER, "1417acbe-cbf6-4277-9372-e75e04f97000", attr));
+        assertTrue(plainSchemaDAO.existsPlainAttrUniqueValue(
+                AnyTypeKind.USER, UUID.randomUUID().toString(), attr));
+
+        value.setStringValue("none@apache.org");
+        assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
+                AnyTypeKind.USER, "1417acbe-cbf6-4277-9372-e75e04f97000", attr));
     }
 
     @Test

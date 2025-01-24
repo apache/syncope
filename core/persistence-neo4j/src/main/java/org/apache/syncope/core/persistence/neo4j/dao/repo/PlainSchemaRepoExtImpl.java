@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao.repo;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.cache.Cache;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -32,6 +35,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
@@ -105,8 +109,50 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
         return neo4jTemplate.count(
                 "MATCH (n:" + label + ") "
-                + "WHERE n.`plainAttrs." + schema.getKey() + "` "
-                + "IS NOT NULL RETURN COUNT(n)") > 0;
+                + "WHERE n.`plainAttrs." + schema.getKey() + "` IS NOT NULL "
+                + "RETURN COUNT(n)") > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final PlainAttr<?> attr) {
+
+        String label;
+        switch (anyTypeKind) {
+            case GROUP:
+                label = Neo4jGroup.NODE;
+                break;
+
+            case ANY_OBJECT:
+                label = Neo4jAnyObject.NODE;
+                break;
+
+            case USER:
+            default:
+                if (attr instanceof LAPlainAttr) {
+                    label = Neo4jLinkedAccount.NODE;
+                } else {
+                    label = Neo4jUser.NODE;
+                }
+        }
+
+        String value = Optional.ofNullable(attr.getUniqueValue().getDateValue()).
+                map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
+                orElse(attr.getUniqueValue().getValueAsString());
+
+        return neo4jTemplate.count(
+                "MATCH (n:" + label + ") "
+                + "WITH n.id AS id, "
+                + "apoc.convert.getJsonProperty(n, 'plainAttrs." + attr.getSchema().getKey() + "', '$.uniqueValue') "
+                + "AS " + attr.getSchema().getKey() + " "
+                + "WHERE (EXISTS { MATCH (n) "
+                + "WHERE " + attr.getSchema().getKey() + "." + Neo4jAnySearchDAO.key(attr.getSchema().getType())
+                + " = $value } "
+                + "AND EXISTS { MATCH (n) WHERE NOT (n.id = $anyKey) }) "
+                + "RETURN COUNT(id)",
+                Map.of("value", value, "anyKey", anyKey)) > 0;
     }
 
     @Override

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.jexl3.parser.Parser;
@@ -36,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,23 +90,6 @@ public class AnyFinder {
     public AnyFinder(final PlainSchemaDAO plainSchemaDAO, final AnySearchDAO anySearchDAO) {
         this.plainSchemaDAO = plainSchemaDAO;
         this.anySearchDAO = anySearchDAO;
-    }
-
-    @Transactional(readOnly = true)
-    public <A extends Any<?>> Optional<A> findByPlainAttrUniqueValue(
-            final AnyTypeKind anyTypeKind,
-            final PlainSchema schema,
-            final PlainAttrUniqueValue attrUniqueValue) {
-
-        AttrCond cond = new AttrCond(AttrCond.Type.EQ);
-        cond.setSchema(schema.getKey());
-        cond.setExpression(attrUniqueValue.getStringValue());
-
-        List<A> result = anySearchDAO.search(SearchCond.of(cond), anyTypeKind);
-        if (result.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(result.get(0));
     }
 
     @Transactional(readOnly = true)

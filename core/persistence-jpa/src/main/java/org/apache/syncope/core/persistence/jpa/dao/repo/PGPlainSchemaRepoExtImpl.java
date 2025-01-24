@@ -20,11 +20,14 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.util.List;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
@@ -41,6 +44,21 @@ public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM " + new SearchSupport(getAnyTypeKind(reference)).table().name()
                 + " WHERE plainAttrs::jsonb @> '[{\"schema\":\"" + schema.getKey() + "\"}]'::jsonb");
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final PlainAttr<?> attr) {
+
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(id) FROM " + new SearchSupport(anyTypeKind).table().name()
+                + " WHERE plainAttrs::jsonb @> '" + POJOHelper.serialize(List.of(attr)).replace("'", "''") + "'::jsonb"
+                + " AND id <> ?1");
+        query.setParameter(1, anyKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }

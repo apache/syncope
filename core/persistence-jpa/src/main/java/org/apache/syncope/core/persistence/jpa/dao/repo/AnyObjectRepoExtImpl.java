@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -67,6 +68,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final EntityManager entityManager,
@@ -74,6 +76,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
         super(
                 dynRealmDAO,
+                plainSchemaDAO,
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));

@@ -74,8 +74,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     protected final ApplicationEventPublisher publisher;
 
-    protected final PlainSchemaDAO plainSchemaDAO;
-
     protected final AnyMatchDAO anyMatchDAO;
 
     protected final UserDAO userDAO;
@@ -89,8 +87,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public GroupRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
-            final PlainSchemaDAO plainSchemaDAO,
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -101,11 +99,11 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
         super(
                 dynRealmDAO,
+                plainSchemaDAO,
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
-        this.plainSchemaDAO = plainSchemaDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;

@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -64,6 +65,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected final DynRealmDAO dynRealmDAO;
 
+    protected final PlainSchemaDAO plainSchemaDAO;
+
     protected final EntityManager entityManager;
 
     protected final AnyFinder anyFinder;
@@ -74,11 +77,13 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected AbstractAnyRepoExt(
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils) {
 
         this.dynRealmDAO = dynRealmDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
         this.entityManager = entityManager;
         this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
@@ -218,14 +223,12 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
         new ArrayList<>(((AbstractAttributable<?>) any).getPlainAttrsList()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
-                    Optional<A> other = anyFinder.findByPlainAttrUniqueValue(
-                            anyUtils.anyTypeKind(), attr.getSchema(), attr.getUniqueValue());
-                    if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
-                        LOG.debug("No duplicate value found for {}={}",
-                                attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
-                    } else {
+                    if (plainSchemaDAO.existsPlainAttrUniqueValue(anyUtils.anyTypeKind(), any.getKey(), attr)) {
                         throw new DuplicateException("Duplicate value found for "
                                 + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+                    } else {
+                        LOG.debug("No duplicate value found for {}={}",
+                                attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
                     }
                 });
 

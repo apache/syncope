@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -26,6 +27,8 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
 
     <T extends PlainAttr<?>> boolean hasAttrs(PlainSchema schema, Class<T> reference);
+
+    boolean existsPlainAttrUniqueValue(AnyTypeKind anyTypeKind, String anyKey, PlainAttr<?> attr);
 
     List<PlainSchema> findByValidator(Implementation validator);
 

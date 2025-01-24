@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -71,6 +72,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     public UserRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -82,6 +84,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
         super(
                 dynRealmDAO,
+                plainSchemaDAO,
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));

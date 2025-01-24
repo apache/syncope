@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -36,6 +37,8 @@ public interface PlainSchemaRepoExt {
     List<? extends PlainSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
     <T extends PlainAttr<?>> boolean hasAttrs(PlainSchema schema, Class<T> reference);
+
+    boolean existsPlainAttrUniqueValue(AnyTypeKind anyTypeKind, String anyKey, PlainAttr<?> attr);
 
     PlainSchema save(PlainSchema schema);
 
