@@ -22,16 +22,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -56,7 +55,6 @@ import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -412,48 +410,59 @@ public class RealmITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1856() {
+        // CREATE ROLE
+        RoleTO role = new RoleTO();
+        role.getEntitlements().addAll(
+                List.of(IdRepoEntitlement.REALM_SEARCH, IdRepoEntitlement.REALM_CREATE,
+                        IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.REALM_DELETE));
+        role.getRealms().add("/even");
+        role.setKey("REALM_ADMIN");
+        role = createRole(role);
+
+        // CREATE REALM MANAGER
+        UserCR userCR = UserITCase.getUniqueSample("manager@syncope.apache.org");
+        userCR.setRealm("/even");
+        userCR.getRoles().add(role.getKey());
+        UserTO manager = createUser(userCR).getEntity();
+        RealmService managerRealmService = CLIENT_FACTORY.create(
+                manager.getUsername(), "password123").getService(RealmService.class);
+
+        RealmTO childRealm = null;
         try {
-            // CREATE ROLE
-            RoleTO roleTO = new RoleTO();
-            roleTO.getEntitlements()
-                    .addAll(List.of(IdRepoEntitlement.REALM_SEARCH, IdRepoEntitlement.REALM_CREATE,
-                            IdRepoEntitlement.REALM_UPDATE, IdRepoEntitlement.REALM_DELETE));
-            roleTO.getRealms().add("/even");
-            roleTO.setKey("REALM_ADMIN");
-            roleTO = createRole(roleTO);
-            // CREATE REALM MANAGER
-            UserCR userCR = UserITCase.getUniqueSample("manager@syncope.apache.org");
-            userCR.setUsername("manager");
-            userCR.setRealm("/even");
-            userCR.getRoles().add(roleTO.getKey());
-            UserTO manager = createUser(userCR).getEntity();
-
-            RealmService managerRealmService = CLIENT_FACTORY.create(manager.getUsername(), "password123")
-                    .getService(RealmService.class);
-
             // MANAGER CANNOT CREATE REALM CHILD OF /
             RealmTO realmTO = new RealmTO();
             realmTO.setName("child");
-            assertThrows(SyncopeClientException.class, () -> managerRealmService.create("/", realmTO));
+            try {
+                managerRealmService.create(SyncopeConstants.ROOT_REALM, realmTO);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+            }
 
-            Response response = REALM_SERVICE.create("/", realmTO);
+            Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realmTO);
             assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
-            RealmTO childRealm = REALM_SERVICE.search(new RealmQuery.Builder().base("/").keyword("child").build())
-                    .getResult()
-                    .get(0);
+            childRealm = REALM_SERVICE.search(new RealmQuery.Builder().
+                    base(SyncopeConstants.ROOT_REALM).keyword("child").build()).getResult().get(0);
 
             // MANAGER CANNOT UPDATE /child
-            assertThrows(SyncopeClientException.class, () -> managerRealmService.update(childRealm));
+            try {
+                managerRealmService.update(childRealm);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+            }
 
             // MANAGER CANNOT DELETE /child
-            assertThrows(SyncopeClientException.class, () -> managerRealmService.delete(childRealm.getFullPath()));
+            try {
+                managerRealmService.delete(childRealm.getFullPath());
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+            }
         } finally {
-            USER_SERVICE.search(new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder()
-                    .is("username")
-                    .equalTo("manager")
-                    .query()).build()).getResult().forEach(userTO -> deleteUser(userTO.getKey()));
-            ROLE_SERVICE.delete("REALM_ADMIN");
-            REALM_SERVICE.delete("/child");
+            Optional.ofNullable(childRealm).ifPresent(r -> REALM_SERVICE.delete(r.getFullPath()));
+            USER_SERVICE.delete(manager.getKey());
+            ROLE_SERVICE.delete(role.getKey());
         }
     }
 }
