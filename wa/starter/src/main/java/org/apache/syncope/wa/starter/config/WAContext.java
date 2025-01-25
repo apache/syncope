@@ -59,7 +59,6 @@ import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
-import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.WAServiceRegistry;
@@ -80,7 +79,6 @@ import org.apereo.cas.support.events.CasEventRepository;
 import org.apereo.cas.support.events.CasEventRepositoryFilter;
 import org.apereo.cas.support.pac4j.authentication.clients.DelegatedClientFactoryCustomizer;
 import org.apereo.cas.support.pac4j.authentication.handler.support.DelegatedClientAuthenticationHandler;
-import org.apereo.cas.support.saml.idp.SamlIdPCasEventListener;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
@@ -101,7 +99,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -229,13 +226,6 @@ public class WAContext {
                 waRestClient, registeredServiceMapper, ctx,
                 Optional.ofNullable(serviceRegistryListeners.getIfAvailable()).orElseGet(ArrayList::new));
         return plan -> plan.registerServiceRegistry(registry);
-    }
-
-    @Bean
-    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    @Lazy(false)
-    public SamlIdPCasEventListener samlIdPCasEventListener() {
-        return new WASamlIdPCasEventListener();
     }
 
     @Bean

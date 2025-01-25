@@ -205,11 +205,6 @@ public abstract class AbstractTest {
                 public AttributeDefinitionStore store(final Resource resource) {
                     return this;
                 }
-
-                @Override
-                public AttributeDefinitionStore importStore(final AttributeDefinitionStore definitionStore) {
-                    return this;
-                }
             };
         }
 

@@ -26,7 +26,7 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <version>4.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
@@ -392,7 +392,7 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2024-12-27T11:02:14Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-01-25T06:53:07Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.6.0.0-SNAPSHOT</connid.version>
@@ -410,12 +410,12 @@ under the License.
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0</connid.kafka.version>
 
-    <cxf.version>4.0.6</cxf.version>
+    <cxf.version>4.1.0</cxf.version>
     <bouncycastle.version>1.80</bouncycastle.version>
     <nimbus-jose-jwt.version>10.0.1</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.3.8</spring-boot.version>
-    <spring-cloud-gateway.version>4.1.6</spring-cloud-gateway.version>
+    <spring-boot.version>3.4.2</spring-boot.version>
+    <spring-cloud-gateway.version>4.2.0</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.1</openjpa.version>
 
@@ -438,7 +438,7 @@ under the License.
 
     <pac4j.version>6.0.6</pac4j.version>
 
-    <cas.version>7.1.4</cas.version>
+    <cas.version>7.2.0-RC4</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.28</swagger-core.version>
@@ -498,7 +498,7 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.33</tomcat.version>
+    <tomcat.version>10.1.34</tomcat.version>
     <wildfly.version>35.0.0.Final</wildfly.version>
     <payara.version>6.2025.1</payara.version>
     <jakarta.faces.version>4.1.2</jakarta.faces.version>
@@ -1360,7 +1360,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>4.1.5</version>
+        <version>${spring-cloud-gateway.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -2344,48 +2344,6 @@ under the License.
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <profile>
-      <id>jdk24</id>
-
-      <activation>
-        <jdk>[24,)</jdk>
-      </activation>
-
-      <properties>
-        <mockito.version>5.15.2</mockito.version>
-        <byte-buddy.version>1.16.1</byte-buddy.version>
-      </properties>
-
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
     </profile>
   </profiles>
 
