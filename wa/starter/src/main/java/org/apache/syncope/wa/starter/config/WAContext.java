@@ -87,6 +87,7 @@ import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustR
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
 import org.apereo.cas.util.LdapUtils;
 import org.apereo.cas.util.crypto.CipherExecutor;
+import org.apereo.cas.util.spring.CasApplicationReadyListener;
 import org.apereo.cas.webauthn.storage.WebAuthnCredentialRepository;
 import org.ldaptive.ConnectionFactory;
 import org.pac4j.core.client.Client;
@@ -226,6 +227,13 @@ public class WAContext {
                 waRestClient, registeredServiceMapper, ctx,
                 Optional.ofNullable(serviceRegistryListeners.getIfAvailable()).orElseGet(ArrayList::new));
         return plan -> plan.registerServiceRegistry(registry);
+    }
+
+    @Bean
+    public CasApplicationReadyListener samlIdPCasEventListener() {
+        // skip generating IdP metadata at this stage, as the default samlIdPCasEventListener bean is doing
+        return event -> {
+        };
     }
 
     @Bean

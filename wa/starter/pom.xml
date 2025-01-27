@@ -160,6 +160,12 @@ under the License.
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-reports</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apereo.cas</groupId>
+          <artifactId>cas-server-core-monitor</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>

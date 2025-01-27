@@ -367,7 +367,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             keyValue = nameID.getValue();
         }
 
-        loginResp.setNotOnOrAfter(new Date(authCreds.getConditions().getNotOnOrAfter().toInstant().toEpochMilli()));
+        loginResp.setNotOnOrAfter(new Date(authCreds.getConditions().getNotOnOrAfter().toEpochMilli()));
 
         loginResp.setSessionIndex(authCreds.getSessionIndex());
 
