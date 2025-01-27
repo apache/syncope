@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.ext</groupId>
     <artifactId>syncope-ext-scimv2</artifactId>
-    <version>4.1.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Ext: SCIMv2 Client Console</name>
