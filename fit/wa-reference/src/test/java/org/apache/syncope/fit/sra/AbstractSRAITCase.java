@@ -65,7 +65,7 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-public abstract class AbstractSRAITCase extends AbstractITCase {
+abstract class AbstractSRAITCase extends AbstractITCase {
 
     protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
