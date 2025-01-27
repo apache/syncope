@@ -421,7 +421,7 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-11</groovy.version>
+    <groovy.version>5.0.0-alpha-12</groovy.version>
 
     <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -456,7 +456,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.4.3</chartjs.version>
 
-    <wicket.version>10.3.0</wicket.version>
+    <wicket.version>10.4.0</wicket.version>
     <wicketstuff.version>10.3.0</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.9</wicket-bootstrap.version>
