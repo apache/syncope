@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.fit.sra;
 
-import static org.apache.syncope.fit.sra.AbstractSRAITCase.MAPPER;
-import static org.apache.syncope.fit.sra.AbstractSRAITCase.QUERY_STRING;
-import static org.apache.syncope.fit.sra.AbstractSRAITCase.SRA_ADDRESS;
-import static org.apache.syncope.fit.sra.AbstractSRAITCase.checkGetResponse;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
