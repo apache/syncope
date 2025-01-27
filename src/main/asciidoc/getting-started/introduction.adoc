@@ -146,7 +146,7 @@ http://www.bpmn.org/[BPMN 2.0^] implementations - or define new, custom ones.
  * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
 using a standard https://en.wikipedia.org/wiki/Jakarta_Persistence[Jakarta Persistence 3.1] approach. The data is persisted to an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
-https://docs.spring.io/spring-framework/reference/6.1/data-access/transaction.html[transaction management^] 
+https://docs.spring.io/spring-framework/reference/6.2/data-access/transaction.html[transaction management^] 
 provided by the Spring Framework. +
 Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability with no code 
 changes: PostgreSQL, MySQL, MariaDB and Oracle are fully supported deployment options.
