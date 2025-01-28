@@ -166,7 +166,7 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                                 public List<String> getObject() {
                                     return Optional.ofNullable(prop.getValue()).
                                             map(v -> List.of(v.split(";"))).
-                                            orElse(null);
+                                            orElse(new ArrayList<>());
                                 }
 
                                 @Override
