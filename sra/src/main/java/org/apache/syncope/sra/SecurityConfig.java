@@ -251,7 +251,7 @@ public class SecurityConfig {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
     public SAML2Client saml2Client(final ResourcePatternResolver resourceResolver, final SRAProperties props) {
-        new ServerWebExchangeFrameworkAdapter().applyDefaultSettingsIfUndefined(new Config());
+        ServerWebExchangeFrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(new Config());
 
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getSaml2().getKeystore()),

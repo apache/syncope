@@ -19,9 +19,12 @@
 package org.apache.syncope.sra.security.pac4j;
 
 import org.pac4j.core.adapter.DefaultFrameworkAdapter;
+import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
 
 public class ServerWebExchangeFrameworkAdapter extends DefaultFrameworkAdapter {
+
+    public static final FrameworkAdapter INSTANCE = new ServerWebExchangeFrameworkAdapter();
 
     @Override
     public void applyDefaultSettingsIfUndefined(final Config config) {
