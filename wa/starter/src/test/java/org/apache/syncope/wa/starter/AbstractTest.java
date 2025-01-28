@@ -20,6 +20,7 @@ package org.apache.syncope.wa.starter;
 
 import static org.awaitility.Awaitility.await;
 
+import com.okta.sdk.client.Client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -41,6 +42,7 @@ import org.apereo.cas.authentication.principal.attribute.PersonAttributeDao;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributeDaoFilter;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributes;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.util.spring.beans.BeanSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -218,6 +220,12 @@ public abstract class AbstractTest {
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
         public PersonAttributeDao aggregatingAttributeRepository() {
             return new DummyIPersonAttributeDao();
+        }
+
+        @Bean(name = "oktaPersonDirectoryClient")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public Client oktaPersonDirectoryClient() {
+            return BeanSupplier.of(Client.class).otherwiseProxy().get();
         }
     }
 
