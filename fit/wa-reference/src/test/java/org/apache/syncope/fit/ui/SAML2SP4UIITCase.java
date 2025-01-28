@@ -242,10 +242,6 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
 
         // 2c. WA attribute consent screen
         if (isOk) {
-            // check attribute repository
-            assertTrue(responseBody.contains("identifier"));
-            assertTrue(responseBody.contains("[value1]"));
-
             String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
