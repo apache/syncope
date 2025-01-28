@@ -39,7 +39,7 @@ public class ServerWebExchangeHttpActionAdapter implements HttpActionAdapter {
             throw new TechnicalException("No action provided");
         }
 
-        ServerHttpResponse response = ((ServerWebExchangeContext) context).getExchange().getResponse();
+        ServerHttpResponse response = ((ServerWebExchangeContext) context).getNative().getResponse();
 
         response.setStatusCode(HttpStatusCode.valueOf(action.getCode()));
 
