@@ -49,7 +49,6 @@ import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
-import org.apache.syncope.fit.sra.AbstractSRAITCase;
 import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -60,7 +59,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractITCase {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractSRAITCase.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -159,45 +158,53 @@ public abstract class AbstractITCase {
     protected static Triple<String, String, String> parseSAMLRequestForm(final String body) {
         FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
         assertNotNull(form);
+        LOG.debug("SAML Request Form: {}", form.outerHtml());
 
         String action = form.attr("action");
         assertNotNull(action);
+        LOG.debug("SAML Request Form action: {}", action);
 
-        Optional<String> relayState = form.formData().stream().
+        String relayState = form.formData().stream().
                 filter(keyval -> "RelayState".equals(keyval.key())).
                 map(Connection.KeyVal::value).
-                findFirst();
-        assertTrue(relayState.isPresent());
+                findFirst().
+                orElseThrow(() -> new IllegalArgumentException("No RelayState found"));
+        LOG.debug("SAML Request Form RelayState: {}", relayState);
 
-        Optional<String> samlRequest = form.formData().stream().
+        String samlRequest = form.formData().stream().
                 filter(keyval -> "SAMLRequest".equals(keyval.key())).
                 map(Connection.KeyVal::value).
-                findFirst();
-        assertTrue(samlRequest.isPresent());
+                findFirst().
+                orElseThrow(() -> new IllegalArgumentException("No SAMLRequest found"));
+        LOG.debug("SAML Request Form SAMLRequest: {}", samlRequest);
 
-        return Triple.of(action, relayState.get(), samlRequest.get());
+        return Triple.of(action, relayState, samlRequest);
     }
 
     protected static Triple<String, String, String> parseSAMLResponseForm(final String body) {
         FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
         assertNotNull(form);
+        LOG.debug("SAML Response Form: {}", form.outerHtml());
 
         String action = form.attr("action");
         assertNotNull(action);
+        LOG.debug("SAML Response Form action: {}", action);
 
-        Optional<String> relayState = form.formData().stream().
+        String relayState = form.formData().stream().
                 filter(keyval -> "RelayState".equals(keyval.key())).
                 map(Connection.KeyVal::value).
-                findFirst();
-        assertTrue(relayState.isPresent());
+                findFirst().
+                orElseThrow(() -> new IllegalArgumentException("No RelayState found"));
+        LOG.debug("SAML Response Form RelayState: {}", relayState);
 
-        Optional<String> samlResponse = form.formData().stream().
+        String samlResponse = form.formData().stream().
                 filter(keyval -> "SAMLResponse".equals(keyval.key())).
                 map(Connection.KeyVal::value).
-                findFirst();
-        assertTrue(samlResponse.isPresent());
+                findFirst().
+                orElseThrow(() -> new IllegalArgumentException("No SAMLResponse found"));
+        LOG.debug("SAML Response Form SAMLResponse: {}", samlResponse);
 
-        return Triple.of(action, relayState.get(), samlResponse.get());
+        return Triple.of(action, relayState, samlResponse);
     }
 
     protected static String extractWAExecution(final String body) {

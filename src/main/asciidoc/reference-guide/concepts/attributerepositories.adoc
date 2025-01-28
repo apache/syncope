@@ -23,12 +23,12 @@ certain <<policies-attribute-release,Attribute Release Policy>>.
 
 Some attribute repositories are provided:
 
-* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-JDBC.html[Database^]
-* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-LDAP.html[LDAP^]
-* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-Stub.html[Stub^]
-* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-Syncope.html[Syncope^]
-* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-AzureAD.html[Azure Active Directory^]
-* https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution-Okta.html[Okta^]
+* https://apereo.github.io/cas/development/integration/Attribute-Resolution-JDBC.html[Database^]
+* https://apereo.github.io/cas/development/integration/Attribute-Resolution-LDAP.html[LDAP^]
+* https://apereo.github.io/cas/development/integration/Attribute-Resolution-Stub.html[Stub^]
+* https://apereo.github.io/cas/development/integration/Attribute-Resolution-Syncope.html[Syncope^]
+* https://apereo.github.io/cas/development/integration/Attribute-Resolution-AzureAD.html[Azure Active Directory^]
+* https://apereo.github.io/cas/development/integration/Attribute-Resolution-Okta.html[Okta^]
 
 [TIP]
 ====
@@ -51,4 +51,4 @@ class.
 
 [NOTE]
 Attribute Repositories are dynamically translated into 
-https://apereo.github.io/cas/7.1.x/integration/Attribute-Resolution.html[CAS Attribute Resolution^] configuration.
+https://apereo.github.io/cas/development/integration/Attribute-Resolution.html[CAS Attribute Resolution^] configuration.

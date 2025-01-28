@@ -532,20 +532,21 @@ under the License.
       <id>debug</id>
 
       <properties>
+        <maven.build.cache.skipCache>true</maven.build.cache.skipCache>
         <maven.test.skip>true</maven.test.skip>
       </properties>
 
       <dependencies>
         <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+        </dependency>
+
+        <dependency>
           <groupId>org.apache.syncope.common.keymaster.self</groupId>
           <artifactId>syncope-common-keymaster-client-self</artifactId>
           <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>        
       </dependencies>
 
       <build>
