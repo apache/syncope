@@ -29,7 +29,7 @@ import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeAll;
 
-class OIDCSRAITCase extends AbstractOIDCITCasse {
+class OIDCSRAITCase extends AbstractOIDCITCase {
 
     @BeforeAll
     public static void startSRA() throws IOException, InterruptedException, TimeoutException {

@@ -32,7 +32,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.junit.jupiter.api.BeforeAll;
 
-class OAUTH2SRAITCase extends AbstractOIDCITCasse {
+class OAUTH2SRAITCase extends AbstractOIDCITCase {
 
     @BeforeAll
     public static void startSRA() throws IOException, InterruptedException, TimeoutException {

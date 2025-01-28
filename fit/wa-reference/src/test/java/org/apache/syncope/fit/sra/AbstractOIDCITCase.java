@@ -68,7 +68,7 @@ import org.apereo.cas.oidc.OidcConstants;
 import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Test;
 
-abstract class AbstractOIDCITCasse extends AbstractSRAITCase {
+abstract class AbstractOIDCITCase extends AbstractSRAITCase {
 
     protected static String SRA_REGISTRATION_ID;
 

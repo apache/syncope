@@ -52,6 +52,10 @@ public class ServerWebExchangeContext implements WebContext {
         this.exchange = exchange;
     }
 
+    public ServerWebExchange getExchange() {
+        return exchange;
+    }
+
     @Override
     public Optional<String> getRequestAttribute(final String name) {
         return Optional.ofNullable(exchange.getAttribute(name));
