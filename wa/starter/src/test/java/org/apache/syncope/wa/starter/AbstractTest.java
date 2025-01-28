@@ -41,7 +41,9 @@ import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributeDao;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributeDaoFilter;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributes;
+import org.apereo.cas.persondir.PersonDirectoryAttributeRepositoryPlanConfigurer;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.util.spring.beans.BeanContainer;
 import org.apereo.cas.util.spring.beans.BeanSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -225,7 +227,19 @@ public abstract class AbstractTest {
         @Bean(name = "oktaPersonDirectoryClient")
         @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
         public Client oktaPersonDirectoryClient() {
-            return BeanSupplier.of(Client.class).otherwiseProxy().get();
+            return null;
+        }
+
+        @Bean(name = "oktaPersonAttributeDaos")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public BeanContainer<PersonAttributeDao> oktaPersonAttributeDaos() {
+            return BeanContainer.empty();
+        }
+
+        @Bean(name = "oktaAttributeRepositoryPlanConfigurer")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public PersonDirectoryAttributeRepositoryPlanConfigurer oktaAttributeRepositoryPlanConfigurer() {
+            return BeanSupplier.of(PersonDirectoryAttributeRepositoryPlanConfigurer.class).otherwiseProxy().get();
         }
     }
 
