@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.saml2.NoOpSessionStore;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
-import org.apache.syncope.core.logic.saml2.SAML2SP4UIFrameworkAdapter;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
@@ -71,7 +70,6 @@ import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.impl.AssertionConsumerServiceBuilder;
-import org.pac4j.core.config.Config;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.credentials.Credentials;
 import org.pac4j.core.exception.http.RedirectionAction;
@@ -139,8 +137,6 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         this.userManager = userManager;
         this.idpDAO = idpDAO;
         this.authDataAccessor = authDataAccessor;
-
-        SAML2SP4UIFrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(new Config());
     }
 
     protected static String validateUrl(final String url) {

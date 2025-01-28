@@ -37,9 +37,7 @@ import org.apache.syncope.sra.security.saml2.SAML2MetadataEndpoint;
 import org.apache.syncope.sra.security.saml2.SAML2SecurityConfigUtils;
 import org.apache.syncope.sra.security.saml2.SAML2WebSsoAuthenticationWebFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.pac4j.core.config.Config;
 import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
-import org.pac4j.jee.adapter.JEEFrameworkAdapter;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
@@ -251,8 +249,6 @@ public class SecurityConfig {
     @ConditionalOnMissingBean
     @ConditionalOnProperty(prefix = SRAProperties.PREFIX, name = SRAProperties.AM_TYPE, havingValue = "SAML2")
     public SAML2Client saml2Client(final ResourcePatternResolver resourceResolver, final SRAProperties props) {
-        JEEFrameworkAdapter.INSTANCE.applyDefaultSettingsIfUndefined(new Config());
-
         SAML2Configuration cfg = new SAML2Configuration(
                 resourceResolver.getResource(props.getSaml2().getKeystore()),
                 null,
