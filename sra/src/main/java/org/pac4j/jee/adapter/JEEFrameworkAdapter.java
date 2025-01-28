@@ -16,15 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.sra.security.pac4j;
+package org.pac4j.jee.adapter;
 
+import org.apache.syncope.sra.security.pac4j.NoOpSessionStoreFactory;
+import org.apache.syncope.sra.security.pac4j.ServerWebExchangeContextFactory;
+import org.apache.syncope.sra.security.pac4j.ServerWebExchangeHttpActionAdapter;
 import org.pac4j.core.adapter.DefaultFrameworkAdapter;
-import org.pac4j.core.adapter.FrameworkAdapter;
 import org.pac4j.core.config.Config;
 
-public class ServerWebExchangeFrameworkAdapter extends DefaultFrameworkAdapter {
-
-    public static final FrameworkAdapter INSTANCE = new ServerWebExchangeFrameworkAdapter();
+/**
+ * The ServerWebExchange framework adapter.
+ *
+ * Needs to be called "JEEFrameworkAdapter", so that static initializer of
+ * {@link org.pac4j.core.adapter.FrameworkAdapter} can discover it.
+ */
+public class JEEFrameworkAdapter extends DefaultFrameworkAdapter {
 
     @Override
     public void applyDefaultSettingsIfUndefined(final Config config) {
