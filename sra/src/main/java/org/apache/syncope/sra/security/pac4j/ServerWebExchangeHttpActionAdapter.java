@@ -28,6 +28,7 @@ import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.http.adapter.HttpActionAdapter;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import reactor.core.publisher.Mono;
 
 public class ServerWebExchangeHttpActionAdapter implements HttpActionAdapter {
 
@@ -55,6 +56,6 @@ public class ServerWebExchangeHttpActionAdapter implements HttpActionAdapter {
             }
         }
 
-        return null;
+        return Mono.empty();
     }
 }
