@@ -684,6 +684,10 @@ under the License.
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 

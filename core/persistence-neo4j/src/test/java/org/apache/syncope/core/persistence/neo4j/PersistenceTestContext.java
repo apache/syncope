@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.cache.CacheManager;
 import javax.cache.Caching;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -42,30 +40,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 
 @Import(PersistenceContext.class)
 @Configuration(proxyBeanMethods = false)
 public class PersistenceTestContext {
 
     public static final ThreadLocal<String> TEST_DOMAIN = ThreadLocal.withInitial(() -> SyncopeConstants.MASTER_DOMAIN);
-
-    @Bean
-    public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
-        PropertySourcesPlaceholderConfigurer ppc = new PropertySourcesPlaceholderConfigurer();
-
-        DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
-
-        List<Resource> locations = new ArrayList<>();
-        for (String location : System.getProperty("CORE_PROPERTIES").split(",")) {
-            locations.add(resourceLoader.getResource(location));
-        }
-        ppc.setLocations(locations.toArray(Resource[]::new));
-
-        return ppc;
-    }
 
     @Value("${security.adminUser}")
     private String adminUser;

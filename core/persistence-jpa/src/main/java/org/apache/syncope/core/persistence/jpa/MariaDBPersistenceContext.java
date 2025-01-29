@@ -35,14 +35,15 @@ import org.apache.syncope.core.persistence.jpa.dao.MariaDBJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.MariaDBPlainSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.MariaDBEntityFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(name = "org.mariadb.jdbc.Driver")
+@ConditionalOnProperty(
+        prefix = PersistenceProperties.PREFIX, name = PersistenceProperties.DB_TYPE, havingValue = "MARIADB")
 public class MariaDBPersistenceContext {
 
     @ConditionalOnMissingBean

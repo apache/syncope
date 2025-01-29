@@ -34,12 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.oracle.OracleContainer;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, PersistenceTestContext.class })
+@TestPropertySource("classpath:core-test.properties")
 public abstract class AbstractTest {
 
     private static String JDBC_DRIVER;
