@@ -36,6 +36,7 @@ under the License.
   <properties>
     <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
 
+    <DB_TYPE>POSTGRESQL</DB_TYPE>
     <jdbcdriver.groupId>org.postgresql</jdbcdriver.groupId>
     <jdbcdriver.artifactId>postgresql</jdbcdriver.artifactId>
 
@@ -148,7 +149,6 @@ under the License.
         <configuration>
           <systemPropertyVariables>
             <syncope.connid.location>${syncope.connid.location}</syncope.connid.location>
-            <CORE_PROPERTIES>classpath:core-test.properties</CORE_PROPERTIES>
             <TESTCONTAINERS_REUSE_ENABLE>true</TESTCONTAINERS_REUSE_ENABLE>
           </systemPropertyVariables>
         </configuration>
@@ -179,6 +179,7 @@ under the License.
       <id>mysql</id>
 
       <properties>
+        <DB_TYPE>MYSQL</DB_TYPE>
         <jdbcdriver.groupId>com.mysql</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mysql-connector-j</jdbcdriver.artifactId>
       </properties>
@@ -188,6 +189,7 @@ under the License.
       <id>mariadb</id>
 
       <properties>
+        <DB_TYPE>MARIADB</DB_TYPE>
         <jdbcdriver.groupId>org.mariadb.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>mariadb-java-client</jdbcdriver.artifactId>
       </properties>
@@ -197,6 +199,7 @@ under the License.
       <id>oracle</id>
 
       <properties>
+        <DB_TYPE>ORACLE</DB_TYPE>
         <jdbcdriver.groupId>com.oracle.database.jdbc</jdbcdriver.groupId>
         <jdbcdriver.artifactId>ojdbc11</jdbcdriver.artifactId>
       </properties>

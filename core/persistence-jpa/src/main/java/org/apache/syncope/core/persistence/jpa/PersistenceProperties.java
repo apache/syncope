@@ -21,8 +21,12 @@ package org.apache.syncope.core.persistence.jpa;
 import org.apache.syncope.core.persistence.common.AbstractPersistenceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties("persistence")
+@ConfigurationProperties(PersistenceProperties.PREFIX)
 public class PersistenceProperties extends AbstractPersistenceProperties<DomainProperties> {
+
+    public static final String PREFIX = "persistence";
+
+    public static final String DB_TYPE = "db-type";
 
     private String remoteCommitProvider = "sjvm";
 

@@ -134,7 +134,6 @@ under the License.
                 <include>**/*Test.java</include>
               </includes>
               <systemPropertyVariables>
-                <CORE_PROPERTIES>classpath:core-test.properties</CORE_PROPERTIES>
                 <NEO4J_CONTAINER_IP>${docker.container.neo4j.ip}</NEO4J_CONTAINER_IP>
                 <NEO4J_TWO_CONTAINER_IP>${docker.container.neo4jTwo.ip}</NEO4J_TWO_CONTAINER_IP>
                 <syncope.connid.location>file:${bundles.directory}/</syncope.connid.location>
