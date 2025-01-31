@@ -21,10 +21,10 @@
 Before proceeding, please ensure that you have access to a running Apache Syncope deployment.
 You can take a look at the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/4.0/getting-started.html[Apache Syncope Getting Started Guide]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/4.0/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
 to check system requirements and to choose among the various options for obtaining Apache Syncope.
 
