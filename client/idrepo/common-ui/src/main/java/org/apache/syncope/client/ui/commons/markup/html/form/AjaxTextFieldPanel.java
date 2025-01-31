@@ -21,6 +21,7 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -87,8 +88,8 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
             @Override
             @SuppressWarnings("unchecked")
             public <C> IConverter<C> getConverter(final Class<C> type) {
-                return AjaxTextFieldPanel.this.getConverter() != null 
-                        ? (IConverter<C>) AjaxTextFieldPanel.this.getConverter()
+                return AjaxTextFieldPanel.this.getConverter().isPresent()
+                        ? (IConverter<C>) AjaxTextFieldPanel.this.getConverter().get()
                         : super.getConverter(type);
             }
         };
@@ -113,9 +114,9 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
             this.choices = choices;
         }
     }
-    
-    protected IConverter<String> getConverter() {
-        return null;
+
+    protected Optional<IConverter<String>> getConverter() {
+        return Optional.empty();
     }
 
     public FieldPanel<String> enableJexlHelp() {

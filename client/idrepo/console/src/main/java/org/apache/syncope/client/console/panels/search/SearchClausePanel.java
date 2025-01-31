@@ -309,25 +309,26 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case ROLE_MEMBERSHIP:
                         return Optional.ofNullable(roleNames)
-                                .map(r -> r.getObject().stream().sorted().map(item -> Pair.of(item, item))
-                                        .collect(Collectors.toList())).orElse(List.of());
+                                .map(r -> r.getObject().stream().map(item -> Pair.of(item, item))
+                                        .sorted().collect(Collectors.toList())).orElse(List.of());
 
                     case PRIVILEGE:
                         return Optional.ofNullable(privilegeNames)
-                                .map(p -> p.getObject().stream().sorted().map(item -> Pair.of(item, item))
-                                        .collect(Collectors.toList())).orElse(List.of());
+                                .map(p -> p.getObject().stream().map(item -> Pair.of(item, item))
+                                        .sorted().collect(Collectors.toList())).orElse(List.of());
 
                     case AUX_CLASS:
-                        return auxClassNames.getObject().stream().sorted().map(item -> Pair.of(item, item))
-                                .collect(Collectors.toList());
+                        return auxClassNames.getObject().stream().map(item -> Pair.of(item, item))
+                                .sorted().collect(Collectors.toList());
 
                     case RESOURCE:
-                        return resourceNames.getObject().stream().sorted().map(item -> Pair.of(item, item))
-                                .collect(Collectors.toList());
+                        return resourceNames.getObject().stream().map(item -> Pair.of(item, item))
+                                .sorted().collect(Collectors.toList());
 
                     case RELATIONSHIP:
                         return relationshipTypeRestClient.list().stream()
-                                .map(item -> Pair.of(item.getKey(), item.getKey())).collect(Collectors.toList());
+                                .map(item -> Pair.of(item.getKey(), item.getKey()))
+                                .sorted().collect(Collectors.toList());
 
                     case CUSTOM:
                         return customizer.properties().stream().map(item -> Pair.of(item, item))
@@ -458,8 +459,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             private static final long serialVersionUID = -7157802546272668001L;
 
             @Override
-            protected IConverter<String> getConverter() {
-                return new IConverter<String>() {
+            protected Optional<IConverter<String>> getConverter() {
+                return Optional.of(new IConverter<String>() {
                     @Override
                     public String convertToObject(final String label, final Locale locale) throws ConversionException {
                         return properties.getObject().stream().filter(entry -> entry.getValue().equalsIgnoreCase(label))
@@ -474,7 +475,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                 .orElse(props.stream().filter(entry -> entry.getKey().equalsIgnoreCase(value))
                                         .map(Pair::getValue).findFirst().orElse(value));
                     }
-                };
+                });
             }
         };
 
