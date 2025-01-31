@@ -968,29 +968,29 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         "value",
                         new PropertyModel(searchClause, "value") {
 
-                            private static final long serialVersionUID = 1177692285167186690L;
+                    private static final long serialVersionUID = 1177692285167186690L;
 
-                            @Override
-                            public Object getObject() {
-                                String date = (String) super.getObject();
-                                try {
-                                    return date != null ? fdf.parse(date) : null;
-                                } catch (ParseException ex) {
-                                    LOG.error("Date parse error {}", date, ex);
-                                }
-                                return null;
-                            }
+                    @Override
+                    public Object getObject() {
+                        String date = (String) super.getObject();
+                        try {
+                            return date != null ? fdf.parse(date) : null;
+                        } catch (ParseException ex) {
+                            LOG.error("Date parse error {}", date, ex);
+                        }
+                        return null;
+                    }
 
-                            @Override
-                            public void setObject(final Object object) {
-                                if (object instanceof Date) {
-                                    String valueDate = fdf.format(object);
-                                    super.setObject(valueDate);
-                                } else {
-                                    super.setObject(object);
-                                }
-                            }
-                        }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
+                    @Override
+                    public void setObject(final Object object) {
+                        if (object instanceof Date) {
+                            String valueDate = fdf.format(object);
+                            super.setObject(valueDate);
+                        } else {
+                            super.setObject(object);
+                        }
+                    }
+                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
                 break;
 
             case Enum:
