@@ -597,10 +597,10 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 Before actual deployment as executable or onto a Java EE container, you need to further check the **Customization**
 chapter of the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/3.0/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/3.0/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 
@@ -628,10 +628,10 @@ configured for the embedded mode.
 When building for production, instead, it is recommended to check the **Customization** chapter of
 the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/3.0/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/3.0/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 ====
 

@@ -30,10 +30,10 @@ adding new features or replacing existing components.
 
 In general, the Embedded Mode (see the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/3.0/getting-started.html[Apache Syncope Getting Started Guide]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/3.0/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
 for details) allows developers to work comfortably from a single workstation, with no need of additional setup; it is
 effectively implemented as the `all`
