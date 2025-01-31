@@ -33,6 +33,7 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTe
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.convert.IConverter;
 
 public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
 
@@ -82,6 +83,14 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
                     }
                 };
             }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public <C> IConverter<C> getConverter(final Class<C> type) {
+                return AjaxTextFieldPanel.this.getConverter() != null 
+                        ? (IConverter<C>) AjaxTextFieldPanel.this.getConverter()
+                        : super.getConverter(type);
+            }
         };
         setHTMLInputNotAllowed();
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
@@ -103,6 +112,10 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
         if (choices != null) {
             this.choices = choices;
         }
+    }
+    
+    protected IConverter<String> getConverter() {
+        return null;
     }
 
     public FieldPanel<String> enableJexlHelp() {
