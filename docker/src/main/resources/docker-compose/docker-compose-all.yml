@@ -22,7 +22,7 @@
 
 services:
    keymaster:
-     image: zookeeper:3.8.1
+     image: zookeeper:3.9.3
      restart: always
 
    db:

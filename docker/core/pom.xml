@@ -31,7 +31,7 @@ under the License.
   <description>Apache Syncope Docker Core</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-docker-core</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
@@ -196,26 +196,6 @@ under the License.
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <inherited>false</inherited>
-        <configuration>
-          <webXml>${basedir}/../../fit/core-reference/src/main/webapp/WEB-INF/web.xml</webXml>
-          <webResources>
-            <resource>
-              <directory>${basedir}</directory>
-              <targetPath>META-INF</targetPath>
-              <includes>
-                <include>LICENSE</include>
-                <include>NOTICE</include>
-              </includes>
-            </resource>
-          </webResources>                
-          <outputDirectory>${project.build.outputDirectory}/lib</outputDirectory>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
@@ -245,10 +225,10 @@ under the License.
               <build>
                 <dockerFileDir>${project.build.outputDirectory}</dockerFileDir>
                 <buildx>
-                   <platforms>
-                     <platform>linux/amd64</platform>
-                     <platform>linux/arm64</platform>
-                   </platforms>
+                  <platforms>
+                    <platform>linux/amd64</platform>
+                    <platform>linux/arm64</platform>
+                  </platforms>
                 </buildx>
               </build>
             </image>

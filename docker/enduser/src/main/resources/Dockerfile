@@ -30,7 +30,7 @@ COPY *.properties /opt/syncope/conf/
 COPY *.json /opt/syncope/conf/
 COPY log4j2.xml /opt/syncope/conf/
 
-COPY syncope-docker-enduser-*war /opt/syncope/lib/syncope-enduser.war
+COPY syncope-docker-enduser-*jar /opt/syncope/lib/syncope-enduser.jar
 
 ENV SPRING_PROFILES_ACTIVE=docker
 ENV LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
