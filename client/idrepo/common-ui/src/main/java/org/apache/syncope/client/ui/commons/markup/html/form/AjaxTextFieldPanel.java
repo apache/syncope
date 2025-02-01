@@ -89,7 +89,7 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
             @Override
             public <C> IConverter<C> getConverter(final Class<C> type) {
                 return AjaxTextFieldPanel.this.getConverter().
-                        map(converter -> (IConverter<C>)converter).
+                        map(converter -> (IConverter<C>) converter).
                         orElseGet(() -> super.getConverter(type));
             }
         };
