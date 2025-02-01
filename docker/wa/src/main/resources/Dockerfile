@@ -29,7 +29,7 @@ RUN mkdir /opt/syncope/log
 COPY *.properties /opt/syncope/conf/
 COPY log4j2.xml /opt/syncope/conf/
 
-COPY syncope-docker-wa-*war /opt/syncope/lib/syncope-wa.war
+COPY syncope-docker-wa-*jar /opt/syncope/lib/syncope-wa.jar
 
 ENV SPRING_PROFILES_ACTIVE=docker
 ENV LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"
