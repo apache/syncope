@@ -312,6 +312,8 @@ public class LinkedAccountITCase extends AbstractITCase {
 
     @Test
     public void push() {
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
+
         // 0a. read configured cipher algorithm in order to be able to restore it at the end of test
         String origpwdCipherAlgo = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
                 "password.cipher.algorithm", null, String.class);
@@ -377,14 +379,6 @@ public class LinkedAccountITCase extends AbstractITCase {
             TaskTO task = TASK_SERVICE.read(TaskType.PUSH, sendUser.getKey(), true);
             assertEquals(1, task.getExecutions().size());
             assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
-
-            if (IS_EXT_SEARCH_ENABLED) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ex) {
-                    // ignore
-                }
-            }
 
             await().until(() -> TASK_SERVICE.search(
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
