@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -312,6 +313,8 @@ public class LinkedAccountITCase extends AbstractITCase {
 
     @Test
     public void push() {
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
+
         // 0a. read configured cipher algorithm in order to be able to restore it at the end of test
         String origpwdCipherAlgo = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
                 "password.cipher.algorithm", null, String.class);
