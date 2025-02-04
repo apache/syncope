@@ -21,13 +21,11 @@ package org.apache.syncope.core.provisioning.java.data;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
@@ -46,8 +44,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     protected final RoleDAO roleDAO;
 
-    protected final ApplicationDAO applicationDAO;
-
     protected final EntityFactory entityFactory;
 
     protected final SearchCondVisitor searchCondVisitor;
@@ -56,14 +52,12 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
-            final ApplicationDAO applicationDAO,
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor) {
 
         this.realmSearchDAO = realmSearchDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.roleDAO = roleDAO;
-        this.applicationDAO = applicationDAO;
         this.entityFactory = entityFactory;
         this.searchCondVisitor = searchCondVisitor;
     }
@@ -97,14 +91,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
         role = roleDAO.save(role);
 
-        // privileges
-        role.getPrivileges().clear();
-        for (String key : roleTO.getPrivileges()) {
-            applicationDAO.findPrivilege(key).ifPresentOrElse(
-                    role::add,
-                    () -> LOG.debug("Invalid privilege {}, ignoring", key));
-        }
-
         // dynamic membership
         roleDAO.clearDynMembers(role);
         if (roleTO.getDynMembershipCond() == null) {
@@ -134,8 +120,6 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.getDynRealms().addAll(role.getDynRealms().stream().map(DynRealm::getKey).toList());
 
         roleTO.setDynMembershipCond(role.getDynMembershipCond());
-
-        roleTO.getPrivileges().addAll(role.getPrivileges().stream().map(Privilege::getKey).toList());
 
         return roleTO;
     }

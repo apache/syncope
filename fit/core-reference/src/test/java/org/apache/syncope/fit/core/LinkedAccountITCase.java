@@ -85,16 +85,13 @@ public class LinkedAccountITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "firstAccountOf" + userCR.getUsername();
-        String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
-        account.getPrivileges().add(privilege);
         userCR.getLinkedAccounts().add(account);
 
         UserTO user = createUser(userCR).getEntity();
         assertNotNull(user.getKey());
-        assertEquals(privilege, user.getLinkedAccounts().get(0).getPrivileges().iterator().next());
 
         // 2. verify that propagation task was generated and that account is found on resource
         PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
@@ -161,18 +158,15 @@ public class LinkedAccountITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
-        String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.setUsername("LinkedUsername");
         account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
-        account.getPrivileges().add(privilege);
         userCR.getLinkedAccounts().add(account);
 
         UserTO user = createUser(userCR).getEntity();
         assertNotNull(user.getKey());
         assertEquals(1, user.getLinkedAccounts().size());
-        assertEquals(privilege, user.getLinkedAccounts().get(0).getPrivileges().iterator().next());
         assertEquals("LinkedUsername", user.getLinkedAccounts().get(0).getUsername());
         assertEquals("LINKED_SURNAME", account.getPlainAttr("surname").get().getValues().get(0));
 

@@ -317,7 +317,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
                                 () -> LOG.debug("Invalid {} {}, ignoring...",
-                                    Implementation.class.getSimpleName(), key)));
+                                        Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -420,8 +420,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }
 
                 if (intAttrName == null
-                        || intAttrName.getSchemaType() == null && intAttrName.getField() == null
-                        && intAttrName.getPrivilegesOfApplication() == null) {
+                        || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
 
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
@@ -430,8 +429,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     if (intAttrName.getSchemaType() != null
                             && intAttrName.getEnclosingGroup() == null
                             && intAttrName.getRelatedAnyObject() == null
-                            && intAttrName.getRelationshipType() == null
-                            && intAttrName.getPrivilegesOfApplication() == null) {
+                            && intAttrName.getRelationshipType() == null) {
 
                         switch (intAttrName.getSchemaType()) {
                             case PLAIN:
@@ -474,7 +472,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
                                 () -> LOG.debug("Invalid {} {}, ignoring...",
-                                    Implementation.class.getSimpleName(), key)));
+                                        Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -507,13 +505,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
                                     + " allowed when referring to any objects");
-                        }
-                        if (intAttrName.getPrivilegesOfApplication() != null
-                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
-
-                            invalidMapping.getElements().add(
-                                    "Only " + MappingPurpose.PROPAGATION.name()
-                                    + " allowed when referring to privileges");
                         }
                         if (intAttrName.getSchemaType() == SchemaType.DERIVED
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {

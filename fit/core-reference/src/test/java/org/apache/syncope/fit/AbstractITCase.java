@@ -126,7 +126,6 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
-import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
@@ -305,8 +304,6 @@ public abstract class AbstractITCase {
     protected static SyncopeAnonymousClient ANONYMOUS_CLIENT;
 
     protected static SyncopeService SYNCOPE_SERVICE;
-
-    protected static ApplicationService APPLICATION_SERVICE;
 
     protected static AnyTypeClassService ANY_TYPE_CLASS_SERVICE;
 
@@ -546,7 +543,6 @@ public abstract class AbstractITCase {
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
         SYNCOPE_SERVICE = ADMIN_CLIENT.getService(SyncopeService.class);
-        APPLICATION_SERVICE = ADMIN_CLIENT.getService(ApplicationService.class);
         ANY_TYPE_CLASS_SERVICE = ADMIN_CLIENT.getService(AnyTypeClassService.class);
         ANY_TYPE_SERVICE = ADMIN_CLIENT.getService(AnyTypeService.class);
         RELATIONSHIP_TYPE_SERVICE = ADMIN_CLIENT.getService(RelationshipTypeService.class);

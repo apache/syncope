@@ -80,8 +80,6 @@ public class LinkedAccountTO implements EntityTO {
 
     private final Set<Attr> plainAttrs = new TreeSet<>();
 
-    private final Set<String> privileges = new TreeSet<>();
-
     @Override
     public String getKey() {
         return key;
@@ -143,12 +141,6 @@ public class LinkedAccountTO implements EntityTO {
         return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "privileges")
-    @JacksonXmlProperty(localName = "privilege")
-    public Set<String> getPrivileges() {
-        return privileges;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -158,7 +150,6 @@ public class LinkedAccountTO implements EntityTO {
                 append(username).
                 append(suspended).
                 append(plainAttrs).
-                append(privileges).
                 build();
     }
 
@@ -181,7 +172,6 @@ public class LinkedAccountTO implements EntityTO {
                 append(username, other.username).
                 append(suspended, other.suspended).
                 append(plainAttrs, other.plainAttrs).
-                append(privileges, other.privileges).
                 build();
     }
 }

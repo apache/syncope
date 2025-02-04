@@ -217,18 +217,6 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void searchByPrivilege() {
-        PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                        fiql(SyncopeClient.getUserSearchConditionBuilder().withPrivileges("postMighty").query()).
-                        build());
-        assertNotNull(matchingUsers);
-        assertFalse(matchingUsers.getResult().isEmpty());
-
-        assertTrue(matchingUsers.getResult().stream().anyMatch(user -> "rossini".equals(user.getUsername())));
-    }
-
-    @Test
     public void searchByDynRole() {
         RoleTO role = RoleITCase.getSampleRoleTO("dynMembership");
         role.setDynMembershipCond("cool==true");

@@ -35,8 +35,4 @@ public interface UserProperty extends SyncopeProperty<UserCompleteCondition> {
     UserCompleteCondition inRoles(String role, String... moreRoles);
 
     UserCompleteCondition notInRoles(String role, String... moreRoles);
-
-    UserCompleteCondition withPrivileges(String privilege, String... morePrivileges);
-
-    UserCompleteCondition withoutPrivileges(String privilege, String... morePrivileges);
 }

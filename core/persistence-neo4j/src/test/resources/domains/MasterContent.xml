@@ -261,14 +261,6 @@ under the License.
   <ARelationship_RelationshipType left="11a0ec66-b59b-428a-af3d-f856950ff1c5" right="neighborhood"/>
   <ARelationship_AnyObject type="ARELATIONSHIP_SOURCE" left="11a0ec66-b59b-428a-af3d-f856950ff1c5" right="fc6dbc3a-6c07-4965-8781-921e7401a4a5"/>
   <ARelationship_AnyObject type="ARELATIONSHIP_DEST" left="11a0ec66-b59b-428a-af3d-f856950ff1c5" right="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
-  
-  <Application id="mightyApp" description="A cool application"/>
-  <Privilege id="postMighty" description="Ability to POST"
-             spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"/>
-  <Privilege_Application left="postMighty" right="mightyApp"/>
-  <Privilege id="getMighty" description="Ability to GET"
-             spec="{ &quot;method&quot;: &quot;GET&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"/>
-  <Privilege_Application left="getMighty" right="mightyApp"/>
 
   <SyncopeRole id="User reviewer" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ"]'/>
   <SyncopeRole_Realm left="User reviewer" right="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
@@ -279,7 +271,6 @@ under the License.
 
   <SyncopeRole id="Other" entitlements='["SCHEMA_READ","GROUP_READ","USER_REQUEST_FORM_CLAIM"]'/>
   <SyncopeRole_Realm left="Other" right="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
-  <SyncopeRole_Privilege left="Other" right="postMighty"/>
   
   <SyncopeRole id="Search for realm evenTwo" entitlements='["USER_READ","USER_SEARCH"]'/>
   <SyncopeRole_Realm left="Search for realm evenTwo" right="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>

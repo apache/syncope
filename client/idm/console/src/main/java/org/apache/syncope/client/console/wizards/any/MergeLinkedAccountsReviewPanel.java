@@ -126,7 +126,6 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
                                 .username(acct.getUsername())
                                 .build();
                 linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
-                linkedAccount.getPrivileges().addAll(acct.getPrivileges());
                 return linkedAccount;
             }).collect(Collectors.toList());
 
@@ -148,7 +147,6 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
                             .username(mergingUser.getUsername())
                             .build();
             linkedAccount.getPlainAttrs().addAll(mergingUser.getPlainAttrs());
-            linkedAccount.getPrivileges().addAll(mergingUser.getPrivileges());
             accounts.add(linkedAccount);
 
             return accounts;

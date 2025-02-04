@@ -103,20 +103,6 @@ under the License.
     SELECT ss.user_id AS any_id, ss.role_id AS role_id
     FROM SyncopeUser_SyncopeRole ss
   </entry>
-  <entry key="user_search_priv">
-    CREATE VIEW user_search_priv AS
-
-    SELECT ss.user_id AS any_id, sp.privilege_id AS privilege_id
-    FROM SyncopeUser_SyncopeRole ss, SyncopeRole_Privilege sp
-    WHERE ss.role_id = sp.role_id
-  </entry>
-  <entry key="user_search_dynpriv">
-    CREATE VIEW user_search_dynpriv AS
-
-    SELECT any_id, privilege_id
-    FROM DynRoleMembers drm, SyncopeRole_Privilege rp
-    WHERE drm.role_id = rp.role_id
-  </entry>
   <entry key="user_search_auxClass">
     CREATE VIEW user_search_auxClass AS
 

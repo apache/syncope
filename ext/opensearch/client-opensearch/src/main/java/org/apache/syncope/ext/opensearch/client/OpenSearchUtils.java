@@ -38,8 +38,8 @@ import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -164,14 +164,7 @@ public class OpenSearchUtils {
                 builder.put("suspended", user.isSuspended());
                 builder.put("mustChangePassword", user.isMustChangePassword());
 
-                List<String> roles = new ArrayList<>();
-                Set<String> privileges = new HashSet<>();
-                userDAO.findAllRoles(user).forEach(role -> {
-                    roles.add(role.getKey());
-                    privileges.addAll(role.getPrivileges().stream().map(Privilege::getKey).collect(Collectors.toSet()));
-                });
-                builder.put("roles", roles);
-                builder.put("privileges", privileges);
+                builder.put("roles", userDAO.findAllRoles(user).stream().map(Role::getKey).toList());
 
                 builder.put("memberships", userDAO.findAllGroupKeys(user));
 

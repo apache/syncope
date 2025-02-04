@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
@@ -114,9 +113,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeClassRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExtImpl;
@@ -479,25 +475,6 @@ public class PersistenceContext {
             final AnyTypeRepoExt anyTypeRepoExt) {
 
         return jpaRepositoryFactory.getRepository(AnyTypeRepo.class, anyTypeRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationRepoExt applicationRepoExt(
-            final RoleDAO roleDAO,
-            final @Lazy UserDAO userDAO,
-            final EntityManager entityManager) {
-
-        return new ApplicationRepoExtImpl(roleDAO, userDAO, entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationDAO applicationDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final ApplicationRepoExt applicationRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(ApplicationRepo.class, applicationRepoExt);
     }
 
     @ConditionalOnMissingBean

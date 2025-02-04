@@ -101,14 +101,6 @@ public class SearchSupport {
         return new SearchView("svr", field().name + "_role");
     }
 
-    public SearchView priv() {
-        return new SearchView("svp", field().name + "_priv");
-    }
-
-    public SearchView dynpriv() {
-        return new SearchView("svdp", field().name + "_dynpriv");
-    }
-
     public static SearchView dynrolemembership() {
         return new SearchView("svdr", RoleRepoExt.DYNMEMB_TABLE);
     }

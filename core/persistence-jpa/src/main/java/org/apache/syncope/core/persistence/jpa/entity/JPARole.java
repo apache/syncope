@@ -39,10 +39,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -90,16 +87,6 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Valid
     private List<JPADynRealm> dynRealms = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "role_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "privilege_id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "role_id", "privilege_id" }))
-    @Valid
-    private Set<JPAPrivilege> privileges = new HashSet<>();
-
     @Override
     public Set<String> getEntitlements() {
         return entitlementsSet;
@@ -145,24 +132,6 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public void setAnyLayout(final String anyLayout) {
         this.anyLayout = anyLayout;
-    }
-
-    @Override
-    public boolean add(final Privilege privilege) {
-        checkType(privilege, JPAPrivilege.class);
-        return privileges.add((JPAPrivilege) privilege);
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges(final Application application) {
-        return privileges.stream().
-                filter(privilege -> privilege.getApplication().equals(application)).
-                collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges() {
-        return privileges;
     }
 
     protected void json2list(final boolean clearFirst) {

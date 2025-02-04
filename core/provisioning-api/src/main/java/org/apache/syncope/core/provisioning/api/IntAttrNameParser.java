@@ -38,9 +38,6 @@ public class IntAttrNameParser {
 
     protected static final String END_PATTERN = ")\\]\\.(.+)";
 
-    protected static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
-            "^privileges\\[(" + Entity.ID_REGEX + ")\\]");
-
     protected static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
             "^groups\\[(" + Entity.ID_REGEX + END_PATTERN);
 
@@ -115,14 +112,8 @@ public class IntAttrNameParser {
 
         Matcher matcher;
         if (intAttrName.indexOf('.') == -1) {
-            matcher = PRIVILEGE_PATTERN.matcher(intAttrName);
-            if (matcher.matches()) {
-                result.setAnyTypeKind(AnyTypeKind.USER);
-                result.setPrivilegesOfApplication(matcher.group(1));
-            } else {
-                result.setAnyTypeKind(provisionAnyTypeKind);
-                setFieldOrSchemaName(intAttrName, result.getAnyTypeKind(), result);
-            }
+            result.setAnyTypeKind(provisionAnyTypeKind);
+            setFieldOrSchemaName(intAttrName, result.getAnyTypeKind(), result);
         } else {
             matcher = ENCLOSING_GROUP_PATTERN.matcher(intAttrName);
             if (matcher.matches()) {

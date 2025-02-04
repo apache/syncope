@@ -61,7 +61,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -343,13 +342,6 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 }
 
                 if (query == null) {
-                    query = cond.asLeaf(PrivilegeCond.class).
-                            filter(leaf -> AnyTypeKind.USER == kind).
-                            map(this::getQuery).
-                            orElse(null);
-                }
-
-                if (query == null) {
                     query = cond.asLeaf(DynRealmCond.class).
                             map(this::getQuery).
                             orElse(null);
@@ -470,12 +462,6 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     protected Query getQuery(final RoleCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
                 field("roles").value(cond.getRole()).build()).
-                build();
-    }
-
-    protected Query getQuery(final PrivilegeCond cond) {
-        return new Query.Builder().term(QueryBuilders.term().
-                field("privileges").value(cond.getPrivilege()).build()).
                 build();
     }
 

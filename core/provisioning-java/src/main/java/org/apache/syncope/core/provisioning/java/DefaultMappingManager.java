@@ -51,7 +51,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -124,8 +123,6 @@ public class DefaultMappingManager implements MappingManager {
 
     protected final RealmSearchDAO realmSearchDAO;
 
-    protected final ApplicationDAO applicationDAO;
-
     protected final ImplementationDAO implementationDAO;
 
     protected final DerAttrHandler derAttrHandler;
@@ -145,7 +142,6 @@ public class DefaultMappingManager implements MappingManager {
             final GroupDAO groupDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final RealmSearchDAO realmSearchDAO,
-            final ApplicationDAO applicationDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
@@ -159,7 +155,6 @@ public class DefaultMappingManager implements MappingManager {
         this.groupDAO = groupDAO;
         this.relationshipTypeDAO = relationshipTypeDAO;
         this.realmSearchDAO = realmSearchDAO;
-        this.applicationDAO = applicationDAO;
         this.implementationDAO = implementationDAO;
         this.derAttrHandler = derAttrHandler;
         this.virAttrHandler = virAttrHandler;
@@ -560,10 +555,10 @@ public class DefaultMappingManager implements MappingManager {
         List<PlainAttrValue> values = intValues.getRight();
 
         LOG.debug("Define mapping for: \n* ExtAttrName {}\n* is connObjectKey {}\n"
-            + "* is password {}\n* mandatory condition {}\n* Schema {}\n"
-            + "* ClassType {}\n* AttrSchemaType {}\n* Values {}",
-            item.getExtAttrName(), item.isConnObjectKey(), item.isPassword(), item.getMandatoryCondition(),
-            intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
+                + "* is password {}\n* mandatory condition {}\n* Schema {}\n"
+                + "* ClassType {}\n* AttrSchemaType {}\n* Values {}",
+                item.getExtAttrName(), item.isConnObjectKey(), item.isPassword(), item.getMandatoryCondition(),
+                intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
 
         Pair<String, Attribute> result;
         if (readOnlyVirSchema) {
@@ -828,16 +823,6 @@ public class DefaultMappingManager implements MappingManager {
                     default -> {
                     }
                 }
-            } else if (intAttrName.getPrivilegesOfApplication() != null && ref instanceof User) {
-                applicationDAO.findById(intAttrName.getPrivilegesOfApplication()).ifPresentOrElse(
-                        application -> userDAO.findAllRoles((User) ref).stream().
-                                flatMap(role -> role.getPrivileges(application).stream()).
-                                forEach(privilege -> {
-                                    PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                                    attrValue.setStringValue(privilege.getKey());
-                                    values.add(attrValue);
-                                }),
-                        () -> LOG.warn("Invalid application: {}", intAttrName.getPrivilegesOfApplication()));
             }
         }
 

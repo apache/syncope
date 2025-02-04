@@ -43,8 +43,6 @@ public class IntAttrName {
 
     private String membershipOfGroup;
 
-    private String privilegesOfApplication;
-
     private String relationshipType;
 
     private String relationshipAnyType;
@@ -113,14 +111,6 @@ public class IntAttrName {
         this.membershipOfGroup = membershipOfGroup;
     }
 
-    public String getPrivilegesOfApplication() {
-        return privilegesOfApplication;
-    }
-
-    public void setPrivilegesOfApplication(final String privilegesOfApplication) {
-        this.privilegesOfApplication = privilegesOfApplication;
-    }
-
     public String getRelationshipType() {
         return relationshipType;
     }
@@ -148,7 +138,6 @@ public class IntAttrName {
                 append(relatedUser).
                 append(relatedAnyObject).
                 append(membershipOfGroup).
-                append(privilegesOfApplication).
                 append(relationshipType).
                 append(relationshipAnyType).
                 build();
@@ -175,7 +164,6 @@ public class IntAttrName {
                 append(relatedUser, other.relatedUser).
                 append(relatedAnyObject, other.relatedAnyObject).
                 append(membershipOfGroup, other.membershipOfGroup).
-                append(privilegesOfApplication, other.privilegesOfApplication).
                 append(relationshipType, other.relationshipType).
                 append(relationshipAnyType, other.relationshipAnyType).
                 build();
@@ -192,7 +180,6 @@ public class IntAttrName {
                 append(relatedUser).
                 append(relatedAnyObject).
                 append(membershipOfGroup).
-                append(privilegesOfApplication).
                 append(relationshipType).
                 append(relationshipAnyType).
                 build();

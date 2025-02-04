@@ -21,22 +21,18 @@ package org.apache.syncope.core.persistence.neo4j.entity.user;
 import jakarta.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -76,9 +72,6 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
 
     @CompositeProperty(converterRef = "laPlainAttrsConverter")
     protected Map<String, JSONLAPlainAttr> plainAttrs = new HashMap<>();
-
-    @Relationship(direction = Relationship.Direction.OUTGOING)
-    private Set<Neo4jPrivilege> privileges = new HashSet<>();
 
     @Override
     public String getConnObjectKeyValue() {
@@ -197,17 +190,6 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
                 filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
                 map(Map.Entry::getValue).toList();
-    }
-
-    @Override
-    public boolean add(final Privilege privilege) {
-        checkType(privilege, Neo4jPrivilege.class);
-        return privileges.add((Neo4jPrivilege) privilege);
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges() {
-        return privileges;
     }
 
     @PostLoad

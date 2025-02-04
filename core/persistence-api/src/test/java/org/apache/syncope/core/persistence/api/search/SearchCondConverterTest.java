@@ -32,7 +32,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -202,18 +201,6 @@ public class SearchCondConverterTest {
     }
 
     @Test
-    public void privileges() {
-        String fiql = new UserFiqlSearchConditionBuilder().withPrivileges("postMighty").query();
-        assertEquals(SpecialAttr.PRIVILEGES + "==postMighty", fiql);
-
-        PrivilegeCond privilegeCond = new PrivilegeCond();
-        privilegeCond.setPrivilege("postMighty");
-        SearchCond leaf = SearchCond.of(privilegeCond);
-
-        assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));
-    }
-
-    @Test
     public void dynRealms() {
         String dynRealm = UUID.randomUUID().toString();
         String fiql = new UserFiqlSearchConditionBuilder().inDynRealms(dynRealm).query();
@@ -364,11 +351,11 @@ public class SearchCondConverterTest {
         assertEquals(SearchCond.of(anyCond), SearchCondConverter.convert(VISITOR, fiql));
 
         fiql = "lastLoginDate==2016-03-02T15:21:22%2B0300";
-        
+
         AnyCond lastLoginDateCond = new AnyCond(AttrCond.Type.EQ);
         lastLoginDateCond.setSchema("lastLoginDate");
         lastLoginDateCond.setExpression("2016-03-02T15:21:22+0300");
-        
+
         assertEquals(SearchCond.of(lastLoginDateCond), SearchCondConverter.convert(VISITOR, fiql));
     }
 }

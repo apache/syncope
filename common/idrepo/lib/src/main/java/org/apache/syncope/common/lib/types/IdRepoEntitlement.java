@@ -86,16 +86,6 @@ public final class IdRepoEntitlement {
 
     public static final String ROLE_DELETE = "ROLE_DELETE";
 
-    public static final String APPLICATION_LIST = "APPLICATION_LIST";
-
-    public static final String APPLICATION_CREATE = "APPLICATION_CREATE";
-
-    public static final String APPLICATION_READ = "APPLICATION_READ";
-
-    public static final String APPLICATION_UPDATE = "APPLICATION_UPDATE";
-
-    public static final String APPLICATION_DELETE = "APPLICATION_DELETE";
-
     public static final String DYNREALM_CREATE = "DYNREALM_CREATE";
 
     public static final String DYNREALM_READ = "DYNREALM_READ";

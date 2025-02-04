@@ -27,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
-import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
@@ -42,7 +41,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.client.ui.commons.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.DynRealmTO;
-import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.PageReference;
@@ -66,14 +64,11 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
 
     protected final DynRealmRestClient dynRealmRestClient;
 
-    protected final ApplicationRestClient applicationRestClient;
-
     public RoleWizardBuilder(
             final RoleTO roleTO,
             final RoleRestClient roleRestClient,
             final RealmRestClient realmRestClient,
             final DynRealmRestClient dynRealmRestClient,
-            final ApplicationRestClient applicationRestClient,
             final PageReference pageRef) {
 
         super(new RoleWrapper(roleTO), pageRef);
@@ -81,7 +76,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         this.roleRestClient = roleRestClient;
         this.realmRestClient = realmRestClient;
         this.dynRealmRestClient = dynRealmRestClient;
-        this.applicationRestClient = applicationRestClient;
     }
 
     /**
@@ -116,7 +110,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
         wizardModel.add(new Entitlements(modelObject.getInnerObject()));
         wizardModel.add(new Realms(modelObject.getInnerObject()));
         wizardModel.add(new DynRealms(modelObject.getInnerObject()));
-        wizardModel.add(new Privileges(modelObject.getInnerObject()));
         return wizardModel;
     }
 
@@ -219,21 +212,6 @@ public class RoleWizardBuilder extends BaseAjaxWizardBuilder<RoleWrapper> {
                     new PropertyModel<>(modelObject, "dynRealms"),
                     new ListModel<>(dynRealmRestClient.list().stream().
                             map(DynRealmTO::getKey).collect(Collectors.toList()))).
-                    hideLabel().setOutputMarkupId(true));
-        }
-    }
-
-    protected class Privileges extends WizardStep {
-
-        private static final long serialVersionUID = 6896014330702958579L;
-
-        public Privileges(final RoleTO modelObject) {
-            setTitleModel(new ResourceModel("privileges"));
-            add(new AjaxPalettePanel.Builder<>().build("privileges",
-                    new PropertyModel<>(modelObject, "privileges"),
-                    new ListModel<>(applicationRestClient.list().stream().
-                            flatMap(application -> application.getPrivileges().stream()).
-                            map(PrivilegeTO::getKey).collect(Collectors.toList()))).
                     hideLabel().setOutputMarkupId(true));
         }
     }

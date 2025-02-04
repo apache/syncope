@@ -20,12 +20,10 @@ package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -82,16 +80,6 @@ public class DeletingLinkedAccount implements LinkedAccount {
     }
 
     @Override
-    public boolean add(final Privilege privilege) {
-        return false;
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges() {
-        return Set.of();
-    }
-
-    @Override
     public String getUsername() {
         return null;
     }
@@ -110,7 +98,7 @@ public class DeletingLinkedAccount implements LinkedAccount {
     public void setCipherAlgorithm(final CipherAlgorithm cipherAlgorithm) {
         // unsupported
     }
-    
+
     @Override
     public boolean canDecodeSecrets() {
         return false;

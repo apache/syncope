@@ -21,8 +21,6 @@
 Roles map a set of <<entitlements,entitlements>> to a set of <<realms,realms>> and / or
 <<dynamic-realms, dynamic realms>>.
 
-In addition, Roles can be used to assign <<privileges,privileges>> to Users.
-
 [TIP]
 .Static and Dynamic Memberships
 ====

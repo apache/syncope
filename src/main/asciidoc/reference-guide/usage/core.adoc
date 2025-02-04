@@ -60,7 +60,7 @@ based on owned <<entitlements,entitlements>>.
 
 [NOTE]
 Users can examine their own entitlements looking at the `<<x-syncope-entitlements,X-Syncope-Entitlements>>`
-header value, and their own privileges looking at the `<<x-syncope-privileges,X-Syncope-Privileges>>` header value.
+header value.
 
 [TIP]
 ====
@@ -217,11 +217,6 @@ the <<entitlements,entitlements>> owned by the requesting user.
 
 When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Delegations` response header will list all
 delegating users for each <<delegation,Delegation>> for which the requesting user is delegated.
-
-===== X-Syncope-Privileges
-
-When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Privileges` response header will list all
-the <<privileges,privileges>> owned by the requesting user.
 
 ==== Batch
 

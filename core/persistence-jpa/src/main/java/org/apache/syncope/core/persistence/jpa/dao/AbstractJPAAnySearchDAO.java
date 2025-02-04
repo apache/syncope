@@ -58,7 +58,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -216,12 +215,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
                 if (node.isEmpty()) {
                     node = cond.asLeaf(RoleCond.class).
-                            filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
-                            map(leaf -> getQuery(leaf, not, parameters, svs));
-                }
-
-                if (node.isEmpty()) {
-                    node = cond.asLeaf(PrivilegeCond.class).
                             filter(leaf -> AnyTypeKind.USER == svs.anyTypeKind).
                             map(leaf -> getQuery(leaf, not, parameters, svs));
                 }
@@ -449,39 +442,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
         clause.append("SELECT DISTINCT any_id FROM ").
                 append(SearchSupport.dynrolemembership().name()).append(" WHERE ").
                 append("role_id=?").append(setParameter(parameters, cond.getRole())).
-                append("))");
-
-        return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());
-    }
-
-    protected AnySearchNode getQuery(
-            final PrivilegeCond cond,
-            final boolean not,
-            final List<Object> parameters,
-            final SearchSupport svs) {
-
-        StringBuilder clause = new StringBuilder("(");
-
-        if (not) {
-            clause.append(anyId(svs)).append(" NOT IN (");
-        } else {
-            clause.append(anyId(svs)).append(" IN (");
-        }
-
-        clause.append("SELECT DISTINCT any_id FROM ").
-                append(svs.priv().name()).append(" WHERE ").
-                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
-                append(") ");
-
-        if (not) {
-            clause.append("AND ").append(anyId(svs)).append(" NOT IN (");
-        } else {
-            clause.append("OR ").append(anyId(svs)).append(" IN (");
-        }
-
-        clause.append("SELECT DISTINCT any_id FROM ").
-                append(svs.dynpriv().name()).append(" WHERE ").
-                append("privilege_id=?").append(setParameter(parameters, cond.getPrivilege())).
                 append("))");
 
         return new AnySearchNode.Leaf(defaultSV(svs), clause.toString());

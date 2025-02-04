@@ -136,13 +136,6 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void readPrivileges() {
-        Set<String> privileges = USER_SERVICE.read("rossini").getPrivileges();
-        assertNotNull(privileges);
-        assertEquals(1, privileges.size());
-    }
-
-    @Test
     public void createUserWithNoPropagation() {
         // create a new user
         UserCR req = getUniqueSample("xxx@xxx.xxx");

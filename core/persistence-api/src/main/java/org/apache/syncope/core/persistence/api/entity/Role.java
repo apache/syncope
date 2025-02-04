@@ -40,10 +40,4 @@ public interface Role extends ProvidedKeyEntity {
     String getAnyLayout();
 
     void setAnyLayout(String anyLayout);
-
-    boolean add(Privilege privilege);
-
-    Set<? extends Privilege> getPrivileges(Application application);
-
-    Set<? extends Privilege> getPrivileges();
 }

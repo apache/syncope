@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
@@ -117,9 +116,6 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.AnyTypeClassRepoExtImp
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AnyTypeRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AnyTypeRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AnyTypeRepoExtImpl;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.ApplicationRepo;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.ApplicationRepoExt;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.ApplicationRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AttrRepoRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AttrRepoRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.AttrRepoRepoExtImpl;
@@ -657,26 +653,6 @@ public class PersistenceContext {
             final AnyTypeRepoExt anyTypeRepoExt) {
 
         return neo4jRepositoryFactory.getRepository(AnyTypeRepo.class, anyTypeRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationRepoExt applicationRepoExt(
-            final RoleDAO roleDAO,
-            final @Lazy UserDAO userDAO,
-            final Neo4jTemplate neo4jTemplate,
-            final NodeValidator nodeValidator) {
-
-        return new ApplicationRepoExtImpl(roleDAO, userDAO, neo4jTemplate, nodeValidator);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationDAO applicationDAO(
-            final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
-            final ApplicationRepoExt applicationRepoExt) {
-
-        return neo4jRepositoryFactory.getRepository(ApplicationRepo.class, applicationRepoExt);
     }
 
     @ConditionalOnMissingBean

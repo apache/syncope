@@ -56,7 +56,6 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -74,7 +73,6 @@ import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -105,8 +103,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     protected final SecurityQuestionDAO securityQuestionDAO;
 
-    protected final ApplicationDAO applicationDAO;
-
     protected final AccessTokenDAO accessTokenDAO;
 
     protected final DelegationDAO delegationDAO;
@@ -136,7 +132,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final PlainAttrValidationManager validator,
             final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
-            final ApplicationDAO applicationDAO,
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps,
@@ -163,7 +158,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         this.roleDAO = roleDAO;
         this.securityQuestionDAO = securityQuestionDAO;
-        this.applicationDAO = applicationDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.delegationDAO = delegationDAO;
         this.confParamOps = confParamOps;
@@ -296,10 +290,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         }
                     }
                 });
-
-        accountTO.getPrivileges().forEach(key -> applicationDAO.findPrivilege(key).ifPresentOrElse(
-                account::add,
-                () -> LOG.debug("Invalid privilege {}, ignoring", key)));
     }
 
     @Override
@@ -755,9 +745,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(
                 new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
 
-        accountTO.getPrivileges().addAll(account.getPrivileges().stream().
-                map(Privilege::getKey).toList());
-
         return accountTO;
     }
 
@@ -820,10 +807,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // dynamic roles
             userTO.getDynRoles().addAll(
                     userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).toList());
-
-            // privileges
-            userTO.getPrivileges().addAll(userDAO.findAllRoles(user).stream().
-                    flatMap(role -> role.getPrivileges().stream()).map(Privilege::getKey).collect(Collectors.toSet()));
 
             // relationships
             userTO.getRelationships().addAll(user.getRelationships().stream().map(relationship -> getRelationshipTO(

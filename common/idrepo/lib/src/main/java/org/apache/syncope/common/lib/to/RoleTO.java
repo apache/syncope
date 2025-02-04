@@ -42,8 +42,6 @@ public class RoleTO implements EntityTO {
 
     private String dynMembershipCond;
 
-    private final Set<String> privileges = new TreeSet<>();
-
     @Override
     public String getKey() {
         return key;
@@ -81,12 +79,6 @@ public class RoleTO implements EntityTO {
         this.dynMembershipCond = dynMembershipCond;
     }
 
-    @JacksonXmlElementWrapper(localName = "privileges")
-    @JacksonXmlProperty(localName = "privilege")
-    public Set<String> getPrivileges() {
-        return privileges;
-    }
-
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -105,7 +97,6 @@ public class RoleTO implements EntityTO {
                 append(realms, other.realms).
                 append(dynRealms, other.dynRealms).
                 append(dynMembershipCond, other.dynMembershipCond).
-                append(privileges, other.privileges).
                 build();
     }
 
@@ -117,7 +108,6 @@ public class RoleTO implements EntityTO {
                 append(realms).
                 append(dynRealms).
                 append(dynMembershipCond).
-                append(privileges).
                 build();
     }
 }

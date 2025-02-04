@@ -255,46 +255,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void privileges() {
-        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        ldap.setKey("ldapWithPrivileges");
-
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
-        provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
-        provision.getVirSchemas().clear();
-
-        ldap.getProvisions().clear();
-        ldap.getProvisions().add(provision);
-
-        Item item = new Item();
-        item.setIntAttrName("privileges[mightyApp]");
-        item.setExtAttrName("businessCategory");
-        item.setPurpose(MappingPurpose.PROPAGATION);
-
-        provision.getMapping().add(item);
-
-        ldap = createResource(ldap);
-
-        try {
-            UserCR userCR = UserITCase.getUniqueSample("privilege@syncope.apache.org");
-            userCR.getResources().add(ldap.getKey());
-            userCR.getRoles().add("Other");
-
-            ProvisioningResult<UserTO> result = createUser(userCR);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
-
-            Attr businessCategory =
-                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("businessCategory").orElse(null);
-            assertNotNull(businessCategory);
-            assertEquals(1, businessCategory.getValues().size());
-            assertEquals("postMighty", businessCategory.getValues().get(0));
-        } finally {
-            RESOURCE_SERVICE.delete(ldap.getKey());
-        }
-    }
-
-    @Test
     public void purgePropagations() {
         try {
             TASK_SERVICE.purgePropagations(null, null, null);

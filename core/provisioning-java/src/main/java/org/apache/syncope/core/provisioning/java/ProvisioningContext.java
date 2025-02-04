@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
@@ -82,7 +81,6 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
-import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
@@ -123,7 +121,6 @@ import org.apache.syncope.core.provisioning.java.data.AccessTokenDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyObjectDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeClassDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeDataBinderImpl;
-import org.apache.syncope.core.provisioning.java.data.ApplicationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AttrRepoDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuditDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuthModuleDataBinderImpl;
@@ -404,7 +401,6 @@ public class ProvisioningContext {
             final GroupDAO groupDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final RealmSearchDAO realmSearchDAO,
-            final ApplicationDAO applicationDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
@@ -418,7 +414,6 @@ public class ProvisioningContext {
                 groupDAO,
                 relationshipTypeDAO,
                 realmSearchDAO,
-                applicationDAO,
                 implementationDAO,
                 derAttrHandler,
                 virAttrHandler,
@@ -801,15 +796,6 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public ApplicationDataBinder applicationDataBinder(
-            final ApplicationDAO applicationDAO,
-            final EntityFactory entityFactory) {
-
-        return new ApplicationDataBinderImpl(applicationDAO, entityFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuditDataBinder auditDataBinder() {
         return new AuditDataBinderImpl();
     }
@@ -1046,14 +1032,12 @@ public class ProvisioningContext {
             final SearchCondVisitor searchCondVisitor,
             final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
-            final RoleDAO roleDAO,
-            final ApplicationDAO applicationDAO) {
+            final RoleDAO roleDAO) {
 
         return new RoleDataBinderImpl(
                 realmSearchDAO,
                 dynRealmDAO,
                 roleDAO,
-                applicationDAO,
                 entityFactory,
                 searchCondVisitor);
     }
@@ -1154,7 +1138,6 @@ public class ProvisioningContext {
             final PlainAttrValidationManager validator,
             final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
-            final ApplicationDAO applicationDAO,
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps) {
@@ -1180,7 +1163,6 @@ public class ProvisioningContext {
                 validator,
                 roleDAO,
                 securityQuestionDAO,
-                applicationDAO,
                 accessTokenDAO,
                 delegationDAO,
                 confParamOps,

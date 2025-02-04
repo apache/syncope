@@ -153,8 +153,7 @@ public abstract class AbstractMappingPanel extends Panel {
                         + "<code>users[userName].attribute</code>, "
                         + "<code>anyObjects[anyObjectName].attribute</code>, "
                         + "<code>relationships[relationshipType][anyType].attribute</code> or "
-                        + "<code>memberships[groupName].attribute</code> or "
-                        + "<code>privileges[applicationKey]</code>"),
+                        + "<code>memberships[groupName].attribute</code>"),
                 new PopoverConfig().withHtml(true).withPlacement(TooltipConfig.Placement.right)) {
 
             private static final long serialVersionUID = -7867802555691605021L;

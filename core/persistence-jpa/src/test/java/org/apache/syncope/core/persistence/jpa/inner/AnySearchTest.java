@@ -50,7 +50,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
@@ -391,16 +390,6 @@ public class AnySearchTest extends AbstractTest {
         roleCond.setRole("Other");
 
         List<User> users = searchDAO.search(SearchCond.of(roleCond), AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-    }
-
-    @Test
-    public void searchByPrivilege() {
-        PrivilegeCond privilegeCond = new PrivilegeCond();
-        privilegeCond.setPrivilege("postMighty");
-
-        List<User> users = searchDAO.search(SearchCond.of(privilegeCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }

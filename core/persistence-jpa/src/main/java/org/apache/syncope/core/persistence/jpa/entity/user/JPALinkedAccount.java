@@ -24,30 +24,22 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.JPAPrivilege;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -87,16 +79,6 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
 
     @Transient
     private final List<JSONLAPlainAttr> plainAttrsList = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(joinColumns =
-            @JoinColumn(name = "linked_account_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "privilege_id"),
-            uniqueConstraints =
-            @UniqueConstraint(columnNames = { "linked_account_id", "privilege_id" }))
-    @Valid
-    private Set<JPAPrivilege> privileges = new HashSet<>();
 
     @Override
     public String getConnObjectKeyValue() {
@@ -235,16 +217,5 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
     @Override
     public List<? extends LAPlainAttr> getPlainAttrs() {
         return plainAttrsList.stream().toList();
-    }
-
-    @Override
-    public boolean add(final Privilege privilege) {
-        checkType(privilege, JPAPrivilege.class);
-        return privileges.add((JPAPrivilege) privilege);
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges() {
-        return privileges;
     }
 }

@@ -23,12 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.panels.ApplicationDirectoryPanel;
 import org.apache.syncope.client.console.panels.DelegationDirectoryPanel;
 import org.apache.syncope.client.console.panels.DynRealmDirectoryPanel;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel;
-import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -63,9 +61,6 @@ public class Security extends BasePage {
 
     @SpringBean
     protected DynRealmRestClient dynRealmRestClient;
-
-    @SpringBean
-    protected ApplicationRestClient applicationRestClient;
 
     @SpringBean
     protected SecurityQuestionRestClient securityQuestionRestClient;
@@ -103,7 +98,6 @@ public class Security extends BasePage {
                             roleRestClient,
                             realmRestClient,
                             dynRealmRestClient,
-                            applicationRestClient,
                             getPageReference()), true).build(panelId);
                 }
             });
@@ -141,22 +135,6 @@ public class Security extends BasePage {
                 }.build(panelId);
             }
         });
-
-        if (SyncopeConsoleSession.get().owns(IdRepoEntitlement.APPLICATION_LIST)) {
-            tabs.add(new AbstractTab(new ResourceModel("applications")) {
-
-                private static final long serialVersionUID = -6815067322125799251L;
-
-                @Override
-                public Panel getPanel(final String panelId) {
-                    return new ApplicationDirectoryPanel.Builder(applicationRestClient, getPageReference()) {
-
-                        private static final long serialVersionUID = -5960765294082359003L;
-
-                    }.build(panelId);
-                }
-            });
-        }
 
         tabs.add(new AbstractTab(new ResourceModel("securityQuestions")) {
 

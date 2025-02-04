@@ -30,7 +30,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
@@ -71,7 +70,6 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
-import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
@@ -191,15 +189,6 @@ public class IdRepoLogicContext {
             final AnyObjectDAO anyObjectDAO) {
 
         return new AnyTypeLogic(binder, anyTypeDAO, anyObjectDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationLogic applicationLogic(
-            final ApplicationDataBinder binder,
-            final ApplicationDAO applicationDAO) {
-
-        return new ApplicationLogic(binder, applicationDAO);
     }
 
     @ConditionalOnMissingBean

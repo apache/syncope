@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 
 public interface LinkedAccount extends Account, Attributable<LAPlainAttr> {
 
@@ -36,8 +34,4 @@ public interface LinkedAccount extends Account, Attributable<LAPlainAttr> {
     ExternalResource getResource();
 
     void setResource(ExternalResource resource);
-
-    boolean add(Privilege privilege);
-
-    Set<? extends Privilege> getPrivileges();
 }

@@ -23,7 +23,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Batch;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
@@ -205,10 +203,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAAnyObject();
         } else if (reference.equals(Role.class)) {
             result = (E) new JPARole();
-        } else if (reference.equals(Application.class)) {
-            result = (E) new JPAApplication();
-        } else if (reference.equals(Privilege.class)) {
-            result = (E) new JPAPrivilege();
         } else if (reference.equals(User.class)) {
             result = (E) new JPAUser();
         } else if (reference.equals(Group.class)) {
