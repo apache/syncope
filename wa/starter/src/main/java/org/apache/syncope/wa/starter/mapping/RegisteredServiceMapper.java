@@ -137,8 +137,9 @@ public class RegisteredServiceMapper {
         Optional<AttrReleaseMapper> attrReleaseMapper = attrReleaseMappers.stream().
                 filter(m -> m.supports(attrReleasePolicyTO.getConf())).
                 findFirst();
-        RegisteredServiceAttributeReleasePolicy attributeReleasePolicy =
-                attrReleaseMapper.map(mapper -> mapper.build(attrReleasePolicyTO)).orElse(null);
+        RegisteredServiceAttributeReleasePolicy attributeReleasePolicy = attrReleaseMapper.
+                map(mapper -> mapper.build(clientApp.getClientAppTO(), attrReleasePolicyTO)).
+                orElse(null);
 
         RegisteredServiceTicketGrantingTicketExpirationPolicy tgtExpirationPolicy = null;
         RegisteredServiceServiceTicketExpirationPolicy stExpirationPolicy = null;

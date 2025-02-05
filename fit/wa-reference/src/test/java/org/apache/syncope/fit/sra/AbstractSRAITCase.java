@@ -49,9 +49,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -238,37 +236,6 @@ abstract class AbstractSRAITCase extends AbstractITCase {
                     }
 
                     return POLICY_SERVICE.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                });
-    }
-
-    protected static AttrReleasePolicyTO getAttrReleasePolicy() {
-        String description = "SRA attr release policy";
-
-        return POLICY_SERVICE.list(PolicyType.ATTR_RELEASE).stream().
-                map(AttrReleasePolicyTO.class::cast).
-                filter(policy -> description.equals(policy.getName())
-                && policy.getConf() instanceof DefaultAttrReleasePolicyConf).
-                findFirst().
-                orElseGet(() -> {
-                    DefaultAttrReleasePolicyConf policyConf = new DefaultAttrReleasePolicyConf();
-                    policyConf.getAllowedAttrs().add("family_name");
-                    policyConf.getAllowedAttrs().add("name");
-                    policyConf.getAllowedAttrs().add("given_name");
-                    policyConf.getAllowedAttrs().add("email");
-                    policyConf.getAllowedAttrs().add("groups");
-
-                    AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-                    policy.setName(description);
-                    policy.setConf(policyConf);
-
-                    Response response = POLICY_SERVICE.create(PolicyType.ATTR_RELEASE, policy);
-                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create Test Attr Release Policy");
-                    }
-
-                    return POLICY_SERVICE.read(
-                            PolicyType.ATTR_RELEASE,
-                            response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
     }
 
