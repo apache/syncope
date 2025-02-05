@@ -65,9 +65,9 @@ public abstract class AbstractITCase {
 
     protected static final String ADMIN_PWD = "password";
 
-    private static final String ANONYMOUS_USER = "anonymous";
+    protected static final String ANONYMOUS_USER = "anonymous";
 
-    private static final String ANONYMOUS_KEY = "anonymousKey";
+    protected static final String ANONYMOUS_KEY = "anonymousKey";
 
     protected static final String CORE_ADDRESS = "https://localhost:9443/syncope/rest";
 

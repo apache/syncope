@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.ui;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
@@ -100,6 +103,23 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         clientApp.getScopes().add(OIDCScopeConstants.EMAIL);
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
+
+        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
+            try {
+                String metadata = WebClient.create(
+                        WA_ADDRESS + "/actuator/env", ANONYMOUS_USER, ANONYMOUS_KEY, null).
+                        get().readEntity(String.class);
+                if (!metadata.contains("cas.authn.oidc.core.user-defined-scopes.syncope")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+
+                return true;
+            } catch (Exception e) {
+                // ignore
+            }
+            return false;
+        });
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 

@@ -21,7 +21,6 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.OIDCScopeConstants;
@@ -30,11 +29,7 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
-import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -46,7 +41,6 @@ import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPol
 import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
-import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -98,40 +92,14 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
         service.setScopes(new HashSet<>(rp.getScopes()));
 
-        Set<String> customClaims = new HashSet<>();
-        if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy baseMapped) {
-            customClaims.addAll(baseMapped.
-                    getAllowedAttributes().values().stream().
-                    map(Objects::toString).collect(Collectors.toSet()));
-        } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy returnAllowed) {
-            customClaims.addAll(returnAllowed.
-                    getAllowedAttributes().stream().collect(Collectors.toSet()));
-        } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chaining) {
-            chaining.getPolicies().stream().
-                    filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
-                    findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
-                    map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
-                    ifPresent(customClaims::addAll);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.PROFILE)) {
-            customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.ADDRESS)) {
-            customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.EMAIL)) {
-            customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.PHONE)) {
-            customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
+        if (attributeReleasePolicy instanceof OidcCustomScopeAttributeReleasePolicy
+                || (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chain
+                && chain.getPolicies().stream().anyMatch(OidcCustomScopeAttributeReleasePolicy.class::isInstance))) {
 
-        if (!customClaims.isEmpty()) {
             service.getScopes().add(OIDCScopeConstants.SYNCOPE);
         }
 
-        // never set attribute relase policy for OIDC services to avoid becoming scope-free for CAS
-        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, null,
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
 
         return service;

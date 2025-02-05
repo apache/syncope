@@ -58,10 +58,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apereo.cas.oidc.OidcConstants;
@@ -79,6 +82,37 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
     protected static String CLIENT_SECRET;
 
     protected static String TOKEN_URI;
+
+    protected static AttrReleasePolicyTO getAttrReleasePolicy() {
+        String description = "SRA attr release policy";
+
+        return POLICY_SERVICE.list(PolicyType.ATTR_RELEASE).stream().
+                map(AttrReleasePolicyTO.class::cast).
+                filter(policy -> description.equals(policy.getName())
+                && policy.getConf() instanceof DefaultAttrReleasePolicyConf).
+                findFirst().
+                orElseGet(() -> {
+                    DefaultAttrReleasePolicyConf policyConf = new DefaultAttrReleasePolicyConf();
+                    policyConf.getReleaseAttrs().put("surname", "family_name");
+                    policyConf.getReleaseAttrs().put("fullname", "name");
+                    policyConf.getReleaseAttrs().put("firstname", "given_name");
+                    policyConf.getReleaseAttrs().put("email", "email");
+                    policyConf.getReleaseAttrs().put("groups", "groups");
+
+                    AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
+                    policy.setName(description);
+                    policy.setConf(policyConf);
+
+                    Response response = POLICY_SERVICE.create(PolicyType.ATTR_RELEASE, policy);
+                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                        fail("Could not create Test Attr Release Policy");
+                    }
+
+                    return POLICY_SERVICE.read(
+                            PolicyType.ATTR_RELEASE,
+                            response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                });
+    }
 
     protected static void oidcClientAppSetup(
             final String appName,
@@ -133,6 +167,13 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
                         WA_ADDRESS + "/oidc/" + OidcConstants.WELL_KNOWN_OPENID_CONFIGURATION_URL).
                         get().readEntity(String.class);
                 if (!metadata.contains("groups")) {
+                    WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
+                    throw new IllegalStateException();
+                }
+                metadata = WebClient.create(
+                        WA_ADDRESS + "/actuator/env", ANONYMOUS_USER, ANONYMOUS_KEY, null).
+                        get().readEntity(String.class);
+                if (!metadata.contains("cas.authn.oidc.core.user-defined-scopes.syncope")) {
                     WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.conf, List.of());
                     throw new IllegalStateException();
                 }
