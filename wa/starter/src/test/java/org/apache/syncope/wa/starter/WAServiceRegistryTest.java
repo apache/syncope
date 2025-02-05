@@ -56,7 +56,6 @@ import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
 import org.apereo.cas.services.RegisteredServiceDelegatedAuthenticationPolicy;
 import org.apereo.cas.services.RegisteredServiceLogoutType;
-import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 import org.apereo.cas.services.ServicesManager;
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.util.RandomUtils;
@@ -190,7 +189,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         assertTrue(oidc.getAuthenticationPolicy().getRequiredAuthenticationHandlers().contains("TestAuthModule"));
         assertTrue(((AnyAuthenticationHandlerRegisteredServiceAuthenticationPolicyCriteria) oidc.
                 getAuthenticationPolicy().getCriteria()).isTryAll());
-        assertTrue(oidc.getAttributeReleasePolicy() instanceof ReturnAllowedAttributeReleasePolicy);
+        assertTrue(oidc.getAttributeReleasePolicy() instanceof DenyAllAttributeReleasePolicy);
         assertEquals(RegisteredServiceLogoutType.valueOf(oidcrpto.getLogoutType().name()), oidc.getLogoutType());
 
         // 5. more client with different attributes 
