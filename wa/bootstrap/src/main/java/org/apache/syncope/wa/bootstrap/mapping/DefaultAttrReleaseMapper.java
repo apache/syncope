@@ -155,9 +155,6 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
                 returnMapped.setAllowedAttributes(conf.getReleaseAttrs());
             }
         }
-        if (app instanceof OIDCRPClientAppTO rp && !conf.getReleaseAttrs().isEmpty()) {
-            oidc = buildOidc(rp, conf);
-        }
 
         ReturnAllowedAttributeReleasePolicy returnAllowed = null;
         if (!conf.getAllowedAttrs().isEmpty()) {
