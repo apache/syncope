@@ -19,22 +19,34 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
 
 public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinder {
 
+    protected final AnyTypeDAO anyTypeDAO;
+
     protected final EntityFactory entityFactory;
 
-    public RelationshipTypeDataBinderImpl(final EntityFactory entityFactory) {
+    public RelationshipTypeDataBinderImpl(final AnyTypeDAO anyTypeDAO, final EntityFactory entityFactory) {
+        this.anyTypeDAO = anyTypeDAO;
         this.entityFactory = entityFactory;
     }
 
     @Override
     public RelationshipType create(final RelationshipTypeTO relationshipTypeTO) {
         RelationshipType relationshipType = entityFactory.newEntity(RelationshipType.class);
+
+        relationshipType.setLeftEndAnyType(anyTypeDAO.findById(relationshipTypeTO.getLeftEndAnyType()).
+                orElseThrow(() -> new NotFoundException("AnyType " + relationshipTypeTO.getLeftEndAnyType())));
+        relationshipType.setRightEndAnyType(anyTypeDAO.findById(relationshipTypeTO.getRightEndAnyType()).
+                orElseThrow(() -> new NotFoundException("AnyType " + relationshipTypeTO.getRightEndAnyType())));
+
         update(relationshipType, relationshipTypeTO);
+
         return relationshipType;
     }
 

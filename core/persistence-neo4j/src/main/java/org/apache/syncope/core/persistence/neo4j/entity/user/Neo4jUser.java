@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -411,15 +410,6 @@ public class Neo4jUser
     public boolean add(final URelationship relationship) {
         checkType(relationship, Neo4jURelationship.class);
         return this.relationships.add((Neo4jURelationship) relationship);
-    }
-
-    @Override
-    public Optional<? extends URelationship> getRelationship(
-            final RelationshipType relationshipType, final String otherEndKey) {
-
-        return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
-                && otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
-                findFirst();
     }
 
     @Override

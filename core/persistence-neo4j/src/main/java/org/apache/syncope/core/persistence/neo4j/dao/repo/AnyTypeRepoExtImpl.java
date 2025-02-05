@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import javax.cache.Cache;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -38,12 +39,15 @@ public class AnyTypeRepoExtImpl extends AbstractDAO implements AnyTypeRepoExt {
 
     protected final RemediationDAO remediationDAO;
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final NodeValidator nodeValidator;
 
     protected final Cache<EntityCacheKey, Neo4jAnyType> cache;
 
     public AnyTypeRepoExtImpl(
             final RemediationDAO remediationDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -51,6 +55,7 @@ public class AnyTypeRepoExtImpl extends AbstractDAO implements AnyTypeRepoExt {
 
         super(neo4jTemplate, neo4jClient);
         this.remediationDAO = remediationDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.nodeValidator = nodeValidator;
         this.cache = cache;
     }
@@ -106,6 +111,8 @@ public class AnyTypeRepoExtImpl extends AbstractDAO implements AnyTypeRepoExt {
             remediation.setAnyType(null);
             remediationDAO.delete(remediation);
         });
+
+        relationshipTypeDAO.findByEndAnyType(anyType).forEach(relationshipTypeDAO::deleteById);
 
         cache.remove(EntityCacheKey.of(key));
 

@@ -638,12 +638,19 @@ public class PersistenceContext {
     @Bean
     public AnyTypeRepoExt anyTypeRepoExt(
             final RemediationDAO remediationDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
             final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache) {
 
-        return new AnyTypeRepoExtImpl(remediationDAO, neo4jTemplate, neo4jClient, nodeValidator, anyTypeCache);
+        return new AnyTypeRepoExtImpl(
+                remediationDAO,
+                relationshipTypeDAO,
+                neo4jTemplate,
+                neo4jClient,
+                nodeValidator,
+                anyTypeCache);
     }
 
     @ConditionalOnMissingBean

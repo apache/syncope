@@ -464,8 +464,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyTypeRepoExt anyTypeRepoExt(final RemediationDAO remediationDAO, final EntityManager entityManager) {
-        return new AnyTypeRepoExtImpl(remediationDAO, entityManager);
+    public AnyTypeRepoExt anyTypeRepoExt(
+            final RemediationDAO remediationDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityManager entityManager) {
+
+        return new AnyTypeRepoExtImpl(remediationDAO, relationshipTypeDAO, entityManager);
     }
 
     @ConditionalOnMissingBean

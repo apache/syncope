@@ -22,11 +22,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
 public abstract class AbstractGroupableRelatable<
         L extends Any<P>, 
@@ -34,7 +33,7 @@ public abstract class AbstractGroupableRelatable<
         P extends GroupablePlainAttr<L, M>,
         R extends Any<?>,
         REL extends Relationship<L, R>>
-        extends AbstractAny<P> implements GroupableRelatable<L, M, P, R, REL> {
+        extends AbstractRelatable<L, P, R, REL> implements Groupable<L, M, P, R, REL> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
@@ -80,19 +79,5 @@ public abstract class AbstractGroupableRelatable<
         return getMemberships().stream().
                 filter(membership -> groupKey.equals(membership.getRightEnd().getKey())).
                 findFirst();
-    }
-
-    @Override
-    public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
-        return getRelationships().stream().
-                filter(relationship -> relationshipType.equals(relationship.getType())).
-                toList();
-    }
-
-    @Override
-    public Collection<? extends REL> getRelationships(final String otherEndKey) {
-        return getRelationships().stream().
-                filter(relationship -> otherEndKey.equals(relationship.getRightEnd().getKey())).
-                toList();
     }
 }

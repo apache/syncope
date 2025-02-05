@@ -68,6 +68,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
@@ -123,6 +124,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JSONAPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JSONAPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JSONAPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGRelationship;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.group.JSONGPlainAttr;
@@ -215,6 +217,8 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAARelationship();
         } else if (reference.equals(URelationship.class)) {
             result = (E) new JPAURelationship();
+        } else if (reference.equals(GRelationship.class)) {
+            result = (E) new JPAGRelationship();
         } else if (reference.equals(AMembership.class)) {
             result = (E) new JPAAMembership();
         } else if (reference.equals(UMembership.class)) {

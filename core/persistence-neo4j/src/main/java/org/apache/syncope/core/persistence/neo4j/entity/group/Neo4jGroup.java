@@ -30,14 +30,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractAny;
+import org.apache.syncope.core.persistence.neo4j.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
@@ -51,7 +53,9 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @Node(Neo4jGroup.NODE)
 @GroupCheck
 @AttributableCheck
-public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group {
+public class Neo4jGroup
+        extends AbstractRelatable<Group, GPlainAttr, AnyObject, GRelationship>
+        implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;
 
@@ -96,6 +100,9 @@ public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @Relationship(type = GROUP_TYPE_EXTENSION_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jTypeExtension> typeExtensions = new ArrayList<>();
+
+    @Relationship(type = Neo4jGRelationship.SOURCE_REL, direction = Relationship.Direction.INCOMING)
+    protected List<Neo4jGRelationship> relationships = new ArrayList<>();
 
     @Override
     protected Map<String, ? extends GPlainAttr> plainAttrs() {
@@ -236,5 +243,16 @@ public class Neo4jGroup extends AbstractAny<GPlainAttr> implements Group {
     @Override
     public List<? extends TypeExtension> getTypeExtensions() {
         return typeExtensions;
+    }
+
+    @Override
+    public boolean add(final GRelationship relationship) {
+        checkType(relationship, Neo4jGRelationship.class);
+        return this.relationships.add((Neo4jGRelationship) relationship);
+    }
+
+    @Override
+    public List<? extends GRelationship> getRelationships() {
+        return relationships;
     }
 }

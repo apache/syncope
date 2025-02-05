@@ -565,29 +565,29 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void searchByRelationshipType() {
-        // 1. first search for printers involved in "neighborhood" relationship
+        // 1. first search for printers involved in "inclusion" relationship
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        relationshipTypeCond.setRelationshipType("inclusion");
 
         AnyTypeCond tcond = new AnyTypeCond();
         tcond.setAnyTypeKey("PRINTER");
 
-        SearchCond searchCondition = SearchCond.and(
-                SearchCond.of(relationshipTypeCond), SearchCond.of(tcond));
-        assertTrue(searchCondition.isValid());
+        SearchCond cond = SearchCond.and(SearchCond.of(relationshipTypeCond), SearchCond.of(tcond));
+        assertTrue(cond.isValid());
 
-        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        List<AnyObject> anyObjects = searchDAO.search(cond, AnyTypeKind.ANY_OBJECT);
         assertNotNull(anyObjects);
         assertEquals(2, anyObjects.size());
         assertTrue(anyObjects.stream().anyMatch(any -> "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(any.getKey())));
         assertTrue(anyObjects.stream().anyMatch(any -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(any.getKey())));
 
         // 2. search for users involved in "neighborhood" relationship
-        searchCondition = SearchCond.of(relationshipTypeCond);
-        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
+        relationshipTypeCond.setRelationshipType("neighborhood");
+        cond = SearchCond.of(relationshipTypeCond);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertTrue(users.stream().anyMatch(any -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(any.getKey())));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
     }
 
     @Test

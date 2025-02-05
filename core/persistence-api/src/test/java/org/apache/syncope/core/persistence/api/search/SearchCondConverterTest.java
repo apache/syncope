@@ -164,7 +164,7 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.RELATIONSHIP_TYPES + "==type1", fiql);
 
         RelationshipTypeCond relationshipCond = new RelationshipTypeCond();
-        relationshipCond.setRelationshipTypeKey("type1");
+        relationshipCond.setRelationshipType("type1");
         SearchCond leaf = SearchCond.of(relationshipCond);
 
         assertEquals(leaf, SearchCondConverter.convert(VISITOR, fiql));

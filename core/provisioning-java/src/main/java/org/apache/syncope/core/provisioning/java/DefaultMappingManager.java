@@ -63,13 +63,14 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -622,7 +623,7 @@ public class DefaultMappingManager implements MappingManager {
                 && intAttrName.getRelatedUser() == null) {
             references.add(any);
         }
-        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable) {
+        if (any instanceof Groupable<?, ?, ?, ?, ?> groupable) {
             if (intAttrName.getEnclosingGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getEnclosingGroup()).orElse(null);
                 if (group == null
@@ -633,25 +634,31 @@ public class DefaultMappingManager implements MappingManager {
                                         : false) {
 
                     LOG.warn("No (dyn) membership for {} in {}, ignoring",
-                            intAttrName.getEnclosingGroup(), groupableRelatable);
+                            intAttrName.getEnclosingGroup(), groupable);
                 } else {
                     references.add(group);
                 }
             } else if (intAttrName.getRelatedUser() != null) {
                 User user = userDAO.findByUsername(intAttrName.getRelatedUser()).orElse(null);
-                if (user == null || user.getRelationships(groupableRelatable.getKey()).isEmpty()) {
+                if (user == null || user.getRelationships(groupable.getKey()).isEmpty()) {
                     LOG.warn("No relationship for {} in {}, ignoring",
-                            intAttrName.getRelatedUser(), groupableRelatable);
-                } else if (groupableRelatable.getType().getKind() == AnyTypeKind.USER) {
+                            intAttrName.getRelatedUser(), groupable);
+                } else if (groupable.getType().getKind() == AnyTypeKind.USER) {
                     LOG.warn("Users cannot have relationship with other users, ignoring");
                 } else {
                     references.add(user);
                 }
-            } else if (intAttrName.getRelatedAnyObject() != null) {
+            } else if (intAttrName.getMembershipOfGroup() != null) {
+                membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).
+                        flatMap(group -> groupable.getMembership(group.getKey())).
+                        orElse(null);
+            }
+        } else if (any instanceof Relatable<?, ?, ?, ?> relatable) {
+            if (intAttrName.getRelatedAnyObject() != null) {
                 AnyObject anyObject = anyObjectDAO.findById(intAttrName.getRelatedAnyObject()).orElse(null);
-                if (anyObject == null || groupableRelatable.getRelationships(anyObject.getKey()).isEmpty()) {
+                if (anyObject == null || relatable.getRelationships(anyObject.getKey()).isEmpty()) {
                     LOG.warn("No relationship for {} in {}, ignoring",
-                            intAttrName.getRelatedAnyObject(), groupableRelatable);
+                            intAttrName.getRelatedAnyObject(), relatable);
                 } else {
                     references.add(anyObject);
                 }
@@ -659,21 +666,17 @@ public class DefaultMappingManager implements MappingManager {
                 RelationshipType relationshipType = relationshipTypeDAO.findById(
                         intAttrName.getRelationshipType()).orElse(null);
                 AnyType anyType = anyTypeDAO.findById(intAttrName.getRelationshipAnyType()).orElse(null);
-                if (relationshipType == null || groupableRelatable.getRelationships(relationshipType).isEmpty()) {
+                if (relationshipType == null || relatable.getRelationships(relationshipType).isEmpty()) {
                     LOG.warn("No relationship for type {} in {}, ignoring",
-                            intAttrName.getRelationshipType(), groupableRelatable);
+                            intAttrName.getRelationshipType(), relatable);
                 } else if (anyType == null) {
                     LOG.warn("No anyType {}, ignoring", intAttrName.getRelationshipAnyType());
                 } else {
-                    references.addAll(groupableRelatable.getRelationships(relationshipType).stream().
+                    references.addAll(relatable.getRelationships(relationshipType).stream().
                             filter(relationship -> anyType.equals(relationship.getRightEnd().getType())).
                             map(Relationship::getRightEnd).
                             toList());
                 }
-            } else if (intAttrName.getMembershipOfGroup() != null) {
-                membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).
-                        flatMap(group -> groupableRelatable.getMembership(group.getKey())).
-                        orElse(null);
             }
         }
         if (references.isEmpty()) {
@@ -776,7 +779,7 @@ public class DefaultMappingManager implements MappingManager {
                         if (membership == null) {
                             attr = plainAttrGetter.apply((Attributable) ref, intAttrName.getSchema().getKey());
                         } else {
-                            attr = ((GroupableRelatable<?, ?, ?, ?, ?>) ref).getPlainAttr(
+                            attr = ((Groupable<?, ?, ?, ?, ?>) ref).getPlainAttr(
                                     intAttrName.getSchema().getKey(), membership).orElse(null);
                         }
                         if (attr != null) {

@@ -36,11 +36,9 @@ import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -177,16 +175,6 @@ public class JPAAnyObject
     public boolean add(final ARelationship relationship) {
         checkType(relationship, JPAARelationship.class);
         return this.relationships.add((JPAARelationship) relationship);
-    }
-
-    @Override
-    public Optional<? extends ARelationship> getRelationship(
-            final RelationshipType relationshipType, final String otherEndKey) {
-
-        return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
-                && otherEndKey != null
-                && (otherEndKey.equals(relationship.getLeftEnd().getKey())
-                || otherEndKey.equals(relationship.getRightEnd().getKey()))).findFirst();
     }
 
     @Override

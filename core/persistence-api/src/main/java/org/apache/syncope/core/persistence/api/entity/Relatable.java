@@ -18,36 +18,23 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public final class MembershipType implements RelationshipType {
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
-    private static final long serialVersionUID = -2767173479992170853L;
+public interface Relatable<
+        L extends Any<?>, 
+        P extends PlainAttr<L>,
+        R extends Any<?>,
+        REL extends Relationship<L, R>> extends Any<P> {
 
-    private static final MembershipType INSTANCE = new MembershipType();
+    boolean add(REL relationship);
 
-    public static MembershipType getInstance() {
-        return INSTANCE;
-    }
+    Optional<? extends REL> getRelationship(RelationshipType relationshipType, String otherEndKey);
 
-    private MembershipType() {
-    }
+    Collection<? extends REL> getRelationships(String otherEndKey);
 
-    @Override
-    public String getKey() {
-        return "Membership";
-    }
+    Collection<? extends REL> getRelationships(RelationshipType relationshipType);
 
-    @Override
-    public void setKey(final String key) {
-        // cannot be changed
-    }
-
-    @Override
-    public String getDescription() {
-        return null;
-    }
-
-    @Override
-    public void setDescription(final String description) {
-        // cannot be changed
-    }
+    List<? extends REL> getRelationships();
 }

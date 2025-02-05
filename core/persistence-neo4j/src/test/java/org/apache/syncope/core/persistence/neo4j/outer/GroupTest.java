@@ -41,11 +41,14 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -89,6 +92,9 @@ public class GroupTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Autowired
+    private RelationshipTypeDAO relationshipTypeDAO;
 
     @Autowired
     private PlainAttrValidationManager validator;
@@ -358,6 +364,30 @@ public class GroupTest extends AbstractTest {
 
         dynGroupMemberships = anyObjectDAO.findDynGroups(anyObject.getKey());
         assertTrue(dynGroupMemberships.isEmpty());
+    }
+
+    @Test
+    public void relationships() {
+        RelationshipType groupType = entityFactory.newEntity(RelationshipType.class);
+        groupType.setKey("group type");
+        groupType.setLeftEndAnyType(anyTypeDAO.getGroup());
+        groupType.setRightEndAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
+        groupType = relationshipTypeDAO.save(groupType);
+
+        Group group = groupDAO.findByName("root").orElseThrow();
+        assertTrue(group.getRelationships().isEmpty());
+
+        GRelationship newR = entityFactory.newEntity(GRelationship.class);
+        newR.setType(groupType);
+        newR.setLeftEnd(group);
+        newR.setRightEnd(anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow());
+        group.add(newR);
+
+        groupDAO.save(group);
+
+        group = groupDAO.findByName("root").orElseThrow();
+        assertEquals(1, group.getRelationships().size());
+        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", group.getRelationships().get(0).getRightEnd().getKey());
     }
 
     @Test

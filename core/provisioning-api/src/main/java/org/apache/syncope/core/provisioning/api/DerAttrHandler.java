@@ -21,7 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 
 public interface DerAttrHandler {
@@ -61,5 +61,5 @@ public interface DerAttrHandler {
      * @param membership membership
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(GroupableRelatable<?, ?, ?, ?, ?> any, Membership<?> membership);
+    Map<DerSchema, String> getValues(Groupable<?, ?, ?, ?, ?> any, Membership<?> membership);
 }

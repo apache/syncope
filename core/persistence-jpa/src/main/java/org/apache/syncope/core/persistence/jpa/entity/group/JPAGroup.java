@@ -43,13 +43,15 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.GroupCheck;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
@@ -62,7 +64,9 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 @EntityListeners({ JSONGroupListener.class })
 @Cacheable
 @GroupCheck
-public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
+public class JPAGroup
+        extends AbstractRelatable<Group, GPlainAttr, AnyObject, GRelationship>
+        implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;
 
@@ -110,6 +114,10 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "group")
     private List<JPATypeExtension> typeExtensions = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
+    @Valid
+    private List<JPAGRelationship> relationships = new ArrayList<>();
 
     @Override
     public String getName() {
@@ -259,5 +267,16 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     @Override
     public List<? extends TypeExtension> getTypeExtensions() {
         return typeExtensions;
+    }
+
+    @Override
+    public boolean add(final GRelationship relationship) {
+        checkType(relationship, JPAGRelationship.class);
+        return this.relationships.add((JPAGRelationship) relationship);
+    }
+
+    @Override
+    public List<? extends GRelationship> getRelationships() {
+        return relationships;
     }
 }

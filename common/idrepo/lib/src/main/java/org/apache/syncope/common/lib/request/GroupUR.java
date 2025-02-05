@@ -26,9 +26,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -107,6 +109,8 @@ public class GroupUR extends AnyUR {
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
 
+    private final Set<RelationshipUR> relationships = new HashSet<>();
+
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED,
@@ -164,10 +168,17 @@ public class GroupUR extends AnyUR {
         return typeExtensions;
     }
 
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
+    public Set<RelationshipUR> getRelationships() {
+        return relationships;
+    }
+
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && name == null && userOwner == null && groupOwner == null;
+                && name == null && userOwner == null && groupOwner == null && udynMembershipCond == null
+                && adynMembershipConds.isEmpty() && typeExtensions.isEmpty() && relationships.isEmpty();
     }
 
     @Override
@@ -180,6 +191,7 @@ public class GroupUR extends AnyUR {
                 append(udynMembershipCond).
                 append(adynMembershipConds).
                 append(typeExtensions).
+                append(relationships).
                 build();
     }
 
@@ -203,6 +215,7 @@ public class GroupUR extends AnyUR {
                 append(udynMembershipCond, other.udynMembershipCond).
                 append(adynMembershipConds, other.adynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
+                append(relationships, other.relationships).
                 build();
     }
 }

@@ -16,38 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.neo4j.entity.anyobject;
+package org.apache.syncope.core.persistence.neo4j.entity.group;
 
 import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.common.entity.AMembershipType;
 import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 import org.apache.syncope.core.persistence.common.validation.RelationshipCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
+import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
-@Node(Neo4jARelationship.NODE)
+@Node(Neo4jGRelationship.NODE)
 @RelationshipCheck
-public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARelationship {
+public class Neo4jGRelationship extends AbstractGeneratedKeyNode implements GRelationship {
 
     private static final long serialVersionUID = 2778494939240083204L;
 
-    public static final String NODE = "ARelationship";
+    public static final String NODE = "GRelationship";
 
-    public static final String SOURCE_REL = "ARELATIONSHIP_SOURCE";
+    public static final String SOURCE_REL = "GRELATIONSHIP_SOURCE";
 
-    public static final String DEST_REL = "ARELATIONSHIP_DEST";
+    public static final String DEST_REL = "GRELATIONSHIP_DEST";
 
     @NotNull
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Neo4jRelationshipType type;
 
     @Relationship(type = SOURCE_REL, direction = Relationship.Direction.OUTGOING)
-    private Neo4jAnyObject leftEnd;
+    private Neo4jGroup leftEnd;
 
     @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jAnyObject rightEnd;
@@ -69,14 +71,14 @@ public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARel
     }
 
     @Override
-    public AnyObject getLeftEnd() {
+    public Neo4jGroup getLeftEnd() {
         return leftEnd;
     }
 
     @Override
-    public void setLeftEnd(final AnyObject leftEnd) {
-        checkType(leftEnd, Neo4jAnyObject.class);
-        this.leftEnd = (Neo4jAnyObject) leftEnd;
+    public void setLeftEnd(final Group leftEnd) {
+        checkType(leftEnd, Neo4jGroup.class);
+        this.leftEnd = (Neo4jGroup) leftEnd;
     }
 
     @Override

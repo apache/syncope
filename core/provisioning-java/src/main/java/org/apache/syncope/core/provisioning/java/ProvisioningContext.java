@@ -978,8 +978,11 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RelationshipTypeDataBinder relationshipTypeDataBinder(final EntityFactory entityFactory) {
-        return new RelationshipTypeDataBinderImpl(entityFactory);
+    public RelationshipTypeDataBinder relationshipTypeDataBinder(
+            final AnyTypeDAO anyTypeDAO,
+            final EntityFactory entityFactory) {
+
+        return new RelationshipTypeDataBinderImpl(anyTypeDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean

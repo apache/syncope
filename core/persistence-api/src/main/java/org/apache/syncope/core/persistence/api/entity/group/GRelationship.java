@@ -16,16 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.anyobject;
+package org.apache.syncope.core.persistence.api.entity.group;
 
-import org.apache.syncope.core.persistence.api.entity.Groupable;
-import org.apache.syncope.core.persistence.api.entity.Relatable;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public interface AnyObject extends
-        Groupable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship>,
-        Relatable<AnyObject, APlainAttr, AnyObject, ARelationship> {
+public interface GRelationship extends Relationship<Group, AnyObject> {
 
-    String getName();
-
-    void setName(String name);
 }

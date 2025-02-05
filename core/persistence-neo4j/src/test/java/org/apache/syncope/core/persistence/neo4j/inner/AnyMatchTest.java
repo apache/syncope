@@ -77,7 +77,7 @@ public class AnyMatchTest extends AbstractTest {
         assertTrue(anyMatcher.matches(anyObject, SearchCond.of(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        relationshipTypeCond.setRelationshipType("inclusion");
         assertTrue(anyMatcher.matches(anyObject, SearchCond.of(relationshipTypeCond)));
     }
 
@@ -103,7 +103,7 @@ public class AnyMatchTest extends AbstractTest {
         assertTrue(anyMatcher.matches(user, SearchCond.of(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        relationshipTypeCond.setRelationshipType("neighborhood");
         assertTrue(anyMatcher.matches(user, SearchCond.of(relationshipTypeCond)));
     }
 

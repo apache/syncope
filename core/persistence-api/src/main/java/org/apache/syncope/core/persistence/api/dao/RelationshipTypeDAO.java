@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
 public interface RelationshipTypeDAO extends DAO<RelationshipType> {
+
+    List<String> findByEndAnyType(AnyType anyType);
 }

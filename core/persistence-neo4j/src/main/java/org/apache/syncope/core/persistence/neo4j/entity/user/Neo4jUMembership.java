@@ -23,12 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
@@ -52,8 +52,8 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     protected Map<String, JSONUPlainAttr> plainAttrs = new HashMap<>();
 
     @Override
-    public MembershipType getType() {
-        return MembershipType.getInstance();
+    public UMembershipType getType() {
+        return UMembershipType.getInstance();
     }
 
     @Override

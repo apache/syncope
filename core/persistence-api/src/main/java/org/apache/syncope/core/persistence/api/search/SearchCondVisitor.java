@@ -168,7 +168,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
                         case RELATIONSHIP_TYPES:
                             RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-                            relationshipTypeCond.setRelationshipTypeKey(value);
+                            relationshipTypeCond.setRelationshipType(value);
                             leaf = SearchCond.of(relationshipTypeCond);
                             break;
 

@@ -37,8 +37,8 @@ under the License.
             <column name="group_id" type="varchar" size="36"/>
             <fk to-table="AnyObject" column="anyObject_id"/>
             <fk to-table="SyncopeGroup" column="group_id"/>
-            <index name="I_MMBRSHP_LEFTEND1" column="anyObject_id"/>
-            <index name="I_MMBRSHP_RIGHTEND1" column="group_id"/>
+            <index name="I_MMBRSHP_LEFTEND" column="anyObject_id"/>
+            <index name="I_MMBRSHP_RIGHTEND" column="group_id"/>
         </table>
         <table name="ARelationship">
             <pk column="id"/>
@@ -49,10 +49,10 @@ under the License.
             <fk to-table="AnyObject" column="left_anyObject_id"/>
             <fk to-table="AnyObject" column="right_anyObject_id"/>
             <fk to-table="RelationshipType" column="TYPE_ID"/>
-            <index name="I_RLTNSHP_LEFTEND1" column="left_anyObject_id"/>
-            <index name="I_RLTNSHP_RIGHTEND1" column="right_anyObject_id"/>
-            <index name="I_RLTNSHP_TYPE1" column="TYPE_ID"/>
-            <unique name="U_RLTNSHP_TYPE_ID1">
+            <index name="I_RLTNSHP_LEFTEND" column="left_anyObject_id"/>
+            <index name="I_RLTNSHP_RIGHTEND" column="right_anyObject_id"/>
+            <index name="I_RLTNSHP_TYPE" column="TYPE_ID"/>
+            <unique name="U_RLTNSHP_TYPE_ID">
                 <on column="TYPE_ID"/>
                 <on column="left_anyObject_id"/>
                 <on column="right_anyObject_id"/>
@@ -96,10 +96,10 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="anyType_filter" type="clob" size="-1"/>
-            <column name="NOTIFICATION_ID" type="varchar" size="36"/>
             <column name="ANYTYPE_ID" type="varchar" size="255"/>
-            <fk to-table="Notification" column="NOTIFICATION_ID"/>
+            <column name="NOTIFICATION_ID" type="varchar" size="36"/>
             <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="Notification" column="NOTIFICATION_ID"/>
             <index name="I_NYABOUT_ANYTYPE" column="ANYTYPE_ID"/>
             <index name="I_NYABOUT_NOTIFICATION" column="NOTIFICATION_ID"/>
             <unique name="U_NYABOUT_NOTIFICATION_ID">
@@ -158,11 +158,11 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="template" type="clob" size="-1"/>
-            <column name="ANYTYPE_ID" type="varchar" size="255"/>
             <column name="LIVESYNCTASK_ID" type="varchar" size="36"/>
-            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
             <fk to-table="LiveSyncTask" column="LIVESYNCTASK_ID"/>
-            <index name="I_NYTMTSK_ANYTYPE" column="ANYTYPE_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <index name="I_NYTMTSK_ANYTYPE1" column="ANYTYPE_ID"/>
             <index name="I_NYTMTSK_LIVESYNCTASK" column="LIVESYNCTASK_ID"/>
             <unique name="U_NYTMTSK_LIVESYNCTASK_ID">
                 <on column="LIVESYNCTASK_ID"/>
@@ -173,11 +173,11 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="template" type="clob" size="-1"/>
-            <column name="PULLTASK_ID" type="varchar" size="36"/>
             <column name="ANYTYPE_ID" type="varchar" size="255"/>
-            <fk to-table="PullTask" column="PULLTASK_ID"/>
+            <column name="PULLTASK_ID" type="varchar" size="36"/>
             <fk to-table="AnyType" column="ANYTYPE_ID"/>
-            <index name="I_NYTMTSK_ANYTYPE1" column="ANYTYPE_ID"/>
+            <fk to-table="PullTask" column="PULLTASK_ID"/>
+            <index name="I_NYTMTSK_ANYTYPE" column="ANYTYPE_ID"/>
             <index name="I_NYTMTSK_PULLTASK" column="PULLTASK_ID"/>
             <unique name="U_NYTMTSK_PULLTASK_ID">
                 <on column="PULLTASK_ID"/>
@@ -458,6 +458,24 @@ under the License.
             <fk to-table="MacroTask" column="MACROTASK_ID"/>
             <index name="I_FRMPYDF_MACROTASK" column="MACROTASK_ID"/>
         </table>
+        <table name="GRelationship">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="group_id" type="varchar" size="36"/>
+            <column name="anyObject_id" type="varchar" size="36"/>
+            <column name="TYPE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeGroup" column="group_id"/>
+            <fk to-table="AnyObject" column="anyObject_id"/>
+            <fk to-table="RelationshipType" column="TYPE_ID"/>
+            <index name="I_GRLTSHP_LEFTEND" column="group_id"/>
+            <index name="I_GRLTSHP_RIGHTEND" column="anyObject_id"/>
+            <index name="I_GRLTSHP_TYPE" column="TYPE_ID"/>
+            <unique name="U_GRLTSHP_TYPE_ID">
+                <on column="TYPE_ID"/>
+                <on column="group_id"/>
+                <on column="anyObject_id"/>
+            </unique>
+        </table>
         <table name="Implementation">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="255"/>
@@ -594,10 +612,10 @@ under the License.
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="args" type="clob" size="-1"/>
             <column name="idx" type="integer"/>
-            <column name="COMMAND_ID" type="varchar" size="255"/>
             <column name="MACROTASK_ID" type="varchar" size="36"/>
-            <fk to-table="Implementation" column="COMMAND_ID"/>
+            <column name="COMMAND_ID" type="varchar" size="255"/>
             <fk to-table="MacroTask" column="MACROTASK_ID"/>
+            <fk to-table="Implementation" column="COMMAND_ID"/>
             <index name="I_MCRTMND_COMMAND" column="COMMAND_ID"/>
             <index name="I_MCRTMND_MACROTASK" column="MACROTASK_ID"/>
         </table>
@@ -997,6 +1015,12 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="255"/>
             <column name="description" type="varchar" size="255"/>
+            <column name="LEFTENDANYTYPE_ID" type="varchar" size="255"/>
+            <column name="RIGHTENDANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="AnyType" column="LEFTENDANYTYPE_ID"/>
+            <fk to-table="AnyType" column="RIGHTENDANYTYPE_ID"/>
+            <index name="I_RLTNTYP_LEFTENDANYTYPE" column="LEFTENDANYTYPE_ID"/>
+            <index name="I_RLTNTYP_RIGHTENDANYTYPE" column="RIGHTENDANYTYPE_ID"/>
         </table>
         <table name="Remediation">
             <pk column="id"/>
@@ -1143,10 +1167,10 @@ under the License.
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="SchedTask" column="TASK_ID"/>
-            <fk to-table="LiveSyncTask" column="TASK_ID"/>
-            <fk to-table="MacroTask" column="TASK_ID"/>
             <fk to-table="PullTask" column="TASK_ID"/>
             <fk to-table="PushTask" column="TASK_ID"/>
+            <fk to-table="MacroTask" column="TASK_ID"/>
+            <fk to-table="LiveSyncTask" column="TASK_ID"/>
             <index name="I_SCHDKXC_TASK" column="TASK_ID"/>
         </table>
         <table name="SecurityQuestion">
@@ -1194,7 +1218,7 @@ under the License.
             <column name="anyTypeClass_id" type="varchar" size="255"/>
             <fk to-table="SyncopeGroup" column="group_id"/>
             <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
-            <index name="I_SYNCLSS_ELEMENT1" column="anyTypeClass_id"/>
+            <index name="I_SYNCLSS_ELEMENT" column="anyTypeClass_id"/>
             <index name="I_SYNCLSS_GROUP_ID" column="group_id"/>
             <unique name="U_SYNCLSS_GROUP_ID">
                 <on column="group_id"/>
@@ -1206,7 +1230,7 @@ under the License.
             <column name="resource_id" type="varchar" size="255"/>
             <fk to-table="SyncopeGroup" column="group_id"/>
             <fk to-table="ExternalResource" column="resource_id"/>
-            <index name="I_SYNCSRC_ELEMENT1" column="resource_id"/>
+            <index name="I_SYNCSRC_ELEMENT" column="resource_id"/>
             <index name="I_SYNCSRC_GROUP_ID" column="group_id"/>
             <unique name="U_SYNCSRC_GROUP_ID">
                 <on column="group_id"/>
@@ -1285,7 +1309,7 @@ under the License.
             <column name="anyTypeClass_id" type="varchar" size="255"/>
             <fk to-table="SyncopeUser" column="user_id"/>
             <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
-            <index name="I_SYNCLSS_ELEMENT" column="anyTypeClass_id"/>
+            <index name="I_SYNCLSS_ELEMENT1" column="anyTypeClass_id"/>
             <index name="I_SYNCLSS_USER_ID" column="user_id"/>
             <unique name="U_SYNCLSS_USER_ID">
                 <on column="user_id"/>
@@ -1297,7 +1321,7 @@ under the License.
             <column name="resource_id" type="varchar" size="255"/>
             <fk to-table="SyncopeUser" column="user_id"/>
             <fk to-table="ExternalResource" column="resource_id"/>
-            <index name="I_SYNCSRC_ELEMENT" column="resource_id"/>
+            <index name="I_SYNCSRC_ELEMENT1" column="resource_id"/>
             <index name="I_SYNCSRC_USER_ID" column="user_id"/>
             <unique name="U_SYNCSRC_USER_ID">
                 <on column="user_id"/>
@@ -1363,8 +1387,8 @@ under the License.
             <column name="group_id" type="varchar" size="36"/>
             <fk to-table="SyncopeUser" column="user_id"/>
             <fk to-table="SyncopeGroup" column="group_id"/>
-            <index name="I_MMBRSHP_LEFTEND" column="user_id"/>
-            <index name="I_MMBRSHP_RIGHTEND" column="group_id"/>
+            <index name="I_MMBRSHP_LEFTEND1" column="user_id"/>
+            <index name="I_MMBRSHP_RIGHTEND1" column="group_id"/>
         </table>
         <table name="URelationship">
             <pk column="id"/>
@@ -1375,10 +1399,10 @@ under the License.
             <fk to-table="SyncopeUser" column="user_id"/>
             <fk to-table="AnyObject" column="anyObject_id"/>
             <fk to-table="RelationshipType" column="TYPE_ID"/>
-            <index name="I_RLTNSHP_LEFTEND" column="user_id"/>
-            <index name="I_RLTNSHP_RIGHTEND" column="anyObject_id"/>
-            <index name="I_RLTNSHP_TYPE" column="TYPE_ID"/>
-            <unique name="U_RLTNSHP_TYPE_ID">
+            <index name="I_RLTNSHP_LEFTEND1" column="user_id"/>
+            <index name="I_RLTNSHP_RIGHTEND1" column="anyObject_id"/>
+            <index name="I_RLTNSHP_TYPE1" column="TYPE_ID"/>
+            <unique name="U_RLTNSHP_TYPE_ID1">
                 <on column="TYPE_ID"/>
                 <on column="user_id"/>
                 <on column="anyObject_id"/>

@@ -26,7 +26,7 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
@@ -89,7 +89,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     protected static Map<DerSchema, String> getValues(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+            final Groupable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
@@ -106,7 +106,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     @Override
     public Map<DerSchema, String> getValues(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership) {
+            final Groupable<?, ?, ?, ?, ?> any, final Membership<?> membership) {
 
         return getValues(
                 any,

@@ -20,13 +20,14 @@ package org.apache.syncope.core.persistence.api.entity.group;
 
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface Group extends Any<GPlainAttr> {
+public interface Group extends Relatable<Group, GPlainAttr, AnyObject, GRelationship> {
 
     String getName();
 

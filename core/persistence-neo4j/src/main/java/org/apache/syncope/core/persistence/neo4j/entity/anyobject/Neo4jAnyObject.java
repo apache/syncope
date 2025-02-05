@@ -23,11 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
@@ -156,15 +154,6 @@ public class Neo4jAnyObject
     public boolean add(final ARelationship relationship) {
         checkType(relationship, Neo4jARelationship.class);
         return this.relationships.add((Neo4jARelationship) relationship);
-    }
-
-    @Override
-    public Optional<? extends ARelationship> getRelationship(
-            final RelationshipType relationshipType, final String otherEndKey) {
-
-        return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
-                && otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
-                findFirst();
     }
 
     @Override

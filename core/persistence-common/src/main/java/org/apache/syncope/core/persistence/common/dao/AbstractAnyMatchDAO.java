@@ -57,10 +57,11 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -130,22 +131,22 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
 
                 if (match == null) {
                     match = cond.asLeaf(RelationshipTypeCond.class).
-                            filter(leaf -> any instanceof GroupableRelatable).
-                            map(leaf -> matches((GroupableRelatable) any, leaf, not)).
+                            filter(leaf -> any instanceof Groupable).
+                            map(leaf -> matches((Relatable) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
                     match = cond.asLeaf(RelationshipCond.class).
-                            filter(leaf -> any instanceof GroupableRelatable).
-                            map(leaf -> matches((GroupableRelatable) any, leaf, not)).
+                            filter(leaf -> any instanceof Groupable).
+                            map(leaf -> matches((Relatable) any, leaf, not)).
                             orElse(null);
                 }
 
                 if (match == null) {
                     match = cond.asLeaf(MembershipCond.class).
-                            filter(leaf -> any instanceof GroupableRelatable).
-                            map(leaf -> matches((GroupableRelatable) any, leaf, not)).
+                            filter(leaf -> any instanceof Groupable).
+                            map(leaf -> matches((Groupable) any, leaf, not)).
                             orElse(null);
                 }
 
@@ -212,7 +213,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
+            final Relatable<?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
 
         boolean found = any.getRelationships().stream().
                 anyMatch(rel -> rel.getType().getKey().equals(cond.getRelationshipTypeKey()));
@@ -220,7 +221,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final RelationshipCond cond, final boolean not) {
+            final Relatable<?, ?, ?, ?> any, final RelationshipCond cond, final boolean not) {
 
         Set<String> candidates = SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()
                 ? Set.of(cond.getAnyObject())
@@ -236,7 +237,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final GroupableRelatable<?, ?, ?, ?, ?> any, final MembershipCond cond, final boolean not) {
+            final Groupable<?, ?, ?, ?, ?> any, final MembershipCond cond, final boolean not) {
 
         final String group = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
                 ? cond.getGroup()
@@ -265,7 +266,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     protected boolean matches(final Group group, final MemberCond cond, final boolean not) {
         boolean found = false;
 
-        GroupableRelatable<?, ?, ?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
+        Groupable<?, ?, ?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
         if (any == null) {
             any = anyObjectDAO.findById(cond.getMember()).orElse(null);
             if (any != null) {

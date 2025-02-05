@@ -67,8 +67,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -444,7 +444,7 @@ abstract class AbstractAnyDataBinder {
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.dao().findAllowedSchemas(any, PlainSchema.class);
         allowedPlainSchemas.getForSelf().forEach(schema -> checkMandatory(
                 schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing));
-        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupable) {
+        if (any instanceof Groupable<?, ?, ?, ?, ?> groupable) {
             allowedPlainSchemas.getForMemberships().forEach((group, schemas) -> {
                 Membership<?> membership = groupable.getMembership(group.getKey()).orElse(null);
                 schemas.forEach(schema -> checkMandatory(
@@ -693,7 +693,7 @@ abstract class AbstractAnyDataBinder {
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
                 forEach(attrTO -> Optional.ofNullable(getPlainSchema(attrTO.getSchema())).ifPresent(schema -> {
 
-            GroupablePlainAttr attr = (GroupablePlainAttr) GroupableRelatable.class.cast(any).
+            GroupablePlainAttr attr = (GroupablePlainAttr) Groupable.class.cast(any).
                     getPlainAttr(schema.getKey(), membership).
                     orElseGet(() -> {
                         GroupablePlainAttr gpa = anyUtils.newPlainAttr();

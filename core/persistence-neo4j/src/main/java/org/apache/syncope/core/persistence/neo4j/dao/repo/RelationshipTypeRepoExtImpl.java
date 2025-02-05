@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.dao.repo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -28,6 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jARelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jURelationship;
@@ -38,6 +40,13 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
 
     public RelationshipTypeRepoExtImpl(final Neo4jTemplate neo4jTemplate, final Neo4jClient neo4jClient) {
         super(neo4jTemplate, neo4jClient);
+    }
+
+    @Override
+    public List<String> findByEndAnyType(final AnyType anyType) {
+        List<Neo4jRelationshipType> result = findByRelationship(
+                Neo4jRelationshipType.NODE, Neo4jAnyType.NODE, anyType.getKey(), Neo4jRelationshipType.class, null);
+        return result.stream().map(RelationshipType::getKey).distinct().toList();
     }
 
     protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {

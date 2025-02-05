@@ -16,16 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.anyobject;
+package org.apache.syncope.core.persistence.common.validation;
 
-import org.apache.syncope.core.persistence.api.entity.Groupable;
-import org.apache.syncope.core.persistence.api.entity.Relatable;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface AnyObject extends
-        Groupable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship>,
-        Relatable<AnyObject, APlainAttr, AnyObject, ARelationship> {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = RelationshipValidator.class)
+@Documented
+public @interface RelationshipCheck {
 
-    String getName();
+    String message() default "{org.apache.syncope.core.persistence.validation.relationship}";
 
-    void setName(String name);
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

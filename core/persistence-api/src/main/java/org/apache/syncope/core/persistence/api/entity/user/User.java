@@ -21,11 +21,15 @@ package org.apache.syncope.core.persistence.api.entity.user;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public interface User extends Account, GroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship> {
+public interface User extends
+        Account,
+        Groupable<User, UMembership, UPlainAttr, AnyObject, URelationship>,
+        Relatable<User, UPlainAttr, AnyObject, URelationship> {
 
     String getToken();
 

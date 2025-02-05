@@ -19,30 +19,45 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.common.entity.AMembershipType;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 
 public class RelationshipTypeValidator extends AbstractValidator<RelationshipTypeCheck, RelationshipType> {
 
     @Override
-    public boolean isValid(final RelationshipType relationShipType, final ConstraintValidatorContext context) {
+    public boolean isValid(final RelationshipType relationshipType, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
         boolean isValid = true;
 
-        if (isHtml(relationShipType.getKey())) {
+        if (isHtml(relationshipType.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, relationShipType.getKey())).
+                    getTemplate(EntityViolationType.InvalidKey, relationshipType.getKey())).
                     addPropertyNode("key").addConstraintViolation();
 
             isValid = false;
         }
 
-        if (MembershipType.getInstance().getKey().equalsIgnoreCase(relationShipType.getKey())) {
+        if (UMembershipType.KEY.equalsIgnoreCase(relationshipType.getKey())
+                || AMembershipType.KEY.equalsIgnoreCase(relationshipType.getKey())) {
+
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidKey, relationShipType.getKey())).
+                    getTemplate(EntityViolationType.InvalidKey, relationshipType.getKey())).
                     addPropertyNode("key").addConstraintViolation();
+
+            isValid = false;
+        }
+
+        if (relationshipType.getRightEndAnyType() != null
+                && relationshipType.getRightEndAnyType().getKind() != AnyTypeKind.ANY_OBJECT) {
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidAnyType,
+                            relationshipType.getRightEndAnyType().getKind().name())).
+                    addPropertyNode("rightEndAnyType").addConstraintViolation();
 
             isValid = false;
         }

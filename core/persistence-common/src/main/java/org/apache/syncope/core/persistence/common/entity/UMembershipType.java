@@ -16,66 +16,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity;
+package org.apache.syncope.core.persistence.common.entity;
 
-import jakarta.persistence.Cacheable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.common.validation.RelationshipTypeCheck;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 
-@Entity
-@Table(name = JPARelationshipType.TABLE)
-@RelationshipTypeCheck
-@Cacheable
-public class JPARelationshipType extends AbstractProvidedKeyEntity implements RelationshipType {
+public class UMembershipType implements RelationshipType {
 
-    private static final long serialVersionUID = -753673974614737065L;
+    private static final long serialVersionUID = -1709576534307375338L;
 
-    public static final String TABLE = "RelationshipType";
+    public static final String KEY = UMembershipType.class.getSimpleName();
 
-    private String description;
+    private static final UMembershipType INSTANCE = new UMembershipType();
 
-    @NotNull
-    @ManyToOne
-    private JPAAnyType leftEndAnyType;
+    public static UMembershipType getInstance() {
+        return INSTANCE;
+    }
 
-    @NotNull
-    @ManyToOne
-    private JPAAnyType rightEndAnyType;
+    @Override
+    public String getKey() {
+        return KEY;
+    }
+
+    @Override
+    public void setKey(final String key) {
+        // cannot be changed
+    }
 
     @Override
     public String getDescription() {
-        return description;
+        return null;
     }
 
     @Override
     public void setDescription(final String description) {
-        this.description = description;
+        // cannot be changed    
     }
 
     @Override
     public AnyType getLeftEndAnyType() {
-        return leftEndAnyType;
+        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).getUser();
     }
 
     @Override
     public void setLeftEndAnyType(final AnyType anyType) {
-        checkType(anyType, JPAAnyType.class);
-        this.leftEndAnyType = (JPAAnyType) anyType;
+        // cannot be changed
     }
 
     @Override
     public AnyType getRightEndAnyType() {
-        return rightEndAnyType;
+        return ApplicationContextProvider.getBeanFactory().getBean(AnyTypeDAO.class).getGroup();
     }
 
     @Override
     public void setRightEndAnyType(final AnyType anyType) {
-        checkType(anyType, JPAAnyType.class);
-        this.rightEndAnyType = (JPAAnyType) anyType;
+        // cannot be changed
     }
 }

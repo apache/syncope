@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -66,7 +66,7 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any<?>> {
                 return raiseNotAllowedViolation(context, plainSchema, null);
             }
         }
-        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable) {
+        if (any instanceof Groupable<?, ?, ?, ?, ?> groupableRelatable) {
             for (Membership<?> membership : groupableRelatable.getMemberships()) {
                 for (PlainAttr<?> attr : groupableRelatable.getPlainAttrs(membership)) {
                     String plainSchema = Optional.ofNullable(attr).map(a -> a.getSchema().getKey()).orElse(null);

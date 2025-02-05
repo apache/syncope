@@ -69,6 +69,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
@@ -127,6 +128,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject
 import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttrValue;
+import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jTypeExtension;
 import org.apache.syncope.core.persistence.neo4j.entity.keymaster.Neo4jConfParam;
@@ -214,6 +216,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jRelationshipType();
         } else if (reference.equals(ARelationship.class)) {
             result = (E) new Neo4jARelationship();
+        } else if (reference.equals(GRelationship.class)) {
+            result = (E) new Neo4jGRelationship();
         } else if (reference.equals(URelationship.class)) {
             result = (E) new Neo4jURelationship();
         } else if (reference.equals(AMembership.class)) {

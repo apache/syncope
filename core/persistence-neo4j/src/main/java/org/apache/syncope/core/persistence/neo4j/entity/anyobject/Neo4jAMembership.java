@@ -23,16 +23,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.common.entity.AMembershipType;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jAMembership.NODE)
@@ -49,11 +51,14 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject, APlainAttr> 
     private Neo4jGroup rightEnd;
 
     @CompositeProperty(converterRef = "aPlainAttrsConverter")
-    protected Map<String, JSONAPlainAttr> plainAttrs = new HashMap<>();
+    private Map<String, JSONAPlainAttr> plainAttrs = new HashMap<>();
+
+    @Transient
+    private AMembershipType aMembershipType;
 
     @Override
-    public MembershipType getType() {
-        return MembershipType.getInstance();
+    public RelationshipType getType() {
+        return aMembershipType;
     }
 
     @Override
@@ -70,6 +75,7 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject, APlainAttr> 
     public void setLeftEnd(final AnyObject leftEnd) {
         checkType(leftEnd, Neo4jAnyObject.class);
         this.leftEnd = (Neo4jAnyObject) leftEnd;
+        this.aMembershipType = new AMembershipType(leftEnd.getType());
     }
 
     @Override
@@ -112,5 +118,10 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject, APlainAttr> 
     @Override
     public boolean remove(final String plainSchema) {
         return plainAttrs.put(plainSchema, null) != null;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        this.aMembershipType = new AMembershipType(leftEnd.getType());
     }
 }

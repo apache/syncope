@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity;
 
+import jakarta.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.common.validation.RelationshipTypeCheck;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jRelationshipType.NODE)
 @RelationshipTypeCheck
@@ -30,7 +33,19 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
 
     public static final String NODE = "RelationshipType";
 
+    private static final String LEFT_END_ANYTYPE = "RELATIONSHIPTYPE_LEFT_END_ANYTYPE";
+
+    private static final String RIGHT_END_ANYTYPE = "RELATIONSHIPTYPE_RIGHT_END_ANYTYPE";
+
     private String description;
+
+    @NotNull
+    @Relationship(type = LEFT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING)
+    private Neo4jAnyType leftEndAnyType;
+
+    @NotNull
+    @Relationship(type = RIGHT_END_ANYTYPE, direction = Relationship.Direction.OUTGOING)
+    private Neo4jAnyType rightEndAnyType;
 
     @Override
     public String getDescription() {
@@ -40,5 +55,27 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
     @Override
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    @Override
+    public AnyType getLeftEndAnyType() {
+        return leftEndAnyType;
+    }
+
+    @Override
+    public void setLeftEndAnyType(final AnyType anyType) {
+        checkType(anyType, Neo4jAnyType.class);
+        this.leftEndAnyType = (Neo4jAnyType) anyType;
+    }
+
+    @Override
+    public AnyType getRightEndAnyType() {
+        return rightEndAnyType;
+    }
+
+    @Override
+    public void setRightEndAnyType(final AnyType anyType) {
+        checkType(anyType, Neo4jAnyType.class);
+        this.rightEndAnyType = (Neo4jAnyType) anyType;
     }
 }

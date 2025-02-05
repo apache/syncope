@@ -35,7 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -196,8 +196,7 @@ public class ElasticsearchUtils {
         }
 
         // add also flattened membership attributes
-        if (any instanceof GroupableRelatable) {
-            GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
+        if (any instanceof Groupable<?, ?, ?, ?, ?> groupable) {
             groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
                 List<Object> values = mAttr.getValues().stream().
                         map(PlainAttrValue::getValue).collect(Collectors.toList());

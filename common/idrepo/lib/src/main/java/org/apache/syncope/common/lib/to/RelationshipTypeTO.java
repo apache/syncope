@@ -28,6 +28,10 @@ public class RelationshipTypeTO implements EntityTO {
 
     private String description;
 
+    private String leftEndAnyType;
+
+    private String rightEndAnyType;
+
     @Override
     public String getKey() {
         return key;
@@ -45,5 +49,21 @@ public class RelationshipTypeTO implements EntityTO {
 
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    public String getLeftEndAnyType() {
+        return leftEndAnyType;
+    }
+
+    public void setLeftEndAnyType(final String leftEndAnyType) {
+        this.leftEndAnyType = leftEndAnyType;
+    }
+
+    public String getRightEndAnyType() {
+        return rightEndAnyType;
+    }
+
+    public void setRightEndAnyType(final String rightEndAnyType) {
+        this.rightEndAnyType = rightEndAnyType;
     }
 }

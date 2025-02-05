@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface GroupableRelatable<
+public interface Groupable<
         L extends Any<P>, 
         M extends Membership<L>, 
         P extends GroupablePlainAttr<L, M>,
@@ -63,14 +63,4 @@ public interface GroupableRelatable<
     Optional<? extends M> getMembership(String groupKey);
 
     List<? extends M> getMemberships();
-
-    boolean add(REL relationship);
-
-    Optional<? extends REL> getRelationship(RelationshipType relationshipType, String otherEndKey);
-
-    Collection<? extends REL> getRelationships(String otherEndKey);
-
-    Collection<? extends REL> getRelationships(RelationshipType relationshipType);
-
-    List<? extends REL> getRelationships();
 }
