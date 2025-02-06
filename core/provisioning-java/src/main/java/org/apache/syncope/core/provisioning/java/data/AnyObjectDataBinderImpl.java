@@ -313,7 +313,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
-                onResources(anyObject, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, false);
+                onResources(anyObject, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, Set.of());
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -478,7 +478,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         // Build final information for next stage (propagation)
         propByRes.merge(propByRes(
                 beforeOnResources,
-                onResources(saved, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, false)));
+                onResources(saved, anyObjectDAO.findAllResourceKeys(anyObject.getKey()), null, Set.of())));
         return propByRes;
     }
 }

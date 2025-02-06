@@ -135,7 +135,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 AnyTypeKind.GROUP,
                 groupUR.getKey(),
                 null,
-                false,
+                List.of(),
                 null,
                 excludedResources);
 
@@ -146,7 +146,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                         updated.getResult(),
                         AnyTypeKind.GROUP,
                         updated.getResult().getKey(),
-                        false,
+                        List.of(),
                         null,
                         updated.getPropByRes(),
                         null,
@@ -234,7 +234,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 AnyTypeKind.GROUP,
                 key,
-                false,
+                List.of(),
                 null,
                 propByRes,
                 null,

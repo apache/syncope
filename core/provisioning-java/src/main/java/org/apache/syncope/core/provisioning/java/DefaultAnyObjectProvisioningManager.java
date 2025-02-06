@@ -115,7 +115,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 anyObjectUR.getKey(),
                 null,
-                false,
+                List.of(),
                 null,
                 excludedResources);
 
@@ -126,7 +126,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                         updated.getResult(),
                         AnyTypeKind.ANY_OBJECT,
                         updated.getResult().getKey(),
-                        false,
+                        List.of(),
                         null,
                         updated.getPropByRes(),
                         null,
@@ -199,7 +199,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 null,
                 AnyTypeKind.ANY_OBJECT,
                 key,
-                false,
+                List.of(),
                 null,
                 propByRes,
                 null,
