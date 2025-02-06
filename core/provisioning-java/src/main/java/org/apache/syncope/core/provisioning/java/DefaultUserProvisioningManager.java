@@ -123,7 +123,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 userUR.getKey(),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                userUR.getPassword() != null,
+                userUR.getPassword() != null ? userUR.getPassword().getResources() : List.of(),
                 null,
                 Set.of());
 
@@ -163,7 +163,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 userUR.getKey(),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                userUR.getPassword() != null,
+                userUR.getPassword() != null ? userUR.getPassword().getResources() : List.of(),
                 enabled,
                 excludedResources);
 
@@ -187,7 +187,9 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         List<PropagationTaskInfo> taskInfos = propagationManager.setAttributeDeltas(
                 propagationManager.getUserUpdateTasks(
                         updated,
-                        updated.getResult().getLeft().getPassword() != null,
+                        updated.getResult().getLeft().getPassword() != null
+                                ? updated.getResult().getLeft().getPassword().getResources()
+                                : List.of(),
                         excludedResources),
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
@@ -290,7 +292,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 null,
                 AnyTypeKind.USER,
                 statusR.getKey(),
-                false,
+                List.of(),
                 statusR.getType() != StatusRType.SUSPEND,
                 propByRes,
                 null,
@@ -348,7 +350,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         UserWorkflowResult<Pair<UserUR, Boolean>> wfResult = new UserWorkflowResult<>(
                 Pair.of(userUR, (Boolean) null), propByRes, null, "update");
 
-        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
+        List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult,
+                userUR.getPassword().getResources(), null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();

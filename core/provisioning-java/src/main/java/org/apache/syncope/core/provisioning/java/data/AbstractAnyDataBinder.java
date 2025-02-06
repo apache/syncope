@@ -251,7 +251,7 @@ abstract class AbstractAnyDataBinder {
             final Any<?> any,
             final Collection<String> resources,
             final String password,
-            final boolean changePwd) {
+            final Set<String> changePwdRes) {
 
         Map<String, ConnObject> onResources = new HashMap<>();
 
@@ -260,7 +260,7 @@ abstract class AbstractAnyDataBinder {
                 ifPresent(provision -> MappingUtils.getConnObjectKeyItem(provision).ifPresent(keyItem -> {
 
             Pair<String, Set<Attribute>> prepared = mappingManager.prepareAttrsFromAny(
-                    any, password, changePwd, true, resource, provision);
+                    any, password, changePwdRes.contains(resource.getKey()), true, resource, provision);
 
             ConnObject connObjectTO;
             if (StringUtils.isBlank(prepared.getLeft())) {

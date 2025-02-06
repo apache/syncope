@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -235,7 +236,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
-                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false);
+                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of());
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -366,7 +367,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // Build final information for next stage (propagation)
         PropagationByResource<String> propByRes = propByRes(
-                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false));
+                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of()));
         propByRes.merge(ownerPropByRes);
         return propByRes;
     }

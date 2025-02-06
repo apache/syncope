@@ -455,12 +455,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // password
         String password = null;
-        boolean changePwd = false;
+        Set<String> changePwdRes = new HashSet<>();
         if (userUR.getPassword() != null) {
             if (userUR.getPassword().getOperation() == PatchOperation.DELETE) {
                 user.setEncodedPassword(null, null);
 
-                changePwd = true;
+                changePwdRes.addAll(userUR.getPassword().getResources());
             } else if (StringUtils.isNotBlank(userUR.getPassword().getValue())) {
                 if (userUR.getPassword().isOnSyncope()) {
                     setPassword(user, userUR.getPassword().getValue(), scce);
@@ -468,17 +468,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 }
 
                 password = userUR.getPassword().getValue();
-                changePwd = true;
+                changePwdRes.addAll(userUR.getPassword().getResources());
             }
 
-            if (changePwd) {
+            if (!changePwdRes.isEmpty()) {
                 propByRes.addAll(ResourceOperation.UPDATE, userUR.getPassword().getResources());
             }
         }
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
-                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
+                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwdRes);
 
         // realm
         setRealm(user, userUR);
@@ -724,7 +724,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // Build final information for next stage (propagation)
         Map<String, ConnObject> afterOnResources =
-                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwd);
+                onResources(user, userDAO.findAllResourceKeys(user.getKey()), password, changePwdRes);
         propByRes.merge(propByRes(beforeOnResources, afterOnResources));
 
         if (userUR.getMustChangePassword() != null) {

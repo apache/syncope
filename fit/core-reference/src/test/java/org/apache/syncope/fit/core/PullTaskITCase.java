@@ -81,6 +81,7 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -113,10 +114,13 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.core.reference.TestInboundActions;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -1639,6 +1643,91 @@ public class PullTaskITCase extends AbstractTaskITCase {
             cleanUpRemediations();
             Optional.ofNullable(pullTask.getKey()).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t));
             Optional.ofNullable(pullFromLDAP4issue1656).ifPresent(u -> USER_SERVICE.delete(u.getKey()));
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1864() throws Exception {
+        // First of all, clear any potential conflict with existing user / group
+        ldapCleanup();
+
+        UserTO user = null;
+        PullTaskTO pullTask = null;
+        ConnInstanceTO resourceConnector = null;
+        ConnConfProperty property = null;
+        try {
+            // 1. create user in LDAP
+            String oldCleanPassword = "security123";
+            UserCR userCR = UserITCase.getUniqueSample("syncope@syncope.apache.org");
+            userCR.setPassword(oldCleanPassword);
+            userCR.getResources().add(RESOURCE_NAME_LDAP);
+            userCR.getResources().add(RESOURCE_NAME_DBPULL);
+            user = createUser(userCR).getEntity();
+            assertNotNull(user);
+            assertFalse(user.getResources().isEmpty());
+
+            // 2. Pull the user from the resource
+            ImplementationTO pullActions;
+            try {
+                pullActions = IMPLEMENTATION_SERVICE.read(
+                        IdMImplementationType.INBOUND_ACTIONS, "AddResourcePullActions");
+            } catch (SyncopeClientException e) {
+                pullActions = new ImplementationTO();
+                pullActions.setKey("AddResourcePullActions");
+                pullActions.setEngine(ImplementationEngine.GROOVY);
+                pullActions.setType(IdMImplementationType.INBOUND_ACTIONS);
+                pullActions.setBody(org.apache.commons.io.IOUtils.toString(
+                        getClass().getResourceAsStream("/AddResourcePullActions.groovy"), StandardCharsets.UTF_8));
+                Response response = IMPLEMENTATION_SERVICE.create(pullActions);
+                pullActions = IMPLEMENTATION_SERVICE.read(
+                        pullActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+            }
+            assertNotNull(pullActions);
+
+            pullTask = new PullTaskTO();
+            pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTask.setName(getUUIDString());
+            pullTask.setActive(true);
+            pullTask.setPerformCreate(true);
+            pullTask.setPerformUpdate(true);
+            pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
+            pullTask.setResource(RESOURCE_NAME_LDAP);
+            pullTask.getActions().add(pullActions.getKey());
+            Response taskResponse = TASK_SERVICE.create(TaskType.PULL, pullTask);
+
+            pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
+            assertNotNull(pullTask);
+
+            ExecTO execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
+            assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
+
+            // 3. Test if password is not present in the propagation task for DB
+            PagedResult<PropagationTaskTO> propagationTasks = TASK_SERVICE.search(
+                    new TaskQuery.Builder(TaskType.PROPAGATION).
+                            resource(RESOURCE_NAME_TESTDB2).
+                            anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+            assertTrue(propagationTasks.getResult().stream().anyMatch(propagationTask -> {
+                Set<org.identityconnectors.framework.common.objects.Attribute> attributes =
+                        POJOHelper.deserialize(
+                                propagationTask.getPropagationData(), PropagationData.class).getAttributes();
+                return ResourceOperation.UPDATE.equals(propagationTask.getOperation())
+                        && AttributeUtil.getPasswordValue(attributes) != null;
+            }));
+
+            propagationTasks = TASK_SERVICE.search(
+                    new TaskQuery.Builder(TaskType.PROPAGATION).
+                            resource(RESOURCE_NAME_DBPULL).
+                            anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+            assertTrue(propagationTasks.getResult().stream().anyMatch(propagationTask -> {
+                Set<org.identityconnectors.framework.common.objects.Attribute> attributes =
+                        POJOHelper.deserialize(
+                                propagationTask.getPropagationData(), PropagationData.class).getAttributes();
+                return ResourceOperation.UPDATE.equals(propagationTask.getOperation())
+                        && AttributeUtil.getPasswordValue(attributes) == null;
+            }));
+        } finally {
+            // remove test entity
+            deleteUser(user.getKey());
         }
     }
 }
