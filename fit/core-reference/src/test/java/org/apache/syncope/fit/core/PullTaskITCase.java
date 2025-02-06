@@ -66,7 +66,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.request.AnyCR;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
-import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.ResourceDR;
@@ -99,7 +98,6 @@ import org.apache.syncope.common.lib.types.IdMImplementationType;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
@@ -1678,16 +1676,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 return ResourceOperation.UPDATE.equals(propagationTask.getOperation())
                         && AttributeUtil.getPasswordValue(attributes) == null;
             }));
-            
-            UserUR userUR = new UserUR();
-            userUR.setKey(user.getKey());
-            Attr attr = new Attr();
-            attr.setSchema("surname");
-            attr.getValues().add("surname2");
-            AttrPatch attrPatch = new AttrPatch();
-            attrPatch.setAttr(attr);
-            attrPatch.setOperation(PatchOperation.ADD_REPLACE);
-            userUR.getPlainAttrs().add(attrPatch);
         } finally {
             // remove test entity
             deleteUser(user.getKey());
