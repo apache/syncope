@@ -31,6 +31,4 @@ public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
     boolean existsPlainAttrUniqueValue(AnyTypeKind anyTypeKind, String anyKey, PlainAttr<?> attr);
 
     List<PlainSchema> findByValidator(Implementation validator);
-
-    <T extends PlainAttr<?>> void delete(T plainAttr);
 }

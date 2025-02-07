@@ -27,7 +27,7 @@ public class UMembershipType implements RelationshipType {
 
     private static final long serialVersionUID = -1709576534307375338L;
 
-    public static final String KEY = UMembershipType.class.getSimpleName();
+    public static final String KEY = "UMembership";
 
     private static final UMembershipType INSTANCE = new UMembershipType();
 

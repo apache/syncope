@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
@@ -86,13 +85,5 @@ abstract class AbstractPlainSchemaRepoExt extends AbstractSchemaRepoExt implemen
         Optional.ofNullable(schema.getAnyTypeClass()).ifPresent(c -> c.getPlainSchemas().remove(schema));
 
         entityManager.remove(schema);
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends PlainAttr<?>> void delete(final T plainAttr) {
-        if (plainAttr.getOwner() != null) {
-            ((Attributable<T>) plainAttr.getOwner()).remove(plainAttr);
-        }
     }
 }

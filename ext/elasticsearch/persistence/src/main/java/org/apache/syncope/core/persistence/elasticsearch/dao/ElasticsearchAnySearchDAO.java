@@ -308,14 +308,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
                 if (query == null) {
                     query = cond.asLeaf(RelationshipTypeCond.class).
-                            filter(leaf -> AnyTypeKind.GROUP != kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
                     query = cond.asLeaf(RelationshipCond.class).
-                            filter(leaf -> AnyTypeKind.GROUP != kind).
                             map(this::getQuery).
                             orElse(null);
                 }

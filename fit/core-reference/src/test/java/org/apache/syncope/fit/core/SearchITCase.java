@@ -412,7 +412,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<AnyObjectTO> anyObjects = ANY_OBJECT_SERVICE.search(new AnyQuery.Builder().realm(
                 SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(PRINTER).
-                        inRelationshipTypes("neighborhood").query()).
+                        inRelationshipTypes("inclusion").query()).
                 build());
         assertNotNull(anyObjects);
         assertTrue(anyObjects.getResult().stream().

@@ -58,7 +58,6 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -97,7 +96,6 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARealmDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARealmSearchDAO;
@@ -757,12 +755,6 @@ public class PersistenceContext {
     @Bean
     public PersistenceInfoDAO persistenceInfoDAO(final EntityManagerFactory entityManagerFactory) {
         return new JPAPersistenceInfoDAO(entityManagerFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public PlainAttrValueDAO plainAttrValueDAO() {
-        return new JPAPlainAttrValueDAO();
     }
 
     @ConditionalOnMissingBean

@@ -24,6 +24,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -70,7 +71,7 @@ public class JPAAMembership extends AbstractGeneratedKeyEntity implements AMembe
     public void setLeftEnd(final AnyObject leftEnd) {
         checkType(leftEnd, JPAAnyObject.class);
         this.leftEnd = (JPAAnyObject) leftEnd;
-        this.aMembershipType = new AMembershipType(leftEnd.getType());
+        this.aMembershipType = Optional.ofNullable(leftEnd).map(le -> new AMembershipType(le.getType())).orElse(null);
     }
 
     @Override

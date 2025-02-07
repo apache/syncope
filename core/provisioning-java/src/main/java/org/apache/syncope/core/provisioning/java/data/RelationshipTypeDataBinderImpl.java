@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -40,9 +41,11 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
     public RelationshipType create(final RelationshipTypeTO relationshipTypeTO) {
         RelationshipType relationshipType = entityFactory.newEntity(RelationshipType.class);
 
-        relationshipType.setLeftEndAnyType(anyTypeDAO.findById(relationshipTypeTO.getLeftEndAnyType()).
+        relationshipType.setLeftEndAnyType(Optional.ofNullable(relationshipTypeTO.getLeftEndAnyType()).
+                flatMap(anyTypeDAO::findById).
                 orElseThrow(() -> new NotFoundException("AnyType " + relationshipTypeTO.getLeftEndAnyType())));
-        relationshipType.setRightEndAnyType(anyTypeDAO.findById(relationshipTypeTO.getRightEndAnyType()).
+        relationshipType.setRightEndAnyType(Optional.ofNullable(relationshipTypeTO.getRightEndAnyType()).
+                flatMap(anyTypeDAO::findById).
                 orElseThrow(() -> new NotFoundException("AnyType " + relationshipTypeTO.getRightEndAnyType())));
 
         update(relationshipType, relationshipTypeTO);
@@ -65,6 +68,8 @@ public class RelationshipTypeDataBinderImpl implements RelationshipTypeDataBinde
 
         relationshipTypeTO.setKey(relationshipType.getKey());
         relationshipTypeTO.setDescription(relationshipType.getDescription());
+        relationshipTypeTO.setLeftEndAnyType(relationshipType.getLeftEndAnyType().getKey());
+        relationshipTypeTO.setRightEndAnyType(relationshipType.getRightEndAnyType().getKey());
 
         return relationshipTypeTO;
     }

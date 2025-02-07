@@ -217,7 +217,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 forEach(r -> REMEDIATION_SERVICE.delete(r.getKey()));
     }
 
-    private void removeTestUsers() {
+    private static void removeTestUsers() {
         for (int i = 0; i < 10; i++) {
             String cUserName = "test" + i;
             try {
@@ -1653,8 +1653,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         UserTO user = null;
         PullTaskTO pullTask = null;
-        ConnInstanceTO resourceConnector = null;
-        ConnConfProperty property = null;
         try {
             // 1. create user in LDAP
             String oldCleanPassword = "security123";
@@ -1676,7 +1674,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 pullActions.setKey("AddResourcePullActions");
                 pullActions.setEngine(ImplementationEngine.GROOVY);
                 pullActions.setType(IdMImplementationType.INBOUND_ACTIONS);
-                pullActions.setBody(org.apache.commons.io.IOUtils.toString(
+                pullActions.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/AddResourcePullActions.groovy"), StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(pullActions);
                 pullActions = IMPLEMENTATION_SERVICE.read(
@@ -1726,8 +1724,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
                         && AttributeUtil.getPasswordValue(attributes) == null;
             }));
         } finally {
-            // remove test entity
-            deleteUser(user.getKey());
+            // remove test entities
+            Optional.ofNullable(pullTask).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t.getKey()));
+            Optional.ofNullable(user).ifPresent(u -> deleteUser(u.getKey()));
         }
     }
 }

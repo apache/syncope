@@ -65,7 +65,6 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -698,13 +697,6 @@ public abstract class AbstractITCase {
 
     protected static ProvisioningResult<UserTO> updateUser(final UserUR req) {
         return USER_SERVICE.update(req).
-                readEntity(new GenericType<>() {
-                });
-    }
-
-    protected static ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
-        UserTO before = USER_SERVICE.read(userTO.getKey());
-        return USER_SERVICE.update(AnyOperations.diff(userTO, before, false)).
                 readEntity(new GenericType<>() {
                 });
     }

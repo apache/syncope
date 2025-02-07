@@ -21,6 +21,8 @@ package org.apache.syncope.fit.console;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -47,6 +49,29 @@ public class RelationshipTypesITCase extends AbstractTypesITCase {
 
         TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
+    }
+
+    private void createRelationshipType(final String name) {
+        browsingToRelationshipType();
+
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
+
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester.setValue("content:relationshipTypeDetails:container:form:key:textField", name);
+        formTester.setValue(
+                "content:relationshipTypeDetails:container:form:description:textField", "test relationshipType");
+        formTester.select("content:relationshipTypeDetails:container:form:leftEndAnyType:dropDownChoiceField", 0);
+        formTester.select("content:relationshipTypeDetails:container:form:rightEndAnyType:dropDownChoiceField", 0);
+
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+
+        assertSuccessMessage();
+        TESTER.clearFeedbackMessages();
+
+        TESTER.assertRenderedPage(Types.class);
     }
 
     @Test

@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @AttributableCheck
 public abstract class AbstractAttributable<P extends PlainAttr<?>>
@@ -35,4 +36,10 @@ public abstract class AbstractAttributable<P extends PlainAttr<?>>
     public abstract String getPlainAttrsJSON();
 
     public abstract void setPlainAttrsJSON(String plainAttrs);
+
+    public void list2json() {
+        setPlainAttrsJSON(getPlainAttrsList().isEmpty()
+                ? "[]"
+                : POJOHelper.serialize(getPlainAttrsList()));
+    }
 }

@@ -499,7 +499,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>10.1.34</tomcat.version>
-    <wildfly.version>35.0.0.Final</wildfly.version>
+    <wildfly.version>35.0.1.Final</wildfly.version>
     <payara.version>6.2025.1</payara.version>
     <jakarta.faces.version>4.1.2</jakarta.faces.version>
 
@@ -512,7 +512,7 @@ under the License.
     <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
     <jdbc.mysql.version>9.2.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.1</jdbc.mariadb.version>
-    <jdbc.oracle.version>23.6.0.24.10</jdbc.oracle.version>
+    <jdbc.oracle.version>23.7.0.25.01</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
 

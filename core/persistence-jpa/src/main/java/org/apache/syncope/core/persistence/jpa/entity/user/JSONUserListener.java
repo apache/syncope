@@ -49,7 +49,7 @@ public class JSONUserListener extends JSONEntityListener<User, UPlainAttr> {
     @PrePersist
     @PreUpdate
     public void save(final JPAUser user) {
-        super.list2json(user);
+        user.list2json();
     }
 
     @PostPersist

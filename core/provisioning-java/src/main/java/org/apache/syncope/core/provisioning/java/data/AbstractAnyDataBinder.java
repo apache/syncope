@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -175,8 +174,6 @@ abstract class AbstractAnyDataBinder {
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
-    protected final PlainAttrValueDAO plainAttrValueDAO;
-
     protected final ExternalResourceDAO resourceDAO;
 
     protected final RelationshipTypeDAO relationshipTypeDAO;
@@ -207,7 +204,6 @@ abstract class AbstractAnyDataBinder {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final EntityFactory entityFactory,
@@ -226,7 +222,6 @@ abstract class AbstractAnyDataBinder {
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.plainSchemaDAO = plainSchemaDAO;
-        this.plainAttrValueDAO = plainAttrValueDAO;
         this.resourceDAO = resourceDAO;
         this.relationshipTypeDAO = relationshipTypeDAO;
         this.entityFactory = entityFactory;
@@ -476,10 +471,10 @@ abstract class AbstractAnyDataBinder {
                             && !patch.getAttr().getValues().isEmpty()
                             && !patch.getAttr().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
 
-                        plainAttrValueDAO.deleteAll(attr, anyUtils);
+                        attr.setUniqueValue(null);
                     }
                 } else {
-                    plainAttrValueDAO.deleteAll(attr, anyUtils);
+                    attr.getValues().clear();
                 }
 
                 // 1.2 add values
@@ -493,14 +488,13 @@ abstract class AbstractAnyDataBinder {
 
                 // if no values are in, the attribute can be safely removed
                 if (attr.getValuesAsStrings().isEmpty()) {
-                    plainSchemaDAO.delete(attr);
+                    any.remove(attr);
                 }
                 break;
 
             case DELETE:
             default:
                 any.remove(attr);
-                plainSchemaDAO.delete(attr);
         }
     }
 

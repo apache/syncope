@@ -49,7 +49,7 @@ public class JSONAnyObjectListener extends JSONEntityListener<AnyObject, APlainA
     @PrePersist
     @PreUpdate
     public void save(final JPAAnyObject anyObject) {
-        super.list2json(anyObject);
+        anyObject.list2json();
     }
 
     @PostPersist

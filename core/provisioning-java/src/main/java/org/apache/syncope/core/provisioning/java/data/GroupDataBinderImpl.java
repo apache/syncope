@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import static org.apache.syncope.core.provisioning.java.data.AbstractAnyDataBinder.LOG;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -97,7 +94,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final EntityFactory entityFactory,
@@ -117,7 +113,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,

@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -82,6 +83,9 @@ class VerifySyncope4Test {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private RelationshipTypeDAO relationshipTypeDAO;
 
     @Autowired
     private AnyObjectDAO anyObjectDAO;
@@ -161,6 +165,12 @@ class VerifySyncope4Test {
 
         Role role = roleDAO.findById("dynMembershipc60fa491").orElseThrow();
         assertEquals("cool==true", role.getDynMembershipCond());
+    }
+
+    @Test
+    void relationshipTypes() {
+        assertTrue(relationshipTypeDAO.findAll().stream().
+                allMatch(r -> r.getLeftEndAnyType() != null && r.getRightEndAnyType() != null));
     }
 
     @Test

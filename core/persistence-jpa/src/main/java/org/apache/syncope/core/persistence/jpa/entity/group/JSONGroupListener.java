@@ -49,7 +49,7 @@ public class JSONGroupListener extends JSONEntityListener<Group, GPlainAttr> {
     @PrePersist
     @PreUpdate
     public void save(final JPAGroup group) {
-        super.list2json(group);
+        group.list2json();
     }
 
     @PostPersist

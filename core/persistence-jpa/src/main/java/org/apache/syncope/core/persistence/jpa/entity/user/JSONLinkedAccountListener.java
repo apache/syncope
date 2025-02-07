@@ -49,7 +49,7 @@ public class JSONLinkedAccountListener extends JSONEntityListener<User, LAPlainA
     @PrePersist
     @PreUpdate
     public void save(final JPALinkedAccount linkedAccount) {
-        super.list2json(linkedAccount);
+        linkedAccount.list2json();
     }
 
     @PostPersist

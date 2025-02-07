@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -197,13 +196,5 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
             neo4jTemplate.deleteById(key, Neo4jPlainSchema.class);
         });
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends PlainAttr<?>> void delete(final T plainAttr) {
-        if (plainAttr.getOwner() != null) {
-            ((Attributable<T>) plainAttr.getOwner()).remove(plainAttr);
-        }
     }
 }

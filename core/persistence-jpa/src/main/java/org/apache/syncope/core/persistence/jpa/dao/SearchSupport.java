@@ -83,7 +83,7 @@ public class SearchSupport {
     }
 
     public SearchView relationship() {
-        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
+        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : anyTypeKind == AnyTypeKind.GROUP ? "g" : "a";
         return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "relationship");
     }
 

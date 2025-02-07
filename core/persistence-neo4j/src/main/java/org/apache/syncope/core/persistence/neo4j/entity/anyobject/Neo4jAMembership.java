@@ -75,7 +75,7 @@ public class Neo4jAMembership extends AbstractMembership<AnyObject, APlainAttr> 
     public void setLeftEnd(final AnyObject leftEnd) {
         checkType(leftEnd, Neo4jAnyObject.class);
         this.leftEnd = (Neo4jAnyObject) leftEnd;
-        this.aMembershipType = new AMembershipType(leftEnd.getType());
+        this.aMembershipType = Optional.ofNullable(leftEnd).map(le -> new AMembershipType(le.getType())).orElse(null);
     }
 
     @Override

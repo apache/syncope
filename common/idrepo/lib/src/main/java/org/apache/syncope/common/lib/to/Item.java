@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 public class Item implements Serializable {
@@ -172,6 +173,21 @@ public class Item implements Serializable {
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
+                append(intAttrName).
+                append(extAttrName).
+                append(connObjectKey).
+                append(password).
+                append(mandatoryCondition).
+                append(purpose).
+                append(propagationJEXLTransformer).
+                append(pullJEXLTransformer).
+                append(transformers).
+                build();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this).
                 append(intAttrName).
                 append(extAttrName).
                 append(connObjectKey).

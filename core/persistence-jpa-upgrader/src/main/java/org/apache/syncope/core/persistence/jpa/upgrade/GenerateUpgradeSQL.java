@@ -166,6 +166,56 @@ public class GenerateUpgradeSQL {
         return result.toString();
     }
 
+    private String relationshipTypes() {
+        StringBuilder result = new StringBuilder();
+
+        List<Map<String, Object>> relationshipTypes = jdbcTemplate.queryForList("SELECT id FROM RelationshipType");
+
+        jdbcTemplate.setMaxRows(1);
+        relationshipTypes.forEach(relationshipType -> {
+            List<Map<String, Object>> anyObjects = jdbcTemplate.queryForList(
+                    "SELECT anyobject_id FROM URelationship WHERE type_id=?",
+                    relationshipType.get("id"));
+            if (anyObjects.isEmpty()) {
+                anyObjects = jdbcTemplate.queryForList(
+                        "SELECT left_anyobject_id, right_anyobject_id FROM ARelationship WHERE type_id=?",
+                        relationshipType.get("id"));
+                if (!anyObjects.isEmpty()) {
+                    String leftEndAnyType = jdbcTemplate.queryForObject(
+                            "SELECT type_id from AnyObject WHERE id=?",
+                            String.class,
+                            anyObjects.get(0).get("left_anyobject_id"));
+                    String rightEndAnyType = jdbcTemplate.queryForObject(
+                            "SELECT type_id from AnyObject WHERE id=?",
+                            String.class,
+                            anyObjects.get(0).get("right_anyobject_id"));
+
+                    result.append("UPDATE RelationshipType ").
+                            append("SET leftEndAnyType_id='").append(leftEndAnyType).append("', ").
+                            append("rightEndAnyType_id='").append(rightEndAnyType).append("' ").
+                            append("WHERE id='").append(relationshipType.get("id")).append("';\n");
+                }
+            } else {
+                String rightEndAnyType = jdbcTemplate.queryForObject(
+                        "SELECT type_id from AnyObject WHERE id=?",
+                        String.class,
+                        anyObjects.get(0).get("anyobject_id"));
+
+                result.append("UPDATE RelationshipType ").
+                        append("SET leftEndAnyType_id='USER', ").
+                        append("rightEndAnyType_id='").append(rightEndAnyType).append("' ").
+                        append("WHERE id='").append(relationshipType.get("id")).append("';\n");
+            }
+        });
+        jdbcTemplate.setMaxRows(-1);
+
+        result.append("UPDATE RelationshipType ").
+                append("SET leftEndAnyType_id='USER', rightEndAnyType_id='USER' ").
+                append("WHERE leftEndAnyType_id IS NULL AND rightEndAnyType_id IS NULL;\n");
+
+        return result.toString();
+    }
+
     public void run(final Writer out) throws IOException, SQLException {
         INIT_SQL_STATEMENTS.forEach(jdbcTemplate::execute);
 
@@ -181,6 +231,7 @@ public class GenerateUpgradeSQL {
             out.append(resources());
             out.append(plainSchemas());
             out.append(roles());
+            out.append(relationshipTypes());
 
             out.append(FINAL_SQL_STATEMENTS);
         }

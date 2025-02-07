@@ -24,7 +24,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public abstract class JSONEntityListener<A extends Any<?>, P extends PlainAttr<A>> {
 
@@ -48,11 +47,5 @@ public abstract class JSONEntityListener<A extends Any<?>, P extends PlainAttr<A
                 return attr;
             }).forEach(attr -> entity.add(attr));
         }
-    }
-
-    protected void list2json(final AbstractAttributable<P> entity) {
-        entity.setPlainAttrsJSON(entity.getPlainAttrsList().isEmpty()
-                ? "[]"
-                : POJOHelper.serialize(entity.getPlainAttrsList()));
     }
 }

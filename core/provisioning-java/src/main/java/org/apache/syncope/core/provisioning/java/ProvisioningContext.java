@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -734,7 +733,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
@@ -752,7 +750,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -883,7 +880,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
@@ -901,7 +897,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -1130,7 +1125,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
@@ -1153,7 +1147,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,

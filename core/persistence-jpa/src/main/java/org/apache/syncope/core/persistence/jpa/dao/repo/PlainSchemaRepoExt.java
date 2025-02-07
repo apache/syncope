@@ -36,6 +36,4 @@ public interface PlainSchemaRepoExt {
     PlainSchema save(PlainSchema schema);
 
     void deleteById(String key);
-
-    <T extends PlainAttr<?>> void delete(T plainAttr);
 }

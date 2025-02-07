@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -85,7 +84,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final EntityFactory entityFactory,
@@ -104,7 +102,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -402,13 +399,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             anyObject.getMembership(patch.getGroup()).ifPresent(membership -> {
                 anyObject.remove(membership);
                 membership.setLeftEnd(null);
-                anyObject.getPlainAttrs(membership).forEach(attr -> {
-                    anyObject.remove(attr);
-                    attr.setOwner(null);
-                    attr.setMembership(null);
-                    plainAttrValueDAO.deleteAll(attr, anyUtils);
-                    plainSchemaDAO.delete(attr);
-                });
+                anyObject.getPlainAttrs(membership).forEach(anyObject::remove);
                 anyObjectDAO.deleteMembership(membership);
 
                 if (patch.getOperation() == PatchOperation.DELETE) {

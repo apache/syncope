@@ -56,7 +56,7 @@ public class RelationshipTypeITCase extends AbstractITCase {
         newType.setKey("new type");
         newType.setDescription("description");
         newType.setLeftEndAnyType(AnyTypeKind.GROUP.name());
-        newType.setRightEndAnyType(AnyTypeKind.USER.name());
+        newType.setRightEndAnyType(PRINTER);
 
         Response response = RELATIONSHIP_TYPE_SERVICE.create(newType);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
@@ -65,7 +65,7 @@ public class RelationshipTypeITCase extends AbstractITCase {
         assertNotNull(newType);
         assertEquals("description", newType.getDescription());
         assertEquals(AnyTypeKind.GROUP.name(), newType.getLeftEndAnyType());
-        assertEquals(AnyTypeKind.USER.name(), newType.getRightEndAnyType());
+        assertEquals(PRINTER, newType.getRightEndAnyType());
 
         newType.setDescription("new description");
         RELATIONSHIP_TYPE_SERVICE.update(newType);
@@ -74,7 +74,7 @@ public class RelationshipTypeITCase extends AbstractITCase {
         assertNotNull(newType);
         assertEquals("new description", newType.getDescription());
         assertEquals(AnyTypeKind.GROUP.name(), newType.getLeftEndAnyType());
-        assertEquals(AnyTypeKind.USER.name(), newType.getRightEndAnyType());
+        assertEquals(PRINTER, newType.getRightEndAnyType());
 
         RELATIONSHIP_TYPE_SERVICE.delete(newType.getKey());
 
@@ -90,6 +90,8 @@ public class RelationshipTypeITCase extends AbstractITCase {
     public void createInvalidName() {
         RelationshipTypeTO newType = new RelationshipTypeTO();
         newType.setKey("umembership");
+        newType.setLeftEndAnyType(AnyTypeKind.GROUP.name());
+        newType.setRightEndAnyType(PRINTER);
         try {
             RELATIONSHIP_TYPE_SERVICE.create(newType);
             fail("This should not happen");

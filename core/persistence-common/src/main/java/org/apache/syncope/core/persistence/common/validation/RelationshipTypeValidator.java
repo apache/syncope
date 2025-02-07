@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
+import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -26,6 +27,11 @@ import org.apache.syncope.core.persistence.common.entity.AMembershipType;
 import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 
 public class RelationshipTypeValidator extends AbstractValidator<RelationshipTypeCheck, RelationshipType> {
+
+    private static final Set<String> INVALID_KEYS = Set.of(
+            UMembershipType.KEY,
+            AMembershipType.KEY,
+            "membership");
 
     @Override
     public boolean isValid(final RelationshipType relationshipType, final ConstraintValidatorContext context) {
@@ -41,9 +47,7 @@ public class RelationshipTypeValidator extends AbstractValidator<RelationshipTyp
             isValid = false;
         }
 
-        if (UMembershipType.KEY.equalsIgnoreCase(relationshipType.getKey())
-                || AMembershipType.KEY.equalsIgnoreCase(relationshipType.getKey())) {
-
+        if (INVALID_KEYS.stream().anyMatch(k -> k.equalsIgnoreCase(relationshipType.getKey()))) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidKey, relationshipType.getKey())).
                     addPropertyNode("key").addConstraintViolation();

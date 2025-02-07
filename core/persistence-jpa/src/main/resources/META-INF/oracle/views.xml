@@ -87,28 +87,6 @@ under the License.
   </entry>
 
   <!-- anyObject -->
-  <entry key="anyObject_search">
-    CREATE VIEW anyObject_search AS
- 
-    SELECT a.id as any_id, a.*, attrs.*
-    FROM AnyObject a LEFT OUTER JOIN JSON_TABLE(a.plainAttrs, '$[*]' COLUMNS (
-    plainSchema PATH '$.schema', 
-    NESTED PATH '$.uniqueValue' COLUMNS(
-    ubinaryValue PATH '$.binaryValue', 
-    ubooleanValue PATH '$.booleanValue',
-    udateValue PATH '$.dateValue',
-    ulongValue PATH '$.longValue',
-    udoubleValue PATH '$.doubleValue',
-    ustringValue PATH '$.stringValue'),
-    NESTED PATH '$.values[*]' COLUMNS(
-    binaryValue FORMAT JSON WITH WRAPPER PATH '$.binaryValue',
-    booleanValue FORMAT JSON WITH WRAPPER PATH '$.booleanValue',
-    dateValue FORMAT JSON WITH WRAPPER PATH '$.dateValue',
-    longValue FORMAT JSON WITH WRAPPER PATH '$.longValue',
-    doubleValue FORMAT JSON WITH WRAPPER PATH '$.doubleValue',
-    stringValue FORMAT JSON WITH WRAPPER PATH '$.stringValue')
-    )) AS attrs ON 1=1
-  </entry>
   <entry key="anyObject_search_arelationship">
     CREATE VIEW anyObject_search_arelationship AS
 
@@ -143,27 +121,11 @@ under the License.
   </entry>
 
   <!-- group -->
-  <entry key="group_search">
-    CREATE VIEW group_search AS
- 
-    SELECT g.id as any_id, g.*, attrs.*
-    FROM SyncopeGroup g LEFT OUTER JOIN JSON_TABLE(g.plainAttrs, '$[*]' COLUMNS (
-    plainSchema PATH '$.schema', 
-    NESTED PATH '$.uniqueValue' COLUMNS(
-    ubinaryValue PATH '$.binaryValue', 
-    ubooleanValue PATH '$.booleanValue',
-    udateValue PATH '$.dateValue',
-    ulongValue PATH '$.longValue',
-    udoubleValue PATH '$.doubleValue',
-    ustringValue PATH '$.stringValue'),
-    NESTED PATH '$.values[*]' COLUMNS(
-    binaryValue FORMAT JSON WITH WRAPPER PATH '$.binaryValue',
-    booleanValue FORMAT JSON WITH WRAPPER PATH '$.booleanValue',
-    dateValue FORMAT JSON WITH WRAPPER PATH '$.dateValue',
-    longValue FORMAT JSON WITH WRAPPER PATH '$.longValue',
-    doubleValue FORMAT JSON WITH WRAPPER PATH '$.doubleValue',
-    stringValue FORMAT JSON WITH WRAPPER PATH '$.stringValue')
-    )) AS attrs ON 1=1
+  <entry key="group_search_grelationship">
+    CREATE VIEW group_search_grelationship AS
+
+    SELECT m.id AS any_id, m.anyObject_id AS right_any_id, m.type_id AS type
+    FROM GRelationship m
   </entry>
   <entry key="group_search_auxClass">
     CREATE VIEW group_search_auxClass AS

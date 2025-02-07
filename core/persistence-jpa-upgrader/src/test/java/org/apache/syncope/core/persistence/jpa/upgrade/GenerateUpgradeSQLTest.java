@@ -28,6 +28,8 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -40,6 +42,8 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = PersistenceUpgraderContext.class)
 class GenerateUpgradeSQLTest {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(GenerateUpgradeSQLTest.class);
 
     protected static Supplier<Object> JDBC_URL_SUPPLIER;
 
@@ -86,6 +90,8 @@ class GenerateUpgradeSQLTest {
         StringWriter out = new StringWriter();
 
         assertDoesNotThrow(() -> generateUpgradeSQL.run(out));
+
+        LOG.info("SQL upgrade statements:\n{}", out);
 
         DatabasePopulatorUtils.execute(
                 new ResourceDatabasePopulator(new ByteArrayResource(out.toString().getBytes())),

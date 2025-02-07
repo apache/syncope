@@ -60,7 +60,6 @@ import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -119,7 +118,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final EntityFactory entityFactory,
@@ -144,7 +142,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -585,13 +582,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             user.getMembership(patch.getGroup()).ifPresent(membership -> {
                 user.remove(membership);
                 membership.setLeftEnd(null);
-                user.getPlainAttrs(membership).forEach(attr -> {
-                    user.remove(attr);
-                    attr.setOwner(null);
-                    attr.setMembership(null);
-                    plainAttrValueDAO.deleteAll(attr, anyUtils);
-                    plainSchemaDAO.delete(attr);
-                });
+                user.getPlainAttrs(membership).forEach(user::remove);
                 userDAO.deleteMembership(membership);
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
@@ -683,13 +674,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
                 }
 
-                account.getPlainAttrs().stream().collect(Collectors.toSet()).forEach(attr -> {
-                    account.remove(attr);
-                    attr.setOwner(null);
-                    attr.setAccount(null);
-                    plainAttrValueDAO.deleteAll(attr, anyUtilsFactory.getLinkedAccountInstance());
-                    plainSchemaDAO.delete(attr);
-                });
+                account.getPlainAttrs().stream().collect(Collectors.toSet()).forEach(account::remove);
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                 linkedAccount(

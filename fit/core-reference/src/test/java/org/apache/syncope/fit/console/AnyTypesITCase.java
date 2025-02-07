@@ -121,6 +121,21 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         assertSuccessMessage();
     }
 
+    private void createAnyType(final String name) {
+        browsingToAnyTypes();
+
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
+
+        final FormTester formTester = TESTER.newFormTester(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", name);
+
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        assertSuccessMessage();
+        TESTER.clearFeedbackMessages();
+    }
+
     @Test
     public void delete() {
         String name = "anyTypeDelete";

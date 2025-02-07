@@ -84,6 +84,30 @@ public class AnyTypeClassesITCase extends AbstractTypesITCase {
         TESTER.assertLabel(result.getPageRelativePath() + ":cells:3:cell", "[mderiveddata]");
     }
 
+    private void createPlainSchema(final String key) {
+        browsingToPlainSchemas();
+        TESTER.clickLink(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
+
+        TESTER.assertComponent(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
+                Modal.class);
+
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.setValue("content:form:view:details:key:textField", key);
+        formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
+                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
+                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
+        formTester.submit("content:form:buttons:finish");
+
+        assertSuccessMessage();
+        TESTER.cleanupFeedbackMessages();
+    }
+
     @Test
     public void update() {
         String plainSchema = "anyPlainSchema";

@@ -232,6 +232,12 @@ under the License.
     WHERE schema_id IS NOT NULL 
     AND (booleanvalue IS NOT NULL OR datevalue IS NOT NULL OR doublevalue IS NOT NULL OR longvalue IS NOT NULL OR stringvalue IS NOT NULL)
   </entry>
+  <entry key="group_search_grelationship">
+    CREATE VIEW group_search_grelationship AS
+
+    SELECT m.id AS any_id, m.anyObject_id AS right_any_id, m.type_id AS type
+    FROM GRelationship m
+  </entry>
   <entry key="group_search_auxClass">
     CREATE VIEW group_search_auxClass AS
 

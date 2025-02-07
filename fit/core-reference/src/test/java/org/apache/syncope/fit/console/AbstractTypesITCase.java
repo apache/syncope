@@ -21,7 +21,6 @@ package org.apache.syncope.fit.console;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
-import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -86,30 +85,6 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
                 AjaxFallbackDataTable.class);
     }
 
-    protected void createPlainSchema(final String key) {
-        browsingToPlainSchemas();
-        TESTER.clickLink(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:container:content:add");
-
-        TESTER.assertComponent(
-                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer",
-                Modal.class);
-
-        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:form:view:details:key:textField", key);
-        formTester.setValue("content:form:view:details:type:dropDownChoiceField", "3");
-        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:0:"
-                + "body:content:outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
-
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:form");
-        formTester.submit("content:form:buttons:finish");
-
-        assertSuccessMessage();
-        TESTER.cleanupFeedbackMessages();
-    }
-
     protected void createAnyTypeClassWithoutSchema(final String name) {
         browsingToAnyTypeClasses();
 
@@ -124,41 +99,5 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
         assertSuccessMessage();
         TESTER.clearFeedbackMessages();
-    }
-
-    protected void createAnyType(final String name) {
-        browsingToAnyTypes();
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
-
-        final FormTester formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", name);
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        assertSuccessMessage();
-        TESTER.clearFeedbackMessages();
-    }
-
-    protected void createRelationshipType(final String name) {
-        browsingToRelationshipType();
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
-
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
-
-        final FormTester formTester = TESTER.newFormTester(
-                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:relationshipTypeDetails:container:form:key:textField", name);
-        formTester.setValue(
-                "content:relationshipTypeDetails:container:form:description:textField", "test relationshipType");
-
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-
-        assertSuccessMessage();
-        TESTER.clearFeedbackMessages();
-
-        TESTER.assertRenderedPage(Types.class);
     }
 }

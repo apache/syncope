@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -93,6 +94,17 @@ public class ElasticsearchUtils {
         this.anyObjectDAO = anyObjectDAO;
     }
 
+    protected void relationships(final List<? extends Relationship<?, ?>> input, final Map<String, Object> builder) {
+        List<String> relationships = new ArrayList<>();
+        List<String> relationshipTypes = new ArrayList<>();
+        input.forEach(relationship -> {
+            relationships.add(relationship.getRightEnd().getKey());
+            relationshipTypes.add(relationship.getType().getKey());
+        });
+        builder.put("relationships", relationships);
+        builder.put("relationshipTypes", relationshipTypes);
+    }
+
     /**
      * Returns the document specialized with content from the provided any.
      *
@@ -121,14 +133,7 @@ public class ElasticsearchUtils {
 
                 builder.put("memberships", anyObjectDAO.findAllGroupKeys(anyObject));
 
-                List<String> relationships = new ArrayList<>();
-                List<String> relationshipTypes = new ArrayList<>();
-                anyObjectDAO.findAllRelationships(anyObject).forEach(relationship -> {
-                    relationships.add(relationship.getRightEnd().getKey());
-                    relationshipTypes.add(relationship.getType().getKey());
-                });
-                builder.put("relationships", relationships);
-                builder.put("relationshipTypes", relationshipTypes);
+                relationships(anyObjectDAO.findAllRelationships(anyObject), builder);
 
                 builder.put("resources", anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
                 builder.put("dynRealms", anyObjectDAO.findDynRealms(anyObject.getKey()));
@@ -149,6 +154,8 @@ public class ElasticsearchUtils {
                 members.addAll(groupDAO.findADynMembers(group));
                 builder.put("members", members);
 
+                relationships(group.getRelationships(), builder);
+
                 builder.put("resources", groupDAO.findAllResourceKeys(group.getKey()));
                 builder.put("dynRealms", groupDAO.findDynRealms(group.getKey()));
 
@@ -168,14 +175,7 @@ public class ElasticsearchUtils {
 
                 builder.put("memberships", userDAO.findAllGroupKeys(user));
 
-                List<String> relationships = new ArrayList<>();
-                Set<String> relationshipTypes = new HashSet<>();
-                user.getRelationships().forEach(relationship -> {
-                    relationships.add(relationship.getRightEnd().getKey());
-                    relationshipTypes.add(relationship.getType().getKey());
-                });
-                builder.put("relationships", relationships);
-                builder.put("relationshipTypes", relationshipTypes);
+                relationships(user.getRelationships(), builder);
 
                 builder.put("resources", userDAO.findAllResourceKeys(user.getKey()));
                 builder.put("dynRealms", userDAO.findDynRealms(user.getKey()));

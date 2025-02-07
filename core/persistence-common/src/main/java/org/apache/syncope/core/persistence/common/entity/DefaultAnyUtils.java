@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -55,7 +54,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -111,8 +109,6 @@ public class DefaultAnyUtils implements AnyUtils {
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
-    protected final PlainAttrValueDAO plainAttrValueDAO;
-
     protected final EntityFactory entityFactory;
 
     protected final AnyTypeKind anyTypeKind;
@@ -130,7 +126,6 @@ public class DefaultAnyUtils implements AnyUtils {
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final EntityFactory entityFactory,
             final AnyTypeKind anyTypeKind,
             final boolean linkedAccount) {
@@ -139,7 +134,6 @@ public class DefaultAnyUtils implements AnyUtils {
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.plainSchemaDAO = plainSchemaDAO;
-        this.plainAttrValueDAO = plainAttrValueDAO;
         this.entityFactory = entityFactory;
         this.anyTypeKind = anyTypeKind;
         this.linkedAccount = linkedAccount;
@@ -468,17 +462,11 @@ public class DefaultAnyUtils implements AnyUtils {
     public void removeAttr(final String key, final PlainSchema schema) {
         Any any = dao().findById(key).orElseThrow(() -> new NotFoundException(anyTypeKind + " " + key));
 
-        any.getPlainAttr(schema.getKey()).ifPresentOrElse(attr -> {
-            PlainAttr<?> plainAttr = (PlainAttr<?>) attr;
-            any.remove(plainAttr);
-            plainAttr.setOwner(null);
-            if (plainAttr instanceof GroupablePlainAttr groupablePlainAttr) {
-                groupablePlainAttr.setMembership(null);
-            }
-            plainAttrValueDAO.deleteAll(plainAttr, this);
-            plainSchemaDAO.delete(plainAttr);
-
-            dao().save(any);
-        }, () -> LOG.warn("Any {} does not contain {} PLAIN attribute", key, schema.getKey()));
+        any.getPlainAttr(schema.getKey()).ifPresentOrElse(
+                attr -> {
+                    any.remove((PlainAttr<?>) attr);
+                    dao().save(any);
+                },
+                () -> LOG.warn("Any {} does not contain {} PLAIN attribute", key, schema.getKey()));
     }
 }

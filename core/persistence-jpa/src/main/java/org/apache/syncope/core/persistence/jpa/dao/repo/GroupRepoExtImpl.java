@@ -300,13 +300,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
 
             anyObjectDAO.save(leftEnd);
             publisher.publishEvent(
@@ -317,13 +311,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
 
             userDAO.save(leftEnd);
             publisher.publishEvent(

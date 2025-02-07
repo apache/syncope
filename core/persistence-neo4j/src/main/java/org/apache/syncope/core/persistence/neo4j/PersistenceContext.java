@@ -60,7 +60,6 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -100,7 +99,6 @@ import org.apache.syncope.core.persistence.neo4j.dao.Neo4jEntityCacheDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jJobStatusDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPersistenceInfoDAO;
-import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jPolicyDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jRealmDAO;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jRealmSearchDAO;
@@ -1079,12 +1077,6 @@ public class PersistenceContext {
     @Bean
     public PersistenceInfoDAO persistenceInfoDAO(final Driver driver) {
         return new Neo4jPersistenceInfoDAO(driver);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public PlainAttrValueDAO plainAttrValueDAO() {
-        return new Neo4jPlainAttrValueDAO();
     }
 
     @ConditionalOnMissingBean(name = PlainSchemaRepoExt.CACHE)
