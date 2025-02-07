@@ -169,6 +169,7 @@ public class DefaultPropagationManager implements PropagationManager {
             return List.of();
         }
 
+        List<String> changePwdRes = new ArrayList<>();
         if (excludedResources != null) {
             if (propByRes != null) {
                 propByRes.get(ResourceOperation.CREATE).removeAll(excludedResources);
@@ -180,7 +181,13 @@ public class DefaultPropagationManager implements PropagationManager {
             }
         }
 
-        return createTasks(any, password, true, enable, propByRes, propByLinkedAccount, vAttrs);
+        if (propByRes != null) {
+            propByRes.asMap().forEach((resource, resourceOperation) -> changePwdRes.add(resource));
+        }
+        if (propByLinkedAccount != null) {
+            propByLinkedAccount.asMap().forEach((resource, resourceOperation) -> changePwdRes.add(resource.getKey()));
+        }
+        return createTasks(any, password, changePwdRes, enable, propByRes, propByLinkedAccount, vAttrs);
     }
 
     @Override
@@ -188,7 +195,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final AnyUR anyUR,
             final AnyTypeKind kind,
             final String key,
-            final boolean changePwd,
+            final List<String> changePwdRes,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
@@ -199,7 +206,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 anyUR,
                 anyUtilsFactory.getInstance(kind).dao().authFind(key),
                 null,
-                changePwd,
+                changePwdRes,
                 enable,
                 propByRes,
                 propByLinkedAccount,
@@ -210,7 +217,7 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public List<PropagationTaskInfo> getUserUpdateTasks(
             final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult,
-            final boolean changePwd,
+            final List<String> changePwdRes,
             final Collection<String> excludedResources) {
 
         return getUpdateTasks(
@@ -218,7 +225,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 anyUtilsFactory.getInstance(AnyTypeKind.USER).dao().authFind(wfResult.getResult().getLeft().getKey()),
                 Optional.ofNullable(wfResult.getResult().getLeft().getPassword()).
                         map(PasswordPatch::getValue).orElse(null),
-                changePwd,
+                changePwdRes,
                 wfResult.getResult().getRight(),
                 wfResult.getPropByRes(),
                 wfResult.getPropByLinkedAccount(),
@@ -234,7 +241,7 @@ public class DefaultPropagationManager implements PropagationManager {
         List<PropagationTaskInfo> tasks;
         if (userUR.getPassword() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
-            tasks = getUserUpdateTasks(wfResult, false, null);
+            tasks = getUserUpdateTasks(wfResult, List.of(), null);
         } else {
             tasks = new ArrayList<>();
 
@@ -264,7 +271,7 @@ public class DefaultPropagationManager implements PropagationManager {
                         map(AbstractPatchItem::getValue).toList());
                 toBeExcluded.removeAll(pwdResourceNames);
 
-                tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
+                tasks.addAll(getUserUpdateTasks(pwdWFResult, new ArrayList<>(pwdResourceNames), toBeExcluded));
             }
 
             UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
@@ -277,7 +284,7 @@ public class DefaultPropagationManager implements PropagationManager {
             noPwdWFResult.getPropByRes().removeAll(pwdResourceNames);
             noPwdWFResult.getPropByRes().purge();
             if (!noPwdWFResult.getPropByRes().isEmpty()) {
-                tasks.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
+                tasks.addAll(getUserUpdateTasks(noPwdWFResult, List.of(), pwdResourceNames));
             }
 
             tasks = tasks.stream().distinct().toList();
@@ -291,7 +298,7 @@ public class DefaultPropagationManager implements PropagationManager {
             final AnyUR anyUR,
             final Any<?> any,
             final String password,
-            final boolean changePwd,
+            final List<String> changePwdRes,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
@@ -316,7 +323,7 @@ public class DefaultPropagationManager implements PropagationManager {
         List<PropagationTaskInfo> tasks = createTasks(
                 any,
                 password,
-                changePwd,
+                changePwdRes,
                 enable,
                 Optional.ofNullable(propByRes).orElseGet(PropagationByResource::new),
                 propByLinkedAccount,
@@ -367,7 +374,7 @@ public class DefaultPropagationManager implements PropagationManager {
             }
         }
 
-        return createTasks(any, null, false, false, localPropByRes, propByLinkedAccount, null);
+        return createTasks(any, null, List.of(), false, localPropByRes, propByLinkedAccount, null);
     }
 
     @Override
@@ -420,7 +427,7 @@ public class DefaultPropagationManager implements PropagationManager {
      *
      * @param any to be provisioned
      * @param password clear text password to be provisioned
-     * @param changePwd whether password should be included for propagation attributes or not
+     * @param changePwdRes the resources in which the password must be included in the propagation attributes
      * @param enable whether user must be enabled or not
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed on linked accounts
@@ -430,7 +437,7 @@ public class DefaultPropagationManager implements PropagationManager {
     protected List<PropagationTaskInfo> createTasks(
             final Any<?> any,
             final String password,
-            final boolean changePwd,
+            final List<String> changePwdRes,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
@@ -497,7 +504,8 @@ public class DefaultPropagationManager implements PropagationManager {
                         any.getType(), resource);
             } else {
                 Pair<String, Set<Attribute>> preparedAttrs =
-                        mappingManager.prepareAttrsFromAny(any, password, changePwd, enable, resource, provision);
+                        mappingManager.prepareAttrsFromAny(any, password, changePwdRes.contains(resourceKey),
+                                enable, resource, provision);
                 if (vAttrMap.containsKey(resourceKey)) {
                     preparedAttrs.getRight().addAll(vAttrMap.get(resourceKey));
                 }
@@ -556,7 +564,9 @@ public class DefaultPropagationManager implements PropagationManager {
                             mappingItems,
                             Pair.of(account.getConnObjectKeyValue(),
                                     mappingManager.prepareAttrsFromLinkedAccount(
-                                            user, account, password, true, provision)));
+                                            user, account, password, 
+                                            changePwdRes.contains(account.getResource().getKey()),
+                                            provision)));
                     tasks.add(accountTask);
 
                     LOG.debug("PropagationTask created for Linked Account {}: {}",
@@ -621,13 +631,14 @@ public class DefaultPropagationManager implements PropagationManager {
         return tasks;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true,
+                   propagation = Propagation.REQUIRES_NEW)
     @Override
     public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
             final AnyTypeKind kind,
             final String key,
             final String password,
-            final boolean changePwd,
+            final List<String> changePwdRes,
             final Boolean enable,
             final Collection<String> excludedResources) {
 
@@ -645,7 +656,7 @@ public class DefaultPropagationManager implements PropagationManager {
                     Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
                             any,
                             password,
-                            changePwd,
+                            changePwdRes.contains(resource.getKey()),
                             enable,
                             resource,
                             resource.getProvisionByAnyType(any.getType().getKey()).get());
@@ -676,7 +687,8 @@ public class DefaultPropagationManager implements PropagationManager {
         return attrs;
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true,
+                   propagation = Propagation.REQUIRES_NEW)
     @Override
     public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(final Realm realm) {
         Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();

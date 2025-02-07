@@ -286,7 +286,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
-                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false);
+                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of());
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -475,7 +475,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // Build final information for next stage (propagation)
         PropagationByResource<String> propByRes = propByRes(
-                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false));
+                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of()));
         propByRes.merge(ownerPropByRes);
         return propByRes;
     }

@@ -127,7 +127,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 any.getType().getKind(),
                 any.getKey(),
-                true,
+                List.of(profile.getTask().getResource().getKey()),
                 enable,
                 propByRes,
                 propByLinkedAccount,
