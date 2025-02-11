@@ -258,21 +258,19 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         accountTO.getPlainAttrs().stream().
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
-                forEach(attrTO -> {
-                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                    if (schema != null) {
-                        PlainAttr attr = account.getPlainAttr(schema.getKey()).orElseGet(() -> {
-                            PlainAttr newAttr = new PlainAttr();
-                            newAttr.setPlainSchema(schema);
-                            return newAttr;
-                        });
-                        fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+                forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-                        if (!attr.getValuesAsStrings().isEmpty()) {
-                            account.add(attr);
-                        }
-                    }
-                });
+            PlainAttr attr = account.getPlainAttr(schema.getKey()).orElseGet(() -> {
+                PlainAttr newAttr = new PlainAttr();
+                newAttr.setPlainSchema(schema);
+                return newAttr;
+            });
+            fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+
+            if (!attr.getValuesAsStrings().isEmpty()) {
+                account.add(attr);
+            }
+        }));
     }
 
     @Override
@@ -595,13 +593,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                     user.add(newMembership);
 
-                    patch.getPlainAttrs().forEach(attrTO -> {
-                        PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                        if (schema == null) {
-                            LOG.debug("Invalid {}{}, ignoring...",
-                                    PlainSchema.class.getSimpleName(), attrTO.getSchema());
-                        } else {
-                            user.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
+                    patch.getPlainAttrs().forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresentOrElse(
+                            schema -> user.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
                                     attr -> LOG.debug(
                                             "Plain attribute found for {} and membership of {}, nothing to do",
                                             schema, newMembership.getRightEnd()),
@@ -621,9 +614,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                                                 schema,
                                                 newAttr,
                                                 invalidValues);
-                                    });
-                        }
-                    });
+                                    }),
+                            () -> LOG.debug("Invalid {}{}, ignoring...",
+                                    PlainSchema.class.getSimpleName(), attrTO.getSchema())));
                     if (!invalidValues.isEmpty()) {
                         scce.addException(invalidValues);
                     }

@@ -277,7 +277,7 @@ abstract class AbstractAnyDataBinder {
         return onResources;
     }
 
-    protected PlainSchema getPlainSchema(final String schemaName) {
+    protected Optional<PlainSchema> getPlainSchema(final String schemaName) {
         PlainSchema schema = null;
         if (StringUtils.isNotBlank(schemaName)) {
             schema = plainSchemaDAO.findById(schemaName).orElse(null);
@@ -291,7 +291,7 @@ abstract class AbstractAnyDataBinder {
             }
         }
 
-        return schema;
+        return Optional.ofNullable(schema);
     }
 
     protected void fillAttr(
@@ -542,26 +542,25 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // 3. plain attributes
-        anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).forEach(patch -> {
-            PlainSchema schema = getPlainSchema(patch.getAttr().getSchema());
-            if (schema == null) {
-                LOG.debug("Invalid {} {}, ignoring...", PlainSchema.class.getSimpleName(), patch.getAttr().getSchema());
-            } else {
-                PlainAttr attr = any.getPlainAttr(schema.getKey()).orElse(null);
-                if (attr == null) {
-                    LOG.debug("No plain attribute found for schema {}", schema);
+        anyUR.getPlainAttrs().stream().filter(patch -> patch.getAttr() != null).
+                forEach(patch -> getPlainSchema(patch.getAttr().getSchema()).ifPresentOrElse(
+                schema -> {
+                    PlainAttr attr = any.getPlainAttr(schema.getKey()).orElse(null);
+                    if (attr == null) {
+                        LOG.debug("No plain attribute found for schema {}", schema);
 
-                    if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                        attr = new PlainAttr();
-                        attr.setPlainSchema(schema);
-                        any.add(attr);
+                        if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                            attr = new PlainAttr();
+                            attr.setPlainSchema(schema);
+                            any.add(attr);
+                        }
                     }
-                }
-                if (attr != null) {
-                    processAttrPatch(anyTO, any, patch, schema, attr, invalidValues);
-                }
-            }
-        });
+                    if (attr != null) {
+                        processAttrPatch(anyTO, any, patch, schema, attr, invalidValues);
+                    }
+                },
+                () -> LOG.debug("Invalid {} {}, ignoring...",
+                        PlainSchema.class.getSimpleName(), patch.getAttr().getSchema())));
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
@@ -628,21 +627,19 @@ abstract class AbstractAnyDataBinder {
 
         anyCR.getPlainAttrs().stream().
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
-                forEach(attrTO -> {
-                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                    if (schema != null) {
-                        PlainAttr attr = any.getPlainAttr(schema.getKey()).orElseGet(() -> {
-                            PlainAttr newAttr = new PlainAttr();
-                            newAttr.setPlainSchema(schema);
-                            return newAttr;
-                        });
-                        fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+                forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
-                        if (!attr.getValuesAsStrings().isEmpty()) {
-                            any.add(attr);
-                        }
-                    }
-                });
+            PlainAttr attr = any.getPlainAttr(schema.getKey()).orElseGet(() -> {
+                PlainAttr newAttr = new PlainAttr();
+                newAttr.setPlainSchema(schema);
+                return newAttr;
+            });
+            fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
+
+            if (!attr.getValuesAsStrings().isEmpty()) {
+                any.add(attr);
+            }
+        }));
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -675,7 +672,7 @@ abstract class AbstractAnyDataBinder {
 
         membershipTO.getPlainAttrs().stream().
                 filter(attrTO -> !attrTO.getValues().isEmpty()).
-                forEach(attrTO -> Optional.ofNullable(getPlainSchema(attrTO.getSchema())).ifPresent(schema -> {
+                forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresent(schema -> {
 
             PlainAttr attr = ((Groupable<?, ?, ?, ?>) any).getPlainAttr(schema.getKey(), membership).orElseGet(() -> {
                 PlainAttr gpa = new PlainAttr();
