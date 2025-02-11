@@ -175,9 +175,9 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
         entityManager.flush();
-        User merged = entityManager.merge(user);
 
-        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        User merged = entityManager.merge(user);
 
         // ensure that entity listeners are invoked at this point
         entityManager.flush();

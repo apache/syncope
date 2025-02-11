@@ -21,8 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JSONEntityListener;
 
@@ -31,12 +29,6 @@ public class JSONLinkedAccountListener extends JSONEntityListener<User> {
     @PostLoad
     public void read(final JPALinkedAccount linkedAccount) {
         super.json2list(linkedAccount, false);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void save(final JPALinkedAccount linkedAccount) {
-        linkedAccount.list2json();
     }
 
     @PostPersist
