@@ -63,7 +63,7 @@ public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
-                + new SearchSupport(anyUtils.anyTypeKind(), anyUtils.isLinkedAccount()).table().name()
+                + new SearchSupport(anyUtils.anyTypeKind()).table().name()
                 + " WHERE plainAttrs::jsonb @> '" + POJOHelper.serialize(List.of(attr)).replace("'", "''") + "'::jsonb"
                 + " AND id <> ?1");
         query.setParameter(1, anyKey);

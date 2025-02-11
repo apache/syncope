@@ -32,8 +32,6 @@ public interface AnyUtils {
 
     AnyTypeKind anyTypeKind();
 
-    boolean isLinkedAccount();
-
     <T extends Any> Class<T> anyClass();
 
     Optional<Field> getField(String name);

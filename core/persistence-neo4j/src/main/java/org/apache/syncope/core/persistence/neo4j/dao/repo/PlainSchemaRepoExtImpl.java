@@ -114,7 +114,7 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
             case USER:
             default:
-                label = anyUtils.isLinkedAccount() ? Neo4jLinkedAccount.NODE : Neo4jUser.NODE;
+                label = Neo4jUser.NODE;
         }
 
         String value = Optional.ofNullable(attr.getUniqueValue().getDateValue()).

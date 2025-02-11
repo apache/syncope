@@ -173,10 +173,14 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(membership);
     }
 
+    @Override
+    protected void checkBeforeSave(final User user) {
+        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        super.checkBeforeSave(user);
+    }
+
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
         entityManager.flush();
-
-        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
         User merged = entityManager.merge(user);
 
         // ensure that entity listeners are invoked at this point

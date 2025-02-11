@@ -63,7 +63,7 @@ public class MariaDBPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
-                + new SearchSupport(anyUtils.anyTypeKind(), anyUtils.isLinkedAccount()).field().name()
+                + new SearchSupport(anyUtils.anyTypeKind()).field().name()
                 + " WHERE JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(List.of(attr)).replace("'", "''") + "')"
                 + " AND id <> ?1");
         query.setParameter(1, anyKey);

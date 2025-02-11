@@ -68,7 +68,7 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
-                + new SearchSupport(anyUtils.anyTypeKind(), anyUtils.isLinkedAccount()).table().name() + ","
+                + new SearchSupport(anyUtils.anyTypeKind()).table().name() + ","
                 + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(attr.getSchema()).
                         orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())))
                 + " WHERE " + attr.getSchema() + ".uniqueValue=?1 AND id <> ?2");

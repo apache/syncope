@@ -99,8 +99,6 @@ public class DefaultAnyUtils implements AnyUtils {
 
     protected final AnyTypeKind anyTypeKind;
 
-    protected final boolean linkedAccount;
-
     protected final Map<String, Field> userFields = new HashMap<>();
 
     protected final Map<String, Field> groupFields = new HashMap<>();
@@ -113,8 +111,7 @@ public class DefaultAnyUtils implements AnyUtils {
             final AnyObjectDAO anyObjectDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final EntityFactory entityFactory,
-            final AnyTypeKind anyTypeKind,
-            final boolean linkedAccount) {
+            final AnyTypeKind anyTypeKind) {
 
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
@@ -122,7 +119,6 @@ public class DefaultAnyUtils implements AnyUtils {
         this.plainSchemaDAO = plainSchemaDAO;
         this.entityFactory = entityFactory;
         this.anyTypeKind = anyTypeKind;
-        this.linkedAccount = linkedAccount;
 
         initFieldNames(entityFactory.userClass(), userFields);
         initFieldNames(entityFactory.groupClass(), groupFields);
@@ -132,11 +128,6 @@ public class DefaultAnyUtils implements AnyUtils {
     @Override
     public AnyTypeKind anyTypeKind() {
         return anyTypeKind;
-    }
-
-    @Override
-    public boolean isLinkedAccount() {
-        return linkedAccount;
     }
 
     @Override
