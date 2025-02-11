@@ -57,7 +57,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     /**
      * Remove initial and synchronized users to make test re-runnable.
      */
-    protected void removeTestUsers() {
+    protected static void removeTestUsers() {
         for (int i = 0; i < 10; i++) {
             String cUserName = "test" + i;
             try {

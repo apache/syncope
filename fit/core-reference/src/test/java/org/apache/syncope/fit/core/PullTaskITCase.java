@@ -186,6 +186,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
         return Pair.of(entryDn, attributes);
     }
 
+    private static void cleanUpRemediations() {
+        REMEDIATION_SERVICE.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().forEach(
+                r -> REMEDIATION_SERVICE.delete(r.getKey()));
+    }
+
     @Test
     public void getPullActionsClasses() {
         Set<String> actions = ANONYMOUS_CLIENT.platform().
@@ -1603,12 +1608,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         UserTO user = null;
         PullTaskTO pullTask = null;
-        ConnInstanceTO resourceConnector = null;
-        ConnConfProperty property = null;
         try {
             // 1. create user in LDAP
             String oldCleanPassword = "security123";
-            UserCR userCR = UserITCase.getUniqueSample("syncopeMarco-ldap@syncope.apache.org");
+            UserCR userCR = UserITCase.getUniqueSample("syncope@syncope.apache.org");
             userCR.setPassword(oldCleanPassword);
             userCR.getResources().add(RESOURCE_NAME_LDAP);
             userCR.getResources().add(RESOURCE_NAME_DBPULL);
@@ -1626,7 +1629,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 pullActions.setKey("AddResourcePullActions");
                 pullActions.setEngine(ImplementationEngine.GROOVY);
                 pullActions.setType(IdMImplementationType.PULL_ACTIONS);
-                pullActions.setBody(org.apache.commons.io.IOUtils.toString(
+                pullActions.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/AddResourcePullActions.groovy"), StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(pullActions);
                 pullActions = IMPLEMENTATION_SERVICE.read(
@@ -1677,13 +1680,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
                         && AttributeUtil.getPasswordValue(attributes) == null;
             }));
         } finally {
-            // remove test entity
-            deleteUser(user.getKey());
+            // remove test entities
+            Optional.ofNullable(pullTask).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t.getKey()));
+            Optional.ofNullable(user).ifPresent(u -> deleteUser(u.getKey()));
         }
-    }
-
-    private static void cleanUpRemediations() {
-        REMEDIATION_SERVICE.list(new RemediationQuery.Builder().page(1).size(100).build()).getResult().forEach(
-                r -> REMEDIATION_SERVICE.delete(r.getKey()));
     }
 }
