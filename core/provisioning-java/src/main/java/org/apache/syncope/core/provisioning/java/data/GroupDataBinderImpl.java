@@ -557,7 +557,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
     protected static void populateTransitiveResources(
             final Group group,
-            final Groupable<?, ?, ?, ?, ?> any,
+            final Groupable<?, ?, ?, ?> any,
             final Map<String, PropagationByResource<String>> result) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();

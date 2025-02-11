@@ -24,7 +24,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
@@ -130,22 +130,22 @@ public class DeletingLinkedAccount implements LinkedAccount {
     }
 
     @Override
-    public boolean add(final LAPlainAttr attr) {
+    public boolean add(final PlainAttr attr) {
         return false;
     }
 
     @Override
-    public boolean remove(final LAPlainAttr attr) {
+    public boolean remove(final PlainAttr attr) {
         return false;
     }
 
     @Override
-    public Optional<? extends LAPlainAttr> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return Optional.empty();
     }
 
     @Override
-    public List<? extends LAPlainAttr> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return List.of();
     }
 

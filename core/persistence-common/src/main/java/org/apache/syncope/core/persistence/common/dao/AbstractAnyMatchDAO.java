@@ -54,7 +54,6 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
@@ -120,7 +119,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
      */
     @Transactional(readOnly = true)
     @Override
-    public <T extends Any<?>> boolean matches(final T any, final SearchCond cond) {
+    public <T extends Any> boolean matches(final T any, final SearchCond cond) {
         boolean not = cond.getType() == SearchCond.Type.NOT_LEAF;
         switch (cond.getType()) {
             case LEAF, NOT_LEAF -> {
@@ -207,13 +206,13 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
         return false;
     }
 
-    protected boolean matches(final Any<?> any, final AnyTypeCond cond, final boolean not) {
+    protected boolean matches(final Any any, final AnyTypeCond cond, final boolean not) {
         boolean equals = any.getType().getKey().equals(cond.getAnyTypeKey());
         return not ? !equals : equals;
     }
 
     protected boolean matches(
-            final Relatable<?, ?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
+            final Relatable<?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
 
         boolean found = any.getRelationships().stream().
                 anyMatch(rel -> rel.getType().getKey().equals(cond.getRelationshipTypeKey()));
@@ -221,7 +220,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final Relatable<?, ?, ?, ?> any, final RelationshipCond cond, final boolean not) {
+            final Relatable<?, ?, ?> any, final RelationshipCond cond, final boolean not) {
 
         Set<String> candidates = SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()
                 ? Set.of(cond.getAnyObject())
@@ -237,7 +236,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final Groupable<?, ?, ?, ?, ?> any, final MembershipCond cond, final boolean not) {
+            final Groupable<?, ?, ?, ?> any, final MembershipCond cond, final boolean not) {
 
         final String group = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
                 ? cond.getGroup()
@@ -257,7 +256,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    protected boolean matches(final Any<?> any, final DynRealmCond cond, final boolean not) {
+    protected boolean matches(final Any any, final DynRealmCond cond, final boolean not) {
         boolean found = anyUtilsFactory.getInstance(any).dao().findDynRealms(any.getKey()).stream().
                 anyMatch(dynRealm -> dynRealm.equals(cond.getDynRealm()));
         return not ? !found : found;
@@ -266,7 +265,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     protected boolean matches(final Group group, final MemberCond cond, final boolean not) {
         boolean found = false;
 
-        Groupable<?, ?, ?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
+        Groupable<?, ?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
         if (any == null) {
             any = anyObjectDAO.findById(cond.getMember()).orElse(null);
             if (any != null) {
@@ -283,7 +282,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
         return not ? !found : found;
     }
 
-    protected boolean matches(final Any<?> any, final ResourceCond cond, final boolean not) {
+    protected boolean matches(final Any any, final ResourceCond cond, final boolean not) {
         boolean found = anyUtilsFactory.getInstance(any).getAllResources(any).stream().
                 anyMatch(resource -> resource.getKey().equals(cond.getResource()));
         return not ? !found : found;
@@ -291,7 +290,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     protected boolean matches(
-            final List<? extends PlainAttrValue> anyAttrValues,
+            final List<PlainAttrValue> anyAttrValues,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
             final AttrCond cond) {
@@ -358,7 +357,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
         });
     }
 
-    protected boolean matches(final Any<?> any, final AttrCond cond, final boolean not) {
+    protected boolean matches(final Any any, final AttrCond cond, final boolean not) {
         PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).orElse(null);
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
@@ -366,7 +365,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
         }
 
         @SuppressWarnings("unchecked")
-        Optional<PlainAttr<?>> attr = (Optional<PlainAttr<?>>) any.getPlainAttr(cond.getSchema());
+        Optional<PlainAttr> attr = (Optional<PlainAttr>) any.getPlainAttr(cond.getSchema());
 
         boolean found;
         switch (cond.getType()) {
@@ -379,7 +378,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 break;
 
             default:
-                PlainAttrValue attrValue = anyUtilsFactory.getInstance(any).newPlainAttrValue();
+                PlainAttrValue attrValue = new PlainAttrValue();
                 try {
                     if (cond.getType() != AttrCond.Type.LIKE
                             && cond.getType() != AttrCond.Type.ILIKE
@@ -400,7 +399,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
 
     protected abstract void relationshipFieldMatches(PropertyDescriptor pd, AnyCond cond, PlainSchema schema);
 
-    protected boolean matches(final Any<?> any, final AnyCond cond, final boolean not) {
+    protected boolean matches(final Any any, final AnyCond cond, final boolean not) {
         // Keeps track of difference between entity's getKey() and @Id fields
         if ("key".equals(cond.getSchema())) {
             cond.setSchema("id");
@@ -459,9 +458,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 // Deal with any fields representing relationships to other entities
                 relationshipFieldMatches(pd, cond, schema);
 
-                AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-
-                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                PlainAttrValue attrValue = new PlainAttrValue();
                 if (cond.getType() != AttrCond.Type.LIKE
                         && cond.getType() != AttrCond.Type.ILIKE
                         && cond.getType() != AttrCond.Type.ISNULL
@@ -476,7 +473,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 }
 
                 List<PlainAttrValue> anyAttrValues = new ArrayList<>();
-                anyAttrValues.add(anyUtils.newPlainAttrValue());
+                anyAttrValues.add(new PlainAttrValue());
                 switch (anyAttrValue) {
                     case String aString ->
                         anyAttrValues.get(0).setStringValue(aString);

@@ -113,7 +113,7 @@ public class OpenSearchUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional
-    public Map<String, Object> document(final Any<?> any) {
+    public Map<String, Object> document(final Any any) {
         Map<String, Object> builder = new HashMap<>();
         builder.put("id", any.getKey());
         builder.put("realm", any.getRealm().getKey());
@@ -186,30 +186,30 @@ public class OpenSearchUtils {
             }
         }
 
-        for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
+        for (PlainAttr plainAttr : any.getPlainAttrs()) {
             List<Object> values = plainAttr.getValues().stream().
                     map(PlainAttrValue::getValue).collect(Collectors.toList());
 
             Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-            builder.put(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.get(0) : values);
         }
 
         // add also flattened membership attributes
-        if (any instanceof Groupable<?, ?, ?, ?, ?> groupable) {
+        if (any instanceof Groupable<?, ?, ?, ?> groupable) {
             groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
                 List<Object> values = mAttr.getValues().stream().
                         map(PlainAttrValue::getValue).collect(Collectors.toList());
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(), k -> new HashSet<>());
+                Object attr = builder.computeIfAbsent(mAttr.getSchema(), k -> new HashSet<>());
                 // also support case in which there is also an existing attribute set previously
                 if (attr instanceof Collection) {
                     ((Collection<Object>) attr).addAll(values);
                 } else {
                     values.add(attr);
-                    builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+                    builder.put(mAttr.getSchema(), values.size() == 1 ? values.get(0) : values);
                 }
             }));
         }

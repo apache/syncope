@@ -34,7 +34,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 
-public interface AnyRepoExt<A extends Any<?>> {
+public interface AnyRepoExt<A extends Any> {
 
     String REGEX_CHARS = "{}[]()?+*.\"'";
 

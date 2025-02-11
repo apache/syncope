@@ -62,7 +62,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny<?>>
+public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         extends AbstractDAO implements AnyRepoExt<A> {
 
     /**
@@ -294,12 +294,18 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
     protected void checkBeforeSave(final A any) {
         // check UNIQUE constraints
         any.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
-            if (plainSchemaDAO.existsPlainAttrUniqueValue(anyUtils.anyTypeKind(), any.getKey(), attr)) {
+            if (plainSchemaDAO.existsPlainAttrUniqueValue(
+                    anyUtils,
+                    any.getKey(),
+                    plainSchemaDAO.findById(attr.getSchema()).
+                            orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())),
+                    attr)) {
+
                 throw new DuplicateException("Duplicate value found for "
-                        + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+                        + attr.getSchema() + "=" + attr.getUniqueValue().getValueAsString());
             } else {
                 LOG.debug("No duplicate value found for {}={}",
-                        attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
+                        attr.getSchema(), attr.getUniqueValue().getValueAsString());
             }
         });
 

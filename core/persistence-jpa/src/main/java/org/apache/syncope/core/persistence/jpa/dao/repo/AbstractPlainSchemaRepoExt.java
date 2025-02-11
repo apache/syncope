@@ -22,29 +22,21 @@ import jakarta.persistence.EntityManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 abstract class AbstractPlainSchemaRepoExt extends AbstractSchemaRepoExt implements PlainSchemaRepoExt {
 
-    protected static <T extends PlainAttr<?>> AnyTypeKind getAnyTypeKind(final Class<T> plainAttrClass) {
-        if (GPlainAttr.class.isAssignableFrom(plainAttrClass)) {
-            return AnyTypeKind.GROUP;
-        }
-        if (APlainAttr.class.isAssignableFrom(plainAttrClass)) {
-            return AnyTypeKind.ANY_OBJECT;
-        }
-
-        return AnyTypeKind.USER;
-    }
+    protected static final List<String> TABLES = List.of(
+            JPAUser.TABLE, JPAGroup.TABLE, JPAAnyObject.TABLE, JPALinkedAccount.TABLE);
 
     protected final AnyUtilsFactory anyUtilsFactory;
 

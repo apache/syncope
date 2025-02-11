@@ -53,12 +53,12 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -178,7 +178,7 @@ public class DefaultNotificationManager implements NotificationManager {
      */
     protected NotificationTask getNotificationTask(
             final Notification notification,
-            final Any<?> any,
+            final Any any,
             final Map<String, Object> jexlVars) {
 
         jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
@@ -292,7 +292,7 @@ public class DefaultNotificationManager implements NotificationManager {
             final Object output,
             final Object... input) {
 
-        Optional<? extends Any<?>> any = Optional.empty();
+        Optional<? extends Any> any = Optional.empty();
 
         if (before instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
@@ -402,7 +402,7 @@ public class DefaultNotificationManager implements NotificationManager {
 
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {
-                    Optional<? extends UPlainAttr> attr = membership == null
+                    Optional<PlainAttr> attr = membership == null
                             ? user.getPlainAttr(recipientAttrName)
                             : user.getPlainAttr(recipientAttrName, membership);
                     email = attr.map(a -> a.getValuesAsStrings().isEmpty()

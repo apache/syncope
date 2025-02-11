@@ -27,7 +27,7 @@ import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider
 class MyRecipientsProvider implements RecipientsProvider {
   
   @Override
-  Set<String> provideRecipients(Notification notification, Any<?> any, Map<String, Object> jexlVars) {
+  Set<String> provideRecipients(Notification notification, Any any, Map<String, Object> jexlVars) {
     return Set.of();
   }
 }

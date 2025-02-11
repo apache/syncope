@@ -216,8 +216,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    public List<Relationship<Any<?>, AnyObject>> findAllRelationships(final AnyObject anyObject) {
-        List<Relationship<Any<?>, AnyObject>> result = new ArrayList<>();
+    public List<Relationship<Any, AnyObject>> findAllRelationships(final AnyObject anyObject) {
+        List<Relationship<Any, AnyObject>> result = new ArrayList<>();
 
         result.addAll(toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jARelationship.NODE + ")-[]-(a:" + Neo4jAnyObject.NODE + " {id: $aid}) "

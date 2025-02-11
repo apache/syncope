@@ -24,6 +24,7 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SearchSupport {
@@ -34,10 +35,17 @@ public class SearchSupport {
 
     protected final AnyTypeKind anyTypeKind;
 
+    protected final boolean linkedAccount;
+
     protected boolean nonMandatorySchemas = false;
 
     public SearchSupport(final AnyTypeKind anyTypeKind) {
+        this(anyTypeKind, false);
+    }
+
+    public SearchSupport(final AnyTypeKind anyTypeKind, final boolean linkedAccount) {
         this.anyTypeKind = anyTypeKind;
+        this.linkedAccount = linkedAccount;
     }
 
     public SearchView table() {
@@ -54,7 +62,7 @@ public class SearchSupport {
 
             case USER:
             default:
-                result = JPAUser.TABLE;
+                result = linkedAccount ? JPALinkedAccount.TABLE : JPAUser.TABLE;
                 break;
         }
 
@@ -75,7 +83,7 @@ public class SearchSupport {
 
             case USER:
             default:
-                result = "user_search";
+                result = linkedAccount ? "linkedAccount_search" : "user_search";
                 break;
         }
 

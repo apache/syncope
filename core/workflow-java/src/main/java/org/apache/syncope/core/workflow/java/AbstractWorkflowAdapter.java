@@ -42,7 +42,7 @@ public abstract class AbstractWorkflowAdapter {
         this.publisher = publisher;
     }
 
-    protected void metadata(final Any<?> any, final String who, final String context) {
+    protected void metadata(final Any any, final String who, final String context) {
         OffsetDateTime now = OffsetDateTime.now();
 
         if (any.getCreationDate() == null) {

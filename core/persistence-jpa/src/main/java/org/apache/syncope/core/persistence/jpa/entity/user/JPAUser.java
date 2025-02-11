@@ -45,16 +45,18 @@ import java.util.Objects;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable;
@@ -62,9 +64,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 @Entity
@@ -72,14 +72,12 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 @EntityListeners({ JSONUserListener.class })
 @Cacheable
 public class JPAUser
-        extends AbstractGroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship>
+        extends AbstractGroupableRelatable<User, UMembership, AnyObject, URelationship>
         implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
     public static final String TABLE = "SyncopeUser";
-
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
     };
@@ -99,7 +97,7 @@ public class JPAUser
     private String plainAttrs;
 
     @Transient
-    private final List<JSONUPlainAttr> plainAttrsList = new ArrayList<>();
+    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
 
     @Lob
     protected String token;
@@ -223,14 +221,22 @@ public class JPAUser
         setMustChangePassword(false);
     }
 
+    protected String encode(final String value) throws Exception {
+        return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
+                value,
+                Optional.ofNullable(cipherAlgorithm).
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                "password.cipher.algorithm",
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
+    }
+
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.password = encode(password);
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -258,7 +264,7 @@ public class JPAUser
     }
 
     @Override
-    public List<? extends UPlainAttr> getPlainAttrsList() {
+    public List<PlainAttr> getPlainAttrsList() {
         return plainAttrsList;
     }
 
@@ -273,16 +279,14 @@ public class JPAUser
     }
 
     @Override
-    public boolean add(final UPlainAttr attr) {
-        checkType(attr, JSONUPlainAttr.class);
-        return plainAttrsList.add((JSONUPlainAttr) attr);
+    public boolean add(final PlainAttr attr) {
+        return plainAttrsList.add(attr);
     }
 
     @Override
-    public boolean remove(final UPlainAttr attr) {
-        checkType(attr, JSONUPlainAttr.class);
-        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey())
-                && Objects.equals(jsonAttr.getMembershipKey(), attr.getMembershipKey()));
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
+                && Objects.equals(a.getMembership(), attr.getMembership()));
     }
 
     @Override
@@ -421,11 +425,7 @@ public class JPAUser
     @Override
     public void setSecurityAnswer(final String securityAnswer) {
         try {
-            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.securityAnswer = encode(securityAnswer);
         } catch (Exception e) {
             LOG.error("Could not encode security answer", e);
             this.securityAnswer = null;
@@ -463,8 +463,7 @@ public class JPAUser
     @Override
     public boolean remove(final UMembership membership) {
         checkType(membership, JPAUMembership.class);
-        plainAttrsList.removeIf(attr -> attr.getMembershipKey() != null
-                && attr.getMembershipKey().equals(membership.getKey()));
+        plainAttrsList.removeIf(attr -> Objects.equals(attr.getMembership(), membership.getKey()));
         return this.memberships.remove((JPAUMembership) membership);
     }
 

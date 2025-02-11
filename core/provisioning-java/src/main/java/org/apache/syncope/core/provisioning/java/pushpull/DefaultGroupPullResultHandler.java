@@ -77,7 +77,7 @@ public class DefaultGroupPullResultHandler extends AbstractPullResultHandler imp
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return groupDataBinder.getGroupTO((Group) any, true);
     }
 

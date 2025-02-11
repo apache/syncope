@@ -31,7 +31,7 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 public class DummyPushCorrelationRule implements PushCorrelationRule {
 
     @Override
-    public Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+    public Filter getFilter(final Any any, final ExternalResource resource, final Provision provision) {
         return FilterBuilder.equalTo(new Uid(null));
     }
 }

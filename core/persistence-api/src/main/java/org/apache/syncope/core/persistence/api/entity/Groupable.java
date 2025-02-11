@@ -22,12 +22,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface Groupable<
-        L extends Any<P>, 
-        M extends Membership<L>, 
-        P extends GroupablePlainAttr<L, M>,
-        R extends Any<?>,
-        REL extends Relationship<L, R>> extends Any<P> {
+public interface Groupable<L extends Any, M extends Membership<L>, R extends Any, REL extends Relationship<L, R>>
+        extends Any {
 
     /**
      * Returns the plain attribute for this instance, the given schema name and the given membership -
@@ -37,7 +33,7 @@ public interface Groupable<
      * @param membership membership
      * @return plain attribute for this instance, the given schema name and the given membership
      */
-    Optional<? extends P> getPlainAttr(String plainSchema, Membership<?> membership);
+    Optional<PlainAttr> getPlainAttr(String plainSchema, Membership<?> membership);
 
     /**
      * Returns the list of plain attributes for this instance and the given schema name (including membeship attributes,
@@ -46,7 +42,7 @@ public interface Groupable<
      * @param plainSchema plain schema name
      * @return list of plain attributes for this instance and the given schema name (including membeship attributes)
      */
-    Collection<? extends P> getPlainAttrs(String plainSchema);
+    Collection<PlainAttr> getPlainAttrs(String plainSchema);
 
     /**
      * Returns the list of plain attributes for this instance and the given membership.
@@ -54,7 +50,7 @@ public interface Groupable<
      * @param membership membership
      * @return list of plain attributes for this instance and the given membership
      */
-    Collection<? extends P> getPlainAttrs(Membership<?> membership);
+    Collection<PlainAttr> getPlainAttrs(Membership<?> membership);
 
     boolean add(M membership);
 

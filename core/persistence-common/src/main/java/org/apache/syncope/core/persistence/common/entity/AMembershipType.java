@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.common.entity;
 
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class AMembershipType implements RelationshipType {
 

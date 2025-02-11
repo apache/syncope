@@ -27,6 +27,7 @@ import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
@@ -393,7 +394,6 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public MappingManager mappingManager(
-            final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -404,7 +404,8 @@ public class ProvisioningContext {
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
             final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final EncryptorManager encryptorManager) {
 
         return new DefaultMappingManager(
                 anyTypeDAO,
@@ -417,8 +418,8 @@ public class ProvisioningContext {
                 derAttrHandler,
                 virAttrHandler,
                 virAttrCache,
-                anyUtilsFactory,
-                intAttrNameParser);
+                intAttrNameParser,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean
@@ -436,7 +437,8 @@ public class ProvisioningContext {
             final TemplateUtils templateUtils,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
-            final ExternalResourceDAO resourceDAO) {
+            final ExternalResourceDAO resourceDAO,
+            final EncryptorManager encryptorManager) {
 
         return new ConnObjectUtils(
                 templateUtils,
@@ -445,7 +447,8 @@ public class ProvisioningContext {
                 resourceDAO,
                 passwordGenerator,
                 mappingManager,
-                anyUtilsFactory);
+                anyUtilsFactory,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean
@@ -779,12 +782,14 @@ public class ProvisioningContext {
     public AnyTypeDataBinder anyTypeDataBinder(
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AccessTokenDAO accessTokenDAO) {
 
         return new AnyTypeDataBinderImpl(
                 securityProperties,
+                encryptorManager,
                 anyTypeDAO,
                 anyTypeClassDAO,
                 accessTokenDAO,

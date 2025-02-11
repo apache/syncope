@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -71,17 +70,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -227,7 +225,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             final UserTO anyTO,
             final User user,
             final LinkedAccountTO accountTO,
-            final AnyUtils anyUtils,
             final SyncopeClientException invalidValues) {
 
         ExternalResource resource = resourceDAO.findById(accountTO.getResource()).orElse(null);
@@ -236,24 +233,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             return;
         }
 
-        Optional<? extends LinkedAccount> found =
-                user.getLinkedAccount(resource.getKey(), accountTO.getConnObjectKeyValue());
-        LinkedAccount account = found.isPresent()
-                ? found.get()
-                : new Supplier<LinkedAccount>() {
+        LinkedAccount account = user.getLinkedAccount(resource.getKey(), accountTO.getConnObjectKeyValue()).
+                map(LinkedAccount.class::cast).orElseGet(() -> {
+            LinkedAccount acct = entityFactory.newEntity(LinkedAccount.class);
+            acct.setOwner(user);
+            user.add(acct);
 
-                    @Override
-                    public LinkedAccount get() {
-                        LinkedAccount acct = entityFactory.newEntity(LinkedAccount.class);
-                        acct.setOwner(user);
-                        user.add(acct);
+            acct.setConnObjectKeyValue(accountTO.getConnObjectKeyValue());
+            acct.setResource(resource);
 
-                        acct.setConnObjectKeyValue(accountTO.getConnObjectKeyValue());
-                        acct.setResource(resource);
-
-                        return acct;
-                    }
-                }.get();
+            return acct;
+        });
 
         account.setUsername(accountTO.getUsername());
         if (StringUtils.isBlank(accountTO.getPassword())) {
@@ -271,18 +261,14 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 forEach(attrTO -> {
                     PlainSchema schema = getPlainSchema(attrTO.getSchema());
                     if (schema != null) {
-                        LAPlainAttr attr = account.getPlainAttr(schema.getKey()).orElse(null);
-                        if (attr == null) {
-                            attr = entityFactory.newEntity(LAPlainAttr.class);
-                            attr.setSchema(schema);
-                            attr.setOwner(user);
-                            attr.setAccount(account);
-                        }
-                        fillAttr(anyTO, attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+                        PlainAttr attr = account.getPlainAttr(schema.getKey()).orElseGet(() -> {
+                            PlainAttr newAttr = new PlainAttr();
+                            newAttr.setPlainSchema(schema);
+                            return newAttr;
+                        });
+                        fillAttr(anyTO, attrTO.getValues(), schema, attr, invalidValues);
 
-                        if (attr.getValuesAsStrings().isEmpty()) {
-                            attr.setOwner(null);
-                        } else {
+                        if (!attr.getValuesAsStrings().isEmpty()) {
                             account.add(attr);
                         }
                     }
@@ -395,15 +381,13 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.add(membership);
 
                 // membership attributes
-                fill(anyTO, user, membership, membershipTO,
-                        anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
+                fill(anyTO, user, membership, membershipTO, scce);
             }
         });
 
         // linked accounts
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
-        userCR.getLinkedAccounts().forEach(
-                acct -> linkedAccount(anyTO, user, acct, anyUtilsFactory.getLinkedAccountInstance(), invalidValues));
+        userCR.getLinkedAccounts().forEach(acct -> linkedAccount(anyTO, user, acct, invalidValues));
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
@@ -617,26 +601,27 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             LOG.debug("Invalid {}{}, ignoring...",
                                     PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
-                            UPlainAttr attr = user.getPlainAttr(schema.getKey(), newMembership).orElse(null);
-                            if (attr == null) {
-                                LOG.debug("No plain attribute found for {} and membership of {}",
-                                        schema, newMembership.getRightEnd());
+                            user.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
+                                    attr -> LOG.debug(
+                                            "Plain attribute found for {} and membership of {}, nothing to do",
+                                            schema, newMembership.getRightEnd()),
+                                    () -> {
+                                        LOG.debug("No plain attribute found for {} and membership of {}",
+                                                schema, newMembership.getRightEnd());
 
-                                attr = anyUtils.newPlainAttr();
-                                attr.setOwner(user);
-                                attr.setMembership(newMembership);
-                                attr.setSchema(schema);
-                                user.add(attr);
+                                        PlainAttr newAttr = new PlainAttr();
+                                        newAttr.setMembership(newMembership.getKey());
+                                        newAttr.setPlainSchema(schema);
+                                        user.add(newAttr);
 
-                                processAttrPatch(
-                                        anyTO,
-                                        user,
-                                        new AttrPatch.Builder(attrTO).build(),
-                                        schema,
-                                        attr,
-                                        anyUtils,
-                                        invalidValues);
-                            }
+                                        processAttrPatch(
+                                                anyTO,
+                                                user,
+                                                new AttrPatch.Builder(attrTO).build(),
+                                                schema,
+                                                newAttr,
+                                                invalidValues);
+                                    });
                         }
                     });
                     if (!invalidValues.isEmpty()) {
@@ -681,7 +666,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         anyTO,
                         user,
                         patch.getLinkedAccountTO(),
-                        anyUtilsFactory.getLinkedAccountInstance(),
                         invalidValues);
             }
         });
@@ -728,7 +712,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 build();
 
         account.getPlainAttrs().forEach(plainAttr -> accountTO.getPlainAttrs().add(
-                new Attr.Builder(plainAttr.getSchema().getKey()).values(plainAttr.getValuesAsStrings()).build()));
+                new Attr.Builder(plainAttr.getSchema()).values(plainAttr.getValuesAsStrings()).build()));
 
         return accountTO;
     }

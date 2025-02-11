@@ -55,10 +55,10 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
@@ -109,7 +109,7 @@ public class AnySearchTest extends AbstractTest {
     public void adjustLoginDateForLocalSystem() throws ParseException {
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
+        PlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
         loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
 
         userDAO.save(rossini);

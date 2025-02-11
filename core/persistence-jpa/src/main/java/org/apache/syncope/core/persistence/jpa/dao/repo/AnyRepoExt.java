@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
-public interface AnyRepoExt<A extends Any<?>> {
+public interface AnyRepoExt<A extends Any> {
 
     Optional<OffsetDateTime> findLastChange(String key);
 

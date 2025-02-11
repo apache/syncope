@@ -41,7 +41,7 @@ public class StreamAnyObjectPushResultHandler extends DefaultAnyObjectPushResult
     private DerAttrHandler derAttrHandler;
 
     @Override
-    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void provision(final Any any, final Boolean enabled, final ProvisioningReport result) {
         Provision provision = profile.getTask().getResource().getProvisions().get(0);
 
         Stream<Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());

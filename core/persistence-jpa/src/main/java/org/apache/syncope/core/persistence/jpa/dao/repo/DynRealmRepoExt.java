@@ -27,7 +27,7 @@ public interface DynRealmRepoExt {
 
     DynRealm saveAndRefreshDynMemberships(DynRealm dynRealm);
 
-    void refreshDynMemberships(Any<?> any);
+    void refreshDynMemberships(Any any);
 
     void removeDynMemberships(String anyKey);
 

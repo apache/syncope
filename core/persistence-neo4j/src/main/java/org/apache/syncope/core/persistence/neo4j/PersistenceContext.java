@@ -84,6 +84,7 @@ import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.common.CommonPersistenceContext;
@@ -206,13 +207,9 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.anyobject.JSONAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
-import org.apache.syncope.core.persistence.neo4j.entity.group.JSONGPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jTaskUtilsFactory;
-import org.apache.syncope.core.persistence.neo4j.entity.user.JSONLAPlainAttr;
-import org.apache.syncope.core.persistence.neo4j.entity.user.JSONUPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 import org.apache.syncope.core.persistence.neo4j.spring.CacheCleaningTransactionExecutionListener;
 import org.apache.syncope.core.persistence.neo4j.spring.DomainRoutingDriver;
@@ -350,24 +347,9 @@ public class PersistenceContext {
         return transactionManager;
     }
 
-    @Bean(name = "uPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONUPlainAttr>> uPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(JSONUPlainAttr.class);
-    }
-
-    @Bean(name = "laPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONLAPlainAttr>> laPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(JSONLAPlainAttr.class);
-    }
-
-    @Bean(name = "gPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONGPlainAttr>> gPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(JSONGPlainAttr.class);
-    }
-
-    @Bean(name = "aPlainAttrsConverter")
-    public Neo4jPersistentPropertyToMapConverter<String, Map<String, JSONAPlainAttr>> aPlainAttrsConverter() {
-        return new PlainAttrsConverter<>(JSONAPlainAttr.class);
+    @Bean
+    public Neo4jPersistentPropertyToMapConverter<String, Map<String, PlainAttr>> plainAttrsConverter() {
+        return new PlainAttrsConverter();
     }
 
     @ConditionalOnMissingBean
@@ -1093,7 +1075,6 @@ public class PersistenceContext {
     @ConditionalOnMissingBean
     @Bean
     public PlainSchemaRepoExt plainSchemaRepoExt(
-            final AnyUtilsFactory anyUtilsFactory,
             final @Lazy ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -1101,7 +1082,6 @@ public class PersistenceContext {
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache) {
 
         return new PlainSchemaRepoExtImpl(
-                anyUtilsFactory,
                 resourceDAO,
                 neo4jTemplate,
                 neo4jClient,

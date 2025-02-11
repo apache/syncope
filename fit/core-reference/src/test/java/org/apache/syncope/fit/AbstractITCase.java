@@ -170,6 +170,8 @@ import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
+import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.fit.AbstractITCase.KeymasterInitializer;
 import org.apache.syncope.fit.core.AbstractTaskITCase;
 import org.apache.syncope.fit.core.CoreITContext;
@@ -1105,5 +1107,7 @@ public abstract class AbstractITCase {
 
     @Autowired
     protected DataSource testDataSource;
+
+    protected final EncryptorManager encryptorManager = new DefaultEncryptorManager();
 
 }

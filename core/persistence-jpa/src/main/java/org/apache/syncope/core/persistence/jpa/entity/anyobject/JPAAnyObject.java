@@ -39,8 +39,8 @@ import java.util.Objects;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.validation.AnyObjectCheck;
@@ -56,7 +56,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 @Cacheable
 @AnyObjectCheck
 public class JPAAnyObject
-        extends AbstractGroupableRelatable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship>
+        extends AbstractGroupableRelatable<AnyObject, AMembership, AnyObject, ARelationship>
         implements AnyObject {
 
     private static final long serialVersionUID = 9063766472970643492L;
@@ -72,7 +72,7 @@ public class JPAAnyObject
     private String plainAttrs;
 
     @Transient
-    private final List<JSONAPlainAttr> plainAttrsList = new ArrayList<>();
+    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
@@ -133,7 +133,7 @@ public class JPAAnyObject
     }
 
     @Override
-    public List<? extends APlainAttr> getPlainAttrsList() {
+    public List<PlainAttr> getPlainAttrsList() {
         return plainAttrsList;
     }
 
@@ -148,16 +148,14 @@ public class JPAAnyObject
     }
 
     @Override
-    public boolean add(final APlainAttr attr) {
-        checkType(attr, JSONAPlainAttr.class);
-        return plainAttrsList.add((JSONAPlainAttr) attr);
+    public boolean add(final PlainAttr attr) {
+        return plainAttrsList.add(attr);
     }
 
     @Override
-    public boolean remove(final APlainAttr attr) {
-        checkType(attr, JSONAPlainAttr.class);
-        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey())
-                && Objects.equals(jsonAttr.getMembershipKey(), attr.getMembershipKey()));
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema())
+                && Objects.equals(a.getMembership(), attr.getMembership()));
     }
 
     @Override
@@ -191,8 +189,7 @@ public class JPAAnyObject
     @Override
     public boolean remove(final AMembership membership) {
         checkType(membership, JPAAMembership.class);
-        plainAttrsList.removeIf(attr -> attr.getMembershipKey() != null
-                && attr.getMembershipKey().equals(membership.getKey()));
+        plainAttrsList.removeIf(attr -> Objects.equals(attr.getMembership(), membership.getKey()));
         return this.memberships.remove((JPAAMembership) membership);
     }
 

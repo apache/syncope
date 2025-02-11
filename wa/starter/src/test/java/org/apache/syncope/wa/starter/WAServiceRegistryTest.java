@@ -96,10 +96,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         return saml2spto;
     }
 
-    private static void addPolicies(
-            final WAClientApp waClientApp,
-            final boolean withAttrReleasePolicy) {
-
+    private static void addPolicies(final WAClientApp waClientApp, final boolean withAttrReleasePolicy) {
         DefaultAuthPolicyConf authPolicyConf = new DefaultAuthPolicyConf();
         authPolicyConf.setTryAll(true);
         authPolicyConf.getAuthModules().add("TestAuthModule");

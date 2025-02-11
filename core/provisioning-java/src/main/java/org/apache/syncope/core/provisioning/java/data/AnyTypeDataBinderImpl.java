@@ -28,6 +28,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -39,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
@@ -49,9 +49,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyTypeDataBinder.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final SecurityProperties securityProperties;
+
+    protected final EncryptorManager encryptorManager;
 
     protected final AnyTypeDAO anyTypeDAO;
 
@@ -63,12 +63,14 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
     public AnyTypeDataBinderImpl(
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AccessTokenDAO accessTokenDAO,
             final EntityFactory entityFactory) {
 
         this.securityProperties = securityProperties;
+        this.encryptorManager = encryptorManager;
         this.anyTypeDAO = anyTypeDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.accessTokenDAO = accessTokenDAO;
@@ -87,13 +89,14 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                     orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
-                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        encryptorManager.getInstance().
+                                decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
                 added.forEach(e -> authorities.add(new SyncopeGrantedAuthority(e, SyncopeConstants.ROOT_REALM)));
 
-                accessToken.setAuthorities(ENCRYPTOR.encode(
+                accessToken.setAuthorities(encryptorManager.getInstance().encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
                         getBytes());
 
@@ -139,14 +142,15 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                     orElseThrow(() -> new NotFoundException("AccessToken for " + AuthContextUtils.getUsername()));
             try {
                 Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
-                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        encryptorManager.getInstance().decode(
+                                new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
                 authorities.removeAll(authorities.stream().
                         filter(authority -> removed.contains(authority.getAuthority())).toList());
 
-                accessToken.setAuthorities(ENCRYPTOR.encode(
+                accessToken.setAuthorities(encryptorManager.getInstance().encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
                         getBytes());
 

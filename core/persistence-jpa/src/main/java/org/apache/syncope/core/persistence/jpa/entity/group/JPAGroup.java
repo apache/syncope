@@ -38,13 +38,14 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -57,7 +58,6 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @Entity
 @Table(name = JPAGroup.TABLE)
@@ -65,7 +65,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 @Cacheable
 @GroupCheck
 public class JPAGroup
-        extends AbstractRelatable<Group, GPlainAttr, AnyObject, GRelationship>
+        extends AbstractRelatable<Group, AnyObject, GRelationship>
         implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;
@@ -85,7 +85,7 @@ public class JPAGroup
     private String plainAttrs;
 
     @Transient
-    private final List<JSONGPlainAttr> plainAttrsList = new ArrayList<>();
+    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
@@ -173,7 +173,7 @@ public class JPAGroup
     }
 
     @Override
-    public List<? extends GPlainAttr> getPlainAttrsList() {
+    public List<PlainAttr> getPlainAttrsList() {
         return plainAttrsList;
     }
 
@@ -188,26 +188,24 @@ public class JPAGroup
     }
 
     @Override
-    public boolean add(final GPlainAttr attr) {
-        checkType(attr, JSONGPlainAttr.class);
-        return plainAttrsList.add((JSONGPlainAttr) attr);
+    public boolean add(final PlainAttr attr) {
+        return plainAttrsList.add(attr);
     }
 
     @Override
-    public boolean remove(final GPlainAttr attr) {
-        checkType(attr, JSONGPlainAttr.class);
-        return plainAttrsList.removeIf(a -> a.getSchemaKey().equals(attr.getSchema().getKey()));
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema()));
     }
 
     @Override
-    public Optional<? extends GPlainAttr> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return plainAttrsList.stream().
-                filter(attr -> plainSchema.equals(attr.getSchemaKey())).
+                filter(attr -> plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
-    public List<? extends GPlainAttr> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrsList.stream().toList();
     }
 

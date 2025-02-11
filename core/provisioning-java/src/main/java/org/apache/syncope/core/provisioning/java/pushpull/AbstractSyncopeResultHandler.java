@@ -97,7 +97,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask<?>
 
     protected abstract AnyUtils getAnyUtils();
 
-    protected abstract AnyTO getAnyTO(Any<?> any);
+    protected abstract AnyTO getAnyTO(Any any);
 
     protected abstract WorkflowResult<? extends AnyUR> update(AnyUR req);
 

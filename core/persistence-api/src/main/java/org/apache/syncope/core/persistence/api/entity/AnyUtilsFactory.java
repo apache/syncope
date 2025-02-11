@@ -59,7 +59,7 @@ public class AnyUtilsFactory {
         }
     }
 
-    public AnyUtils getInstance(final Any<?> any) {
+    public AnyUtils getInstance(final Any any) {
         AnyTypeKind anyTypeKind = null;
         if (any instanceof User) {
             anyTypeKind = AnyTypeKind.USER;

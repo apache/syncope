@@ -51,6 +51,7 @@ import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.core.logic.api.LogicActions;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -79,7 +80,6 @@ import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -113,6 +113,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
 
     protected final RuleProvider ruleEnforcer;
 
+    protected final EncryptorManager encryptorManager;
+
     public UserLogic(
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeDAO anyTypeDAO,
@@ -127,7 +129,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleProvider ruleEnforcer) {
+            final RuleProvider ruleEnforcer,
+            final EncryptorManager encryptorManager) {
 
         super(realmSearchDAO, anyTypeDAO, templateUtils);
 
@@ -142,6 +145,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         this.provisioningManager = provisioningManager;
         this.syncopeLogic = syncopeLogic;
         this.ruleEnforcer = ruleEnforcer;
+        this.encryptorManager = encryptorManager;
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.MUST_CHANGE_PASSWORD + "'))")
@@ -440,7 +444,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 orElseThrow(() -> new NotFoundException("User " + username));
 
         if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
-                && (securityAnswer == null || !Encryptor.getInstance().
+                && (securityAnswer == null || !encryptorManager.getInstance().
                         verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
 
             throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);

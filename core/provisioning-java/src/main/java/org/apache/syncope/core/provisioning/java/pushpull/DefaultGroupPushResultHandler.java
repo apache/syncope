@@ -36,12 +36,12 @@ public class DefaultGroupPushResultHandler extends AbstractPushResultHandler imp
     }
 
     @Override
-    protected String getName(final Any<?> any) {
+    protected String getName(final Any any) {
         return Group.class.cast(any).getName();
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return groupDataBinder.getGroupTO((Group) any, true);
     }
 

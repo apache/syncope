@@ -28,6 +28,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
@@ -45,9 +46,9 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final SecurityProperties securityProperties;
+
+    protected final EncryptorManager encryptorManager;
 
     protected final AccessTokenJWSVerifier delegate;
 
@@ -57,11 +58,13 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     public SyncopeJWTSSOProvider(
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final AccessTokenJWSVerifier delegate,
             final UserDAO userDAO,
             final AccessTokenDAO accessTokenDAO) {
 
         this.securityProperties = securityProperties;
+        this.encryptorManager = encryptorManager;
         this.delegate = delegate;
         this.userDAO = userDAO;
         this.accessTokenDAO = accessTokenDAO;
@@ -101,7 +104,8 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
             if (accessToken != null && accessToken.getAuthorities() != null) {
                 try {
                     authorities = POJOHelper.deserialize(
-                            ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                            encryptorManager.getInstance().decode(
+                                    new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
                             new TypeReference<>() {
                     });
                 } catch (Throwable t) {

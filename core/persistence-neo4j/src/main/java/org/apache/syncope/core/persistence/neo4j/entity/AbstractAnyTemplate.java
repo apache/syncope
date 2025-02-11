@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyNode implements AnyTemplate {

@@ -19,9 +19,9 @@
 package org.apache.syncope.core.persistence.neo4j;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.neo4j.driver.Driver;
 import org.springframework.beans.factory.InitializingBean;

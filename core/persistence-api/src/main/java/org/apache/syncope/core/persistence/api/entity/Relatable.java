@@ -22,11 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface Relatable<
-        L extends Any<?>, 
-        P extends PlainAttr<L>,
-        R extends Any<?>,
-        REL extends Relationship<L, R>> extends Any<P> {
+public interface Relatable<L extends Any, R extends Any, REL extends Relationship<L, R>> extends Any {
 
     boolean add(REL relationship);
 

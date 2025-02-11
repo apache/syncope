@@ -24,6 +24,7 @@ import org.apache.syncope.core.logic.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.core.logic.init.EntitlementAccessor;
 import org.apache.syncope.core.logic.init.IdRepoEntitlementLoader;
 import org.apache.syncope.core.logic.init.IdRepoImplementationTypeLoader;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -146,9 +147,10 @@ public class IdRepoLogicContext {
     public AccessTokenLogic accessTokenLogic(
             final AccessTokenDataBinder binder,
             final AccessTokenDAO accessTokenDAO,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager) {
 
-        return new AccessTokenLogic(securityProperties, binder, accessTokenDAO);
+        return new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO);
     }
 
     @ConditionalOnMissingBean
@@ -497,7 +499,8 @@ public class IdRepoLogicContext {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleProvider ruleProvider) {
+            final RuleProvider ruleProvider,
+            final EncryptorManager encryptorManager) {
 
         return new UserLogic(
                 realmSearchDAO,
@@ -513,6 +516,7 @@ public class IdRepoLogicContext {
                 binder,
                 provisioningManager,
                 syncopeLogic,
-                ruleProvider);
+                ruleProvider,
+                encryptorManager);
     }
 }

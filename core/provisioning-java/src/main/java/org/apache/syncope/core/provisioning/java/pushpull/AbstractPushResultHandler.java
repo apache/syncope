@@ -128,10 +128,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Autowired
     protected SyncopeTaskScheduler scheduler;
 
-    protected abstract String getName(Any<?> any);
+    protected abstract String getName(Any any);
 
     protected void update(
-            final Any<?> any,
+            final Any any,
             final Boolean enable,
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
@@ -164,7 +164,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void deprovision(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -188,7 +188,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void provision(final Any<?> any, final Boolean enable, final ProvisioningReport result) {
+    protected void provision(final Any any, final Boolean enable, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -212,7 +212,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
+    protected void link(final Any any, final boolean unlink, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
@@ -223,7 +223,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setStatus(ProvisioningReport.Status.SUCCESS);
     }
 
-    protected void unassign(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void unassign(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
@@ -234,7 +234,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         deprovision(any, beforeObj, result);
     }
 
-    protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void assign(final Any any, final Boolean enabled, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
@@ -248,7 +248,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final String anyKey) {
-        Any<?> any = null;
+        Any any = null;
         try {
             any = getAnyUtils().dao().authFind(anyKey);
 
@@ -292,7 +292,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void doHandle(final Any<?> any, final Provision provision) throws JobExecutionException {
+    protected void doHandle(final Any any, final Provision provision) throws JobExecutionException {
         ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 

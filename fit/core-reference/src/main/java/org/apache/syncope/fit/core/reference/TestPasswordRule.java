@@ -19,14 +19,15 @@
 package org.apache.syncope.fit.core.reference;
 
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 @PasswordRuleConfClass(TestPasswordRuleConf.class)
@@ -34,7 +35,8 @@ public class TestPasswordRule implements PasswordRule {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TestPasswordRule.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    @Autowired
+    private EncryptorManager encryptorManager;
 
     private TestPasswordRuleConf conf;
 
@@ -73,7 +75,7 @@ public class TestPasswordRule implements PasswordRule {
             String clear = null;
             if (account.canDecodeSecrets()) {
                 try {
-                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                    clear = encryptorManager.getInstance().decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.error("Could not decode password for {}", account, e);
                 }

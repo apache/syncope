@@ -21,17 +21,15 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 import java.util.Collection;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
 public abstract class AbstractRelatable<
-        L extends Any<P>, 
-        P extends PlainAttr<L>,
-        R extends Any<?>,
+        L extends Any,
+        R extends Any,
         REL extends Relationship<L, R>>
-        extends AbstractAny<P> implements Relatable<L, P, R, REL> {
+        extends AbstractAny implements Relatable<L, R, REL> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 

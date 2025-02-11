@@ -88,7 +88,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return userDataBinder.getUserTO((User) any, true);
     }
 

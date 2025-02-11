@@ -32,7 +32,7 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder
 class TestPushRule implements PushCorrelationRule {
 
   @Override
-  Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+  Filter getFilter(final Any any, final ExternalResource resource, final Provision provision) {
     return FilterBuilder.equalTo(
       AttributeBuilder.build("email", any.getPlainAttr("email").get().getValuesAsStrings().get(0)));
   }

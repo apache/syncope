@@ -18,28 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.JSONEntityListener;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class JSONAnyObjectListener extends JSONEntityListener<AnyObject, APlainAttr> {
-
-    protected static final TypeReference<List<JSONAPlainAttr>> TYPEREF =
-            new TypeReference<List<JSONAPlainAttr>>() {
-    };
-
-    @Override
-    protected List<? extends APlainAttr> getAttrs(final String plainAttrsJSON) {
-        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
-    }
+public class JSONAnyObjectListener extends JSONEntityListener<AnyObject> {
 
     @PostLoad
     public void read(final JPAAnyObject anyObject) {

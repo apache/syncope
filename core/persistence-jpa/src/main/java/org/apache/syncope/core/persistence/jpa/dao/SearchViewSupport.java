@@ -26,6 +26,10 @@ public class SearchViewSupport extends SearchSupport {
         super(anyTypeKind);
     }
 
+    public SearchViewSupport(final AnyTypeKind anyTypeKind, final boolean linkedAccount) {
+        super(anyTypeKind, linkedAccount);
+    }
+
     public SearchView attr() {
         return new SearchView("sva", field().name() + "_attr");
     }

@@ -72,7 +72,7 @@ public class JexlUtilsTest extends AbstractTest {
 
     @Test
     public void addFieldsToContext(
-            final @Mock Any<?> any,
+            final @Mock Any any,
             final @Mock AnyTO anyTO,
             final @Mock Realm realm,
             final @Mock RealmTO realmTO) {
@@ -122,7 +122,7 @@ public class JexlUtilsTest extends AbstractTest {
     }
 
     @Test
-    public void addPlainAttrsToContext(final @Mock Collection<? extends PlainAttr<?>> attrs) {
+    public void addPlainAttrsToContext(final @Mock Collection<PlainAttr> attrs) {
         JexlUtils.addPlainAttrsToContext(attrs, context);
         verify(context, times(0)).set(anyString(), any());
     }
@@ -130,7 +130,7 @@ public class JexlUtilsTest extends AbstractTest {
     @Test
     public void addDerAttrsToContext(
             final @Mock DerAttrHandler derAttrHandler,
-            final @Mock Any<?> any,
+            final @Mock Any any,
             final @Mock DerSchema derSchema) {
 
         String expression = null;
@@ -146,9 +146,9 @@ public class JexlUtilsTest extends AbstractTest {
     @Test
     public void evaluateMandatoryCondition(
             final @Mock DerAttrHandler derAttrHandler,
-            final @Mock Any<?> any,
+            final @Mock Any any,
             final @Mock DerSchema derSchema,
-            final @Mock Collection<? extends PlainAttr<?>> plainAttrs) {
+            final @Mock Collection<PlainAttr> plainAttrs) {
 
         String expression = null;
 

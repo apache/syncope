@@ -18,30 +18,28 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public abstract class JSONEntityListener<A extends Any<?>, P extends PlainAttr<A>> {
+public abstract class JSONEntityListener<A extends Any> {
 
-    protected abstract List<? extends P> getAttrs(String plainAttrsJSON);
+    protected static final TypeReference<List<PlainAttr>> TYPEREF = new TypeReference<List<PlainAttr>>() {
+    };
 
-    @SuppressWarnings("unchecked")
-    protected void json2list(final AbstractAttributable<P> entity, final boolean clearFirst) {
+    protected List<PlainAttr> getAttrs(final String plainAttrsJSON) {
+        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
+    }
+
+    protected void json2list(final AbstractAttributable entity, final boolean clearFirst) {
         if (clearFirst) {
             entity.getPlainAttrsList().clear();
         }
         if (entity.getPlainAttrsJSON() != null) {
-            getAttrs(entity.getPlainAttrsJSON()).stream().filter(attr -> attr.getSchema() != null).map(attr -> {
-                if (entity instanceof Any) {
-                    attr.setOwner((A) entity);
-                } else if (entity instanceof LinkedAccount linkedAccount) {
-                    attr.setOwner((A) linkedAccount.getOwner());
-                    ((LAPlainAttr) attr).setAccount(linkedAccount);
-                }
+            getAttrs(entity.getPlainAttrsJSON()).stream().filter(PlainAttr::isValid).map(attr -> {
                 attr.getValues().forEach(value -> value.setAttr(attr));
                 Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
                 return attr;

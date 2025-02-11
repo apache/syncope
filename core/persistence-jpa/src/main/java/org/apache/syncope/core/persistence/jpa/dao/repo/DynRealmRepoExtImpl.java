@@ -98,7 +98,7 @@ public class DynRealmRepoExtImpl implements DynRealmRepoExt {
 
     protected void notifyDynMembershipRemoval(final List<String> anyKeys) {
         anyKeys.forEach(key -> {
-            Optional<? extends Any<?>> any = userDAO.findById(key);
+            Optional<? extends Any> any = userDAO.findById(key);
             if (any.isEmpty()) {
                 any = groupDAO.findById(key);
             }
@@ -150,7 +150,7 @@ public class DynRealmRepoExtImpl implements DynRealmRepoExt {
 
     @Transactional
     @Override
-    public void refreshDynMemberships(final Any<?> any) {
+    public void refreshDynMemberships(final Any any) {
         entityManager.createQuery(
                 "SELECT e FROM " + JPADynRealm.class.getSimpleName() + " e ", DynRealm.class).getResultStream().
                 forEach(dynRealm -> dynRealm.getDynMembership(any.getType()).ifPresent(memb -> {

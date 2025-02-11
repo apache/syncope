@@ -1090,7 +1090,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
     @Override
     @SuppressWarnings("unchecked")
-    protected <T extends Any<?>> List<T> doSearch(
+    protected <T extends Any> List<T> doSearch(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,

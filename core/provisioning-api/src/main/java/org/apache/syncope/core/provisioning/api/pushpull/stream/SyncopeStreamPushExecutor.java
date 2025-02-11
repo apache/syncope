@@ -31,7 +31,7 @@ public interface SyncopeStreamPushExecutor {
 
     List<ProvisioningReport> push(
             AnyType anyType,
-            List<? extends Any<?>> anys,
+            List<? extends Any> anys,
             List<String> columns,
             Connector connector,
             List<String> propagationActions,

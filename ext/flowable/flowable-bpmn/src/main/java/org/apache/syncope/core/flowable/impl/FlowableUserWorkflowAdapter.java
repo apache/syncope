@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -75,9 +76,19 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             final RuleProvider ruleProvider,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final EncryptorManager encryptorManager) {
 
-        super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleProvider, publisher);
+        super(
+                dataBinder,
+                userDAO,
+                realmDAO,
+                groupDAO,
+                entityFactory,
+                securityProperties,
+                ruleProvider,
+                publisher,
+                encryptorManager);
         this.engine = engine;
         this.userRequestHandler = userRequestHandler;
     }
@@ -327,7 +338,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         if (inFormTask) {
             propByRes = engine.getRuntimeService().getVariable(
                     procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
-        }        
+        }
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);

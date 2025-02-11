@@ -25,13 +25,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -45,7 +46,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
@@ -54,7 +54,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @GroupCheck
 @AttributableCheck
 public class Neo4jGroup
-        extends AbstractRelatable<Group, GPlainAttr, AnyObject, GRelationship>
+        extends AbstractRelatable<Group, AnyObject, GRelationship>
         implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;
@@ -74,8 +74,8 @@ public class Neo4jGroup
     @NotNull
     private String name;
 
-    @CompositeProperty(converterRef = "gPlainAttrsConverter")
-    protected Map<String, JSONGPlainAttr> plainAttrs = new HashMap<>();
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
     @Relationship(type = USER_OWNER_REL, direction = Relationship.Direction.OUTGOING)
     protected Neo4jUser userOwner;
@@ -105,7 +105,7 @@ public class Neo4jGroup
     protected List<Neo4jGRelationship> relationships = new ArrayList<>();
 
     @Override
-    protected Map<String, ? extends GPlainAttr> plainAttrs() {
+    protected Map<String, PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
@@ -163,24 +163,17 @@ public class Neo4jGroup
     }
 
     @Override
-    protected void setPlainAttrOwner(final GPlainAttr plainAttr) {
-        plainAttr.setOwner(this);
+    public boolean add(final PlainAttr attr) {
+        return plainAttrs.put(attr.getSchema(), attr) != null;
     }
 
     @Override
-    public boolean add(final GPlainAttr attr) {
-        checkType(attr, JSONGPlainAttr.class);
-        JSONGPlainAttr neo4jAttr = (JSONGPlainAttr) attr;
-        return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrs.put(attr.getSchema(), null) != null;
     }
 
     @Override
-    public boolean remove(final GPlainAttr attr) {
-        return plainAttrs.put(((JSONGPlainAttr) attr).getSchemaKey(), null) != null;
-    }
-
-    @Override
-    public List<? extends GPlainAttr> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
                 filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).

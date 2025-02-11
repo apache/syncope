@@ -34,27 +34,25 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 
 @Entity
 @Table(name = JPALinkedAccount.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "connObjectKeyValue", "resource_id" }))
 @EntityListeners({ JSONLinkedAccountListener.class })
-public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implements LinkedAccount {
+public class JPALinkedAccount extends AbstractAttributable implements LinkedAccount {
 
     private static final long serialVersionUID = -5141654998687601522L;
 
     public static final String TABLE = "LinkedAccount";
-
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @NotNull
     private String connObjectKeyValue;
@@ -78,7 +76,7 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
     private String plainAttrs;
 
     @Transient
-    private final List<JSONLAPlainAttr> plainAttrsList = new ArrayList<>();
+    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
 
     @Override
     public String getConnObjectKeyValue() {
@@ -152,18 +150,22 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
         this.cipherAlgorithm = cipherAlgoritm;
     }
 
+    protected String encode(final String value) throws Exception {
+        return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
+                value,
+                Optional.ofNullable(cipherAlgorithm).
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                "password.cipher.algorithm",
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
+    }
+
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(
-                    password,
-                    Optional.ofNullable(cipherAlgorithm).
-                            orElseGet(() -> CipherAlgorithm.valueOf(
-                            ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
-                                    AuthContextUtils.getDomain(),
-                                    "password.cipher.algorithm",
-                                    CipherAlgorithm.AES.name(),
-                                    String.class))));
+            this.password = encode(password);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;
@@ -181,7 +183,7 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
     }
 
     @Override
-    public List<? extends LAPlainAttr> getPlainAttrsList() {
+    public List<PlainAttr> getPlainAttrsList() {
         return plainAttrsList;
     }
 
@@ -196,26 +198,24 @@ public class JPALinkedAccount extends AbstractAttributable<LAPlainAttr> implemen
     }
 
     @Override
-    public boolean add(final LAPlainAttr attr) {
-        checkType(attr, JSONLAPlainAttr.class);
-        return plainAttrsList.add((JSONLAPlainAttr) attr);
+    public boolean add(final PlainAttr attr) {
+        return plainAttrsList.add(attr);
     }
 
     @Override
-    public boolean remove(final LAPlainAttr attr) {
-        checkType(attr, JSONLAPlainAttr.class);
-        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchemaKey().equals(attr.getSchema().getKey()));
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrsList.removeIf(jsonAttr -> jsonAttr.getSchema().equals(attr.getSchema()));
     }
 
     @Override
-    public Optional<? extends LAPlainAttr> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return plainAttrsList.stream().
-                filter(attr -> plainSchema.equals(attr.getSchemaKey())).
+                filter(attr -> plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
-    public List<? extends LAPlainAttr> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrsList.stream().toList();
     }
 }

@@ -60,7 +60,7 @@ public class LinkedAccountSampleInboundCorrelationRule implements InboundCorrela
 
     @Transactional(readOnly = true)
     @Override
-    public InboundMatch matching(final Any<?> any, final LiveSyncDelta syncDelta, final Provision provision) {
+    public InboundMatch matching(final Any any, final LiveSyncDelta syncDelta, final Provision provision) {
         // if match with internal user vivaldi was found but firstName is different, update linked account
         // instead of updating user
         Attribute firstName = syncDelta.getObject().getAttributeByName("firstName");

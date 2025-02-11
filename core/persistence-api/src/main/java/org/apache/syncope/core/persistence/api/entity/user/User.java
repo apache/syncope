@@ -28,8 +28,8 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface User extends
         Account,
-        Groupable<User, UMembership, UPlainAttr, AnyObject, URelationship>,
-        Relatable<User, UPlainAttr, AnyObject, URelationship> {
+        Groupable<User, UMembership, AnyObject, URelationship>,
+        Relatable<User, AnyObject, URelationship> {
 
     String getToken();
 

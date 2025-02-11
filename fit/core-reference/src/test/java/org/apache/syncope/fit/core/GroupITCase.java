@@ -98,7 +98,6 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -655,7 +654,7 @@ public class GroupITCase extends AbstractITCase {
         groupCR.getPlainAttrs().add(new Attr.Builder(encrypted.getKey()).value("testvalue").build());
         GroupTO group = createGroup(groupCR).getEntity();
 
-        assertEquals(Encryptor.getInstance(System.getProperty("obscureSecretKey")).
+        assertEquals(encryptorManager.getInstance(System.getProperty("obscureSecretKey")).
                 encode("testvalue", encrypted.getCipherAlgorithm()),
                 group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
 

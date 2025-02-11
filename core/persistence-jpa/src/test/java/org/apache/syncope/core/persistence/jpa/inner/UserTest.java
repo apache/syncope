@@ -28,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -37,7 +38,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +66,9 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private SecurityQuestionDAO securityQuestionDAO;
+
+    @Autowired
+    private EncryptorManager encryptorManager;
 
     @Test
     public void find() {
@@ -247,6 +250,7 @@ public class UserTest extends AbstractTest {
         User actual = userDAO.save(user);
         assertNotNull(actual);
         assertNotNull(actual.getSecurityAnswer());
-        assertTrue(Encryptor.getInstance().verify(securityAnswer, CipherAlgorithm.SSHA256, actual.getSecurityAnswer()));
+        assertTrue(encryptorManager.getInstance().
+                verify(securityAnswer, CipherAlgorithm.SSHA256, actual.getSecurityAnswer()));
     }
 }

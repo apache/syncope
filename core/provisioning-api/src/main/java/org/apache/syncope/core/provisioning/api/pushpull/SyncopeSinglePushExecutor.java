@@ -34,7 +34,7 @@ public interface SyncopeSinglePushExecutor {
             ExternalResource resource,
             Provision provision,
             Connector connector,
-            Any<?> any,
+            Any any,
             PushTaskTO pushTaskTO,
             String executor) throws JobExecutionException;
 

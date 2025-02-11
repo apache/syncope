@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,12 +54,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -288,8 +287,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 anyObject.add(membership);
 
                 // membership attributes
-                fill(anyTO, anyObject, membership, membershipTO,
-                        anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+                fill(anyTO, anyObject, membership, membershipTO, scce);
             }
         });
 
@@ -434,27 +432,27 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             LOG.debug("Invalid {}{}, ignoring...",
                                     PlainSchema.class.getSimpleName(), attrTO.getSchema());
                         } else {
-                            Optional<? extends APlainAttr> attr =
-                                    anyObject.getPlainAttr(schema.getKey(), newMembership);
-                            if (attr.isEmpty()) {
-                                LOG.debug("No plain attribute found for {} and membership of {}",
-                                        schema, newMembership.getRightEnd());
+                            anyObject.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
+                                    attr -> LOG.debug(
+                                            "Plain attribute found for {} and membership of {}, nothing to do",
+                                            schema, newMembership.getRightEnd()),
+                                    () -> {
+                                        LOG.debug("No plain attribute found for {} and membership of {}",
+                                                schema, newMembership.getRightEnd());
 
-                                APlainAttr newAttr = anyUtils.newPlainAttr();
-                                newAttr.setOwner(anyObject);
-                                newAttr.setMembership(newMembership);
-                                newAttr.setSchema(schema);
-                                anyObject.add(newAttr);
+                                        PlainAttr newAttr = new PlainAttr();
+                                        newAttr.setMembership(newMembership.getKey());
+                                        newAttr.setPlainSchema(schema);
+                                        anyObject.add(newAttr);
 
-                                processAttrPatch(
-                                        anyTO,
-                                        anyObject,
-                                        new AttrPatch.Builder(attrTO).build(),
-                                        schema,
-                                        newAttr,
-                                        anyUtils,
-                                        invalidValues);
-                            }
+                                        processAttrPatch(
+                                                anyTO,
+                                                anyObject,
+                                                new AttrPatch.Builder(attrTO).build(),
+                                                schema,
+                                                newAttr,
+                                                invalidValues);
+                                    });
                         }
                     });
                     if (!invalidValues.isEmpty()) {

@@ -26,16 +26,16 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
@@ -48,8 +48,6 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     private static final long serialVersionUID = -5141654998687601522L;
 
     public static final String NODE = "LinkedAccount";
-
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @NotNull
     private String connObjectKeyValue;
@@ -70,8 +68,8 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
 
     private Boolean suspended = false;
 
-    @CompositeProperty(converterRef = "laPlainAttrsConverter")
-    protected Map<String, JSONLAPlainAttr> plainAttrs = new HashMap<>();
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
     @Override
     public String getConnObjectKeyValue() {
@@ -145,14 +143,22 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
         this.cipherAlgorithm = cipherAlgoritm;
     }
 
+    protected String encode(final String value) throws Exception {
+        return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
+                value,
+                Optional.ofNullable(cipherAlgorithm).
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                "password.cipher.algorithm",
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
+    }
+
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.password = encode(password);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
             this.password = null;
@@ -170,22 +176,22 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
     }
 
     @Override
-    public boolean add(final LAPlainAttr attr) {
-        return plainAttrs.put(attr.getSchemaKey(), (JSONLAPlainAttr) attr) != null;
+    public boolean add(final PlainAttr attr) {
+        return plainAttrs.put(attr.getSchema(), attr) != null;
     }
 
     @Override
-    public boolean remove(final LAPlainAttr attr) {
-        return plainAttrs.put(attr.getSchemaKey(), null) != null;
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrs.put(attr.getSchema(), null) != null;
     }
 
     @Override
-    public Optional<? extends LAPlainAttr> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return Optional.ofNullable(plainAttrs.get(plainSchema));
     }
 
     @Override
-    public List<? extends LAPlainAttr> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
                 filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
@@ -201,8 +207,6 @@ public class Neo4jLinkedAccount extends AbstractGeneratedKeyNode implements Link
                 if (attr.getSchema() == null) {
                     itor.remove();
                 } else {
-                    attr.setOwner(getOwner());
-                    attr.setAccount(this);
                     attr.getValues().forEach(value -> value.setAttr(attr));
                     Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
                 }

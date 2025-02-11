@@ -35,10 +35,8 @@ import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,28 +76,37 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void hasAttrs() {
         PlainSchema schema = plainSchemaDAO.findById("icon").orElseThrow();
-        assertTrue(plainSchemaDAO.hasAttrs(schema, GPlainAttr.class));
+        assertTrue(plainSchemaDAO.hasAttrs(schema));
 
         schema = plainSchemaDAO.findById("aLong").orElseThrow();
-        assertFalse(plainSchemaDAO.hasAttrs(schema, UPlainAttr.class));
+        assertFalse(plainSchemaDAO.hasAttrs(schema));
     }
 
     @Test
     public void existsPlainAttrUniqueValue() {
-        PlainAttrUniqueValue value = anyUtilsFactory.getInstance(AnyTypeKind.USER).newPlainAttrUniqueValue();
+        PlainAttrValue value = new PlainAttrValue();
         value.setStringValue("rossini@apache.org");
-        PlainAttr<?> attr = anyUtilsFactory.getInstance(AnyTypeKind.USER).newPlainAttr();
-        attr.setSchema(plainSchemaDAO.findById("userId").orElseThrow());
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("userId");
         attr.setUniqueValue(value);
 
         assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
-                AnyTypeKind.USER, "1417acbe-cbf6-4277-9372-e75e04f97000", attr));
+                anyUtilsFactory.getInstance(AnyTypeKind.USER),
+                "1417acbe-cbf6-4277-9372-e75e04f97000",
+                plainSchemaDAO.findById("userId").orElseThrow(),
+                attr));
         assertTrue(plainSchemaDAO.existsPlainAttrUniqueValue(
-                AnyTypeKind.USER, UUID.randomUUID().toString(), attr));
+                anyUtilsFactory.getInstance(AnyTypeKind.USER),
+                UUID.randomUUID().toString(),
+                plainSchemaDAO.findById("userId").orElseThrow(),
+                attr));
 
         value.setStringValue("none@apache.org");
         assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
-                AnyTypeKind.USER, "1417acbe-cbf6-4277-9372-e75e04f97000", attr));
+                anyUtilsFactory.getInstance(AnyTypeKind.USER),
+                "1417acbe-cbf6-4277-9372-e75e04f97000",
+                plainSchemaDAO.findById("userId").orElseThrow(),
+                attr));
     }
 
     @Test

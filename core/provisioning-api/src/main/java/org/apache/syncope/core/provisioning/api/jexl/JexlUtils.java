@@ -217,14 +217,14 @@ public final class JexlUtils {
             }
         });
 
-        if (object instanceof Any && ((Any<?>) object).getRealm() != null) {
-            jexlContext.set("realm", ((Any<?>) object).getRealm().getFullPath());
+        if (object instanceof Any && ((Any) object).getRealm() != null) {
+            jexlContext.set("realm", ((Any) object).getRealm().getFullPath());
         } else if (object instanceof AnyTO && ((AnyTO) object).getRealm() != null) {
             jexlContext.set("realm", ((AnyTO) object).getRealm());
-        } else if (object instanceof Realm) {
-            jexlContext.set("fullPath", ((Realm) object).getFullPath());
-        } else if (object instanceof RealmTO) {
-            jexlContext.set("fullPath", ((RealmTO) object).getFullPath());
+        } else if (object instanceof Realm realm) {
+            jexlContext.set("fullPath", realm.getFullPath());
+        } else if (object instanceof RealmTO realmTO) {
+            jexlContext.set("fullPath", realmTO.getFullPath());
         }
     }
 
@@ -245,9 +245,7 @@ public final class JexlUtils {
         });
     }
 
-    public static void addPlainAttrsToContext(
-            final Collection<? extends PlainAttr<?>> attrs, final JexlContext jexlContext) {
-
+    public static void addPlainAttrsToContext(final Collection<PlainAttr> attrs, final JexlContext jexlContext) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             List<String> attrValues = attr.getValuesAsStrings();
             Object value;
@@ -259,14 +257,14 @@ public final class JexlUtils {
                         : attrValues;
             }
 
-            LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), value);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema(), value);
 
-            jexlContext.set(attr.getSchema().getKey(), value);
+            jexlContext.set(attr.getSchema(), value);
         });
     }
 
     public static void addDerAttrsToContext(
-            final Any<?> any,
+            final Any any,
             final DerAttrHandler derAttrHandler,
             final JexlContext jexlContext) {
 
@@ -277,7 +275,7 @@ public final class JexlUtils {
 
     public static boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
-            final Any<?> any,
+            final Any any,
             final DerAttrHandler derAttrHandler) {
 
         JexlContext jexlContext = new MapContext();

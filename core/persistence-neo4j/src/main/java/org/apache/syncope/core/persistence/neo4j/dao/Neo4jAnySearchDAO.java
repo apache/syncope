@@ -1013,7 +1013,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected <T extends Any<?>> List<T> doSearch(
+    protected <T extends Any> List<T> doSearch(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,

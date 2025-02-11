@@ -33,7 +33,7 @@ public interface DerAttrHandler {
      * @param schema derived schema
      * @return derived attribute value
      */
-    String getValue(Any<?> any, DerSchema schema);
+    String getValue(Any any, DerSchema schema);
 
     /**
      * Calculates derived attributes values associated to the given any.
@@ -41,7 +41,7 @@ public interface DerAttrHandler {
      * @param any any object
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Any<?> any);
+    Map<DerSchema, String> getValues(Any any);
 
     /**
      * Calculates derived attribute value associated to the given any, for the given membership and
@@ -52,7 +52,7 @@ public interface DerAttrHandler {
      * @param schema derived schema
      * @return derived attribute value
      */
-    String getValue(Any<?> any, Membership<?> membership, DerSchema schema);
+    String getValue(Any any, Membership<?> membership, DerSchema schema);
 
     /**
      * Calculates derived attributes values associated to the given any, for the given membership.
@@ -61,5 +61,5 @@ public interface DerAttrHandler {
      * @param membership membership
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Groupable<?, ?, ?, ?, ?> any, Membership<?> membership);
+    Map<DerSchema, String> getValues(Groupable<?, ?, ?, ?> any, Membership<?> membership);
 }

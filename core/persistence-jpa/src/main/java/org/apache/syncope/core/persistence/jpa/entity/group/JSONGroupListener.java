@@ -18,28 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.group;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.JSONEntityListener;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class JSONGroupListener extends JSONEntityListener<Group, GPlainAttr> {
-
-    protected static final TypeReference<List<JSONGPlainAttr>> TYPEREF =
-            new TypeReference<List<JSONGPlainAttr>>() {
-    };
-
-    @Override
-    protected List<? extends GPlainAttr> getAttrs(final String plainAttrsJSON) {
-        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
-    }
+public class JSONGroupListener extends JSONEntityListener<Group> {
 
     @PostLoad
     public void read(final JPAGroup group) {

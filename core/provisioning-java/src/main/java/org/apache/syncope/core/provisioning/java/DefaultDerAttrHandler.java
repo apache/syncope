@@ -39,7 +39,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
 
-    protected static Map<DerSchema, String> getValues(final Any<?> any, final Set<DerSchema> schemas) {
+    protected static Map<DerSchema, String> getValues(final Any any, final Set<DerSchema> schemas) {
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
@@ -60,7 +60,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public String getValue(final Any<?> any, final DerSchema schema) {
+    public String getValue(final Any any, final DerSchema schema) {
         if (!anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).forSelfContains(schema)) {
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
@@ -70,7 +70,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public String getValue(final Any<?> any, final Membership<?> membership, final DerSchema schema) {
+    public String getValue(final Any any, final Membership<?> membership, final DerSchema schema) {
         if (!anyUtilsFactory.getInstance(any).dao().
                 findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
 
@@ -82,14 +82,14 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Any<?> any) {
+    public Map<DerSchema, String> getValues(final Any any) {
         return getValues(
                 any,
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
     protected static Map<DerSchema, String> getValues(
-            final Groupable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+            final Groupable<?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
@@ -105,9 +105,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public Map<DerSchema, String> getValues(
-            final Groupable<?, ?, ?, ?, ?> any, final Membership<?> membership) {
-
+    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?, ?> any, final Membership<?> membership) {
         return getValues(
                 any,
                 membership,

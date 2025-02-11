@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface Group extends Relatable<Group, GPlainAttr, AnyObject, GRelationship> {
+public interface Group extends Relatable<Group, AnyObject, GRelationship> {
 
     String getName();
 

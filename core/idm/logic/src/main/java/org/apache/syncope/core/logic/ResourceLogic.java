@@ -305,7 +305,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
-        Any<?> any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
                 dao().authFind(anyKey)).
                 orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
 
@@ -325,7 +325,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
-        Any<?> any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
                 dao().authFind(anyKey)).
                 orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
 

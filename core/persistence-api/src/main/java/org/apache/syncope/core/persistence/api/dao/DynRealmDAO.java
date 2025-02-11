@@ -25,7 +25,7 @@ public interface DynRealmDAO extends DAO<DynRealm> {
 
     DynRealm saveAndRefreshDynMemberships(DynRealm dynRealm);
 
-    void refreshDynMemberships(Any<?> any);
+    void refreshDynMemberships(Any any);
 
     void removeDynMemberships(String anyKey);
 }
