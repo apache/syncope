@@ -30,7 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
@@ -80,12 +79,14 @@ public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
     @Override
     public User serializeLinkedAccounts(final User user) {
-        if (!entityManager.contains(user)) {
+        User merged;
+        if (entityManager.contains(user)) {
+            merged = user;
+        } else {
             entityManager.flush();
-            return entityManager.merge(user);
+            merged = entityManager.merge(user);
         }
 
-        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
-        return user;
+        return super.serializeLinkedAccounts(merged);
     }
 }
