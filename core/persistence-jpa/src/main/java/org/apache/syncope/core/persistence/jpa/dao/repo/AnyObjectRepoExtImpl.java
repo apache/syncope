@@ -204,6 +204,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
     @Override
     public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final AnyObject anyObject) {
+        checkBeforeSave((JPAAnyObject) anyObject);
         return doSave(anyObject).getRight();
     }
 

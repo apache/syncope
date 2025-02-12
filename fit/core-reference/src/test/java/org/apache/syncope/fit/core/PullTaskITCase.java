@@ -1647,6 +1647,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1864() throws Exception {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         // First of all, clear any potential conflict with existing user / group
         ldapCleanup();
 

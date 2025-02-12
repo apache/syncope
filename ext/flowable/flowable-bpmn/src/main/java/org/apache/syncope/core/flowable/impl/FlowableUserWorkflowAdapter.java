@@ -153,9 +153,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 getVariable(procInst.getProcessInstanceId(), FlowableRuntimeUtils.ENABLED, Boolean.class);
         engine.getRuntimeService().removeVariable(
                 procInst.getProcessInstanceId(), FlowableRuntimeUtils.ENABLED);
-        if (updatedEnabled != null) {
-            user.setSuspended(!updatedEnabled);
-        }
+        Optional.ofNullable(updatedEnabled).ifPresent(ue -> user.setSuspended(!ue));
 
         metadata(user, creator, context);
         FlowableRuntimeUtils.updateStatus(engine, procInst.getProcessInstanceId(), user);
@@ -336,8 +334,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 Optional.ofNullable(propByLinkedAccountBeforeUpdate).orElse(propByLinkedAccount));
 
         if (inFormTask) {
-            propByRes = engine.getRuntimeService().getVariable(
+            @SuppressWarnings("unchecked")
+            PropagationByResource<String> propByResAfterForm = engine.getRuntimeService().getVariable(
                     procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
+            propByRes = propByResAfterForm;
         }
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(

@@ -58,8 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRepoExt {
 
-    protected final PlainSchemaRepoExt plainSchemaRepoExt;
-
     protected final RoleDAO roleDAO;
 
     protected final AccessTokenDAO accessTokenDAO;
@@ -76,7 +74,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainSchemaRepoExt plainSchemaRepoExt,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -92,7 +89,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
-        this.plainSchemaRepoExt = plainSchemaRepoExt;
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.groupDAO = groupDAO;
@@ -179,12 +175,17 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     }
 
     protected User checkBeforeSave(final User user) {
-        User checked = plainSchemaRepoExt.serializeLinkedAccounts(user);
+        User merged = user;
+        if (user.getLinkedAccounts() == null) {
+            entityManager.flush();
+            merged = entityManager.merge(user);
+        }
+        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
 
-        super.checkBeforeSave((JPAUser) checked);
-        checked.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
+        super.checkBeforeSave((JPAUser) merged);
+        merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
 
-        return checked;
+        return merged;
     }
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
@@ -201,8 +202,8 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return Pair.of(merged, dynGroupMembs);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public <S extends User> S save(final S user) {
         return (S) doSave(checkBeforeSave(user)).getLeft();
     }
