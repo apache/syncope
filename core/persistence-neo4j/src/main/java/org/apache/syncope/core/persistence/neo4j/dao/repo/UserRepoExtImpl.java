@@ -43,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -231,6 +232,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     @Override
     public void deleteMembership(final UMembership membership) {
         neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
+    }
+
+    @Override
+    protected <T extends Attributable> void checkBeforeSave(final T user) {
+        super.checkBeforeSave(user);
+        ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
     }
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {

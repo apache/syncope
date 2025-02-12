@@ -236,7 +236,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
         return result;
     }
 
-    protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
+    protected <S extends AnyObject> Pair<S, Pair<Set<String>, Set<String>>> doSave(final S anyObject) {
         checkBeforeSave(anyObject);
 
         // unlink any resource or aux class that was unlinked from anyObject
@@ -268,7 +268,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             beforeRels.forEach(r -> neo4jTemplate.deleteById(r, Neo4jARelationship.class));
         });
 
-        AnyObject merged = neo4jTemplate.save(nodeValidator.validate(anyObject));
+        S merged = neo4jTemplate.save(nodeValidator.validate(anyObject));
 
         anyObjectCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jAnyObject) merged);
 
@@ -279,9 +279,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        return (S) doSave(anyObject).getLeft();
+        return doSave(anyObject).getLeft();
     }
 
     @Override

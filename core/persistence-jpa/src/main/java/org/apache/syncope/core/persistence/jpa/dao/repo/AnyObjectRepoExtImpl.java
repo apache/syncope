@@ -53,6 +53,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -197,7 +198,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        checkBeforeSave(anyObject);
+        checkBeforeSave((JPAAnyObject) anyObject);
         return (S) doSave(anyObject).getLeft();
     }
 

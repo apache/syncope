@@ -21,14 +21,14 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
 
     boolean hasAttrs(PlainSchema schema);
 
-    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttr attr);
+    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
 
     List<PlainSchema> findByValidator(Implementation validator);
 }

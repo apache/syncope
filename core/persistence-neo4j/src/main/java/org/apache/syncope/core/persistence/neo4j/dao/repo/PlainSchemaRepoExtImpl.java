@@ -27,7 +27,7 @@ import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
@@ -100,7 +100,7 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
             final AnyUtils anyUtils,
             final String anyKey,
             final PlainSchema schema,
-            final PlainAttr attr) {
+            final PlainAttrValue attrValue) {
 
         String label;
         switch (anyUtils.anyTypeKind()) {
@@ -117,17 +117,17 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
                 label = Neo4jUser.NODE;
         }
 
-        String value = Optional.ofNullable(attr.getUniqueValue().getDateValue()).
+        String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                orElse(attr.getUniqueValue().getValueAsString());
+                orElse(attrValue.getValueAsString());
 
         return neo4jTemplate.count(
                 "MATCH (n:" + label + ") "
                 + "WITH n.id AS id, "
-                + "apoc.convert.getJsonProperty(n, 'plainAttrs." + attr.getSchema() + "', '$.uniqueValue') "
-                + "AS " + attr.getSchema() + " "
+                + "apoc.convert.getJsonProperty(n, 'plainAttrs." + schema.getKey() + "', '$.uniqueValue') "
+                + "AS " + schema.getKey() + " "
                 + "WHERE (EXISTS { MATCH (n) "
-                + "WHERE " + attr.getSchema() + "." + Neo4jAnySearchDAO.key(schema.getType())
+                + "WHERE " + schema.getKey() + "." + Neo4jAnySearchDAO.key(schema.getType())
                 + " = $value } "
                 + "AND EXISTS { MATCH (n) WHERE NOT (n.id = $anyKey) }) "
                 + "RETURN COUNT(id)",

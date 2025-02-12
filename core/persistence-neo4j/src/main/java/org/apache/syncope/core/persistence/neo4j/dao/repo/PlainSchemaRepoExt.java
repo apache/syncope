@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaRepoExt {
@@ -38,7 +38,7 @@ public interface PlainSchemaRepoExt {
 
     boolean hasAttrs(PlainSchema schema);
 
-    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttr attr);
+    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
 
     PlainSchema save(PlainSchema schema);
 

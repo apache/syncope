@@ -22,8 +22,9 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface PlainSchemaRepoExt {
 
@@ -31,7 +32,9 @@ public interface PlainSchemaRepoExt {
 
     boolean hasAttrs(PlainSchema schema);
 
-    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttr attr);
+    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
+
+    User serializeLinkedAccounts(User user);
 
     PlainSchema save(PlainSchema schema);
 

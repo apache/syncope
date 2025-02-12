@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
@@ -224,7 +225,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public <S extends Group> S save(final S group) {
-        checkBeforeSave(group);
+        checkBeforeSave((JPAGroup) group);
         return entityManager.merge(group);
     }
 

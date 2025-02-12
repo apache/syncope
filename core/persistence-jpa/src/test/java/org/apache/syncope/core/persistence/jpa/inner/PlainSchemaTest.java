@@ -94,19 +94,19 @@ public class PlainSchemaTest extends AbstractTest {
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 "1417acbe-cbf6-4277-9372-e75e04f97000",
                 plainSchemaDAO.findById("userId").orElseThrow(),
-                attr));
+                attr.getUniqueValue()));
         assertTrue(plainSchemaDAO.existsPlainAttrUniqueValue(
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 UUID.randomUUID().toString(),
                 plainSchemaDAO.findById("userId").orElseThrow(),
-                attr));
+                attr.getUniqueValue()));
 
         value.setStringValue("none@apache.org");
         assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),
                 "1417acbe-cbf6-4277-9372-e75e04f97000",
                 plainSchemaDAO.findById("userId").orElseThrow(),
-                attr));
+                attr.getUniqueValue()));
     }
 
     @Test

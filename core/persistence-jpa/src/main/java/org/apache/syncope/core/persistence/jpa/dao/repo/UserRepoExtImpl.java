@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -56,6 +57,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRepoExt {
+
+    protected final PlainSchemaRepoExt plainSchemaRepoExt;
 
     protected final RoleDAO roleDAO;
 
@@ -73,6 +76,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
             final PlainSchemaDAO plainSchemaDAO,
+            final PlainSchemaRepoExt plainSchemaRepoExt,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
             final GroupDAO groupDAO,
@@ -88,6 +92,7 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        this.plainSchemaRepoExt = plainSchemaRepoExt;
         this.roleDAO = roleDAO;
         this.accessTokenDAO = accessTokenDAO;
         this.groupDAO = groupDAO;
@@ -173,10 +178,13 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(membership);
     }
 
-    @Override
-    protected void checkBeforeSave(final User user) {
-        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
-        super.checkBeforeSave(user);
+    protected User checkBeforeSave(final User user) {
+        User checked = plainSchemaRepoExt.serializeLinkedAccounts(user);
+
+        super.checkBeforeSave((JPAUser) checked);
+        checked.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
+
+        return checked;
     }
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
@@ -196,14 +204,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
     @Override
     @SuppressWarnings("unchecked")
     public <S extends User> S save(final S user) {
-        checkBeforeSave(user);
-        return (S) doSave(user).getLeft();
+        return (S) doSave(checkBeforeSave(user)).getLeft();
     }
 
     @Override
     public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final User user) {
-        checkBeforeSave(user);
-        return doSave(user).getRight();
+        return doSave(checkBeforeSave(user)).getRight();
     }
 
     @Override

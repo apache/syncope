@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
@@ -64,15 +64,15 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
             final AnyUtils anyUtils,
             final String anyKey,
             final PlainSchema schema,
-            final PlainAttr attr) {
+            final PlainAttrValue attrValue) {
 
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
                 + new SearchSupport(anyUtils.anyTypeKind()).table().name() + ","
-                + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(attr.getSchema()).
-                        orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())))
-                + " WHERE " + attr.getSchema() + ".uniqueValue=?1 AND id <> ?2");
-        query.setParameter(1, attr.getUniqueValue().getValue());
+                + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(schema.getKey()).
+                        orElseThrow(() -> new NotFoundException("PlainSchema " + schema.getKey())))
+                + " WHERE " + schema.getKey() + ".uniqueValue=?1 AND id <> ?2");
+        query.setParameter(1, attrValue.getValue());
         query.setParameter(2, anyKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;

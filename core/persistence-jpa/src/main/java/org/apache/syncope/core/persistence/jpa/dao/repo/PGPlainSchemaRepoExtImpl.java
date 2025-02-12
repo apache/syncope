@@ -26,8 +26,11 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
@@ -59,7 +62,11 @@ public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
             final AnyUtils anyUtils,
             final String anyKey,
             final PlainSchema schema,
-            final PlainAttr attr) {
+            final PlainAttrValue attrValue) {
+
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(schema.getKey());
+        attr.setUniqueValue(attrValue);
 
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
@@ -69,5 +76,16 @@ public class PGPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
         query.setParameter(1, anyKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
+    public User serializeLinkedAccounts(final User user) {
+        if (!entityManager.contains(user)) {
+            entityManager.flush();
+            return entityManager.merge(user);
+        }
+
+        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        return user;
     }
 }

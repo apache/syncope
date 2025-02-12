@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
@@ -55,6 +56,12 @@ abstract class AbstractPlainSchemaRepoExt extends AbstractSchemaRepoExt implemen
     @Override
     public List<? extends PlainSchema> findByAnyTypeClasses(final Collection<AnyTypeClass> anyTypeClasses) {
         return findByAnyTypeClasses(anyTypeClasses, JPAPlainSchema.class.getSimpleName(), PlainSchema.class);
+    }
+
+    @Override
+    public User serializeLinkedAccounts(final User user) {
+        user.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+        return user;
     }
 
     @Override
