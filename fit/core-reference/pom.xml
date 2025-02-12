@@ -313,6 +313,7 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
+                --add-opens=java.base/java.io=ALL-UNNAMED
                 -Dspring.profiles.active=${spring.profiles.active}
                 -XX:+UseG1GC -Xmx1024m -Xms512m</cargo.jvmargs>
             </properties>
