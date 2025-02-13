@@ -42,6 +42,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -62,7 +63,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny<?>>
+public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         extends AbstractDAO implements AnyRepoExt<A> {
 
     /**
@@ -291,24 +292,32 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>, N extends AbstractAny
                 cache());
     }
 
-    protected void checkBeforeSave(final A any) {
+    protected <T extends Attributable> void checkBeforeSave(final T attributable) {
         // check UNIQUE constraints
-        any.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
-            if (plainSchemaDAO.existsPlainAttrUniqueValue(anyUtils.anyTypeKind(), any.getKey(), attr)) {
+        attributable.getPlainAttrs().stream().filter(attr -> attr.getUniqueValue() != null).forEach(attr -> {
+            if (plainSchemaDAO.existsPlainAttrUniqueValue(
+                    anyUtils,
+                    attributable.getKey(),
+                    plainSchemaDAO.findById(attr.getSchema()).
+                            orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())),
+                    attr.getUniqueValue())) {
+
                 throw new DuplicateException("Duplicate value found for "
-                        + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+                        + attr.getSchema() + "=" + attr.getUniqueValue().getValueAsString());
             } else {
                 LOG.debug("No duplicate value found for {}={}",
-                        attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
+                        attr.getSchema(), attr.getUniqueValue().getValueAsString());
             }
         });
 
         // update sysInfo
-        OffsetDateTime now = OffsetDateTime.now();
-        String who = AuthContextUtils.getWho();
-        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
-        any.setLastModifier(who);
-        any.setLastChangeDate(now);
+        if (attributable instanceof Any any) {
+            OffsetDateTime now = OffsetDateTime.now();
+            String who = AuthContextUtils.getWho();
+            LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+            any.setLastModifier(who);
+            any.setLastChangeDate(now);
+        }
     }
 
     @Override

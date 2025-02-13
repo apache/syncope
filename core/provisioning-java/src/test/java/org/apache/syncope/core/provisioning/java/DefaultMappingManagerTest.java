@@ -34,16 +34,14 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -75,12 +73,6 @@ public class DefaultMappingManagerTest extends AbstractTest {
 
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -250,10 +242,9 @@ public class DefaultMappingManagerTest extends AbstractTest {
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
-        UPlainAttr cool = entityFactory.newEntity(UPlainAttr.class);
-        cool.setOwner(user);
-        cool.setSchema(plainSchemaDAO.findById("cool").orElseThrow());
-        cool.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr cool = new PlainAttr();
+        cool.setSchema("cool");
+        cool.add(validator, "true");
         user.add(cool);
 
         user = userDAO.save(user);

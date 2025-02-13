@@ -82,20 +82,6 @@ under the License.
     SELECT ss.user_id AS any_id, ss.role_id AS role_id
     FROM SyncopeUser_SyncopeRole ss
   </entry>
-  <entry key="user_search_priv">
-    CREATE VIEW user_search_priv AS
-
-    SELECT ss.user_id AS any_id, sp.privilege_id AS privilege_id
-    FROM SyncopeUser_SyncopeRole ss, SyncopeRole_Privilege sp
-    WHERE ss.role_id = sp.role_id
-  </entry>
-  <entry key="user_search_dynpriv">
-    CREATE VIEW user_search_dynpriv AS
-
-    SELECT any_id, privilege_id
-    FROM DynRoleMembers drm, SyncopeRole_Privilege rp
-    WHERE drm.role_id = rp.role_id
-  </entry>
   <entry key="user_search_auxClass">
     CREATE VIEW user_search_auxClass AS
 
@@ -182,6 +168,12 @@ under the License.
     stringValue VARCHAR(255) PATH '$.stringValue'),
     attrUniqueValue JSON PATH '$.uniqueValue')
     ) AS attrs ON 1=1
+  </entry>
+  <entry key="group_search_grelationship">
+    CREATE VIEW group_search_grelationship AS
+
+    SELECT m.id AS any_id, m.anyObject_id AS right_any_id, m.type_id AS type
+    FROM GRelationship m
   </entry>
   <entry key="group_search_auxClass">
     CREATE VIEW group_search_auxClass AS

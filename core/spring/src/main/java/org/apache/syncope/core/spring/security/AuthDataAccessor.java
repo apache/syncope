@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.OpEvent;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -80,8 +81,6 @@ public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.ANONYMOUS));
 
@@ -89,6 +88,8 @@ public class AuthDataAccessor {
             Set.of(new SyncopeGrantedAuthority(IdRepoEntitlement.MUST_CHANGE_PASSWORD));
 
     protected final SecurityProperties securityProperties;
+
+    protected final EncryptorManager encryptorManager;
 
     protected final RealmSearchDAO realmSearchDAO;
 
@@ -118,6 +119,7 @@ public class AuthDataAccessor {
 
     public AuthDataAccessor(
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -133,6 +135,7 @@ public class AuthDataAccessor {
             final List<JWTSSOProvider> jwtSSOProviders) {
 
         this.securityProperties = securityProperties;
+        this.encryptorManager = encryptorManager;
         this.realmSearchDAO = realmSearchDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
@@ -256,7 +259,8 @@ public class AuthDataAccessor {
     }
 
     protected boolean authenticate(final User user, final String password) {
-        boolean authenticated = ENCRYPTOR.verify(password, user.getCipherAlgorithm(), user.getPassword());
+        boolean authenticated = encryptorManager.getInstance().
+                verify(password, user.getCipherAlgorithm(), user.getPassword());
         LOG.debug("{} authenticated on internal storage: {}", user.getUsername(), authenticated);
 
         for (Iterator<? extends ExternalResource> itor = getPassthroughResources(user).iterator();

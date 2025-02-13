@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -29,8 +28,6 @@ public interface RoleDAO extends DAO<Role> {
     String GROUP_OWNER_ROLE = "GROUP_OWNER";
 
     List<Role> findByRealms(Realm realm);
-
-    List<Role> findByPrivileges(Privilege privilege);
 
     Role saveAndRefreshDynMemberships(Role role);
 

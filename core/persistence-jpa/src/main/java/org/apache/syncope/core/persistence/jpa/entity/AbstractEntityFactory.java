@@ -23,7 +23,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Batch;
@@ -41,7 +40,6 @@ import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
@@ -62,14 +60,9 @@ import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.keymaster.ConfParam;
@@ -96,16 +89,10 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAAttrRepo;
@@ -122,14 +109,9 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMemb
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JSONAPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JSONAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JSONAPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGRelationship;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
-import org.apache.syncope.core.persistence.jpa.entity.group.JSONGPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.group.JSONGPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.group.JSONGPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPAConfParam;
 import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPADomain;
 import org.apache.syncope.core.persistence.jpa.entity.keymaster.JPANetworkService;
@@ -160,12 +142,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembershi
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONLAPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONLAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONLAPlainAttrValue;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONUPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONUPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONUPlainAttrValue;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 
 abstract class AbstractEntityFactory implements EntityFactory {
@@ -205,10 +181,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAAnyObject();
         } else if (reference.equals(Role.class)) {
             result = (E) new JPARole();
-        } else if (reference.equals(Application.class)) {
-            result = (E) new JPAApplication();
-        } else if (reference.equals(Privilege.class)) {
-            result = (E) new JPAPrivilege();
         } else if (reference.equals(User.class)) {
             result = (E) new JPAUser();
         } else if (reference.equals(Group.class)) {
@@ -221,6 +193,8 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAARelationship();
         } else if (reference.equals(URelationship.class)) {
             result = (E) new JPAURelationship();
+        } else if (reference.equals(GRelationship.class)) {
+            result = (E) new JPAGRelationship();
         } else if (reference.equals(AMembership.class)) {
             result = (E) new JPAAMembership();
         } else if (reference.equals(UMembership.class)) {
@@ -239,34 +213,10 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAExternalResource();
         } else if (reference.equals(PlainSchema.class)) {
             result = (E) new JPAPlainSchema();
-        } else if (reference.equals(APlainAttr.class)) {
-            result = (E) new JSONAPlainAttr();
-        } else if (reference.equals(APlainAttrValue.class)) {
-            result = (E) new JSONAPlainAttrValue();
-        } else if (reference.equals(APlainAttrUniqueValue.class)) {
-            result = (E) new JSONAPlainAttrUniqueValue();
-        } else if (reference.equals(UPlainAttr.class)) {
-            result = (E) new JSONUPlainAttr();
-        } else if (reference.equals(UPlainAttrValue.class)) {
-            result = (E) new JSONUPlainAttrValue();
-        } else if (reference.equals(UPlainAttrUniqueValue.class)) {
-            result = (E) new JSONUPlainAttrUniqueValue();
-        } else if (reference.equals(LAPlainAttr.class)) {
-            result = (E) new JSONLAPlainAttr();
-        } else if (reference.equals(LAPlainAttrValue.class)) {
-            result = (E) new JSONLAPlainAttrValue();
-        } else if (reference.equals(LAPlainAttrUniqueValue.class)) {
-            result = (E) new JSONLAPlainAttrUniqueValue();
         } else if (reference.equals(DerSchema.class)) {
             result = (E) new JPADerSchema();
         } else if (reference.equals(VirSchema.class)) {
             result = (E) new JPAVirSchema();
-        } else if (reference.equals(GPlainAttr.class)) {
-            result = (E) new JSONGPlainAttr();
-        } else if (reference.equals(GPlainAttrValue.class)) {
-            result = (E) new JSONGPlainAttrValue();
-        } else if (reference.equals(GPlainAttrUniqueValue.class)) {
-            result = (E) new JSONGPlainAttrUniqueValue();
         } else if (reference.equals(Report.class)) {
             result = (E) new JPAReport();
         } else if (reference.equals(ReportExec.class)) {

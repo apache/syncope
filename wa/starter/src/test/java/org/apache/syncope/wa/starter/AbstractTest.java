@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.starter;
 
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
 
 import com.okta.sdk.client.Client;
 import java.util.Collection;
@@ -45,7 +46,12 @@ import org.apereo.cas.persondir.PersonDirectoryAttributeRepositoryPlanConfigurer
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.util.spring.beans.BeanContainer;
 import org.apereo.cas.util.spring.beans.BeanSupplier;
+import org.apereo.inspektr.common.web.ClientInfo;
+import org.apereo.inspektr.common.web.ClientInfoHolder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -70,6 +76,8 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(locations = { "classpath:wa.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
     private static class DummyIPersonAttributeDao implements PersonAttributeDao {
 
@@ -241,6 +249,11 @@ public abstract class AbstractTest {
         public PersonDirectoryAttributeRepositoryPlanConfigurer oktaAttributeRepositoryPlanConfigurer() {
             return BeanSupplier.of(PersonDirectoryAttributeRepositoryPlanConfigurer.class).otherwiseProxy().get();
         }
+    }
+
+    @BeforeAll
+    public static void setupClientInfo() {
+        ClientInfoHolder.setClientInfo(mock(ClientInfo.class));
     }
 
     @LocalServerPort

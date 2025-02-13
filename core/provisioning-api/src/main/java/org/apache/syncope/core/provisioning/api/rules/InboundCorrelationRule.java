@@ -57,7 +57,7 @@ public interface InboundCorrelationRule {
      * @param provision resource provision
      * @return matching information
      */
-    default InboundMatch matching(Any<?> any, LiveSyncDelta syncDelta, Provision provision) {
+    default InboundMatch matching(Any any, LiveSyncDelta syncDelta, Provision provision) {
         return new InboundMatch(MatchType.ANY, any);
     }
 

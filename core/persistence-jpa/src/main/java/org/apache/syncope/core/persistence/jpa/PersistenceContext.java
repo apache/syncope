@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AttrRepoDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
@@ -59,7 +58,6 @@ import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -98,7 +96,6 @@ import org.apache.syncope.core.persistence.jpa.dao.JPAEntityCacheDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAJobStatusDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAOIDCJWKSDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPersistenceInfoDAO;
-import org.apache.syncope.core.persistence.jpa.dao.JPAPlainAttrValueDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPAPolicyDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARealmDAO;
 import org.apache.syncope.core.persistence.jpa.dao.JPARealmSearchDAO;
@@ -114,9 +111,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeClassRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AnyTypeRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.ApplicationRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.AttrRepoRepoExtImpl;
@@ -468,8 +462,12 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AnyTypeRepoExt anyTypeRepoExt(final RemediationDAO remediationDAO, final EntityManager entityManager) {
-        return new AnyTypeRepoExtImpl(remediationDAO, entityManager);
+    public AnyTypeRepoExt anyTypeRepoExt(
+            final RemediationDAO remediationDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityManager entityManager) {
+
+        return new AnyTypeRepoExtImpl(remediationDAO, relationshipTypeDAO, entityManager);
     }
 
     @ConditionalOnMissingBean
@@ -479,25 +477,6 @@ public class PersistenceContext {
             final AnyTypeRepoExt anyTypeRepoExt) {
 
         return jpaRepositoryFactory.getRepository(AnyTypeRepo.class, anyTypeRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationRepoExt applicationRepoExt(
-            final RoleDAO roleDAO,
-            final @Lazy UserDAO userDAO,
-            final EntityManager entityManager) {
-
-        return new ApplicationRepoExtImpl(roleDAO, userDAO, entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationDAO applicationDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final ApplicationRepoExt applicationRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(ApplicationRepo.class, applicationRepoExt);
     }
 
     @ConditionalOnMissingBean
@@ -776,12 +755,6 @@ public class PersistenceContext {
     @Bean
     public PersistenceInfoDAO persistenceInfoDAO(final EntityManagerFactory entityManagerFactory) {
         return new JPAPersistenceInfoDAO(entityManagerFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public PlainAttrValueDAO plainAttrValueDAO() {
-        return new JPAPlainAttrValueDAO();
     }
 
     @ConditionalOnMissingBean

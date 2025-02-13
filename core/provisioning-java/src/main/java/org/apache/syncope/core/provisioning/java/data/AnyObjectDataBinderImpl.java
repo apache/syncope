@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
@@ -56,12 +54,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -85,7 +83,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final EntityFactory entityFactory,
@@ -104,7 +101,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -291,8 +287,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 anyObject.add(membership);
 
                 // membership attributes
-                fill(anyTO, anyObject, membership, membershipTO,
-                        anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+                fill(anyTO, anyObject, membership, membershipTO, scce);
             }
         });
 
@@ -402,13 +397,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             anyObject.getMembership(patch.getGroup()).ifPresent(membership -> {
                 anyObject.remove(membership);
                 membership.setLeftEnd(null);
-                anyObject.getPlainAttrs(membership).forEach(attr -> {
-                    anyObject.remove(attr);
-                    attr.setOwner(null);
-                    attr.setMembership(null);
-                    plainAttrValueDAO.deleteAll(attr, anyUtils);
-                    plainSchemaDAO.delete(attr);
-                });
+                anyObject.getPlainAttrs(membership).forEach(anyObject::remove);
                 anyObjectDAO.deleteMembership(membership);
 
                 if (patch.getOperation() == PatchOperation.DELETE) {
@@ -437,35 +426,30 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                     anyObject.add(newMembership);
 
-                    patch.getPlainAttrs().forEach(attrTO -> {
-                        PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                        if (schema == null) {
-                            LOG.debug("Invalid {}{}, ignoring...",
-                                    PlainSchema.class.getSimpleName(), attrTO.getSchema());
-                        } else {
-                            Optional<? extends APlainAttr> attr =
-                                    anyObject.getPlainAttr(schema.getKey(), newMembership);
-                            if (attr.isEmpty()) {
-                                LOG.debug("No plain attribute found for {} and membership of {}",
-                                        schema, newMembership.getRightEnd());
+                    patch.getPlainAttrs().forEach(attrTO -> getPlainSchema(attrTO.getSchema()).ifPresentOrElse(
+                            schema -> anyObject.getPlainAttr(schema.getKey(), newMembership).ifPresentOrElse(
+                                    attr -> LOG.debug(
+                                            "Plain attribute found for {} and membership of {}, nothing to do",
+                                            schema, newMembership.getRightEnd()),
+                                    () -> {
+                                        LOG.debug("No plain attribute found for {} and membership of {}",
+                                                schema, newMembership.getRightEnd());
 
-                                APlainAttr newAttr = anyUtils.newPlainAttr();
-                                newAttr.setOwner(anyObject);
-                                newAttr.setMembership(newMembership);
-                                newAttr.setSchema(schema);
-                                anyObject.add(newAttr);
+                                        PlainAttr newAttr = new PlainAttr();
+                                        newAttr.setMembership(newMembership.getKey());
+                                        newAttr.setPlainSchema(schema);
+                                        anyObject.add(newAttr);
 
-                                processAttrPatch(
-                                        anyTO,
-                                        anyObject,
-                                        new AttrPatch.Builder(attrTO).build(),
-                                        schema,
-                                        newAttr,
-                                        anyUtils,
-                                        invalidValues);
-                            }
-                        }
-                    });
+                                        processAttrPatch(
+                                                anyTO,
+                                                anyObject,
+                                                new AttrPatch.Builder(attrTO).build(),
+                                                schema,
+                                                newAttr,
+                                                invalidValues);
+                                    }),
+                            () -> LOG.debug("Invalid {}{}, ignoring...",
+                                    PlainSchema.class.getSimpleName(), attrTO.getSchema())));
                     if (!invalidValues.isEmpty()) {
                         scce.addException(invalidValues);
                     }

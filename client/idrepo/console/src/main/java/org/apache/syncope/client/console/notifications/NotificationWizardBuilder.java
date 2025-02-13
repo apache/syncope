@@ -368,8 +368,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                     + "<code>users[userName].attribute</code>, "
                     + "<code>anyObjects[anyObjectName].attribute</code>, "
                     + "<code>relationships[relationshipType][anyType].attribute</code> or "
-                    + "<code>memberships[groupName].attribute</code> or "
-                    + "<code>privileges[applicationKey]</code>", true);
+                    + "<code>memberships[groupName].attribute</code>", true);
             add(recipientAttrName);
 
             AjaxTextFieldPanel staticRecipientsFieldPanel =

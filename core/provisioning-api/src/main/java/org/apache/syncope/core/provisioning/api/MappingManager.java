@@ -46,7 +46,7 @@ public interface MappingManager {
      * @param provision provision information
      * @return connObjectKey internal value
      */
-    Optional<String> getConnObjectKeyValue(Any<?> any, ExternalResource resource, Provision provision);
+    Optional<String> getConnObjectKeyValue(Any any, ExternalResource resource, Provision provision);
 
     /**
      * Get connObjectKey internal value.
@@ -76,7 +76,7 @@ public interface MappingManager {
             Item mapItem,
             IntAttrName intAttrName,
             AttrSchemaType schemaType,
-            Any<?> any,
+            Any any,
             AccountGetter usernameAccountGetter,
             PlainAttrGetter plainAttrGetter);
 
@@ -97,7 +97,7 @@ public interface MappingManager {
             ExternalResource resource,
             Provision provision,
             Item item,
-            Any<?> any,
+            Any any,
             String password,
             AccountGetter usernameAccountGetter,
             AccountGetter passwordAccountGetter,
@@ -115,7 +115,7 @@ public interface MappingManager {
      * @return connObjectLink + prepared attributes
      */
     Pair<String, Set<Attribute>> prepareAttrsFromAny(
-            Any<?> any,
+            Any any,
             String password,
             boolean changePwd,
             Boolean enable,

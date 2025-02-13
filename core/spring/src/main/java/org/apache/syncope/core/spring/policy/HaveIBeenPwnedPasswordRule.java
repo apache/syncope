@@ -26,13 +26,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.HaveIBeenPwnedPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -44,9 +45,10 @@ import org.springframework.web.client.RestTemplate;
 @PasswordRuleConfClass(HaveIBeenPwnedPasswordRuleConf.class)
 public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HaveIBeenPwnedPasswordRule.class);
 
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    @Autowired
+    private EncryptorManager encryptorManager;
 
     private HaveIBeenPwnedPasswordRuleConf conf;
 
@@ -57,8 +59,8 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     @Override
     public void setConf(final PasswordRuleConf conf) {
-        if (conf instanceof HaveIBeenPwnedPasswordRuleConf) {
-            this.conf = (HaveIBeenPwnedPasswordRuleConf) conf;
+        if (conf instanceof HaveIBeenPwnedPasswordRuleConf haveIBeenPwnedPasswordRuleConf) {
+            this.conf = haveIBeenPwnedPasswordRuleConf;
         } else {
             throw new IllegalArgumentException(
                     HaveIBeenPwnedPasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
@@ -67,7 +69,7 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
 
     protected void enforce(final String clearPassword) {
         try {
-            String sha1 = ENCRYPTOR.encode(clearPassword, CipherAlgorithm.SHA1);
+            String sha1 = encryptorManager.getInstance().encode(clearPassword, CipherAlgorithm.SHA1);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.USER_AGENT, "Apache Syncope");
@@ -77,8 +79,8 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
                     new HttpEntity<>(null, headers),
                     String.class);
             if (StringUtils.isNotBlank(response.getBody())) {
-                if (Stream.of(response.getBody().split("\\n")).anyMatch(line
-                        -> sha1.equals(sha1.substring(0, 5) + StringUtils.substringBefore(line, ":")))) {
+                if (Stream.of(response.getBody().split("\\n")).
+                        anyMatch(line -> sha1.equals(sha1.substring(0, 5) + StringUtils.substringBefore(line, ":")))) {
 
                     throw new PasswordPolicyException("Password pwned");
                 }
@@ -108,7 +110,8 @@ public class HaveIBeenPwnedPasswordRule implements PasswordRule {
             String clearPassword = null;
             if (account.canDecodeSecrets()) {
                 try {
-                    clearPassword = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                    clearPassword = encryptorManager.getInstance().
+                            decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.error("Could not decode password for {}", account, e);
                 }

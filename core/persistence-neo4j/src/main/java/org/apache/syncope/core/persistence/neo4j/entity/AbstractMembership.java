@@ -25,19 +25,19 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public abstract class AbstractMembership<L extends Any<?>, P extends PlainAttr<?>>
+public abstract class AbstractMembership<L extends Any>
         extends AbstractGeneratedKeyNode
         implements Membership<L> {
 
     private static final long serialVersionUID = -6360036936818368868L;
 
-    protected abstract Map<String, ? extends P> plainAttrs();
+    protected abstract Map<String, PlainAttr> plainAttrs();
 
-    public abstract List<? extends P> getPlainAttrs();
+    public abstract List<PlainAttr> getPlainAttrs();
 
-    public abstract Optional<? extends P> getPlainAttr(String plainSchema);
+    public abstract Optional<PlainAttr> getPlainAttr(String plainSchema);
 
-    public abstract boolean add(P attr);
+    public abstract boolean add(PlainAttr attr);
 
     public abstract boolean remove(String plainSchema);
 }

@@ -27,6 +27,7 @@ import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.OpEvent;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -43,8 +44,6 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected static final Logger LOG = LoggerFactory.getLogger(UsernamePasswordAuthenticationProvider.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final DomainOps domainOps;
 
     protected final AuthDataAccessor dataAccessor;
@@ -55,18 +54,22 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected final SecurityProperties securityProperties;
 
+    protected final EncryptorManager encryptorManager;
+
     public UsernamePasswordAuthenticationProvider(
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
             final DefaultCredentialChecker credentialChecker,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager) {
 
         this.domainOps = domainOps;
         this.dataAccessor = dataAccessor;
         this.provisioningManager = provisioningManager;
         this.credentialChecker = credentialChecker;
         this.securityProperties = securityProperties;
+        this.encryptorManager = encryptorManager;
     }
 
     @Override
@@ -99,12 +102,12 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             username.set(securityProperties.getAdminUser());
             if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
-                authenticated = ENCRYPTOR.verify(
+                authenticated = encryptorManager.getInstance().verify(
                         authentication.getCredentials().toString(),
                         securityProperties.getAdminPasswordAlgorithm(),
                         securityProperties.getAdminPassword());
             } else if (domain.isPresent()) {
-                authenticated = ENCRYPTOR.verify(
+                authenticated = encryptorManager.getInstance().verify(
                         authentication.getCredentials().toString(),
                         domain.get().getAdminCipherAlgorithm(),
                         domain.get().getAdminPassword());

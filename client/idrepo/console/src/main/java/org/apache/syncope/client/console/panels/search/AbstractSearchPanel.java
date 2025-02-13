@@ -81,8 +81,6 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<String>> roleNames;
 
-    protected IModel<List<String>> privilegeNames;
-
     protected IModel<List<SearchClause>> model;
 
     protected WebMarkupContainer searchFormContainer;
@@ -177,7 +175,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 builder.required,
                 types,
                 builder.customizer,
-                anames, dnames, groupInfo, roleNames, privilegeNames, auxClassNames, resourceNames);
+                anames, dnames, groupInfo, roleNames, auxClassNames, resourceNames);
         if (builder.enableSearch) {
             searchClausePanel.enableSearch(builder.resultContainer);
         }

@@ -29,7 +29,6 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -38,11 +37,10 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -77,9 +75,6 @@ public class UserTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private ApplicationDAO applicationDAO;
 
     @Autowired
     private DelegationDAO delegationDAO;
@@ -154,19 +149,14 @@ public class UserTest extends AbstractTest {
 
         account.setConnObjectKeyValue(connObjectKeyValue);
         account.setResource(resourceDAO.findById("resource-ldap").orElseThrow());
-        account.add(applicationDAO.findPrivilege("getMighty").orElseThrow());
 
         account.setUsername(UUID.randomUUID().toString());
         account.setCipherAlgorithm(CipherAlgorithm.AES);
         account.setPassword("Password123");
 
-        AnyUtils anyUtils = anyUtilsFactory.getLinkedAccountInstance();
-
-        LAPlainAttr attr = anyUtils.newPlainAttr();
-        attr.setOwner(user);
-        attr.setAccount(account);
-        attr.setSchema(plainSchemaDAO.findById("obscure").orElseThrow());
-        attr.add(validator, "testvalue", anyUtils);
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("obscure");
+        attr.add(validator, "testvalue");
         account.add(attr);
 
         user = userDAO.save(user);
@@ -182,7 +172,7 @@ public class UserTest extends AbstractTest {
         assertNotNull(account.getKey());
         assertEquals(1, account.getPlainAttrs().size());
         assertTrue(account.getPlainAttr("obscure").isPresent());
-        assertEquals(account.getOwner(), account.getPlainAttr("obscure").get().getOwner());
+        assertEquals("vivaldi", account.getOwner().getUsername());
 
         assertTrue(userDAO.linkedAccountExists(account.getOwner().getKey(), account.getConnObjectKeyValue()));
 
@@ -192,11 +182,6 @@ public class UserTest extends AbstractTest {
 
         List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(
                 resourceDAO.findById("resource-ldap").orElseThrow());
-        assertEquals(1, accounts.size());
-        assertEquals(account, accounts.get(0));
-
-        accounts = userDAO.findLinkedAccountsByPrivilege(
-                applicationDAO.findPrivilege("getMighty").orElseThrow());
         assertEquals(1, accounts.size());
         assertEquals(account, accounts.get(0));
     }

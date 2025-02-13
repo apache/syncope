@@ -29,17 +29,18 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.common.validation.AttributableCheck;
@@ -48,9 +49,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
@@ -59,7 +58,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @Node(Neo4jUser.NODE)
 @AttributableCheck
 public class Neo4jUser
-        extends AbstractGroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship>
+        extends AbstractGroupableRelatable<User, UMembership, AnyObject, URelationship>
         implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
@@ -76,15 +75,13 @@ public class Neo4jUser
 
     public static final String USER_SECURITY_QUESTION_REL = "USER_SECURITY_QUESTION";
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected static final TypeReference<List<String>> TYPEREF = new TypeReference<List<String>>() {
     };
 
     protected String password;
 
-    @CompositeProperty(converterRef = "uPlainAttrsConverter")
-    protected Map<String, JSONUPlainAttr> plainAttrs = new HashMap<>();
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
     protected String token;
 
@@ -147,7 +144,7 @@ public class Neo4jUser
     protected List<Neo4jLinkedAccount> linkedAccounts = new ArrayList<>();
 
     @Override
-    protected Map<String, ? extends UPlainAttr> plainAttrs() {
+    protected Map<String, PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
@@ -195,14 +192,22 @@ public class Neo4jUser
         setMustChangePassword(false);
     }
 
+    protected String encode(final String value) throws Exception {
+        return ApplicationContextProvider.getApplicationContext().getBean(EncryptorManager.class).getInstance().encode(
+                value,
+                Optional.ofNullable(cipherAlgorithm).
+                        orElseGet(() -> CipherAlgorithm.valueOf(
+                        ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).get(
+                                AuthContextUtils.getDomain(),
+                                "password.cipher.algorithm",
+                                CipherAlgorithm.AES.name(),
+                                String.class))));
+    }
+
     @Override
     public void setPassword(final String password) {
         try {
-            this.password = ENCRYPTOR.encode(password, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.password = encode(password);
             setMustChangePassword(false);
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -230,22 +235,14 @@ public class Neo4jUser
     }
 
     @Override
-    protected void setPlainAttrOwner(final UPlainAttr plainAttr) {
-        plainAttr.setOwner(this);
-    }
-
-    @Override
-    public boolean add(final UPlainAttr attr) {
-        checkType(attr, JSONUPlainAttr.class);
-        JSONUPlainAttr neo4jAttr = (JSONUPlainAttr) attr;
-
-        if (neo4jAttr.getMembershipKey() == null) {
-            return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+    public boolean add(final PlainAttr attr) {
+        if (attr.getMembership() == null) {
+            return plainAttrs.put(attr.getSchema(), attr) != null;
         }
 
         return memberships().stream().
-                filter(membership -> membership.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
-                map(membership -> membership.add(neo4jAttr)).
+                filter(membership -> membership.getKey().equals(attr.getMembership())).findFirst().
+                map(membership -> membership.add(attr)).
                 orElse(false);
     }
 
@@ -385,11 +382,7 @@ public class Neo4jUser
     @Override
     public void setSecurityAnswer(final String securityAnswer) {
         try {
-            this.securityAnswer = ENCRYPTOR.encode(securityAnswer, cipherAlgorithm == null
-                    ? CipherAlgorithm.valueOf(ApplicationContextProvider.getBeanFactory().getBean(ConfParamOps.class).
-                            get(AuthContextUtils.getDomain(), "password.cipher.algorithm", CipherAlgorithm.AES.name(),
-                                    String.class))
-                    : cipherAlgorithm);
+            this.securityAnswer = encode(securityAnswer);
         } catch (Exception e) {
             LOG.error("Could not encode security answer", e);
             this.securityAnswer = null;
@@ -411,15 +404,6 @@ public class Neo4jUser
     public boolean add(final URelationship relationship) {
         checkType(relationship, Neo4jURelationship.class);
         return this.relationships.add((Neo4jURelationship) relationship);
-    }
-
-    @Override
-    public Optional<? extends URelationship> getRelationship(
-            final RelationshipType relationshipType, final String otherEndKey) {
-
-        return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
-                && otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
-                findFirst();
     }
 
     @Override

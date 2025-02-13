@@ -21,12 +21,15 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
+import jakarta.persistence.Transient;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.common.entity.AMembershipType;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
@@ -46,9 +49,12 @@ public class JPAAMembership extends AbstractGeneratedKeyEntity implements AMembe
     @Column(name = "group_id")
     private JPAGroup rightEnd;
 
+    @Transient
+    private AMembershipType aMembershipType;
+
     @Override
-    public MembershipType getType() {
-        return MembershipType.getInstance();
+    public RelationshipType getType() {
+        return aMembershipType;
     }
 
     @Override
@@ -65,6 +71,7 @@ public class JPAAMembership extends AbstractGeneratedKeyEntity implements AMembe
     public void setLeftEnd(final AnyObject leftEnd) {
         checkType(leftEnd, JPAAnyObject.class);
         this.leftEnd = (JPAAnyObject) leftEnd;
+        this.aMembershipType = Optional.ofNullable(leftEnd).map(le -> new AMembershipType(le.getType())).orElse(null);
     }
 
     @Override
@@ -76,5 +83,10 @@ public class JPAAMembership extends AbstractGeneratedKeyEntity implements AMembe
     public void setRightEnd(final Group rightEnd) {
         checkType(rightEnd, JPAGroup.class);
         this.rightEnd = (JPAGroup) rightEnd;
+    }
+
+    @PostLoad
+    public void postLoad() {
+        this.aMembershipType = new AMembershipType(leftEnd.getType());
     }
 }

@@ -70,7 +70,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+    public Filter getFilter(final Any any, final ExternalResource resource, final Provision provision) {
         List<Filter> filters = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(

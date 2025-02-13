@@ -36,7 +36,7 @@ class PrefixItemTransformer implements ItemTransformer {
   @Override
   Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
     Item item,
-    Any<?> any,
+    Any any,
     AttrSchemaType schemaType,
     List<PlainAttrValue> values) {
 

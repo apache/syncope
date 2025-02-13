@@ -59,7 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.apache.syncope.core.persistence.jpa.entity.user.JSONUPlainAttrValue;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -168,7 +167,6 @@ public class ElasticsearchAnySearchDAOTest {
         // 1. mock
         AnyUtils anyUtils = mock(AnyUtils.class);
         when(anyUtils.getField("key")).thenReturn(Optional.of(ReflectionUtils.findField(JPAUser.class, "id")));
-        when(anyUtils.newPlainAttrValue()).thenReturn(new JSONUPlainAttrValue());
 
         when(anyUtilsFactory.getInstance(AnyTypeKind.USER)).thenReturn(anyUtils);
 
@@ -210,14 +208,13 @@ public class ElasticsearchAnySearchDAOTest {
         // 1. mock
         AnyUtils anyUtils = mock(AnyUtils.class);
         when(anyUtils.getField("key")).thenReturn(Optional.of(ReflectionUtils.findField(JPAUser.class, "id")));
-        JSONUPlainAttrValue value = new JSONUPlainAttrValue();
-        when(anyUtils.newPlainAttrValue()).thenReturn(value);
 
         when(anyUtilsFactory.getInstance(AnyTypeKind.USER)).thenReturn(anyUtils);
 
         when(entityFactory.newEntity(PlainSchema.class)).thenReturn(new JPAPlainSchema());
 
         doAnswer(ic -> {
+            PlainAttrValue value = ic.getArgument(2);
             value.setStringValue(ic.getArgument(1));
             return null;
         }).when(validator).validate(any(PlainSchema.class), anyString(), any(PlainAttrValue.class));

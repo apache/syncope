@@ -212,12 +212,12 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(final SearchCond cond, final AnyTypeKind kind) {
+    public <T extends Any> List<T> search(final SearchCond cond, final AnyTypeKind kind) {
         return search(cond, List.of(), kind);
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(
+    public <T extends Any> List<T> search(
             final SearchCond cond, final List<Sort.Order> orderBy, final AnyTypeKind kind) {
 
         return search(
@@ -229,7 +229,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 kind);
     }
 
-    protected abstract <T extends Any<?>> List<T> doSearch(
+    protected abstract <T extends Any> List<T> doSearch(
             Realm base,
             boolean recursive,
             Set<String> adminRealms,
@@ -238,14 +238,10 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             AnyTypeKind kind);
 
     protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
-
         PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
-        PlainAttrValue attrValue = schema.isUniqueConstraint()
-                ? anyUtils.newPlainAttrUniqueValue()
-                : anyUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = new PlainAttrValue();
         try {
             if (cond.getType() != AttrCond.Type.LIKE
                     && cond.getType() != AttrCond.Type.ILIKE
@@ -309,7 +305,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             schema.setType(AttrSchemaType.String);
         }
 
-        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = new PlainAttrValue();
         if (computed.getType() != AttrCond.Type.LIKE
                 && computed.getType() != AttrCond.Type.ILIKE
                 && computed.getType() != AttrCond.Type.ISNULL
@@ -376,13 +372,13 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
+    protected <T extends Any> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
         List<String> keys = raw.stream().
                 map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
                 toList();
 
         // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual query results
-        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
+        List<Any> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
                 sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).toList();
 
         keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
@@ -392,7 +388,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(
+    public <T extends Any> List<T> search(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,

@@ -62,17 +62,17 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
     }
 
     @Override
-    protected String getName(final Any<?> any) {
+    protected String getName(final Any any) {
         return User.class.cast(any).getUsername();
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return userDataBinder.getUserTO((User) any, true);
     }
 
     @Override
-    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void provision(final Any any, final Boolean enabled, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -102,7 +102,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
 
     @Override
     protected void update(
-            final Any<?> any,
+            final Any any,
             final Boolean enable,
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
@@ -142,7 +142,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
     }
 
     @Override
-    protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void deprovision(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());

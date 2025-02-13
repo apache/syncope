@@ -59,7 +59,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt<A> {
+public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
 
@@ -218,26 +218,34 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
                 toList();
     }
 
-    protected void checkBeforeSave(final A any) {
+    protected <T extends AbstractAttributable> void checkBeforeSave(final T attributable) {
         // check UNIQUE constraints
-        new ArrayList<>(((AbstractAttributable<?>) any).getPlainAttrsList()).stream().
+        new ArrayList<>(attributable.getPlainAttrsList()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
-                    if (plainSchemaDAO.existsPlainAttrUniqueValue(anyUtils.anyTypeKind(), any.getKey(), attr)) {
+                    if (plainSchemaDAO.existsPlainAttrUniqueValue(
+                            anyUtils,
+                            attributable.getKey(),
+                            plainSchemaDAO.findById(attr.getSchema()).
+                                    orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())),
+                            attr.getUniqueValue())) {
+
                         throw new DuplicateException("Duplicate value found for "
-                                + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+                                + attr.getSchema() + "=" + attr.getUniqueValue().getValueAsString());
                     } else {
                         LOG.debug("No duplicate value found for {}={}",
-                                attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
+                                attr.getSchema(), attr.getUniqueValue().getValueAsString());
                     }
                 });
 
         // update sysInfo
-        OffsetDateTime now = OffsetDateTime.now();
-        String who = AuthContextUtils.getWho();
-        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
-        any.setLastModifier(who);
-        any.setLastChangeDate(now);
+        if (attributable instanceof Any any) {
+            OffsetDateTime now = OffsetDateTime.now();
+            String who = AuthContextUtils.getWho();
+            LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+            any.setLastModifier(who);
+            any.setLastChangeDate(now);
+        }
     }
 
     @Override

@@ -93,7 +93,7 @@ public class AnyFinder {
     }
 
     @Transactional(readOnly = true)
-    public <A extends Any<?>> List<A> findByDerAttrValue(
+    public <A extends Any> List<A> findByDerAttrValue(
             final AnyTypeKind anyTypeKind,
             final DerSchema derSchema,
             final String value,

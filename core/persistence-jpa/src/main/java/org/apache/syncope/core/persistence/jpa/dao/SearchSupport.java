@@ -83,7 +83,7 @@ public class SearchSupport {
     }
 
     public SearchView relationship() {
-        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
+        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : anyTypeKind == AnyTypeKind.GROUP ? "g" : "a";
         return new SearchView("sv" + kind + 'm', field().name + '_' + kind + "relationship");
     }
 
@@ -99,14 +99,6 @@ public class SearchSupport {
 
     public SearchView role() {
         return new SearchView("svr", field().name + "_role");
-    }
-
-    public SearchView priv() {
-        return new SearchView("svp", field().name + "_priv");
-    }
-
-    public SearchView dynpriv() {
-        return new SearchView("svdp", field().name + "_dynpriv");
     }
 
     public static SearchView dynrolemembership() {

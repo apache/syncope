@@ -22,56 +22,54 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 
 public abstract class AbstractGroupableRelatable<
-        L extends Any<P>, 
+        L extends Any, 
         M extends Membership<L>, 
-        P extends GroupablePlainAttr<L, M>,
-        R extends Any<?>,
+        R extends Any,
         REL extends Relationship<L, R>>
-        extends AbstractAny<P> implements GroupableRelatable<L, M, P, R, REL> {
+        extends AbstractRelatable<L, R, REL> implements Groupable<L, M, R, REL> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
     @Override
-    public List<? extends P> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return getPlainAttrsList().stream().
-                filter(attr -> attr.getMembershipKey() == null).
+                filter(attr -> attr.getMembership() == null).
                 toList();
     }
 
     @Override
-    public Optional<? extends P> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return getPlainAttrsList().stream().
-                filter(attr -> attr.getMembershipKey() == null
-                && plainSchema.equals(attr.getSchemaKey())).
+                filter(attr -> attr.getMembership() == null
+                && plainSchema.equals(attr.getSchema())).
                 findFirst();
     }
 
     @Override
-    public Optional<? extends P> getPlainAttr(final String plainSchema, final Membership<?> membership) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
         return getPlainAttrsList().stream().
-                filter(attr -> plainSchema.equals(attr.getSchemaKey())
-                && membership.getKey().equals(attr.getMembershipKey())).
+                filter(attr -> plainSchema.equals(attr.getSchema())
+                && membership.getKey().equals(attr.getMembership())).
                 findFirst();
     }
 
     @Override
-    public Collection<? extends P> getPlainAttrs(final String plainSchema) {
+    public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
         return getPlainAttrsList().stream().
-                filter(attr -> plainSchema.equals(attr.getSchemaKey())).
+                filter(attr -> plainSchema.equals(attr.getSchema())).
                 toList();
     }
 
     @Override
-    public Collection<? extends P> getPlainAttrs(final Membership<?> membership) {
+    public Collection<PlainAttr> getPlainAttrs(final Membership<?> membership) {
         return getPlainAttrsList().stream().
-                filter(attr -> membership.getKey().equals(attr.getMembershipKey())).
+                filter(attr -> membership.getKey().equals(attr.getMembership())).
                 toList();
     }
 
@@ -80,19 +78,5 @@ public abstract class AbstractGroupableRelatable<
         return getMemberships().stream().
                 filter(membership -> groupKey.equals(membership.getRightEnd().getKey())).
                 findFirst();
-    }
-
-    @Override
-    public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
-        return getRelationships().stream().
-                filter(relationship -> relationshipType.equals(relationship.getType())).
-                toList();
-    }
-
-    @Override
-    public Collection<? extends REL> getRelationships(final String otherEndKey) {
-        return getRelationships().stream().
-                filter(relationship -> otherEndKey.equals(relationship.getRightEnd().getKey())).
-                toList();
     }
 }

@@ -43,8 +43,8 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -57,7 +57,6 @@ import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
@@ -233,6 +232,12 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
     @Override
     public void deleteMembership(final UMembership membership) {
         neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
+    }
+
+    @Override
+    protected <T extends Attributable> void checkBeforeSave(final T user) {
+        super.checkBeforeSave(user);
+        ((User) user).getLinkedAccounts().forEach(super::checkBeforeSave);
     }
 
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
@@ -455,16 +460,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 Neo4jLinkedAccount.NODE,
                 Neo4jUser.NODE,
                 userKey,
-                Neo4jLinkedAccount.class,
-                null);
-    }
-
-    @Override
-    public List<LinkedAccount> findLinkedAccountsByPrivilege(final Privilege privilege) {
-        return findByRelationship(
-                Neo4jLinkedAccount.NODE,
-                Neo4jPrivilege.NODE,
-                privilege.getKey(),
                 Neo4jLinkedAccount.class,
                 null);
     }

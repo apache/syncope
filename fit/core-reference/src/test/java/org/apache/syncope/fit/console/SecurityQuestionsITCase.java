@@ -39,7 +39,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
         TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
         TESTER.assertRenderedPage(Security.class);
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
     private static void createSecurityQuestion(final String name) {
@@ -60,7 +60,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.clickLink("body:configurationLI:configurationUL:securityLI:security", false);
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:4:link");
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
     }
 
     @Test

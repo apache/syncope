@@ -23,12 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.springframework.data.neo4j.core.schema.CompositeProperty;
@@ -36,7 +36,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jUMembership.NODE)
-public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> implements UMembership {
+public class Neo4jUMembership extends AbstractMembership<User> implements UMembership {
 
     private static final long serialVersionUID = -14584450896965100L;
 
@@ -48,12 +48,12 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     @Relationship(direction = Relationship.Direction.OUTGOING)
     private Neo4jGroup rightEnd;
 
-    @CompositeProperty(converterRef = "uPlainAttrsConverter")
-    protected Map<String, JSONUPlainAttr> plainAttrs = new HashMap<>();
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
     @Override
-    public MembershipType getType() {
-        return MembershipType.getInstance();
+    public UMembershipType getType() {
+        return UMembershipType.getInstance();
     }
 
     @Override
@@ -84,12 +84,12 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     }
 
     @Override
-    protected Map<String, ? extends UPlainAttr> plainAttrs() {
+    protected Map<String, PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
     @Override
-    public List<? extends JSONUPlainAttr> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrs.entrySet().stream().
                 filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
@@ -97,16 +97,14 @@ public class Neo4jUMembership extends AbstractMembership<User, UPlainAttr> imple
     }
 
     @Override
-    public Optional<? extends JSONUPlainAttr> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return Optional.ofNullable(plainAttrs.get(plainSchema));
     }
 
     @Override
-    public boolean add(final UPlainAttr attr) {
-        checkType(attr, JSONUPlainAttr.class);
-        JSONUPlainAttr neo4jAttr = (JSONUPlainAttr) attr;
-        return getKey().equals(neo4jAttr.getMembershipKey())
-                && plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+    public boolean add(final PlainAttr attr) {
+        return getKey().equals(attr.getMembership())
+                && plainAttrs.put(attr.getSchema(), attr) != null;
     }
 
     @Override

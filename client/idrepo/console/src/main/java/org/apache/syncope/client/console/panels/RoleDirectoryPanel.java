@@ -129,8 +129,6 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                 new ResourceModel("realms"), null, "realms"));
         columns.add(new PropertyColumn<>(
                 new ResourceModel("dynRealms"), null, "dynRealms"));
-        columns.add(new PropertyColumn<>(
-                new ResourceModel("privileges"), null, "privileges"));
 
         return columns;
     }

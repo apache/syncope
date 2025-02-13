@@ -53,7 +53,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -231,7 +230,7 @@ public class KeymasterITCase extends AbstractITCase {
                 databasePlatform(two.getDatabasePlatform()).
                 orm(two.getOrm()).
                 transactionIsolation(two.getTransactionIsolation()).
-                adminPassword(Encryptor.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
+                adminPassword(encryptorManager.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
                 build());
 
@@ -336,9 +335,8 @@ public class KeymasterITCase extends AbstractITCase {
 
         try {
             // 1. change admin pwd for domain Two
-            domainOps.changeAdminPassword(
-                    two.getKey(),
-                    Encryptor.getInstance().encode("password3", CipherAlgorithm.AES),
+            domainOps.changeAdminPassword(two.getKey(),
+                    encryptorManager.getInstance().encode("password3", CipherAlgorithm.AES),
                     CipherAlgorithm.AES);
 
             // 2. attempt to access with old pwd -> fail

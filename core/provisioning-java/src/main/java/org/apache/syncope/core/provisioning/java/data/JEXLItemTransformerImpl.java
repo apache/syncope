@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
@@ -42,9 +41,6 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     @Autowired
     private DerAttrHandler derAttrHandler;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     private String propagationJEXL;
 
@@ -61,7 +57,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
     }
 
     protected AttrSchemaType beforePropagation(
-            final Any<?> any,
+            final Any any,
             final AttrSchemaType schemaType,
             final PlainAttrValue value) {
 
@@ -146,7 +142,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
     @Override
     public Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
             final Item item,
-            final Any<?> any,
+            final Any any,
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
@@ -156,7 +152,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
         AtomicReference<AttrSchemaType> tType = new AtomicReference<>();
         if (values.isEmpty()) {
-            PlainAttrValue value = anyUtilsFactory.getInstance(any).newPlainAttrValue();
+            PlainAttrValue value = new PlainAttrValue();
             tType.set(beforePropagation(any, schemaType, value));
             values.add(value);
         } else {

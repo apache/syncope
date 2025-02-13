@@ -65,7 +65,6 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.self.SelfKeymasterClientContext;
 import org.apache.syncope.common.keymaster.client.zookeeper.ZookeeperKeymasterClientContext;
-import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -126,7 +125,6 @@ import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
-import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
@@ -172,6 +170,8 @@ import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
+import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.fit.AbstractITCase.KeymasterInitializer;
 import org.apache.syncope.fit.core.AbstractTaskITCase;
 import org.apache.syncope.fit.core.CoreITContext;
@@ -305,8 +305,6 @@ public abstract class AbstractITCase {
     protected static SyncopeAnonymousClient ANONYMOUS_CLIENT;
 
     protected static SyncopeService SYNCOPE_SERVICE;
-
-    protected static ApplicationService APPLICATION_SERVICE;
 
     protected static AnyTypeClassService ANY_TYPE_CLASS_SERVICE;
 
@@ -546,7 +544,6 @@ public abstract class AbstractITCase {
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
         SYNCOPE_SERVICE = ADMIN_CLIENT.getService(SyncopeService.class);
-        APPLICATION_SERVICE = ADMIN_CLIENT.getService(ApplicationService.class);
         ANY_TYPE_CLASS_SERVICE = ADMIN_CLIENT.getService(AnyTypeClassService.class);
         ANY_TYPE_SERVICE = ADMIN_CLIENT.getService(AnyTypeService.class);
         RELATIONSHIP_TYPE_SERVICE = ADMIN_CLIENT.getService(RelationshipTypeService.class);
@@ -702,13 +699,6 @@ public abstract class AbstractITCase {
 
     protected static ProvisioningResult<UserTO> updateUser(final UserUR req) {
         return USER_SERVICE.update(req).
-                readEntity(new GenericType<>() {
-                });
-    }
-
-    protected static ProvisioningResult<UserTO> updateUser(final UserTO userTO) {
-        UserTO before = USER_SERVICE.read(userTO.getKey());
-        return USER_SERVICE.update(AnyOperations.diff(userTO, before, false)).
                 readEntity(new GenericType<>() {
                 });
     }
@@ -1117,5 +1107,7 @@ public abstract class AbstractITCase {
 
     @Autowired
     protected DataSource testDataSource;
+
+    protected final EncryptorManager encryptorManager = new DefaultEncryptorManager();
 
 }

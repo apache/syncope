@@ -27,7 +27,7 @@ import org.identityconnectors.framework.common.objects.filter.Filter
 class MyPushCorrelationRule implements PushCorrelationRule {
 
   @Override
-  Filter getFilter(Any<?> any, ExternalResource resource, Provision provision) {
+  Filter getFilter(Any any, ExternalResource resource, Provision provision) {
     
   }
 }

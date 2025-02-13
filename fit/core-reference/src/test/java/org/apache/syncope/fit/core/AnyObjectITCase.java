@@ -195,7 +195,7 @@ public class AnyObjectITCase extends AbstractITCase {
         anyObjectCR = getSample("unlimited2");
         anyObjectCR.setRealm(SyncopeConstants.ROOT_REALM);
         anyObjectCR.getResources().clear();
-        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").
+        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("inclusion").
                 otherEnd(left.getType(), left.getKey()).build());
         AnyObjectTO right = createAnyObject(anyObjectCR).getEntity();
 
@@ -203,7 +203,7 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals(left.getKey(), right.getRelationships().get(0).getOtherEndKey());
 
         AnyObjectUR anyObjectUR = new AnyObjectUR.Builder(left.getKey()).
-                relationship(new RelationshipUR.Builder(new RelationshipTO.Builder("neighborhood").
+                relationship(new RelationshipUR.Builder(new RelationshipTO.Builder("inclusion").
                         otherEnd(right.getType(), right.getKey()).build()).build()).build();
         left = updateAnyObject(anyObjectUR).getEntity();
         assertEquals(2, left.getRelationships().size());
@@ -273,11 +273,11 @@ public class AnyObjectITCase extends AbstractITCase {
         // Add relationships: printer1 -> printer2 and printer2 -> printer3
         AnyObjectUR relationship1To2 = new AnyObjectUR.Builder(key1)
                 .relationship(new RelationshipUR.Builder(
-                        new RelationshipTO.Builder("neighborhood").otherEnd(PRINTER, key2).build()).build())
+                        new RelationshipTO.Builder("inclusion").otherEnd(PRINTER, key2).build()).build())
                 .build();
         AnyObjectUR relationship2To3 = new AnyObjectUR.Builder(key2)
                 .relationship(new RelationshipUR.Builder(
-                        new RelationshipTO.Builder("neighborhood").otherEnd(PRINTER, key3).build()).build())
+                        new RelationshipTO.Builder("inclusion").otherEnd(PRINTER, key3).build()).build())
                 .build();
 
         updateAnyObject(relationship1To2);
@@ -321,12 +321,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectCR printer4CR = getSample("printer4");
         printer4CR.getResources().clear();
         printer4CR.getRelationships().add(
-                new RelationshipTO.Builder("neighborhood", RelationshipTO.End.RIGHT).otherEnd(PRINTER, key1).build());
+                new RelationshipTO.Builder("inclusion", RelationshipTO.End.RIGHT).otherEnd(PRINTER, key1).build());
 
-        SyncopeClientException exception =
-                assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
-        assertEquals(ClientExceptionType.InvalidRelationship, exception.getType());
-        assertTrue(exception.getMessage().
-                contains("Relationships shall be created or updated only from their left end"));
+        SyncopeClientException e = assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
+        assertEquals(ClientExceptionType.InvalidRelationship, e.getType());
+        assertTrue(e.getMessage().contains("Relationships shall be created or updated only from their left end"));
     }
 }

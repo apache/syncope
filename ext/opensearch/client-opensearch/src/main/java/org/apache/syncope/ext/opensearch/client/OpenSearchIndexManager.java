@@ -296,8 +296,7 @@ public class OpenSearchIndexManager {
     public void entity(final EntityLifecycleEvent<Entity> event) throws IOException {
         LOG.debug("About to {} index for {}", event.getType().name(), event.getEntity());
 
-        if (event.getEntity() instanceof final Any<?> any) {
-
+        if (event.getEntity() instanceof final Any any) {
             if (event.getType() == SyncDeltaType.DELETE) {
                 DeleteRequest request = new DeleteRequest.Builder().index(
                         OpenSearchUtils.getAnyIndex(event.getDomain(), any.getType().getKind())).

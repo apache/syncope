@@ -29,19 +29,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RoleRepoExt;
@@ -60,9 +58,6 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -105,10 +100,9 @@ public class RoleTest extends AbstractTest {
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.findById("cool").orElseThrow());
-        attr.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("cool");
+        attr.add(validator, "true");
         user.add(attr);
 
         user = userDAO.save(user);

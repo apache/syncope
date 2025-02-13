@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface AnyDAO<A extends Any<?>> extends DAO<A> {
+public interface AnyDAO<A extends Any> extends DAO<A> {
 
     int DEFAULT_PAGE_SIZE = 500;
 

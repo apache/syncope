@@ -18,13 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.entity.anyobject;
 
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 
 public interface AnyObject extends
-        GroupableRelatable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship> {
+        Groupable<AnyObject, AMembership, AnyObject, ARelationship>,
+        Relatable<AnyObject, AnyObject, ARelationship> {
 
     String getName();
 
     void setName(String name);
-
 }

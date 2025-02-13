@@ -28,8 +28,6 @@ include::realms.adoc[]
 
 include::entitlements.adoc[]
 
-include::privileges.adoc[]
-
 include::roles.adoc[]
 
 include::provisioning/provisioning.adoc[]

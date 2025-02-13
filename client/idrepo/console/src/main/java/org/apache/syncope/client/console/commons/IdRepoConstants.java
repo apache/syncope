@@ -60,8 +60,6 @@ public final class IdRepoConstants {
 
     public static final String PREF_APPLICATION_PAGINATOR_ROWS = "application.paginator.rows";
 
-    public static final String PREF_PRIVILEGE_PAGINATOR_ROWS = "privilege.paginator.rows";
-
     public static final String PREF_DYNREALM_PAGINATOR_ROWS = "dynRealm.paginator.rows";
 
     public static final String PREF_ACCESS_TOKEN_PAGINATOR_ROWS = "accessToken.paginator.rows";

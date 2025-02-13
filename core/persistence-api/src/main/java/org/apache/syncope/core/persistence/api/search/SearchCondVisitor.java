@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -84,7 +83,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     protected static ConditionType getConditionType(final SearchCondition<SearchBean> sc) {
         ConditionType ct = sc.getConditionType();
         if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
-            && sc.getConditionType() == ConditionType.CUSTOM) {
+                && sc.getConditionType() == ConditionType.CUSTOM) {
             switch (sfsc.getOperator()) {
                 case SyncopeFiqlParser.IEQ:
                     ct = ConditionType.EQUALS;
@@ -169,7 +168,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
                         case RELATIONSHIP_TYPES:
                             RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-                            relationshipTypeCond.setRelationshipTypeKey(value);
+                            relationshipTypeCond.setRelationshipType(value);
                             leaf = SearchCond.of(relationshipTypeCond);
                             break;
 
@@ -177,12 +176,6 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             RoleCond roleCond = new RoleCond();
                             roleCond.setRole(value);
                             leaf = SearchCond.of(roleCond);
-                            break;
-
-                        case PRIVILEGES:
-                            PrivilegeCond privilegeCond = new PrivilegeCond();
-                            privilegeCond.setPrivilege(value);
-                            leaf = SearchCond.of(privilegeCond);
                             break;
 
                         case DYNREALMS:

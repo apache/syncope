@@ -160,7 +160,7 @@ public interface PropagationManager {
 
     PropagationTaskInfo newTask(
             DerAttrHandler derAttrHandler,
-            Any<?> any,
+            Any any,
             ExternalResource resource,
             ResourceOperation operation,
             Provision provision,

@@ -21,11 +21,9 @@ package org.apache.syncope.client.console.panels.search;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
-import org.apache.syncope.common.lib.to.PrivilegeTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -54,9 +52,6 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
     @SpringBean
     protected RoleRestClient roleRestClient;
 
-    @SpringBean
-    protected ApplicationRestClient applicationRestClient;
-
     protected UserSearchPanel(final String id, final Builder builder) {
         super(id, AnyTypeKind.USER, builder);
     }
@@ -84,18 +79,6 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
                 return roleRestClient.list().stream().map(RoleTO::getKey).collect(Collectors.toList());
             }
         };
-
-        this.privilegeNames = new LoadableDetachableModel<>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            protected List<String> load() {
-                return applicationRestClient.list().stream().
-                        flatMap(application -> application.getPrivileges().stream()).
-                        map(PrivilegeTO::getKey).collect(Collectors.toList());
-            }
-        };
     }
 
     @Override
@@ -103,7 +86,6 @@ public class UserSearchPanel extends AnyObjectSearchPanel {
         List<SearchClause.Type> result = new ArrayList<>();
         result.add(SearchClause.Type.ATTRIBUTE);
         result.add(SearchClause.Type.ROLE_MEMBERSHIP);
-        result.add(SearchClause.Type.PRIVILEGE);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);
         result.add(SearchClause.Type.AUX_CLASS);
         result.add(SearchClause.Type.RESOURCE);

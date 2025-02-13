@@ -155,7 +155,7 @@ public class DefaultPropagationManager implements PropagationManager {
     }
 
     protected List<PropagationTaskInfo> getCreateTasks(
-            final Any<?> any,
+            final Any any,
             final String password,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
@@ -296,7 +296,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
     protected List<PropagationTaskInfo> getUpdateTasks(
             final AnyUR anyUR,
-            final Any<?> any,
+            final Any any,
             final String password,
             final List<String> changePwdRes,
             final Boolean enable,
@@ -346,7 +346,7 @@ public class DefaultPropagationManager implements PropagationManager {
     }
 
     protected List<PropagationTaskInfo> getDeleteTasks(
-            final Any<?> any,
+            final Any any,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
             final Collection<String> excludedResources) {
@@ -380,7 +380,7 @@ public class DefaultPropagationManager implements PropagationManager {
     @Override
     public PropagationTaskInfo newTask(
             final DerAttrHandler derAttrHandler,
-            final Any<?> any,
+            final Any any,
             final ExternalResource resource,
             final ResourceOperation operation,
             final Provision provision,
@@ -435,7 +435,7 @@ public class DefaultPropagationManager implements PropagationManager {
      * @return list of propagation tasks created
      */
     protected List<PropagationTaskInfo> createTasks(
-            final Any<?> any,
+            final Any any,
             final String password,
             final List<String> changePwdRes,
             final Boolean enable,
@@ -644,7 +644,7 @@ public class DefaultPropagationManager implements PropagationManager {
 
         Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
 
-        Any<?> any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
+        Any any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
 
         anyUtilsFactory.getInstance(kind).dao().findAllResourceKeys(key).stream().
                 map(resourceDAO::findById).

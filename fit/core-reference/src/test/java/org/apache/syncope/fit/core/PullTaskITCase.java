@@ -118,7 +118,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.core.reference.TestInboundActions;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
@@ -217,7 +216,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 forEach(r -> REMEDIATION_SERVICE.delete(r.getKey()));
     }
 
-    private void removeTestUsers() {
+    private static void removeTestUsers() {
         for (int i = 0; i < 10; i++) {
             String cUserName = "test" + i;
             try {
@@ -1328,11 +1327,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(jdbcTemplate,
                 MAX_WAIT_SECONDS, "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
-        assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
+        assertEquals(encryptorManager.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 3. Update the password in the DB
         String newCleanPassword = "new-security";
-        String newPassword = Encryptor.getInstance().encode(newCleanPassword, CipherAlgorithm.SHA1);
+        String newPassword = encryptorManager.getInstance().encode(newCleanPassword, CipherAlgorithm.SHA1);
         jdbcTemplate.execute("UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + '\'');
 
         // 4. Pull the user from the resource
@@ -1648,13 +1647,13 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE1864() throws Exception {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         // First of all, clear any potential conflict with existing user / group
         ldapCleanup();
 
         UserTO user = null;
         PullTaskTO pullTask = null;
-        ConnInstanceTO resourceConnector = null;
-        ConnConfProperty property = null;
         try {
             // 1. create user in LDAP
             String oldCleanPassword = "security123";
@@ -1676,7 +1675,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 pullActions.setKey("AddResourcePullActions");
                 pullActions.setEngine(ImplementationEngine.GROOVY);
                 pullActions.setType(IdMImplementationType.INBOUND_ACTIONS);
-                pullActions.setBody(org.apache.commons.io.IOUtils.toString(
+                pullActions.setBody(IOUtils.toString(
                         getClass().getResourceAsStream("/AddResourcePullActions.groovy"), StandardCharsets.UTF_8));
                 Response response = IMPLEMENTATION_SERVICE.create(pullActions);
                 pullActions = IMPLEMENTATION_SERVICE.read(
@@ -1726,8 +1725,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
                         && AttributeUtil.getPasswordValue(attributes) == null;
             }));
         } finally {
-            // remove test entity
-            deleteUser(user.getKey());
+            // remove test entities
+            Optional.ofNullable(pullTask).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t.getKey()));
+            Optional.ofNullable(user).ifPresent(u -> deleteUser(u.getKey()));
         }
     }
 }

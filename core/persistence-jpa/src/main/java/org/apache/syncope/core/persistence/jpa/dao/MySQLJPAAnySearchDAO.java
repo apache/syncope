@@ -36,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -210,10 +209,10 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
             default -> {
                 if (!not && cond.getType() == AttrCond.Type.EQ) {
-                    PlainAttr<?> container = anyUtilsFactory.getInstance(svs.anyTypeKind).newPlainAttr();
-                    container.setSchema(checked.getLeft());
-                    if (checked.getRight() instanceof PlainAttrUniqueValue plainAttrUniqueValue) {
-                        container.setUniqueValue(plainAttrUniqueValue);
+                    PlainAttr container = new PlainAttr();
+                    container.setPlainSchema(checked.getLeft());
+                    if (checked.getLeft().isUniqueConstraint()) {
+                        container.setUniqueValue(checked.getRight());
                     } else {
                         container.add(checked.getRight());
                     }

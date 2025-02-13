@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.spring;
 
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
+import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DummyImplementationLookup;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +33,11 @@ public class SpringTestConfiguration {
     @Bean
     public ApplicationContextProvider applicationContextProvider() {
         return new ApplicationContextProvider();
+    }
+
+    @Bean
+    public EncryptorManager encryptorManager() {
+        return new DefaultEncryptorManager();
     }
 
     @Primary

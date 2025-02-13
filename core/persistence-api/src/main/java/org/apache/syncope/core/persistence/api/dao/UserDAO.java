@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -85,8 +84,6 @@ public interface UserDAO extends AnyDAO<User> {
     List<LinkedAccount> findLinkedAccounts(String userKey);
 
     List<LinkedAccount> findLinkedAccountsByResource(ExternalResource resource);
-
-    List<LinkedAccount> findLinkedAccountsByPrivilege(Privilege privilege);
 
     Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
 }

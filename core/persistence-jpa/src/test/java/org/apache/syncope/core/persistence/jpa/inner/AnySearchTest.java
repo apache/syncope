@@ -50,16 +50,15 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
@@ -110,7 +109,7 @@ public class AnySearchTest extends AbstractTest {
     public void adjustLoginDateForLocalSystem() throws ParseException {
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
+        PlainAttr loginDate = rossini.getPlainAttr("loginDate").orElseThrow();
         loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
 
         userDAO.save(rossini);
@@ -396,16 +395,6 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void searchByPrivilege() {
-        PrivilegeCond privilegeCond = new PrivilegeCond();
-        privilegeCond.setPrivilege("postMighty");
-
-        List<User> users = searchDAO.search(SearchCond.of(privilegeCond), AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-    }
-
-    @Test
     public void searchByIsNull() {
         AttrCond coolLeafCond = new AttrCond(AttrCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");
@@ -576,29 +565,29 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void searchByRelationshipType() {
-        // 1. first search for printers involved in "neighborhood" relationship
+        // 1. first search for printers involved in "inclusion" relationship
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        relationshipTypeCond.setRelationshipType("inclusion");
 
         AnyTypeCond tcond = new AnyTypeCond();
         tcond.setAnyTypeKey("PRINTER");
 
-        SearchCond searchCondition = SearchCond.and(
-                SearchCond.of(relationshipTypeCond), SearchCond.of(tcond));
-        assertTrue(searchCondition.isValid());
+        SearchCond cond = SearchCond.and(SearchCond.of(relationshipTypeCond), SearchCond.of(tcond));
+        assertTrue(cond.isValid());
 
-        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        List<AnyObject> anyObjects = searchDAO.search(cond, AnyTypeKind.ANY_OBJECT);
         assertNotNull(anyObjects);
         assertEquals(2, anyObjects.size());
         assertTrue(anyObjects.stream().anyMatch(any -> "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(any.getKey())));
         assertTrue(anyObjects.stream().anyMatch(any -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(any.getKey())));
 
         // 2. search for users involved in "neighborhood" relationship
-        searchCondition = SearchCond.of(relationshipTypeCond);
-        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
+        relationshipTypeCond.setRelationshipType("neighborhood");
+        cond = SearchCond.of(relationshipTypeCond);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertTrue(users.stream().anyMatch(any -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(any.getKey())));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
     }
 
     @Test

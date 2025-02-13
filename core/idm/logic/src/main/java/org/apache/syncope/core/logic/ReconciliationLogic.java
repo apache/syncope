@@ -51,6 +51,7 @@ import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -94,7 +95,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPullJobDe
 import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPushJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -211,7 +211,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected ConnObject getOnSyncope(
-            final Any<?> any,
+            final Any any,
             final Item connObjectKeyItem,
             final ExternalResource resource,
             final Provision provision) {
@@ -239,7 +239,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 attrs);
     }
 
-    protected Any<?> getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
+    protected Any getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
         AnyDAO<?> dao = anyUtilsFactory.getInstance(anyTypeKind).dao();
 
         String actualKey = anyKey;
@@ -270,7 +270,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 "ConnObjectKey for " + triple.getLeft().getKey()
                 + " on resource '" + triple.getMiddle().getKey() + "'"));
 
-        Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
+        Any any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
 
         ReconStatus status = new ReconStatus();
         status.setMatchType(MatchType.ANY);
@@ -544,7 +544,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     "ConnObjectKey cannot be determined for mapping " + anyTypeKey);
         }
 
-        Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
+        Any any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
 
         String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, triple.getMiddle(), triple.getRight()).
                 orElseThrow(() -> new NotFoundException(
@@ -628,7 +628,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
         SearchCond effectiveCond = searchCond == null ? anyUtils.dao().getAllMatchingCond() : searchCond;
 
-        List<Any<?>> matching;
+        List<Any> matching;
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 

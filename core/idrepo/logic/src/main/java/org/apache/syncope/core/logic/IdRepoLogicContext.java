@@ -24,13 +24,13 @@ import org.apache.syncope.core.logic.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.core.logic.init.EntitlementAccessor;
 import org.apache.syncope.core.logic.init.IdRepoEntitlementLoader;
 import org.apache.syncope.core.logic.init.IdRepoImplementationTypeLoader;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.CASSPClientAppDAO;
@@ -71,7 +71,6 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
-import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DelegationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
@@ -148,9 +147,10 @@ public class IdRepoLogicContext {
     public AccessTokenLogic accessTokenLogic(
             final AccessTokenDataBinder binder,
             final AccessTokenDAO accessTokenDAO,
-            final SecurityProperties securityProperties) {
+            final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager) {
 
-        return new AccessTokenLogic(securityProperties, binder, accessTokenDAO);
+        return new AccessTokenLogic(securityProperties, encryptorManager, binder, accessTokenDAO);
     }
 
     @ConditionalOnMissingBean
@@ -191,15 +191,6 @@ public class IdRepoLogicContext {
             final AnyObjectDAO anyObjectDAO) {
 
         return new AnyTypeLogic(binder, anyTypeDAO, anyObjectDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationLogic applicationLogic(
-            final ApplicationDataBinder binder,
-            final ApplicationDAO applicationDAO) {
-
-        return new ApplicationLogic(binder, applicationDAO);
     }
 
     @ConditionalOnMissingBean
@@ -508,7 +499,8 @@ public class IdRepoLogicContext {
             final UserDataBinder binder,
             final UserProvisioningManager provisioningManager,
             final SyncopeLogic syncopeLogic,
-            final RuleProvider ruleProvider) {
+            final RuleProvider ruleProvider,
+            final EncryptorManager encryptorManager) {
 
         return new UserLogic(
                 realmSearchDAO,
@@ -524,6 +516,7 @@ public class IdRepoLogicContext {
                 binder,
                 provisioningManager,
                 syncopeLogic,
-                ruleProvider);
+                ruleProvider,
+                encryptorManager);
     }
 }

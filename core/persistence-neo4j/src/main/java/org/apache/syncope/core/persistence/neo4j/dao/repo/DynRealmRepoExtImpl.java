@@ -103,7 +103,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
 
     protected void notifyDynMembershipRemoval(final List<String> anyKeys) {
         anyKeys.forEach(key -> {
-            Optional<? extends Any<?>> any = userDAO.findById(key);
+            Optional<? extends Any> any = userDAO.findById(key);
             if (any.isEmpty()) {
                 any = groupDAO.findById(key);
             }
@@ -115,7 +115,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
         });
     }
 
-    protected String node(final Any<?> any) {
+    protected String node(final Any any) {
         return switch (any.getType().getKind()) {
             case USER ->
                 Neo4jUser.NODE;
@@ -170,7 +170,7 @@ public class DynRealmRepoExtImpl extends AbstractDAO implements DynRealmRepoExt 
 
     @Transactional
     @Override
-    public void refreshDynMemberships(final Any<?> any) {
+    public void refreshDynMemberships(final Any any) {
         neo4jTemplate.findAll(Neo4jDynRealm.class).
                 forEach(dynRealm -> dynRealm.getDynMembership(any.getType()).ifPresent(memb -> {
 

@@ -91,10 +91,6 @@ public class LinkedAccountWizardBuilder extends BaseAjaxWizardBuilder<LinkedAcco
                     formLayoutInfo.getWhichPlainAttrs()));
         }
 
-        if (formLayoutInfo.isPrivileges()) {
-            wizardModel.add(new LinkedAccountPrivilegesPanel(modelObject));
-        }
-
         return wizardModel;
     }
 

@@ -31,5 +31,5 @@ public interface AnyMatchDAO {
      * @param <T> any
      * @return true if any matches cond
      */
-    <T extends Any<?>> boolean matches(T any, SearchCond cond);
+    <T extends Any> boolean matches(T any, SearchCond cond);
 }

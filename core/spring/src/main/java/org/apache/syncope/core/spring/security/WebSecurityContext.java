@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
@@ -121,6 +122,7 @@ public class WebSecurityContext {
     @Bean
     public UsernamePasswordAuthenticationProvider usernamePasswordAuthenticationProvider(
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final DomainOps domainOps,
             final AuthDataAccessor dataAccessor,
             final UserProvisioningManager provisioningManager,
@@ -131,7 +133,8 @@ public class WebSecurityContext {
                 dataAccessor,
                 provisioningManager,
                 credentialChecker,
-                securityProperties);
+                securityProperties,
+                encryptorManager);
     }
 
     @Bean
@@ -143,6 +146,7 @@ public class WebSecurityContext {
     @Bean
     public AuthDataAccessor authDataAccessor(
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -159,6 +163,7 @@ public class WebSecurityContext {
 
         return new AuthDataAccessor(
                 securityProperties,
+                encryptorManager,
                 realmSearchDAO,
                 userDAO,
                 groupDAO,

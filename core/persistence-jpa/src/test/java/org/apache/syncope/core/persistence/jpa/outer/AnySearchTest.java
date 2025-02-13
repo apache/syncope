@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -44,14 +43,12 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -84,9 +81,6 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
     private PlainAttrValidationManager validator;
@@ -173,11 +167,10 @@ public class AnySearchTest extends AbstractTest {
         anyObject.add(memb);
         anyObject = anyObjectDAO.save(anyObject);
 
-        APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
-        attr.setSchema(plainSchemaDAO.findById("ctype").orElseThrow());
-        attr.add(validator, "otherchildctype", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
-        attr.setOwner(anyObject);
-        attr.setMembership(anyObject.getMemberships().get(0));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("ctype");
+        attr.add(validator, "otherchildctype");
+        attr.setMembership(anyObject.getMemberships().get(0).getKey());
         anyObject.add(attr);
         anyObjectDAO.save(anyObject);
 
@@ -234,17 +227,15 @@ public class AnySearchTest extends AbstractTest {
         Group group = groupDAO.findByName("root").orElseThrow();
 
         // non unique
-        GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
-        title.setOwner(group);
-        title.setSchema(plainSchemaDAO.findById("title").orElseThrow());
-        title.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        PlainAttr title = new PlainAttr();
+        title.setSchema("title");
+        title.add(validator, "syncope's group");
         group.add(title);
 
         // unique
-        GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
-        originalName.setOwner(group);
-        originalName.setSchema(plainSchemaDAO.findById("originalName").orElseThrow());
-        originalName.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        PlainAttr originalName = new PlainAttr();
+        originalName.setSchema("originalName");
+        originalName.add(validator, "syncope's group");
         group.add(originalName);
 
         groupDAO.save(group);
@@ -286,10 +277,9 @@ public class AnySearchTest extends AbstractTest {
         // 1. set rossini's email address for conditions as per SYNCOPE-1790
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        UPlainAttr mail = entityFactory.newEntity(UPlainAttr.class);
-        mail.setOwner(rossini);
-        mail.setSchema(plainSchemaDAO.findById("email").orElseThrow());
-        mail.add(validator, "bisverdi@syncope.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr mail = new PlainAttr();
+        mail.setSchema("email");
+        mail.add(validator, "bisverdi@syncope.org");
         rossini.add(mail);
 
         userDAO.save(rossini);

@@ -108,6 +108,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.util.CollectionUtils;
 
 public class PropagationTaskITCase extends AbstractTaskITCase {
 
@@ -251,46 +252,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             assertTrue(connObjectTO.getAttr("LOCATION").orElseThrow().getValues().get(0).endsWith(suffix));
         } finally {
             RESOURCE_SERVICE.update(originalResource);
-        }
-    }
-
-    @Test
-    public void privileges() {
-        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        ldap.setKey("ldapWithPrivileges");
-
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
-        provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
-        provision.getVirSchemas().clear();
-
-        ldap.getProvisions().clear();
-        ldap.getProvisions().add(provision);
-
-        Item item = new Item();
-        item.setIntAttrName("privileges[mightyApp]");
-        item.setExtAttrName("businessCategory");
-        item.setPurpose(MappingPurpose.PROPAGATION);
-
-        provision.getMapping().add(item);
-
-        ldap = createResource(ldap);
-
-        try {
-            UserCR userCR = UserITCase.getUniqueSample("privilege@syncope.apache.org");
-            userCR.getResources().add(ldap.getKey());
-            userCR.getRoles().add("Other");
-
-            ProvisioningResult<UserTO> result = createUser(userCR);
-            assertEquals(1, result.getPropagationStatuses().size());
-            assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
-
-            Attr businessCategory =
-                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("businessCategory").orElse(null);
-            assertNotNull(businessCategory);
-            assertEquals(1, businessCategory.getValues().size());
-            assertEquals("postMighty", businessCategory.getValues().get(0));
-        } finally {
-            RESOURCE_SERVICE.delete(ldap.getKey());
         }
     }
 
@@ -889,22 +850,21 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
     @Test
     public void issueSYNCOPE1567() {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        ldap.setKey(RESOURCE_NAME_LDAP + "1567" + getUUIDString());
         try {
             // 1. clone the LDAP resource and add the relationships mapping
-            Provision provisionUser =
-                    SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
-            assertNotNull(provisionUser);
-            provisionUser.getVirSchemas().clear();
+            Provision provision = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow());
+            assertNotNull(provision);
+            provision.getVirSchemas().clear();
 
             Item relationships = new Item();
             relationships.setPurpose(MappingPurpose.PROPAGATION);
             relationships.setIntAttrName("relationships[neighborhood][PRINTER].model");
             relationships.setExtAttrName("l");
-            provisionUser.getMapping().add(relationships);
+            provision.getMapping().add(relationships);
 
             ldap.getProvisions().clear();
-            ldap.getProvisions().add(provisionUser);
-            ldap.setKey(RESOURCE_NAME_LDAP + "1567" + getUUIDString());
+            ldap.getProvisions().add(provision);
             RESOURCE_SERVICE.create(ldap);
 
             // 1. create user with relationship and the new resource assigned
@@ -926,17 +886,18 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Set<Attribute> propagationAttrs = POJOHelper.deserialize(
                     tasks.getResult().get(0).getPropagationData(), PropagationData.class).getAttributes();
-            Attribute attr = AttributeUtil.find("l", propagationAttrs);
-            assertNotNull(attr);
-            assertNotNull(attr.getValue());
-            assertEquals("Canon MFC8030", attr.getValue().get(0).toString());
+            List<Object> value = Optional.ofNullable(AttributeUtil.find("l", propagationAttrs)).
+                    map(Attribute::getValue).orElseThrow();
+            assertFalse(CollectionUtils.isEmpty(value));
+            assertEquals("Canon MFC8030", value.get(0).toString());
 
             // 3. check propagated value
             ConnObject connObject =
                     RESOURCE_SERVICE.readConnObject(ldap.getKey(), AnyTypeKind.USER.name(), userTO.getKey());
             assertNotNull(connObject);
-            assertTrue(connObject.getAttr("l").isPresent());
-            assertEquals("Canon MFC8030", connObject.getAttr("l").orElseThrow().getValues().get(0));
+            List<String> values = connObject.getAttr("l").map(Attr::getValues).orElseThrow();
+            assertFalse(values.isEmpty());
+            assertEquals("Canon MFC8030", values.get(0));
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());

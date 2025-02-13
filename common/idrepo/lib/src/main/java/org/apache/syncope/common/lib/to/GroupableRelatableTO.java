@@ -21,15 +21,11 @@ package org.apache.syncope.common.lib.to;
 import java.util.List;
 import java.util.Optional;
 
-public interface GroupableRelatableTO {
+public interface GroupableRelatableTO extends RelatableTO {
 
     Optional<MembershipTO> getMembership(String groupKey);
 
     List<MembershipTO> getMemberships();
 
     List<MembershipTO> getDynMemberships();
-
-    Optional<RelationshipTO> getRelationship(String type, String otherKey);
-
-    List<RelationshipTO> getRelationships();
 }

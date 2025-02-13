@@ -23,10 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.apache.syncope.core.persistence.api.entity.Application;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.common.validation.RoleCheck;
@@ -46,8 +43,6 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
 
     public static final String ROLE_REALM_REL = "ROLE_REALM";
 
-    public static final String ROLE_PRIVILEGE_REL = "ROLE_PRIVILEGE";
-
     protected static final TypeReference<Set<String>> TYPEREF = new TypeReference<Set<String>>() {
     };
 
@@ -65,9 +60,6 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
 
     @Relationship(direction = Relationship.Direction.INCOMING)
     private List<Neo4jDynRealm> dynRealms = new ArrayList<>();
-
-    @Relationship(type = ROLE_PRIVILEGE_REL, direction = Relationship.Direction.OUTGOING)
-    private Set<Neo4jPrivilege> privileges = new HashSet<>();
 
     @Override
     public Set<String> getEntitlements() {
@@ -114,24 +106,6 @@ public class Neo4jRole extends AbstractProvidedKeyNode implements Role {
     @Override
     public void setAnyLayout(final String anyLayout) {
         this.anyLayout = anyLayout;
-    }
-
-    @Override
-    public boolean add(final Privilege privilege) {
-        checkType(privilege, Neo4jPrivilege.class);
-        return privileges.add((Neo4jPrivilege) privilege);
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges(final Application application) {
-        return privileges.stream().
-                filter(privilege -> privilege.getApplication().equals(application)).
-                collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<? extends Privilege> getPrivileges() {
-        return privileges;
     }
 
     protected void json2list(final boolean clearFirst) {

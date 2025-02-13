@@ -136,12 +136,10 @@ public class RoleITCase extends AbstractITCase {
     public void dynMembership() {
         UserTO bellini = USER_SERVICE.read("bellini");
         assertTrue(bellini.getDynRoles().isEmpty());
-        assertTrue(bellini.getPrivileges().isEmpty());
 
         RoleTO role = null;
         try {
             role = getSampleRoleTO("dynMembership");
-            role.getPrivileges().add("getMighty");
             role.setDynMembershipCond("cool==true");
             Response response = ROLE_SERVICE.create(role);
             role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
@@ -149,14 +147,12 @@ public class RoleITCase extends AbstractITCase {
 
             bellini = USER_SERVICE.read("bellini");
             assertTrue(bellini.getDynRoles().contains(role.getKey()));
-            assertTrue(bellini.getPrivileges().contains("getMighty"));
 
             role.setDynMembershipCond("cool==false");
             ROLE_SERVICE.update(role);
 
             bellini = USER_SERVICE.read("bellini");
             assertTrue(bellini.getDynMemberships().isEmpty());
-            assertTrue(bellini.getPrivileges().isEmpty());
         } finally {
             if (role != null) {
                 ROLE_SERVICE.delete(role.getKey());

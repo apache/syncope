@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface DynMembership<A extends Any<?>> extends Entity {
+public interface DynMembership<A extends Any> extends Entity {
 
     String getFIQLCond();
 

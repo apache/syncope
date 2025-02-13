@@ -255,7 +255,7 @@ public class InboundMatcher {
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
 
-        List<Any<?>> anys = new ArrayList<>();
+        List<Any> anys = new ArrayList<>();
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {

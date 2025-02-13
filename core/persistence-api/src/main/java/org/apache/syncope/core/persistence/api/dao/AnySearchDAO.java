@@ -50,7 +50,7 @@ public interface AnySearchDAO {
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?>> List<T> search(SearchCond searchCondition, AnyTypeKind kind);
+    <T extends Any> List<T> search(SearchCond searchCondition, AnyTypeKind kind);
 
     /**
      * @param searchCondition the search condition
@@ -59,7 +59,7 @@ public interface AnySearchDAO {
      * @param <T> any
      * @return the list of any objects matching the given search condition
      */
-    <T extends Any<?>> List<T> search(SearchCond searchCondition, List<Sort.Order> orderBy, AnyTypeKind kind);
+    <T extends Any> List<T> search(SearchCond searchCondition, List<Sort.Order> orderBy, AnyTypeKind kind);
 
     /**
      * @param base Realm to start searching from
@@ -71,7 +71,7 @@ public interface AnySearchDAO {
      * @param <T> any
      * @return the list of any objects matching the given search condition (in the given page)
      */
-    <T extends Any<?>> List<T> search(
+    <T extends Any> List<T> search(
             Realm base,
             boolean recursive,
             Set<String> adminRealms,

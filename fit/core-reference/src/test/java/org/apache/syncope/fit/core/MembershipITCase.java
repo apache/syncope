@@ -330,10 +330,10 @@ public class MembershipITCase extends AbstractITCase {
 
         AnyObjectUR req = new AnyObjectUR();
         req.setKey(anyObjecTO.getKey());
-        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
-        MembershipUR mp = new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build();
-        mp.getPlainAttrs().add(attr("any", "useless"));
-        req.getMemberships().add(mp);
+        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").
+                build());
+        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").
+                plainAttr(attr("any", "useless")).build());
 
         try {
             updateAnyObject(req).getEntity();

@@ -59,6 +59,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
@@ -224,7 +225,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public <S extends Group> S save(final S group) {
-        checkBeforeSave(group);
+        checkBeforeSave((JPAGroup) group);
         return entityManager.merge(group);
     }
 
@@ -300,13 +301,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
 
             anyObjectDAO.save(leftEnd);
             publisher.publishEvent(
@@ -317,13 +312,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
 
             userDAO.save(leftEnd);
             publisher.publishEvent(

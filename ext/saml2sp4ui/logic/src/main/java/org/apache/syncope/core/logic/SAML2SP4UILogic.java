@@ -50,6 +50,7 @@ import org.apache.syncope.core.logic.saml2.NoOpSessionStore;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIContext;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -60,7 +61,6 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -101,8 +101,6 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
     protected static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final AccessTokenDataBinder accessTokenDataBinder;
 
     protected final SAML2ClientCache saml2ClientCacheLogin;
@@ -114,6 +112,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
     protected final SAML2SP4UIIdPDAO idpDAO;
 
     protected final AuthDataAccessor authDataAccessor;
+
+    protected final EncryptorManager encryptorManager;
 
     protected final Map<String, String> metadataCache = new ConcurrentHashMap<>();
 
@@ -127,7 +127,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIUserManager userManager,
             final SAML2SP4UIIdPDAO idpDAO,
-            final AuthDataAccessor authDataAccessor) {
+            final AuthDataAccessor authDataAccessor,
+            final EncryptorManager encryptorManager) {
 
         super(props, resourceResolver);
 
@@ -137,6 +138,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         this.userManager = userManager;
         this.idpDAO = idpDAO;
         this.authDataAccessor = authDataAccessor;
+        this.encryptorManager = encryptorManager;
     }
 
     protected static String validateUrl(final String url) {
@@ -439,7 +441,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         byte[] authorities = null;
         try {
-            authorities = ENCRYPTOR.encode(POJOHelper.serialize(
+            authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
                     authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES).getBytes();
         } catch (Exception e) {
             LOG.error("Could not fetch authorities", e);

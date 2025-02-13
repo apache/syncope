@@ -401,13 +401,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
             neo4jTemplate.deleteById(membership.getKey(), Neo4jAMembership.class);
 
             anyObjectDAO.save(leftEnd);
@@ -419,13 +413,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
             neo4jTemplate.deleteById(membership.getKey(), Neo4jUMembership.class);
 
             userDAO.save(leftEnd);

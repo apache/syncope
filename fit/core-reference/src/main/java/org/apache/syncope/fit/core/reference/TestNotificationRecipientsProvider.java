@@ -31,7 +31,7 @@ public class TestNotificationRecipientsProvider implements RecipientsProvider {
     @Override
     public Set<String> provideRecipients(
             final Notification notification,
-            final Any<?> any,
+            final Any any,
             final Map<String, Object> jexlVars) {
 
         return Set.of(getClass().getSimpleName() + "@syncope.apache.org");

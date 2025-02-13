@@ -131,7 +131,6 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
                             username(acct.getUsername()).
                             build();
             linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
-            linkedAccount.getPrivileges().addAll(acct.getPrivileges());
             LinkedAccountUR patch = new LinkedAccountUR.Builder().
                     linkedAccountTO(linkedAccount).
                     operation(PatchOperation.ADD_REPLACE).
@@ -145,7 +144,6 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
                     resource, mergingUserTO.getType(), mergingUserTO.getKey());
             LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
-            linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
             LinkedAccountUR patch = new LinkedAccountUR.Builder().
                     linkedAccountTO(linkedAccount).
                     operation(PatchOperation.ADD_REPLACE).
@@ -163,7 +161,6 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
                 username(mergingUserTO.getUsername()).
                 build();
         linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
-        linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
         LinkedAccountUR patch = new LinkedAccountUR.Builder().linkedAccountTO(linkedAccount).
                 operation(PatchOperation.ADD_REPLACE).
                 build();

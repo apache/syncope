@@ -46,7 +46,6 @@ import org.apache.syncope.client.console.rest.AccessTokenRestClient;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.ApplicationRestClient;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.CommandRestClient;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
@@ -185,12 +184,6 @@ public class IdRepoConsoleContext {
     @Bean
     public AnyTypeRestClient anyTypeRestClient() {
         return new AnyTypeRestClient();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationRestClient applicationRestClient() {
-        return new ApplicationRestClient();
     }
 
     @ConditionalOnMissingBean

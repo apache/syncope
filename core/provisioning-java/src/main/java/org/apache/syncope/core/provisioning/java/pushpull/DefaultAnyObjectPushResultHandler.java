@@ -36,12 +36,12 @@ public class DefaultAnyObjectPushResultHandler extends AbstractPushResultHandler
     }
 
     @Override
-    protected String getName(final Any<?> any) {
+    protected String getName(final Any any) {
         return AnyObject.class.cast(any).getName();
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true);
     }
 

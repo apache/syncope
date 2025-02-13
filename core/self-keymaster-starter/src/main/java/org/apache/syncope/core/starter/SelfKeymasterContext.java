@@ -64,6 +64,7 @@ import org.apache.syncope.core.logic.ConfParamLogic;
 import org.apache.syncope.core.logic.DomainLogic;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.NetworkServiceDAO;
@@ -222,7 +223,8 @@ public class SelfKeymasterContext {
             final UserProvisioningManager provisioningManager,
             final DefaultCredentialChecker credentialChecker,
             final SecurityProperties securityProperties,
-            final KeymasterProperties keymasterProperties) {
+            final KeymasterProperties keymasterProperties,
+            final EncryptorManager encryptorManager) {
 
         return new SelfKeymasterUsernamePasswordAuthenticationProvider(
                 domainOps,
@@ -230,7 +232,8 @@ public class SelfKeymasterContext {
                 provisioningManager,
                 credentialChecker,
                 securityProperties,
-                keymasterProperties);
+                keymasterProperties,
+                encryptorManager);
     }
 
     @Bean

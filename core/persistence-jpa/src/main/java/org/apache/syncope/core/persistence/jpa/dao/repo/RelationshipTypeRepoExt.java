@@ -18,7 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+
 public interface RelationshipTypeRepoExt {
+
+    List<String> findByEndAnyType(AnyType anyType);
 
     void deleteById(String key);
 }

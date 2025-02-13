@@ -22,7 +22,7 @@ import jakarta.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynMembership;
 
-public abstract class AbstractDynMembership<A extends Any<?>>
+public abstract class AbstractDynMembership<A extends Any>
         extends AbstractGeneratedKeyNode implements DynMembership<A> {
 
     private static final long serialVersionUID = 921821654690948787L;

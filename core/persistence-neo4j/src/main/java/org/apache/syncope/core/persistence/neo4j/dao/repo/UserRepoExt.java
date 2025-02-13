@@ -25,7 +25,6 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -78,8 +77,6 @@ public interface UserRepoExt extends AnyRepoExt<User> {
     Optional<? extends LinkedAccount> findLinkedAccount(ExternalResource resource, String connObjectKeyValue);
 
     List<LinkedAccount> findLinkedAccounts(String userKey);
-
-    List<LinkedAccount> findLinkedAccountsByPrivilege(Privilege privilege);
 
     List<LinkedAccount> findLinkedAccountsByResource(ExternalResource resource);
 }

@@ -20,7 +20,10 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.common.validation.RelationshipTypeCheck;
 
@@ -36,6 +39,14 @@ public class JPARelationshipType extends AbstractProvidedKeyEntity implements Re
 
     private String description;
 
+    @NotNull
+    @ManyToOne
+    private JPAAnyType leftEndAnyType;
+
+    @NotNull
+    @ManyToOne
+    private JPAAnyType rightEndAnyType;
+
     @Override
     public String getDescription() {
         return description;
@@ -44,5 +55,27 @@ public class JPARelationshipType extends AbstractProvidedKeyEntity implements Re
     @Override
     public void setDescription(final String description) {
         this.description = description;
+    }
+
+    @Override
+    public AnyType getLeftEndAnyType() {
+        return leftEndAnyType;
+    }
+
+    @Override
+    public void setLeftEndAnyType(final AnyType anyType) {
+        checkType(anyType, JPAAnyType.class);
+        this.leftEndAnyType = (JPAAnyType) anyType;
+    }
+
+    @Override
+    public AnyType getRightEndAnyType() {
+        return rightEndAnyType;
+    }
+
+    @Override
+    public void setRightEndAnyType(final AnyType anyType) {
+        checkType(anyType, JPAAnyType.class);
+        this.rightEndAnyType = (JPAAnyType) anyType;
     }
 }

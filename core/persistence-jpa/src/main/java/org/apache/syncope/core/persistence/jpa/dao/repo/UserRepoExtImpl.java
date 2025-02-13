@@ -49,6 +49,7 @@ import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.security.SecurityProperties;
@@ -173,6 +174,20 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         entityManager.remove(membership);
     }
 
+    protected User checkBeforeSave(final User user) {
+        User merged = user;
+        if (user.getLinkedAccounts() == null) {
+            entityManager.flush();
+            merged = entityManager.merge(user);
+        }
+        merged.getLinkedAccounts().stream().map(JPALinkedAccount.class::cast).forEach(JPALinkedAccount::list2json);
+
+        super.checkBeforeSave((JPAUser) merged);
+        merged.getLinkedAccounts().forEach(account -> super.checkBeforeSave((JPALinkedAccount) account));
+
+        return merged;
+    }
+
     protected Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
         entityManager.flush();
         User merged = entityManager.merge(user);
@@ -187,17 +202,15 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User> implements UserRep
         return Pair.of(merged, dynGroupMembs);
     }
 
-    @Override
     @SuppressWarnings("unchecked")
+    @Override
     public <S extends User> S save(final S user) {
-        checkBeforeSave(user);
-        return (S) doSave(user).getLeft();
+        return (S) doSave(checkBeforeSave(user)).getLeft();
     }
 
     @Override
     public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final User user) {
-        checkBeforeSave(user);
-        return doSave(user).getRight();
+        return doSave(checkBeforeSave(user)).getRight();
     }
 
     @Override

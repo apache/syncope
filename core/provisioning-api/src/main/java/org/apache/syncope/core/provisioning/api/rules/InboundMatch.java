@@ -32,7 +32,7 @@ public final class InboundMatch implements Serializable {
 
     private final MatchType matchTarget;
 
-    private Any<?> any;
+    private Any any;
 
     private LinkedAccount linkedAccount;
 
@@ -40,7 +40,7 @@ public final class InboundMatch implements Serializable {
         this.matchTarget = matchTarget;
 
         if (entity instanceof Any) {
-            any = (Any<?>) entity;
+            any = (Any) entity;
         } else if (entity instanceof LinkedAccount linkedAccount1) {
             linkedAccount = linkedAccount1;
         }
@@ -50,7 +50,7 @@ public final class InboundMatch implements Serializable {
         return matchTarget;
     }
 
-    public Any<?> getAny() {
+    public Any getAny() {
         return any;
     }
 

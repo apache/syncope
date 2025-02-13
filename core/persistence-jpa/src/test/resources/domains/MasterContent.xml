@@ -101,9 +101,6 @@ under the License.
   <AttrRepo id="DefaultSyncopeAttrRepo" attrRepoState="ACTIVE"
             description="Syncope attr repo" jsonConf='{"_class":"org.apache.syncope.common.lib.attr.SyncopeAttrRepoConf","domain":"Master","searchFilter":"username=={user}","basicAuthUsername":"admin","basicAuthPassword":"password","headers":{}}'/>
 
-  <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
-  <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
-  
   <AnyTypeClass id="generic membership"/>
 
   <AnyType id="USER" kind="USER"/>
@@ -119,8 +116,13 @@ under the License.
   <AnyType id="PRINTER" kind="ANY_OBJECT"/>
   <AnyTypeClass id="minimal printer"/>
   <AnyType_AnyTypeClass anyType_id="PRINTER" anyTypeClass_id="minimal printer"/>
-      
+
   <AnyTypeClass id="csv"/>
+
+  <RelationshipType id="inclusion" description="Models the act that an object is included in another"
+                    leftEndAnyType_id="PRINTER" rightEndAnyType_id="PRINTER"/>
+  <RelationshipType id="neighborhood" description="Models the act that an object is near another"
+                    leftEndAnyType_id="USER" rightEndAnyType_id="PRINTER"/>
 
   <SyncopeSchema id="fullname"/>
   <PlainSchema id="fullname" type="String" anyTypeClass_id="minimal user"
@@ -282,17 +284,9 @@ under the License.
              creationDate="2021-04-15 12:45:00" lastChangeDate="2010-10-20 11:00:00"
              plainAttrs="[]"/>
 
-  <ARelationship id="11a0ec66-b59b-428a-af3d-f856950ff1c5" type_id="neighborhood"
+  <ARelationship id="11a0ec66-b59b-428a-af3d-f856950ff1c5" type_id="inclusion"
                  left_anyObject_id="fc6dbc3a-6c07-4965-8781-921e7401a4a5"
                  right_anyObject_id="8559d14d-58c2-46eb-a2d4-a7d35161e8f8"/>
-  
-  <Application id="mightyApp" description="A cool application"/>
-  <Privilege id="postMighty" description="Ability to POST"
-             spec="{ &quot;method&quot;: &quot;POST&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
-             application_id="mightyApp"/>
-  <Privilege id="getMighty" description="Ability to GET"
-             spec="{ &quot;method&quot;: &quot;GET&quot;, &quot;url&quot;: &quot;/a/b/c&quot; }"
-             application_id="mightyApp"/>
 
   <SyncopeRole id="User reviewer" entitlements='["USER_READ","USER_LIST","USER_SEARCH","ANYTYPE_LIST","ANYTYPE_READ","ANYTYPECLASS_LIST","ANYTYPECLASS_READ"]'/>
   <SyncopeRole_Realm role_id="User reviewer" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
@@ -303,7 +297,6 @@ under the License.
 
   <SyncopeRole id="Other" entitlements='["SCHEMA_READ","GROUP_READ","USER_REQUEST_FORM_CLAIM"]'/>
   <SyncopeRole_Realm role_id="Other" realm_id="722f3d84-9c2b-4525-8f6e-e4b82c55a36c"/>
-  <SyncopeRole_Privilege role_id="Other" privilege_id="postMighty"/>
   
   <SyncopeRole id="Search for realm evenTwo" entitlements='["USER_READ","USER_SEARCH"]'/>
   <SyncopeRole_Realm role_id="Search for realm evenTwo" realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>

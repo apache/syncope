@@ -53,7 +53,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -76,7 +75,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDynRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
@@ -338,23 +336,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 + (not ? "AND NOT" : "OR") + " EXISTS { "
                 + "MATCH (n)-[:" + RoleRepoExt.DYN_ROLE_MEMBERSHIP_REL + "]-"
                 + "(:" + Neo4jRole.NODE + " {id: $" + param + "}) } ";
-    }
-
-    protected String getQuery(
-            final PrivilegeCond cond,
-            final boolean not,
-            final Map<String, Object> parameters) {
-
-        String param = setParameter(parameters, cond.getPrivilege());
-        return "MATCH (n) "
-                + "WHERE " + (not ? "NOT " : "")
-                + "(n)-[:" + Neo4jUser.ROLE_MEMBERSHIP_REL + "]-"
-                + "(:" + Neo4jRole.NODE + ")-[]-"
-                + "(:" + Neo4jPrivilege.NODE + " {id: $" + param + "}) "
-                + (not ? "AND NOT" : "OR") + " EXISTS { "
-                + "MATCH (n)-[:" + RoleRepoExt.DYN_ROLE_MEMBERSHIP_REL + "]-"
-                + "(:" + Neo4jRole.NODE + ")-[]-"
-                + "(:" + Neo4jPrivilege.NODE + " {id: $" + param + "}) } ";
     }
 
     protected String getQuery(
@@ -787,10 +768,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                         filter(leaf -> AnyTypeKind.USER == kind).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
-                cond.asLeaf(PrivilegeCond.class).
-                        filter(leaf -> AnyTypeKind.USER == kind).
-                        ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
-
                 cond.asLeaf(DynRealmCond.class).
                         ifPresent(leaf -> query.append(getQuery(leaf, not, parameters)));
 
@@ -1036,7 +1013,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected <T extends Any<?>> List<T> doSearch(
+    protected <T extends Any> List<T> doSearch(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,

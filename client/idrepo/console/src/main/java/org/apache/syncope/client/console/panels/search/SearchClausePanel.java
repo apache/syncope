@@ -156,8 +156,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     protected final IModel<List<String>> roleNames;
 
-    protected final IModel<List<String>> privilegeNames;
-
     protected final IModel<List<String>> auxClassNames;
 
     protected final IModel<List<String>> resourceNames;
@@ -190,7 +188,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<Map<String, PlainSchemaTO>> dnames,
             final Pair<IModel<List<String>>, IModel<Long>> groupInfo,
             final IModel<List<String>> roleNames,
-            final IModel<List<String>> privilegeNames,
             final IModel<List<String>> auxClassNames,
             final IModel<List<String>> resourceNames) {
 
@@ -205,7 +202,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.dnames = dnames;
         this.groupInfo = groupInfo;
         this.roleNames = roleNames;
-        this.privilegeNames = privilegeNames;
         this.auxClassNames = auxClassNames;
         this.resourceNames = resourceNames;
 
@@ -251,7 +247,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
-                    case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
                     case GROUP_MEMBER:
                     case RESOURCE:
@@ -311,12 +306,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     case ROLE_MEMBERSHIP:
                         return Optional.ofNullable(roleNames).
                                 map(r -> r.getObject().stream().sorted().map(item -> Pair.of(item, item)).
-                                collect(Collectors.toList())).
-                                orElse(List.of());
-
-                    case PRIVILEGE:
-                        return Optional.ofNullable(privilegeNames).
-                                map(p -> p.getObject().stream().sorted().map(item -> Pair.of(item, item)).
                                 collect(Collectors.toList())).
                                 orElse(List.of());
 
@@ -686,15 +675,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
                     break;
 
-                case PRIVILEGE:
-                    value.setEnabled(false);
-                    value.setModelObject(StringUtils.EMPTY);
-
-                    // reload properties list
-                    properties.detach();
-                    property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
-                    break;
-
                 case GROUP_MEMBERSHIP:
                     value.setEnabled(false);
                     value.setModelObject(StringUtils.EMPTY);
@@ -825,7 +805,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
-                    case PRIVILEGE:
                     case RESOURCE:
                         switch (object) {
                             case EQUALS:
@@ -1093,7 +1072,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> clone() {
         SearchClausePanel panel = new SearchClausePanel(
                 getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
-                roleNames, privilegeNames, auxClassNames, resourceNames);
+                roleNames, auxClassNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         if (searchButton.isEnabled()) {

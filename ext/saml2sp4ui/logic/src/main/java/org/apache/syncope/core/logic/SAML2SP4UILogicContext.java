@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.core.logic.init.SAML2SP4UILoader;
 import org.apache.syncope.core.logic.saml2.SAML2ClientCache;
 import org.apache.syncope.core.logic.saml2.SAML2SP4UIUserManager;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -117,7 +118,8 @@ public class SAML2SP4UILogicContext {
             final SAML2ClientCache saml2ClientCacheLogout,
             final SAML2SP4UIUserManager userManager,
             final SAML2SP4UIIdPDAO idpDAO,
-            final AuthDataAccessor authDataAccessor) {
+            final AuthDataAccessor authDataAccessor,
+            final EncryptorManager encryptorManager) {
 
         return new SAML2SP4UILogic(
                 props,
@@ -127,6 +129,7 @@ public class SAML2SP4UILogicContext {
                 saml2ClientCacheLogout,
                 userManager,
                 idpDAO,
-                authDataAccessor);
+                authDataAccessor,
+                encryptorManager);
     }
 }

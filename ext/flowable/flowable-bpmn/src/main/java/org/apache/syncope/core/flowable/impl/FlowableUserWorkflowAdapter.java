@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.flowable.api.UserRequestHandler;
 import org.apache.syncope.core.flowable.api.WorkflowTaskManager;
 import org.apache.syncope.core.flowable.support.DomainProcessEngine;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -75,9 +76,19 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             final RuleProvider ruleProvider,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final EncryptorManager encryptorManager) {
 
-        super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleProvider, publisher);
+        super(
+                dataBinder,
+                userDAO,
+                realmDAO,
+                groupDAO,
+                entityFactory,
+                securityProperties,
+                ruleProvider,
+                publisher,
+                encryptorManager);
         this.engine = engine;
         this.userRequestHandler = userRequestHandler;
     }
@@ -142,9 +153,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 getVariable(procInst.getProcessInstanceId(), FlowableRuntimeUtils.ENABLED, Boolean.class);
         engine.getRuntimeService().removeVariable(
                 procInst.getProcessInstanceId(), FlowableRuntimeUtils.ENABLED);
-        if (updatedEnabled != null) {
-            user.setSuspended(!updatedEnabled);
-        }
+        Optional.ofNullable(updatedEnabled).ifPresent(ue -> user.setSuspended(!ue));
 
         metadata(user, creator, context);
         FlowableRuntimeUtils.updateStatus(engine, procInst.getProcessInstanceId(), user);
@@ -325,9 +334,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 Optional.ofNullable(propByLinkedAccountBeforeUpdate).orElse(propByLinkedAccount));
 
         if (inFormTask) {
-            propByRes = engine.getRuntimeService().getVariable(
+            @SuppressWarnings("unchecked")
+            PropagationByResource<String> propByResAfterForm = engine.getRuntimeService().getVariable(
                     procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
-        }        
+            propByRes = propByResAfterForm;
+        }
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);

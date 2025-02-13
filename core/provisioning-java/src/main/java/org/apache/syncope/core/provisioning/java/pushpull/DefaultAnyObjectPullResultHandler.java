@@ -67,7 +67,7 @@ public class DefaultAnyObjectPullResultHandler extends AbstractPullResultHandler
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true);
     }
 

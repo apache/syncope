@@ -35,7 +35,7 @@ public interface VirAttrHandler {
      * @param any any object
      * @param connObj connector object from external resource
      */
-    void setValues(Any<?> any, ConnectorObject connObj);
+    void setValues(Any any, ConnectorObject connObj);
 
     /**
      * Query external resource (or cache, if configured) associated to the given any for values associated to the given
@@ -46,7 +46,7 @@ public interface VirAttrHandler {
      * @return virtual attribute values, either for local cache or external resource, if resource is owned by the given
      * any and associated to the given virtual schema; empty list otherwise.
      */
-    List<String> getValues(Any<?> any, VirSchema schema);
+    List<String> getValues(Any any, VirSchema schema);
 
     /**
      * Query external resource (or cache, if configured) associated to the given any for values associated to the given
@@ -58,7 +58,7 @@ public interface VirAttrHandler {
      * @return virtual attribute values, either for local cache or external resource, if resource is owned by the given
      * any and associated to the given virtual schema; empty list otherwise.
      */
-    List<String> getValues(Any<?> any, Membership<?> membership, VirSchema schema);
+    List<String> getValues(Any any, Membership<?> membership, VirSchema schema);
 
     /**
      * Query external resources (or cache, if configured) associated to the given any for values associated to all
@@ -68,7 +68,7 @@ public interface VirAttrHandler {
      * @param any any object
      * @return virtual attribute values, either for local cache or external resources
      */
-    Map<VirSchema, List<String>> getValues(Any<?> any);
+    Map<VirSchema, List<String>> getValues(Any any);
 
     /**
      * Query external resources (or cache, if configured) associated to the given any for values associated to all
@@ -79,6 +79,6 @@ public interface VirAttrHandler {
      * @param membership membership
      * @return virtual attribute values, either for local cache or external resources
      */
-    Map<VirSchema, List<String>> getValues(Any<?> any, Membership<?> membership);
+    Map<VirSchema, List<String>> getValues(Any any, Membership<?> membership);
 
 }

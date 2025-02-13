@@ -72,7 +72,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
     }
 
     @Override
-    public void setValues(final Any<?> any, final ConnectorObject connObj) {
+    public void setValues(final Any any, final ConnectorObject connObj) {
         if (any == null) {
             LOG.debug("Null any passed, ignoring");
             return;
@@ -98,7 +98,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
         });
     }
 
-    protected Map<VirSchema, List<String>> getValues(final Any<?> any, final Set<VirSchema> schemas) {
+    protected Map<VirSchema, List<String>> getValues(final Any any, final Set<VirSchema> schemas) {
         Set<ExternalResource> resources = anyUtilsFactory.getInstance(any).getAllResources(any);
 
         Map<VirSchema, List<String>> result = new HashMap<>();
@@ -153,7 +153,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
     }
 
     @Override
-    public List<String> getValues(final Any<?> any, final VirSchema schema) {
+    public List<String> getValues(final Any any, final VirSchema schema) {
         if (!anyUtilsFactory.getInstance(any).dao().
                 findAllowedSchemas(any, VirSchema.class).forSelfContains(schema)) {
 
@@ -166,7 +166,7 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
     }
 
     @Override
-    public List<String> getValues(final Any<?> any, final Membership<?> membership, final VirSchema schema) {
+    public List<String> getValues(final Any any, final Membership<?> membership, final VirSchema schema) {
         if (!anyUtilsFactory.getInstance(any).dao().
                 findAllowedSchemas(any, VirSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
 
@@ -179,14 +179,14 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
     }
 
     @Override
-    public Map<VirSchema, List<String>> getValues(final Any<?> any) {
+    public Map<VirSchema, List<String>> getValues(final Any any) {
         return getValues(
                 any,
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, VirSchema.class).getForSelf());
     }
 
     @Override
-    public Map<VirSchema, List<String>> getValues(final Any<?> any, final Membership<?> membership) {
+    public Map<VirSchema, List<String>> getValues(final Any any, final Membership<?> membership) {
         return getValues(
                 any,
                 anyUtilsFactory.getInstance(any).dao().findAllowedSchemas(any, VirSchema.class).

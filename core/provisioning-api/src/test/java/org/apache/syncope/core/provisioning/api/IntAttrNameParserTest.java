@@ -153,7 +153,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -168,7 +167,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -183,7 +181,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -196,7 +193,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         Object nullObj = null;
         int expected = new HashCodeBuilder().
                 append(AnyTypeKind.USER).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
-                append(nullObj).append(nullObj).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
+                append(nullObj).append(nullObj).append(nullObj).append(nullObj).append(nullObj).
                 build();
         assertEquals(expected, intAttrName.hashCode());
         IntAttrName intAttrName2 = intAttrNameParser.parse("email", AnyTypeKind.USER);
@@ -205,7 +202,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertTrue(intAttrName.equals(intAttrName));
         String toString = intAttrName.toString();
         assertTrue(toString.startsWith("org.apache.syncope.core.provisioning.api.IntAttrName"));
-        assertTrue(toString.endsWith("[USER,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>]"));
+        assertTrue(toString.endsWith("[USER,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>,<null>]"));
     }
 
     @Test
@@ -220,7 +217,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -235,7 +231,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -250,7 +245,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -268,7 +262,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals("readers", intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -287,7 +280,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
     }
@@ -303,7 +295,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertEquals("hp", intAttrName.getRelatedAnyObject());
         assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -321,23 +312,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertNull(intAttrName.getEnclosingGroup());
         assertEquals("top", intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
-    }
-
-    @Test
-    public void privileges() throws ParseException {
-        IntAttrName intAttrName = intAttrNameParser.parse("privileges[mightyApp]", AnyTypeKind.USER);
-        assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
-        assertNull(intAttrName.getField());
-        assertNull(intAttrName.getSchema());
-        assertNull(intAttrName.getSchemaType());
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertEquals("mightyApp", intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getRelationshipType());
         assertNull(intAttrName.getRelatedUser());
@@ -357,7 +331,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals("PRINTER", intAttrName.getRelationshipAnyType());
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getPrivilegesOfApplication());
         assertNull(intAttrName.getRelatedUser());
     }
 

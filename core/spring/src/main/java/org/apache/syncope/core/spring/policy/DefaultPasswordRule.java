@@ -31,12 +31,12 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRule;
 import org.apache.syncope.core.provisioning.api.rules.PasswordRuleConfClass;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -51,6 +51,7 @@ import org.passay.RuleResult;
 import org.passay.UsernameRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
@@ -58,8 +59,6 @@ import org.springframework.util.CollectionUtils;
 public class DefaultPasswordRule implements PasswordRule {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DefaultPasswordRule.class);
-
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     public static List<Rule> conf2Rules(final DefaultPasswordRuleConf conf) {
         List<Rule> rules = new ArrayList<>();
@@ -120,6 +119,9 @@ public class DefaultPasswordRule implements PasswordRule {
         return rules;
     }
 
+    @Autowired
+    protected EncryptorManager encryptorManager;
+
     protected DefaultPasswordRuleConf conf;
 
     protected PasswordValidator passwordValidator;
@@ -131,8 +133,8 @@ public class DefaultPasswordRule implements PasswordRule {
 
     @Override
     public void setConf(final PasswordRuleConf conf) {
-        if (conf instanceof DefaultPasswordRuleConf) {
-            this.conf = (DefaultPasswordRuleConf) conf;
+        if (conf instanceof DefaultPasswordRuleConf defaultPasswordRuleConf) {
+            this.conf = defaultPasswordRuleConf;
 
             Properties passay = new Properties();
             try (InputStream in = getClass().getResourceAsStream("/passay.properties")) {
@@ -205,7 +207,7 @@ public class DefaultPasswordRule implements PasswordRule {
             String clear = null;
             if (account.canDecodeSecrets()) {
                 try {
-                    clear = ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm());
+                    clear = encryptorManager.getInstance().decode(account.getPassword(), account.getCipherAlgorithm());
                 } catch (Exception e) {
                     LOG.error("Could not decode password for {}", account, e);
                 }

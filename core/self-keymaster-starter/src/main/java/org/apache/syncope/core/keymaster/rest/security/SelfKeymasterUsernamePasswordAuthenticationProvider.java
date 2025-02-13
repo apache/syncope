@@ -20,6 +20,7 @@ package org.apache.syncope.core.keymaster.rest.security;
 
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
@@ -38,9 +39,10 @@ public class SelfKeymasterUsernamePasswordAuthenticationProvider extends Usernam
             final UserProvisioningManager provisioningManager,
             final DefaultCredentialChecker credentialChecker,
             final SecurityProperties securityProperties,
-            final KeymasterProperties keymasterProperties) {
+            final KeymasterProperties keymasterProperties,
+            final EncryptorManager encryptorManager) {
 
-        super(domainOps, dataAccessor, provisioningManager, credentialChecker, securityProperties);
+        super(domainOps, dataAccessor, provisioningManager, credentialChecker, securityProperties, encryptorManager);
         this.keymasterProperties = keymasterProperties;
     }
 

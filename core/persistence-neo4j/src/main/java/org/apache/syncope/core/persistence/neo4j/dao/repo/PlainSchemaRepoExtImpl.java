@@ -24,17 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.cache.Cache;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
@@ -51,14 +46,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements PlainSchemaRepoExt {
 
-    protected final AnyUtilsFactory anyUtilsFactory;
-
     protected final ExternalResourceDAO resourceDAO;
 
     protected final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache;
 
     public PlainSchemaRepoExtImpl(
-            final AnyUtilsFactory anyUtilsFactory,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -66,7 +58,6 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache) {
 
         super(neo4jTemplate, neo4jClient, nodeValidator);
-        this.anyUtilsFactory = anyUtilsFactory;
         this.resourceDAO = resourceDAO;
         this.plainSchemaCache = plainSchemaCache;
     }
@@ -95,32 +86,24 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
     }
 
     @Override
-    public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
-        String label;
-        if (GPlainAttr.class.isAssignableFrom(reference)) {
-            label = Neo4jGroup.NODE;
-        } else if (APlainAttr.class.isAssignableFrom(reference)) {
-            label = Neo4jAnyObject.NODE;
-        } else if (LAPlainAttr.class.isAssignableFrom(reference)) {
-            label = Neo4jLinkedAccount.NODE;
-        } else {
-            label = Neo4jUser.NODE;
-        }
-
+    public boolean hasAttrs(final PlainSchema schema) {
         return neo4jTemplate.count(
-                "MATCH (n:" + label + ") "
-                + "WHERE n.`plainAttrs." + schema.getKey() + "` IS NOT NULL "
+                "MATCH (n) "
+                + "WHERE labels(n) IN [['" + Neo4jUser.NODE + "'],['" + Neo4jGroup.NODE + "'],"
+                + "['" + Neo4jAnyObject.NODE + "'], ['" + Neo4jLinkedAccount.NODE + "']] "
+                + "AND n.`plainAttrs." + schema.getKey() + "` IS NOT NULL "
                 + "RETURN COUNT(n)") > 0;
     }
 
     @Override
     public boolean existsPlainAttrUniqueValue(
-            final AnyTypeKind anyTypeKind,
+            final AnyUtils anyUtils,
             final String anyKey,
-            final PlainAttr<?> attr) {
+            final PlainSchema schema,
+            final PlainAttrValue attrValue) {
 
         String label;
-        switch (anyTypeKind) {
+        switch (anyUtils.anyTypeKind()) {
             case GROUP:
                 label = Neo4jGroup.NODE;
                 break;
@@ -131,24 +114,20 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
             case USER:
             default:
-                if (attr instanceof LAPlainAttr) {
-                    label = Neo4jLinkedAccount.NODE;
-                } else {
-                    label = Neo4jUser.NODE;
-                }
+                label = Neo4jUser.NODE;
         }
 
-        String value = Optional.ofNullable(attr.getUniqueValue().getDateValue()).
+        String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                orElse(attr.getUniqueValue().getValueAsString());
+                orElse(attrValue.getValueAsString());
 
         return neo4jTemplate.count(
                 "MATCH (n:" + label + ") "
                 + "WITH n.id AS id, "
-                + "apoc.convert.getJsonProperty(n, 'plainAttrs." + attr.getSchema().getKey() + "', '$.uniqueValue') "
-                + "AS " + attr.getSchema().getKey() + " "
+                + "apoc.convert.getJsonProperty(n, 'plainAttrs." + schema.getKey() + "', '$.uniqueValue') "
+                + "AS " + schema.getKey() + " "
                 + "WHERE (EXISTS { MATCH (n) "
-                + "WHERE " + attr.getSchema().getKey() + "." + Neo4jAnySearchDAO.key(attr.getSchema().getType())
+                + "WHERE " + schema.getKey() + "." + Neo4jAnySearchDAO.key(schema.getType())
                 + " = $value } "
                 + "AND EXISTS { MATCH (n) WHERE NOT (n.id = $anyKey) }) "
                 + "RETURN COUNT(id)",
@@ -197,13 +176,5 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
             neo4jTemplate.deleteById(key, Neo4jPlainSchema.class);
         });
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends PlainAttr<?>> void delete(final T plainAttr) {
-        if (plainAttr.getOwner() != null) {
-            ((Attributable<T>) plainAttr.getOwner()).remove(plainAttr);
-        }
     }
 }
