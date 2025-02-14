@@ -19,10 +19,20 @@
 package org.apache.syncope.common.lib.types;
 
 public enum OIDCGrantType {
-    authorization_code,
-    password,
-    client_credentials,
-    refresh_token,
-    device_code;
+    authorization_code("authorization_code"),
+    password("password"),
+    client_credentials("client_credentials"),
+    refresh_token("refresh_token"),
+    device_code("urn:ietf:params:oauth:grant-type:device_code"),
+    uma_ticket("urn:ietf:params:oauth:grant-type:uma-ticket");
 
+    private final String externalForm;
+
+    OIDCGrantType(final String external) {
+        this.externalForm = external;
+    }
+
+    public String getExternalForm() {
+        return externalForm;
+    }
 }
