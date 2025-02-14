@@ -26,10 +26,14 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 
 @Schema(allOf = { ClientAppTO.class })
 public class OIDCRPClientAppTO extends ClientAppTO {
@@ -40,7 +44,23 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private String clientSecret;
 
-    private boolean signIdToken;
+    private String idTokenIssuer;
+
+    private boolean signIdToken = true;
+
+    private OIDCTokenSigningAlg idTokenSigningAlg = OIDCTokenSigningAlg.none;
+
+    private boolean encryptIdToken;
+
+    private OIDCTokenEncryptionAlg idTokenEncryptionAlg = OIDCTokenEncryptionAlg.none;
+
+    private OIDCTokenEncryptionEncoding idTokenEncryptionEncoding;
+
+    private OIDCTokenSigningAlg userInfoSigningAlg;
+
+    private OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg;
+
+    private OIDCTokenEncryptionEncoding userInfoEncryptedResponseEncoding;
 
     private boolean jwtAccessToken;
 
@@ -48,7 +68,9 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private boolean generateRefreshToken = true;
 
-    private OIDCSubjectType subjectType;
+    private OIDCSubjectType subjectType = OIDCSubjectType.PUBLIC;
+
+    private OIDCApplicationType applicationType = OIDCApplicationType.WEB;
 
     private final List<String> redirectUris = new ArrayList<>();
 
@@ -110,6 +132,14 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         return supportedResponseTypes;
     }
 
+    public String getIdTokenIssuer() {
+        return idTokenIssuer;
+    }
+
+    public void setIdTokenIssuer(final String idTokenIssuer) {
+        this.idTokenIssuer = idTokenIssuer;
+    }
+
     public boolean isSignIdToken() {
         return signIdToken;
     }
@@ -118,12 +148,76 @@ public class OIDCRPClientAppTO extends ClientAppTO {
         this.signIdToken = signIdToken;
     }
 
+    public boolean isEncryptIdToken() {
+        return encryptIdToken;
+    }
+
+    public void setEncryptIdToken(final boolean encryptIdToken) {
+        this.encryptIdToken = encryptIdToken;
+    }
+
+    public OIDCTokenSigningAlg getIdTokenSigningAlg() {
+        return idTokenSigningAlg;
+    }
+
+    public void setIdTokenSigningAlg(final OIDCTokenSigningAlg idTokenSigningAlg) {
+        this.idTokenSigningAlg = idTokenSigningAlg;
+    }
+
+    public OIDCTokenEncryptionAlg getIdTokenEncryptionAlg() {
+        return idTokenEncryptionAlg;
+    }
+
+    public void setIdTokenEncryptionAlg(final OIDCTokenEncryptionAlg idTokenEncryptionAlg) {
+        this.idTokenEncryptionAlg = idTokenEncryptionAlg;
+    }
+
+    public OIDCTokenEncryptionEncoding getIdTokenEncryptionEncoding() {
+        return idTokenEncryptionEncoding;
+    }
+
+    public void setIdTokenEncryptionEncoding(final OIDCTokenEncryptionEncoding idTokenEncryptionEncoding) {
+        this.idTokenEncryptionEncoding = idTokenEncryptionEncoding;
+    }
+
+    public OIDCTokenSigningAlg getUserInfoSigningAlg() {
+        return userInfoSigningAlg;
+    }
+
+    public void setUserInfoSigningAlg(final OIDCTokenSigningAlg userInfoSigningAlg) {
+        this.userInfoSigningAlg = userInfoSigningAlg;
+    }
+
+    public OIDCTokenEncryptionAlg getUserInfoEncryptedResponseAlg() {
+        return userInfoEncryptedResponseAlg;
+    }
+
+    public void setUserInfoEncryptedResponseAlg(final OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg) {
+        this.userInfoEncryptedResponseAlg = userInfoEncryptedResponseAlg;
+    }
+
+    public OIDCTokenEncryptionEncoding getUserInfoEncryptedResponseEncoding() {
+        return userInfoEncryptedResponseEncoding;
+    }
+
+    public void setUserInfoEncryptedResponseEncoding(final OIDCTokenEncryptionEncoding encoding) {
+        this.userInfoEncryptedResponseEncoding = encoding;
+    }
+
     public OIDCSubjectType getSubjectType() {
         return subjectType;
     }
 
     public void setSubjectType(final OIDCSubjectType subjectType) {
         this.subjectType = subjectType;
+    }
+
+    public OIDCApplicationType getApplicationType() {
+        return applicationType;
+    }
+
+    public void setApplicationType(final OIDCApplicationType applicationType) {
+        this.applicationType = applicationType;
     }
 
     public boolean isJwtAccessToken() {
@@ -205,11 +299,20 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .appendSuper(super.equals(obj))
                 .append(this.clientId, rhs.clientId)
                 .append(this.clientSecret, rhs.clientSecret)
+                .append(this.idTokenIssuer, rhs.idTokenIssuer)
                 .append(this.signIdToken, rhs.signIdToken)
+                .append(this.idTokenSigningAlg, rhs.idTokenSigningAlg)
+                .append(this.encryptIdToken, rhs.encryptIdToken)
+                .append(this.idTokenEncryptionAlg, rhs.idTokenEncryptionAlg)
+                .append(this.idTokenEncryptionEncoding, rhs.idTokenEncryptionEncoding)
+                .append(this.userInfoSigningAlg, rhs.userInfoSigningAlg)
+                .append(this.userInfoEncryptedResponseAlg, rhs.userInfoEncryptedResponseAlg)
+                .append(this.userInfoEncryptedResponseEncoding, rhs.userInfoEncryptedResponseEncoding)
                 .append(this.jwtAccessToken, rhs.jwtAccessToken)
                 .append(this.bypassApprovalPrompt, rhs.bypassApprovalPrompt)
                 .append(this.generateRefreshToken, rhs.generateRefreshToken)
                 .append(this.subjectType, rhs.subjectType)
+                .append(this.applicationType, rhs.applicationType)
                 .append(this.redirectUris, rhs.redirectUris)
                 .append(this.supportedGrantTypes, rhs.supportedGrantTypes)
                 .append(this.supportedResponseTypes, rhs.supportedResponseTypes)
@@ -227,11 +330,20 @@ public class OIDCRPClientAppTO extends ClientAppTO {
                 .appendSuper(super.hashCode())
                 .append(clientId)
                 .append(clientSecret)
+                .append(idTokenIssuer)
                 .append(signIdToken)
+                .append(idTokenSigningAlg)
+                .append(encryptIdToken)
+                .append(idTokenEncryptionAlg)
+                .append(idTokenEncryptionEncoding)
+                .append(userInfoSigningAlg)
+                .append(userInfoEncryptedResponseAlg)
+                .append(userInfoEncryptedResponseEncoding)
                 .append(jwtAccessToken)
                 .append(bypassApprovalPrompt)
                 .append(generateRefreshToken)
                 .append(subjectType)
+                .append(applicationType)
                 .append(redirectUris)
                 .append(supportedGrantTypes)
                 .append(supportedResponseTypes)

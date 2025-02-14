@@ -357,7 +357,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
                 if (query == null) {
                     query = cond.asLeaf(AnyCond.class).map(ac -> getQuery(ac, kind)).
-                            or(() -> cond.asLeaf(AttrCond.class).map(ac -> getQuery(ac, kind))).
+                            or(() -> cond.asLeaf(AttrCond.class).map(this::getQuery)).
                             orElse(null);
                 }
 
@@ -588,8 +588,8 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         return query;
     }
 
-    protected Query getQuery(final AttrCond cond, final AnyTypeKind kind) {
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, kind);
+    protected Query getQuery(final AttrCond cond) {
+        Pair<PlainSchema, PlainAttrValue> checked = check(cond);
 
         return fillAttrQuery(checked.getLeft(), checked.getRight(), cond);
     }

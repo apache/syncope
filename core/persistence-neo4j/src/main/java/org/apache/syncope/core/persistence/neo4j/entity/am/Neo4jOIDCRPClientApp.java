@@ -22,10 +22,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.springframework.data.annotation.Transient;
@@ -59,7 +63,23 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private String clientSecret;
 
-    private boolean signIdToken;
+    private String idTokenIssuer;
+
+    private boolean signIdToken = true;
+
+    private OIDCTokenSigningAlg idTokenSigningAlg = OIDCTokenSigningAlg.none;
+
+    private boolean encryptIdToken;
+
+    private OIDCTokenEncryptionAlg idTokenEncryptionAlg = OIDCTokenEncryptionAlg.none;
+
+    private OIDCTokenEncryptionEncoding idTokenEncryptionEncoding;
+
+    private OIDCTokenSigningAlg userInfoSigningAlg;
+
+    private OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg;
+
+    private OIDCTokenEncryptionEncoding userInfoEncryptedResponseEncoding;
 
     private boolean jwtAccessToken;
 
@@ -67,7 +87,9 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
 
     private boolean generateRefreshToken = true;
 
-    private OIDCSubjectType subjectType;
+    private OIDCSubjectType subjectType = OIDCSubjectType.PUBLIC;
+
+    private OIDCApplicationType applicationType = OIDCApplicationType.WEB;
 
     private String redirectUris;
 
@@ -123,6 +145,16 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     }
 
     @Override
+    public String getIdTokenIssuer() {
+        return idTokenIssuer;
+    }
+
+    @Override
+    public void setIdTokenIssuer(final String idTokenIssuer) {
+        this.idTokenIssuer = idTokenIssuer;
+    }
+
+    @Override
     public boolean isSignIdToken() {
         return signIdToken;
     }
@@ -130,6 +162,76 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     @Override
     public void setSignIdToken(final boolean signIdToken) {
         this.signIdToken = signIdToken;
+    }
+
+    @Override
+    public OIDCTokenSigningAlg getIdTokenSigningAlg() {
+        return idTokenSigningAlg;
+    }
+
+    @Override
+    public void setIdTokenSigningAlg(final OIDCTokenSigningAlg idTokenSigningAlg) {
+        this.idTokenSigningAlg = idTokenSigningAlg;
+    }
+
+    @Override
+    public boolean isEncryptIdToken() {
+        return encryptIdToken;
+    }
+
+    @Override
+    public void setEncryptIdToken(final boolean encryptIdToken) {
+        this.encryptIdToken = encryptIdToken;
+    }
+
+    @Override
+    public OIDCTokenEncryptionAlg getIdTokenEncryptionAlg() {
+        return idTokenEncryptionAlg;
+    }
+
+    @Override
+    public void setIdTokenEncryptionAlg(final OIDCTokenEncryptionAlg idTokenEncryptionAlg) {
+        this.idTokenEncryptionAlg = idTokenEncryptionAlg;
+    }
+
+    @Override
+    public OIDCTokenEncryptionEncoding getIdTokenEncryptionEncoding() {
+        return idTokenEncryptionEncoding;
+    }
+
+    @Override
+    public void setIdTokenEncryptionEncoding(final OIDCTokenEncryptionEncoding idTokenEncryptionEncoding) {
+        this.idTokenEncryptionEncoding = idTokenEncryptionEncoding;
+    }
+
+    @Override
+    public OIDCTokenSigningAlg getUserInfoSigningAlg() {
+        return userInfoSigningAlg;
+    }
+
+    @Override
+    public void setUserInfoSigningAlg(final OIDCTokenSigningAlg userInfoSigningAlg) {
+        this.userInfoSigningAlg = userInfoSigningAlg;
+    }
+
+    @Override
+    public OIDCTokenEncryptionAlg getUserInfoEncryptedResponseAlg() {
+        return userInfoEncryptedResponseAlg;
+    }
+
+    @Override
+    public void setUserInfoEncryptedResponseAlg(final OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg) {
+        this.userInfoEncryptedResponseAlg = userInfoEncryptedResponseAlg;
+    }
+
+    @Override
+    public OIDCTokenEncryptionEncoding getUserInfoEncryptedResponseEncoding() {
+        return userInfoEncryptedResponseEncoding;
+    }
+
+    @Override
+    public void setUserInfoEncryptedResponseEncoding(final OIDCTokenEncryptionEncoding encoding) {
+        this.userInfoEncryptedResponseEncoding = encoding;
     }
 
     @Override
@@ -170,6 +272,16 @@ public class Neo4jOIDCRPClientApp extends AbstractClientApp implements OIDCRPCli
     @Override
     public void setSubjectType(final OIDCSubjectType subjectType) {
         this.subjectType = subjectType;
+    }
+
+    @Override
+    public OIDCApplicationType getApplicationType() {
+        return applicationType;
+    }
+
+    @Override
+    public void setApplicationType(final OIDCApplicationType applicationType) {
+        this.applicationType = applicationType;
     }
 
     @Override

@@ -383,7 +383,6 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     protected void fillAttrQuery(
-            final AnyUtils anyUtils,
             final TextStringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
@@ -393,16 +392,16 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         if (not && cond.getType() == AttrCond.Type.ISNULL) {
             cond.setType(AttrCond.Type.ISNOTNULL);
-            fillAttrQuery(anyUtils, query, attrValue, schema, cond, true, parameters);
+            fillAttrQuery(query, attrValue, schema, cond, true, parameters);
             return;
         }
         if (not) {
             if (schema.isUniqueConstraint()) {
-                fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters);
+                fillAttrQuery(query, attrValue, schema, cond, false, parameters);
                 query.replaceFirst("WHERE", "WHERE NOT(");
                 query.append(')');
             } else {
-                fillAttrQuery(anyUtils, query, attrValue, schema, cond, false, parameters);
+                fillAttrQuery(query, attrValue, schema, cond, false, parameters);
                 query.replaceAll("any(", schema.getKey() + " IS NULL OR none(");
             }
             return;
@@ -513,7 +512,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final TextStringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
-            final AttrCond cond,
+            final AnyCond cond,
             final boolean not,
             final Map<String, Object> parameters) {
 
@@ -672,23 +671,17 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) WHERE ");
 
-        plainSchemaDAO.findById(cond.getSchema()).ifPresentOrElse(
-                schema -> fillAttrQuery(
-                        anyUtilsFactory.getInstance(kind),
-                        query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters),
-                () -> fillAttrQuery(
-                        query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters));
+        fillAttrQuery(query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters);
 
         return Pair.of(query.toString(), checked.getRight().getSchema());
     }
 
     protected Pair<String, PlainSchema> getQuery(
-            final AnyTypeKind kind,
             final AttrCond cond,
             final boolean not,
             final Map<String, Object> parameters) {
 
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, kind);
+        Pair<PlainSchema, PlainAttrValue> checked = check(cond);
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) ");
         switch (cond.getType()) {
@@ -699,9 +692,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                 query.append("WHERE n.`plainAttrs.").append(checked.getLeft().getKey()).append("` IS NULL");
 
             default ->
-                fillAttrQuery(
-                        anyUtilsFactory.getInstance(kind),
-                        query, checked.getRight(), checked.getLeft(), cond, not, parameters);
+                fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters);
         }
 
         return Pair.of(query.toString(), checked.getLeft());
@@ -781,7 +772,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
                             Optional.ofNullable(anyCondResult.getRight()).ifPresent(involvedFields::add);
                         },
                         () -> cond.asLeaf(AttrCond.class).ifPresent(leaf -> {
-                            Pair<String, PlainSchema> attrCondResult = getQuery(kind, leaf, not, parameters);
+                            Pair<String, PlainSchema> attrCondResult = getQuery(leaf, not, parameters);
                             query.append(attrCondResult.getLeft());
                             involvedPlainSchemas.add(attrCondResult.getRight());
                             if (kind != AnyTypeKind.GROUP

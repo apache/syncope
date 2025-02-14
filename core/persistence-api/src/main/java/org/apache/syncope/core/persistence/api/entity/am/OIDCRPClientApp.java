@@ -19,10 +19,14 @@
 package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.Set;
+import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 
 public interface OIDCRPClientApp extends ClientApp {
 
@@ -42,9 +46,41 @@ public interface OIDCRPClientApp extends ClientApp {
 
     Set<String> getScopes();
 
+    String getIdTokenIssuer();
+
+    void setIdTokenIssuer(String idTokenIssuer);
+
     boolean isSignIdToken();
 
     void setSignIdToken(boolean signIdToken);
+
+    OIDCTokenSigningAlg getIdTokenSigningAlg();
+
+    void setIdTokenSigningAlg(OIDCTokenSigningAlg idTokenSigningAlg);
+
+    boolean isEncryptIdToken();
+
+    void setEncryptIdToken(boolean encryptIdToken);
+
+    OIDCTokenEncryptionAlg getIdTokenEncryptionAlg();
+
+    void setIdTokenEncryptionAlg(OIDCTokenEncryptionAlg idTokenEncryptionAlg);
+
+    OIDCTokenEncryptionEncoding getIdTokenEncryptionEncoding();
+
+    void setIdTokenEncryptionEncoding(OIDCTokenEncryptionEncoding idTokenEncryptionEncoding);
+
+    OIDCTokenSigningAlg getUserInfoSigningAlg();
+
+    void setUserInfoSigningAlg(OIDCTokenSigningAlg userInfoSigningAlg);
+
+    OIDCTokenEncryptionAlg getUserInfoEncryptedResponseAlg();
+
+    void setUserInfoEncryptedResponseAlg(OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg);
+
+    OIDCTokenEncryptionEncoding getUserInfoEncryptedResponseEncoding();
+
+    void setUserInfoEncryptedResponseEncoding(OIDCTokenEncryptionEncoding encoding);
 
     boolean isJwtAccessToken();
 
@@ -61,6 +97,10 @@ public interface OIDCRPClientApp extends ClientApp {
     OIDCSubjectType getSubjectType();
 
     void setSubjectType(OIDCSubjectType subjectType);
+
+    OIDCApplicationType getApplicationType();
+
+    void setApplicationType(OIDCApplicationType applicationType);
 
     String getJwks();
 
