@@ -86,13 +86,16 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         service.setIdTokenIssuer(rp.getIdTokenIssuer());
         service.setSignIdToken(rp.isSignIdToken());
         if (service.isSignIdToken()) {
-            Optional.ofNullable(rp.getIdTokenSigningAlg()).ifPresent(v -> service.setIdTokenSigningAlg(v.name()));
+            Optional.ofNullable(rp.getIdTokenSigningAlg()).
+                    filter(v -> v != OIDCTokenSigningAlg.none).
+                    ifPresent(v -> service.setIdTokenSigningAlg(v.name()));
         } else {
             service.setIdTokenSigningAlg(OIDCTokenSigningAlg.none.name());
         }
         service.setEncryptIdToken(rp.isEncryptIdToken());
         if (service.isEncryptIdToken()) {
             Optional.ofNullable(rp.getIdTokenEncryptionAlg()).
+                    filter(v -> v != OIDCTokenEncryptionAlg.none).
                     ifPresent(v -> service.setIdTokenEncryptionAlg(v.getExternalForm()));
             Optional.ofNullable(rp.getIdTokenEncryptionEncoding()).
                     ifPresent(v -> service.setIdTokenEncryptionEncoding(v.getExternalForm()));

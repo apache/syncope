@@ -56,7 +56,7 @@ public class OIDCRPClientAppTO extends ClientAppTO {
 
     private OIDCTokenEncryptionEncoding idTokenEncryptionEncoding;
 
-    private OIDCTokenSigningAlg userInfoSigningAlg = OIDCTokenSigningAlg.none;
+    private OIDCTokenSigningAlg userInfoSigningAlg;
 
     private OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg;
 

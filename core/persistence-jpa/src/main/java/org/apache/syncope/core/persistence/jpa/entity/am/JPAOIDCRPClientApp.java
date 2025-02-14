@@ -88,7 +88,7 @@ public class JPAOIDCRPClientApp extends AbstractClientApp implements OIDCRPClien
     private OIDCTokenEncryptionEncoding idTokenEncryptionEncoding;
 
     @Enumerated(EnumType.STRING)
-    private OIDCTokenSigningAlg userInfoSigningAlg = OIDCTokenSigningAlg.none;
+    private OIDCTokenSigningAlg userInfoSigningAlg;
 
     @Enumerated(EnumType.STRING)
     private OIDCTokenEncryptionAlg userInfoEncryptedResponseAlg;
