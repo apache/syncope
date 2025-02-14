@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum OIDCSubjectType {
-    PUBLIC("public"),
-    PAIRWISE("pairwise");
+public enum OIDCApplicationType {
+    WEB("web"),
+    NATIVE("native");
 
     private final String externalForm;
 
-    OIDCSubjectType(final String external) {
+    OIDCApplicationType(final String external) {
         this.externalForm = external;
     }
 

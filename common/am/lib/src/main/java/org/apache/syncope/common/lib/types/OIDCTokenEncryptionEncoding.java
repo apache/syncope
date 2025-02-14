@@ -18,17 +18,22 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum OIDCSubjectType {
-    PUBLIC("public"),
-    PAIRWISE("pairwise");
+public enum OIDCTokenEncryptionEncoding {
+    A128CBC_HS256("A128CBC-HS256"),
+    A192CBC_HS384("A192CBC-HS384"),
+    A256CBC_HS512("A256CBC-HS512"),
+    A128GCM("A128GCM"),
+    A192GCM("A192GCM"),
+    A256GCM("A256GCM");
 
     private final String externalForm;
 
-    OIDCSubjectType(final String external) {
+    OIDCTokenEncryptionEncoding(final String external) {
         this.externalForm = external;
     }
 
     public String getExternalForm() {
         return externalForm;
     }
+
 }

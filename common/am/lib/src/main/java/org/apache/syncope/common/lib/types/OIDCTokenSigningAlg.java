@@ -18,17 +18,19 @@
  */
 package org.apache.syncope.common.lib.types;
 
-public enum OIDCSubjectType {
-    PUBLIC("public"),
-    PAIRWISE("pairwise");
+public enum OIDCTokenSigningAlg {
+    none,
+    RS256,
+    RS384,
+    RS512,
+    PS256,
+    PS384,
+    PS512,
+    ES256,
+    ES384,
+    ES512,
+    HS256,
+    HS384,
+    HS512;
 
-    private final String externalForm;
-
-    OIDCSubjectType(final String external) {
-        this.externalForm = external;
-    }
-
-    public String getExternalForm() {
-        return externalForm;
-    }
 }

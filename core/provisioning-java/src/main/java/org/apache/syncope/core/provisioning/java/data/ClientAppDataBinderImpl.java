@@ -104,13 +104,13 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected SAML2SPClientApp doCreate(final SAML2SPClientAppTO clientAppTO) {
         SAML2SPClientApp saml2sp = entityFactory.newEntity(SAML2SPClientApp.class);
-        update(saml2sp, clientAppTO);
+        doUpdate(saml2sp, clientAppTO);
         return saml2sp;
     }
 
     protected CASSPClientApp doCreate(final CASSPClientAppTO clientAppTO) {
         CASSPClientApp saml2sp = entityFactory.newEntity(CASSPClientApp.class);
-        update(saml2sp, clientAppTO);
+        doUpdate(saml2sp, clientAppTO);
         return saml2sp;
     }
 
@@ -215,20 +215,29 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     protected OIDCRPClientApp doCreate(final OIDCRPClientAppTO clientAppTO) {
         OIDCRPClientApp oidcrp = entityFactory.newEntity(OIDCRPClientApp.class);
-        update(oidcrp, clientAppTO);
+        doUpdate(oidcrp, clientAppTO);
         return oidcrp;
     }
 
     protected void doUpdate(final OIDCRPClientApp clientApp, final OIDCRPClientAppTO clientAppTO) {
         copyToEntity(clientApp, clientAppTO);
 
-        clientApp.setClientSecret(clientAppTO.getClientSecret());
         clientApp.setClientId(clientAppTO.getClientId());
+        clientApp.setClientSecret(clientAppTO.getClientSecret());
+        clientApp.setIdTokenIssuer(clientAppTO.getIdTokenIssuer());
         clientApp.setSignIdToken(clientAppTO.isSignIdToken());
+        clientApp.setIdTokenSigningAlg(clientAppTO.getIdTokenSigningAlg());
+        clientApp.setEncryptIdToken(clientAppTO.isEncryptIdToken());
+        clientApp.setIdTokenEncryptionAlg(clientAppTO.getIdTokenEncryptionAlg());
+        clientApp.setIdTokenEncryptionEncoding(clientAppTO.getIdTokenEncryptionEncoding());
+        clientApp.setUserInfoSigningAlg(clientAppTO.getUserInfoSigningAlg());
+        clientApp.setUserInfoEncryptedResponseAlg(clientAppTO.getUserInfoEncryptedResponseAlg());
+        clientApp.setUserInfoEncryptedResponseEncoding(clientAppTO.getUserInfoEncryptedResponseEncoding());
         clientApp.setJwtAccessToken(clientAppTO.isJwtAccessToken());
         clientApp.setBypassApprovalPrompt(clientAppTO.isBypassApprovalPrompt());
         clientApp.setGenerateRefreshToken(clientAppTO.isGenerateRefreshToken());
         clientApp.setSubjectType(clientAppTO.getSubjectType());
+        clientApp.setApplicationType(clientAppTO.getApplicationType());
         clientApp.getRedirectUris().clear();
         clientApp.getRedirectUris().addAll(clientAppTO.getRedirectUris());
         clientApp.getSupportedGrantTypes().clear();
@@ -249,16 +258,27 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
         clientAppTO.setClientId(clientApp.getClientId());
         clientAppTO.setClientSecret(clientApp.getClientSecret());
+        clientAppTO.setIdTokenIssuer(clientApp.getIdTokenIssuer());
         clientAppTO.setSignIdToken(clientApp.isSignIdToken());
-        clientAppTO.setSubjectType(clientApp.getSubjectType());
-        clientAppTO.getRedirectUris().addAll(clientApp.getRedirectUris());
-        clientAppTO.getSupportedGrantTypes().addAll(clientApp.getSupportedGrantTypes());
-        clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
-        clientAppTO.getScopes().addAll(clientApp.getScopes());
-        clientAppTO.setLogoutUri(clientApp.getLogoutUri());
+        clientAppTO.setIdTokenSigningAlg(clientApp.getIdTokenSigningAlg());
+        clientAppTO.setEncryptIdToken(clientApp.isEncryptIdToken());
+        clientAppTO.setIdTokenEncryptionAlg(clientApp.getIdTokenEncryptionAlg());
+        clientAppTO.setIdTokenEncryptionEncoding(clientApp.getIdTokenEncryptionEncoding());
+        clientAppTO.setUserInfoSigningAlg(clientApp.getUserInfoSigningAlg());
+        clientAppTO.setUserInfoEncryptedResponseAlg(clientApp.getUserInfoEncryptedResponseAlg());
+        clientAppTO.setUserInfoEncryptedResponseEncoding(clientApp.getUserInfoEncryptedResponseEncoding());
         clientAppTO.setJwtAccessToken(clientApp.isJwtAccessToken());
         clientAppTO.setBypassApprovalPrompt(clientApp.isBypassApprovalPrompt());
         clientAppTO.setGenerateRefreshToken(clientApp.isGenerateRefreshToken());
+        clientAppTO.setSubjectType(clientApp.getSubjectType());
+        clientAppTO.setApplicationType(clientApp.getApplicationType());
+        clientAppTO.getRedirectUris().addAll(clientApp.getRedirectUris());
+        clientAppTO.getSupportedGrantTypes().clear();
+        clientAppTO.getSupportedGrantTypes().addAll(clientApp.getSupportedGrantTypes());
+        clientAppTO.getSupportedResponseTypes().clear();
+        clientAppTO.getSupportedResponseTypes().addAll(clientApp.getSupportedResponseTypes());
+        clientAppTO.getScopes().addAll(clientApp.getScopes());
+        clientAppTO.setLogoutUri(clientApp.getLogoutUri());
         clientAppTO.setJwks(clientApp.getJwks());
         clientAppTO.setJwksUri(clientApp.getJwksUri());
         clientAppTO.setTokenEndpointAuthenticationMethod(clientApp.getTokenEndpointAuthenticationMethod());
