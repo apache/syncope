@@ -671,10 +671,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         TextStringBuilder query = new TextStringBuilder("MATCH (n) WHERE ");
 
-        plainSchemaDAO.findById(cond.getSchema()).ifPresentOrElse(schema -> fillAttrQuery(
-                query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters),
-                () -> fillAttrQuery(
-                        query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters));
+        fillAttrQuery(query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters);
 
         return Pair.of(query.toString(), checked.getRight().getSchema());
     }
