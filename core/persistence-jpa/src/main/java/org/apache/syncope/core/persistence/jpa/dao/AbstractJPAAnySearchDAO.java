@@ -234,7 +234,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                             map(anyCond -> getQuery(anyCond, not, parameters, svs)).
                             or(() -> cond.asLeaf(AttrCond.class).
                             map(attrCond -> {
-                                Pair<PlainSchema, PlainAttrValue> checked = check(attrCond, svs.anyTypeKind);
+                                Pair<PlainSchema, PlainAttrValue> checked = check(attrCond);
                                 Pair<Boolean, AnySearchNode> query = getQuery(attrCond, not, checked, parameters, svs);
                                 if (query.getLeft()) {
                                     plainSchemas.add(checked.getLeft().getKey());

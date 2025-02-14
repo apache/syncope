@@ -237,7 +237,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             Pageable pageable,
             AnyTypeKind kind);
 
-    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
+    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond) {
         PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
