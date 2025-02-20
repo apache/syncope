@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.neo4j;
 
 import java.net.URI;
 import org.apache.syncope.core.persistence.common.AbstractDomainProperties;
-import org.neo4j.driver.internal.async.pool.PoolSettings;
 
 public class DomainProperties extends AbstractDomainProperties {
 
@@ -30,7 +29,7 @@ public class DomainProperties extends AbstractDomainProperties {
 
     private String password;
 
-    private int maxConnectionPoolSize = PoolSettings.DEFAULT_MAX_CONNECTION_POOL_SIZE;
+    private int maxConnectionPoolSize = 100;
 
     public URI getUri() {
         return uri;
