@@ -20,7 +20,6 @@ package org.apache.syncope.wa.starter.audit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AuditEventTO;
@@ -46,7 +45,7 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
             return;
         }
 
-        LOG.info("Loading application definitions");
+        LOG.debug("Saving audit record {}", audit);
         try {
             String output = MAPPER.writeValueAsString(Map.of(
                     "resource", audit.getResourceOperatedUpon(),
@@ -72,11 +71,6 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
         } catch (JsonProcessingException e) {
             LOG.error("During serialization", e);
         }
-    }
-
-    @Override
-    public List<? extends AuditActionContext> getAuditRecords(final Map<WhereClauseFields, Object> whereClause) {
-        throw new UnsupportedOperationException("Fetching audit events from WA is not supported");
     }
 
     @Override
