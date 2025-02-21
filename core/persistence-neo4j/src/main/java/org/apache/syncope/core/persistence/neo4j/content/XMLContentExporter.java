@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.TransformerHandler;
 import org.apache.syncope.core.persistence.api.DomainHolder;
@@ -173,14 +174,11 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 Optional.ofNullable(relDesc.get().getRelationshipPropertiesEntity()).
                         filter(e -> Neo4jImplementationRelationship.class.getSimpleName().equals(e.getPrimaryLabel())
                         || Neo4jMacroTaskCommandRelationship.class.getSimpleName().equals(e.getPrimaryLabel())).
-                        ifPresent(rpe -> {
-                            String index = String.valueOf(session.run(
-                                    "MATCH (n {id: $left})-[r:" + relDesc.get().getType() + "]-" + "(m {id: $right}) "
-                                    + "RETURN r.index",
-                                    Map.of("left", node.get("id").asString(), "right", rightId)).
-                                    single().get("r.index").asInt());
-                            rattrs.addAttribute("", "", "index", "CDATA", index);
-                        });
+                        flatMap(rpe -> session.run(
+                        "MATCH (n {id: $left})-[r:" + relDesc.get().getType() + "]-" + "(m {id: $right}) "
+                        + "RETURN r.index",
+                        Map.of("left", node.get("id").asString(), "right", rightId)).stream().findFirst()).
+                        ifPresent(r -> rattrs.addAttribute("", "", "index", "CDATA", r.get("r.index").asString()));
 
                 String elementName = entity.getPrimaryLabel()
                         + "_"
@@ -209,11 +207,11 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 }
                 query.append("RETURN n, collect(r) AS rels ORDER BY n.id");
 
-                List<Record> records = session.run(query.toString()).list();
+                Stream<Record> records = session.run(query.toString()).stream();
                 if (Neo4jRealm.NODE.equals(entity.getPrimaryLabel())) {
-                    records.sort(REALM_COMPARATOR);
+                    records = records.sorted(REALM_COMPARATOR);
                 }
-                for (Record record : records) {
+                for (Record record : records.toList()) {
                     exportNode(entity, record, session, handler);
                 }
             } catch (Exception e) {
