@@ -2226,6 +2226,7 @@ under the License.
                   <attributes>
                     <title>Apache Syncope ${project.version} - Getting Started</title>
                     <imagesdir>images</imagesdir>
+                    <stylesdir>css</stylesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2259,6 +2260,7 @@ under the License.
                   <attributes>
                     <title>Apache Syncope ${project.version} - Reference Guide</title>
                     <imagesdir>images</imagesdir>
+                    <stylesdir>css</stylesdir>
                   </attributes>
                 </configuration>
               </execution>

@@ -290,6 +290,8 @@ sed 's/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/targe
 mkdir -p docs/$MAJOR_VERSION
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/$MAJOR_VERSION/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/$MAJOR_VERSION/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/css docs/$MAJOR_VERSION/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/fonts docs/$MAJOR_VERSION/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/$MAJOR_VERSION/
 
 cd ../apidocs
@@ -311,9 +313,13 @@ svn copy docs/4.0 $VERSION/docs/
 cd $VERSION/docs
 ln -s 4.0/reference-guide.html .
 ln -s 4.0/getting-started.html .
+ln -s 4.0/css/ .
+ln -s 4.0/fonts/ .
 ln -s 4.0/images/ .
 svn add 4.0/reference-guide.html
 svn add 4.0/getting-started.html
+svn add 4.0/css/
+svn add 4.0/fonts/
 svn add 4.0/images/
 cd ../..
 
