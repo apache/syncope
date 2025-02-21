@@ -1971,6 +1971,7 @@ under the License.
             <exclude>**/.*</exclude>
             <exclude>**/*.lst</exclude>
             <exclude>**/*.json</exclude>
+            <exclude>**/*font*awesome*</exclude>
             <exclude>**/banner.txt</exclude>
             <exclude>**/target/**</exclude>
           </excludes>
