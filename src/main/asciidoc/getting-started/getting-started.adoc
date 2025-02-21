@@ -24,7 +24,8 @@
 :homepage: https://syncope.apache.org
 :description: Several ways to get started with Apache Syncope
 :keywords: Apache Syncope, IdM, provisioning, identity management, getting started, tutorial
-
+:!webfonts:
+:iconfont-remote!:
 :docinfo1:
 :last-update-label!:
 :sectanchors:

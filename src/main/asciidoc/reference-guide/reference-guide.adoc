@@ -24,7 +24,8 @@
 :homepage: https://syncope.apache.org
 :description: Comprehensive guide about Apache Syncope
 :keywords: Apache Syncope, IdM, provisioning, identity management, reference, guide
-
+:!webfonts:
+:iconfont-remote!:
 :docinfo1:
 :last-update-label!:
 :sectanchors:

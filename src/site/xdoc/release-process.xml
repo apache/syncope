@@ -321,10 +321,14 @@ sed 's/rest\/openapi.json/openapi.json/' $SYNCOPE_RELEASE_DIR/core/starter/targe
 mkdir -p docs/3.0
 cp $SYNCOPE_SITE_DIR/target/generated-docs/getting-started.* docs/3.0/
 cp $SYNCOPE_SITE_DIR/target/generated-docs/reference-guide.* docs/3.0/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/css docs/3.0/
+cp -r $SYNCOPE_SITE_DIR/target/generated-docs/fonts docs/3.0/
 cp -r $SYNCOPE_SITE_DIR/target/generated-docs/images docs/3.0/
 cd docs
 ln -s 3.0/reference-guide.html .
 ln -s 3.0/getting-started.html .
+ln -s 3.0/css/ .
+ln -s 3.0/fonts/ .
 ln -s 3.0/images/ .
 cd ../..
 svn add $VERSION
