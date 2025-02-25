@@ -469,7 +469,7 @@ under the License.
     <zookeeper.version>3.9.3</zookeeper.version>
 
     <zonky.embedded-postgres.version>2.1.0</zonky.embedded-postgres.version>
-    <zonky.embedded-postgres-binaries.version>17.2.0</zonky.embedded-postgres-binaries.version>
+    <zonky.embedded-postgres-binaries.version>17.4.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
