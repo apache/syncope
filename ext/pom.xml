@@ -83,6 +83,7 @@ under the License.
     <module>elasticsearch</module>
     <module>opensearch</module>
     <module>scimv2</module>
+    <module>openfga</module>
   </modules>
 
 </project>

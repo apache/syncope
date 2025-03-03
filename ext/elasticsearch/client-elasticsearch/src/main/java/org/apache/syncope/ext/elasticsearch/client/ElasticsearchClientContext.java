@@ -39,8 +39,7 @@ public class ElasticsearchClientContext {
     @Bean
     public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean(final ElasticsearchProperties props) {
         return new ElasticsearchClientFactoryBean(
-                CollectionUtil.nullAsEmpty(props.getHosts()).stream().
-                        map(HttpHost::create).toList());
+                CollectionUtil.nullAsEmpty(props.getHosts()).stream().map(HttpHost::create).toList());
     }
 
     @ConditionalOnMissingBean

@@ -126,6 +126,21 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
         return policies;
     }
 
+    protected void setPrincipalAttributesRepository(
+            final DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf parc,
+            final AbstractRegisteredServiceAttributeReleasePolicy policy) {
+
+        AbstractPrincipalAttributesRepository par = parc.getExpiration() > 0
+                ? new CachingPrincipalAttributesRepository(parc.getTimeUnit().name(), parc.getExpiration())
+                : new DefaultPrincipalAttributesRepository();
+
+        par.setMergingStrategy(MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
+        par.setIgnoreResolvedAttributes(par.isIgnoreResolvedAttributes());
+        par.setAttributeRepositoryIds(new HashSet<>(parc.getAttrRepos()));
+
+        policy.setPrincipalAttributesRepository(par);
+    }
+
     protected Optional<DefaultRegisteredServiceConsentPolicy> buildConsentPolicy(
             final AttrReleasePolicyTO policy,
             final DefaultAttrReleasePolicyConf conf) {
@@ -188,36 +203,29 @@ public class DefaultAttrReleaseMapper implements AttrReleaseMapper {
 
         Optional<DefaultRegisteredServiceConsentPolicy> consentPolicy = buildConsentPolicy(policy, conf);
         if (!chain.getPolicies().isEmpty()) {
+            Optional.ofNullable(conf.getPrincipalAttrRepoConf()).
+                    ifPresent(parc -> chain.setMergingPolicy(
+                    MergingStrategyTypes.valueOf(parc.getMergingStrategy().name())));
+
             chain.getPolicies().stream().
                     filter(AbstractRegisteredServiceAttributeReleasePolicy.class::isInstance).
                     map(AbstractRegisteredServiceAttributeReleasePolicy.class::cast).
                     forEach(p -> {
                         consentPolicy.ifPresent(p::setConsentPolicy);
                         Optional.ofNullable(conf.getPrincipalIdAttr()).ifPresent(p::setPrincipalIdAttribute);
-                    });
 
-            if (conf.getPrincipalAttrRepoConf() != null && !conf.getPrincipalAttrRepoConf().getAttrRepos().isEmpty()) {
-                DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf parc = conf.getPrincipalAttrRepoConf();
-                chain.setMergingPolicy(MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
-            }
+                        Optional.ofNullable(conf.getPrincipalAttrRepoConf()).
+                                filter(parc -> !parc.getAttrRepos().isEmpty()).
+                                ifPresent(parc -> setPrincipalAttributesRepository(parc, p));
+                    });
         }
         Optional.ofNullable(single).ifPresent(p -> {
             consentPolicy.ifPresent(p::setConsentPolicy);
             Optional.ofNullable(conf.getPrincipalIdAttr()).ifPresent(p::setPrincipalIdAttribute);
 
-            if (conf.getPrincipalAttrRepoConf() != null && !conf.getPrincipalAttrRepoConf().getAttrRepos().isEmpty()) {
-                DefaultAttrReleasePolicyConf.PrincipalAttrRepoConf parc = conf.getPrincipalAttrRepoConf();
-
-                AbstractPrincipalAttributesRepository par = parc.getExpiration() > 0
-                        ? new CachingPrincipalAttributesRepository(parc.getTimeUnit().name(), parc.getExpiration())
-                        : new DefaultPrincipalAttributesRepository();
-
-                par.setMergingStrategy(MergingStrategyTypes.valueOf(parc.getMergingStrategy().name()));
-                par.setIgnoreResolvedAttributes(par.isIgnoreResolvedAttributes());
-                par.setAttributeRepositoryIds(new HashSet<>(parc.getAttrRepos()));
-
-                p.setPrincipalAttributesRepository(par);
-            }
+            Optional.ofNullable(conf.getPrincipalAttrRepoConf()).
+                    filter(parc -> !parc.getAttrRepos().isEmpty()).
+                    ifPresent(parc -> setPrincipalAttributesRepository(parc, p));
         });
 
         return single == null ? chain : single;

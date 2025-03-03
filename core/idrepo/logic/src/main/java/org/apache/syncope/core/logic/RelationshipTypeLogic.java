@@ -28,6 +28,10 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,12 +41,16 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
 
     protected final RelationshipTypeDAO relationshipTypeDAO;
 
+    protected final ApplicationEventPublisher publisher;
+
     public RelationshipTypeLogic(
             final RelationshipTypeDataBinder binder,
-            final RelationshipTypeDAO relationshipTypeDAO) {
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final ApplicationEventPublisher publisher) {
 
         this.binder = binder;
         this.relationshipTypeDAO = relationshipTypeDAO;
+        this.publisher = publisher;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_READ + "')")
@@ -62,7 +70,12 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_CREATE + "')")
     public RelationshipTypeTO create(final RelationshipTypeTO relationshipTypeTO) {
-        return binder.getRelationshipTypeTO(relationshipTypeDAO.save(binder.create(relationshipTypeTO)));
+        RelationshipType relationshipType = relationshipTypeDAO.save(binder.create(relationshipTypeTO));
+
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.CREATE, relationshipType, AuthContextUtils.getDomain()));
+
+        return binder.getRelationshipTypeTO(relationshipType);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.RELATIONSHIPTYPE_UPDATE + "')")
@@ -72,6 +85,9 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
 
         binder.update(relationshipType, relationshipTypeTO);
         relationshipType = relationshipTypeDAO.save(relationshipType);
+
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, relationshipType, AuthContextUtils.getDomain()));
 
         return binder.getRelationshipTypeTO(relationshipType);
     }
@@ -84,6 +100,9 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
         RelationshipTypeTO deleted = binder.getRelationshipTypeTO(relationshipType);
 
         relationshipTypeDAO.deleteById(key);
+
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, relationshipType, AuthContextUtils.getDomain()));
 
         return deleted;
     }

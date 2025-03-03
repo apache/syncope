@@ -22,6 +22,7 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
@@ -42,11 +43,13 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
+import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
+import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apereo.cas.oidc.OidcConstants;
@@ -60,6 +63,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
+
+    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
     protected static final String ADMIN_UNAME = "admin";
 
@@ -83,6 +88,10 @@ public abstract class AbstractITCase {
 
     protected static SyncopeClient ADMIN_CLIENT;
 
+    protected static ImplementationService IMPLEMENTATION_SERVICE;
+
+    protected static TaskService TASK_SERVICE;
+
     protected static UserService USER_SERVICE;
 
     protected static PolicyService POLICY_SERVICE;
@@ -102,6 +111,8 @@ public abstract class AbstractITCase {
         CLIENT_FACTORY = new SyncopeClientFactoryBean().setAddress(CORE_ADDRESS);
         ADMIN_CLIENT = CLIENT_FACTORY.create(ADMIN_UNAME, ADMIN_PWD);
 
+        IMPLEMENTATION_SERVICE = ADMIN_CLIENT.getService(ImplementationService.class);
+        TASK_SERVICE = ADMIN_CLIENT.getService(TaskService.class);
         USER_SERVICE = ADMIN_CLIENT.getService(UserService.class);
         POLICY_SERVICE = ADMIN_CLIENT.getService(PolicyService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);

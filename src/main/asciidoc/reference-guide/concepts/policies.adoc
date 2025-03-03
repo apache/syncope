@@ -298,6 +298,15 @@ endif::[]
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/OpenFGAAccessPolicyConf.java[OpenFGAAccessPolicyConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/OpenFGAAccessPolicyConf.java[OpenFGAAccessPolicyConf^]
+endif::[]
+| Builds an authorization request and submits it to https://openfga.dev/[OpenFGA^]'s `check` API endpoint. 
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/am/lib/src/main/java/org/apache/syncope/common/lib/policy/RemoteEndpointAccessPolicyConf.java[RemoteEndpointAccessPolicyConf^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]

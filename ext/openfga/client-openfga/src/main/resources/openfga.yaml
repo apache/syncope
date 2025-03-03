@@ -1,0 +1,3277 @@
+#
+# Copyright (C) OpenFGA https://openfga.dev/
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# Copied from https://raw.githubusercontent.com/openfga/api/main/docs/openapiv2/apidocs.swagger.json
+#
+swagger: '2.0'
+info:
+  title: OpenFGA
+  description: >-
+    A high performance and flexible authorization/permission engine built for
+    developers and inspired by Google Zanzibar.
+  version: 1.x
+  contact:
+    name: OpenFGA
+    url: https://openfga.dev
+    email: community@openfga.dev
+  license:
+    name: Apache-2.0
+    url: https://github.com/openfga/openfga/blob/main/LICENSE
+tags:
+  - name: OpenFGAService
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /stores:
+    get:
+      summary: List all stores
+      description: >
+        Returns a paginated list of OpenFGA stores and a continuation token to
+        get additional stores.
+
+        The continuation token will be empty if there are no more stores.
+      operationId: ListStores
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ListStoresResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: page_size
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: continuation_token
+          in: query
+          required: false
+          type: string
+        - name: name
+          description: >-
+            The name parameter instructs the API to only include results that
+            match that name.Multiple results may be returned. Only exact matches
+            will be returned; substring matches and regexes will not be
+            evaluated
+          in: query
+          required: false
+          type: string
+      tags:
+        - Stores
+    post:
+      summary: Create a store
+      description: >-
+        Create a unique OpenFGA store which will be used to store authorization
+        models and relationship tuples.
+      operationId: CreateStore
+      responses:
+        '201':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/CreateStoreResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateStoreRequest'
+      tags:
+        - Stores
+  /stores/{store_id}:
+    get:
+      summary: Get a store
+      description: Returns an OpenFGA store by its identifier
+      operationId: GetStore
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/GetStoreResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Stores
+    delete:
+      summary: Delete a store
+      description: >-
+        Delete an OpenFGA store. This does not delete the data associated with
+        the store, like tuples or authorization models.
+      operationId: DeleteStore
+      responses:
+        '204':
+          description: A successful response.
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Stores
+  /stores/{store_id}/assertions/{authorization_model_id}:
+    get:
+      summary: Read assertions for an authorization model ID
+      description: >-
+        The ReadAssertions API will return, for a given authorization model id,
+        all the assertions stored for it. 
+      operationId: ReadAssertions
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ReadAssertionsResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: authorization_model_id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Assertions
+    put:
+      summary: Upsert assertions for an authorization model ID
+      description: >-
+        The WriteAssertions API will upsert new assertions for an authorization
+        model id, or overwrite the existing ones. An assertion is an object that
+        contains a tuple key, the expectation of whether a call to the Check API
+        of that tuple key will return true or false, and optionally a list of
+        contextual tuples.
+      operationId: WriteAssertions
+      responses:
+        '204':
+          description: A successful response.
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: authorization_model_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              assertions:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/definitions/Assertion'
+                maxItems: 100
+            required:
+              - assertions
+      tags:
+        - Assertions
+  /stores/{store_id}/authorization-models:
+    get:
+      summary: Return all the authorization models for a particular store
+      description: >
+        The ReadAuthorizationModels API will return all the authorization models
+        for a certain store.
+
+        OpenFGA's response will contain an array of all authorization models,
+        sorted in descending order of creation.
+
+
+        ## Example
+
+        Assume that a store's authorization model has been configured twice. To
+        get all the authorization models that have been created in this store,
+        call GET authorization-models. The API will return a response that looks
+        like:
+
+        ```json
+
+        {
+          "authorization_models": [
+            {
+              "id": "01G50QVV17PECNVAHX1GG4Y5NC",
+              "type_definitions": [...]
+            },
+            {
+              "id": "01G4ZW8F4A07AKQ8RHSVG9RW04",
+              "type_definitions": [...]
+            },
+          ],
+          "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+        }
+
+        ```
+
+        If there are no more authorization models available, the
+        `continuation_token` field will be empty
+
+        ```json
+
+        {
+          "authorization_models": [
+            {
+              "id": "01G50QVV17PECNVAHX1GG4Y5NC",
+              "type_definitions": [...]
+            },
+            {
+              "id": "01G4ZW8F4A07AKQ8RHSVG9RW04",
+              "type_definitions": [...]
+            },
+          ],
+          "continuation_token": ""
+        }
+
+        ```
+      operationId: ReadAuthorizationModels
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ReadAuthorizationModelsResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: page_size
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: continuation_token
+          in: query
+          required: false
+          type: string
+      tags:
+        - Authorization Models
+    post:
+      summary: Create a new authorization model
+      description: >
+        The WriteAuthorizationModel API will add a new authorization model to a
+        store.
+
+        Each item in the `type_definitions` array is a type definition as
+        specified in the field `type_definition`.
+
+        The response will return the authorization model's ID in the `id` field.
+
+
+        ## Example
+
+        To add an authorization model with `user` and `document` type
+        definitions, call POST authorization-models API with the body: 
+
+        ```json
+
+        {
+          "type_definitions":[
+            {
+              "type":"user"
+            },
+            {
+              "type":"document",
+              "relations":{
+                "reader":{
+                  "union":{
+                    "child":[
+                      {
+                        "this":{}
+                      },
+                      {
+                        "computedUserset":{
+                          "object":"",
+                          "relation":"writer"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "writer":{
+                  "this":{}
+                }
+              }
+            }
+          ]
+        }
+
+        ```
+
+        OpenFGA's response will include the version id for this authorization
+        model, which will look like 
+
+        ```
+
+        {"authorization_model_id": "01G50QVV17PECNVAHX1GG4Y5NC"}
+
+        ```
+      operationId: WriteAuthorizationModel
+      responses:
+        '201':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/WriteAuthorizationModelResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              type_definitions:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/definitions/TypeDefinition'
+                minItems: 1
+              schema_version:
+                type: string
+              conditions:
+                type: object
+                additionalProperties:
+                  $ref: '#/definitions/Condition'
+            required:
+              - type_definitions
+              - schema_version
+      tags:
+        - Authorization Models
+  /stores/{store_id}/authorization-models/{id}:
+    get:
+      summary: Return a particular version of an authorization model
+      description: >-
+        The ReadAuthorizationModel API returns an authorization model by its
+        identifier.
+
+        The response will return the authorization model for the particular
+        version.
+
+
+        ## Example
+
+        To retrieve the authorization model with ID `01G5JAVJ41T49E9TT3SKVS7X1J`
+        for the store, call the GET authorization-models by ID API with
+        `01G5JAVJ41T49E9TT3SKVS7X1J` as the `id` path parameter.  The API will
+        return:
+
+        ```json
+
+        {
+          "authorization_model":{
+            "id":"01G5JAVJ41T49E9TT3SKVS7X1J",
+            "type_definitions":[
+              {
+                "type":"user"
+              },
+              {
+                "type":"document",
+                "relations":{
+                  "reader":{
+                    "union":{
+                      "child":[
+                        {
+                          "this":{}
+                        },
+                        {
+                          "computedUserset":{
+                            "object":"",
+                            "relation":"writer"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "writer":{
+                    "this":{}
+                  }
+                }
+              }
+            ]
+          }
+        }
+
+        ```
+
+        In the above example, there are 2 types (`user` and `document`). The
+        `document` type has 2 relations (`writer` and `reader`).
+      operationId: ReadAuthorizationModel
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ReadAuthorizationModelResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: id
+          in: path
+          required: true
+          type: string
+      tags:
+        - Authorization Models
+  /stores/{store_id}/batch-check:
+    post:
+      summary: Send a list of `check` operations in a single request
+      description: >
+        The `BatchCheck` API functions nearly identically to `Check`, but
+        instead of checking a single user-object relationship BatchCheck accepts
+        a list of relationships to check and returns a map containing
+        `BatchCheckItem` response for each check it received.
+
+
+        An associated `correlation_id` is required for each check in the batch.
+        This ID is used to correlate a check to the appropriate response. It is
+        a string consisting of only alphanumeric characters or hyphens with a
+        maximum length of 36 characters. This `correlation_id` is used to map
+        the result of each check to the item which was checked, so it must be
+        unique for each item in the batch. We recommend using a UUID or ULID as
+        the `correlation_id`, but you can use whatever unique identifier you
+        need as long  as it matches this regex pattern: `^[\w\d-]{1,36}$`
+
+
+        For more details on how `Check` functions, see the docs for `/check`.
+
+
+        ### Examples
+
+        #### A BatchCheckRequest
+
+        ```json
+
+        {
+          "checks": [
+             {
+               "tuple_key": {
+                 "object": "document:2021-budget"
+                 "relation": "reader",
+                 "user": "user:anne",
+               },
+               "contextual_tuples": {...}
+               "context": {}
+               "correlation_id": "01JA8PM3QM7VBPGB8KMPK8SBD5"
+             },
+             {
+               "tuple_key": {
+                 "object": "document:2021-budget"
+                 "relation": "reader",
+                 "user": "user:bob",
+               },
+               "contextual_tuples": {...}
+               "context": {}
+               "correlation_id": "01JA8PMM6A90NV5ET0F28CYSZQ"
+             }
+           ]
+        }
+
+        ```
+
+
+        Below is a possible response to the above request. Note that the result
+        map's keys are the `correlation_id` values from the checked items in the
+        request:
+
+        ```json
+
+        {
+           "result": {
+             "01JA8PMM6A90NV5ET0F28CYSZQ": {
+               "allowed": false, 
+               "error": {"message": ""} 
+            },
+             "01JA8PM3QM7VBPGB8KMPK8SBD5": {
+               "allowed": true, 
+               "error": {"message": ""} 
+            }
+        }
+
+        ```
+      operationId: BatchCheck
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/BatchCheckResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              checks:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/definitions/BatchCheckItem'
+                minItems: 1
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+            required:
+              - checks
+      tags:
+        - Relationship Queries
+  /stores/{store_id}/changes:
+    get:
+      summary: Return a list of all the tuple changes
+      description: >
+        The ReadChanges API will return a paginated list of tuple changes
+        (additions and deletions) that occurred in a given store, sorted by
+        ascending time. The response will include a continuation token that is
+        used to get the next set of changes. If there are no changes after the
+        provided continuation token, the same token will be returned in order
+        for it to be used when new changes are recorded. If the store never had
+        any tuples added or removed, this token will be empty.
+
+        You can use the `type` parameter to only get the list of tuple changes
+        that affect objects of that type.
+
+        When reading a write tuple change, if it was conditioned, the condition
+        will be returned.
+
+        When reading a delete tuple change, the condition will NOT be returned
+        regardless of whether it was originally conditioned or not.
+      operationId: ReadChanges
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ReadChangesResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: type
+          in: query
+          required: false
+          type: string
+        - name: page_size
+          in: query
+          required: false
+          type: integer
+          format: int32
+        - name: continuation_token
+          in: query
+          required: false
+          type: string
+        - name: start_time
+          description: >-
+            Start date and time of changes to read.
+
+            Format: ISO 8601 timestamp (e.g., 2022-01-01T00:00:00Z)
+
+            If a continuation_token is provided along side start_time, the
+            continuation_token will take precedence over start_time.
+          in: query
+          required: false
+          type: string
+          format: date-time
+      tags:
+        - Relationship Tuples
+  /stores/{store_id}/check:
+    post:
+      summary: Check whether a user is authorized to access an object
+      description: >
+        The Check API returns whether a given user has a relationship with a
+        given object in a given store.
+
+        The `user` field of the request can be a specific target, such as
+        `user:anne`, or a userset (set of users) such as
+        `group:marketing#member` or a type-bound public access `user:*`.
+
+        To arrive at a result, the API uses: an authorization model, explicit
+        tuples written through the Write API, contextual tuples present in the
+        request, and implicit tuples that exist by virtue of applying set theory
+        (such as `document:2021-budget#viewer@document:2021-budget#viewer`; the
+        set of users who are viewers of `document:2021-budget` are the set of
+        users who are the viewers of `document:2021-budget`).
+
+        A `contextual_tuples` object may also be included in the body of the
+        request. This object contains one field `tuple_keys`, which is an array
+        of tuple keys. Each of these tuples may have an associated `condition`.
+
+        You may also provide an `authorization_model_id` in the body. This will
+        be used to assert that the input `tuple_key` is valid for the model
+        specified. If not specified, the assertion will be made against the
+        latest authorization model ID. It is strongly recommended to specify
+        authorization model id for better performance.
+
+        You may also provide a `context` object that will be used to evaluate
+        the conditioned tuples in the system. It is strongly recommended to
+        provide a value for all the input parameters of all the conditions, to
+        ensure that all tuples be evaluated correctly.
+
+        By default, the Check API caches results for a short time to optimize
+        performance. You may specify a value of `HIGHER_CONSISTENCY` for the
+        optional `consistency` parameter in the body to inform the server that
+        higher conisistency is preferred at the expense of increased latency.
+        Consideration should be given to the increased latency if requesting
+        higher consistency.
+
+        The response will return whether the relationship exists in the field
+        `allowed`.
+
+
+        Some exceptions apply, but in general, if a Check API responds with
+        `{allowed: true}`, then you can expect the equivalent ListObjects query
+        to return the object, and viceversa. 
+
+        For example, if `Check(user:anne, reader, document:2021-budget)`
+        responds with `{allowed: true}`, then `ListObjects(user:anne, reader,
+        document)` may include `document:2021-budget` in the response.
+
+        ## Examples
+
+        ### Querying with contextual tuples
+
+        In order to check if user `user:anne` of type `user` has a `reader`
+        relationship with object `document:2021-budget` given the following
+        contextual tuple
+
+        ```json
+
+        {
+          "user": "user:anne",
+          "relation": "member",
+          "object": "time_slot:office_hours"
+        }
+
+        ```
+
+        the Check API can be used with the following request body:
+
+        ```json
+
+        {
+          "tuple_key": {
+            "user": "user:anne",
+            "relation": "reader",
+            "object": "document:2021-budget"
+          },
+          "contextual_tuples": {
+            "tuple_keys": [
+              {
+                "user": "user:anne",
+                "relation": "member",
+                "object": "time_slot:office_hours"
+              }
+            ]
+          },
+          "authorization_model_id": "01G50QVV17PECNVAHX1GG4Y5NC"
+        }
+
+        ```
+
+        ### Querying usersets
+
+        Some Checks will always return `true`, even without any tuples. For
+        example, for the following authorization model
+
+        ```python
+
+        model
+          schema 1.1
+        type user
+
+        type document
+          relations
+            define reader: [user]
+        ```
+
+        the following query
+
+        ```json
+
+        {
+          "tuple_key": {
+             "user": "document:2021-budget#reader",
+             "relation": "reader",
+             "object": "document:2021-budget"
+          }
+        }
+
+        ```
+
+        will always return `{ "allowed": true }`. This is because usersets are
+        self-defining: the userset `document:2021-budget#reader` will always
+        have the `reader` relation with `document:2021-budget`.
+
+        ### Querying usersets with difference in the model
+
+        A Check for a userset can yield results that must be treated carefully
+        if the model involves difference. For example, for the following
+        authorization model
+
+        ```python
+
+        model
+          schema 1.1
+        type user
+
+        type group
+          relations
+            define member: [user]
+        type document
+          relations
+            define blocked: [user]
+            define reader: [group#member] but not blocked
+        ```
+
+        the following query
+
+        ```json
+
+        {
+          "tuple_key": {
+             "user": "group:finance#member",
+             "relation": "reader",
+             "object": "document:2021-budget"
+          },
+          "contextual_tuples": {
+            "tuple_keys": [
+              {
+                "user": "user:anne",
+                "relation": "member",
+                "object": "group:finance"
+              },
+              {
+                "user": "group:finance#member",
+                "relation": "reader",
+                "object": "document:2021-budget"
+              },
+              {
+                "user": "user:anne",
+                "relation": "blocked",
+                "object": "document:2021-budget"
+              }
+            ]
+          },
+        }
+
+        ```
+
+        will return `{ "allowed": true }`, even though a specific user of the
+        userset `group:finance#member` does not have the `reader` relationship
+        with the given object.
+
+        ### Requesting higher consistency
+
+        By default, the Check API caches results for a short time to optimize
+        performance. You may request higher consistency to inform the server
+        that higher consistency should be preferred at the expense of increased
+        latency. Care should be taken when requesting higher consistency due to
+        the increased latency.
+
+        ```json
+
+        {
+          "tuple_key": {
+             "user": "group:finance#member",
+             "relation": "reader",
+             "object": "document:2021-budget"
+          },
+          "consistency": "HIGHER_CONSISTENCY"
+        }
+
+        ```
+      operationId: Check
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/CheckResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              tuple_key:
+                $ref: '#/definitions/CheckRequestTupleKey'
+              contextual_tuples:
+                $ref: '#/definitions/ContextualTupleKeys'
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+              trace:
+                type: boolean
+                example: false
+                description: >-
+                  Defaults to false. Making it true has performance
+                  implications.
+                readOnly: true
+              context:
+                type: object
+                description: >-
+                  Additional request context that will be used to evaluate any
+                  ABAC conditions encountered
+
+                  in the query evaluation.
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+                description: >-
+                  Controls the consistency preference for this request. Default
+                  value is UNSPECIFIED, which will have the same behavior as
+                  MINIMIZE_LATENCY.
+            required:
+              - tuple_key
+      tags:
+        - Relationship Queries
+  /stores/{store_id}/expand:
+    post:
+      summary: >-
+        Expand all relationships in userset tree format, and following userset
+        rewrite rules.  Useful to reason about and debug a certain relationship
+      description: >
+        The Expand API will return all users and usersets that have certain
+        relationship with an object in a certain store.
+
+        This is different from the `/stores/{store_id}/read` API in that both
+        users and computed usersets are returned.
+
+        Body parameters `tuple_key.object` and `tuple_key.relation` are all
+        required.
+
+        A `contextual_tuples` object may also be included in the body of the
+        request. This object contains one field `tuple_keys`, which is an array
+        of tuple keys. Each of these tuples may have an associated `condition`.
+
+        The response will return a tree whose leaves are the specific users and
+        usersets. Union, intersection and difference operator are located in the
+        intermediate nodes.
+
+
+        ## Example
+
+        To expand all users that have the `reader` relationship with object
+        `document:2021-budget`, use the Expand API with the following request
+        body
+
+        ```json
+
+        {
+          "tuple_key": {
+            "object": "document:2021-budget",
+            "relation": "reader"
+          },
+          "authorization_model_id": "01G50QVV17PECNVAHX1GG4Y5NC"
+        }
+
+        ```
+
+        OpenFGA's response will be a userset tree of the users and usersets that
+        have read access to the document.
+
+        ```json
+
+        {
+          "tree":{
+            "root":{
+              "type":"document:2021-budget#reader",
+              "union":{
+                "nodes":[
+                  {
+                    "type":"document:2021-budget#reader",
+                    "leaf":{
+                      "users":{
+                        "users":[
+                          "user:bob"
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type":"document:2021-budget#reader",
+                    "leaf":{
+                      "computed":{
+                        "userset":"document:2021-budget#writer"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+
+        ```
+
+        The caller can then call expand API for the `writer` relationship for
+        the `document:2021-budget`.
+
+        ### Expand Request with Contextual Tuples
+
+
+        Given the model
+
+        ```python
+
+        model
+            schema 1.1
+
+        type user
+
+
+        type folder
+            relations
+                define owner: [user]
+
+        type document
+            relations
+                define parent: [folder]
+                define viewer: [user] or writer
+                define writer: [user] or owner from parent
+        ```
+
+        and the initial tuples
+
+        ```json
+
+        [{
+            "user": "user:bob",
+            "relation": "owner",
+            "object": "folder:1"
+        }]
+
+        ```
+
+
+        To expand all `writers` of `document:1` when `document:1` is put in
+        `folder:1`, the first call could be
+
+
+        ```json
+
+        {
+          "tuple_key": {
+            "object": "document:1",
+            "relation": "writer"
+          },
+          "contextual_tuples": {
+            "tuple_keys": [
+              {
+                "user": "folder:1",
+                "relation": "parent",
+                "object": "document:1"
+              }
+            ]
+          }
+        }
+
+        ```
+
+        this returns:
+
+        ```json
+
+        {
+          "tree": {
+            "root": {
+              "name": "document:1#writer",
+              "union": {
+                "nodes": [
+                  {
+                    "name": "document:1#writer",
+                    "leaf": {
+                      "users": {
+                        "users": []
+                      }
+                    }
+                  },
+                  {
+                    "name": "document:1#writer",
+                    "leaf": {
+                      "tupleToUserset": {
+                        "tupleset": "document:1#parent",
+                        "computed": [
+                          {
+                            "userset": "folder:1#owner"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+
+        ```
+
+        This tells us that the `owner` of `folder:1` may also be a writer. So
+        our next call could be to find the `owners` of `folder:1`
+
+        ```json
+
+        {
+          "tuple_key": {
+            "object": "folder:1",
+            "relation": "owner"
+          }
+        }
+
+        ```
+
+        which gives
+
+        ```json
+
+        {
+          "tree": {
+            "root": {
+              "name": "folder:1#owner",
+              "leaf": {
+                "users": {
+                  "users": [
+                    "user:bob"
+                  ]
+                }
+              }
+            }
+          }
+        }
+
+        ```
+      operationId: Expand
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ExpandResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              tuple_key:
+                $ref: '#/definitions/ExpandRequestTupleKey'
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+                description: >-
+                  Controls the consistency preference for this request. Default
+                  value is UNSPECIFIED, which will have the same behavior as
+                  MINIMIZE_LATENCY.
+              contextual_tuples:
+                $ref: '#/definitions/ContextualTupleKeys'
+            required:
+              - tuple_key
+      tags:
+        - Relationship Queries
+  /stores/{store_id}/list-objects:
+    post:
+      summary: List all objects of the given type that the user has a relation with
+      description: >-
+        The ListObjects API returns a list of all the objects of the given type
+        that the user has a relation with.
+         To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as `document:2021-budget#viewer@document:2021-budget#viewer`; the set of users who are viewers of `document:2021-budget` are the set of users who are the viewers of `document:2021-budget`).
+        An `authorization_model_id` may be specified in the body. If it is not
+        specified, the latest authorization model ID will be used. It is
+        strongly recommended to specify authorization model id for better
+        performance.
+
+        You may also specify `contextual_tuples` that will be treated as regular
+        tuples. Each of these tuples may have an associated `condition`.
+
+        You may also provide a `context` object that will be used to evaluate
+        the conditioned tuples in the system. It is strongly recommended to
+        provide a value for all the input parameters of all the conditions, to
+        ensure that all tuples be evaluated correctly.
+
+        By default, the Check API caches results for a short time to optimize
+        performance. You may specify a value of `HIGHER_CONSISTENCY` for the
+        optional `consistency` parameter in the body to inform the server that
+        higher conisistency is preferred at the expense of increased latency.
+        Consideration should be given to the increased latency if requesting
+        higher consistency.
+
+        The response will contain the related objects in an array in the
+        "objects" field of the response and they will be strings in the object
+        format `<type>:<id>` (e.g. "document:roadmap").
+
+        The number of objects in the response array will be limited by the
+        execution timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE
+        and by the upper bound specified in the flag
+        OPENFGA_LIST_OBJECTS_MAX_RESULTS, whichever is hit first.
+
+        The objects given will not be sorted, and therefore two identical calls
+        can give a given different set of objects.
+      operationId: ListObjects
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ListObjectsResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+              type:
+                type: string
+                example: document
+              relation:
+                type: string
+                example: reader
+              user:
+                type: string
+                example: user:anne
+                maxLength: 512
+                minLength: 1
+              contextual_tuples:
+                $ref: '#/definitions/ContextualTupleKeys'
+              context:
+                type: object
+                description: >-
+                  Additional request context that will be used to evaluate any
+                  ABAC conditions encountered
+
+                  in the query evaluation.
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+                description: >-
+                  Controls the consistency preference for this request. Default
+                  value is UNSPECIFIED, which will have the same behavior as
+                  MINIMIZE_LATENCY.
+            required:
+              - type
+              - relation
+              - user
+      tags:
+        - Relationship Queries
+  /stores/{store_id}/list-users:
+    post:
+      summary: >-
+        List the users matching the provided filter who have a certain relation
+        to a particular type.
+      description: >-
+        The ListUsers API returns a list of all the users of a specific type
+        that have a relation to a given object.
+         To arrive at a result, the API uses: an authorization model, explicit tuples written through the Write API, contextual tuples present in the request, and implicit tuples that exist by virtue of applying set theory (such as `document:2021-budget#viewer@document:2021-budget#viewer`; the set of users who are viewers of `document:2021-budget` are the set of users who are the viewers of `document:2021-budget`).
+        An `authorization_model_id` may be specified in the body. If it is not
+        specified, the latest authorization model ID will be used. It is
+        strongly recommended to specify authorization model id for better
+        performance.
+
+        You may also specify `contextual_tuples` that will be treated as regular
+        tuples. Each of these tuples may have an associated `condition`.
+
+        You may also provide a `context` object that will be used to evaluate
+        the conditioned tuples in the system. It is strongly recommended to
+        provide a value for all the input parameters of all the conditions, to
+        ensure that all tuples be evaluated correctly.
+
+        The response will contain the related users in an array in the "users"
+        field of the response. These results may include specific objects,
+        usersets 
+
+        or type-bound public access. Each of these types of results is encoded
+        in its own type and not represented as a string.In cases where a
+        type-bound public access result is returned (e.g. `user:*`), it cannot
+        be inferred that all subjects
+
+        of that type have a relation to the object; it is possible that
+        negations exist and checks should still be queried
+
+        on individual subjects to ensure access to that document.The number of
+        users in the response array will be limited by the execution timeout
+        specified in the flag OPENFGA_LIST_USERS_DEADLINE and by the upper bound
+        specified in the flag OPENFGA_LIST_USERS_MAX_RESULTS, whichever is hit
+        first.
+
+        The returned users will not be sorted, and therefore two identical calls
+        may yield different sets of users.
+      operationId: ListUsers
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ListUsersResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+              object:
+                $ref: '#/definitions/Object'
+                example: document:example
+              relation:
+                type: string
+                example: reader
+              user_filters:
+                type: array
+                example:
+                  - type: user
+                  - type: group
+                    relation: member
+                items:
+                  type: object
+                  $ref: '#/definitions/UserTypeFilter'
+                description: The type of results returned. Only accepts exactly one value.
+                maxItems: 1
+                minItems: 1
+              contextual_tuples:
+                type: array
+                items:
+                  type: object
+                  $ref: '#/definitions/TupleKey'
+                maxItems: 100
+              context:
+                type: object
+                description: >-
+                  Additional request context that will be used to evaluate any
+                  ABAC conditions encountered
+
+                  in the query evaluation.
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+                description: >-
+                  Controls the consistency preference for this request. Default
+                  value is UNSPECIFIED, which will have the same behavior as
+                  MINIMIZE_LATENCY.
+            required:
+              - object
+              - relation
+              - user_filters
+      tags:
+        - Relationship Queries
+  /stores/{store_id}/read:
+    post:
+      summary: >-
+        Get tuples from the store that matches a query, without following
+        userset rewrite rules
+      description: >
+        The Read API will return the tuples for a certain store that match a
+        query filter specified in the body of the request. 
+
+        The API doesn't guarantee order by any field. 
+
+        It is different from the `/stores/{store_id}/expand` API in that it only
+        returns relationship tuples that are stored in the system and satisfy
+        the query. 
+
+        In the body:
+
+        1. `tuple_key` is optional. If not specified, it will return all tuples
+        in the store.
+
+        2. `tuple_key.object` is mandatory if `tuple_key` is specified. It can
+        be a full object (e.g., `type:object_id`) or type only (e.g., `type:`).
+
+        3. `tuple_key.user` is mandatory if tuple_key is specified in the case
+        the `tuple_key.object` is a type only. If tuple_key.user is specified,
+        it needs to be a full object (e.g., `type:user_id`).
+
+        ## Examples
+
+        ### Query for all objects in a type definition
+
+        To query for all objects that `user:bob` has `reader` relationship in
+        the `document` type definition, call read API with body of
+
+        ```json
+
+        {
+         "tuple_key": {
+             "user": "user:bob",
+             "relation": "reader",
+             "object": "document:"
+          }
+        }
+
+        ```
+
+        The API will return tuples and a continuation token, something like
+
+        ```json
+
+        {
+          "tuples": [
+            {
+              "key": {
+                "user": "user:bob",
+                "relation": "reader",
+                "object": "document:2021-budget"
+              },
+              "timestamp": "2021-10-06T15:32:11.128Z"
+            }
+          ],
+          "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+        }
+
+        ```
+
+        This means that `user:bob` has a `reader` relationship with 1 document
+        `document:2021-budget`. Note that this API, unlike the List Objects API,
+        does not evaluate the tuples in the store.
+
+        The continuation token will be empty if there are no more tuples to
+        query.
+
+        ### Query for all stored relationship tuples that have a particular
+        relation and object
+
+        To query for all users that have `reader` relationship with
+        `document:2021-budget`, call read API with body of 
+
+        ```json
+
+        {
+          "tuple_key": {
+             "object": "document:2021-budget",
+             "relation": "reader"
+           }
+        }
+
+        ```
+
+        The API will return something like 
+
+        ```json
+
+        {
+          "tuples": [
+            {
+              "key": {
+                "user": "user:bob",
+                "relation": "reader",
+                "object": "document:2021-budget"
+              },
+              "timestamp": "2021-10-06T15:32:11.128Z"
+            }
+          ],
+          "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+        }
+
+        ```
+
+        This means that `document:2021-budget` has 1 `reader` (`user:bob`). 
+        Note that, even if the model said that all `writers` are also `readers`,
+        the API will not return writers such as `user:anne` because it only
+        returns tuples and does not evaluate them.
+
+        ### Query for all users with all relationships for a particular document
+
+        To query for all users that have any relationship with
+        `document:2021-budget`, call read API with body of 
+
+        ```json
+
+        {
+          "tuple_key": {
+              "object": "document:2021-budget"
+           }
+        }
+
+        ```
+
+        The API will return something like 
+
+        ```json
+
+        {
+          "tuples": [
+            {
+              "key": {
+                "user": "user:anne",
+                "relation": "writer",
+                "object": "document:2021-budget"
+              },
+              "timestamp": "2021-10-05T13:42:12.356Z"
+            },
+            {
+              "key": {
+                "user": "user:bob",
+                "relation": "reader",
+                "object": "document:2021-budget"
+              },
+              "timestamp": "2021-10-06T15:32:11.128Z"
+            }
+          ],
+          "continuation_token": "eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ=="
+        }
+
+        ```
+
+        This means that `document:2021-budget` has 1 `reader` (`user:bob`) and 1
+        `writer` (`user:anne`).
+      operationId: Read
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/ReadResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              tuple_key:
+                $ref: '#/definitions/ReadRequestTupleKey'
+              page_size:
+                type: integer
+                format: int32
+                example: 50
+                maximum: 100
+                minimum: 1
+              continuation_token:
+                type: string
+                example: >-
+                  eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+                description: >-
+                  Controls the consistency preference for this request. Default
+                  value is UNSPECIFIED, which will have the same behavior as
+                  MINIMIZE_LATENCY.
+      tags:
+        - Relationship Tuples
+  /stores/{store_id}/streamed-list-objects:
+    post:
+      summary: Stream all objects of the given type that the user has a relation with
+      description: >
+        The Streamed ListObjects API is very similar to the the ListObjects API,
+        with two differences: 
+
+        1. Instead of collecting all objects before returning a response, it
+        streams them to the client as they are collected. 
+
+        2. The number of results returned is only limited by the execution
+        timeout specified in the flag OPENFGA_LIST_OBJECTS_DEADLINE. 
+      operationId: StreamedListObjects
+      responses:
+        '200':
+          description: A successful response.(streaming responses)
+          schema:
+            type: object
+            properties:
+              result:
+                $ref: '#/definitions/StreamedListObjectsResponse'
+              error:
+                $ref: '#/definitions/Status'
+            title: Stream result of StreamedListObjectsResponse
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+              type:
+                type: string
+                example: document
+              relation:
+                type: string
+                example: reader
+              user:
+                type: string
+                example: user:anne
+                maxLength: 512
+                minLength: 1
+              contextual_tuples:
+                $ref: '#/definitions/ContextualTupleKeys'
+              context:
+                type: object
+                description: >-
+                  Additional request context that will be used to evaluate any
+                  ABAC conditions encountered
+
+                  in the query evaluation.
+              consistency:
+                $ref: '#/definitions/ConsistencyPreference'
+                description: >-
+                  Controls the consistency preference for this request. Default
+                  value is UNSPECIFIED, which will have the same behavior as
+                  MINIMIZE_LATENCY.
+            required:
+              - type
+              - relation
+              - user
+      tags:
+        - Relationship Queries
+  /stores/{store_id}/write:
+    post:
+      summary: Add or delete tuples from the store
+      description: >
+        The Write API will transactionally update the tuples for a certain
+        store. Tuples and type definitions allow OpenFGA to determine whether a
+        relationship exists between an object and an user.
+
+        In the body, `writes` adds new tuples and `deletes` removes existing
+        tuples. When deleting a tuple, any `condition` specified with it is
+        ignored.
+
+        The API is not idempotent: if, later on, you try to add the same tuple
+        key (even if the `condition` is different), or if you try to delete a
+        non-existing tuple, it will throw an error.
+
+        The API will not allow you to write tuples such as
+        `document:2021-budget#viewer@document:2021-budget#viewer`, because they
+        are implicit.
+
+        An `authorization_model_id` may be specified in the body. If it is, it
+        will be used to assert that each written tuple (not deleted) is valid
+        for the model specified. If it is not specified, the latest
+        authorization model ID will be used.
+
+        ## Example
+
+        ### Adding relationships
+
+        To add `user:anne` as a `writer` for `document:2021-budget`, call write
+        API with the following 
+
+        ```json
+
+        {
+          "writes": {
+            "tuple_keys": [
+              {
+                "user": "user:anne",
+                "relation": "writer",
+                "object": "document:2021-budget"
+              }
+            ]
+          },
+          "authorization_model_id": "01G50QVV17PECNVAHX1GG4Y5NC"
+        }
+
+        ```
+
+        ### Removing relationships
+
+        To remove `user:bob` as a `reader` for `document:2021-budget`, call
+        write API with the following 
+
+        ```json
+
+        {
+          "deletes": {
+            "tuple_keys": [
+              {
+                "user": "user:bob",
+                "relation": "reader",
+                "object": "document:2021-budget"
+              }
+            ]
+          }
+        }
+
+        ```
+      operationId: Write
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/WriteResponse'
+        '400':
+          description: Request failed due to invalid input.
+          schema:
+            $ref: '#/definitions/ValidationErrorMessageResponse'
+        '401':
+          description: Not authenticated.
+          schema:
+            $ref: '#/definitions/UnauthenticatedResponse'
+        '403':
+          description: Forbidden.
+          schema:
+            $ref: '#/definitions/ForbiddenResponse'
+        '404':
+          description: Request failed due to incorrect path.
+          schema:
+            $ref: '#/definitions/PathUnknownErrorMessageResponse'
+        '409':
+          description: Request was aborted due a transaction conflict.
+          schema:
+            $ref: '#/definitions/AbortedMessageResponse'
+        '422':
+          description: Request timed out due to excessive request throttling.
+          schema:
+            $ref: '#/definitions/UnprocessableContentMessageResponse'
+        '500':
+          description: Request failed due to internal server error.
+          schema:
+            $ref: '#/definitions/InternalErrorMessageResponse'
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              writes:
+                $ref: '#/definitions/WriteRequestWrites'
+              deletes:
+                $ref: '#/definitions/WriteRequestDeletes'
+              authorization_model_id:
+                type: string
+                example: 01G5JAVJ41T49E9TT3SKVS7X1J
+      tags:
+        - Relationship Tuples
+definitions:
+  AbortedMessageResponse:
+    type: object
+    example:
+      code: '10'
+      message: transaction conflict
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+  Any:
+    type: object
+    properties:
+      '@type':
+        type: string
+    additionalProperties: {}
+  Assertion:
+    type: object
+    properties:
+      tuple_key:
+        $ref: '#/definitions/AssertionTupleKey'
+      expectation:
+        type: boolean
+      contextual_tuples:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/TupleKey'
+        maxItems: 20
+      context:
+        type: object
+        example:
+          view_count: 100
+        description: >-
+          Additional request context that will be used to evaluate any ABAC
+          conditions encountered
+
+          in the query evaluation.
+    required:
+      - tuple_key
+      - expectation
+  AssertionTupleKey:
+    type: object
+    properties:
+      object:
+        type: string
+        example: document:2021-budget
+        maxLength: 256
+      relation:
+        type: string
+        example: reader
+        maxLength: 50
+      user:
+        type: string
+        example: user:anne
+        maxLength: 512
+    required:
+      - object
+      - relation
+      - user
+  AuthErrorCode:
+    type: string
+    enum:
+      - no_auth_error
+      - auth_failed_invalid_subject
+      - auth_failed_invalid_audience
+      - auth_failed_invalid_issuer
+      - invalid_claims
+      - auth_failed_invalid_bearer_token
+      - bearer_token_missing
+      - unauthenticated
+      - forbidden
+    default: no_auth_error
+  AuthorizationModel:
+    type: object
+    properties:
+      id:
+        type: string
+        example: 01G5JAVJ41T49E9TT3SKVS7X1J
+      schema_version:
+        type: string
+      type_definitions:
+        type: array
+        example:
+          - type: user
+          - type: document
+            relations:
+              reader:
+                union:
+                  child:
+                    - this: {}
+                    - computedUserset:
+                        object: ''
+                        relation: writer
+              writer:
+                this: {}
+            metadata:
+              relations:
+                reader:
+                  directly_related_user_types:
+                    - type: user
+                writer:
+                  directly_related_user_types:
+                    - type: user
+        items:
+          type: object
+          $ref: '#/definitions/TypeDefinition'
+      conditions:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/Condition'
+    required:
+      - id
+      - schema_version
+      - type_definitions
+  BatchCheckItem:
+    type: object
+    properties:
+      tuple_key:
+        $ref: '#/definitions/CheckRequestTupleKey'
+      contextual_tuples:
+        $ref: '#/definitions/ContextualTupleKeys'
+      context:
+        type: object
+      correlation_id:
+        type: string
+        example: 1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc
+        description: >-
+          correlation_id must be a string containing only letters, numbers, or
+          hyphens, with length ≤ 36 characters.
+    required:
+      - tuple_key
+      - correlation_id
+  BatchCheckResponse:
+    type: object
+    properties:
+      result:
+        type: object
+        example:
+          1cd93d8c-8e45-43c6-9a15-cbb3c7f394bc:
+            allowed: true
+            error:
+              message: ''
+        additionalProperties:
+          $ref: '#/definitions/BatchCheckSingleResult'
+        description: >-
+          map keys are the correlation_id values from the BatchCheckItems in the
+          request
+  BatchCheckSingleResult:
+    type: object
+    properties:
+      allowed:
+        type: boolean
+      error:
+        $ref: '#/definitions/CheckError'
+  CheckError:
+    type: object
+    properties:
+      input_error:
+        $ref: '#/definitions/ErrorCode'
+      internal_error:
+        $ref: '#/definitions/InternalErrorCode'
+      message:
+        type: string
+  CheckRequestTupleKey:
+    type: object
+    properties:
+      user:
+        type: string
+        example: user:anne
+        maxLength: 512
+      relation:
+        type: string
+        example: reader
+        maxLength: 50
+      object:
+        type: string
+        example: document:2021-budget
+        maxLength: 256
+    required:
+      - user
+      - relation
+      - object
+  CheckResponse:
+    type: object
+    properties:
+      allowed:
+        type: boolean
+        example: true
+      resolution:
+        type: string
+        description: For internal use only.
+  Computed:
+    type: object
+    properties:
+      userset:
+        type: string
+    required:
+      - userset
+  Condition:
+    type: object
+    properties:
+      name:
+        type: string
+        title: A unique name for the condition
+      expression:
+        type: string
+        description: A Google CEL expression, expressed as a string.
+      parameters:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/ConditionParamTypeRef'
+        description: A map of parameter names to the parameter's defined type reference.
+      metadata:
+        $ref: '#/definitions/ConditionMetadata'
+    required:
+      - name
+      - expression
+  ConditionMetadata:
+    type: object
+    properties:
+      module:
+        type: string
+      source_info:
+        $ref: '#/definitions/SourceInfo'
+  ConditionParamTypeRef:
+    type: object
+    properties:
+      type_name:
+        $ref: '#/definitions/TypeName'
+      generic_types:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/ConditionParamTypeRef'
+    required:
+      - type_name
+  ConsistencyPreference:
+    type: string
+    enum:
+      - UNSPECIFIED
+      - MINIMIZE_LATENCY
+      - HIGHER_CONSISTENCY
+    default: UNSPECIFIED
+    description: |-
+      Controls the consistency preferences when calling the query APIs.
+
+       - UNSPECIFIED: Default if not set. Behavior will be the same as MINIMIZE_LATENCY.
+       - MINIMIZE_LATENCY: Minimize latency at the potential expense of lower consistency.
+       - HIGHER_CONSISTENCY: Prefer higher consistency, at the potential expense of increased latency.
+    example: MINIMIZE_LATENCY
+  ContextualTupleKeys:
+    type: object
+    properties:
+      tuple_keys:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/TupleKey'
+        maxItems: 100
+    required:
+      - tuple_keys
+  CreateStoreRequest:
+    type: object
+    properties:
+      name:
+        type: string
+        example: my-store-name
+    required:
+      - name
+  CreateStoreResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        example: 01YCP46JKYM8FJCQ37NMBYHE5X
+      name:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - created_at
+      - updated_at
+  DeleteStoreResponse:
+    type: object
+  DirectUserset:
+    type: object
+    description: |-
+      A DirectUserset is a sentinel message for referencing
+      the direct members specified by an object/relation mapping.
+  ErrorCode:
+    type: string
+    enum:
+      - no_error
+      - validation_error
+      - authorization_model_not_found
+      - authorization_model_resolution_too_complex
+      - invalid_write_input
+      - cannot_allow_duplicate_tuples_in_one_request
+      - cannot_allow_duplicate_types_in_one_request
+      - cannot_allow_multiple_references_to_one_relation
+      - invalid_continuation_token
+      - invalid_tuple_set
+      - invalid_check_input
+      - invalid_expand_input
+      - unsupported_user_set
+      - invalid_object_format
+      - write_failed_due_to_invalid_input
+      - authorization_model_assertions_not_found
+      - latest_authorization_model_not_found
+      - type_not_found
+      - relation_not_found
+      - empty_relation_definition
+      - invalid_user
+      - invalid_tuple
+      - unknown_relation
+      - store_id_invalid_length
+      - assertions_too_many_items
+      - id_too_long
+      - authorization_model_id_too_long
+      - tuple_key_value_not_specified
+      - tuple_keys_too_many_or_too_few_items
+      - page_size_invalid
+      - param_missing_value
+      - difference_base_missing_value
+      - subtract_base_missing_value
+      - object_too_long
+      - relation_too_long
+      - type_definitions_too_few_items
+      - type_invalid_length
+      - type_invalid_pattern
+      - relations_too_few_items
+      - relations_too_long
+      - relations_invalid_pattern
+      - object_invalid_pattern
+      - query_string_type_continuation_token_mismatch
+      - exceeded_entity_limit
+      - invalid_contextual_tuple
+      - duplicate_contextual_tuple
+      - invalid_authorization_model
+      - unsupported_schema_version
+      - cancelled
+      - invalid_start_time
+    default: no_error
+  ExpandRequestTupleKey:
+    type: object
+    properties:
+      relation:
+        type: string
+        example: reader
+        maxLength: 50
+      object:
+        type: string
+        example: document:2021-budget
+        maxLength: 256
+    required:
+      - relation
+      - object
+  ExpandResponse:
+    type: object
+    properties:
+      tree:
+        $ref: '#/definitions/UsersetTree'
+  ForbiddenResponse:
+    type: object
+    example:
+      code: forbidden
+      message: the principal is not authorized to perform the action
+    properties:
+      code:
+        $ref: '#/definitions/AuthErrorCode'
+      message:
+        type: string
+  GetStoreResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        example: 01YCP46JKYM8FJCQ37NMBYHE5X
+      name:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      deleted_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - created_at
+      - updated_at
+  InternalErrorCode:
+    type: string
+    enum:
+      - no_internal_error
+      - internal_error
+      - deadline_exceeded
+      - already_exists
+      - resource_exhausted
+      - failed_precondition
+      - aborted
+      - out_of_range
+      - unavailable
+      - data_loss
+    default: no_internal_error
+  InternalErrorMessageResponse:
+    type: object
+    example:
+      code: internal_error
+      message: Internal Server Error
+    properties:
+      code:
+        $ref: '#/definitions/InternalErrorCode'
+      message:
+        type: string
+  Leaf:
+    type: object
+    properties:
+      users:
+        $ref: '#/definitions/Users'
+      computed:
+        $ref: '#/definitions/Computed'
+      tupleToUserset:
+        $ref: '#/definitions/UsersetTree.TupleToUserset'
+    description: |-
+      A leaf node contains either
+      - a set of users (which may be individual users, or usersets
+        referencing other relations)
+      - a computed node, which is the result of a computed userset
+        value in the authorization model
+      - a tupleToUserset nodes, containing the result of expanding
+        a tupleToUserset value in a authorization model.
+  ListObjectsResponse:
+    type: object
+    properties:
+      objects:
+        type: array
+        example:
+          - document:roadmap
+          - document:planning
+        items:
+          type: string
+    required:
+      - objects
+  ListStoresResponse:
+    type: object
+    properties:
+      stores:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Store'
+      continuation_token:
+        type: string
+        example: >-
+          eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+        description: The continuation token will be empty if there are no more stores.
+    required:
+      - stores
+      - continuation_token
+  ListUsersResponse:
+    type: object
+    properties:
+      users:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/User'
+    required:
+      - users
+  Metadata:
+    type: object
+    properties:
+      relations:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/RelationMetadata'
+      module:
+        type: string
+      source_info:
+        $ref: '#/definitions/SourceInfo'
+  Node:
+    type: object
+    properties:
+      name:
+        type: string
+      leaf:
+        $ref: '#/definitions/Leaf'
+      difference:
+        $ref: '#/definitions/UsersetTree.Difference'
+      union:
+        $ref: '#/definitions/Nodes'
+      intersection:
+        $ref: '#/definitions/Nodes'
+    required:
+      - name
+  Nodes:
+    type: object
+    properties:
+      nodes:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Node'
+    required:
+      - nodes
+  NotFoundErrorCode:
+    type: string
+    enum:
+      - no_not_found_error
+      - undefined_endpoint
+      - store_id_not_found
+      - unimplemented
+    default: no_not_found_error
+  NullValue:
+    type: string
+    enum:
+      - NULL_VALUE
+    default: NULL_VALUE
+    description: |-
+      `NullValue` is a singleton enumeration to represent the null value for the
+      `Value` type union.
+
+      The JSON representation for `NullValue` is JSON `null`.
+
+       - NULL_VALUE: Null value.
+  Object:
+    type: object
+    properties:
+      type:
+        type: string
+        example: document
+      id:
+        type: string
+        example: 0bcdf6fa-a6aa-4730-a8eb-9cf172ff16d9
+    description: |-
+      Object represents an OpenFGA Object.
+
+      An Object is composed of a type and identifier (e.g. 'document:1')
+
+      See https://openfga.dev/docs/concepts#what-is-an-object
+    required:
+      - type
+      - id
+  ObjectRelation:
+    type: object
+    properties:
+      object:
+        type: string
+      relation:
+        type: string
+  PathUnknownErrorMessageResponse:
+    type: object
+    example:
+      code: undefined_endpoint
+      message: Endpoint not enabled
+    properties:
+      code:
+        $ref: '#/definitions/NotFoundErrorCode'
+      message:
+        type: string
+  ReadAssertionsResponse:
+    type: object
+    properties:
+      authorization_model_id:
+        type: string
+        example: 01G5JAVJ41T49E9TT3SKVS7X1J
+      assertions:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Assertion'
+    required:
+      - authorization_model_id
+  ReadAuthorizationModelResponse:
+    type: object
+    properties:
+      authorization_model:
+        $ref: '#/definitions/AuthorizationModel'
+  ReadAuthorizationModelsResponse:
+    type: object
+    properties:
+      authorization_models:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/AuthorizationModel'
+      continuation_token:
+        type: string
+        example: >-
+          eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+        description: The continuation token will be empty if there are no more models.
+    required:
+      - authorization_models
+  ReadChangesResponse:
+    type: object
+    properties:
+      changes:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/TupleChange'
+      continuation_token:
+        type: string
+        example: >-
+          eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+        description: The continuation token will be identical if there are no new changes.
+    required:
+      - changes
+  ReadRequestTupleKey:
+    type: object
+    properties:
+      user:
+        type: string
+        example: user:anne
+        maxLength: 512
+      relation:
+        type: string
+        example: reader
+        maxLength: 50
+      object:
+        type: string
+        example: document:2021-budget
+        maxLength: 256
+  ReadResponse:
+    type: object
+    properties:
+      tuples:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Tuple'
+      continuation_token:
+        type: string
+        example: >-
+          eyJwayI6IkxBVEVTVF9OU0NPTkZJR19hdXRoMHN0b3JlIiwic2siOiIxem1qbXF3MWZLZExTcUoyN01MdTdqTjh0cWgifQ==
+        description: The continuation token will be empty if there are no more tuples.
+    required:
+      - tuples
+      - continuation_token
+  RelationMetadata:
+    type: object
+    properties:
+      directly_related_user_types:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/RelationReference'
+      module:
+        type: string
+      source_info:
+        $ref: '#/definitions/SourceInfo'
+  RelationReference:
+    type: object
+    properties:
+      type:
+        type: string
+        example: group
+      relation:
+        type: string
+        example: member
+      wildcard:
+        $ref: '#/definitions/Wildcard'
+      condition:
+        type: string
+        description: The name of a condition that is enforced over the allowed relation.
+    description: >-
+      RelationReference represents a relation of a particular object type (e.g.
+      'document#viewer').
+    required:
+      - type
+  RelationshipCondition:
+    type: object
+    properties:
+      name:
+        type: string
+        example: condition1
+        description: >-
+          A reference (by name) of the relationship condition defined in the
+          authorization model.
+        maxLength: 256
+      context:
+        type: object
+        description: >-
+          Additional context/data to persist along with the condition.
+
+          The keys must match the parameters defined by the condition, and the
+          value types must
+
+          match the parameter type definitions.
+    required:
+      - name
+  SourceInfo:
+    type: object
+    properties:
+      file:
+        type: string
+  Status:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Any'
+  Store:
+    type: object
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      deleted_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - created_at
+      - updated_at
+  StreamedListObjectsResponse:
+    type: object
+    properties:
+      object:
+        type: string
+        example: document:roadmap
+    description: The response for a StreamedListObjects RPC.
+    required:
+      - object
+  Tuple:
+    type: object
+    properties:
+      key:
+        $ref: '#/definitions/TupleKey'
+      timestamp:
+        type: string
+        format: date-time
+    required:
+      - key
+      - timestamp
+  TupleChange:
+    type: object
+    properties:
+      tuple_key:
+        $ref: '#/definitions/TupleKey'
+      operation:
+        $ref: '#/definitions/TupleOperation'
+      timestamp:
+        type: string
+        format: date-time
+    required:
+      - tuple_key
+      - operation
+      - timestamp
+  TupleKey:
+    type: object
+    properties:
+      user:
+        type: string
+        example: user:anne
+        maxLength: 512
+      relation:
+        type: string
+        example: reader
+        maxLength: 50
+      object:
+        type: string
+        example: document:2021-budget
+        maxLength: 256
+      condition:
+        $ref: '#/definitions/RelationshipCondition'
+    required:
+      - user
+      - relation
+      - object
+  TupleKeyWithoutCondition:
+    type: object
+    properties:
+      user:
+        type: string
+        example: user:anne
+        maxLength: 512
+      relation:
+        type: string
+        example: reader
+        maxLength: 50
+      object:
+        type: string
+        example: document:2021-budget
+        maxLength: 256
+    required:
+      - user
+      - relation
+      - object
+  TupleOperation:
+    type: string
+    enum:
+      - TUPLE_OPERATION_WRITE
+      - TUPLE_OPERATION_DELETE
+    default: TUPLE_OPERATION_WRITE
+    title: buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+  TypeDefinition:
+    type: object
+    properties:
+      type:
+        type: string
+        example: document
+      relations:
+        type: object
+        example:
+          reader:
+            union:
+              child:
+                - this: {}
+                - computedUserset:
+                    object: ''
+                    relation: writer
+          writer:
+            this: {}
+        additionalProperties:
+          $ref: '#/definitions/Userset'
+      metadata:
+        $ref: '#/definitions/Metadata'
+        description: >-
+          A map whose keys are the name of the relation and whose value is the
+          Metadata for that relation.
+
+          It also holds information around the module name and source file if
+          this model was constructed
+
+          from a modular model.
+    required:
+      - type
+  TypeName:
+    type: string
+    enum:
+      - TYPE_NAME_UNSPECIFIED
+      - TYPE_NAME_ANY
+      - TYPE_NAME_BOOL
+      - TYPE_NAME_STRING
+      - TYPE_NAME_INT
+      - TYPE_NAME_UINT
+      - TYPE_NAME_DOUBLE
+      - TYPE_NAME_DURATION
+      - TYPE_NAME_TIMESTAMP
+      - TYPE_NAME_MAP
+      - TYPE_NAME_LIST
+      - TYPE_NAME_IPADDRESS
+    default: TYPE_NAME_UNSPECIFIED
+  TypedWildcard:
+    type: object
+    properties:
+      type:
+        type: string
+        example: employee
+    description: >-
+      Type bound public access.
+
+
+      Normally represented using the `<type>:*` syntax
+
+
+      `employee:*` represents every object of type `employee`, including those
+      not currently present in the system
+
+
+      See https://openfga.dev/docs/concepts#what-is-type-bound-public-access
+    required:
+      - type
+  UnauthenticatedResponse:
+    type: object
+    example:
+      code: unauthenticated
+      message: unauthenticated
+    properties:
+      code:
+        $ref: '#/definitions/ErrorCode'
+      message:
+        type: string
+  UnprocessableContentErrorCode:
+    type: string
+    enum:
+      - no_throttled_error_code
+      - throttled_timeout_error
+    default: no_throttled_error_code
+  UnprocessableContentMessageResponse:
+    type: object
+    example:
+      code: throttled_timeout_error
+      message: timeout due to throttling on complex request
+    properties:
+      code:
+        $ref: '#/definitions/UnprocessableContentErrorCode'
+      message:
+        type: string
+  User:
+    type: object
+    properties:
+      object:
+        $ref: '#/definitions/Object'
+      userset:
+        $ref: '#/definitions/UsersetUser'
+      wildcard:
+        $ref: '#/definitions/TypedWildcard'
+    description: >-
+      User.
+
+
+      Represents any possible value for a user (subject or principal). Can be a:
+
+      - Specific user object e.g.: 'user:will', 'folder:marketing',
+      'org:contoso', ...)
+
+      - Specific userset (e.g. 'group:engineering#member')
+
+      - Public-typed wildcard (e.g. 'user:*')
+
+
+      See https://openfga.dev/docs/concepts#what-is-a-user
+  UserTypeFilter:
+    type: object
+    properties:
+      type:
+        type: string
+        example: group
+      relation:
+        type: string
+        example: member
+    required:
+      - type
+  Users:
+    type: object
+    properties:
+      users:
+        type: array
+        items:
+          type: string
+    required:
+      - users
+  Userset:
+    type: object
+    properties:
+      this:
+        $ref: '#/definitions/DirectUserset'
+      computedUserset:
+        $ref: '#/definitions/ObjectRelation'
+      tupleToUserset:
+        $ref: '#/definitions/v1.TupleToUserset'
+      union:
+        $ref: '#/definitions/Usersets'
+      intersection:
+        $ref: '#/definitions/Usersets'
+      difference:
+        $ref: '#/definitions/v1.Difference'
+  UsersetTree:
+    type: object
+    properties:
+      root:
+        $ref: '#/definitions/Node'
+    description: A UsersetTree contains the result of an Expansion.
+  UsersetTree.Difference:
+    type: object
+    properties:
+      base:
+        $ref: '#/definitions/Node'
+      subtract:
+        $ref: '#/definitions/Node'
+    required:
+      - base
+      - subtract
+  UsersetTree.TupleToUserset:
+    type: object
+    properties:
+      tupleset:
+        type: string
+      computed:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Computed'
+    required:
+      - tupleset
+      - computed
+  UsersetUser:
+    type: object
+    properties:
+      type:
+        type: string
+        example: group
+      id:
+        type: string
+        example: fga
+      relation:
+        type: string
+        example: member
+    description: >-
+      Userset.
+
+
+      A set or group of users, represented in the `<type>:<id>#<relation>`
+      format
+
+
+      `group:fga#member` represents all members of group FGA, not to be confused
+      by `group:fga` which represents the group itself as a specific object.
+
+
+      See:
+      https://openfga.dev/docs/modeling/building-blocks/usersets#what-is-a-userset
+    required:
+      - type
+      - id
+      - relation
+  Usersets:
+    type: object
+    properties:
+      child:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/Userset'
+    required:
+      - child
+  ValidationErrorMessageResponse:
+    type: object
+    example:
+      code: validation_error
+      message: Generic validation error
+    properties:
+      code:
+        $ref: '#/definitions/ErrorCode'
+      message:
+        type: string
+  Wildcard:
+    type: object
+  WriteAssertionsResponse:
+    type: object
+  WriteAuthorizationModelResponse:
+    type: object
+    properties:
+      authorization_model_id:
+        type: string
+        example: 01G5JAVJ41T49E9TT3SKVS7X1J
+    required:
+      - authorization_model_id
+  WriteRequestDeletes:
+    type: object
+    properties:
+      tuple_keys:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/TupleKeyWithoutCondition'
+        minItems: 1
+    required:
+      - tuple_keys
+  WriteRequestWrites:
+    type: object
+    properties:
+      tuple_keys:
+        type: array
+        items:
+          type: object
+          $ref: '#/definitions/TupleKey'
+        minItems: 1
+    required:
+      - tuple_keys
+  WriteResponse:
+    type: object
+  v1.Difference:
+    type: object
+    properties:
+      base:
+        $ref: '#/definitions/Userset'
+      subtract:
+        $ref: '#/definitions/Userset'
+    required:
+      - base
+      - subtract
+  v1.TupleToUserset:
+    type: object
+    properties:
+      tupleset:
+        $ref: '#/definitions/ObjectRelation'
+        title: The target object/relation
+      computedUserset:
+        $ref: '#/definitions/ObjectRelation'
+    required:
+      - tupleset
+      - computedUserset

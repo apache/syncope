@@ -49,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup;
 import org.apache.syncope.core.provisioning.java.job.ExpiredBatchCleanup;
 import org.apache.syncope.core.provisioning.java.job.MacroJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.OpenFGAReinit;
 import org.apache.syncope.core.provisioning.java.propagation.AzurePropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.GoogleAppsPropagationActions;
@@ -141,6 +142,8 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(LiveSyncJobDelegate.class.getName());
             classNames.add(PullJobDelegate.class.getName());
             classNames.add(PushJobDelegate.class.getName());
+            classNames.add(PushJobDelegate.class.getName());
+            classNames.add(OpenFGAReinit.class.getName());
             put(IdRepoImplementationType.TASKJOB_DELEGATE, classNames);
 
             classNames = new HashSet<>();
