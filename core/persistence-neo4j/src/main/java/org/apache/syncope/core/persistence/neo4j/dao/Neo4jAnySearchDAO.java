@@ -94,11 +94,11 @@ import org.springframework.data.util.Streamable;
 
 public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
-    protected static record AdminRealmsFilter(String filter, Set<String> dynRealmKeys, Set<String> groupOwners) {
+    protected record AdminRealmsFilter(String filter, Set<String> dynRealmKeys, Set<String> groupOwners) {
 
     }
 
-    protected static record QueryInfo(
+    protected record QueryInfo(
             TextStringBuilder query,
             Set<String> fields,
             Set<PlainSchema> plainSchemas,

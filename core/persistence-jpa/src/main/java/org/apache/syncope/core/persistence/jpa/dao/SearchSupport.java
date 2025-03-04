@@ -28,7 +28,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 
 public class SearchSupport {
 
-    public static record SearchView(String alias, String name) {
+    public record SearchView(String alias, String name) {
 
     }
 
