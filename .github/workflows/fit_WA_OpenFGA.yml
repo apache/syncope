@@ -26,7 +26,7 @@ on:
     - cron: '0 13 * * 4'
 
 jobs:
-  fit_WA_OIDCC4UI:
+  fit_WA_OpenFGA:
     runs-on: ubuntu-latest
 
     steps:
@@ -52,4 +52,4 @@ jobs:
     - name: 'Unit Tests: OpenFGA'
       run: mvn -f ext/openfga/client-openfga/pom.xml -P openfga -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Dianal.phase=none -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true
     - name: 'WA / OpenFGA'
-      run: mkdir -p fit/core-reference/target/test-classes && cp fit/core-reference/src/test/resources/saml.keystore.jks fit/core-reference/target/test-classes && mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=OpenFGAUIITCase
+      run: mvn -f fit/wa-reference/pom.xml verify -Dinvoker.streamLogs=true -Dmodernizer.skip=true -Drat.skip=true -Dcheckstyle.skip=true -Djacoco.skip=true -Dit.test=OpenFGAUIITCase

@@ -247,8 +247,8 @@ under the License.
           <configuration>
             <properties>
               <cargo.jvmargs>
-                --openfga.api-url=http://${docker.container.openfga.ip}:8080
                 -Dspring.profiles.active=embedded,https,all
+                -Dopenfga.api-url=http://${docker.container.openfga.ip}:8080
                 -Xmx1024m -Xms512m</cargo.jvmargs>
 
               <cargo.servlet.port>9443</cargo.servlet.port>
