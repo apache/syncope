@@ -145,7 +145,8 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.getFirst().getHeaders().get(HttpHeaders.ETAG));
         assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.DOMAIN));
         assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.RESOURCE_KEY));
-        assertEquals(RESTHeaders.APPLICATION_YAML, resItems.getFirst().getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
+        assertEquals(RESTHeaders.APPLICATION_YAML, resItems.getFirst().
+            getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
         ProvisioningResult<UserTO> user = YAML_MAPPER.readValue(
                 resItems.get(0).getContent(), new TypeReference<>() {
         });

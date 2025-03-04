@@ -1405,13 +1405,15 @@ public class UserIssuesITCase extends AbstractITCase {
         Attr userDn = connObject.getAttr(Name.NAME).orElseThrow();
         assertNotNull(userDn);
         assertEquals(1, userDn.getValues().size());
-        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN,
+            RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
 
         // 4. remove user
         USER_SERVICE.delete(user.getKey());
 
         // 5. verify that user is not in LDAP anymore
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN,
+            RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
     }
 
     @Test

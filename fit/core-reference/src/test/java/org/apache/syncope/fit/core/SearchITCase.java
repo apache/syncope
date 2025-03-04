@@ -1032,7 +1032,8 @@ public class SearchITCase extends AbstractITCase {
         assertTrue(before > 0);
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
-                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().getFirst())));
+                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
+                    orElseThrow().getValues().getFirst())));
 
         // 1. create user with similar email
         UserTO user = createUser(UserITCase.getSample("bisverdi@syncope.org")).getEntity();
@@ -1053,7 +1054,8 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(before, users.getTotalCount());
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
-                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().getFirst())));
+                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
+                    orElseThrow().getValues().getFirst())));
         assertTrue(users.getResult().stream().noneMatch(u -> user.getKey().equals(u.getKey())));
     }
 

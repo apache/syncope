@@ -382,7 +382,8 @@ public class GroupTest extends AbstractTest {
 
         group = groupDAO.findByName("root").orElseThrow();
         assertEquals(1, group.getRelationships().size());
-        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", group.getRelationships().getFirst().getRightEnd().getKey());
+        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
+            group.getRelationships().getFirst().getRightEnd().getKey());
     }
 
     @Test

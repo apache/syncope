@@ -718,7 +718,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
                         tasks.getResult().getFirst().getPropagationData(), PropagationData.class).getAttributes());
             }
 
-            OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").orElseThrow().getValues().getFirst()).
+            OffsetDateTime loginDate = LocalDate.parse(user.getPlainAttr("loginDate").
+                    orElseThrow().getValues().getFirst()).
                     atStartOfDay(ZoneOffset.UTC).toOffsetDateTime();
 
             Attribute employeeNumber = AttributeUtil.find("employeeNumber", propagationAttrs);
@@ -735,7 +736,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             Attribute carLicense = AttributeUtil.find("carLicense", propagationAttrs);
             assertNotNull(carLicense);
-            assertEquals(DateTimeFormatter.ISO_LOCAL_DATE.format(loginDate.plusDays(1)), carLicense.getValue().getFirst());
+            assertEquals(DateTimeFormatter.ISO_LOCAL_DATE.format(loginDate.plusDays(1)),
+                carLicense.getValue().getFirst());
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());

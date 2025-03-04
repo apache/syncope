@@ -339,9 +339,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(userName, userTO.getUsername());
             assertEquals(IS_FLOWABLE_ENABLED
                     ? "active" : "created", userTO.getStatus());
-            assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").orElseThrow().getValues().getFirst());
-            assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").orElseThrow().getValues().getFirst());
-            assertTrue(Integer.parseInt(userTO.getPlainAttr("fullname").orElseThrow().getValues().getFirst()) <= 10);
+            assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").
+                orElseThrow().getValues().getFirst());
+            assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").
+                orElseThrow().getValues().getFirst());
+            assertTrue(Integer.parseInt(userTO.getPlainAttr("fullname").
+                orElseThrow().getValues().getFirst()) <= 10);
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
 
@@ -351,7 +354,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // check for user template
             userTO = USER_SERVICE.read("test7");
             assertNotNull(userTO);
-            assertEquals("TYPE_OTHER", userTO.getPlainAttr("ctype").orElseThrow().getValues().getFirst());
+            assertEquals("TYPE_OTHER", userTO.getPlainAttr("ctype").
+                orElseThrow().getValues().getFirst());
             assertEquals(3, userTO.getResources().size());
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
@@ -487,13 +491,15 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // Check for SYNCOPE-436
         assertEquals("pullFromLDAP",
-                matchingUsers.getResult().getFirst().getVirAttr("virtualReadOnly").orElseThrow().getValues().getFirst());
+                matchingUsers.getResult().getFirst().getVirAttr("virtualReadOnly").
+                    orElseThrow().getValues().getFirst());
         // Check for SYNCOPE-270
         assertNotNull(matchingUsers.getResult().getFirst().getPlainAttr("obscure"));
         // Check for SYNCOPE-123
         assertNotNull(matchingUsers.getResult().getFirst().getPlainAttr("photo"));
         // Check for SYNCOPE-1343
-        assertEquals("odd", matchingUsers.getResult().getFirst().getPlainAttr("title").orElseThrow().getValues().getFirst());
+        assertEquals("odd", matchingUsers.getResult().getFirst().getPlainAttr("title").
+            orElseThrow().getValues().getFirst());
 
         PagedResult<UserTO> matchByLastChangeContext = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -1527,7 +1533,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertNotNull(userDn);
             assertEquals(1, userDn.getValues().size());
             assertNotNull(
-                    getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
+                    getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+                        userDn.getValues().getFirst()));
 
             // ...and propagated
             PagedResult<TaskTO> propagationTasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).

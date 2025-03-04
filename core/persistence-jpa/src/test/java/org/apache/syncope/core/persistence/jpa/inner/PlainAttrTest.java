@@ -133,7 +133,8 @@ public class PlainAttrTest extends AbstractTest {
         assertNotNull(obscure);
         assertEquals(1, obscure.getValues().size());
         assertEquals(encryptorManager.getInstance(obscureSchema.getSecretKey()).
-                encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().getFirst().getStringValue());
+                encode("testvalue", obscureSchema.getCipherAlgorithm()),
+            obscure.getValues().getFirst().getStringValue());
     }
 
     @Test
