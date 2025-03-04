@@ -25,4 +25,6 @@ import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 public interface RelationshipTypeDAO extends DAO<RelationshipType> {
 
     List<String> findByEndAnyType(AnyType anyType);
+
+    List<? extends RelationshipType> findByLeftEndAnyType(AnyType anyType);
 }

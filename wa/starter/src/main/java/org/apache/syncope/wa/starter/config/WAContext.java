@@ -51,6 +51,7 @@ import org.apache.syncope.wa.starter.mapping.DefaultAuthMapper;
 import org.apache.syncope.wa.starter.mapping.DefaultTicketExpirationMapper;
 import org.apache.syncope.wa.starter.mapping.HttpRequestAccessMapper;
 import org.apache.syncope.wa.starter.mapping.OIDCRPClientAppTOMapper;
+import org.apache.syncope.wa.starter.mapping.OpenFGAAccessMapper;
 import org.apache.syncope.wa.starter.mapping.RegisteredServiceMapper;
 import org.apache.syncope.wa.starter.mapping.RemoteEndpointAccessMapper;
 import org.apache.syncope.wa.starter.mapping.SAML2SPClientAppTOMapper;
@@ -156,6 +157,12 @@ public class WAContext {
     @Bean
     public TimeBasedAccessMapper timeBasedAccessMapper() {
         return new TimeBasedAccessMapper();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public OpenFGAAccessMapper openFGAAccessMapper() {
+        return new OpenFGAAccessMapper();
     }
 
     @ConditionalOnMissingBean

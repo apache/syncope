@@ -170,3 +170,27 @@ https://github.com/apache/syncope/tree/master/ext/scimv2[source tree^]
 endif::[]
 .
 ====
+
+==== OpenFGA
+
+This extension provides seamless integration with an https://openfga.dev/[OpenFGA^] server.
+
+When this extension is enabled:
+
+* all <<anytype>> and <<relationshiptype>> instances are transparently mirrored to
+OpenFGA's https://openfga.dev/docs/concepts#what-is-an-authorization-model[authorization model^]
+* all <<users-groups-and-any-objects>> and their <<memberships-relationships>> are transparently mirrored as
+OpenFGA's https://openfga.dev/docs/concepts#what-is-a-relationship-tuple[tuple^] objects
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/openfga[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/ext/openfga[source tree^]
+endif::[]
+.
+====

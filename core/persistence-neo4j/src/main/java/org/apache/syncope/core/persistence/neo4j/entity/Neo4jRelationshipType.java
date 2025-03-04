@@ -33,9 +33,9 @@ public class Neo4jRelationshipType extends AbstractProvidedKeyNode implements Re
 
     public static final String NODE = "RelationshipType";
 
-    private static final String LEFT_END_ANYTYPE = "RELATIONSHIPTYPE_LEFT_END_ANYTYPE";
+    public static final String LEFT_END_ANYTYPE = "RELATIONSHIPTYPE_LEFT_END_ANYTYPE";
 
-    private static final String RIGHT_END_ANYTYPE = "RELATIONSHIPTYPE_RIGHT_END_ANYTYPE";
+    public static final String RIGHT_END_ANYTYPE = "RELATIONSHIPTYPE_RIGHT_END_ANYTYPE";
 
     private String description;
 
