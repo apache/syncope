@@ -80,7 +80,7 @@ public class LiveSyncJobDelegate
         extends AbstractProvisioningJobDelegate<LiveSyncTask>
         implements StoppableSchedTaskJobDelegate {
 
-    protected static record LiveSyncInfo(
+    protected record LiveSyncInfo(
             Provision provision,
             OrgUnit orgUnit,
             ObjectClass objectClass,
