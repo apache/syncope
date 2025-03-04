@@ -265,10 +265,10 @@ public final class SearchUtils implements Serializable {
                         if (StringUtils.isNotBlank(clause.getProperty())) {
                             String groupKey = clause.getProperty();
 
-                            if (builder instanceof final UserFiqlSearchConditionBuilder userFiqlSearchConditionBuilder) {
+                            if (builder instanceof final UserFiqlSearchConditionBuilder conditionBuilder) {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                        ? userFiqlSearchConditionBuilder.inGroups(groupKey)
-                                        : userFiqlSearchConditionBuilder.notInGroups(groupKey);
+                                        ? conditionBuilder.inGroups(groupKey)
+                                        : conditionBuilder.notInGroups(groupKey);
                             } else {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
                                         ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)

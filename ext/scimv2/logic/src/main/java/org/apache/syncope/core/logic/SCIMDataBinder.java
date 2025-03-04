@@ -894,7 +894,8 @@ public class SCIMDataBinder {
             case "timezone" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getTimezone(), op);
 
             case "emails" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
+                if (!CollectionUtils.isEmpty(op.getValue())
+                    && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getEmails(),
                             scimUser.getEmails(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
@@ -903,7 +904,8 @@ public class SCIMDataBinder {
             }
 
             case "phoneNumbers" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
+                if (!CollectionUtils.isEmpty(op.getValue())
+                    && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPhoneNumbers(),
                             scimUser.getPhoneNumbers(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
@@ -912,7 +914,8 @@ public class SCIMDataBinder {
             }
 
             case "ims" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
+                if (!CollectionUtils.isEmpty(op.getValue())
+                    && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getIms(),
                             scimUser.getIms(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
@@ -921,7 +924,8 @@ public class SCIMDataBinder {
             }
 
             case "photos" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
+                if (!CollectionUtils.isEmpty(op.getValue())
+                    && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPhotos(),
                             scimUser.getPhotos(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
@@ -930,7 +934,8 @@ public class SCIMDataBinder {
             }
 
             case "addresses" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser after) {
+                if (!CollectionUtils.isEmpty(op.getValue())
+                    && op.getValue().get(0) instanceof final SCIMUser after) {
                     after.getAddresses().stream().filter(address -> address.getType() != null).forEach(
                             address -> conf.getUserConf().getAddresses().stream()
                                     .filter(object -> address.getType().equals(object.getType().name())).findFirst()

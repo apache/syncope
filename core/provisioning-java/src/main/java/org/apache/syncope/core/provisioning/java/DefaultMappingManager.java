@@ -990,7 +990,8 @@ public class DefaultMappingManager implements MappingManager {
         } else if (intAttrName.getSchemaType() != null && attr != null) {
             GroupableRelatableTO groupableTO;
             Group group;
-            if (anyTO instanceof final GroupableRelatableTO groupableRelatableTO && intAttrName.getMembershipOfGroup() != null) {
+            if (anyTO instanceof final GroupableRelatableTO groupableRelatableTO
+                && intAttrName.getMembershipOfGroup() != null) {
                 groupableTO = groupableRelatableTO;
                 group = groupDAO.findByName(intAttrName.getMembershipOfGroup()).orElse(null);
             } else {

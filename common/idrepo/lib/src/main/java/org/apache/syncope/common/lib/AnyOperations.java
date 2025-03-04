@@ -379,7 +379,8 @@ public final class AnyOperations {
             return (P) diff(updatedUserTO, originalUserTO, incremental);
         } else if (updated instanceof GroupTO updatedGroupTO && original instanceof GroupTO originalGroupTO) {
             return (P) diff(updatedGroupTO, originalGroupTO, incremental);
-        } else if (updated instanceof AnyObjectTO updatedAnyObjectTO && original instanceof AnyObjectTO originalObjectTO) {
+        } else if (updated instanceof AnyObjectTO updatedAnyObjectTO
+            && original instanceof AnyObjectTO originalObjectTO) {
             return (P) diff(updatedAnyObjectTO, originalObjectTO, incremental);
         }
 
