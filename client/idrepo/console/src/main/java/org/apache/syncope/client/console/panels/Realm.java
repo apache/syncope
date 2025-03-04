@@ -151,7 +151,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     @Override
     @SuppressWarnings("unchecked")
     protected Panel customResultBody(final String panelId, final RealmTO item, final Serializable result) {
-        if (!(result instanceof ProvisioningResult)) {
+        if (!(result instanceof final ProvisioningResult provisioningResult)) {
             throw new IllegalStateException("Unsupported result type");
         }
 
@@ -164,7 +164,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         List<PropagationStatus> propagations = new ArrayList<>();
         propagations.add(syncope);
-        propagations.addAll(((ProvisioningResult) result).getPropagationStatuses());
+        propagations.addAll(provisioningResult.getPropagationStatuses());
 
         ListViewPanel.Builder<PropagationStatus> builder =
                 new ListViewPanel.Builder<>(PropagationStatus.class, pageRef) {

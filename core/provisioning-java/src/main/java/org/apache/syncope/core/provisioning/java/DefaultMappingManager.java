@@ -575,8 +575,8 @@ public class DefaultMappingManager implements MappingManager {
                 if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                     objValues.add(value.getValue());
                 } else {
-                    PlainSchema plainSchema = intAttrName.getSchema() instanceof PlainSchema
-                            ? (PlainSchema) intAttrName.getSchema()
+                    PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
+                            ? schema
                             : null;
                     if (plainSchema == null || plainSchema.getType() != schemaType) {
                         objValues.add(value.getValueAsString(schemaType));
@@ -588,8 +588,8 @@ public class DefaultMappingManager implements MappingManager {
 
             if (item.isConnObjectKey()) {
                 result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
-            } else if (item.isPassword() && any instanceof User) {
-                result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
+            } else if (item.isPassword() && any instanceof final User user) {
+                result = getPasswordAttrValue(passwordAccountGetter.apply(user), password).
                         map(passwordAttrValue -> Pair.of(
                         (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
                         orElse(null);
@@ -634,8 +634,8 @@ public class DefaultMappingManager implements MappingManager {
             if (group == null
                     || any instanceof User
                             ? !userDAO.findAllGroupKeys((User) any).contains(group.getKey())
-                            : any instanceof AnyObject
-                                    ? !anyObjectDAO.findAllGroupKeys((AnyObject) any).contains(group.getKey())
+                            : any instanceof final AnyObject anyObject
+                                    ? !anyObjectDAO.findAllGroupKeys(anyObject).contains(group.getKey())
                                     : false) {
 
                 LOG.warn("No (dyn) membership for {} in {}, ignoring", intAttrName.getEnclosingGroup(), any);
@@ -935,8 +935,8 @@ public class DefaultMappingManager implements MappingManager {
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
                 case "password" -> {
-                    if (anyTO instanceof UserTO && !values.isEmpty()) {
-                        ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.get(0)));
+                    if (anyTO instanceof final UserTO userTO && !values.isEmpty()) {
+                        userTO.setPassword(ConnObjectUtils.getPassword(values.get(0)));
                     }
                 }
 
@@ -964,13 +964,13 @@ public class DefaultMappingManager implements MappingManager {
                 }
 
                 case "mustChangePassword" -> {
-                    if (anyTO instanceof UserTO && !values.isEmpty() && values.get(0) != null) {
-                        ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.get(0).toString()));
+                    if (anyTO instanceof final UserTO userTO && !values.isEmpty() && values.get(0) != null) {
+                        userTO.setMustChangePassword(BooleanUtils.toBoolean(values.get(0).toString()));
                     }
                 }
 
                 case "userOwner", "groupOwner" -> {
-                    if (anyTO instanceof GroupTO && attr != null) {
+                    if (anyTO instanceof final GroupTO groupTO && attr != null) {
                         // using a special attribute (with schema "", that will be ignored) for carrying the
                         // GroupOwnerSchema value
                         Attr attrTO = new Attr();
@@ -981,7 +981,7 @@ public class DefaultMappingManager implements MappingManager {
                             attrTO.getValues().add(values.get(0).toString());
                         }
 
-                        ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
+                        groupTO.getPlainAttrs().add(attrTO);
                     }
                 }
                 default -> {
@@ -990,8 +990,8 @@ public class DefaultMappingManager implements MappingManager {
         } else if (intAttrName.getSchemaType() != null && attr != null) {
             GroupableRelatableTO groupableTO;
             Group group;
-            if (anyTO instanceof GroupableRelatableTO && intAttrName.getMembershipOfGroup() != null) {
-                groupableTO = (GroupableRelatableTO) anyTO;
+            if (anyTO instanceof final GroupableRelatableTO groupableRelatableTO && intAttrName.getMembershipOfGroup() != null) {
+                groupableTO = groupableRelatableTO;
                 group = groupDAO.findByName(intAttrName.getMembershipOfGroup()).orElse(null);
             } else {
                 groupableTO = null;

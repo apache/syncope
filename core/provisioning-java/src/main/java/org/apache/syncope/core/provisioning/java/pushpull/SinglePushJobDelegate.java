@@ -128,8 +128,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
             return profile.getResults();
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While pushing to connector", e);
         }
     }
@@ -157,8 +157,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
             return profile.getResults().get(0);
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While pushing to connector", e);
         }
     }

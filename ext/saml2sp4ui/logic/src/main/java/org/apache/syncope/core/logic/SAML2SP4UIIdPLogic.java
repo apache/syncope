@@ -120,10 +120,10 @@ public class SAML2SP4UIIdPLogic extends AbstractSAML2SP4UILogic {
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof String) {
-                    key = (String) args[i];
-                } else if (args[i] instanceof SAML2SP4UIIdPTO) {
-                    key = ((SAML2SP4UIIdPTO) args[i]).getKey();
+                if (args[i] instanceof final String s) {
+                    key = s;
+                } else if (args[i] instanceof final SAML2SP4UIIdPTO saml2SP4UIIdPTO) {
+                    key = saml2SP4UIIdPTO.getKey();
                 }
             }
         }

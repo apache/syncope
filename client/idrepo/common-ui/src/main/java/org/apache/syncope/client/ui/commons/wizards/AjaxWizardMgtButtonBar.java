@@ -50,8 +50,8 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
     @Override
     public MarkupContainer add(final Component... childs) {
         for (Component component : childs) {
-            if (component instanceof WizardButton) {
-                ajaxify((WizardButton) component);
+            if (component instanceof final WizardButton components) {
+                ajaxify(components);
             }
         }
         return super.add(childs);

@@ -894,36 +894,36 @@ public class SCIMDataBinder {
             case "timezone" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getTimezone(), op);
 
             case "emails" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof SCIMUser) {
+                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getEmails(),
-                            ((SCIMUser) op.getValue().get(0)).getEmails(), op.getOp());
+                            scimUser.getEmails(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getEmails(), op);
                 }
             }
 
             case "phoneNumbers" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof SCIMUser) {
+                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPhoneNumbers(),
-                            ((SCIMUser) op.getValue().get(0)).getPhoneNumbers(), op.getOp());
+                            scimUser.getPhoneNumbers(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPhoneNumbers(), op);
                 }
             }
 
             case "ims" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof SCIMUser) {
+                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getIms(),
-                            ((SCIMUser) op.getValue().get(0)).getIms(), op.getOp());
+                            scimUser.getIms(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getIms(), op);
                 }
             }
 
             case "photos" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof SCIMUser) {
+                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().get(0) instanceof final SCIMUser scimUser) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPhotos(),
-                            ((SCIMUser) op.getValue().get(0)).getPhotos(), op.getOp());
+                            scimUser.getPhotos(), op.getOp());
                 } else if (op.getPath().getFilter() != null) {
                     setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPhotos(), op);
                 }
