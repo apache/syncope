@@ -28,7 +28,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.util.cookies.CookieDefaults;
@@ -133,7 +132,7 @@ public final class PreferenceManager implements Serializable {
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        prefs.forEach((key, values) -> current.put(key, values.stream().collect(Collectors.joining(";"))));
+        prefs.forEach((key, values) -> current.put(key, String.join(";", values)));
 
         try {
             COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
@@ -161,7 +160,7 @@ public final class PreferenceManager implements Serializable {
     }
 
     public static void setList(final String key, final List<String> values) {
-        set(key, values.stream().collect(Collectors.joining(";")));
+        set(key, String.join(";", values));
     }
 
     public static void setList(final Map<String, List<String>> prefs) {

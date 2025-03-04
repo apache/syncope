@@ -40,7 +40,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.OIDCClientImplementationType;
@@ -218,7 +217,7 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
     public void setScopes(final List<String> scopes) {
         this.scopes = CollectionUtils.isEmpty(scopes)
                 ? ""
-                : scopes.stream().collect(Collectors.joining(" "));
+                : String.join(" ", scopes);
     }
 
     @Override

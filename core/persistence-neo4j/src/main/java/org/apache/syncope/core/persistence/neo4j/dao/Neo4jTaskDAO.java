@@ -340,7 +340,7 @@ public class Neo4jTaskDAO extends AbstractDAO implements TaskDAO {
         properties.addAll(relationships.stream().filter(r -> r.getRight() != null).map(Pair::getRight).toList());
 
         if (!properties.isEmpty()) {
-            query.append(" WHERE ").append(properties.stream().collect(Collectors.joining(" AND ")));
+            query.append(" WHERE ").append(String.join(" AND ", properties));
         }
 
         return query;

@@ -181,8 +181,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                 props.put("id", originalValue);
             } else {
                 String name = nodeDesc.getGraphProperties().stream().
-                        filter(prop -> prop.getPropertyName().equalsIgnoreCase(originalName)).
-                        map(GraphPropertyDescription::getPropertyName).
+                    map(GraphPropertyDescription::getPropertyName).
+                    filter(propertyName -> propertyName.equalsIgnoreCase(originalName)).
                         findFirst().orElseGet(() -> originalName.startsWith("plainAttrs.") ? originalName : null);
                 if (name == null) {
                     LOG.error("Property {} not matching for {}", originalName, nodeDesc.getPrimaryLabel());
@@ -309,8 +309,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
         } else {
             query = parseNode(mappingContext.getNodeDescription(qName), atts).map(node -> {
                 StringBuilder q = new StringBuilder("CREATE (n:").append(nodelabels(qName)).append(" {");
-                q.append(node.props().entrySet().stream().
-                        map(e -> "`" + e.getKey() + "`" + ": $" + escape(e.getKey())).
+                q.append(node.props().keySet().stream().
+                        map(o -> "`" + o + "`" + ": $" + escape(o)).
                         collect(Collectors.joining(", ")));
                 q.append("})");
                 return new Query(q.toString(), node.props().entrySet().stream().

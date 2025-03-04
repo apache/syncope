@@ -76,7 +76,7 @@ public final class AnyLayoutUtils {
         List<String> ownedRoles = Stream.concat(
                 SyncopeConsoleSession.get().getSelfTO().getRoles().stream(),
                 SyncopeConsoleSession.get().getSelfTO().getDynRoles().stream()).
-                distinct().collect(Collectors.toList());
+                distinct().toList();
         try {
             AnyLayout anyLayout = null;
             for (int i = 0; i < ownedRoles.size() && anyLayout == null; i++) {

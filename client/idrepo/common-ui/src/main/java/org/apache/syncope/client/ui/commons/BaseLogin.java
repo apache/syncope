@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
@@ -85,7 +84,7 @@ public abstract class BaseLogin extends WebPage {
         @Override
         protected List<String> load() {
             List<String> current = new ArrayList<>();
-            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().collect(Collectors.toList()));
+            current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().toList());
             current.add(0, SyncopeConstants.MASTER_DOMAIN);
             return current;
         }

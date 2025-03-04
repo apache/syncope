@@ -134,7 +134,7 @@ public class MergeLinkedAccountsReviewPanel extends WizardStep {
                 String connObjectKeyValue = restClient.getConnObjectKeyValue(resource,
                         mergingUser.getType(), mergingUser.getKey());
                 return new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
-            }).collect(Collectors.toList()));
+            }).toList());
 
             // Move merging user into target/base user as a linked account
             String connObjectKeyValue = restClient.getConnObjectKeyValue(

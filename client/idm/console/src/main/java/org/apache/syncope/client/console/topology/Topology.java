@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -366,7 +365,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         Collection<String> adminConns = new HashSet<>();
         connModel.getObject().values().forEach(connInstances -> adminConns.addAll(
-                connInstances.stream().map(ConnInstanceTO::getKey).collect(Collectors.toList())));
+                connInstances.stream().map(ConnInstanceTO::getKey).toList()));
 
         Set<String> adminRes = new HashSet<>();
         List<String> connToBeProcessed = new ArrayList<>();

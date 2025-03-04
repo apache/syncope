@@ -153,8 +153,7 @@ public class DefaultPasswordRule implements PasswordRule {
         RuleResult result = passwordValidator.validate(
                 username == null ? new PasswordData(clear) : new PasswordData(username, clear));
         if (!result.isValid()) {
-            throw new PasswordPolicyException(passwordValidator.getMessages(result).
-                    stream().collect(Collectors.joining(",")));
+            throw new PasswordPolicyException(String.join(",", passwordValidator.getMessages(result)));
         }
 
         // check words not permitted

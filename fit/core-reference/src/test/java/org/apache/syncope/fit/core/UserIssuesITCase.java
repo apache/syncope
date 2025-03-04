@@ -42,7 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import javax.naming.NamingException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.helpers.IOUtils;
@@ -1885,7 +1884,7 @@ public class UserIssuesITCase extends AbstractITCase {
                         .resource(RESOURCE_NAME_LDAP)
                         .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24").build())
                         .getResult().stream().map(PropagationTaskTO.class::cast)
-                        .collect(Collectors.toList()).stream().noneMatch(pt -> ResourceOperation.DELETE == pt.
+                        .toList().stream().noneMatch(pt -> ResourceOperation.DELETE == pt.
                         getOperation()));
         GROUP_SERVICE.delete(dGroupForPropagation.getKey());
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
@@ -1894,7 +1893,7 @@ public class UserIssuesITCase extends AbstractITCase {
                         .resource(RESOURCE_NAME_LDAP)
                         .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").build())
                         .getResult().stream().map(PropagationTaskTO.class::cast)
-                        .collect(Collectors.toList()).stream().anyMatch(pt -> ResourceOperation.DELETE == pt.
+                        .toList().stream().anyMatch(pt -> ResourceOperation.DELETE == pt.
                         getOperation()));
     }
 }

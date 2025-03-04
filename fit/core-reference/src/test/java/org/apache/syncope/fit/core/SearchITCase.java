@@ -79,7 +79,7 @@ public class SearchITCase extends AbstractITCase {
                                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
-        matchingUsers.getResult().stream().forEach(Assertions::assertNotNull);
+        matchingUsers.getResult().forEach(Assertions::assertNotNull);
 
         // ISNULL
         matchingUsers = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).

@@ -194,7 +194,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     return realmRestClient.search(fullRealmsTree
                             ? RealmsUtils.buildRootQuery()
                             : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
-                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                            map(RealmTO::getFullPath).toList().iterator();
                 }
             };
             fields.add(realm.setOutputMarkupId(true));

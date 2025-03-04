@@ -293,7 +293,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                                     map(item -> Pair.of(
                                     item.getKey(),
                                     Optional.ofNullable(item.getValue().getLabel(locale)).orElse(item.getKey()))).
-                                    collect(Collectors.toList()));
+                                toList());
                         }
                         return names.stream().
                                 sorted(java.util.Comparator.comparing(name -> name.getValue().toLowerCase())).

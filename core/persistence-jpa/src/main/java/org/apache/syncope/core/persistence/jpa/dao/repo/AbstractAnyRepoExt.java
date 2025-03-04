@@ -182,20 +182,19 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
             }
         }
 
-        typeExtensionClasses.entrySet().stream().map(entry -> {
-            result.getForMemberships().put(entry.getKey(), new HashSet<>());
-            return entry;
-        }).forEach(entry -> entry.getValue().forEach(typeClass -> {
-            if (reference.equals(PlainSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-            } else if (reference.equals(DerSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            } else if (reference.equals(VirSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getVirSchemas());
-            }
+        typeExtensionClasses.entrySet().stream().peek(
+            entry -> result.getForMemberships().put(entry.getKey(), new HashSet<>())).
+                forEach(entry -> entry.getValue().forEach(typeClass -> {
+                    if (reference.equals(PlainSchema.class)) {
+                        result.getForMemberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                    } else if (reference.equals(DerSchema.class)) {
+                        result.getForMemberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                    } else if (reference.equals(VirSchema.class)) {
+                        result.getForMemberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getVirSchemas());
+                    }
         }));
 
         return result;

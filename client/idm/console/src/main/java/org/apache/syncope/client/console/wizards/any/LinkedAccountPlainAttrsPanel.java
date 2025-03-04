@@ -82,7 +82,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
         this.linkedAccountTO = modelObject.getInnerObject();
         this.fixedAttrs.addAll(this.linkedAccountTO.getPlainAttrs().stream().
                 filter(attrTO -> checkIsReadonlyAttr(attrTO.getSchema())).
-                collect(Collectors.toList()));
+            toList());
         this.userTO = userTO;
 
         add(new Accordion("plainSchemas", List.of(new AbstractTab(
@@ -204,7 +204,7 @@ public class LinkedAccountPlainAttrsPanel extends AbstractAttrsWizardStep<PlainS
                     }
                     return attrTO;
                 }).
-                collect(Collectors.toList()));
+            toList());
 
         fixedAttrs.clear();
         fixedAttrs.addAll(attrs);

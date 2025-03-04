@@ -214,7 +214,7 @@ public class LDAPMembershipPullActions implements InboundActions {
             userUR.setKey(user);
             updateReqs.add(userUR);
 
-            groups.stream().forEach(group -> {
+            groups.forEach(group -> {
                 Set<String> before = membershipsBefore.get(user);
                 if (before == null || !before.contains(group)) {
                     userUR.getMemberships().add(new MembershipUR.Builder(group).

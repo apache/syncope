@@ -143,7 +143,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                                     ? RealmsUtils.buildRootQuery()
                                     : RealmsUtils.buildKeywordQuery(input)).getResult())
                             : List.<RealmTO>of()).stream().
-                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                            map(RealmTO::getFullPath).toList().iterator();
                 }
             };
 

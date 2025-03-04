@@ -60,7 +60,7 @@ public class Login extends BaseLogin {
     protected Collection<Component> getLanguageOnChangeComponents() {
         return Stream.concat(
                 super.getLanguageOnChangeComponents().stream(),
-                List.of(selfRegistration, selfPwdReset).stream()).
+                Stream.of(selfRegistration, selfPwdReset)).
                 collect(Collectors.toList());
     }
 

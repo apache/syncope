@@ -67,8 +67,7 @@ public class ReportITCase extends AbstractITCase {
             }
         });
 
-        ExecTO exec = reportTO.get().getExecutions().stream().
-                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow();
+        ExecTO exec = reportTO.get().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
         assertEquals(ReportJob.Status.SUCCESS.name(), exec.getStatus());
         return exec.getKey();
     }

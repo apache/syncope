@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter.mapping;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
@@ -71,7 +70,7 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         service.setSkewAllowance(Optional.ofNullable(sp.getSkewAllowance()).orElse(0));
         service.setNameIdQualifier(sp.getNameIdQualifier());
         if (!sp.getAssertionAudiences().isEmpty()) {
-            service.setAssertionAudiences(sp.getAssertionAudiences().stream().collect(Collectors.joining(",")));
+            service.setAssertionAudiences(String.join(",", sp.getAssertionAudiences()));
         }
         service.setServiceProviderNameIdQualifier(sp.getServiceProviderNameIdQualifier());
 

@@ -120,7 +120,7 @@ public class GroupTest extends AbstractTest {
 
         assertEquals(
                 memberships.stream().map(m -> m.getLeftEnd().getKey()).collect(Collectors.toSet()),
-                groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806").stream().collect(Collectors.toSet()));
+            new HashSet<>(groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806")));
 
         assertTrue(groupDAO.existsUMembership(
                 "74cd8ece-715a-44a4-a736-e17b46c4e7e6", "37d15e4c-cdc1-460b-a591-8505c8133806"));

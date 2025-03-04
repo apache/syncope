@@ -78,7 +78,7 @@ public abstract class AbstractAnyObjectWorkflowAdapter
                 orElseThrow(() -> new IllegalStateException("Could not find the AnyObject just created"));
 
         // finally publish events for all groups affected by this operation, via membership
-        anyObject.getMemberships().stream().forEach(m -> publisher.publishEvent(
+        anyObject.getMemberships().forEach(m -> publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
 
         return result;

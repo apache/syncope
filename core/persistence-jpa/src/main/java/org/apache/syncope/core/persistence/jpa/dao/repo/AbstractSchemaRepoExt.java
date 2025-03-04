@@ -23,7 +23,6 @@ import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
@@ -52,7 +51,7 @@ public abstract class AbstractSchemaRepoExt {
             parameters.add(anyTypeClass.getKey());
             clausesIdx++;
         }
-        queryString.append(clauses.stream().collect(Collectors.joining(" OR ")));
+        queryString.append(String.join(" OR ", clauses));
 
         TypedQuery<S> query = entityManager.createQuery(queryString.toString(), reference);
         for (int i = 0; i < parameters.size(); i++) {

@@ -20,10 +20,8 @@ package org.apache.syncope.client.console.policies;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
@@ -90,7 +88,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
             String[] split = backOffParamsModel.getObject().split(";");
             if (index < split.length) {
                 split[index] = object.toString();
-                backOffParamsModel.setObject(Arrays.stream(split).collect(Collectors.joining(";")));
+                backOffParamsModel.setObject(String.join(";", split));
             }
         }
     }
