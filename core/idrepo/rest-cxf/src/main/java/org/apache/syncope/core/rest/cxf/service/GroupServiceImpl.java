@@ -32,9 +32,7 @@ import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.springframework.stereotype.Service;
 
-@Service
 public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupCR, GroupUR> implements GroupService {
 
     protected final GroupDAO groupDAO;

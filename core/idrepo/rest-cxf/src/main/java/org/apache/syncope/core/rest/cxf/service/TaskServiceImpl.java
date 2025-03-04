@@ -41,10 +41,8 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-@Service
 public class TaskServiceImpl extends AbstractExecutableService implements TaskService {
 
     protected final TaskLogic logic;

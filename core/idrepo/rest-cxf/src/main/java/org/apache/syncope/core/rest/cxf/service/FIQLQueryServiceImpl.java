@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.FIQLQueryTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.FIQLQueryService;
 import org.apache.syncope.core.logic.FIQLQueryLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class FIQLQueryServiceImpl extends AbstractService implements FIQLQueryService {
 
     protected final FIQLQueryLogic logic;

@@ -32,9 +32,7 @@ import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.core.logic.MailTemplateLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class MailTemplateServiceImpl extends AbstractService implements MailTemplateService {
 
     protected final MailTemplateLogic logic;

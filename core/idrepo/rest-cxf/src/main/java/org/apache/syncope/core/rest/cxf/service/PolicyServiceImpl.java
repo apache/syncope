@@ -26,9 +26,7 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.core.logic.PolicyLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class PolicyServiceImpl extends AbstractService implements PolicyService {
 
     protected final PolicyLogic logic;
