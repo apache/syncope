@@ -74,7 +74,7 @@ public class BasePage extends BaseWebPage {
         super(parameters);
 
         Serializable leftMenuCollapse = SyncopeEnduserSession.get().getAttribute(Constants.MENU_COLLAPSE);
-        if ((leftMenuCollapse instanceof Boolean) && ((Boolean) leftMenuCollapse)) {
+        if ((leftMenuCollapse instanceof final Boolean b) && b) {
             body.add(new AttributeAppender("class", " sidebar-collapse"));
         }
 

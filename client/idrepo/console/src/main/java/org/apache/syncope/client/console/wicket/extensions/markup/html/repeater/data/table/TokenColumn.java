@@ -42,8 +42,8 @@ public class TokenColumn<T extends AnyTO> extends AbstractColumn<T, String> {
             final String componentId,
             final IModel<T> rowModel) {
 
-        if (rowModel.getObject() instanceof UserTO) {
-            if (StringUtils.isNotBlank(((UserTO) rowModel.getObject()).getToken())) {
+        if (rowModel.getObject() instanceof final UserTO userTO) {
+            if (StringUtils.isNotBlank(userTO.getToken())) {
                 cellItem.add(new Label(componentId, new ResourceModel("tokenValued", "tokenValued")));
             } else {
                 cellItem.add(new Label(componentId, new ResourceModel("tokenNotValued", "tokenNotValued")));

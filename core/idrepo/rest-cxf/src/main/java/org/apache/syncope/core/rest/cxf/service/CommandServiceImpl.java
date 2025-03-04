@@ -25,9 +25,7 @@ import org.apache.syncope.common.rest.api.beans.CommandQuery;
 import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.core.logic.CommandLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-@Service
 public class CommandServiceImpl extends AbstractService implements CommandService {
 
     protected final CommandLogic logic;

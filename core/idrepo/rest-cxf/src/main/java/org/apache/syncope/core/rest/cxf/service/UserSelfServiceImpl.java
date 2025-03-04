@@ -34,9 +34,7 @@ import org.apache.syncope.common.rest.api.beans.ComplianceQuery;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.apache.syncope.core.logic.UserLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class UserSelfServiceImpl extends AbstractService implements UserSelfService {
 
     protected final UserLogic logic;

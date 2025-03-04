@@ -56,8 +56,8 @@ public class ConfParam implements Serializable {
 
     public void setValues(final Object value) {
         this.values.clear();
-        if (value instanceof Collection) {
-            this.values.addAll(((Collection<?>) value).stream().
+        if (value instanceof final Collection<?> objects) {
+            this.values.addAll(objects.stream().
                     filter(Serializable.class::isInstance).
                     map(Serializable.class::cast).
                     collect(Collectors.toList()));

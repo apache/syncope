@@ -175,8 +175,8 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
 
             return profile.getResults();
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While pulling from connector", e);
         }
     }

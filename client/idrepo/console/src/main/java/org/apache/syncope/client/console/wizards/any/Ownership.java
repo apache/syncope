@@ -325,8 +325,8 @@ public class Ownership extends WizardStep implements ICondition {
                         userSearchPanel.getModel().getObject(), SyncopeClient.getUserSearchConditionBuilder());
                 userDirectoryPanel.search(fiql, target);
             }
-        } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
-            AnyTO sel = ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getSelection();
+        } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection itemSelection) {
+            AnyTO sel = itemSelection.getSelection();
             if (sel == null) {
                 wrapper.getInnerObject().setUserOwner(null);
                 wrapper.getInnerObject().setGroupOwner(null);
@@ -337,7 +337,7 @@ public class Ownership extends WizardStep implements ICondition {
                 wrapper.getInnerObject().setGroupOwner(sel.getKey());
                 wrapper.getInnerObject().setUserOwner(null);
             }
-            ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
+            itemSelection.getTarget().add(ownerContainer);
         } else {
             super.onEvent(event);
         }

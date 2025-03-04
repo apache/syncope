@@ -85,8 +85,8 @@ public class PolicyRuleWizardBuilder extends BaseAjaxWizardBuilder<PolicyRuleWra
         PolicyTO policyTO = policyRestClient.read(type, policy);
 
         ComposablePolicy composable;
-        if (policyTO instanceof ComposablePolicy) {
-            composable = (ComposablePolicy) policyTO;
+        if (policyTO instanceof final ComposablePolicy composablePolicy) {
+            composable = composablePolicy;
         } else {
             throw new IllegalStateException("Non composable policy");
         }

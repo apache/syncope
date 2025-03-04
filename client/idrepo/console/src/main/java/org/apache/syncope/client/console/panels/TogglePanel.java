@@ -164,8 +164,8 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
             key = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         } else if (modelObject instanceof EntityTO entityTO) {
             key = entityTO.getKey();
-        } else if (modelObject instanceof AnyWrapper) {
-            key = ((AnyWrapper<?>) modelObject).getInnerObject().getKey();
+        } else if (modelObject instanceof final AnyWrapper<?> anyWrapper) {
+            key = anyWrapper.getInnerObject().getKey();
         } else if (modelObject instanceof Attr attr) {
             key = attr.getSchema();
         } else if (modelObject instanceof ConfParam confParam) {

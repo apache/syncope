@@ -28,9 +28,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.ReportLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ReportServiceImpl extends AbstractExecutableService implements ReportService {
 
     protected final ReportLogic logic;

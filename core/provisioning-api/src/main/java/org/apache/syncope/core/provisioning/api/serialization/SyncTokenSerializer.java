@@ -35,20 +35,20 @@ class SyncTokenSerializer extends JsonSerializer<SyncToken> {
 
         if (source.getValue() == null) {
             jgen.writeNullField("value");
-        } else if (source.getValue() instanceof Boolean) {
+        } else if (source.getValue() instanceof final Boolean b) {
             jgen.writeStringField("type", Boolean.class.getSimpleName());
-            jgen.writeBooleanField("value", (Boolean) source.getValue());
-        } else if (source.getValue() instanceof Double) {
+            jgen.writeBooleanField("value", b);
+        } else if (source.getValue() instanceof final Double v) {
             jgen.writeStringField("type", Double.class.getSimpleName());
-            jgen.writeNumberField("value", (Double) source.getValue());
-        } else if (source.getValue() instanceof Long) {
+            jgen.writeNumberField("value", v);
+        } else if (source.getValue() instanceof final Long l) {
             jgen.writeStringField("type", Long.class.getSimpleName());
-            jgen.writeNumberField("value", (Long) source.getValue());
-        } else if (source.getValue() instanceof Integer) {
+            jgen.writeNumberField("value", l);
+        } else if (source.getValue() instanceof final Integer i) {
             jgen.writeStringField("type", Integer.class.getSimpleName());
-            jgen.writeNumberField("value", (Integer) source.getValue());
-        } else if (source.getValue() instanceof byte[]) {
-            jgen.writeStringField("value", Base64.getEncoder().encodeToString((byte[]) source.getValue()));
+            jgen.writeNumberField("value", i);
+        } else if (source.getValue() instanceof final byte[] bytes) {
+            jgen.writeStringField("value", Base64.getEncoder().encodeToString(bytes));
         } else {
             jgen.writeStringField("type", String.class.getSimpleName());
             jgen.writeStringField("value", source.getValue().toString());

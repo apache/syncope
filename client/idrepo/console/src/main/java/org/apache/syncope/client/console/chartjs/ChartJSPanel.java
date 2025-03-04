@@ -66,8 +66,8 @@ public class ChartJSPanel extends Panel {
         String dataString = null;
         String optionString = null;
         try {
-            Object data = (model.getObject() instanceof SimpleChart)
-                    ? ((SimpleChart) model.getObject()).getData()
+            Object data = (model.getObject() instanceof final SimpleChart simpleChart)
+                    ? simpleChart.getData()
                     : ((DataSetChart) model.getObject()).getData();
             dataString = MAPPER.writeValueAsString(data);
             optionString = MAPPER.writeValueAsString(model.getObject().getOptions());

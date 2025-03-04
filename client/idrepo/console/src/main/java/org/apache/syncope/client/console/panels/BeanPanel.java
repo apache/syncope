@@ -209,8 +209,8 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     Optional.ofNullable(BeanPanel.this.sCondWrapper).
                             ifPresent(scw -> scw.put(field.getName(), Pair.of(builder, clauses)));
                 } else if (List.class.equals(field.getType())) {
-                    Class<?> listItemType = field.getGenericType() instanceof ParameterizedType
-                            ? (Class<?>) ((ParameterizedType) field.getGenericType()).getActualTypeArguments()[0]
+                    Class<?> listItemType = field.getGenericType() instanceof ParameterizedType parameterizedType
+                            ? (Class<?>) (parameterizedType).getActualTypeArguments()[0]
                             : String.class;
 
                     org.apache.syncope.common.lib.Schema schema =
@@ -346,11 +346,11 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
             description = Optional.ofNullable(schema.description());
 
-            if (panel instanceof AjaxTextFieldPanel
+            if (panel instanceof final AjaxTextFieldPanel components
                     && panel.getModelObject() == null
                     && schema.defaultValue() != null) {
 
-                ((AjaxTextFieldPanel) panel).setModelObject(schema.defaultValue());
+                components.setModelObject(schema.defaultValue());
             }
         }
 
