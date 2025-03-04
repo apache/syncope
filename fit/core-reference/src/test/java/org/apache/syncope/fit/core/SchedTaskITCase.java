@@ -118,9 +118,9 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         PagedResult<ExecTO> execs = TASK_SERVICE.listExecutions(new ExecQuery.Builder().key(taskKey).build());
         assertEquals(1, execs.getTotalCount());
 
-        assertTrue(execs.getResult().get(0).getStart().isAfter(initial));
+        assertTrue(execs.getResult().getFirst().getStart().isAfter(initial));
         // round 1 sec for safety
-        assertTrue(execs.getResult().get(0).getStart().plusSeconds(1).isAfter(later));
+        assertTrue(execs.getResult().getFirst().getStart().plusSeconds(1).isAfter(later));
     }
 
     @Test

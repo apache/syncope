@@ -68,7 +68,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
             String cipherAlgorithm = getCipherAlgorithm(taskInfo.getResource().getConnector());
             Optional.ofNullable(AttributeUtil.find(PropagationManager.MANDATORY_MISSING_ATTR_NAME, attrs)).
                     filter(missing -> !CollectionUtils.isEmpty(missing.getValue())
-                    && OperationalAttributes.PASSWORD_NAME.equals(missing.getValue().get(0))
+                    && OperationalAttributes.PASSWORD_NAME.equals(missing.getValue().getFirst())
                     && cipherAlgorithmMatches(cipherAlgorithm, user.getCipherAlgorithm())).
                     ifPresent(missing -> {
                         attrs.remove(missing);
@@ -87,7 +87,7 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
         return connInstance.getConf().stream().
                 filter(property -> "passwordHashAlgorithm".equals(property.getSchema().getName())
                 && !property.getValues().isEmpty()).findFirst().
-                map(cipherAlgorithm -> cipherAlgorithm.getValues().get(0).toString()).
+                map(cipherAlgorithm -> cipherAlgorithm.getValues().getFirst().toString()).
                 orElse(CLEARTEXT);
     }
 

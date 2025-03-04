@@ -135,7 +135,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
 
                         if (!valueConditions.isEmpty()) {
                             conditions.add(valueConditions.size() == 1
-                                    ? valueConditions.get(0)
+                                    ? valueConditions.getFirst()
                                     : FIQL_BUILDER.and(valueConditions));
                         }
                     }

@@ -67,7 +67,7 @@ public class NetworkServiceLogic extends AbstractTransactionalLogic<EntityTO> {
         }
 
         return list.size() == 1
-                ? list.get(0)
+                ? list.getFirst()
                 : list.get(SecureRandomUtils.generateRandomInt(0, list.size()));
     }
 

@@ -170,7 +170,7 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     @Override
     public String getContentType() {
         return batchItem.getHeaders().containsKey(HttpHeaders.CONTENT_TYPE)
-                ? batchItem.getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0).toString()
+                ? batchItem.getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst().toString()
                 : MediaType.ALL_VALUE;
     }
 
@@ -180,7 +180,7 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
         if (batchItem.getHeaders().containsKey(HttpHeaders.CONTENT_LENGTH)) {
             try {
                 contentLength = Integer.parseInt(
-                        batchItem.getHeaders().get(HttpHeaders.CONTENT_LENGTH).get(0).toString());
+                        batchItem.getHeaders().get(HttpHeaders.CONTENT_LENGTH).getFirst().toString());
             } catch (NumberFormatException e) {
                 LOG.error("Invalid value found for {}: {}",
                         HttpHeaders.CONTENT_LENGTH, batchItem.getHeaders().get(HttpHeaders.CONTENT_LENGTH), e);
@@ -197,7 +197,7 @@ public class BatchItemRequest extends HttpServletRequestWrapper {
     @Override
     public String getHeader(final String name) {
         return batchItem.getHeaders().containsKey(name)
-                ? batchItem.getHeaders().get(name).get(0).toString()
+                ? batchItem.getHeaders().get(name).getFirst().toString()
                 : HttpHeaders.CONTENT_TYPE.equals(name) || HttpHeaders.ACCEPT.equals(name)
                 ? MediaType.ALL_VALUE
                 : null;

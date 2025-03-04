@@ -846,7 +846,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 outboundMatcher.match(taskInfo, connector, provision, actions, connObjectKeyValue);
         LOG.debug("Found for propagation task {}: {}", taskInfo, matches);
 
-        return matches.isEmpty() ? null : matches.get(0);
+        return matches.isEmpty() ? null : matches.getFirst();
     }
 
     /**

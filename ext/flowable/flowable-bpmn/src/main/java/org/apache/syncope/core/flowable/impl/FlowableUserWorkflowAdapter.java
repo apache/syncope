@@ -218,11 +218,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         String task = null;
         if (tasks.size() == 1) {
             try {
-                engine.getTaskService().complete(tasks.get(0).getId(), variables);
-                task = tasks.get(0).getTaskDefinitionKey();
+                engine.getTaskService().complete(tasks.getFirst().getId(), variables);
+                task = tasks.getFirst().getTaskDefinitionKey();
             } catch (FlowableException e) {
                 FlowableRuntimeUtils.throwException(
-                        e, "While completing task '" + tasks.get(0).getName() + "' for " + user);
+                        e, "While completing task '" + tasks.getFirst().getName() + "' for " + user);
             }
         } else {
             LOG.warn("Expected a single task, found {}", tasks.size());
@@ -604,7 +604,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
 
             Process process = engine.getRepositoryService().
                     getBpmnModel(FlowableRuntimeUtils.getLatestProcDefByKey(
-                            engine, FlowableRuntimeUtils.WF_PROCESS_ID).getId()).getProcesses().get(0);
+                            engine, FlowableRuntimeUtils.WF_PROCESS_ID).getId()).getProcesses().getFirst();
             process.getFlowElements().stream().
                     filter(SequenceFlow.class::isInstance).
                     map(SequenceFlow.class::cast).

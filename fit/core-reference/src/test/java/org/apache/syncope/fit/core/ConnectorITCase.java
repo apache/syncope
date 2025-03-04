@@ -469,8 +469,8 @@ public class ConnectorITCase extends AbstractITCase {
         List<ConnIdObjectClass> objectClassInfo = CONNECTOR_SERVICE.buildObjectClassInfo(db, true);
         assertNotNull(objectClassInfo);
         assertEquals(1, objectClassInfo.size());
-        assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.get(0).getType());
-        assertTrue(objectClassInfo.get(0).getAttributes().stream().anyMatch(schema -> "ID".equals(schema.getKey())));
+        assertEquals(ObjectClass.ACCOUNT_NAME, objectClassInfo.getFirst().getType());
+        assertTrue(objectClassInfo.getFirst().getAttributes().stream().anyMatch(schema -> "ID".equals(schema.getKey())));
 
         ConnInstanceTO ldap = CONNECTOR_SERVICE.read(
                 "74141a3b-0762-4720-a4aa-fc3e374ef3ef", Locale.ENGLISH.getLanguage());
@@ -510,14 +510,14 @@ public class ConnectorITCase extends AbstractITCase {
         try {
             ConnInstanceTO scriptedsql = pcs.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
             ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
-            assertEquals("true", reloadScriptOnExecution.getValues().get(0).toString());
+            assertEquals("true", reloadScriptOnExecution.getValues().getFirst().toString());
 
             reloadScriptOnExecution.getValues().set(0, "false");
             pcs.update(scriptedsql);
 
             scriptedsql = pcs.read(scriptedsql.getKey(), null);
             reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
-            assertEquals("false", reloadScriptOnExecution.getValues().get(0).toString());
+            assertEquals("false", reloadScriptOnExecution.getValues().getFirst().toString());
         } finally {
             ConnInstanceTO scriptedsql = CONNECTOR_SERVICE.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
             ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
@@ -543,7 +543,7 @@ public class ConnectorITCase extends AbstractITCase {
         assertEquals(4, resources.size());
 
         // Retrieve a resource TO template.
-        ResourceTO resourceTO = resources.get(0);
+        ResourceTO resourceTO = resources.getFirst();
 
         // Make it new.
         resourceTO.setKey("newAbout103" + getUUIDString());

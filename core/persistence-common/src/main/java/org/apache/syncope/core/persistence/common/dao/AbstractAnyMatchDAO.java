@@ -476,17 +476,17 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                 anyAttrValues.add(new PlainAttrValue());
                 switch (anyAttrValue) {
                     case String aString ->
-                        anyAttrValues.get(0).setStringValue(aString);
+                        anyAttrValues.getFirst().setStringValue(aString);
                     case Long aLong ->
-                        anyAttrValues.get(0).setLongValue(aLong);
+                        anyAttrValues.getFirst().setLongValue(aLong);
                     case Double aDouble ->
-                        anyAttrValues.get(0).setDoubleValue(aDouble);
+                        anyAttrValues.getFirst().setDoubleValue(aDouble);
                     case Boolean aBoolean ->
-                        anyAttrValues.get(0).setBooleanValue(aBoolean);
+                        anyAttrValues.getFirst().setBooleanValue(aBoolean);
                     case OffsetDateTime offsetDateTime ->
-                        anyAttrValues.get(0).setDateValue(offsetDateTime);
+                        anyAttrValues.getFirst().setDateValue(offsetDateTime);
                     case byte[] bytea ->
-                        anyAttrValues.get(0).setBinaryValue(bytea);
+                        anyAttrValues.getFirst().setBinaryValue(bytea);
                     default -> {
                     }
                 }

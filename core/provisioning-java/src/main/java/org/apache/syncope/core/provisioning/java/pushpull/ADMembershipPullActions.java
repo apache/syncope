@@ -39,7 +39,7 @@ public class ADMembershipPullActions extends LDAPMembershipPullActions {
         return connector.getConnInstance().getConf().stream().
                 filter(property -> "groupMemberReferenceAttribute".equals(property.getSchema().getName())
                 && !property.getValues().isEmpty()).findFirst().
-                map(groupMembership -> (String) groupMembership.getValues().get(0)).
+                map(groupMembership -> (String) groupMembership.getValues().getFirst()).
                 orElse("member");
     }
 }

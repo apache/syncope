@@ -82,8 +82,8 @@ public class UserTest extends AbstractTest {
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());
         assertEquals("admin", user.getCreator());
-        assertEquals("Giacomo", user.getPlainAttr("firstname").get().getValuesAsStrings().get(0));
-        assertEquals("Puccini", user.getPlainAttr("surname").get().getValuesAsStrings().get(0));
+        assertEquals("Giacomo", user.getPlainAttr("firstname").get().getValuesAsStrings().getFirst());
+        assertEquals("Puccini", user.getPlainAttr("surname").get().getValuesAsStrings().getFirst());
     }
 
     @Test

@@ -73,7 +73,7 @@ public class CommandITCase extends AbstractITCase {
         assertEquals(1, commands.getTotalCount());
         assertEquals(1, commands.getResult().size());
 
-        CommandTO command = commands.getResult().get(0);
+        CommandTO command = commands.getResult().getFirst();
         assertNotNull(command);
         assertEquals(TestCommand.class.getSimpleName(), command.getKey());
         assertTrue(command.getArgs() instanceof TestCommandArgs);
@@ -82,7 +82,7 @@ public class CommandITCase extends AbstractITCase {
     @Test
     public void argsValidationFailure() {
         CommandTO command = COMMAND_SERVICE.search(new CommandQuery.Builder().
-                keyword(TestCommand.class.getSimpleName()).page(1).size(1).build()).getResult().get(0);
+                keyword(TestCommand.class.getSimpleName()).page(1).size(1).build()).getResult().getFirst();
 
         try {
             COMMAND_SERVICE.run(command);
@@ -95,7 +95,7 @@ public class CommandITCase extends AbstractITCase {
     @Test
     public void runCommand() {
         CommandTO command = COMMAND_SERVICE.search(
-                new CommandQuery.Builder().page(1).size(1).build()).getResult().get(0);
+                new CommandQuery.Builder().page(1).size(1).build()).getResult().getFirst();
         TestCommandArgs args = ((TestCommandArgs) command.getArgs());
         args.setParentRealm("/even/two");
         args.setRealmName("realm123");

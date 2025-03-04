@@ -39,10 +39,10 @@ public class MasterDomain {
     @Bean(name = "MasterDriver")
     public Driver masterDriver(final PersistenceProperties props) {
         return GraphDatabase.driver(
-                props.getDomain().get(0).getUri(),
-                AuthTokens.basic(props.getDomain().get(0).getUsername(), props.getDomain().get(0).getPassword()),
+                props.getDomain().getFirst().getUri(),
+                AuthTokens.basic(props.getDomain().getFirst().getUsername(), props.getDomain().getFirst().getPassword()),
                 Config.builder().
-                        withMaxConnectionPoolSize(props.getDomain().get(0).getMaxConnectionPoolSize()).
+                        withMaxConnectionPoolSize(props.getDomain().getFirst().getMaxConnectionPoolSize()).
                         withDriverMetrics().
                         withLogging(Logging.slf4j()).build());
     }
@@ -52,7 +52,7 @@ public class MasterDomain {
             final ResourceLoader resourceLoader,
             final PersistenceProperties props) throws IOException {
 
-        return resourceLoader.getResource(props.getDomain().get(0).getContent()).getInputStream();
+        return resourceLoader.getResource(props.getDomain().getFirst().getContent()).getInputStream();
     }
 
     @Bean(name = "MasterKeymasterConfParamsJSON")
@@ -60,6 +60,6 @@ public class MasterDomain {
             final ResourceLoader resouceLoader,
             final PersistenceProperties props) throws IOException {
 
-        return resouceLoader.getResource(props.getDomain().get(0).getKeymasterConfParams()).getInputStream();
+        return resouceLoader.getResource(props.getDomain().getFirst().getKeymasterConfParams()).getInputStream();
     }
 }

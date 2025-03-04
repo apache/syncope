@@ -134,9 +134,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -165,9 +165,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 propByLinkedAccount,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -374,9 +374,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 null);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.empty());
+            taskInfos.getFirst().setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -401,9 +401,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                         propByLinkedAccount,
                         ""));
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.empty());
+            taskInfos.getFirst().setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }

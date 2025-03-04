@@ -94,7 +94,7 @@ public class LDAPMembershipPullActions implements InboundActions {
         return connector.getConnInstance().getConf().stream().
                 filter(property -> "groupMemberAttribute".equals(property.getSchema().getName())
                 && !property.getValues().isEmpty()).findFirst().
-                map(groupMembership -> (String) groupMembership.getValues().get(0)).
+                map(groupMembership -> (String) groupMembership.getValues().getFirst()).
                 orElse("uniquemember");
     }
 

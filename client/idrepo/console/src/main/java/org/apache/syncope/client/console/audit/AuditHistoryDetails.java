@@ -298,7 +298,7 @@ public abstract class AuditHistoryDetails<T extends Serializable> extends Panel 
                 REST_SORT));
 
         // the default selected is the newest one, if any
-        latestAuditEventTO = auditEntries.isEmpty() ? null : auditEntries.get(0);
+        latestAuditEventTO = auditEntries.isEmpty() ? null : auditEntries.getFirst();
         after = latestAuditEventTO == null ? null : buildAfterAuditEventTO(latestAuditEventTO);
         // add default diff panel
         addOrReplace(new JsonDiffPanel(toJSON(latestAuditEventTO, reference), toJSON(after, reference)));

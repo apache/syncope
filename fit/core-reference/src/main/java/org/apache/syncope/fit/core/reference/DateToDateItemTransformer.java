@@ -38,11 +38,11 @@ public class DateToDateItemTransformer implements ItemTransformer {
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
-        if (values == null || values.isEmpty() || values.get(0).getDateValue() == null) {
+        if (values == null || values.isEmpty() || values.getFirst().getDateValue() == null) {
             return ItemTransformer.super.beforePropagation(item, any, schemaType, values);
         }
 
-        values.get(0).setDateValue(values.get(0).getDateValue().plusDays(1));
+        values.getFirst().setDateValue(values.getFirst().getDateValue().plusDays(1));
         return Pair.of(schemaType, values);
     }
 }

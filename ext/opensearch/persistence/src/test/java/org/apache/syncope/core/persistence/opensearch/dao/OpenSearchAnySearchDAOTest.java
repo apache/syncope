@@ -314,7 +314,7 @@ public class OpenSearchAnySearchDAOTest {
                     AnyTypeKind.USER);
             assertEquals(Query.Kind.Bool, query._kind());
             assertEquals(2, ((BoolQuery) query._get()).must().size());
-            Query left = ((BoolQuery) query._get()).must().get(0);
+            Query left = ((BoolQuery) query._get()).must().getFirst();
             assertEquals(Query.Kind.DisMax, left._kind());
             assertEquals(3, ((DisMaxQuery) left._get()).queries().size());
             Query right = ((BoolQuery) query._get()).must().get(1);
@@ -359,7 +359,7 @@ public class OpenSearchAnySearchDAOTest {
                     AnyTypeKind.USER);
             assertEquals(Query.Kind.DisMax, query._kind());
             assertEquals(2, ((DisMaxQuery) query._get()).queries().size());
-            left = ((DisMaxQuery) query._get()).queries().get(0);
+            left = ((DisMaxQuery) query._get()).queries().getFirst();
             assertEquals(Query.Kind.Bool, left._kind());
             assertEquals(3, ((BoolQuery) left._get()).must().size());
             right = ((DisMaxQuery) query._get()).queries().get(1);

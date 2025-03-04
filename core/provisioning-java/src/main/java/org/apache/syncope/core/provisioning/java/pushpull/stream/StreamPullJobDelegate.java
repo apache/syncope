@@ -168,7 +168,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, inboundCorrelationRule);
-            Provision provision = resource.getProvisions().get(0);
+            Provision provision = resource.getProvisions().getFirst();
 
             task = entityFactory.newEntity(PullTask.class);
             task.setName(pullTaskTO.getName());

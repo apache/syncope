@@ -103,7 +103,7 @@ import org.junit.jupiter.api.Test;
 public class UserITCase extends AbstractITCase {
 
     private static boolean getBooleanAttribute(final ConnObject connObjectTO, final String attrName) {
-        return Boolean.parseBoolean(connObjectTO.getAttr(attrName).get().getValues().get(0));
+        return Boolean.parseBoolean(connObjectTO.getAttr(attrName).get().getValues().getFirst());
     }
 
     public static UserCR getUniqueSample(final String email) {
@@ -151,10 +151,10 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
-        PropagationTaskTO taskTO = tasks.getResult().get(0);
+        PropagationTaskTO taskTO = tasks.getResult().getFirst();
         assertNotNull(taskTO);
         assertFalse(taskTO.getExecutions().isEmpty());
-        assertEquals(ExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().get(0).getStatus());
+        assertEquals(ExecStatus.NOT_ATTEMPTED.name(), taskTO.getExecutions().getFirst().getStatus());
     }
 
     @Test
@@ -224,7 +224,7 @@ public class UserITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userCR);
         assertNotNull(result);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
     }
 
     @Test
@@ -290,7 +290,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
-        String maxKey = tasks.getResult().iterator().next().getKey();
+        String maxKey = tasks.getResult().getFirst().getKey();
         PropagationTaskTO taskTO = TASK_SERVICE.read(TaskType.PROPAGATION, maxKey, true);
 
         assertNotNull(taskTO);
@@ -330,7 +330,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 
-        String newMaxKey = tasks.getResult().iterator().next().getKey();
+        String newMaxKey = tasks.getResult().getFirst().getKey();
 
         // default configuration for ws-target-resource2:
         // only failed executions have to be registered
@@ -429,7 +429,7 @@ public class UserITCase extends AbstractITCase {
 
         // check for propagation result
         assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
 
         try {
             USER_SERVICE.delete(userTO.getKey());
@@ -458,7 +458,7 @@ public class UserITCase extends AbstractITCase {
 
         // check for propagation result
         assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
 
         try {
             USER_SERVICE.read(userTO.getKey());
@@ -575,7 +575,7 @@ public class UserITCase extends AbstractITCase {
 
         userUR.getMemberships().add(new MembershipUR.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").
                 operation(PatchOperation.ADD_REPLACE).build());
-        userUR.getMemberships().add(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+        userUR.getMemberships().add(new MembershipUR.Builder(userTO.getMemberships().getFirst().getGroupKey()).
                 operation(PatchOperation.ADD_REPLACE).build());
 
         userTO = updateUser(userUR).getEntity();
@@ -926,7 +926,7 @@ public class UserITCase extends AbstractITCase {
         ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").get().getValues().get(0));
+        assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").get().getValues().getFirst());
     }
 
     @Test
@@ -959,7 +959,7 @@ public class UserITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
+        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
         String oldAccountPolicy = realm.getAccountPolicy();
         realm.setAccountPolicy(accountPolicy.getKey());
         String oldPasswordPolicy = realm.getPasswordPolicy();
@@ -1330,9 +1330,9 @@ public class UserITCase extends AbstractITCase {
         // 1. create
         ProvisioningResult<UserTO> result = createUser(userCR);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
-        assertEquals("surname", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().getFirst().getResource());
+        assertEquals("surname", result.getEntity().getPlainAttr("surname").get().getValues().getFirst());
 
         // verify user exists on the backend REST service
         WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + result.getEntity().getKey());
@@ -1346,9 +1346,9 @@ public class UserITCase extends AbstractITCase {
                 build();
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
-        assertEquals("surname2", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().getFirst().getResource());
+        assertEquals("surname2", result.getEntity().getPlainAttr("surname").get().getValues().getFirst());
 
         // verify user still exists on the backend REST service
         response = webClient.get();
@@ -1358,8 +1358,8 @@ public class UserITCase extends AbstractITCase {
         // 3. delete
         result = deleteUser(result.getEntity().getKey());
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+        assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().getFirst().getResource());
 
         // verify user was removed by the backend REST service
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), webClient.get().getStatus());

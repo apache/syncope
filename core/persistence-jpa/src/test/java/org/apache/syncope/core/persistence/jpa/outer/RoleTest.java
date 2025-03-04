@@ -145,7 +145,7 @@ public class RoleTest extends AbstractTest {
         actual = roleDAO.findById(actual.getKey()).orElseThrow();
         members = roleDAO.findDynMembers(actual);
         assertEquals(1, members.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.getFirst());
 
         // 5. delete role and verify that dynamic membership was also removed
         roleDAO.delete(actual);

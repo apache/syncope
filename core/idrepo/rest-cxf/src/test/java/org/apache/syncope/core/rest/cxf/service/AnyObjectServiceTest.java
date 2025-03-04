@@ -229,7 +229,7 @@ public class AnyObjectServiceTest {
 
         Attr location = list.getResult().get(1).getPlainAttr("location").orElse(null);
         assertNotNull(location);
-        assertEquals("there", location.getValues().get(0));
+        assertEquals("there", location.getValues().getFirst());
     }
 
     @Test

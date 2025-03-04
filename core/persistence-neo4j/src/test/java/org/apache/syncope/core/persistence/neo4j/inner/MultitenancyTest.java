@@ -73,7 +73,7 @@ public class MultitenancyTest extends AbstractTest {
                 realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).size());
         assertEquals(
                 realmDAO.getRoot(),
-                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).get(0));
+                realmSearchDAO.findDescendants(realmDAO.getRoot().getFullPath(), null, Pageable.unpaged()).getFirst());
     }
 
     @Test

@@ -113,7 +113,7 @@ public class AuthenticatedITCase extends AbstractEnduserITCase {
 
         assertEquals(IS_FLOWABLE_ENABLED
                 ? "active" : "created", USER_SERVICE.read(username).getStatus());
-        assertEquals(newEmail, USER_SERVICE.read(username).getPlainAttr("email").get().getValues().get(0));
+        assertEquals(newEmail, USER_SERVICE.read(username).getPlainAttr("email").get().getValues().getFirst());
 
         TESTER.cleanupFeedbackMessages();
     }

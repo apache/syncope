@@ -120,16 +120,16 @@ public class StreamPullJobDelegateTest extends AbstractTest {
         });
         assertEquals(1, results.size());
 
-        assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());
-        assertNotNull(results.get(0).getKey());
-        assertEquals("donizetti", results.get(0).getName());
-        assertEquals("donizetti", results.get(0).getUidValue());
-        assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
-        assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
+        assertEquals(AnyTypeKind.USER.name(), results.getFirst().getAnyType());
+        assertNotNull(results.getFirst().getKey());
+        assertEquals("donizetti", results.getFirst().getName());
+        assertEquals("donizetti", results.getFirst().getUidValue());
+        assertEquals(ResourceOperation.CREATE, results.getFirst().getOperation());
+        assertEquals(ProvisioningReport.Status.SUCCESS, results.getFirst().getStatus());
 
-        User donizetti = userDAO.findById(results.get(0).getKey()).orElseThrow();
+        User donizetti = userDAO.findById(results.getFirst().getKey()).orElseThrow();
         assertNotNull(donizetti);
         assertEquals("donizetti", donizetti.getUsername());
-        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValuesAsStrings().get(0));
+        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValuesAsStrings().getFirst());
     }
 }

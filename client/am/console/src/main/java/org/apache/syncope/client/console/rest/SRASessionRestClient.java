@@ -37,7 +37,7 @@ public final class SRASessionRestClient extends AMSessionRestClient {
 
     @Override
     protected String getActuatorEndpoint() {
-        return instances.get(0).getAddress() + "actuator/sraSessions";
+        return instances.getFirst().getAddress() + "actuator/sraSessions";
     }
 
     @Override

@@ -38,16 +38,16 @@ public class DateToLongItemTransformer implements ItemTransformer {
             final AttrSchemaType schemaType,
             final List<PlainAttrValue> values) {
 
-        if (values == null || values.isEmpty() || values.get(0).getDateValue() == null) {
+        if (values == null || values.isEmpty() || values.getFirst().getDateValue() == null) {
             return ItemTransformer.super.beforePropagation(item, any, schemaType, values);
         }
 
-        values.get(0).setLongValue(values.get(0).getDateValue().toInstant().toEpochMilli());
-        values.get(0).setBinaryValue(null);
-        values.get(0).setBooleanValue(null);
-        values.get(0).setDateValue(null);
-        values.get(0).setDoubleValue(null);
-        values.get(0).setStringValue(null);
+        values.getFirst().setLongValue(values.getFirst().getDateValue().toInstant().toEpochMilli());
+        values.getFirst().setBinaryValue(null);
+        values.getFirst().setBooleanValue(null);
+        values.getFirst().setDateValue(null);
+        values.getFirst().setDoubleValue(null);
+        values.getFirst().setStringValue(null);
 
         return Pair.of(AttrSchemaType.Long, values);
     }

@@ -77,11 +77,11 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         OpenJpaVendorAdapter vendorAdapter = new OpenJpaVendorAdapter();
         vendorAdapter.setShowSql(false);
         vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setDatabasePlatform(props.getDomain().get(0).getDatabasePlatform());
+        vendorAdapter.setDatabasePlatform(props.getDomain().getFirst().getDatabasePlatform());
 
         DomainEntityManagerFactoryBean emf = new DomainEntityManagerFactoryBean();
         emf.setPersistenceUnitName(SyncopeConstants.MASTER_DOMAIN);
-        emf.setMappingResources(props.getDomain().get(0).getOrm());
+        emf.setMappingResources(props.getDomain().getFirst().getOrm());
         emf.setDataSource(Objects.requireNonNull((DataSource) dataSource.getObject()));
         emf.setJpaVendorAdapter(vendorAdapter);
         emf.setCommonEntityManagerFactoryConf(commonEMFConf);
@@ -91,8 +91,8 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
         addToJpaPropertyMap(
                 emf,
                 vendorAdapter,
-                props.getDomain().get(0).getDbSchema(),
-                props.getDomain().get(0).getOrm(),
+                props.getDomain().getFirst().getDbSchema(),
+                props.getDomain().getFirst().getOrm(),
                 props.getMetaDataFactory());
 
         emf.afterPropertiesSet();

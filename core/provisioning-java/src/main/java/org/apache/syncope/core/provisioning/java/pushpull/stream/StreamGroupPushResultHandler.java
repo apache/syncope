@@ -42,7 +42,7 @@ public class StreamGroupPushResultHandler extends DefaultGroupPushResultHandler 
 
     @Override
     protected void provision(final Any any, final Boolean enabled, final ProvisioningReport result) {
-        Provision provision = profile.getTask().getResource().getProvisions().get(0);
+        Provision provision = profile.getTask().getResource().getProvisions().getFirst();
 
         Stream<Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 

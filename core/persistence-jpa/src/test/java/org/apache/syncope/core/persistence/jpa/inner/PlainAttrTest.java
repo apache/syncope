@@ -133,7 +133,7 @@ public class PlainAttrTest extends AbstractTest {
         assertNotNull(obscure);
         assertEquals(1, obscure.getValues().size());
         assertEquals(encryptorManager.getInstance(obscureSchema.getSecretKey()).
-                encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().get(0).getStringValue());
+                encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().getFirst().getStringValue());
     }
 
     @Test
@@ -156,7 +156,7 @@ public class PlainAttrTest extends AbstractTest {
         attr.add(validator, "testvalue");
 
         assertEquals(encryptorManager.getInstance(obscureSchema.getSecretKey()).
-                encode("testvalue", obscureSchema.getCipherAlgorithm()), attr.getValues().get(0).getStringValue());
+                encode("testvalue", obscureSchema.getCipherAlgorithm()), attr.getValues().getFirst().getStringValue());
     }
 
     @Test
@@ -176,13 +176,13 @@ public class PlainAttrTest extends AbstractTest {
 
         assertEquals(encryptorManager.getInstance(obscureWithDecodeConversionPattern.getSecretKey()).
                 encode("testvalue", obscureWithDecodeConversionPattern.getCipherAlgorithm()),
-                attr.getValues().get(0).getStringValue());
+                attr.getValues().getFirst().getStringValue());
 
         obscureWithDecodeConversionPattern.setConversionPattern(SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN);
         plainSchemaDAO.save(obscureWithDecodeConversionPattern);
 
-        assertNotEquals("testvalue", attr.getValues().get(0).getStringValue());
-        assertEquals("testvalue", attr.getValuesAsStrings().get(0));
+        assertNotEquals("testvalue", attr.getValues().getFirst().getStringValue());
+        assertEquals("testvalue", attr.getValuesAsStrings().getFirst());
     }
 
     @Test
@@ -206,6 +206,6 @@ public class PlainAttrTest extends AbstractTest {
         PlainAttr photo = user.getPlainAttr("photo").orElseThrow();
         assertNotNull(photo);
         assertEquals(1, photo.getValues().size());
-        assertTrue(Arrays.equals(bytes, photo.getValues().get(0).getBinaryValue()));
+        assertTrue(Arrays.equals(bytes, photo.getValues().getFirst().getBinaryValue()));
     }
 }

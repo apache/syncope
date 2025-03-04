@@ -61,14 +61,14 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.add, op.getOp());
         assertEquals("members", op.getPath().getAttribute());
 
         assertEquals(1, op.getValue().size());
 
-        Member member = (Member) op.getValue().get(0);
+        Member member = (Member) op.getValue().getFirst();
         assertEquals("Babs Jensen", member.getDisplay());
         assertEquals("https://example.com/v2/Users/2819c223...413861904646", member.getRef());
         assertEquals("2819c223-7f76-453a-919d-413861904646", member.getValue());
@@ -90,7 +90,7 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.remove, op.getOp());
         assertEquals("members", op.getPath().getAttribute());
@@ -131,7 +131,7 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(2, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.remove, op.getOp());
         assertEquals("members", op.getPath().getAttribute());
@@ -144,7 +144,7 @@ public class SCIMPatchOperationDeserializerTest {
 
         assertEquals(2, op.getValue().size());
 
-        Member member = (Member) op.getValue().get(0);
+        Member member = (Member) op.getValue().getFirst();
         assertEquals("Babs Jensen", member.getDisplay());
         assertEquals("https://example.com/v2/Users/2819c223...413861904646", member.getRef());
         assertEquals("2819c223-7f76-453a-919d-413861904646", member.getValue());
@@ -181,19 +181,19 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.add, op.getOp());
         assertNull(op.getPath());
 
         assertEquals(1, op.getValue().size());
 
-        SCIMUser user = (SCIMUser) op.getValue().get(0);
+        SCIMUser user = (SCIMUser) op.getValue().getFirst();
         assertEquals("Babs", user.getNickName());
 
         assertEquals(1, user.getEmails().size());
 
-        SCIMComplexValue email = user.getEmails().get(0);
+        SCIMComplexValue email = user.getEmails().getFirst();
         assertEquals("home", email.getType());
         assertEquals("babs@jensen.org", email.getValue());
     }
@@ -226,14 +226,14 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.replace, op.getOp());
         assertEquals("members", op.getPath().getAttribute());
 
         assertEquals(2, op.getValue().size());
 
-        Member member = (Member) op.getValue().get(0);
+        Member member = (Member) op.getValue().getFirst();
         assertEquals("Babs Jensen", member.getDisplay());
         assertEquals("https://example.com/v2/Users/2819c223...413861904646", member.getRef());
         assertEquals("2819c223...413861904646", member.getValue());
@@ -271,7 +271,7 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.replace, op.getOp());
         assertEquals("addresses", op.getPath().getAttribute());
@@ -279,11 +279,11 @@ public class SCIMPatchOperationDeserializerTest {
 
         assertEquals(1, op.getValue().size());
 
-        SCIMUser user = (SCIMUser) op.getValue().get(0);
+        SCIMUser user = (SCIMUser) op.getValue().getFirst();
 
         assertEquals(1, user.getAddresses().size());
 
-        SCIMUserAddress address = user.getAddresses().get(0);
+        SCIMUserAddress address = user.getAddresses().getFirst();
         assertEquals("work", address.getType());
         assertTrue(address.isPrimary());
     }
@@ -305,7 +305,7 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.replace, op.getOp());
         assertEquals("addresses", op.getPath().getAttribute());
@@ -314,7 +314,7 @@ public class SCIMPatchOperationDeserializerTest {
 
         assertEquals(1, op.getValue().size());
 
-        String value = (String) op.getValue().get(0);
+        String value = (String) op.getValue().getFirst();
         assertEquals("1010 Broadway Ave", value);
     }
 
@@ -336,14 +336,14 @@ public class SCIMPatchOperationDeserializerTest {
         assertEquals(List.of(Resource.PatchOp.schema()), scimPatchOp.getSchemas());
         assertEquals(1, scimPatchOp.getOperations().size());
 
-        SCIMPatchOperation op = scimPatchOp.getOperations().get(0);
+        SCIMPatchOperation op = scimPatchOp.getOperations().getFirst();
         assertNotNull(op);
         assertEquals(PatchOp.add, op.getOp());
         assertEquals("externalId", op.getPath().getAttribute());
 
         assertEquals(1, op.getValue().size());
 
-        String value = (String) op.getValue().get(0);
+        String value = (String) op.getValue().getFirst();
         assertEquals("da91cb5d-addb-424f-aa41-799fda8658c3", value);
     }
 }

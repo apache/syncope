@@ -407,7 +407,7 @@ public class DefaultNotificationManager implements NotificationManager {
                             : user.getPlainAttr(recipientAttrName, membership);
                     email = attr.map(a -> a.getValuesAsStrings().isEmpty()
                             ? null
-                            : a.getValuesAsStrings().get(0)).
+                            : a.getValuesAsStrings().getFirst()).
                             orElse(null);
                 }
 
@@ -425,7 +425,7 @@ public class DefaultNotificationManager implements NotificationManager {
                                 List<String> virAttrValues = membership == null
                                         ? virAttrHandler.getValues(user, virSchema)
                                         : virAttrHandler.getValues(user, membership, virSchema);
-                                return virAttrValues.isEmpty() ? null : virAttrValues.get(0);
+                                return virAttrValues.isEmpty() ? null : virAttrValues.getFirst();
                             }).
                             orElse(null);
                 }

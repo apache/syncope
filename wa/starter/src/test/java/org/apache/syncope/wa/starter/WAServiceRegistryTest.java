@@ -251,7 +251,7 @@ public class WAServiceRegistryTest extends AbstractTest {
 
         WAClientApp waClientApp = new WAClientApp();
         waClientApp.setClientAppTO(buildOIDCRP());
-        waClientApp.getAuthModules().add(0, authModuleTO);
+        waClientApp.getAuthModules().addFirst(authModuleTO);
         Long clientAppId = waClientApp.getClientAppTO().getClientAppId();
         addPolicies(waClientApp, false);
         DefaultAuthPolicyConf authPolicyConf = (DefaultAuthPolicyConf) waClientApp.getAuthPolicy().getConf();

@@ -140,7 +140,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
             @Override
             public Serializable getObject() {
                 return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
-                        map(values -> values.get(0)).
+                        map(values -> values.getFirst()).
                         orElse(null);
             }
 
@@ -194,7 +194,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
             @Override
             public Serializable getObject() {
-                return list == null || list.isEmpty() ? null : list.get(0);
+                return list == null || list.isEmpty() ? null : list.getFirst();
             }
 
             @Override

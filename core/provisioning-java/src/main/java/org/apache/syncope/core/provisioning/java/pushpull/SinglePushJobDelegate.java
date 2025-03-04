@@ -155,7 +155,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
                 action.afterAll(profile);
             }
 
-            return profile.getResults().get(0);
+            return profile.getResults().getFirst();
         } catch (Exception e) {
             throw e instanceof JobExecutionException
                     ? (JobExecutionException) e

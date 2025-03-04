@@ -64,8 +64,8 @@ public class AnyTypeClassTest extends AbstractTest {
         newClass = anyTypeClassDAO.findById(newClass.getKey()).orElseThrow();
         assertNotNull(newClass);
         assertEquals(1, newClass.getPlainSchemas().size());
-        assertEquals(newSchema, newClass.getPlainSchemas().get(0));
-        assertEquals(newClass, newClass.getPlainSchemas().get(0).getAnyTypeClass());
+        assertEquals(newSchema, newClass.getPlainSchemas().getFirst());
+        assertEquals(newClass, newClass.getPlainSchemas().getFirst().getAnyTypeClass());
 
         assertTrue(plainSchemaDAO.findById(newSchema.getKey()).isPresent());
     }

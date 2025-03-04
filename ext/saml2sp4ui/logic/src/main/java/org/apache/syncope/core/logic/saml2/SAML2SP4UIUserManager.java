@@ -180,7 +180,7 @@ public class SAML2SP4UIUserManager {
                 switch (intAttrName.getField()) {
                     case "username" -> {
                         if (!values.isEmpty()) {
-                            userTO.setUsername(values.get(0));
+                            userTO.setUsername(values.getFirst());
                         }
                     }
 

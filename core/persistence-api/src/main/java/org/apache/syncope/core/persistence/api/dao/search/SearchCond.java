@@ -80,9 +80,9 @@ public class SearchCond extends AbstractSearchCond {
 
     public static SearchCond and(final List<SearchCond> conditions) {
         if (conditions.size() == 1) {
-            return conditions.get(0);
+            return conditions.getFirst();
         } else if (conditions.size() > 2) {
-            return and(conditions.get(0), and(conditions.subList(1, conditions.size())));
+            return and(conditions.getFirst(), and(conditions.subList(1, conditions.size())));
         } else {
             return and(conditions.get(0), conditions.get(1));
         }
@@ -104,9 +104,9 @@ public class SearchCond extends AbstractSearchCond {
 
     public static SearchCond or(final List<SearchCond> conditions) {
         if (conditions.size() == 1) {
-            return conditions.get(0);
+            return conditions.getFirst();
         } else if (conditions.size() > 2) {
-            return or(conditions.get(0), or(conditions.subList(1, conditions.size())));
+            return or(conditions.getFirst(), or(conditions.subList(1, conditions.size())));
         } else {
             return or(conditions.get(0), conditions.get(1));
         }

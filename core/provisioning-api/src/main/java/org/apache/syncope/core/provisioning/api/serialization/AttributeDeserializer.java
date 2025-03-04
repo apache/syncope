@@ -40,10 +40,10 @@ class AttributeDeserializer extends AbstractValueDeserializer<Attribute> {
         List<Object> values = doDeserialize(tree.get("value"), jp);
 
         if (Uid.NAME.equals(name)) {
-            return new Uid(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString());
+            return new Uid(values.isEmpty() || values.getFirst() == null ? null : values.getFirst().toString());
         } else {
             if (Name.NAME.equals(name)) {
-                return new Name(values.isEmpty() || values.get(0) == null ? null : values.get(0).toString());
+                return new Name(values.isEmpty() || values.getFirst() == null ? null : values.getFirst().toString());
             }
 
             return AttributeBuilder.build(name, values);

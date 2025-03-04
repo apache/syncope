@@ -58,11 +58,11 @@ public class TestLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
 
         long timestamp = Optional.ofNullable(liveSyncDelta.getObject().getAttributeByName("record.timestamp")).
                 filter(attr -> !CollectionUtils.isEmpty(attr.getValue())).
-                map(attr -> (Long) attr.getValue().get(0)).
+                map(attr -> (Long) attr.getValue().getFirst()).
                 orElseThrow(() -> new IllegalArgumentException("No record.timestamp attribute found"));
         String value = Optional.ofNullable(liveSyncDelta.getObject().getAttributeByName("record.value")).
                 filter(attr -> !CollectionUtils.isEmpty(attr.getValue())).
-                map(attr -> attr.getValue().get(0).toString()).
+                map(attr -> attr.getValue().getFirst().toString()).
                 orElseThrow(() -> new IllegalArgumentException("No record.value attribute found"));
         LOG.debug("Received: timestamp {} / value {}", timestamp, value);
 

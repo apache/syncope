@@ -128,7 +128,7 @@ public class JPATaskExecDAO implements TaskExecDAO {
         List<Object> result = query.getResultList();
         return CollectionUtils.isEmpty(result)
                 ? Optional.empty()
-                : Optional.of((TaskExec<?>) result.get(0));
+                : Optional.of((TaskExec<?>) result.getFirst());
     }
 
     @Override

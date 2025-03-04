@@ -102,7 +102,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
             List<String> values = Optional.ofNullable(attr).map(Attr::getValues).orElse(null);
             if (values != null && !values.isEmpty()) {
-                result = values.iterator().next();
+                result = values.getFirst();
             }
 
             return result;

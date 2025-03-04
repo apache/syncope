@@ -95,7 +95,7 @@ public class UserRequestRestClient extends BaseRestClient {
                 listForms(new UserRequestQuery.Builder().user(userKey).page(1).size(1).build());
         UserRequestForm form = forms.getResult().isEmpty()
                 ? null
-                : forms.getResult().get(0);
+                : forms.getResult().getFirst();
         return Optional.ofNullable(form);
     }
 

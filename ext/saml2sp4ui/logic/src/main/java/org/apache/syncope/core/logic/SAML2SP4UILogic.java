@@ -176,7 +176,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
                     (EntityDescriptor) new SAML2ServiceProviderMetadataResolver(cfg).getEntityDescriptorElement();
 
             AssertionConsumerService postACS = entityDescriptor.getSPSSODescriptor(SAMLConstants.SAML20P_NS).
-                    getAssertionConsumerServices().get(0);
+                    getAssertionConsumerServices().getFirst();
 
             AssertionConsumerService redirectACS = new AssertionConsumerServiceBuilder().buildObject();
             BeanUtils.copyProperties(postACS, redirectACS);
@@ -377,7 +377,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             if (!attr.getAttributeValues().isEmpty()) {
                 String attrName = Optional.ofNullable(attr.getFriendlyName()).orElse(attr.getName());
                 if (connObjectKeyItem != null && attrName.equals(connObjectKeyItem.getExtAttrName())) {
-                    keyValue = attr.getAttributeValues().get(0);
+                    keyValue = attr.getAttributeValues().getFirst();
                 }
 
                 loginResp.getAttrs().add(new Attr.Builder(attrName).values(attr.getAttributeValues()).build());
@@ -420,12 +420,12 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);
         } else {
             if (idp.isUpdateMatching()) {
-                LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
+                LOG.debug("About to update {} for {}", matchingUsers.getFirst(), keyValue);
 
                 username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
-                        () -> userManager.update(matchingUsers.get(0), idp, loginResp));
+                        () -> userManager.update(matchingUsers.getFirst(), idp, loginResp));
             } else {
-                username = matchingUsers.get(0);
+                username = matchingUsers.getFirst();
             }
         }
 

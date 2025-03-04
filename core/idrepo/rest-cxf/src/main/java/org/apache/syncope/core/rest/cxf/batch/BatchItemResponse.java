@@ -152,7 +152,7 @@ public class BatchItemResponse implements HttpServletResponse {
 
     @Override
     public String getHeader(final String name) {
-        return headers.containsKey(name) ? headers.get(name).get(0).toString() : null;
+        return headers.containsKey(name) ? headers.get(name).getFirst().toString() : null;
     }
 
     @Override

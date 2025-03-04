@@ -131,7 +131,7 @@ public class ReconciliationITCase extends AbstractITCase {
         printerCR.getResources().clear();
         AnyObjectTO printer = createAnyObject(printerCR).getEntity();
         assertNotNull(printer.getKey());
-        assertNotEquals("Nowhere", printer.getPlainAttr("location").get().getValues().get(0));
+        assertNotEquals("Nowhere", printer.getPlainAttr("location").get().getValues().getFirst());
 
         // 2. add row into the external resource's table, with same name
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -156,7 +156,7 @@ public class ReconciliationITCase extends AbstractITCase {
 
         // 5. verify reconciliation result (and resource is still not assigned)
         printer = ANY_OBJECT_SERVICE.read(printer.getKey());
-        assertEquals("Nowhere", printer.getPlainAttr("location").get().getValues().get(0));
+        assertEquals("Nowhere", printer.getPlainAttr("location").get().getValues().getFirst());
         assertTrue(printer.getResources().isEmpty());
     }
 
@@ -180,8 +180,8 @@ public class ReconciliationITCase extends AbstractITCase {
         assertNull(status.getMatchType());
         assertNull(status.getOnSyncope());
         assertNotNull(status.getOnResource());
-        assertEquals(externalKey, status.getOnResource().getAttr(Uid.NAME).get().getValues().get(0));
-        assertEquals(externalName, status.getOnResource().getAttr("PRINTERNAME").get().getValues().get(0));
+        assertEquals(externalKey, status.getOnResource().getAttr(Uid.NAME).get().getValues().getFirst());
+        assertEquals(externalName, status.getOnResource().getAttr("PRINTERNAME").get().getValues().getFirst());
 
         // 3. pull
         PullTaskTO pullTask = new PullTaskTO();
@@ -205,21 +205,21 @@ public class ReconciliationITCase extends AbstractITCase {
         InputStream csv = getClass().getResourceAsStream("/test1.csv");
 
         List<ProvisioningReport> results = service.pull(spec, csv);
-        assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());
-        assertNotNull(results.get(0).getKey());
-        assertEquals("donizetti", results.get(0).getName());
-        assertEquals("donizetti", results.get(0).getUidValue());
-        assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
-        assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
+        assertEquals(AnyTypeKind.USER.name(), results.getFirst().getAnyType());
+        assertNotNull(results.getFirst().getKey());
+        assertEquals("donizetti", results.getFirst().getName());
+        assertEquals("donizetti", results.getFirst().getUidValue());
+        assertEquals(ResourceOperation.CREATE, results.getFirst().getOperation());
+        assertEquals(ProvisioningReport.Status.SUCCESS, results.getFirst().getStatus());
 
-        UserTO donizetti = USER_SERVICE.read(results.get(0).getKey());
+        UserTO donizetti = USER_SERVICE.read(results.getFirst().getKey());
         assertNotNull(donizetti);
-        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().get(0));
+        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().getFirst());
         assertEquals(1, donizetti.getPlainAttr("loginDate").get().getValues().size());
 
         UserTO cimarosa = USER_SERVICE.read(results.get(1).getKey());
         assertNotNull(cimarosa);
-        assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().get(0));
+        assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().getFirst());
         assertEquals(2, cimarosa.getPlainAttr("loginDate").get().getValues().size());
     }
 

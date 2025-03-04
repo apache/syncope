@@ -235,7 +235,7 @@ public final class JexlUtils {
                 value = StringUtils.EMPTY;
             } else {
                 value = attr.getValues().size() == 1
-                        ? attr.getValues().get(0)
+                        ? attr.getValues().getFirst()
                         : attr.getValues();
             }
 
@@ -253,7 +253,7 @@ public final class JexlUtils {
                 value = StringUtils.EMPTY;
             } else {
                 value = attrValues.size() == 1
-                        ? attrValues.get(0)
+                        ? attrValues.getFirst()
                         : attrValues;
             }
 

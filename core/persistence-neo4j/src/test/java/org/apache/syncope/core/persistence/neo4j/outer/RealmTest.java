@@ -97,7 +97,7 @@ public class RealmTest extends AbstractTest {
 
         realm = realmDAO.findById("722f3d84-9c2b-4525-8f6e-e4b82c55a36c").orElseThrow();
         assertEquals(1, realm.getActions().size());
-        assertEquals(implementation, realm.getActions().get(0));
+        assertEquals(implementation, realm.getActions().getFirst());
 
         realm.getActions().clear();
         realm = realmDAO.save(realm);

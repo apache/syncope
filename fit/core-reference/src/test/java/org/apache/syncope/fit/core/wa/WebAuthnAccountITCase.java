@@ -74,7 +74,7 @@ public class WebAuthnAccountITCase extends AbstractITCase {
         String owner = UUID.randomUUID().toString();
         WebAuthnAccount acct = createWebAuthnRegisteredAccount();
         WEBAUTHN_REGISTRATION_SERVICE.create(owner, acct);
-        WEBAUTHN_REGISTRATION_SERVICE.delete(owner, acct.getCredentials().get(0).getIdentifier());
+        WEBAUTHN_REGISTRATION_SERVICE.delete(owner, acct.getCredentials().getFirst().getIdentifier());
         acct = WEBAUTHN_REGISTRATION_SERVICE.read(owner);
         assertTrue(acct.getCredentials().isEmpty());
     }

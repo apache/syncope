@@ -61,7 +61,7 @@ public class PlainSchemaTest extends AbstractTest {
     public void findByIdLike() {
         List<? extends PlainSchema> schemas = plainSchemaDAO.findByIdLike("fullna%");
         assertEquals(1, schemas.size());
-        assertEquals(0, schemas.get(0).getLabels().size());
+        assertEquals(0, schemas.getFirst().getLabels().size());
     }
 
     @Test

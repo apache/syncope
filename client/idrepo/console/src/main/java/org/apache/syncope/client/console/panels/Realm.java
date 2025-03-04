@@ -176,7 +176,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                 if ("afterObj".equalsIgnoreCase(key)) {
                     String remoteId = Optional.ofNullable(bean.getAfterObj()).
                             flatMap(afterObj -> afterObj.getAttr(ConnIdSpecialName.NAME).
-                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().get(0))).
+                            filter(s -> !s.getValues().isEmpty()).map(s -> s.getValues().getFirst())).
                             orElse(StringUtils.EMPTY);
 
                     return new Label("field", remoteId);

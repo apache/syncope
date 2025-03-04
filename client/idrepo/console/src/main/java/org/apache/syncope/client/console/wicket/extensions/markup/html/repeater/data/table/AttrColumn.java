@@ -70,7 +70,7 @@ public class AttrColumn<T extends Attributable> extends AbstractColumn<T, String
         if (values.isEmpty()) {
             cellItem.add(new Label(componentId, ""));
         } else if (values.size() == 1) {
-            cellItem.add(new Label(componentId, values.get(0)));
+            cellItem.add(new Label(componentId, values.getFirst()));
         } else {
             cellItem.add(new Label(componentId, values.toString()));
         }
