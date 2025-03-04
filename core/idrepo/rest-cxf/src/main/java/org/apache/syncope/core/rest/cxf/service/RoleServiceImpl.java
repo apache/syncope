@@ -32,9 +32,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.core.logic.RoleLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class RoleServiceImpl extends AbstractService implements RoleService {
 
     protected final RoleLogic logic;

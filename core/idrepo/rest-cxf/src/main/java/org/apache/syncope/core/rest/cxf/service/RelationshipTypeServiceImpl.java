@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.core.logic.RelationshipTypeLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class RelationshipTypeServiceImpl extends AbstractService implements RelationshipTypeService {
 
     protected final RelationshipTypeLogic logic;
