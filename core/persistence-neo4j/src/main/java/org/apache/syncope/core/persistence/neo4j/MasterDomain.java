@@ -40,7 +40,8 @@ public class MasterDomain {
     public Driver masterDriver(final PersistenceProperties props) {
         return GraphDatabase.driver(
                 props.getDomain().getFirst().getUri(),
-                AuthTokens.basic(props.getDomain().getFirst().getUsername(), props.getDomain().getFirst().getPassword()),
+                AuthTokens.basic(props.getDomain().getFirst().getUsername(),
+                    props.getDomain().getFirst().getPassword()),
                 Config.builder().
                         withMaxConnectionPoolSize(props.getDomain().getFirst().getMaxConnectionPoolSize()).
                         withDriverMetrics().

@@ -126,7 +126,8 @@ public class WA extends BasePage {
         body.add(content);
 
         if (!instances.isEmpty()) {
-            String actuatorEndpoint = StringUtils.appendIfMissing(instances.getFirst().getAddress(), "/") + "actuator/env";
+            String actuatorEndpoint = StringUtils.appendIfMissing(
+                instances.getFirst().getAddress(), "/") + "actuator/env";
             try {
                 Response response = WebClientBuilder.build(actuatorEndpoint,
                         SyncopeWebApplication.get().getAnonymousUser(),

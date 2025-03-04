@@ -180,7 +180,8 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 new SortParam<>(resourceRemoteKey.get(), true));
 
         connObjectKeyFieldValues = items.getRight().stream().
-                map(item -> item.getAttr(resourceRemoteKey.get()).map(attr -> attr.getValues().getFirst()).orElse(null)).
+                map(item -> item.getAttr(resourceRemoteKey.get()).
+                    map(attr -> attr.getValues().getFirst()).orElse(null)).
                 filter(Objects::nonNull).
                 collect(Collectors.toList());
         ajaxTextFieldPanel.setChoices(connObjectKeyFieldValues);

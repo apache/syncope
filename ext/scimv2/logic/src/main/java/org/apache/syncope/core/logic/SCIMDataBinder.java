@@ -357,7 +357,8 @@ public class SCIMDataBinder {
             }
             if (output(attributes, excludedAttributes, "x509Certificates")) {
                 conf.getUserConf().getX509Certificates().stream().filter(attrs::containsKey).
-                        forEach(cert -> user.getX509Certificates().add(new Value(attrs.get(cert).getValues().getFirst())));
+                        forEach(cert -> user.getX509Certificates().add(
+                            new Value(attrs.get(cert).getValues().getFirst())));
             }
         }
 
@@ -800,7 +801,8 @@ public class SCIMDataBinder {
         StatusR statusR = null;
 
         if (op.getPath() == null && op.getOp() != PatchOp.remove
-                && !CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof final SCIMUser after) {
+                && !CollectionUtils.isEmpty(op.getValue())
+                && op.getValue().getFirst() instanceof final SCIMUser after) {
 
             if (after.getActive() != null && before.isSuspended() == after.isActive()) {
                 statusR = new StatusR.Builder(
@@ -848,8 +850,9 @@ public class SCIMDataBinder {
                     }
 
                     statusR = new StatusR.Builder(before.getKey(),
-                            (boolean) op.getValue().getFirst() ? StatusRType.REACTIVATE : StatusRType.SUSPEND).resources(
-                            resources).build();
+                            (boolean) op.getValue().getFirst()
+                                ? StatusRType.REACTIVATE
+                                : StatusRType.SUSPEND).resources(resources).build();
                 }
             }
 
@@ -930,7 +933,8 @@ public class SCIMDataBinder {
             }
 
             case "addresses" -> {
-                if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof final SCIMUser after) {
+                if (!CollectionUtils.isEmpty(op.getValue())
+                    && op.getValue().getFirst() instanceof final SCIMUser after) {
                     after.getAddresses().stream().filter(address -> address.getType() != null).forEach(
                             address -> conf.getUserConf().getAddresses().stream()
                                     .filter(object -> address.getType().equals(object.getType().name())).findFirst()

@@ -465,7 +465,8 @@ abstract class AbstractAnyDataBinder {
                 if (schema.isUniqueConstraint()) {
                     if (attr.getUniqueValue() != null
                             && !patch.getAttr().getValues().isEmpty()
-                            && !patch.getAttr().getValues().getFirst().equals(attr.getUniqueValue().getValueAsString())) {
+                            && !patch.getAttr().getValues().getFirst().equals(
+                                attr.getUniqueValue().getValueAsString())) {
 
                         attr.setUniqueValue(null);
                     }

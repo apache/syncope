@@ -817,7 +817,8 @@ public abstract class AbstractPullResultHandler
 
             case DELETE:
                 // Skip DELETE in case of InboundCorrelationRule.NO_MATCH
-                result = matches.getFirst().getAny() == null ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
+                result = matches.getFirst().getAny() == null
+                    ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
                 break;
 
             default:

@@ -108,7 +108,8 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
             public T getObject() {
                 T value = null;
 
-                if (list != null && !list.isEmpty() && list.getFirst() != null && !list.getFirst().toString().isEmpty()) {
+                if (list != null && !list.isEmpty() && list.getFirst() != null
+                    && !list.getFirst().toString().isEmpty()) {
                     value = reference.equals(Integer.class)
                             ? reference.cast(NumberUtils.toInt(list.getFirst().toString()))
                             : reference.equals(Long.class)
