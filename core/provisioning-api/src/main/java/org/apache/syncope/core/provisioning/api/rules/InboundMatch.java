@@ -39,8 +39,8 @@ public final class InboundMatch implements Serializable {
     public InboundMatch(final MatchType matchTarget, final Entity entity) {
         this.matchTarget = matchTarget;
 
-        if (entity instanceof Any) {
-            any = (Any) entity;
+        if (entity instanceof final Any any1) {
+            any = any1;
         } else if (entity instanceof LinkedAccount linkedAccount1) {
             linkedAccount = linkedAccount1;
         }

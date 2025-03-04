@@ -121,22 +121,22 @@ public class SyncopeClient {
     protected void init(final AuthenticationHandler authHandler) {
         cleanup();
 
-        if (authHandler instanceof AnonymousAuthenticationHandler) {
-            restClientFactory.setUsername(((AnonymousAuthenticationHandler) authHandler).getUsername());
-            restClientFactory.setPassword(((AnonymousAuthenticationHandler) authHandler).getPassword());
-        } else if (authHandler instanceof BasicAuthenticationHandler) {
-            restClientFactory.setUsername(((BasicAuthenticationHandler) authHandler).getUsername());
-            restClientFactory.setPassword(((BasicAuthenticationHandler) authHandler).getPassword());
+        if (authHandler instanceof final AnonymousAuthenticationHandler anonymousAuthenticationHandler) {
+            restClientFactory.setUsername(anonymousAuthenticationHandler.getUsername());
+            restClientFactory.setPassword(anonymousAuthenticationHandler.getPassword());
+        } else if (authHandler instanceof final BasicAuthenticationHandler basicAuthenticationHandler) {
+            restClientFactory.setUsername(basicAuthenticationHandler.getUsername());
+            restClientFactory.setPassword(basicAuthenticationHandler.getPassword());
 
             String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
             restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, List.of("Bearer " + jwt));
 
             restClientFactory.setUsername(null);
             restClientFactory.setPassword(null);
-        } else if (authHandler instanceof JWTAuthenticationHandler) {
+        } else if (authHandler instanceof final JWTAuthenticationHandler jwtAuthenticationHandler) {
             restClientFactory.getHeaders().put(
                     HttpHeaders.AUTHORIZATION,
-                    List.of("Bearer " + ((JWTAuthenticationHandler) authHandler).getJwt()));
+                    List.of("Bearer " + jwtAuthenticationHandler.getJwt()));
         }
     }
 

@@ -221,7 +221,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return getOnSyncope(
                 connObjectKeyItem,
                 prepared.getLeft(),
-                any instanceof User ? ((User) any).isSuspended() : null,
+                any instanceof final User user ? user.isSuspended() : null,
                 prepared.getRight());
     }
 
@@ -244,10 +244,10 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
         String actualKey = anyKey;
         if (!SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()) {
-            actualKey = (dao instanceof UserDAO
-                    ? ((UserDAO) dao).findKey(anyKey)
-                    : dao instanceof GroupDAO
-                            ? ((GroupDAO) dao).findKey(anyKey)
+            actualKey = (dao instanceof final UserDAO userDAO
+                    ? userDAO.findKey(anyKey)
+                    : dao instanceof final GroupDAO groupDAO
+                            ? groupDAO.findKey(anyKey)
                             : ((AnyObjectDAO) dao).findKey(provision.getAnyType(), anyKey)).
                     orElse(null);
         }

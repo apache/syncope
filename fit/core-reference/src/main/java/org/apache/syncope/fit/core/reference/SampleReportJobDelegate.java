@@ -103,8 +103,8 @@ public class SampleReportJobDelegate extends AbstractReportJobDelegate {
 
     @Override
     public void setConf(final ReportConf conf) {
-        if (conf instanceof SampleReportConf) {
-            sampleReportConf = (SampleReportConf) conf;
+        if (conf instanceof final SampleReportConf reportConf) {
+            sampleReportConf = reportConf;
         } else {
             throw new IllegalArgumentException("Expected " + SampleReportConf.class.getName() + ", got " + conf);
         }

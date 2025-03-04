@@ -39,8 +39,8 @@ public class DefaultTicketExpirationMapper implements TicketExpirationMapper {
     }
 
     protected Optional<DefaultTicketExpirationPolicyConf> conf(final TicketExpirationPolicyTO policy) {
-        if (policy.getConf() instanceof DefaultTicketExpirationPolicyConf) {
-            return Optional.of((DefaultTicketExpirationPolicyConf) policy.getConf());
+        if (policy.getConf() instanceof final DefaultTicketExpirationPolicyConf defaultTicketExpirationPolicyConf) {
+            return Optional.of(defaultTicketExpirationPolicyConf);
         }
         return Optional.empty();
     }
