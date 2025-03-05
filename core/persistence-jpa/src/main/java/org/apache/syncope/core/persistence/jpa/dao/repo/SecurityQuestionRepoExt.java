@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao.repo;
 
+@FunctionalInterface
 public interface SecurityQuestionRepoExt {
 
     void deleteById(String key);

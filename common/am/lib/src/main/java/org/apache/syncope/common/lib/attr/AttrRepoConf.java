@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 
+@FunctionalInterface
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
 public interface AttrRepoConf extends BaseBean {
 

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Map;
 
+@FunctionalInterface
 public interface PersistenceInfoDAO {
 
     Map<String, Object> info();

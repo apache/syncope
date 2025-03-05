@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 
+@FunctionalInterface
 public interface PolicyTabProvider extends Serializable {
 
     List<ITab> buildTabList(PageReference pageRef);

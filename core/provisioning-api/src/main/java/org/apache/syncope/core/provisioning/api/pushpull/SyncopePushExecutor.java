@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
+@FunctionalInterface
 public interface SyncopePushExecutor {
 
     void reportHandled(String anyType, String key);
