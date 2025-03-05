@@ -428,7 +428,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>8.17.2</elasticsearch.version>
+    <elasticsearch.version>8.17.3</elasticsearch.version>
     <opensearch.version>2.19.1</opensearch.version>
     <opensearch-java.version>2.21.0</opensearch-java.version>
 
@@ -1313,7 +1313,7 @@ under the License.
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.18.3</version>
+        <version>1.19.1</version>
       </dependency>
 
       <dependency>
@@ -1617,7 +1617,7 @@ under the License.
         <plugin>
           <groupId>org.openapitools</groupId>
           <artifactId>openapi-generator-maven-plugin</artifactId>
-          <version>7.11.0</version>
+          <version>7.12.0</version>
         </plugin>
 
         <plugin>
