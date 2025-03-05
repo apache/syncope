@@ -430,7 +430,7 @@ under the License.
 
     <elasticsearch.version>8.17.3</elasticsearch.version>
     <opensearch.version>2.19.1</opensearch.version>
-    <opensearch-java.version>2.21.0</opensearch-java.version>
+    <opensearch-java.version>2.22.0</opensearch-java.version>
 
     <docker.openfga.version>v1</docker.openfga.version>
 
