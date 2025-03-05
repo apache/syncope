@@ -64,7 +64,7 @@ public final class BatchPayloadParser {
 
     private static void removeEndingCRLFFromList(final List<BatchPayloadLine> lines) {
         if (!lines.isEmpty()) {
-            BatchPayloadLine lastLine = lines.remove(lines.size() - 1);
+            BatchPayloadLine lastLine = lines.removeLast();
             lines.add(removeEndingCRLF(lastLine));
         }
     }
@@ -98,11 +98,11 @@ public final class BatchPayloadParser {
 
         // Remove preamble
         if (!messageParts.isEmpty()) {
-            messageParts.remove(0);
+            messageParts.removeFirst();
         }
 
         if (!isEndReached) {
-            int lineNumber = lines.isEmpty() ? 0 : lines.get(0).getLineNumber();
+            int lineNumber = lines.isEmpty() ? 0 : lines.getFirst().getLineNumber();
             throw new IllegalArgumentException("Missing close boundary delimiter around line " + lineNumber);
         }
 
@@ -177,8 +177,8 @@ public final class BatchPayloadParser {
     }
 
     private static void consumeBlankLine(final List<BatchPayloadLine> bodyPart) {
-        if (!bodyPart.isEmpty() && PATTERN_BLANK_LINE.matcher(bodyPart.get(0).toString()).matches()) {
-            bodyPart.remove(0);
+        if (!bodyPart.isEmpty() && PATTERN_BLANK_LINE.matcher(bodyPart.getFirst().toString()).matches()) {
+            bodyPart.removeFirst();
         }
     }
 

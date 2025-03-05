@@ -182,7 +182,7 @@ public class UserIssuesITCase extends AbstractITCase {
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_WS1).build());
 
         ProvisioningResult<UserTO> result = updateUser(userUR);
-        assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
+        assertNotNull(result.getPropagationStatuses().getFirst().getFailureReason());
         userTO = result.getEntity();
 
         // 4. update assigning a resource NOT forcing mandatory constraints
@@ -268,9 +268,9 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
 
-        assertEquals(ExecStatus.SUCCESS, propagations.get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, propagations.getFirst().getStatus());
 
-        String resource = propagations.get(0).getResource();
+        String resource = propagations.getFirst().getResource();
         assertEquals(RESOURCE_NAME_TESTDB, resource);
     }
 
@@ -287,9 +287,9 @@ public class UserIssuesITCase extends AbstractITCase {
         List<PropagationStatus> propagations = result.getPropagationStatuses();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
-        assertNotEquals(ExecStatus.SUCCESS, propagations.get(0).getStatus());
+        assertNotEquals(ExecStatus.SUCCESS, propagations.getFirst().getStatus());
 
-        String resource = propagations.get(0).getResource();
+        String resource = propagations.getFirst().getResource();
         assertEquals(RESOURCE_NAME_CSV, resource);
     }
 
@@ -332,7 +332,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // Remove the first membership: de-provisioning shouldn't happen
         // -----------------------------------
         UserUR userUR = new UserUR.Builder(userTO.getKey()).
-                membership(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+                membership(new MembershipUR.Builder(userTO.getMemberships().getFirst().getGroupKey()).
                         operation(PatchOperation.DELETE).build()).
                 build();
 
@@ -366,7 +366,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // Remove the first membership: de-provisioning should happen
         // -----------------------------------
         userUR = new UserUR.Builder(userTO.getKey()).
-                membership(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+                membership(new MembershipUR.Builder(userTO.getMemberships().getFirst().getGroupKey()).
                         operation(PatchOperation.DELETE).build()).
                 build();
 
@@ -393,8 +393,8 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userCR);
         assertNotNull(result);
         assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
         UserTO userTO = result.getEntity();
 
         // 2. delete this user
@@ -442,21 +442,21 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userCR);
         assertNotNull(result);
         assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().getFirst().getResource());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
         UserTO userTO = result.getEntity();
 
         ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttr("USERNAME").orElseThrow().getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttr("USERNAME").orElseThrow().getValues().getFirst());
         // ----------------------------------
 
         userTO = USER_SERVICE.read(userTO.getKey());
 
         assertNotNull(userTO);
         assertEquals(1, userTO.getVirAttrs().size());
-        assertEquals("virtualvalue", userTO.getVirAttrs().iterator().next().getValues().get(0));
+        assertEquals("virtualvalue", userTO.getVirAttrs().iterator().next().getValues().getFirst());
     }
 
     @Test
@@ -484,9 +484,9 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getResources().clear();
         userCR.getResources().add(RESOURCE_NAME_TIMEOUT);
         ProvisioningResult<UserTO> result = createUser(userCR);
-        assertEquals(RESOURCE_NAME_TIMEOUT, result.getPropagationStatuses().get(0).getResource());
-        assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
-        assertEquals(ExecStatus.FAILURE, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(RESOURCE_NAME_TIMEOUT, result.getPropagationStatuses().getFirst().getResource());
+        assertNotNull(result.getPropagationStatuses().getFirst().getFailureReason());
+        assertEquals(ExecStatus.FAILURE, result.getPropagationStatuses().getFirst().getStatus());
     }
 
     @Test
@@ -511,7 +511,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
-        String pwdOnTestDb = pwdOnTestDbAttr.getValues().get(0);
+        String pwdOnTestDb = pwdOnTestDbAttr.getValues().getFirst();
 
         ConnObject userOnDb2 = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
@@ -519,7 +519,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
         assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
-        String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().get(0);
+        String pwdOnTestDb2 = pwdOnTestDb2Attr.getValues().getFirst();
 
         // 2. request to change password only on testdb (no Syncope, no testdb2)
         UserUR userUR = new UserUR();
@@ -533,7 +533,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 3a. Chech that only a single propagation took place
         assertNotNull(result.getPropagationStatuses());
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().getFirst().getResource());
 
         // 3b. verify that password hasn't changed on Syncope
         assertEquals(pwdOnSyncope, userTO.getPassword());
@@ -544,7 +544,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
-        assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().get(0));
+        assertNotEquals(pwdOnTestDb, pwdOnTestDbAttrAfter.getValues().getFirst());
 
         // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
@@ -552,7 +552,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
-        assertEquals(pwdOnTestDb2, pwdOnTestDb2AttrAfter.getValues().get(0));
+        assertEquals(pwdOnTestDb2, pwdOnTestDb2AttrAfter.getValues().getFirst());
     }
 
     @Test
@@ -589,7 +589,7 @@ public class UserIssuesITCase extends AbstractITCase {
             List<PropagationStatus> props = result.getPropagationStatuses();
             assertNotNull(props);
             assertEquals(1, props.size());
-            PropagationStatus prop = props.get(0);
+            PropagationStatus prop = props.getFirst();
             assertNotNull(prop);
             assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
             assertEquals(ExecStatus.SUCCESS, prop.getStatus());
@@ -625,7 +625,7 @@ public class UserIssuesITCase extends AbstractITCase {
         List<PropagationStatus> props = result.getPropagationStatuses();
         assertNotNull(props);
         assertEquals(1, props.size());
-        PropagationStatus prop = props.get(0);
+        PropagationStatus prop = props.getFirst();
         assertNotNull(prop);
         assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
         assertEquals(ExecStatus.SUCCESS, prop.getStatus());
@@ -645,7 +645,7 @@ public class UserIssuesITCase extends AbstractITCase {
             userUR.setKey(userKey);
             userUR.getPlainAttrs().add(attrAddReplacePatch("ctype", "a type"));
             UserTO userTO = updateUser(userUR).getEntity();
-            assertEquals("a type", userTO.getPlainAttr("ctype").orElseThrow().getValues().get(0));
+            assertEquals("a type", userTO.getPlainAttr("ctype").orElseThrow().getValues().getFirst());
         }
     }
 
@@ -686,7 +686,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. remove membership
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
-        userUR.getMemberships().add(new MembershipUR.Builder(userTO.getMemberships().get(0).getGroupKey()).
+        userUR.getMemberships().add(new MembershipUR.Builder(userTO.getMemberships().getFirst().getGroupKey()).
                 operation(PatchOperation.DELETE).build());
 
         userTO = updateUser(userUR).getEntity();
@@ -743,8 +743,8 @@ public class UserIssuesITCase extends AbstractITCase {
         Optional<Attr> jpegPhoto = connObj.getAttr("jpegPhoto");
         assertTrue(jpegPhoto.isPresent());
         assertEquals(
-                userTO.getPlainAttr("photo").orElseThrow().getValues().get(0),
-                jpegPhoto.orElseThrow().getValues().get(0));
+                userTO.getPlainAttr("photo").orElseThrow().getValues().getFirst(),
+                jpegPhoto.orElseThrow().getValues().getFirst());
 
         // 4. remove group
         GROUP_SERVICE.delete(groupTO.getKey());
@@ -776,8 +776,8 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertNotNull(result.getPropagationStatuses().get(0).getFailureReason());
+        assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+        assertNotNull(result.getPropagationStatuses().getFirst().getFailureReason());
         userTO = result.getEntity();
 
         // 3. request to change password only on testdb
@@ -789,7 +789,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         result = updateUser(userUR);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
     }
 
     @Test
@@ -848,7 +848,7 @@ public class UserIssuesITCase extends AbstractITCase {
         }
         assertNotNull(logicActions);
 
-        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
+        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
         assertNotNull(realm);
         realm.getActions().add(logicActions.getKey());
         REALM_SERVICE.update(realm);
@@ -858,14 +858,14 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getPlainAttrs().add(attr("makeItDouble", "3"));
 
         UserTO userTO = createUser(userCR).getEntity();
-        assertEquals("6", userTO.getPlainAttr("makeItDouble").orElseThrow().getValues().get(0));
+        assertEquals("6", userTO.getPlainAttr("makeItDouble").orElseThrow().getValues().getFirst());
 
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         userUR.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
 
         userTO = updateUser(userUR).getEntity();
-        assertEquals("14", userTO.getPlainAttr("makeItDouble").orElseThrow().getValues().get(0));
+        assertEquals("14", userTO.getPlainAttr("makeItDouble").orElseThrow().getValues().getFirst());
     }
 
     @Test
@@ -901,8 +901,8 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(result);
         userTO = result.getEntity();
         assertEquals(Set.of(RESOURCE_NAME_WS1), userTO.getResources());
-        assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertTrue(result.getPropagationStatuses().get(0).getFailureReason().
+        assertNotEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+        assertTrue(result.getPropagationStatuses().getFirst().getFailureReason().
                 startsWith("Not attempted because there are mandatory attributes without value(s): [__PASSWORD__]"));
     }
 
@@ -920,9 +920,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
                 "password123",
-                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0)));
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
 
         // 4. update user without any password change request
         UserUR userUR = new UserUR();
@@ -934,9 +934,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
                 "password123",
-                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0)));
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
     }
 
     @Test
@@ -947,7 +947,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ProvisioningResult<UserTO> result = createUser(userCR);
         assertNotNull(result);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
         UserTO userTO = result.getEntity();
 
         ConnObject actual =
@@ -986,14 +986,14 @@ public class UserIssuesITCase extends AbstractITCase {
         result = updateUser(userUR);
         assertNotNull(userTO);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
         userTO = result.getEntity();
 
         ConnObject newUser =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
 
         assertNotNull(newUser.getAttr("NAME"));
-        assertEquals("firstnameNew", newUser.getAttr("NAME").orElseThrow().getValues().get(0));
+        assertEquals("firstnameNew", newUser.getAttr("NAME").orElseThrow().getValues().getFirst());
 
         // 4.  restore resource ws-target-resource-1 mapping
         ws1NewUMapping = newWs1.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping();
@@ -1092,15 +1092,15 @@ public class UserIssuesITCase extends AbstractITCase {
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
 
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0),
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst(),
                 "security123",
-                connObject.getAttr(Name.NAME).orElseThrow().getValues().get(0)));
+                connObject.getAttr(Name.NAME).orElseThrow().getValues().getFirst()));
 
         // 5. Remove LDAPPasswordPropagationActions
         resourceTO = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         assertNotNull(resourceTO);
         resourceTO.getPropagationActions().remove(LDAPPasswordPropagationActions.class.getSimpleName());
-        resourceTO.getPropagationActions().add(0, GenerateRandomPasswordPropagationActions.class.getSimpleName());
+        resourceTO.getPropagationActions().addFirst(GenerateRandomPasswordPropagationActions.class.getSimpleName());
         RESOURCE_SERVICE.update(resourceTO);
     }
 
@@ -1142,7 +1142,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // check if password has not changed
         assertEquals(
                 "password0",
-                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().get(0));
+                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().getFirst());
         assertNull(userTO.getPassword());
 
         // 3. create user with not null password and propagate onto resource-csv, specify not to save password on
@@ -1164,7 +1164,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // check if password has been propagated and that saved userTO's password is null
         assertEquals(
                 "passwordTESTNULL1",
-                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().get(0));
+                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().getFirst());
         assertNull(userTO.getPassword());
 
         // 4. create user and propagate password on resource-csv and on Syncope local storage
@@ -1184,7 +1184,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // check if password has been correctly propagated on Syncope and resource-csv as usual
         assertEquals(
                 "passwordTESTNULL1",
-                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().get(0));
+                connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).orElseThrow().getValues().getFirst());
         Triple<Map<String, Set<String>>, List<String>, UserTO> self =
                 CLIENT_FACTORY.create(userTO.getUsername(), "passwordTESTNULL1").self();
         assertNotNull(self);
@@ -1237,7 +1237,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObjectTO =
                 RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("postalAddress", connObjectTO.getAttr("postalAddress").orElseThrow().getValues().get(0));
+        assertEquals("postalAddress", connObjectTO.getAttr("postalAddress").orElseThrow().getValues().getFirst());
 
         UserUR userUR = new UserUR();
         userUR.setKey(actual.getKey());
@@ -1247,7 +1247,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         connObjectTO = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("newPostalAddress", connObjectTO.getAttr("postalAddress").orElseThrow().getValues().get(0));
+        assertEquals("newPostalAddress", connObjectTO.getAttr("postalAddress").orElseThrow().getValues().getFirst());
     }
 
     @Test
@@ -1270,7 +1270,7 @@ public class UserIssuesITCase extends AbstractITCase {
         passwordPolicy = createPolicy(PolicyType.PASSWORD, passwordPolicy);
         assertNotNull(passwordPolicy);
 
-        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
+        RealmTO realm = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
         String oldPasswordPolicy = realm.getPasswordPolicy();
         realm.setPasswordPolicy(passwordPolicy.getKey());
         REALM_SERVICE.update(realm);
@@ -1335,7 +1335,7 @@ public class UserIssuesITCase extends AbstractITCase {
             List<PropagationStatus> props = result.getPropagationStatuses();
             assertNotNull(props);
             assertEquals(1, props.size());
-            PropagationStatus prop = props.get(0);
+            PropagationStatus prop = props.getFirst();
             assertNotNull(prop);
             assertEquals(RESOURCE_NAME_LDAP, prop.getResource());
             assertEquals(ExecStatus.SUCCESS, prop.getStatus());
@@ -1377,7 +1377,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_TESTDB, result.getPropagationStatuses().getFirst().getResource());
     }
 
     @Test
@@ -1405,13 +1405,15 @@ public class UserIssuesITCase extends AbstractITCase {
         Attr userDn = connObject.getAttr(Name.NAME).orElseThrow();
         assertNotNull(userDn);
         assertEquals(1, userDn.getValues().size());
-        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN,
+            RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
 
         // 4. remove user
         USER_SERVICE.delete(user.getKey());
 
         // 5. verify that user is not in LDAP anymore
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN,
+            RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
     }
 
     @Test
@@ -1440,7 +1442,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 4. verify that propagation happened towards the resource of the dynamic group
         assertFalse(created.getPropagationStatuses().isEmpty());
-        assertEquals(RESOURCE_NAME_TESTDB, created.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_TESTDB, created.getPropagationStatuses().getFirst().getResource());
     }
 
     @Test
@@ -1497,7 +1499,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
 
         // 4. update again user to not match the dynamic condition any more: expect propagation to LDAP
         userUR = new UserUR();
@@ -1506,7 +1508,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         result = updateUser(userUR);
         assertEquals(1, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
     }
 
     @Test
@@ -1521,7 +1523,7 @@ public class UserIssuesITCase extends AbstractITCase {
         PasswordPolicyTO pwdPolicy = POLICY_SERVICE.read(PolicyType.PASSWORD, "ce93fcda-dc3a-4369-a7b0-a6108c261c85");
         assertEquals(1, pwdPolicy.getHistoryLength());
 
-        RealmTO evenTwo = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().get(0);
+        RealmTO evenTwo = REALM_SERVICE.search(new RealmQuery.Builder().keyword("two").build()).getResult().getFirst();
         evenTwo.setPasswordPolicy(pwdPolicy.getKey());
         REALM_SERVICE.update(evenTwo);
 
@@ -1694,19 +1696,19 @@ public class UserIssuesITCase extends AbstractITCase {
             // 2. create
             ProvisioningResult<UserTO> result = createUser(userCR);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-            assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().get(0).getResource());
-            assertEquals("surname", result.getEntity().getPlainAttr("surname").orElseThrow().getValues().get(0));
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
+            assertEquals(RESOURCE_NAME_REST, result.getPropagationStatuses().getFirst().getResource());
+            assertEquals("surname", result.getEntity().getPlainAttr("surname").orElseThrow().getValues().getFirst());
             // externalKey is going to be populated on create
             assertTrue(result.getEntity().getPlainAttr("externalKey").isPresent());
             assertEquals(result.getEntity().getKey(),
-                    result.getEntity().getPlainAttr("externalKey").orElseThrow().getValues().get(0));
+                    result.getEntity().getPlainAttr("externalKey").orElseThrow().getValues().getFirst());
             // 3. remove resource from the user
             result = updateUser(new UserUR.Builder(result.getEntity()
                     .getKey()).resource(new StringPatchItem.Builder().value(RESOURCE_NAME_REST)
                     .operation(PatchOperation.DELETE)
                     .build()).build());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
             // externalKey is going to be removed on resource unassignment
             assertFalse(result.getEntity().getPlainAttr("externalKey").isPresent());
 
@@ -1715,7 +1717,7 @@ public class UserIssuesITCase extends AbstractITCase {
             userCR.getResources().clear();
             userCR.getResources().add(RESOURCE_NAME_REST);
             result = createUser(userCR);
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
             // this time fire a deprovision
             assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(new ResourceDR.Builder().key(result.getEntity()
                     .getKey()).action(ResourceDeassociationAction.DEPROVISION).resource(RESOURCE_NAME_REST).build())));
@@ -1727,7 +1729,7 @@ public class UserIssuesITCase extends AbstractITCase {
             userCR.getResources().clear();
             userCR.getResources().add(RESOURCE_NAME_REST);
             result = createUser(userCR);
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
             // this time deprovision
             assertNotNull(parseBatchResponse(USER_SERVICE.deassociate(new ResourceDR.Builder().key(result.getEntity()
                     .getKey()).action(ResourceDeassociationAction.UNLINK).resource(RESOURCE_NAME_REST).build())));
@@ -1794,7 +1796,7 @@ public class UserIssuesITCase extends AbstractITCase {
             ReconStatus onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(AnyTypeKind.USER.name(),
                     RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
             Attr enableAttr = onLDAP.getOnResource().getAttr(OperationalAttributes.ENABLE_NAME).orElseThrow();
-            assertFalse(Boolean.parseBoolean(enableAttr.getValues().get(0)));
+            assertFalse(Boolean.parseBoolean(enableAttr.getValues().getFirst()));
 
             // 6. re-enable on resource-db-pull and restore old values to fire a propagation towards resource-ldap
             jdbcTemplate.update("UPDATE TESTPULL SET EMAIL = 'rossini.gioacchino@apache.org', STATUS = "
@@ -1822,7 +1824,7 @@ public class UserIssuesITCase extends AbstractITCase {
                 onLDAP = RECONCILIATION_SERVICE.status(new ReconQuery.Builder(
                         AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey(rossini.getKey()).build());
                 enableAttr = onLDAP.getOnResource().getAttr(OperationalAttributes.ENABLE_NAME).orElseThrow();
-                assertTrue(Boolean.parseBoolean(enableAttr.getValues().get(0)));
+                assertTrue(Boolean.parseBoolean(enableAttr.getValues().getFirst()));
             }
         } finally {
             // restore attributes and (if needed) status

@@ -67,8 +67,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     protected static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
         if (!reporter.getStatuses().isEmpty()) {
-            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
-            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
+            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().getFirst().getStatus()));
+            result.setMessage(reporter.getStatuses().getFirst().getFailureReason());
         }
     }
 
@@ -157,9 +157,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -181,9 +181,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -205,9 +205,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 before.getVirAttrs(),
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.empty());
+            taskInfos.getFirst().setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
@@ -331,7 +331,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 default:
             }
         }
-        ConnectorObject beforeObj = connObjs.isEmpty() ? null : connObjs.get(0);
+        ConnectorObject beforeObj = connObjs.isEmpty() ? null : connObjs.getFirst();
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {

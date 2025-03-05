@@ -104,7 +104,7 @@ public class DBPasswordPullActions implements InboundActions {
         return connInstance.getConf().stream().
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst().
-                map(cipherAlgorithm -> cipherAlgorithm.getValues().get(0).toString()).
+                map(cipherAlgorithm -> cipherAlgorithm.getValues().getFirst().toString()).
                 orElse(CLEARTEXT);
     }
 

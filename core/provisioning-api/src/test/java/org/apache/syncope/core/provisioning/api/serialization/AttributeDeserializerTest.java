@@ -81,7 +81,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asBoolean()).thenReturn(Boolean.TRUE);
         Attribute attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(List.of(Boolean.TRUE.toString()).get(0), attr.getValue().get(0));
+        assertEquals(List.of(Boolean.TRUE.toString()).getFirst(), attr.getValue().getFirst());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asDouble()).thenReturn(number);
         Attribute attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(List.of(number).get(0), attr.getValue().get(0));
+        assertEquals(List.of(number).getFirst(), attr.getValue().getFirst());
     }
 
     @Test
@@ -105,7 +105,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asLong()).thenReturn(number);
         Attribute attr = deserializer.deserialize(jp, ct);
         assertEquals(name, attr.getName());
-        assertEquals(List.of(number.toString()).get(0), attr.getValue().get(0));
+        assertEquals(List.of(number.toString()).getFirst(), attr.getValue().getFirst());
     }
 
     @Test
@@ -116,7 +116,7 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asInt()).thenReturn(number);
         Attribute attr = deserializer.deserialize(jp, ct);
         assertEquals(attr.getName(), name);
-        assertEquals(List.of(number.toString()).get(0), attr.getValue().get(0));
+        assertEquals(List.of(number.toString()).getFirst(), attr.getValue().getFirst());
     }
 
     @Test
@@ -126,6 +126,6 @@ public class AttributeDeserializerTest extends AbstractTest {
         when(node.asText()).thenReturn(text);
         Attribute attr = deserializer.deserialize(jp, ct);
         assertEquals(attr.getName(), name);
-        assertEquals(List.of(text).get(0), attr.getValue().get(0));
+        assertEquals(List.of(text).getFirst(), attr.getValue().getFirst());
     }
 }

@@ -192,7 +192,7 @@ public class ElasticsearchUtils {
 
             Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.get(0) : values);
+            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
         }
 
         // add also flattened membership attributes
@@ -209,7 +209,7 @@ public class ElasticsearchUtils {
                     ((Collection<Object>) attr).addAll(values);
                 } else {
                     values.add(attr);
-                    builder.put(mAttr.getSchema(), values.size() == 1 ? values.get(0) : values);
+                    builder.put(mAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
                 }
             }));
         }

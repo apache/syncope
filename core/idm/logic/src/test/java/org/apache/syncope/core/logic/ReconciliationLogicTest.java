@@ -64,22 +64,22 @@ public class ReconciliationLogicTest extends AbstractTest {
                 SyncopeConstants.MASTER_DOMAIN, () -> reconciliationLogic.pull(spec, csv));
         assertEquals(2, results.size());
 
-        assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());
-        assertNotNull(results.get(0).getKey());
-        assertEquals("donizetti", results.get(0).getName());
-        assertEquals("donizetti", results.get(0).getUidValue());
+        assertEquals(AnyTypeKind.USER.name(), results.getFirst().getAnyType());
+        assertNotNull(results.getFirst().getKey());
+        assertEquals("donizetti", results.getFirst().getName());
+        assertEquals("donizetti", results.getFirst().getUidValue());
         assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
         assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
 
         AuthContextUtils.runAsAdmin(SyncopeConstants.MASTER_DOMAIN, () -> {
-            UserTO donizetti = userLogic.read(results.get(0).getKey());
+            UserTO donizetti = userLogic.read(results.getFirst().getKey());
             assertNotNull(donizetti);
-            assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().get(0));
+            assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValues().getFirst());
             assertEquals(1, donizetti.getPlainAttr("loginDate").get().getValues().size());
 
             UserTO cimarosa = userLogic.read(results.get(1).getKey());
             assertNotNull(cimarosa);
-            assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().get(0));
+            assertEquals("Domenico Cimarosa", cimarosa.getPlainAttr("fullname").get().getValues().getFirst());
             assertEquals(2, cimarosa.getPlainAttr("loginDate").get().getValues().size());
         });
     }

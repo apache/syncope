@@ -48,13 +48,13 @@ public class TemplateUtils {
         templates.values().forEach(value -> {
             value.getPlainAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
-                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
+                    && !JexlUtils.isExpressionValid(attrTO.getValues().getFirst())).
+                    forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().getFirst()));
 
             value.getVirAttrs().stream().
                     filter(attrTO -> !attrTO.getValues().isEmpty()
-                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
-                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0)));
+                    && !JexlUtils.isExpressionValid(attrTO.getValues().getFirst())).
+                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().getFirst()));
 
             switch (value) {
                 case UserTO template -> {
@@ -125,7 +125,7 @@ public class TemplateUtils {
                 Attr evaluated = evaluateAttr(templatePlainAttr, jexlContext);
                 if (!evaluated.getValues().isEmpty()) {
                     realmMember.getPlainAttrs().add(evaluated);
-                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().get(0));
+                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().getFirst());
                 }
             }
         }
@@ -146,7 +146,7 @@ public class TemplateUtils {
                 Attr evaluated = evaluateAttr(templateVirAttr, jexlContext);
                 if (!evaluated.getValues().isEmpty()) {
                     realmMember.getVirAttrs().add(evaluated);
-                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().get(0));
+                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().getFirst());
                 }
             }
         }

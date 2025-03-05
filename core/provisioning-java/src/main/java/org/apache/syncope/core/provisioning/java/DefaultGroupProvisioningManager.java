@@ -107,7 +107,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
         groupCR.getPlainAttr(StringUtils.EMPTY).
-                ifPresent(groupOwner -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().get(0)));
+                ifPresent(groupOwner -> groupOwnerMap.put(created.getResult(), groupOwner.getValues().getFirst()));
 
         List<PropagationTaskInfo> tasks = propagationManager.getCreateTasks(
                 AnyTypeKind.GROUP,

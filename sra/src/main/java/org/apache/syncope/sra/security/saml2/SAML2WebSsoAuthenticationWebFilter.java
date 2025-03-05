@@ -106,7 +106,7 @@ public class SAML2WebSsoAuthenticationWebFilter extends AuthenticationWebFilter 
                 return webFilterExchange.getExchange().getFormData().
                         flatMap(form -> this.redirectStrategy.sendRedirect(
                         webFilterExchange.getExchange(),
-                        URI.create(form.get("RelayState").get(0))));
+                        URI.create(form.get("RelayState").getFirst())));
             }
         };
     }

@@ -109,9 +109,9 @@ public class UserTest extends AbstractTest {
     public void ships() {
         User user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getMemberships().size());
-        assertEquals("bf825fe1-7320-4a54-bd64-143b5c18ab97", user.getMemberships().get(0).getRightEnd().getKey());
+        assertEquals("bf825fe1-7320-4a54-bd64-143b5c18ab97", user.getMemberships().getFirst().getRightEnd().getKey());
 
-        user.remove(user.getMemberships().get(0));
+        user.remove(user.getMemberships().getFirst());
 
         UMembership newM = entityFactory.newEntity(UMembership.class);
         newM.setLeftEnd(user);
@@ -126,13 +126,13 @@ public class UserTest extends AbstractTest {
         assertEquals(1, user.getMemberships().size());
         assertEquals(
                 "ba9ed509-b1f5-48ab-a334-c8530a6422dc",
-                user.getMemberships().get(0).getRightEnd().getKey());
+                user.getMemberships().getFirst().getRightEnd().getKey());
         assertEquals(1, user.getRelationships().size());
         assertEquals(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
-                user.getRelationships().get(0).getRightEnd().getKey());
+                user.getRelationships().getFirst().getRightEnd().getKey());
 
-        user.getRelationships().remove(0);
+        user.getRelationships().removeFirst();
 
         URelationship newR = entityFactory.newEntity(URelationship.class);
         newR.setType(relationshipTypeDAO.findById("neighborhood").orElseThrow());
@@ -146,7 +146,7 @@ public class UserTest extends AbstractTest {
 
         user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getRelationships().size());
-        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", user.getRelationships().get(0).getRightEnd().getKey());
+        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", user.getRelationships().getFirst().getRightEnd().getKey());
     }
 
     private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {
@@ -176,7 +176,7 @@ public class UserTest extends AbstractTest {
 
         assertEquals(1, user.getLinkedAccounts().size());
 
-        return user.getLinkedAccounts().get(0);
+        return user.getLinkedAccounts().getFirst();
     }
 
     @Test
@@ -196,7 +196,7 @@ public class UserTest extends AbstractTest {
         List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(
                 resourceDAO.findById("resource-ldap").orElseThrow());
         assertEquals(1, accounts.size());
-        assertEquals(account, accounts.get(0));
+        assertEquals(account, accounts.getFirst());
     }
 
     @Test
@@ -265,7 +265,7 @@ public class UserTest extends AbstractTest {
         // add derived attributes to user
         User owner = userDAO.findByUsername("vivaldi").orElseThrow();
 
-        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().iterator().next();
+        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().getFirst();
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute

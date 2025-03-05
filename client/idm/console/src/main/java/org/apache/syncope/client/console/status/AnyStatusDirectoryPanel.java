@@ -334,7 +334,7 @@ public class AnyStatusDirectoryPanel
 
                 return StatusUtils.getStatusBean(actual,
                         resource,
-                        statuses.isEmpty() ? null : statuses.get(0).getRight().getOnResource(),
+                        statuses.isEmpty() ? null : statuses.getFirst().getRight().getOnResource(),
                         actual instanceof GroupTO);
             }).collect(Collectors.toList());
 
@@ -367,7 +367,7 @@ public class AnyStatusDirectoryPanel
                 syncope.setStatus(syncopeStatus);
 
                 statusBeans.sort(comparator);
-                statusBeans.add(0, syncope);
+                statusBeans.addFirst(syncope);
             } else {
                 statusBeans.addAll(resources.stream().
                         filter(resource -> !actual.getResources().contains(resource)).

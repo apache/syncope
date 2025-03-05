@@ -110,7 +110,7 @@ public class AnySearchTest extends AbstractTest {
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
         PlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
-        loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
+        loginDate.getValues().getFirst().setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
 
         userDAO.save(rossini);
     }
@@ -314,7 +314,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -326,13 +326,13 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("rossini", users.get(0).getUsername());
+        assertEquals("rossini", users.getFirst().getUsername());
 
         anyCond.setExpression("/even");
         users = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("rossini", users.get(0).getUsername());
+        assertEquals("rossini", users.getFirst().getUsername());
     }
 
     @Test
@@ -490,8 +490,8 @@ public class AnySearchTest extends AbstractTest {
         List<User> matching = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matching);
         assertEquals(1, matching.size());
-        assertEquals("rossini", matching.iterator().next().getUsername());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matching.iterator().next().getKey());
+        assertEquals("rossini", matching.getFirst().getUsername());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matching.getFirst().getKey());
     }
 
     @Test
@@ -513,8 +513,8 @@ public class AnySearchTest extends AbstractTest {
         List<Group> matching = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
         assertNotNull(matching);
         assertEquals(1, matching.size());
-        assertEquals("root", matching.iterator().next().getName());
-        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", matching.iterator().next().getKey());
+        assertEquals("root", matching.getFirst().getName());
+        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", matching.getFirst().getKey());
     }
 
     @Test
@@ -567,7 +567,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("74cd8ece-715a-44a4-a736-e17b46c4e7e6", users.iterator().next().getKey());
+        assertEquals("74cd8ece-715a-44a4-a736-e17b46c4e7e6", users.getFirst().getKey());
     }
 
     @Test
@@ -612,7 +612,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -627,7 +627,7 @@ public class AnySearchTest extends AbstractTest {
         List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(anyObjects);
         assertEquals(1, anyObjects.size());
-        assertEquals("9e1d130c-d6a3-48b1-98b3-182477ed0688", anyObjects.iterator().next().getKey());
+        assertEquals("9e1d130c-d6a3-48b1-98b3-182477ed0688", anyObjects.getFirst().getKey());
     }
 
     @Test
@@ -642,7 +642,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", users.iterator().next().getKey());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", users.getFirst().getKey());
     }
 
     @Test
@@ -749,7 +749,7 @@ public class AnySearchTest extends AbstractTest {
                     PageRequest.of(0, 10),
                     AnyTypeKind.GROUP);
             assertEquals(1, groups.size());
-            assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());
+            assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.getFirst().getKey());
         } finally {
             SecurityContextHolder.getContext().setAuthentication(null);
         }

@@ -72,7 +72,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
         List<LoggerConf> loggerConfs = new ArrayList<>();
 
         try {
-            Response response = WebClientBuilder.build(getActuatorEndpoint(instances.get(0)),
+            Response response = WebClientBuilder.build(getActuatorEndpoint(instances.getFirst()),
                     SyncopeWebApplication.get().getAnonymousUser(),
                     SyncopeWebApplication.get().getAnonymousKey(),
                     List.of()).accept(MediaType.APPLICATION_JSON_TYPE).get();
@@ -95,10 +95,10 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
                 }
             } else {
                 LOG.error("Unexpected response for loggers from {}: {}",
-                        getActuatorEndpoint(instances.get(0)), response.getStatus());
+                        getActuatorEndpoint(instances.getFirst()), response.getStatus());
             }
         } catch (Exception e) {
-            LOG.error("Could not fetch loggers from {}", getActuatorEndpoint(instances.get(0)), e);
+            LOG.error("Could not fetch loggers from {}", getActuatorEndpoint(instances.getFirst()), e);
         }
 
         loggerConfs.sort(Comparator.comparing(LoggerConf::getKey));

@@ -274,7 +274,7 @@ public class GroupTest extends AbstractTest {
         actual = groupDAO.findById(actual.getKey()).orElseThrow();
         members = groupDAO.findUDynMembers(actual);
         assertEquals(1, members.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.getFirst());
 
         // 5. delete group and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getUDynMembership().getKey();
@@ -348,7 +348,7 @@ public class GroupTest extends AbstractTest {
                 object -> "PRINTER".equals(anyObjectDAO.findById(object).
                         orElseThrow().getType().getKey())).toList();
         assertEquals(1, members.size());
-        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.get(0));
+        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.getFirst());
 
         // 5. delete group and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getADynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).get().getKey();
@@ -382,7 +382,8 @@ public class GroupTest extends AbstractTest {
 
         group = groupDAO.findByName("root").orElseThrow();
         assertEquals(1, group.getRelationships().size());
-        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", group.getRelationships().get(0).getRightEnd().getKey());
+        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
+            group.getRelationships().getFirst().getRightEnd().getKey());
     }
 
     @Test
@@ -404,7 +405,7 @@ public class GroupTest extends AbstractTest {
         groupDAO.save(group);
 
         group = groupDAO.findById(group.getKey()).orElseThrow();
-        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().get(0));
-        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().get(0));
+        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().getFirst());
+        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().getFirst());
     }
 }

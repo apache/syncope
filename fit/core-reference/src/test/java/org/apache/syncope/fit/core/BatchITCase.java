@@ -140,12 +140,13 @@ public class BatchITCase extends AbstractITCase {
     private static void check(final List<BatchResponseItem> resItems) throws IOException {
         assertEquals(6, resItems.size());
 
-        assertEquals(Response.Status.CREATED.getStatusCode(), resItems.get(0).getStatus());
-        assertNotNull(resItems.get(0).getHeaders().get(HttpHeaders.LOCATION));
-        assertNotNull(resItems.get(0).getHeaders().get(HttpHeaders.ETAG));
-        assertNotNull(resItems.get(0).getHeaders().get(RESTHeaders.DOMAIN));
-        assertNotNull(resItems.get(0).getHeaders().get(RESTHeaders.RESOURCE_KEY));
-        assertEquals(RESTHeaders.APPLICATION_YAML, resItems.get(0).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
+        assertEquals(Response.Status.CREATED.getStatusCode(), resItems.getFirst().getStatus());
+        assertNotNull(resItems.getFirst().getHeaders().get(HttpHeaders.LOCATION));
+        assertNotNull(resItems.getFirst().getHeaders().get(HttpHeaders.ETAG));
+        assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.DOMAIN));
+        assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.RESOURCE_KEY));
+        assertEquals(RESTHeaders.APPLICATION_YAML, resItems.getFirst().
+            getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
         ProvisioningResult<UserTO> user = YAML_MAPPER.readValue(
                 resItems.get(0).getContent(), new TypeReference<>() {
         });
@@ -156,7 +157,7 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.get(1).getHeaders().get(HttpHeaders.ETAG));
         assertNotNull(resItems.get(1).getHeaders().get(RESTHeaders.DOMAIN));
         assertNotNull(resItems.get(1).getHeaders().get(RESTHeaders.RESOURCE_KEY));
-        assertEquals(MediaType.APPLICATION_XML, resItems.get(1).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
+        assertEquals(MediaType.APPLICATION_XML, resItems.get(1).getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
 
         ProvisioningResult<GroupTO> group = XML_MAPPER.readValue(
                 resItems.get(1).getContent(), new TypeReference<>() {
@@ -167,7 +168,7 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.get(2).getHeaders().get(RESTHeaders.DOMAIN));
         assertEquals(
                 Preference.RETURN_NO_CONTENT.toString(),
-                resItems.get(2).getHeaders().get(RESTHeaders.PREFERENCE_APPLIED).get(0));
+                resItems.get(2).getHeaders().get(RESTHeaders.PREFERENCE_APPLIED).getFirst());
 
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), resItems.get(3).getStatus());
 
@@ -175,11 +176,11 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.get(4).getHeaders().get(RESTHeaders.DOMAIN));
         assertNotNull(resItems.get(4).getHeaders().get(RESTHeaders.ERROR_CODE));
         assertNotNull(resItems.get(4).getHeaders().get(RESTHeaders.ERROR_INFO));
-        assertEquals(MediaType.APPLICATION_JSON, resItems.get(4).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
+        assertEquals(MediaType.APPLICATION_JSON, resItems.get(4).getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
 
         assertEquals(Response.Status.OK.getStatusCode(), resItems.get(5).getStatus());
         assertNotNull(resItems.get(5).getHeaders().get(RESTHeaders.DOMAIN));
-        assertEquals(MediaType.APPLICATION_JSON, resItems.get(5).getHeaders().get(HttpHeaders.CONTENT_TYPE).get(0));
+        assertEquals(MediaType.APPLICATION_JSON, resItems.get(5).getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
         group = JSON_MAPPER.readValue(
                 resItems.get(5).getContent(), new TypeReference<>() {
         });

@@ -80,14 +80,14 @@ public final class StatusUtils implements Serializable {
     public static Boolean isEnabled(final ConnObject connObject) {
         return connObject.getAttr(ConnIdSpecialName.ENABLE).
                 filter(s -> !s.getValues().isEmpty()).
-                map(s -> Boolean.valueOf(s.getValues().get(0))).
+                map(s -> Boolean.valueOf(s.getValues().getFirst())).
                 orElse(Boolean.FALSE);
     }
 
     public static String getConnObjectLink(final ConnObject connObject) {
         return connObject.getAttr(ConnIdSpecialName.NAME).
                 filter(s -> !s.getValues().isEmpty()).
-                map(s -> s.getValues().get(0)).
+                map(s -> s.getValues().getFirst()).
                 orElse(null);
     }
 

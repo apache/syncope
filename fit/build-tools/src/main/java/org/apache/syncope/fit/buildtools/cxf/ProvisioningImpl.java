@@ -123,7 +123,7 @@ public class ProvisioningImpl implements Provisioning {
                     if (attr.getValues() == null || attr.getValues().isEmpty()) {
                         value = null;
                     } else if (attr.getValues().size() == 1) {
-                        value = attr.getValues().get(0).toString();
+                        value = attr.getValues().getFirst().toString();
                     } else {
                         value = attr.getValues().toString();
                     }
@@ -256,7 +256,7 @@ public class ProvisioningImpl implements Provisioning {
                         if (attr.getValues() == null || attr.getValues().isEmpty()) {
                             value = null;
                         } else if (attr.getValues().size() == 1) {
-                            value = attr.getValues().get(0).toString();
+                            value = attr.getValues().getFirst().toString();
                         } else {
                             value = attr.getValues().toString();
                         }
@@ -285,7 +285,7 @@ public class ProvisioningImpl implements Provisioning {
                         values.append(Optional.ofNullable(value).map(s -> '\'' + s + '\'').orElse(null));
 
                         if (attr.isKey() && !attr.getValues().isEmpty()) {
-                            accountid = attr.getValues().get(0).toString();
+                            accountid = attr.getValues().getFirst().toString();
                         }
                     }
                 }

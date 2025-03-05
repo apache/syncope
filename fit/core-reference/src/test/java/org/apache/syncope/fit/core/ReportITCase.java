@@ -189,8 +189,8 @@ public class ReportITCase extends AbstractITCase {
                 new ExecQuery.Builder().key(report.getKey()).after(start).before(end).build());
         List<BatchResponseItem> batchResponseItems = parseBatchResponse(response);
         assertEquals(1, batchResponseItems.size());
-        assertEquals(execKey, batchResponseItems.get(0).getHeaders().get(RESTHeaders.RESOURCE_KEY).get(0));
-        assertEquals(Response.Status.OK.getStatusCode(), batchResponseItems.get(0).getStatus());
+        assertEquals(execKey, batchResponseItems.getFirst().getHeaders().get(RESTHeaders.RESOURCE_KEY).getFirst());
+        assertEquals(Response.Status.OK.getStatusCode(), batchResponseItems.getFirst().getStatus());
     }
 
     @Test

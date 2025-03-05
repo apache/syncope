@@ -132,6 +132,6 @@ public class ZookeeperServiceOps implements ServiceOps {
         }
 
         // always returns first instance, can be improved
-        return list.get(0);
+        return list.getFirst();
     }
 }

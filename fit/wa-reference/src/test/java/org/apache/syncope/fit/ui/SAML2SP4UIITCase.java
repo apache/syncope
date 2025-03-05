@@ -122,7 +122,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();
         assertEquals(1, idps.size());
 
-        SAML2SP4UIIdPTO cas = idps.get(0);
+        SAML2SP4UIIdPTO cas = idps.getFirst();
         cas.setEntityID(WA_ADDRESS + "/saml");
         cas.setName("CAS");
         cas.setCreateUnmatching(true);
@@ -306,7 +306,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         List<SAML2SP4UIIdPTO> idps = SAML2SP4UI_IDP_SERVICE.list();
         assertEquals(1, idps.size());
 
-        SAML2SP4UIIdPTO cas = idps.get(0);
+        SAML2SP4UIIdPTO cas = idps.getFirst();
         cas.setCreateUnmatching(false);
         cas.setSelfRegUnmatching(true);
         SAML2SP4UI_IDP_SERVICE.update(cas);

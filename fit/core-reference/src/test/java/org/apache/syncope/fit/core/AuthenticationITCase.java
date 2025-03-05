@@ -255,7 +255,7 @@ public class AuthenticationITCase extends AbstractITCase {
             UserTO user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
             assertEquals("/even/two", user.getRealm());
-            assertEquals("surname", user.getPlainAttr("surname").get().getValues().get(0));
+            assertEquals("surname", user.getPlainAttr("surname").get().getValues().getFirst());
 
             // 5. as delegated, update user attempting to move under realm /odd -> fail
             UserUR userUR = new UserUR();
@@ -279,7 +279,7 @@ public class AuthenticationITCase extends AbstractITCase {
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
             assertEquals("/even/two", user.getRealm());
-            assertEquals("surname2", user.getPlainAttr("surname").get().getValues().get(0));
+            assertEquals("surname2", user.getPlainAttr("surname").get().getValues().getFirst());
 
             // 7. as delegated, delete user
             delegatedUserService.delete(user.getKey());
@@ -589,7 +589,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. approve user
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {

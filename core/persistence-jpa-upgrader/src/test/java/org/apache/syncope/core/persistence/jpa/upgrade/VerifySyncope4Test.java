@@ -203,6 +203,6 @@ class VerifySyncope4Test {
                 "Antonio",
                 userDAO.findByUsername("vivaldi").orElseThrow().
                         getPlainAttr("firstname").orElseThrow().
-                        getValuesAsStrings().get(0));
+                        getValuesAsStrings().getFirst());
     }
 }

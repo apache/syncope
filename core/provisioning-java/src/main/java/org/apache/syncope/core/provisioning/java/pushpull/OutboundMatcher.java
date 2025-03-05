@@ -166,7 +166,7 @@ public class OutboundMatcher {
         }
 
         if (any != null && result.size() == 1) {
-            virAttrHandler.setValues(any, result.get(0));
+            virAttrHandler.setValues(any, result.getFirst());
         }
 
         return result;
@@ -239,7 +239,7 @@ public class OutboundMatcher {
         }
 
         if (any != null && result.size() == 1) {
-            virAttrHandler.setValues(any, result.get(0));
+            virAttrHandler.setValues(any, result.getFirst());
         }
 
         return result;

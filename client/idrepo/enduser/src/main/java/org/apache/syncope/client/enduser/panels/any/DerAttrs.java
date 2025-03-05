@@ -172,7 +172,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                     if (values == null || values.isEmpty()) {
                         model = new ResourceModel("derived.emptyvalue.message", StringUtils.EMPTY);
                     } else {
-                        model = new Model<>(values.get(0));
+                        model = new Model<>(values.getFirst());
                     }
 
                     AjaxTextFieldPanel panel = new AjaxTextFieldPanel(

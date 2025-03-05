@@ -107,7 +107,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(SearchCond.of(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.of(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals(rossini.getKey(), users.get(0).getKey());
+        assertEquals(rossini.getKey(), users.getFirst().getKey());
     }
 
     @Test
@@ -177,7 +177,7 @@ public class AnySearchTest extends AbstractTest {
         PlainAttr attr = new PlainAttr();
         attr.setSchema("ctype");
         attr.add(validator, "otherchildctype");
-        attr.setMembership(anyObject.getMemberships().get(0).getKey());
+        attr.setMembership(anyObject.getMemberships().getFirst().getKey());
         anyObject.add(attr);
         anyObjectDAO.save(anyObject);
 
@@ -209,7 +209,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -259,7 +259,7 @@ public class AnySearchTest extends AbstractTest {
 
         List<Group> matching = searchDAO.search(SearchCond.of(titleCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
-        assertEquals(group.getKey(), matching.get(0).getKey());
+        assertEquals(group.getKey(), matching.getFirst().getKey());
 
         AttrCond originalNameCond = new AttrCond(AttrCond.Type.EQ);
         originalNameCond.setSchema("originalName");
@@ -267,7 +267,7 @@ public class AnySearchTest extends AbstractTest {
 
         matching = searchDAO.search(SearchCond.of(originalNameCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
-        assertEquals(group.getKey(), matching.get(0).getKey());
+        assertEquals(group.getKey(), matching.getFirst().getKey());
     }
 
     @Test
@@ -283,7 +283,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("verdi", users.get(0).getUsername());
+        assertEquals("verdi", users.getFirst().getUsername());
 
         // 1. set rossini's email address for conditions as per SYNCOPE-1790
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
@@ -298,12 +298,12 @@ public class AnySearchTest extends AbstractTest {
         rossini = userDAO.findByUsername("rossini").orElseThrow();
         assertEquals(
                 "bisverdi@syncope.org",
-                rossini.getPlainAttr("email").map(a -> a.getValuesAsStrings().get(0)).orElseThrow());
+                rossini.getPlainAttr("email").map(a -> a.getValuesAsStrings().getFirst()).orElseThrow());
 
         // 2. search again
         users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("verdi", users.get(0).getUsername());
+        assertEquals("verdi", users.getFirst().getUsername());
     }
 }

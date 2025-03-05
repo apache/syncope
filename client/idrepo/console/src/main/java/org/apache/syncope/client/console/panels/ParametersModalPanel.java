@@ -115,12 +115,12 @@ public class ParametersModalPanel extends AbstractModalPanel<ConfParam> {
             } else // attempt to guess type from content: otherwise, it's bare String
             if (!param.getValues().isEmpty()) {
                 // 1. is it Date?
-                if (isDate(param.getValues().get(0).toString())) {
+                if (isDate(param.getValues().getFirst().toString())) {
                     schema.setType(AttrSchemaType.Date);
                 } else // 2. does it look like Base64?
-                if (isBase64(param.getValues().get(0).toString())) {
+                if (isBase64(param.getValues().getFirst().toString())) {
                     schema.setType(AttrSchemaType.Binary);
-                    String value = new String(Base64.getDecoder().decode(param.getValues().get(0).toString()));
+                    String value = new String(Base64.getDecoder().decode(param.getValues().getFirst().toString()));
 
                     // 3. is it JSON?
                     if (isJSON(value)) {

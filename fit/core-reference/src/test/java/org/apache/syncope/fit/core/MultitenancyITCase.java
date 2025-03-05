@@ -106,13 +106,13 @@ public class MultitenancyITCase extends AbstractITCase {
                 search(new RealmQuery.Builder().keyword("*").build());
         assertEquals(1, realms.getTotalCount());
         assertEquals(1, realms.getResult().size());
-        assertEquals(SyncopeConstants.ROOT_REALM, realms.getResult().get(0).getName());
+        assertEquals(SyncopeConstants.ROOT_REALM, realms.getResult().getFirst().getName());
     }
 
     @Test
     public void createUser() {
         assertNull(ADMIN_CLIENT.getService(RealmService.class).
-                search(new RealmQuery.Builder().keyword("*").build()).getResult().get(0).getPasswordPolicy());
+                search(new RealmQuery.Builder().keyword("*").build()).getResult().getFirst().getPasswordPolicy());
 
         UserCR userCR = new UserCR();
         userCR.setRealm(SyncopeConstants.ROOT_REALM);
@@ -225,7 +225,7 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(1, matchingUsers.getResult().size());
 
             // SYNCOPE-1374
-            String pullFromLDAPKey = matchingUsers.getResult().get(0).getKey();
+            String pullFromLDAPKey = matchingUsers.getResult().getFirst().getKey();
 
             assertEquals(0, ADMIN_CLIENT.getService(TaskService.class).
                     search(new TaskQuery.Builder(TaskType.PROPAGATION).

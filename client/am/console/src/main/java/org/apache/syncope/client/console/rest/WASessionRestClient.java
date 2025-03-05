@@ -44,7 +44,7 @@ public final class WASessionRestClient extends AMSessionRestClient {
 
     @Override
     protected String getActuatorEndpoint() {
-        return instances.get(0).getAddress() + "actuator/ssoSessions";
+        return instances.getFirst().getAddress() + "actuator/ssoSessions";
     }
 
     @Override

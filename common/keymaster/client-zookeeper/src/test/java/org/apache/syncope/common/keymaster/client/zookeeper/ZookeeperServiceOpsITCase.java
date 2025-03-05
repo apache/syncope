@@ -51,7 +51,7 @@ public class ZookeeperServiceOpsITCase {
         list = serviceOps.list(NetworkService.Type.CORE);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
-        assertEquals(core1, list.get(0));
+        assertEquals(core1, list.getFirst());
 
         assertEquals(core1, serviceOps.get(NetworkService.Type.CORE));
 
@@ -64,7 +64,7 @@ public class ZookeeperServiceOpsITCase {
         list = serviceOps.list(NetworkService.Type.CORE);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
-        assertEquals(core1, list.get(0));
+        assertEquals(core1, list.getFirst());
 
         assertEquals(core1, serviceOps.get(NetworkService.Type.CORE));
 

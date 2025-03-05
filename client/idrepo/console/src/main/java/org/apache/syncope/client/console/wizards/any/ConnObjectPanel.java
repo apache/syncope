@@ -150,7 +150,7 @@ public class ConnObjectPanel extends Panel {
         } else if (ConnIdSpecialName.PASSWORD.equals(schemaName)) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<>("********"));
         } else if (attrTO.getValues().size() == 1) {
-            field = new AjaxTextFieldPanel(id, schemaName, new Model<>(attrTO.getValues().get(0)));
+            field = new AjaxTextFieldPanel(id, schemaName, new Model<>(attrTO.getValues().getFirst()));
         } else {
             field = new MultiFieldPanel.Builder<>(new ListModel<>(attrTO.getValues())).build(
                     id,

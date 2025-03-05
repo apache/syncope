@@ -205,7 +205,7 @@ public class AuthDataAccessor {
                 try {
                     List<User> users = anySearchDAO.search(SearchCond.of(attrCond), AnyTypeKind.USER);
                     if (users.size() == 1) {
-                        user = users.get(0);
+                        user = users.getFirst();
                     } else {
                         LOG.warn("Search condition {} does not uniquely match a user", attrCond);
                     }

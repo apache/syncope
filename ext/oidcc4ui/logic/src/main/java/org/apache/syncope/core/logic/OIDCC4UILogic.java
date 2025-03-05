@@ -217,12 +217,12 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);
         } else {
             if (op.isUpdateMatching()) {
-                LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
+                LOG.debug("About to update {} for {}", matchingUsers.getFirst(), keyValue);
 
                 username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
-                        () -> userManager.update(matchingUsers.get(0), op, loginResp));
+                        () -> userManager.update(matchingUsers.getFirst(), op, loginResp));
             } else {
-                username = matchingUsers.get(0);
+                username = matchingUsers.getFirst();
             }
         }
 
