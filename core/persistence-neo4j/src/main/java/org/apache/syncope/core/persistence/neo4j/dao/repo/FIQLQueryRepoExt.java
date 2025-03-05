@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.FIQLQuery;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
+@FunctionalInterface
 public interface FIQLQueryRepoExt {
 
     List<FIQLQuery> findByOwner(User user, String target);

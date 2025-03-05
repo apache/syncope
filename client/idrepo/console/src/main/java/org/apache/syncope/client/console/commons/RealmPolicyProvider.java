@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.markup.repeater.RepeatingView;
 
+@FunctionalInterface
 public interface RealmPolicyProvider extends Serializable {
 
     void add(RealmTO realmTO, RepeatingView view);

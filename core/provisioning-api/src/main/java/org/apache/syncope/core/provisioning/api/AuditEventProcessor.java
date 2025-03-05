@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 
+@FunctionalInterface
 public interface AuditEventProcessor {
 
     default Set<OpEvent> getEvents(String domain) {

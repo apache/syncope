@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 
+@FunctionalInterface
 public interface ReportJobDelegate {
 
     /**

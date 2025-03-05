@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api.job;
 
 import org.apache.syncope.common.lib.types.TaskType;
 
+@FunctionalInterface
 public interface SchedTaskJobDelegate {
 
     /**

@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api.data;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.core.persistence.api.entity.AuditConf;
 
+@FunctionalInterface
 public interface AuditDataBinder {
 
     AuditConfTO getAuditConfTO(AuditConf auditConf);
