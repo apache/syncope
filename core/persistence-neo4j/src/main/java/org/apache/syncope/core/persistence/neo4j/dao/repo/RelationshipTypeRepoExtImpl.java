@@ -49,6 +49,17 @@ public class RelationshipTypeRepoExtImpl extends AbstractDAO implements Relation
         return result.stream().map(RelationshipType::getKey).distinct().toList();
     }
 
+    @Override
+    public List<? extends RelationshipType> findByLeftEndAnyType(final AnyType anyType) {
+        return findByRelationship(
+                Neo4jRelationshipType.NODE,
+                Neo4jAnyType.NODE,
+                anyType.getKey(),
+                Neo4jRelationshipType.LEFT_END_ANYTYPE,
+                Neo4jRelationshipType.class,
+                null);
+    }
+
     protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
         List<Relationship<?, ?>> result = new ArrayList<>();
 

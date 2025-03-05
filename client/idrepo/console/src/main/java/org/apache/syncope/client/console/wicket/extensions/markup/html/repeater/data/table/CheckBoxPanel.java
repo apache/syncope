@@ -33,8 +33,8 @@ public class CheckBoxPanel<T> extends Panel {
     public CheckBoxPanel(final String componentId, final IModel<T> model, final CheckGroup<T> checkGroup) {
         super(componentId, model);
         this.check = new Check<>("check", model, checkGroup);
-        if (checkGroup instanceof ActionTableCheckGroup) {
-            boolean checkable = ((ActionTableCheckGroup<T>) checkGroup).isCheckable(model.getObject());
+        if (checkGroup instanceof final ActionTableCheckGroup<T> components) {
+            boolean checkable = components.isCheckable(model.getObject());
             this.check.setEnabled(checkable);
             this.check.setVisible(checkable);
         }

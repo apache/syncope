@@ -117,7 +117,7 @@ public class SearchCond extends AbstractSearchCond {
     }
 
     public Optional<AnyTypeCond> getAnyTypeCond() {
-        return Optional.ofNullable(leaf instanceof AnyTypeCond ? (AnyTypeCond) leaf : null);
+        return Optional.ofNullable(leaf instanceof final AnyTypeCond anyTypeCond ? anyTypeCond : null);
     }
 
     /**

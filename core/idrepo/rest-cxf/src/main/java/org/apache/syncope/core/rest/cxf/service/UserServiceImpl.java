@@ -31,9 +31,7 @@ import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.springframework.stereotype.Service;
 
-@Service
 public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> implements UserService {
 
     protected final UserDAO userDAO;

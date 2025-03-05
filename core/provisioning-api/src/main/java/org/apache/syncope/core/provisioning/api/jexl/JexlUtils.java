@@ -217,10 +217,10 @@ public final class JexlUtils {
             }
         });
 
-        if (object instanceof Any && ((Any) object).getRealm() != null) {
-            jexlContext.set("realm", ((Any) object).getRealm().getFullPath());
-        } else if (object instanceof AnyTO && ((AnyTO) object).getRealm() != null) {
-            jexlContext.set("realm", ((AnyTO) object).getRealm());
+        if (object instanceof final Any any && any.getRealm() != null) {
+            jexlContext.set("realm", any.getRealm().getFullPath());
+        } else if (object instanceof final AnyTO anyTO && anyTO.getRealm() != null) {
+            jexlContext.set("realm", anyTO.getRealm());
         } else if (object instanceof Realm realm) {
             jexlContext.set("fullPath", realm.getFullPath());
         } else if (object instanceof RealmTO realmTO) {

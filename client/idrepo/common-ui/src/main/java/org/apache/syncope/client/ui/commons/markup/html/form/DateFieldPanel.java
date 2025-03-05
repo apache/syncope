@@ -100,9 +100,9 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
                         } catch (ParseException e) {
                             LOG.error("While parsing date", e);
                         }
-                    } else if (obj instanceof Date) {
+                    } else if (obj instanceof final Date date1) {
                         // Don't parse anything
-                        date = (Date) obj;
+                        date = date1;
                     } else {
                         // consider Long
                         date = new Date((Long) obj);

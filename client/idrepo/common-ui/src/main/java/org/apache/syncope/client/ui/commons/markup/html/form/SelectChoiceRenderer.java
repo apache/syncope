@@ -28,8 +28,8 @@ public class SelectChoiceRenderer<T> implements IChoiceRenderer<T> {
 
     @Override
     public Object getDisplayValue(final T obj) {
-        if (obj instanceof SelectOption) {
-            return ((SelectOption) obj).getDisplayValue();
+        if (obj instanceof final SelectOption selectOption) {
+            return selectOption.getDisplayValue();
         } else {
             return obj.toString();
         }

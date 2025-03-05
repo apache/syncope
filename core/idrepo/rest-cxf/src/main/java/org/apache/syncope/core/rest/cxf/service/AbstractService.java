@@ -119,10 +119,10 @@ public abstract class AbstractService implements JAXRSService {
             throw sce;
         }
         if (!SyncopeConstants.UUID_PATTERN.matcher(actualKey).matches()) {
-            actualKey = dao instanceof UserDAO
-                    ? ((UserDAO) dao).findKey(actualKey).orElse(null)
-                    : dao instanceof GroupDAO
-                            ? ((GroupDAO) dao).findKey(actualKey).orElse(null)
+            actualKey = dao instanceof final UserDAO userDAO
+                    ? userDAO.findKey(actualKey).orElse(null)
+                    : dao instanceof final GroupDAO groupDAO
+                            ? groupDAO.findKey(actualKey).orElse(null)
                             : null;
         }
         return actualKey;

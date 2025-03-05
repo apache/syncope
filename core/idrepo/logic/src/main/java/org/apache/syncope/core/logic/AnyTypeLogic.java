@@ -32,6 +32,10 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
+import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.identityconnectors.framework.common.objects.SyncDeltaType;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,14 +48,18 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
 
     protected final AnyObjectDAO anyObjectDAO;
 
+    protected final ApplicationEventPublisher publisher;
+
     public AnyTypeLogic(
             final AnyTypeDataBinder binder,
             final AnyTypeDAO anyTypeDAO,
-            final AnyObjectDAO anyObjectDAO) {
+            final AnyObjectDAO anyObjectDAO,
+            final ApplicationEventPublisher publisher) {
 
         this.binder = binder;
         this.anyTypeDAO = anyTypeDAO;
         this.anyObjectDAO = anyObjectDAO;
+        this.publisher = publisher;
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_READ + "')")
@@ -80,7 +88,12 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             throw new DuplicateException(anyTypeTO.getKey());
         }
 
-        return binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
+        AnyType anyType = anyTypeDAO.save(binder.create(anyTypeTO));
+
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.CREATE, anyType, AuthContextUtils.getDomain()));
+
+        return binder.getAnyTypeTO(anyType);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_UPDATE + "')")
@@ -89,7 +102,11 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
                 orElseThrow(() -> new NotFoundException("AnyType " + anyTypeTO.getKey()));
 
         binder.update(anyType, anyTypeTO);
-        anyTypeDAO.save(anyType);
+
+        anyType = anyTypeDAO.save(anyType);
+
+        publisher.publishEvent(
+                new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, anyType, AuthContextUtils.getDomain()));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANYTYPE_DELETE + "')")
@@ -107,7 +124,12 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         }
 
         try {
-            return binder.delete(anyType);
+            AnyTypeTO deleted = binder.delete(anyType);
+
+            publisher.publishEvent(
+                    new EntityLifecycleEvent<>(this, SyncDeltaType.DELETE, anyType, AuthContextUtils.getDomain()));
+
+            return deleted;
         } catch (IllegalArgumentException | InvalidDataAccessApiUsageException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRequest);
             sce.getElements().add(e.getMessage());

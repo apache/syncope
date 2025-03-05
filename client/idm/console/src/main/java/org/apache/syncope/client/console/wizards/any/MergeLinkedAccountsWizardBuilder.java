@@ -94,12 +94,12 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-            ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().ifPresent(modal::close);
+        if (event.getPayload() instanceof final AjaxWizard.NewItemCancelEvent<?> newItemCancelEvent) {
+            newItemCancelEvent.getTarget().ifPresent(modal::close);
         }
-        if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+        if (event.getPayload() instanceof final AjaxWizard.NewItemFinishEvent<?> newItemFinishEvent) {
             Optional<AjaxRequestTarget> target =
-                    ((AjaxWizard.NewItemFinishEvent<?>) event.getPayload()).getTarget();
+                    newItemFinishEvent.getTarget();
             try {
                 mergeAccounts();
 

@@ -109,8 +109,8 @@ public class UserRequestFormDirectoryPanel
             updateResultTable(target);
 
             Serializable widget = SyncopeConsoleSession.get().getAttribute(UserRequestFormsWidget.class.getName());
-            if (widget instanceof UserRequestFormsWidget) {
-                ((UserRequestFormsWidget) widget).refreshLatestAlerts(target);
+            if (widget instanceof final UserRequestFormsWidget components) {
+                components.refreshLatestAlerts(target);
             }
 
             manageFormModal.show(false);
@@ -149,9 +149,9 @@ public class UserRequestFormDirectoryPanel
 
             @Override
             public void updateHeader(final AjaxRequestTarget target, final Serializable object) {
-                if (object instanceof UserRequestForm) {
+                if (object instanceof final UserRequestForm userRequestForm) {
                     setHeader(target, StringUtils.abbreviate(
-                            ((UserRequestForm) object).getUsername(), HEADER_FIRST_ABBREVIATION));
+                            userRequestForm.getUsername(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, object);
                 }

@@ -35,9 +35,7 @@ import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectCR, AnyObjectUR>
         implements AnyObjectService {
 

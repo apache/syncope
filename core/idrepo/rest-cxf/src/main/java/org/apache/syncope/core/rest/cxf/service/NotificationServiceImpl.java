@@ -27,9 +27,7 @@ import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.logic.NotificationLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class NotificationServiceImpl extends AbstractService implements NotificationService {
 
     protected final NotificationLogic logic;

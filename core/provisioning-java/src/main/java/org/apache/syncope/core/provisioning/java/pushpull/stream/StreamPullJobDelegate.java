@@ -247,8 +247,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             return profile.getResults();
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While stream pulling", e);
         }
     }

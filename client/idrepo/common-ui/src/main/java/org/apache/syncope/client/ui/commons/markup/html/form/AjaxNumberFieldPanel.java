@@ -166,18 +166,18 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
                         } catch (NumberFormatException e) {
                             LOG.error("While attempting to parse {}", obj, e);
                         }
-                    } else if (obj instanceof Number) {
+                    } else if (obj instanceof final Number number1) {
                         number = reference.equals(Integer.class)
-                                ? reference.cast(((Number) obj).intValue())
+                                ? reference.cast(number1.intValue())
                                 : reference.equals(Long.class)
-                                ? reference.cast(((Number) obj).longValue())
+                                ? reference.cast(number1.longValue())
                                 : reference.equals(Short.class)
-                                ? reference.cast(((Number) obj).shortValue())
+                                ? reference.cast(number1.shortValue())
                                 : reference.equals(Float.class)
-                                ? reference.cast(((Number) obj).floatValue())
+                                ? reference.cast(number1.floatValue())
                                 : reference.equals(byte.class)
-                                ? reference.cast(((Number) obj).byteValue())
-                                : reference.cast(((Number) obj).doubleValue());
+                                ? reference.cast(number1.byteValue())
+                                : reference.cast(number1.doubleValue());
                     }
                 }
 

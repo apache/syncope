@@ -55,8 +55,8 @@ public final class JavaDocUtils {
      * @return URLs from underlying class loader
      */
     private static URL[] urlsFromClassLoader(final ClassLoader classLoader) {
-        if (classLoader instanceof URLClassLoader) {
-            return ((URLClassLoader) classLoader).getURLs();
+        if (classLoader instanceof final URLClassLoader urlClassLoader) {
+            return urlClassLoader.getURLs();
         }
 
         return Stream.of(ManagementFactory.getRuntimeMXBean().getClassPath().

@@ -30,9 +30,7 @@ import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.core.logic.AccessTokenLogic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AccessTokenServiceImpl extends AbstractService implements AccessTokenService {
 
     protected final AccessTokenLogic logic;

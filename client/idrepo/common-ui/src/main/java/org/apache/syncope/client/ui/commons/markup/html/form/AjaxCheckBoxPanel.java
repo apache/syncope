@@ -107,9 +107,9 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
                 if (obj != null && !obj.toString().isEmpty()) {
                     if (obj instanceof String) {
                         bool = Boolean.TRUE.toString().equalsIgnoreCase(obj.toString());
-                    } else if (obj instanceof Boolean) {
+                    } else if (obj instanceof final Boolean b) {
                         // Don't parse anything
-                        bool = (Boolean) obj;
+                        bool = b;
                     }
                 }
 

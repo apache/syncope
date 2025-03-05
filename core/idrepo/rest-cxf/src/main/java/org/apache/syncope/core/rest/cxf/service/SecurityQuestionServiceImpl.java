@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.core.logic.SecurityQuestionLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SecurityQuestionServiceImpl extends AbstractService implements SecurityQuestionService {
 
     protected final SecurityQuestionLogic logic;
