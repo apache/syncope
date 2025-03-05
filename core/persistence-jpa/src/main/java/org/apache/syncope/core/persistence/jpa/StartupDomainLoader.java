@@ -70,7 +70,7 @@ public class StartupDomainLoader implements SyncopeCoreLoader {
     @Override
     public void load() {
         Map<String, JPADomain> keymasterDomains = domainOps.list().stream().
-                collect(Collectors.toMap(Domain::getKey, domain -> (JPADomain) domain));
+                collect(Collectors.toMap(Domain::getKey, JPADomain.class::cast));
 
         persistenceProperties.getDomain().stream().
                 filter(d -> !SyncopeConstants.MASTER_DOMAIN.equals(d.getKey())

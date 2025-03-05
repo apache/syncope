@@ -43,6 +43,6 @@ public class IdRepoEntitlementLoader implements SyncopeCoreLoader {
 
     @Override
     public void load(final String domain) {
-        AuthContextUtils.runAsAdmin(domain, () -> entitlementAccessor.addEntitlementsForAnyTypes());
+        AuthContextUtils.runAsAdmin(domain, entitlementAccessor::addEntitlementsForAnyTypes);
     }
 }

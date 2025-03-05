@@ -171,7 +171,7 @@ public abstract class AbstractUIITCase {
 
     protected static void closeCallBack(final Component modal) {
         modal.getBehaviors().stream().
-                filter(behavior -> (behavior instanceof AbstractAjaxBehavior)).
+                filter(AbstractAjaxBehavior.class::isInstance).
                 forEachOrdered(behavior -> TESTER.executeBehavior((AbstractAjaxBehavior) behavior));
     }
 

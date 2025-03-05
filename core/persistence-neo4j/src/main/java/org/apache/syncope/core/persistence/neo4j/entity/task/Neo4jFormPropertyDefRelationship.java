@@ -33,7 +33,7 @@ public class Neo4jFormPropertyDefRelationship
         implements Comparable<Neo4jFormPropertyDefRelationship> {
 
     public static BiFunction<Integer, Neo4jFormPropertyDef, Neo4jFormPropertyDefRelationship> builder() {
-        return (Integer i, Neo4jFormPropertyDef e) -> new Neo4jFormPropertyDefRelationship(i, e);
+        return Neo4jFormPropertyDefRelationship::new;
     }
 
     @RelationshipId

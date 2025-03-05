@@ -184,7 +184,7 @@ public class DomainRoutingEntityManagerFactory implements EntityManagerFactory, 
 
     @Override
     public void close() {
-        delegates.forEach((domain, emf) -> close(domain, emf));
+        delegates.forEach(this::close);
     }
 
     @Override

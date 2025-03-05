@@ -257,7 +257,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         } else if (resourceTO.getOrgUnit() != null) {
             OrgUnit orgUnitTO = resourceTO.getOrgUnit();
 
-            OrgUnit orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(() -> new OrgUnit());
+            OrgUnit orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(OrgUnit::new);
 
             if (orgUnitTO.getObjectClass() == null) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
