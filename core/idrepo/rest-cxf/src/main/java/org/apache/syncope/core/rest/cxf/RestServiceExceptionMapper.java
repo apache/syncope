@@ -324,6 +324,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return Optional.ofNullable(message).
                 orElseGet(() -> Optional.ofNullable(ex.getCause()).
                 map(Throwable::getMessage).
-                orElseGet(() -> ex.getMessage()));
+                orElseGet(ex::getMessage));
     }
 }

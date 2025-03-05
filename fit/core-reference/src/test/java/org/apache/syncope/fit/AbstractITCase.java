@@ -834,7 +834,7 @@ public abstract class AbstractITCase {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
 
             BasicAttributes entry = new BasicAttributes();
-            entryAttrs.getRight().forEach(item -> entry.put(item));
+            entryAttrs.getRight().forEach(entry::put);
 
             ctx.createSubcontext(entryAttrs.getLeft(), entry);
 

@@ -164,7 +164,7 @@ public class UserService {
         }
 
         return user.filter(u -> password.equals(u.getPassword())).
-                orElseThrow(() -> new ForbiddenException());
+                orElseThrow(ForbiddenException::new);
     }
 
     @POST

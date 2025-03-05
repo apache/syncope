@@ -127,7 +127,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getDerAttrs())).
-                orElseGet(() -> new HashMap<>());
+                orElseGet(HashMap::new);
 
         List<Attr> derAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attr = new Attr();

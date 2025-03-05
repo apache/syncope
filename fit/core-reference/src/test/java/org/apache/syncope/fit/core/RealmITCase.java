@@ -77,7 +77,7 @@ public class RealmITCase extends AbstractITCase {
         // 1. create
         Response response = REALM_SERVICE.create("/even/two", realm);
         RealmTO actual = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
@@ -170,7 +170,7 @@ public class RealmITCase extends AbstractITCase {
 
         response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
 
         String existingAccountPolicy = realm.getAccountPolicy();
 
@@ -178,7 +178,7 @@ public class RealmITCase extends AbstractITCase {
         REALM_SERVICE.update(realm);
 
         RealmTO actual = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertEquals(policy.getKey(), actual.getAccountPolicy());
 
         // 3. remove policy
@@ -207,7 +207,7 @@ public class RealmITCase extends AbstractITCase {
 
         Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
 
         String existingAuthPolicy = realm.getAuthPolicy();
 
@@ -215,7 +215,7 @@ public class RealmITCase extends AbstractITCase {
         REALM_SERVICE.update(realm);
 
         RealmTO actual = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertEquals(policy.getKey(), actual.getAuthPolicy());
 
         // 3. remove policy
@@ -244,7 +244,7 @@ public class RealmITCase extends AbstractITCase {
 
         Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
 
         String existingAccessPolicy = realm.getAccessPolicy();
 
@@ -252,7 +252,7 @@ public class RealmITCase extends AbstractITCase {
         REALM_SERVICE.update(realm);
 
         RealmTO actual = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertEquals(policy.getKey(), actual.getAccessPolicy());
 
         // 3. remove policy
@@ -282,7 +282,7 @@ public class RealmITCase extends AbstractITCase {
 
         Response response = REALM_SERVICE.create(SyncopeConstants.ROOT_REALM, realm);
         realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
 
         String existingAttrReleasePolicy = realm.getAttrReleasePolicy();
 
@@ -290,7 +290,7 @@ public class RealmITCase extends AbstractITCase {
         REALM_SERVICE.update(realm);
 
         RealmTO actual = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertEquals(policy.getKey(), actual.getAttrReleasePolicy());
 
         // 3. remove policy
@@ -308,7 +308,7 @@ public class RealmITCase extends AbstractITCase {
 
         Response response = REALM_SERVICE.create("/even/two", realm);
         RealmTO actual = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
 
         REALM_SERVICE.delete(actual.getFullPath());
 

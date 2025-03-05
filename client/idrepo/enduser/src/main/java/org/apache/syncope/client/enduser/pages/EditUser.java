@@ -57,6 +57,6 @@ public class EditUser extends BasePage {
 
     protected UserFormLayoutInfo buildFormLayout() {
         return Optional.ofNullable(SyncopeWebApplication.get().getCustomFormLayout()).
-                orElseGet(() -> new UserFormLayoutInfo());
+                orElseGet(UserFormLayoutInfo::new);
     }
 }

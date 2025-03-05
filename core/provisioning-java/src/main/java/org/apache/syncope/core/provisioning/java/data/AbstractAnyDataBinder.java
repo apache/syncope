@@ -236,7 +236,7 @@ abstract class AbstractAnyDataBinder {
     protected void setRealm(final Any any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
             realmSearchDAO.findByFullPath(anyUR.getRealm().getValue()).ifPresentOrElse(
-                    newRealm -> any.setRealm(newRealm),
+                any::setRealm,
                     () -> LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue()));
         }
     }
@@ -612,7 +612,7 @@ abstract class AbstractAnyDataBinder {
         // 0. aux classes
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
-                map(className -> anyTypeClassDAO.findById(className)).
+                map(anyTypeClassDAO::findById).
                 flatMap(Optional::stream).
                 forEach(auxClass -> {
                     if (auxClass == null) {

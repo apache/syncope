@@ -44,7 +44,7 @@ public class SelfKeymasterInternalDomainOps implements DomainOps {
                 SyncopeConstants.MASTER_DOMAIN,
                 props.getUsername(),
                 List.of(),
-                () -> logic.list());
+            logic::list);
     }
 
     @Override

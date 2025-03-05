@@ -930,7 +930,7 @@ public class SearchITCase extends AbstractITCase {
         // 1. create Realm
         Response response = REALM_SERVICE.create("/even/two", realm);
         realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertNotNull(realm.getKey());
         assertEquals("syncope1727", realm.getName());
         assertEquals("/even/two/syncope1727", realm.getFullPath());

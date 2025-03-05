@@ -43,7 +43,7 @@ public abstract class JSONEntityListener<A extends Any> {
                 attr.getValues().forEach(value -> value.setAttr(attr));
                 Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
                 return attr;
-            }).forEach(attr -> entity.add(attr));
+            }).forEach(entity::add);
         }
     }
 }
