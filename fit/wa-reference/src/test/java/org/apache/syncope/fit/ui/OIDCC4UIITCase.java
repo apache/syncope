@@ -123,7 +123,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         WA_CONFIG_SERVICE.pushToWA(WAConfigService.PushSubject.clientApps, List.of());
     }
 
-    private static String getAppName(final String address) {
+    protected static String getAppName(final String address) {
         return CONSOLE_ADDRESS.equals(address)
                 ? OIDCC4UIITCase.class.getName() + "_Console"
                 : OIDCC4UIITCase.class.getName() + "_Enduser";

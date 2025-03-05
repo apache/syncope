@@ -195,7 +195,7 @@ public class ConnObjectUtils {
 
         // (for users) if password was not set above, generate if possible
         if (anyCR instanceof final UserCR userCR
-                && StringUtils.isBlank(((UserCR) anyCR).getPassword())
+                && StringUtils.isBlank(userCR.getPassword())
                 && generatePassword) {
 
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();

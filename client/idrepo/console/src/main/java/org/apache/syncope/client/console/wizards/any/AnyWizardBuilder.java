@@ -50,10 +50,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
     @SuppressWarnings("unchecked")
     protected static <T extends AnyTO> AnyWrapper<T> wrapper(final T anyTO) {
-        return (AnyWrapper<T>) (anyTO instanceof UserTO
-                ? new UserWrapper((UserTO) anyTO)
-                : anyTO instanceof GroupTO
-                        ? new GroupWrapper((GroupTO) anyTO)
+        return (AnyWrapper<T>) (anyTO instanceof UserTO userTO
+                ? new UserWrapper(userTO)
+                : anyTO instanceof GroupTO groupTO
+                        ? new GroupWrapper(groupTO)
                         : new AnyObjectWrapper((AnyObjectTO) anyTO));
     }
 
@@ -147,11 +147,11 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
         // role panel step (just available for users)
         if ((this instanceof UserWizardBuilder)
-                && modelObject instanceof UserWrapper
+                && modelObject instanceof final UserWrapper userWrapper
                 && formLayoutInfo instanceof UserFormLayoutInfo
                 && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
 
-            wizardModel.add(new Roles((UserWrapper) modelObject));
+            wizardModel.add(new Roles(userWrapper));
         }
 
         // relationship panel step (available for users and any objects)

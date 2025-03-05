@@ -192,8 +192,8 @@ public class DefaultNotificationManager implements NotificationManager {
                 ifPresent(fiql -> recipients.addAll(anySearchDAO.<User>search(
                 SearchCondConverter.convert(searchCondVisitor, fiql), List.of(), AnyTypeKind.USER)));
 
-        if (notification.isSelfAsRecipient() && any instanceof User) {
-            recipients.add((User) any);
+        if (notification.isSelfAsRecipient() && any instanceof final User user) {
+            recipients.add(user);
         }
 
         Set<String> recipientEmails = new HashSet<>();
@@ -298,30 +298,30 @@ public class DefaultNotificationManager implements NotificationManager {
             any = userDAO.findById(userTO.getKey());
         } else if (output instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
-        } else if (output instanceof Pair
-                && ((Pair) output).getRight() instanceof UserTO) {
+        } else if (output instanceof final Pair pair
+                && pair.getRight() instanceof final UserTO userTO) {
 
-            any = userDAO.findById(((UserTO) ((Pair) output).getRight()).getKey());
-        } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getEntity() instanceof UserTO) {
+            any = userDAO.findById(userTO.getKey());
+        } else if (output instanceof final ProvisioningResult provisioningResult1
+                && provisioningResult1.getEntity() instanceof UserTO) {
 
-            any = userDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+            any = userDAO.findById(provisioningResult1.getEntity().getKey());
         } else if (before instanceof AnyObjectTO anyObjectTO) {
             any = anyObjectDAO.findById(anyObjectTO.getKey());
         } else if (output instanceof AnyObjectTO anyObjectTO) {
             any = anyObjectDAO.findById(anyObjectTO.getKey());
-        } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getEntity() instanceof AnyObjectTO) {
+        } else if (output instanceof final ProvisioningResult result
+                && result.getEntity() instanceof AnyObjectTO) {
 
-            any = anyObjectDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+            any = anyObjectDAO.findById(result.getEntity().getKey());
         } else if (before instanceof GroupTO groupTO) {
             any = groupDAO.findById(groupTO.getKey());
         } else if (output instanceof GroupTO groupTO) {
             any = groupDAO.findById(groupTO.getKey());
-        } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getEntity() instanceof GroupTO) {
+        } else if (output instanceof final ProvisioningResult provisioningResult
+                && provisioningResult.getEntity() instanceof GroupTO) {
 
-            any = groupDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+            any = groupDAO.findById(provisioningResult.getEntity().getKey());
         }
 
         AnyType anyType = any.map(Any::getType).orElse(null);

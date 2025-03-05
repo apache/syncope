@@ -52,6 +52,16 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
         return query.getResultList().stream().map(RelationshipType::getKey).toList();
     }
 
+    @Override
+    public List<? extends RelationshipType> findByLeftEndAnyType(final AnyType anyType) {
+        TypedQuery<RelationshipType> query = entityManager.createQuery(
+                "SELECT DISTINCT e FROM " + JPARelationshipType.class.getSimpleName() + " e "
+                + "WHERE e.leftEndAnyType=:anyType",
+                RelationshipType.class);
+        query.setParameter("anyType", anyType);
+        return query.getResultList();
+    }
+
     protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
         TypedQuery<ARelationship> aquery = entityManager.createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName() + " e WHERE e.type=:type",

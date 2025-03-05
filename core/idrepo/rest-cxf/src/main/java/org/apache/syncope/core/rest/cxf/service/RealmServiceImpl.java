@@ -31,9 +31,7 @@ import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.core.logic.RealmLogic;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-@Service
 public class RealmServiceImpl extends AbstractService implements RealmService {
 
     protected final RealmLogic logic;

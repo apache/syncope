@@ -105,7 +105,7 @@ abstract class AbstractOIDCITCase extends AbstractSRAITCase {
 
                     Response response = POLICY_SERVICE.create(PolicyType.ATTR_RELEASE, policy);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create Test Attr Release Policy");
+                        fail("Could not create " + description);
                     }
 
                     return POLICY_SERVICE.read(

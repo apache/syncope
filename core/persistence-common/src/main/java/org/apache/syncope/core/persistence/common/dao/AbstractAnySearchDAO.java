@@ -374,7 +374,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     @SuppressWarnings("unchecked")
     protected <T extends Any> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
         List<String> keys = raw.stream().
-                map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
+                map(key -> key instanceof Object[] array ? (String) (array)[0] : ((String) key)).
                 toList();
 
         // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual query results

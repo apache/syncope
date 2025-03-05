@@ -65,15 +65,15 @@ import org.xml.sax.Attributes;
  */
 public class ContentLoaderHandler extends AbstractContentLoaderHandler {
 
-    protected static record Node(String id, Map<String, Object> props) {
+    protected record Node(String id, Map<String, Object> props) {
 
     }
 
-    protected static record Relationship(String leftId, String rightId, String type, String index) {
+    protected record Relationship(String leftId, String rightId, String type, String index) {
 
     }
 
-    protected static record Query(String statement, Map<String, Object> props) {
+    protected record Query(String statement, Map<String, Object> props) {
 
     }
 

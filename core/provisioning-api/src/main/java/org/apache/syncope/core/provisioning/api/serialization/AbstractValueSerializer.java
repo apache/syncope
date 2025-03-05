@@ -41,18 +41,18 @@ public abstract class AbstractValueSerializer<T extends Object> extends JsonSeri
                     jgen.writeNull();
                 } else if (v instanceof GuardedString) {
                     jgen.writeObject(v);
-                } else if (v instanceof Integer) {
-                    jgen.writeNumber((Integer) v);
-                } else if (v instanceof Long) {
-                    jgen.writeNumber((Long) v);
-                } else if (v instanceof Double) {
-                    jgen.writeNumber((Double) v);
-                } else if (v instanceof Boolean) {
-                    jgen.writeBoolean((Boolean) v);
-                } else if (v instanceof byte[]) {
+                } else if (v instanceof final Integer i) {
+                    jgen.writeNumber(i);
+                } else if (v instanceof final Long l) {
+                    jgen.writeNumber(l);
+                } else if (v instanceof final Double aDouble) {
+                    jgen.writeNumber(aDouble);
+                } else if (v instanceof final Boolean b) {
+                    jgen.writeBoolean(b);
+                } else if (v instanceof final byte[] bytes) {
                     jgen.writeString(
                             BYTE_ARRAY_PREFIX
-                            + Base64.getEncoder().encodeToString((byte[]) v)
+                            + Base64.getEncoder().encodeToString(bytes)
                             + BYTE_ARRAY_SUFFIX);
                 } else {
                     jgen.writeString(v.toString());

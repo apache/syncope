@@ -141,6 +141,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(LiveSyncJobDelegate.class.getName());
             classNames.add(PullJobDelegate.class.getName());
             classNames.add(PushJobDelegate.class.getName());
+            classNames.add(PushJobDelegate.class.getName());
             put(IdRepoImplementationType.TASKJOB_DELEGATE, classNames);
 
             classNames = new HashSet<>();

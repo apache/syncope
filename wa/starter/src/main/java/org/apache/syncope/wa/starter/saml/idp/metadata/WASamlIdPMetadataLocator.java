@@ -114,8 +114,8 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
             LOG.warn("Not a valid SAML2 IdP metadata document");
             return null;
         } catch (Exception e) {
-            if (e instanceof SyncopeClientException
-                    && ((SyncopeClientException) e).getType() == ClientExceptionType.NotFound) {
+            if (e instanceof final SyncopeClientException syncopeClientException
+                    && syncopeClientException.getType() == ClientExceptionType.NotFound) {
                 LOG.info(e.getMessage());
             } else {
                 if (LOG.isDebugEnabled()) {

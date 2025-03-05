@@ -73,52 +73,52 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
     public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
         final String header;
-        if (modelObject instanceof UserTO) {
-            header = ((UserTO) modelObject).getUsername();
-        } else if (modelObject instanceof UserWrapper) {
-            header = ((UserWrapper) modelObject).getInnerObject().getUsername();
-        } else if (modelObject instanceof GroupTO) {
-            header = ((GroupTO) modelObject).getName();
-        } else if (modelObject instanceof GroupWrapper) {
-            header = ((GroupWrapper) modelObject).getInnerObject().getName();
-        } else if (modelObject instanceof AnyObjectTO) {
-            header = ((AnyObjectTO) modelObject).getName();
-        } else if (modelObject instanceof AnyObjectWrapper) {
-            header = ((AnyObjectWrapper) modelObject).getInnerObject().getName();
-        } else if (modelObject instanceof Attr) {
-            header = ((Attr) modelObject).getSchema();
-        } else if (modelObject instanceof ConfParam) {
-            header = ((ConfParam) modelObject).getSchema();
-        } else if (modelObject instanceof PolicyTO) {
-            header = ((PolicyTO) modelObject).getName();
-        } else if (modelObject instanceof SecurityQuestionTO) {
-            header = ((SecurityQuestionTO) modelObject).getContent();
-        } else if (modelObject instanceof AccessTokenTO) {
-            header = ((AccessTokenTO) modelObject).getOwner();
-        } else if (modelObject instanceof ExecTO) {
-            header = ((ExecTO) modelObject).getKey();
-        } else if (modelObject instanceof StatusBean) {
-            header = ((StatusBean) modelObject).getResource();
-        } else if (modelObject instanceof PolicyRuleWrapper) {
-            header = ((PolicyRuleWrapper) modelObject).getImplementationKey();
-        } else if (modelObject instanceof CommandWrapper) {
-            header = ((CommandWrapper) modelObject).getCommand().getKey();
-        } else if (modelObject instanceof JobTO) {
-            header = ((JobTO) modelObject).getRefKey() == null
-                    ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
-        } else if (modelObject instanceof ToggleableTarget) {
-            header = ((ToggleableTarget) modelObject).getAnyType();
-        } else if (modelObject instanceof Domain) {
-            header = ((Domain) modelObject).getKey();
-        } else if (modelObject instanceof CommandTO) {
-            header = ((CommandTO) modelObject).getKey();
-        } else if (modelObject instanceof NamedEntityTO) {
-            header = ((NamedEntityTO) modelObject).getName();
-        } else if (modelObject instanceof EntityTO) {
-            header = ((EntityTO) modelObject).getKey();
-        } else if (modelObject instanceof EntityWrapper) {
-            EntityTO inner = ((EntityWrapper) modelObject).getInnerObject();
-            header = inner instanceof NamedEntityTO ? ((NamedEntityTO) inner).getName() : inner.getKey();
+        if (modelObject instanceof final UserTO userTO) {
+            header = userTO.getUsername();
+        } else if (modelObject instanceof final UserWrapper userWrapper) {
+            header = userWrapper.getInnerObject().getUsername();
+        } else if (modelObject instanceof final GroupTO groupTO) {
+            header = groupTO.getName();
+        } else if (modelObject instanceof final GroupWrapper groupWrapper) {
+            header = groupWrapper.getInnerObject().getName();
+        } else if (modelObject instanceof final AnyObjectTO anyObjectTO) {
+            header = anyObjectTO.getName();
+        } else if (modelObject instanceof final AnyObjectWrapper anyObjectWrapper) {
+            header = anyObjectWrapper.getInnerObject().getName();
+        } else if (modelObject instanceof final Attr attr) {
+            header = attr.getSchema();
+        } else if (modelObject instanceof final ConfParam confParam) {
+            header = confParam.getSchema();
+        } else if (modelObject instanceof final PolicyTO policyTO) {
+            header = policyTO.getName();
+        } else if (modelObject instanceof final SecurityQuestionTO securityQuestionTO) {
+            header = securityQuestionTO.getContent();
+        } else if (modelObject instanceof final AccessTokenTO accessTokenTO) {
+            header = accessTokenTO.getOwner();
+        } else if (modelObject instanceof final ExecTO execTO) {
+            header = execTO.getKey();
+        } else if (modelObject instanceof final StatusBean statusBean) {
+            header = statusBean.getResource();
+        } else if (modelObject instanceof final PolicyRuleWrapper policyRuleWrapper) {
+            header = policyRuleWrapper.getImplementationKey();
+        } else if (modelObject instanceof final CommandWrapper commandWrapper) {
+            header = commandWrapper.getCommand().getKey();
+        } else if (modelObject instanceof final JobTO jobTO) {
+            header = jobTO.getRefKey() == null
+                    ? jobTO.getRefDesc() : jobTO.getRefKey();
+        } else if (modelObject instanceof final ToggleableTarget toggleableTarget) {
+            header = toggleableTarget.getAnyType();
+        } else if (modelObject instanceof final Domain domain) {
+            header = domain.getKey();
+        } else if (modelObject instanceof final CommandTO commandTO) {
+            header = commandTO.getKey();
+        } else if (modelObject instanceof final NamedEntityTO entity) {
+            header = entity.getName();
+        } else if (modelObject instanceof final EntityTO entityTO) {
+            header = entityTO.getKey();
+        } else if (modelObject instanceof final EntityWrapper entityWrapper) {
+            EntityTO inner = entityWrapper.getInnerObject();
+            header = inner instanceof final NamedEntityTO namedEntityTO ? namedEntityTO.getName() : inner.getKey();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

@@ -142,13 +142,13 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
     protected ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
         InvalidEntityException iee = null;
 
-        if (ex instanceof InvalidEntityException) {
-            iee = (InvalidEntityException) ex;
+        if (ex instanceof final InvalidEntityException entityException) {
+            iee = entityException;
         }
         if (ex instanceof TransactionSystemException && ROLLBACK_EXCLASS.isAssignableFrom(ex.getCause().getClass())
-                && ex.getCause().getCause() instanceof InvalidEntityException) {
+                && ex.getCause().getCause() instanceof final InvalidEntityException invalidEntityException) {
 
-            iee = (InvalidEntityException) ex.getCause().getCause();
+            iee = invalidEntityException;
         }
 
         if (iee != null) {
@@ -195,8 +195,8 @@ public class SCIMExceptionMapper implements ExceptionMapper<Exception> {
             return builder(ClientExceptionType.InvalidValues, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof MalformedPathException) {
             return builder(ClientExceptionType.InvalidPath, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof BadRequestException) {
-            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError((BadRequestException) ex));
+        } else if (ex instanceof final BadRequestException badRequestException) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new SCIMError(badRequestException));
         }
 
         return null;

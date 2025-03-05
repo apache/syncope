@@ -532,8 +532,8 @@ public class FlowableUserRequestHandler implements UserRequestHandler {
         List<UserRequestForm> result = query.listPage(
                 pageable.getPageSize() * pageable.getPageNumber(),
                 pageable.getPageSize()).stream().
-                map(task -> task instanceof HistoricTaskInstance
-                ? FlowableUserRequestHandler.this.getForm((HistoricTaskInstance) task)
+                map(task -> task instanceof final HistoricTaskInstance historicTaskInstance
+                ? FlowableUserRequestHandler.this.getForm(historicTaskInstance)
                 : FlowableUserRequestHandler.this.getForm(task)).
                 toList();
 

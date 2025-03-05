@@ -99,6 +99,7 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -188,9 +189,10 @@ public class IdRepoLogicContext {
     public AnyTypeLogic anyTypeLogic(
             final AnyTypeDataBinder binder,
             final AnyTypeDAO anyTypeDAO,
-            final AnyObjectDAO anyObjectDAO) {
+            final AnyObjectDAO anyObjectDAO,
+            final ApplicationEventPublisher publisher) {
 
-        return new AnyTypeLogic(binder, anyTypeDAO, anyObjectDAO);
+        return new AnyTypeLogic(binder, anyTypeDAO, anyObjectDAO, publisher);
     }
 
     @ConditionalOnMissingBean
@@ -375,9 +377,10 @@ public class IdRepoLogicContext {
     @Bean
     public RelationshipTypeLogic relationshipTypeLogic(
             final RelationshipTypeDataBinder binder,
-            final RelationshipTypeDAO relationshipTypeDAO) {
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final ApplicationEventPublisher publisher) {
 
-        return new RelationshipTypeLogic(binder, relationshipTypeDAO);
+        return new RelationshipTypeLogic(binder, relationshipTypeDAO, publisher);
     }
 
     @ConditionalOnMissingBean

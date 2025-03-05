@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.core.logic.AnyTypeLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AnyTypeServiceImpl extends AbstractService implements AnyTypeService {
 
     protected final AnyTypeLogic logic;

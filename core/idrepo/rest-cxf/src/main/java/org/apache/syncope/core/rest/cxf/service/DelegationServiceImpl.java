@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.DelegationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.DelegationService;
 import org.apache.syncope.core.logic.DelegationLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class DelegationServiceImpl extends AbstractService implements DelegationService {
 
     protected final DelegationLogic logic;

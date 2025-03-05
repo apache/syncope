@@ -97,11 +97,11 @@ public class SRASessions {
     @ReadOperation
     public AMSession read(@Selector final String id) {
         Cache.ValueWrapper value = cacheManager.getCache(SessionConfig.DEFAULT_CACHE).get(id);
-        if (value == null || !(value.get() instanceof MapSession)) {
+        if (value == null || !(value.get() instanceof final MapSession mapSession)) {
             return null;
         }
 
-        return map((MapSession) value.get());
+        return map(mapSession);
     }
 
     @DeleteOperation

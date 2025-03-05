@@ -43,8 +43,8 @@ public class AddETagFilter implements ContainerResponseFilter {
             AnyTO annotated = null;
             if (resCtx.getEntity() instanceof AnyTO anyTO) {
                 annotated = anyTO;
-            } else if (resCtx.getEntity() instanceof ProvisioningResult) {
-                EntityTO entity = ((ProvisioningResult<?>) resCtx.getEntity()).getEntity();
+            } else if (resCtx.getEntity() instanceof final ProvisioningResult<?> provisioningResult) {
+                EntityTO entity = provisioningResult.getEntity();
                 if (entity instanceof AnyTO anyTO) {
                     annotated = anyTO;
                 }

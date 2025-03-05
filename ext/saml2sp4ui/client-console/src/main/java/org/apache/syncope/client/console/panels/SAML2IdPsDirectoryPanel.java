@@ -159,9 +159,9 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
             @Override
             public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
-                if (modelObject instanceof SAML2SP4UIIdPTO) {
+                if (modelObject instanceof final SAML2SP4UIIdPTO saml2SP4UIIdPTO) {
                     setHeader(target, StringUtils.abbreviate(
-                            ((SAML2SP4UIIdPTO) modelObject).getName(), HEADER_FIRST_ABBREVIATION));
+                            saml2SP4UIIdPTO.getName(), HEADER_FIRST_ABBREVIATION));
                 } else {
                     super.updateHeader(target, modelObject);
                 }

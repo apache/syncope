@@ -96,11 +96,11 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
 
             @Override
             public void onEvent(final IEvent<?> event) {
-                if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-                    ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().
+                if (event.getPayload() instanceof final AjaxWizard.NewItemCancelEvent<?> newItemCancelEvent) {
+                    newItemCancelEvent.getTarget().
                             ifPresent(modal::close);
-                } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                    AjaxWizard.NewItemFinishEvent<?> payload = (AjaxWizard.NewItemFinishEvent) event.getPayload();
+                } else if (event.getPayload() instanceof final AjaxWizard.NewItemFinishEvent newItemFinishEvent) {
+                    AjaxWizard.NewItemFinishEvent<?> payload = newItemFinishEvent;
                     Optional<AjaxRequestTarget> target = payload.getTarget();
 
                     if (payload.getResult() instanceof ArrayList) {
@@ -130,8 +130,8 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                     } else if (Constants.OPERATION_SUCCEEDED.equals(payload.getResult())) {
                         target.ifPresent(modal::close);
                         SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
-                    } else if (payload.getResult() instanceof Exception) {
-                        SyncopeConsoleSession.get().onException((Exception) payload.getResult());
+                    } else if (payload.getResult() instanceof final Exception exception) {
+                        SyncopeConsoleSession.get().onException(exception);
                     } else {
                         SyncopeConsoleSession.get().error(payload.getResult());
                     }

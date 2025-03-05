@@ -30,9 +30,7 @@ import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.core.logic.SchemaLogic;
 import org.identityconnectors.common.CollectionUtil;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SchemaServiceImpl extends AbstractService implements SchemaService {
 
     protected final SchemaLogic logic;
