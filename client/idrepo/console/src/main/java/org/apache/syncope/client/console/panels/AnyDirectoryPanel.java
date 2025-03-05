@@ -136,7 +136,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                     try {
                         return schemaRestClient.<PlainSchemaTO>read(SchemaType.PLAIN, schema);
                     } catch (SyncopeClientException e) {
-                        LOG.warn("Could not read plain schema {}, ignoring", e);
+                        LOG.warn("Could not read plain schema, ignoring", e);
                         return null;
                     }
                 }).
@@ -149,7 +149,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                     try {
                         return schemaRestClient.<DerSchemaTO>read(SchemaType.DERIVED, schema);
                     } catch (SyncopeClientException e) {
-                        LOG.warn("Could not read derived schema {}, ignoring", e);
+                        LOG.warn("Could not read derived schema, ignoring", e);
                         return null;
                     }
                 }).
