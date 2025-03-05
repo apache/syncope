@@ -151,11 +151,11 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
                     Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
                             collect(Collectors.joining(",")));
             properties.put("cas.authn.oidc.core.user-defined-scopes.syncope",
-                    customClaims.stream().collect(Collectors.joining(",")));
+                String.join(",", customClaims));
         }
 
         syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(
-                attr.getSchema(), attr.getValues().stream().collect(Collectors.joining(","))));
+                attr.getSchema(), String.join(",", attr.getValues())));
 
         LOG.debug("Collected WA properties: {}", properties);
         Map<String, Object> decodedProperties = configurationCipher.decode(properties, ArrayUtils.EMPTY_OBJECT_ARRAY);

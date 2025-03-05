@@ -320,8 +320,8 @@ public final class AnyOperations {
         Map<Pair<String, String>, LinkedAccountTO> originalAccounts =
                 EntityTOUtils.buildLinkedAccountMap(original.getLinkedAccounts());
 
-        updatedAccounts.entrySet().stream().
-                forEachOrdered(entry -> {
+        updatedAccounts.entrySet().
+            forEach(entry -> {
                     result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                             operation(PatchOperation.ADD_REPLACE).
                             linkedAccountTO(entry.getValue()).build());

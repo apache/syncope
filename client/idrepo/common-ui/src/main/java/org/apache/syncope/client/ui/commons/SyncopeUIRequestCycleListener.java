@@ -23,7 +23,6 @@ import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.xml.ws.WebServiceException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -84,7 +83,7 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
         } else if (instanceOf(e, SyncopeClientException.class).isPresent()) {
             SyncopeClientException sce = instanceOf(e, SyncopeClientException.class).get();
             String errorMessage = sce.getType() == ClientExceptionType.Unknown
-                    ? sce.getElements().stream().collect(Collectors.joining())
+                    ? String.join("", sce.getElements())
                     : sce.getMessage();
             errorParameters.add("errorMessage", errorMessage);
             errorPage = getErrorPage(errorParameters);

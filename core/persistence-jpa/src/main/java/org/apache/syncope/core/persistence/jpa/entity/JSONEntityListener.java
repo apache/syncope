@@ -39,11 +39,10 @@ public abstract class JSONEntityListener<A extends Any> {
             entity.getPlainAttrsList().clear();
         }
         if (entity.getPlainAttrsJSON() != null) {
-            getAttrs(entity.getPlainAttrsJSON()).stream().filter(PlainAttr::isValid).map(attr -> {
+            getAttrs(entity.getPlainAttrsJSON()).stream().filter(PlainAttr::isValid).peek(attr -> {
                 attr.getValues().forEach(value -> value.setAttr(attr));
                 Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-                return attr;
-            }).forEach(entity::add);
+            }).forEach(attr -> entity.add(attr));
         }
     }
 }

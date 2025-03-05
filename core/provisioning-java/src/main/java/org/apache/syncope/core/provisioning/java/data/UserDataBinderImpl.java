@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -652,7 +651,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()));
                 }
 
-                account.getPlainAttrs().stream().collect(Collectors.toSet()).forEach(account::remove);
+                new HashSet<>(account.getPlainAttrs()).forEach(account::remove);
             });
             if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                 linkedAccount(

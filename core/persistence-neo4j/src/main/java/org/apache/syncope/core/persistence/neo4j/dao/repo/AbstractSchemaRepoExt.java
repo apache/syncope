@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.cache.Cache;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -99,7 +98,7 @@ public abstract class AbstractSchemaRepoExt extends AbstractDAO {
 
         return toList(neo4jClient.query(
                 "MATCH (n:" + label + ")-[:" + relationship + "]-(a:" + Neo4jAnyTypeClass.NODE + ") "
-                + "WHERE (" + clauses.stream().collect(Collectors.joining(" OR ")) + ") "
+                + "WHERE (" + String.join(" OR ", clauses) + ") "
                 + "RETURN n.id").bindAll(parameters).fetch().all(),
                 "n.id",
                 domainType,

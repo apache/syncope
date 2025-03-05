@@ -381,7 +381,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         List<Any> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
                 sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).toList();
 
-        keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
+        keys.stream().filter(key -> anys.stream().noneMatch(any -> key.equals(any.getKey()))).
                 forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
 
         return (List<T>) anys;

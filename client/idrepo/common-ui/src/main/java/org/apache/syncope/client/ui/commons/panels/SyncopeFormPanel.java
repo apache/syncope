@@ -171,7 +171,7 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                                 @Override
                                 public void setObject(final List<String> object) {
                                     prop.setValue(Optional.ofNullable(object).
-                                            map(v -> v.stream().collect(Collectors.joining(";"))).
+                                            map(v -> String.join(";", v)).
                                             orElse(null));
                                 }
                             }, new ListModel<>(prop.getDropdownValues().stream().

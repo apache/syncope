@@ -71,7 +71,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                                 ? RealmsUtils.buildRootQuery()
                                 : RealmsUtils.buildKeywordQuery(input)).getResult())
                         : List.<RealmTO>of()).stream().
-                        map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                        map(RealmTO::getFullPath).iterator();
             }
         };
         add(realm.addRequiredLabel().setOutputMarkupId(true));
@@ -123,7 +123,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 List<Pair<String, String>> connectors = bundles.stream().
                         filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())).
                         map(bundle -> Pair.of(bundle.getConnectorName(), bundle.getVersion())).
-                        collect(Collectors.toList());
+                    toList();
                 if (connectors.size() == 1) {
                     Pair<String, String> entry = connectors.getFirst();
 

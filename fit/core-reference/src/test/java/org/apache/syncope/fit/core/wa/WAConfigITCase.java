@@ -46,7 +46,7 @@ public class WAConfigITCase extends AbstractITCase {
         WA_CONFIG_SERVICE.set(config);
 
         Attr updatedTO = WA_CONFIG_SERVICE.get(config.getSchema());
-        updatedTO.getValues().stream().allMatch(((Collection) updatedValue)::contains);
+        ((Collection) updatedValue).containsAll(updatedTO.getValues());
         return updatedTO;
     }
 

@@ -96,8 +96,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             }
         });
 
-        return taskTO.get().getExecutions().stream().
-                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow();
+        return taskTO.get().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
     }
 
     public static ExecTO execSchedTask(

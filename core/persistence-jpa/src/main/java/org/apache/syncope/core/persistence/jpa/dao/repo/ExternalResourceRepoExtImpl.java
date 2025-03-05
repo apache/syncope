@@ -87,7 +87,7 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.RESOURCE_READ);
         if (authRealms == null || authRealms.isEmpty()
-                || !authRealms.stream().anyMatch(realm -> resource.getConnector() != null
+                || authRealms.stream().noneMatch(realm -> resource.getConnector() != null
                 && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))) {
 
             throw new DelegatedAdministrationException(

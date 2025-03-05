@@ -123,8 +123,9 @@ public class RealmChoicePanel extends Panel {
                 Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
                 Stream<Pair<String, RealmTO>> full;
                 if (fullRealmsTree) {
-                    full = map.entrySet().stream().
-                            map(el -> Pair.of(el.getValue().getLeft().getFullPath(), el.getValue().getKey())).
+                    full = map.values().stream().
+                            map(realmTOListPair ->
+                                Pair.of(realmTOListPair.getLeft().getFullPath(), realmTOListPair.getKey())).
                             sorted(Comparator.comparing(Pair::getLeft));
                 } else {
                     full = map.entrySet().stream().

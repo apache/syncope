@@ -119,7 +119,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     protected List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
         classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
-                map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
+                map(AnyTypeClassTO::getKey).toList());
         setSchemas(classes);
         setAttrs();
         return getAttrsFromTO();

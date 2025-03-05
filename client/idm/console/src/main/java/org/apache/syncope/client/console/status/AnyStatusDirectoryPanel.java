@@ -378,7 +378,7 @@ public class AnyStatusDirectoryPanel
                                     actual instanceof GroupTO);
                             statusBean.setLinked(false);
                             return statusBean;
-                        }).collect(Collectors.toList()));
+                        }).toList());
 
                 statusBeans.sort(comparator);
             }

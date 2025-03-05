@@ -81,7 +81,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     }
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        if (!effectiveRealms.stream().anyMatch(realm::startsWith)) {
+        if (effectiveRealms.stream().noneMatch(realm::startsWith)) {
             throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);
         }
     }

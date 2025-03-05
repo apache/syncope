@@ -304,7 +304,7 @@ public class DefaultAnyUtils implements AnyUtils {
         Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
         typeOwnClasses.addAll(any.getType().getClasses());
         typeOwnClasses.addAll(any.getAuxClasses());
-        if (!typeOwnClasses.stream().anyMatch(clazz -> clazz.getPlainSchemas().contains(schema))) {
+        if (typeOwnClasses.stream().noneMatch(clazz -> clazz.getPlainSchemas().contains(schema))) {
             LOG.warn("Schema {} not allowed for {}, ignoring", schema, any);
             return;
         }

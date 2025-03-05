@@ -1236,8 +1236,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals(1, executed.getExecutions().size());
 
         // assert for just one match
-        assertTrue(executed.getExecutions().stream().
-                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow().
+        assertTrue(executed.getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow().
                 getMessage().contains("[updated/failures]: 1/0"));
     }
 

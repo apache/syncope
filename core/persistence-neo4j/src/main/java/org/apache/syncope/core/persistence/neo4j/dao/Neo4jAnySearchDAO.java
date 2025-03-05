@@ -1025,7 +1025,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             TextStringBuilder query = queryInfo.query();
 
             List<String> orderBy = parseOrderBy(kind, pageable.getSort());
-            String orderByStmt = orderBy.stream().collect(Collectors.joining(", "));
+            String orderByStmt = String.join(", ", orderBy);
 
             // 3. include membership plain attr queries
             membershipAttrConds(query, queryInfo, orderBy, kind);

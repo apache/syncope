@@ -196,11 +196,10 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
         }
 
         if (LOG.isDebugEnabled()) {
-            connInfoManagers.entrySet().stream().map(entry -> {
-                LOG.debug("Connector bundles found at {}", entry.getKey());
-                return entry;
-            }).forEach(entry -> entry.getValue().getConnectorInfos().forEach(
-                    connInfo -> LOG.debug("\t{}", connInfo.getConnectorDisplayName())));
+            connInfoManagers.entrySet().stream().peek(
+                entry -> LOG.debug("Connector bundles found at {}", entry.getKey())).
+                        forEach(entry -> entry.getValue().getConnectorInfos().forEach(
+                        connInfo -> LOG.debug("\t{}", connInfo.getConnectorDisplayName())));
         }
 
         return connInfoManagers;

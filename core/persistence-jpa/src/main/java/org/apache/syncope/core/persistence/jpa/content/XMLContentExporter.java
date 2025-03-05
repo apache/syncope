@@ -92,7 +92,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
-                allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
+            noneMatch(prefix -> tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
     protected static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
@@ -171,7 +171,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
     protected static Map<String, Pair<String, String>> relationTables(final BidiMap<String, EntityType<?>> entities) {
         Map<String, Pair<String, String>> relationTables = new HashMap<>();
 
-        entities.values().stream().forEach(e -> e.getAttributes().stream().
+        entities.values().forEach(e -> e.getAttributes().stream().
                 filter(a -> a.getPersistentAttributeType() != Attribute.PersistentAttributeType.BASIC).
                 forEach(a -> {
                     Field field = (Field) a.getJavaMember();

@@ -269,7 +269,7 @@ public class Groups extends AbstractGroups {
                         -1,
                         -1,
                         new SortParam<>(Constants.NAME_FIELD_NAME, true),
-                        null).stream().map(GroupTO::getName).collect(Collectors.toList()));
+                        null).stream().map(GroupTO::getName).toList());
             }
         }
 

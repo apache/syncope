@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -114,7 +115,7 @@ public class ResourceTest extends AbstractTest {
         assertEquals(
                 Set.of(resourceDAO.findById("resource-testdb2").orElseThrow(),
                         resourceDAO.findById("resource-ldap").orElseThrow()),
-                resourceDAO.findByPropagationActionsContaining(impl).stream().collect(Collectors.toSet()));
+            new HashSet<>(resourceDAO.findByPropagationActionsContaining(impl)));
     }
 
     @Test

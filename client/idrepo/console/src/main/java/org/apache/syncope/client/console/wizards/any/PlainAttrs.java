@@ -156,7 +156,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 attr = attrMap.get(schema.getKey());
             }
             return attr;
-        }).collect(Collectors.toList());
+        }).toList();
 
         anyTO.getPlainAttrs().clear();
         anyTO.getPlainAttrs().addAll(plainAttrs);
@@ -177,7 +177,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
             return attr;
-        }).collect(Collectors.toList());
+        }).toList();
 
         membershipTO.getPlainAttrs().clear();
         membershipTO.getPlainAttrs().addAll(plainAttrs);

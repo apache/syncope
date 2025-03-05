@@ -253,7 +253,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         user = userDAO.save(user);
 
         // finally publish events for all groups affected by this operation, via membership
-        user.getMemberships().stream().forEach(m -> publisher.publishEvent(
+        user.getMemberships().forEach(m -> publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
 
         return result;

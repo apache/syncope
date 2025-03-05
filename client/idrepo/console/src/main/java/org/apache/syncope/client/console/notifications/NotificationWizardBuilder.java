@@ -412,11 +412,11 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         result.add(Constants.USERNAME_FIELD_NAME);
 
         result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
-                stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()));
+                stream().map(PlainSchemaTO::getKey).toList());
         result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
-                stream().map(DerSchemaTO::getKey).collect(Collectors.toList()));
+                stream().map(DerSchemaTO::getKey).toList());
         result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
-                stream().map(VirSchemaTO::getKey).collect(Collectors.toList()));
+                stream().map(VirSchemaTO::getKey).toList());
 
         Collections.sort(result);
         return result;

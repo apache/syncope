@@ -133,7 +133,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 attrTO.getValues().add(StringUtils.EMPTY);
             }
             return attrTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         anyTO.getVirAttrs().clear();
         anyTO.getVirAttrs().addAll(virAttrs);
@@ -154,7 +154,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
             return attr;
-        }).collect(Collectors.toList());
+        }).toList();
 
         membershipTO.getVirAttrs().clear();
         membershipTO.getVirAttrs().addAll(virAttrs);

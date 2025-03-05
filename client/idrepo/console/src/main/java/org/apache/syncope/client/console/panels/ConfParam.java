@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ConfParam implements Serializable {
 
@@ -60,7 +59,7 @@ public class ConfParam implements Serializable {
             this.values.addAll(objects.stream().
                     filter(Serializable.class::isInstance).
                     map(Serializable.class::cast).
-                    collect(Collectors.toList()));
+                toList());
             this.multivalue = true;
         } else {
             this.values.add((Serializable) value);

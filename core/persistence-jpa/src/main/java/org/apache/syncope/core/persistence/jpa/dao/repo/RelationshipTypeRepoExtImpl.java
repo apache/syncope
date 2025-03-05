@@ -86,7 +86,7 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
             return;
         }
 
-        findRelationshipsByType(type).stream().map(relationship -> {
+        findRelationshipsByType(type).stream().peek(relationship -> {
             switch (relationship) {
                 case URelationship uRelationship ->
                     uRelationship.getLeftEnd().getRelationships().remove(uRelationship);
@@ -100,7 +100,6 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
                 }
             }
             relationship.setLeftEnd(null);
-            return relationship;
         }).forEach(entityManager::remove);
 
         entityManager.remove(type);

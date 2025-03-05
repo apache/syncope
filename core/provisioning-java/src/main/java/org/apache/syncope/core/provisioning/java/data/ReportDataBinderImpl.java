@@ -100,7 +100,7 @@ public class ReportDataBinderImpl extends AbstractExecutableDatabinder implement
 
         reportTO.getExecutions().addAll(report.getExecs().stream().map(this::getExecTO).toList());
 
-        reportTO.getExecutions().stream().sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().
+        reportTO.getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).
                 map(ExecTO::getStart).ifPresent(reportTO::setLastExec);
 
         scheduler.getNextTrigger(AuthContextUtils.getDomain(), JobNamer.getJobName(report)).

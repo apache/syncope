@@ -137,7 +137,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
             }
 
             return attr;
-        }).collect(Collectors.toList());
+        }).toList();
 
         membershipTO.getDerAttrs().clear();
         membershipTO.getDerAttrs().addAll(derAttrs);

@@ -25,7 +25,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -78,7 +77,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
                 "userId");
 
         StringBuilder csv = new StringBuilder();
-        csv.append(columns.stream().collect(Collectors.joining(",")));
+        csv.append(String.join(",", columns));
         csv.append('\n');
         csv.append("donizetti,");
         csv.append("donizetti@apache.org,");

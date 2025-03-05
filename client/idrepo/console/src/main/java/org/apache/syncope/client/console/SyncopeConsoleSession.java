@@ -137,7 +137,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
     }
 
     protected String message(final SyncopeClientException sce) {
-        return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+        return sce.getType().name() + ": " + String.join(", ", sce.getElements());
     }
 
     @Override

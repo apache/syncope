@@ -77,7 +77,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
                 new PropertyModel<>(realmTO, "authPolicy"),
                 false);
         authPolicy.setChoiceRenderer(new PolicyRenderer(authPolicies));
-        authPolicy.setChoices(authPolicies.keySet().stream().collect(Collectors.toList()));
+        authPolicy.setChoices(new ArrayList<>(authPolicies.keySet()));
         ((AbstractSingleSelectChoice<?>) authPolicy.getField()).setNullValid(true);
         view.add(authPolicy);
 
@@ -89,7 +89,7 @@ public class AMRealmPolicyProvider extends IdRepoRealmPolicyProvider {
                 new PropertyModel<>(realmTO, "ticketExpirationPolicy"),
                 false);
         ticketExpirationPolicy.setChoiceRenderer(new PolicyRenderer(ticketExpirationPolicies));
-        ticketExpirationPolicy.setChoices(ticketExpirationPolicies.keySet().stream().collect(Collectors.toList()));
+        ticketExpirationPolicy.setChoices(new ArrayList<>(ticketExpirationPolicies.keySet()));
         ((AbstractSingleSelectChoice<?>) ticketExpirationPolicy.getField()).setNullValid(true);
         view.add(ticketExpirationPolicy);
     }
