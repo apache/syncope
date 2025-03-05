@@ -51,9 +51,7 @@ import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ReconciliationServiceImpl extends AbstractSearchService implements ReconciliationService {
 
     protected final ReconciliationLogic logic;

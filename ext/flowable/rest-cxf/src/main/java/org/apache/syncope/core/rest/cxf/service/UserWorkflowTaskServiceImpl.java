@@ -24,9 +24,7 @@ import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.to.WorkflowTaskExecInput;
 import org.apache.syncope.common.rest.api.service.UserWorkflowTaskService;
 import org.apache.syncope.core.logic.UserWorkflowTaskLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class UserWorkflowTaskServiceImpl extends AbstractService implements UserWorkflowTaskService {
 
     protected final UserWorkflowTaskLogic logic;

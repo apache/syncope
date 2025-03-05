@@ -28,9 +28,7 @@ import org.apache.syncope.common.keymaster.rest.api.service.DomainService;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.DomainLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class DomainServiceImpl implements DomainService {
 
     private static final long serialVersionUID = -375255764389240615L;

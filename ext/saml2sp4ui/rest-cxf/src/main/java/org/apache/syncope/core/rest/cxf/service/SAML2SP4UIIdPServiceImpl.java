@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIIdPService;
 import org.apache.syncope.core.logic.SAML2SP4UIIdPLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SAML2SP4UIIdPServiceImpl extends AbstractService implements SAML2SP4UIIdPService {
 
     protected final SAML2SP4UIIdPLogic logic;

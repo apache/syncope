@@ -23,9 +23,7 @@ import java.net.URI;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class OIDCJWKSServiceImpl extends AbstractService implements OIDCJWKSService {
 
     protected final OIDCJWKSLogic logic;

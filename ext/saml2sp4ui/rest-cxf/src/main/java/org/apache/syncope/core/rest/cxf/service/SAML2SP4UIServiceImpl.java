@@ -29,9 +29,7 @@ import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
 import org.apache.syncope.common.rest.api.service.SAML2SP4UIService;
 import org.apache.syncope.core.logic.SAML2SP4UILogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SAML2SP4UIServiceImpl extends AbstractService implements SAML2SP4UIService {
 
     protected final SAML2SP4UILogic logic;
