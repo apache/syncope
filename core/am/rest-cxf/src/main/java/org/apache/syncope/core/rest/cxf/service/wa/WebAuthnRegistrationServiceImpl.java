@@ -23,9 +23,7 @@ import org.apache.syncope.common.lib.wa.WebAuthnAccount;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.core.logic.wa.WebAuthnRegistrationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class WebAuthnRegistrationServiceImpl extends AbstractService implements WebAuthnRegistrationService {
 
     protected final WebAuthnRegistrationLogic logic;

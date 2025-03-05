@@ -28,9 +28,7 @@ import org.apache.syncope.common.keymaster.rest.api.service.ConfParamService;
 import org.apache.syncope.core.logic.ConfParamLogic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ConfParamServiceImpl implements ConfParamService {
 
     private static final long serialVersionUID = 3954522705963997651L;

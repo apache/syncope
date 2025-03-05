@@ -24,9 +24,7 @@ import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 import org.apache.syncope.core.logic.OIDCC4UILogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIService {
 
     protected final OIDCC4UILogic logic;

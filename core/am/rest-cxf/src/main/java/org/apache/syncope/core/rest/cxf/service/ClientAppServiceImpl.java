@@ -26,9 +26,7 @@ import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.core.logic.ClientAppLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ClientAppServiceImpl extends AbstractService implements ClientAppService {
 
     protected final ClientAppLogic logic;

@@ -22,9 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.rest.api.service.NetworkServiceService;
 import org.apache.syncope.core.logic.NetworkServiceLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class NetworkServiceServiceImpl implements NetworkServiceService {
 
     private static final long serialVersionUID = 4160287655489345100L;

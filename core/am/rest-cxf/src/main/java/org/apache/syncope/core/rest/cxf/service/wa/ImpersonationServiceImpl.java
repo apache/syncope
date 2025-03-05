@@ -23,9 +23,7 @@ import org.apache.syncope.common.lib.wa.ImpersonationAccount;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.core.logic.wa.ImpersonationLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ImpersonationServiceImpl extends AbstractService implements ImpersonationService {
 
     protected final ImpersonationLogic logic;

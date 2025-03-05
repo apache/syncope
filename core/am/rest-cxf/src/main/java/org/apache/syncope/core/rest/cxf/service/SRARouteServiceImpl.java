@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.core.logic.SRARouteLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class SRARouteServiceImpl extends AbstractService implements SRARouteService {
 
     protected final SRARouteLogic logic;

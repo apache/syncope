@@ -27,9 +27,7 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.core.logic.ConnectorLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ConnectorServiceImpl extends AbstractService implements ConnectorService {
 
     protected final ConnectorLogic logic;

@@ -24,9 +24,7 @@ import org.apache.syncope.common.lib.wa.WAClientApp;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.core.logic.wa.WAClientAppLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class WAClientAppServiceImpl extends AbstractService implements WAClientAppService {
 
     protected final WAClientAppLogic logic;

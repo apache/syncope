@@ -27,9 +27,7 @@ import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AuthProfileServiceImpl extends AbstractService implements AuthProfileService {
 
     protected final AuthProfileLogic logic;
