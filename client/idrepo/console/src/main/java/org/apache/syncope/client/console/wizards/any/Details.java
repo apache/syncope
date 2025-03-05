@@ -99,7 +99,7 @@ public class Details<T extends AnyTO> extends WizardStep {
                                     : realmRestClient.search(RealmsUtils.buildKeywordQuery(input))).getResult()).
                             stream().map(RealmTO::getFullPath).
                         filter(fullPath -> authRealms.stream().anyMatch(
-                        authRealm -> fullPath.startsWith(authRealm))).toList().iterator();
+                        authRealm -> fullPath.startsWith(authRealm))).iterator();
                 }
             };
 

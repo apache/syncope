@@ -71,7 +71,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                                 ? RealmsUtils.buildRootQuery()
                                 : RealmsUtils.buildKeywordQuery(input)).getResult())
                         : List.<RealmTO>of()).stream().
-                        map(RealmTO::getFullPath).toList().iterator();
+                        map(RealmTO::getFullPath).iterator();
             }
         };
         add(realm.addRequiredLabel().setOutputMarkupId(true));
