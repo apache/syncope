@@ -430,7 +430,7 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.17.2</elasticsearch.version>
+    <elasticsearch.version>8.17.3</elasticsearch.version>
     <opensearch.version>2.19.1</opensearch.version>
     <opensearch-java.version>2.21.0</opensearch-java.version>
 
@@ -1415,7 +1415,7 @@ under the License.
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.18.3</version>
+        <version>1.19.1</version>
       </dependency>
 
       <!-- TEST -->
