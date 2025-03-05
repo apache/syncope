@@ -96,21 +96,21 @@ public class SearchITCase extends AbstractITCase {
                                 is("username").equalToIgnoreCase("RoSsINI").and("key").lessThan(2).query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
+        assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
 
         matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql("fullname=~*oSsINi").page(1).size(2).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
+        assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
 
         matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql("fullname=~*ino*rossini*").page(1).size(2).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
+        assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class SearchITCase extends AbstractITCase {
                                 is("username").equalTo("rossini").and("key").lessThan(2).query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
-        assertEquals("rossini", matchingUsers.getResult().get(0).getUsername());
+        assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
     }
 
     @Test
@@ -132,8 +132,8 @@ public class SearchITCase extends AbstractITCase {
                         query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals("root", groups.getResult().iterator().next().getName());
-        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.getResult().iterator().next().getKey());
+        assertEquals("root", groups.getResult().getFirst().getName());
+        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.getResult().getFirst().getKey());
     }
 
     @Test
@@ -354,7 +354,7 @@ public class SearchITCase extends AbstractITCase {
                         is("userOwner").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals("ebf97068-aa4b-4a85-9f01-680e8c4cf227", groups.getResult().get(0).getKey());
+        assertEquals("ebf97068-aa4b-4a85-9f01-680e8c4cf227", groups.getResult().getFirst().getKey());
     }
 
     @Test
@@ -763,7 +763,7 @@ public class SearchITCase extends AbstractITCase {
                             inGroups("29f96485-729e-4d31-88a1-6fc60e4677f3").
                             query()).build());
             assertEquals(1, matching.getSize());
-            assertEquals(serviceKey, matching.getResult().get(0).getKey());
+            assertEquals(serviceKey, matching.getResult().getFirst().getKey());
         } finally {
             if (serviceKey != null) {
                 ANY_OBJECT_SERVICE.delete(serviceKey);
@@ -802,7 +802,7 @@ public class SearchITCase extends AbstractITCase {
                     SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("ou=sample%252Co=isp").query()).
                     build());
             assertEquals(1, users.getTotalCount());
-            assertEquals("vivaldi", users.getResult().get(0).getUsername());
+            assertEquals("vivaldi", users.getResult().getFirst().getUsername());
         } finally {
             req.getPlainAttrs().clear();
             req.getPlainAttrs().add(new AttrPatch.Builder(attr("ctype", "F")).build());
@@ -829,7 +829,7 @@ public class SearchITCase extends AbstractITCase {
                 orderBy(SyncopeClient.getOrderByClauseBuilder().asc("loginDate").build()).
                 build());
         assertEquals(1, issueSYNCOPE1416.getSize());
-        assertEquals("rossini", issueSYNCOPE1416.getResult().get(0).getUsername());
+        assertEquals("rossini", issueSYNCOPE1416.getResult().getFirst().getUsername());
 
         // search by attribute with unique constraint
         issueSYNCOPE1416 = USER_SERVICE.search(new AnyQuery.Builder().
@@ -873,7 +873,7 @@ public class SearchITCase extends AbstractITCase {
                 new Attr.Builder("loginDate").value("2009-05-26").build()).build());
         rossini = updateUser(req).getEntity();
         assertNotNull(rossini);
-        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").orElseThrow().getValues().get(0));
+        assertEquals("2009-05-26", rossini.getPlainAttr("loginDate").orElseThrow().getValues().getFirst());
 
         if (IS_EXT_SEARCH_ENABLED) {
             try {
@@ -930,7 +930,7 @@ public class SearchITCase extends AbstractITCase {
         // 1. create Realm
         Response response = REALM_SERVICE.create("/even/two", realm);
         realm = getRealm(response.getHeaderString(RESTHeaders.RESOURCE_KEY)).
-                orElseThrow(() -> new NotFoundException());
+                orElseThrow(NotFoundException::new);
         assertNotNull(realm.getKey());
         assertEquals("syncope1727", realm.getName());
         assertEquals("/even/two/syncope1727", realm.getFullPath());
@@ -954,7 +954,7 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").
                         equalTo(realm.getKey()).query()).build());
         assertEquals(1, users.getResult().size());
-        assertEquals(user.getKey(), users.getResult().get(0).getKey());
+        assertEquals(user.getKey(), users.getResult().getFirst().getKey());
 
         // 4. update parent Realm
         realm.setParent(getRealm("/odd").orElseThrow().getKey());
@@ -966,7 +966,7 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("realm").
                         equalTo(realm.getKey()).query()).build());
         assertEquals(1, users.getResult().size());
-        assertEquals(user.getKey(), users.getResult().get(0).getKey());
+        assertEquals(user.getKey(), users.getResult().getFirst().getKey());
     }
 
     @Test
@@ -996,13 +996,13 @@ public class SearchITCase extends AbstractITCase {
                             and().is("userId").equalTo("syncope1779_*").query()).
                     build());
             assertEquals(1, users.getResult().size());
-            assertEquals(userWith.getKey(), users.getResult().get(0).getKey());
+            assertEquals(userWith.getKey(), users.getResult().getFirst().getKey());
             // Search also by attribute
             users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779_*").query()).
                     build());
             assertEquals(1, users.getResult().size());
-            assertEquals(userWith.getKey(), users.getResult().get(0).getKey());
+            assertEquals(userWith.getKey(), users.getResult().getFirst().getKey());
             // search for both
             users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("syncope1779*").query()).
@@ -1014,7 +1014,7 @@ public class SearchITCase extends AbstractITCase {
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                             fiql("$type==PRINTER;name==_syncope1779").build());
             assertEquals(1, printers.getResult().size());
-            assertEquals(printer.getKey(), printers.getResult().get(0).getKey());
+            assertEquals(printer.getKey(), printers.getResult().getFirst().getKey());
         } finally {
             USER_SERVICE.delete(userWith.getKey());
             USER_SERVICE.delete(userWithout.getKey());
@@ -1032,7 +1032,8 @@ public class SearchITCase extends AbstractITCase {
         assertTrue(before > 0);
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
-                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
+                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
+                    orElseThrow().getValues().getFirst())));
 
         // 1. create user with similar email
         UserTO user = createUser(UserITCase.getSample("bisverdi@syncope.org")).getEntity();
@@ -1053,7 +1054,8 @@ public class SearchITCase extends AbstractITCase {
         assertEquals(before, users.getTotalCount());
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
-                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
+                allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
+                    orElseThrow().getValues().getFirst())));
         assertTrue(users.getResult().stream().noneMatch(u -> user.getKey().equals(u.getKey())));
     }
 
@@ -1065,7 +1067,7 @@ public class SearchITCase extends AbstractITCase {
         surname.getValues().clear();
         surname.getValues().add("D'Amico");
         UserTO user = createUser(userCR).getEntity();
-        assertEquals("D'Amico", user.getPlainAttr("surname").orElseThrow().getValues().get(0));
+        assertEquals("D'Amico", user.getPlainAttr("surname").orElseThrow().getValues().getFirst());
 
         // 2. search for user
         if (IS_EXT_SEARCH_ENABLED) {
@@ -1079,7 +1081,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql("surname=~D'*").build());
         assertEquals(1, users.getResult().size());
-        assertEquals(user.getKey(), users.getResult().get(0).getKey());
+        assertEquals(user.getKey(), users.getResult().getFirst().getKey());
     }
 
     @Test

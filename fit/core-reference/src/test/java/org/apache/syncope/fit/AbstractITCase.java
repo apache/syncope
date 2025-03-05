@@ -494,10 +494,10 @@ public abstract class AbstractITCase {
         }, Objects::nonNull);
         JsonNode beans = JSON_MAPPER.readTree(beansJSON);
 
-        JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
+        JsonNode uwfAdapter = beans.findValues("uwfAdapter").getFirst();
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
 
-        JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
+        JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
         IS_ELASTICSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch");
         IS_OPENSEARCH_ENABLED = anySearchDAO.get("type").asText().contains("OpenSearch");
         IS_EXT_SEARCH_ENABLED = IS_ELASTICSEARCH_ENABLED || IS_OPENSEARCH_ENABLED;
@@ -794,13 +794,13 @@ public abstract class AbstractITCase {
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").get().getValues().get(0)
-                + ':' + ldapConn.getConf("port").get().getValues().get(0) + '/');
+        env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").get().getValues().getFirst()
+                + ':' + ldapConn.getConf("port").get().getValues().getFirst() + '/');
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL,
-                bindDn == null ? ldapConn.getConf("principal").get().getValues().get(0) : bindDn);
+                bindDn == null ? ldapConn.getConf("principal").get().getValues().getFirst() : bindDn);
         env.put(Context.SECURITY_CREDENTIALS,
-                bindPwd == null ? ldapConn.getConf("credentials").get().getValues().get(0) : bindPwd);
+                bindPwd == null ? ldapConn.getConf("credentials").get().getValues().getFirst() : bindPwd);
 
         return new InitialDirContext(env);
     }
@@ -834,7 +834,7 @@ public abstract class AbstractITCase {
             ctx = getLdapResourceDirContext(bindDn, bindPwd);
 
             BasicAttributes entry = new BasicAttributes();
-            entryAttrs.getRight().forEach(item -> entry.put(item));
+            entryAttrs.getRight().forEach(entry::put);
 
             ctx.createSubcontext(entryAttrs.getLeft(), entry);
 

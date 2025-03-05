@@ -65,7 +65,7 @@ public class TestInitializer implements InitializingBean {
         contentLoader.load(SyncopeConstants.MASTER_DOMAIN);
 
         if (domainHolder.getDomains().containsKey("Two")) {
-            AuthContextUtils.runAsAdmin("Two", () -> entityManagerFactory.createEntityManager());
+            AuthContextUtils.runAsAdmin("Two", entityManagerFactory::createEntityManager);
 
             AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load("Two"));
         }

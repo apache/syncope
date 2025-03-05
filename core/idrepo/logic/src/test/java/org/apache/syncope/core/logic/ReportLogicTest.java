@@ -122,7 +122,7 @@ public class ReportLogicTest extends AbstractTest {
         report = logic.read(report.getKey());
         assertFalse(report.getExecutions().isEmpty());
 
-        String execKey = report.getExecutions().get(0).getKey();
+        String execKey = report.getExecutions().getFirst().getKey();
 
         checkExport(execKey);
     }

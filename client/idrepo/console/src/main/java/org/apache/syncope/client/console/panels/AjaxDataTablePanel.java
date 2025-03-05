@@ -211,7 +211,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
         groupForm.add(group);
 
         if (builder.checkBoxEnabled) {
-            builder.columns.add(0, new CheckGroupColumn<>(group));
+            builder.columns.addFirst(new CheckGroupColumn<>(group));
         }
 
         dataTable = new AjaxFallbackDataTable<>(

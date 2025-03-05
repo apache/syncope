@@ -101,7 +101,7 @@ public final class PreferenceManager implements Serializable {
     }
 
     public Integer getPaginatorRows(final String key) {
-        Integer result = getPaginatorChoices().get(0);
+        Integer result = getPaginatorChoices().getFirst();
 
         String value = get(key);
         if (value != null) {

@@ -66,6 +66,7 @@ public class ReconStatusPanel extends RemoteObjectPanel {
 
         return statuses.isEmpty()
                 ? null
-                : Pair.of(statuses.get(0).getRight().getOnSyncope(), statuses.get(0).getRight().getOnResource());
+                : Pair.of(statuses.getFirst().getRight().getOnSyncope(),
+                          statuses.getFirst().getRight().getOnResource());
     }
 }

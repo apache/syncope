@@ -135,7 +135,7 @@ public final class OAuth2SecurityConfigUtils {
             }
         }
 
-        http.logout(customizer -> customizer.disable());
+        http.logout(ServerHttpSecurity.LogoutSpec::disable);
         http.addFilterAt(logoutWebFilter, SecurityWebFiltersOrder.LOGOUT);
     }
 

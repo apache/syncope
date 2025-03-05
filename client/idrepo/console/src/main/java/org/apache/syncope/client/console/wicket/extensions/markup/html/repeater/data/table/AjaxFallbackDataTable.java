@@ -117,7 +117,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
     protected void onDoubleClick(final AjaxRequestTarget target, final IModel<T> model) {
         togglePanel.close(target);
-        getActions(model).getActions().get(0).getLink().onClick(target, model.getObject());
+        getActions(model).getActions().getFirst().getLink().onClick(target, model.getObject());
     }
 
     @Override

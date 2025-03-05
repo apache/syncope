@@ -31,7 +31,7 @@ public class Neo4jImplementationRelationship
         implements Comparable<Neo4jImplementationRelationship> {
 
     public static BiFunction<Integer, Neo4jImplementation, Neo4jImplementationRelationship> builder() {
-        return (Integer i, Neo4jImplementation e) -> new Neo4jImplementationRelationship(i, e);
+        return Neo4jImplementationRelationship::new;
     }
 
     @RelationshipId

@@ -73,7 +73,7 @@ public class AnyFinder {
         if (literals.isEmpty()) {
             attrValues.add(attrValue);
         } else {
-            for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
+            for (String token : attrValue.split(Pattern.quote(literals.getFirst()))) {
                 if (!token.isEmpty()) {
                     attrValues.addAll(split(token, literals.subList(1, literals.size())));
                 }

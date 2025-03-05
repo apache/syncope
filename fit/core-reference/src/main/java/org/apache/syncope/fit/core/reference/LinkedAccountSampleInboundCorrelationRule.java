@@ -50,7 +50,7 @@ public class LinkedAccountSampleInboundCorrelationRule implements InboundCorrela
         if (email != null && !CollectionUtils.isEmpty(email.getValue())) {
             cond.setSchema("email");
             cond.setType(AttrCond.Type.EQ);
-            cond.setExpression(email.getValue().get(0).toString());
+            cond.setExpression(email.getValue().getFirst().toString());
         } else {
             cond.setSchema("");
         }
@@ -66,7 +66,7 @@ public class LinkedAccountSampleInboundCorrelationRule implements InboundCorrela
         Attribute firstName = syncDelta.getObject().getAttributeByName("firstName");
         if (VIVALDI_KEY.equals(any.getKey())
                 && firstName != null && !CollectionUtils.isEmpty(firstName.getValue())
-                && !"Antonio".equals(firstName.getValue().get(0).toString())) {
+                && !"Antonio".equals(firstName.getValue().getFirst().toString())) {
 
             return new InboundMatch(MatchType.LINKED_ACCOUNT, any);
         }

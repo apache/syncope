@@ -110,7 +110,7 @@ public class DynRealmITCase extends AbstractITCase {
             assertNotNull(matching);
             assertNotEquals(0, matching.getSize());
 
-            UserTO user = matching.getResult().get(0);
+            UserTO user = matching.getResult().getFirst();
 
             assertTrue(user.getDynRealms().contains(dynRealm.getKey()));
         } finally {
@@ -232,7 +232,7 @@ public class DynRealmITCase extends AbstractITCase {
             group = delegatedGroupService.update(groupUR).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
             }).getEntity();
             assertNotNull(group);
-            assertEquals("modified", group.getPlainAttr("icon").get().getValues().get(0));
+            assertEquals("modified", group.getPlainAttr("icon").get().getValues().getFirst());
         } finally {
             if (role != null) {
                 ROLE_SERVICE.delete(role.getKey());

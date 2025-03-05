@@ -241,7 +241,7 @@ public class PolicyITCase extends AbstractITCase {
         assertNotEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", policy.getKey());
 
         ImplementationTO rule = IMPLEMENTATION_SERVICE.read(
-                IdRepoImplementationType.PASSWORD_RULE, policy.getRules().get(0));
+                IdRepoImplementationType.PASSWORD_RULE, policy.getRules().getFirst());
         assertNotNull(rule);
 
         DefaultPasswordRuleConf ruleConf = POJOHelper.deserialize(rule.getBody(), DefaultPasswordRuleConf.class);

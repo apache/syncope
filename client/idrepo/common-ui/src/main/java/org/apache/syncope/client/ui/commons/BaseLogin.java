@@ -85,7 +85,7 @@ public abstract class BaseLogin extends WebPage {
         protected List<String> load() {
             List<String> current = new ArrayList<>();
             current.addAll(domainOps.list().stream().map(Domain::getKey).sorted().toList());
-            current.add(0, SyncopeConstants.MASTER_DOMAIN);
+            current.addFirst(SyncopeConstants.MASTER_DOMAIN);
             return current;
         }
     };
@@ -281,7 +281,7 @@ public abstract class BaseLogin extends WebPage {
 
             getModel().setObject(filtered.isEmpty()
                     ? Locale.ENGLISH
-                    : filtered.get(0));
+                    : filtered.getFirst());
         }
     }
 }

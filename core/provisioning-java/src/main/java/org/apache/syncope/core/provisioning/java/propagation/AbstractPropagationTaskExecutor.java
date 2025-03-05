@@ -304,7 +304,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             result = connector.update(
                     Optional.ofNullable(beforeObj).
                             map(ConnectorObject::getObjectClass).
-                            orElseGet(() -> taskInfo.getObjectClass()),
+                            orElseGet(taskInfo::getObjectClass),
                     Optional.ofNullable(beforeObj).
                             map(ConnectorObject::getUid).
                             orElseGet(() -> new Uid(taskInfo.getOldConnObjectKey() == null
@@ -381,7 +381,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } else {
             ObjectClass objectClass = Optional.ofNullable(beforeObj).
                     map(ConnectorObject::getObjectClass).
-                    orElseGet(() -> taskInfo.getObjectClass());
+                    orElseGet(taskInfo::getObjectClass);
             Uid uid = Optional.ofNullable(beforeObj).
                     map(ConnectorObject::getUid).
                     orElseGet(() -> new Uid(taskInfo.getConnObjectKey()));
@@ -846,7 +846,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 outboundMatcher.match(taskInfo, connector, provision, actions, connObjectKeyValue);
         LOG.debug("Found for propagation task {}: {}", taskInfo, matches);
 
-        return matches.isEmpty() ? null : matches.get(0);
+        return matches.isEmpty() ? null : matches.getFirst();
     }
 
     /**

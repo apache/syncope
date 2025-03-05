@@ -256,7 +256,7 @@ public class SyncopeClient {
         List<String> headerValues = restClientFactory.getHeaders().get(HttpHeaders.AUTHORIZATION);
         String header = headerValues == null || headerValues.isEmpty()
                 ? null
-                : headerValues.get(0);
+                : headerValues.getFirst();
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring("Bearer ".length());
 
@@ -273,7 +273,7 @@ public class SyncopeClient {
         List<String> headerValues = restClientFactory.getHeaders().get(RESTHeaders.DOMAIN);
         return headerValues == null || headerValues.isEmpty()
                 ? SyncopeConstants.MASTER_DOMAIN
-                : headerValues.get(0);
+                : headerValues.getFirst();
     }
 
     /**

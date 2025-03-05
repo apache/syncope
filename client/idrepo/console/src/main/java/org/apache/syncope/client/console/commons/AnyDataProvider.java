@@ -105,7 +105,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
             if (filtered) {
                 result = Optional.ofNullable(fiql).
                         map(s -> restClient.search(realm, s, currentPage + 1, paginatorRows, getSort(), type)).
-                        orElseGet(() -> List.of());
+                        orElseGet(List::of);
             } else {
                 result = restClient.search(realm, null, currentPage + 1, paginatorRows, getSort(), type);
             }

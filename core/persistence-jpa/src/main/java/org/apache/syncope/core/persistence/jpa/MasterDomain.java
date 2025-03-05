@@ -37,13 +37,13 @@ public class MasterDomain {
     @Bean(name = "MasterDataSource")
     public JndiObjectFactoryBean masterDataSource(final PersistenceProperties props) {
         HikariConfig hikariConfig = new HikariConfig();
-        hikariConfig.setDriverClassName(props.getDomain().get(0).getJdbcDriver());
-        hikariConfig.setJdbcUrl(props.getDomain().get(0).getJdbcURL());
-        hikariConfig.setUsername(props.getDomain().get(0).getDbUsername());
-        hikariConfig.setPassword(props.getDomain().get(0).getDbPassword());
-        hikariConfig.setTransactionIsolation(props.getDomain().get(0).getTransactionIsolation().name());
-        hikariConfig.setMaximumPoolSize(props.getDomain().get(0).getPoolMaxActive());
-        hikariConfig.setMinimumIdle(props.getDomain().get(0).getPoolMinIdle());
+        hikariConfig.setDriverClassName(props.getDomain().getFirst().getJdbcDriver());
+        hikariConfig.setJdbcUrl(props.getDomain().getFirst().getJdbcURL());
+        hikariConfig.setUsername(props.getDomain().getFirst().getDbUsername());
+        hikariConfig.setPassword(props.getDomain().getFirst().getDbPassword());
+        hikariConfig.setTransactionIsolation(props.getDomain().getFirst().getTransactionIsolation().name());
+        hikariConfig.setMaximumPoolSize(props.getDomain().getFirst().getPoolMaxActive());
+        hikariConfig.setMinimumIdle(props.getDomain().getFirst().getPoolMinIdle());
 
         JndiObjectFactoryBean masterDataSource = new JndiObjectFactoryBean();
         masterDataSource.setJndiName("java:comp/env/jdbc/syncopeMasterDataSource");
@@ -56,7 +56,7 @@ public class MasterDomain {
             final ResourceLoader resourceLoader,
             final PersistenceProperties props) throws IOException {
 
-        return resourceLoader.getResource(props.getDomain().get(0).getContent()).getInputStream();
+        return resourceLoader.getResource(props.getDomain().getFirst().getContent()).getInputStream();
     }
 
     @Bean(name = "MasterKeymasterConfParamsJSON")
@@ -64,11 +64,11 @@ public class MasterDomain {
             final ResourceLoader resourceLoader,
             final PersistenceProperties props) throws IOException {
 
-        return resourceLoader.getResource(props.getDomain().get(0).getKeymasterConfParams()).getInputStream();
+        return resourceLoader.getResource(props.getDomain().getFirst().getKeymasterConfParams()).getInputStream();
     }
 
     @Bean(name = "MasterDatabaseSchema")
     public String masterDatabaseSchema(final PersistenceProperties props) {
-        return props.getDomain().get(0).getDbSchema();
+        return props.getDomain().getFirst().getDbSchema();
     }
 }

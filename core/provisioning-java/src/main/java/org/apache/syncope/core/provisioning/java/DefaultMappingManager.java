@@ -587,9 +587,9 @@ public class DefaultMappingManager implements MappingManager {
             }
 
             if (item.isConnObjectKey()) {
-                result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
-            } else if (item.isPassword() && any instanceof final User user) {
-                result = getPasswordAttrValue(passwordAccountGetter.apply(user), password).
+                result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
+            } else if (item.isPassword() && any instanceof User) {
+                result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
                         map(passwordAttrValue -> Pair.of(
                         (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
                         orElse(null);
@@ -898,7 +898,7 @@ public class DefaultMappingManager implements MappingManager {
         }
         return Optional.ofNullable(intValues.getRight().isEmpty()
                 ? null
-                : intValues.getRight().get(0).getValueAsString());
+                : intValues.getRight().getFirst().getValueAsString());
     }
 
     @Transactional(readOnly = true)
@@ -935,37 +935,37 @@ public class DefaultMappingManager implements MappingManager {
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
                 case "password" -> {
-                    if (anyTO instanceof final UserTO userTO && !values.isEmpty()) {
-                        userTO.setPassword(ConnObjectUtils.getPassword(values.get(0)));
+                    if (anyTO instanceof UserTO && !values.isEmpty()) {
+                        ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.getFirst()));
                     }
                 }
 
                 case "username" -> {
                     if (anyTO instanceof UserTO userTO) {
-                        userTO.setUsername(values.isEmpty() || values.get(0) == null
+                        userTO.setUsername(values.isEmpty() || values.getFirst() == null
                                 ? null
-                                : values.get(0).toString());
+                                : values.getFirst().toString());
                     }
                 }
 
                 case "name" -> {
                     switch (anyTO) {
                         case GroupTO groupTO ->
-                            groupTO.setName(values.isEmpty() || values.get(0) == null
+                            groupTO.setName(values.isEmpty() || values.getFirst() == null
                                     ? null
-                                    : values.get(0).toString());
+                                    : values.getFirst().toString());
                         case AnyObjectTO anyObjectTO ->
-                            anyObjectTO.setName(values.isEmpty() || values.get(0) == null
+                            anyObjectTO.setName(values.isEmpty() || values.getFirst() == null
                                     ? null
-                                    : values.get(0).toString());
+                                    : values.getFirst().toString());
                         default -> {
                         }
                     }
                 }
 
                 case "mustChangePassword" -> {
-                    if (anyTO instanceof final UserTO userTO && !values.isEmpty() && values.get(0) != null) {
-                        userTO.setMustChangePassword(BooleanUtils.toBoolean(values.get(0).toString()));
+                    if (anyTO instanceof UserTO && !values.isEmpty() && values.getFirst() != null) {
+                        ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.getFirst().toString()));
                     }
                 }
 
@@ -975,10 +975,10 @@ public class DefaultMappingManager implements MappingManager {
                         // GroupOwnerSchema value
                         Attr attrTO = new Attr();
                         attrTO.setSchema(StringUtils.EMPTY);
-                        if (values.isEmpty() || values.get(0) == null) {
+                        if (values.isEmpty() || values.getFirst() == null) {
                             attrTO.getValues().add(StringUtils.EMPTY);
                         } else {
-                            attrTO.getValues().add(values.get(0).toString());
+                            attrTO.getValues().add(values.getFirst().toString());
                         }
 
                         groupTO.getPlainAttrs().add(attrTO);
@@ -1081,13 +1081,13 @@ public class DefaultMappingManager implements MappingManager {
             }
         }
 
-        if (values != null && !values.isEmpty() && values.get(0) != null) {
+        if (values != null && !values.isEmpty() && values.getFirst() != null) {
             switch (item.getIntAttrName()) {
                 case "name" ->
-                    realmTO.setName(values.get(0).toString());
+                    realmTO.setName(values.getFirst().toString());
 
                 case "fullpath" -> {
-                    String parentFullPath = StringUtils.substringBeforeLast(values.get(0).toString(), "/");
+                    String parentFullPath = StringUtils.substringBeforeLast(values.getFirst().toString(), "/");
                     realmSearchDAO.findByFullPath(parentFullPath).ifPresentOrElse(
                             parent -> realmTO.setParent(parent.getFullPath()),
                             () -> LOG.warn("Could not find Realm with path {}, ignoring", parentFullPath));

@@ -287,13 +287,13 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 Optional.of(moreAttrsToGet.toArray(String[]::new)));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
-                    outboundMatcher.getFIQL(connObjs.get(0), triple.getMiddle(), triple.getRight()),
-                    connObjs.get(0).getAttributes()));
+                    outboundMatcher.getFIQL(connObjs.getFirst(), triple.getMiddle(), triple.getRight()),
+                    connObjs.getFirst().getAttributes()));
 
             if (connObjs.size() > 1) {
                 LOG.warn("Expected single match, found {}", connObjs);
             } else {
-                virAttrHandler.setValues(any, connObjs.get(0));
+                virAttrHandler.setValues(any, connObjs.getFirst());
             }
         }
 
@@ -412,8 +412,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     getAny(triple.getRight(), triple.getLeft().getKind(), anyKey),
                     pushTask,
                     AuthContextUtils.getWho()));
-            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-                sce.getElements().add(results.get(0).getMessage());
+            if (!results.isEmpty() && results.getFirst().getStatus() == ProvisioningReport.Status.FAILURE) {
+                sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
             sce.getElements().add(e.getMessage());
@@ -457,9 +457,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                         pushTask,
                                         AuthContextUtils.getWho()));
                                 if (!results.isEmpty()
-                                        && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+                                        && results.getFirst().getStatus() == ProvisioningReport.Status.FAILURE) {
 
-                                    sce.getElements().add(results.get(0).getMessage());
+                                    sce.getElements().add(results.getFirst().getMessage());
                                 }
                             } else {
                                 ProvisioningReport result = singlePushExecutor().push(
@@ -514,8 +514,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     moreAttrsToGet,
                     pullTask,
                     AuthContextUtils.getWho()));
-            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-                sce.getElements().add(results.get(0).getMessage());
+            if (!results.isEmpty() && results.getFirst().getStatus() == ProvisioningReport.Status.FAILURE) {
+                sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
             sce.getElements().add(e.getMessage());

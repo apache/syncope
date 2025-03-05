@@ -169,7 +169,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         try {
             jobManager.register(
                     report,
-                    Optional.ofNullable(specs.getStartAt()).orElseGet(() -> OffsetDateTime.now()),
+                    Optional.ofNullable(specs.getStartAt()).orElseGet(OffsetDateTime::now),
                     AuthContextUtils.getUsername(),
                     specs.getDryRun());
         } catch (Exception e) {
@@ -257,7 +257,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         long count = reportExecDAO.count(report, before, after);
 
         List<ExecTO> result = reportExecDAO.findAll(report, before, after, pageable).stream().
-                map(reportExec -> binder.getExecTO(reportExec)).toList();
+                map(binder::getExecTO).toList();
 
         return new SyncopePage<>(result, pageable, count);
     }
@@ -266,7 +266,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return reportExecDAO.findRecent(max).stream().
-                map(reportExec -> binder.getExecTO(reportExec)).toList();
+                map(binder::getExecTO).toList();
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_DELETE + "')")

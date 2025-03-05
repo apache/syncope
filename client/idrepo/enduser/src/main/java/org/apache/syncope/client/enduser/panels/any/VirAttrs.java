@@ -127,7 +127,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getVirAttrs())).
-                orElseGet(() -> new HashMap<>());
+                orElseGet(HashMap::new);
 
         List<Attr> virAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attr = new Attr();

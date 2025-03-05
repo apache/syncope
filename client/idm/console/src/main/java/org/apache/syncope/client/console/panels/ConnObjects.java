@@ -55,7 +55,7 @@ public class ConnObjects extends Panel implements ModalPanel {
                 sorted(AnyTypeRestClient.KEY_COMPARATOR).
                 collect(Collectors.toList());
         if (resource.getOrgUnit() != null) {
-            availableAnyTypes.add(0, SyncopeConstants.REALM_ANYTYPE);
+            availableAnyTypes.addFirst(SyncopeConstants.REALM_ANYTYPE);
         }
 
         anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<>());
@@ -67,7 +67,7 @@ public class ConnObjects extends Panel implements ModalPanel {
         } else if (availableAnyTypes.contains(AnyTypeKind.GROUP.name())) {
             anyTypes.setDefaultModelObject(AnyTypeKind.GROUP.name());
         } else if (!availableAnyTypes.isEmpty()) {
-            anyTypes.setDefaultModelObject(availableAnyTypes.get(0));
+            anyTypes.setDefaultModelObject(availableAnyTypes.getFirst());
         }
         add(anyTypes);
 

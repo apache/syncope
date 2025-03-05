@@ -893,7 +893,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         Set<PlainSchema> plainSchemas = Stream.concat(
                 queryInfo.membershipAttrConds().stream().map(Pair::getRight),
-                orderByItems.stream().map(item -> plainSchemaDAO.findById(item)).flatMap(Optional::stream)).
+                orderByItems.stream().map(plainSchemaDAO::findById).flatMap(Optional::stream)).
                 collect(Collectors.toSet());
 
         // call

@@ -184,11 +184,11 @@ public class GenerateUpgradeSQL {
                     String leftEndAnyType = jdbcTemplate.queryForObject(
                             "SELECT type_id from AnyObject WHERE id=?",
                             String.class,
-                            anyObjects.get(0).get("left_anyobject_id"));
+                            anyObjects.getFirst().get("left_anyobject_id"));
                     String rightEndAnyType = jdbcTemplate.queryForObject(
                             "SELECT type_id from AnyObject WHERE id=?",
                             String.class,
-                            anyObjects.get(0).get("right_anyobject_id"));
+                            anyObjects.getFirst().get("right_anyobject_id"));
 
                     result.append("UPDATE RelationshipType ").
                             append("SET leftEndAnyType_id='").append(leftEndAnyType).append("', ").
@@ -199,7 +199,7 @@ public class GenerateUpgradeSQL {
                 String rightEndAnyType = jdbcTemplate.queryForObject(
                         "SELECT type_id from AnyObject WHERE id=?",
                         String.class,
-                        anyObjects.get(0).get("anyobject_id"));
+                        anyObjects.getFirst().get("anyobject_id"));
 
                 result.append("UPDATE RelationshipType ").
                         append("SET leftEndAnyType_id='USER', ").

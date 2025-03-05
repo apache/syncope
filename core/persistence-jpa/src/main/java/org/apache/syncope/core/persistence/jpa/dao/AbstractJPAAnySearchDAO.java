@@ -847,13 +847,13 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
             fromString = sv.name() + " " + sv.alias();
         } else {
             List<SearchSupport.SearchView> joins = new ArrayList<>(from);
-            StringBuilder join = new StringBuilder(joins.get(0).name() + " " + joins.get(0).alias());
+            StringBuilder join = new StringBuilder(joins.getFirst().name() + " " + joins.getFirst().alias());
             for (int i = 1; i < joins.size(); i++) {
                 SearchSupport.SearchView sv = joins.get(i);
                 join.append(" LEFT JOIN ").
                         append(sv.name()).append(" ").append(sv.alias()).
                         append(" ON ").
-                        append(joins.get(0).alias()).append(".any_id=").append(sv.alias()).append(".any_id");
+                        append(joins.getFirst().alias()).append(".any_id=").append(sv.alias()).append(".any_id");
             }
             fromString = join.toString();
         }

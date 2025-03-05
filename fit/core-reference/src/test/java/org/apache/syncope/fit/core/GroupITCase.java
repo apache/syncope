@@ -128,7 +128,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertNotNull(groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues());
         assertFalse(groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().isEmpty());
-        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().get(0));
+        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().getFirst());
 
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
@@ -572,7 +572,7 @@ public class GroupITCase extends AbstractITCase {
 
         // 3. add the new mandatory schema to the default group type
         AnyTypeTO type = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
-        String typeClassName = type.getClasses().get(0);
+        String typeClassName = type.getClasses().getFirst();
         AnyTypeClassTO typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
         typeClass.getPlainSchemas().add(badge.getKey());
         ANY_TYPE_CLASS_SERVICE.update(typeClass);
@@ -627,7 +627,7 @@ public class GroupITCase extends AbstractITCase {
         groupCR.getPlainAttrs().add(attr("dd", "A"));
 
         GroupTO group = createGroup(groupCR).getEntity();
-        assertEquals("A", group.getPlainAttr("dd").orElseThrow().getValues().get(0));
+        assertEquals("A", group.getPlainAttr("dd").orElseThrow().getValues().getFirst());
     }
 
     @Test
@@ -642,7 +642,7 @@ public class GroupITCase extends AbstractITCase {
 
         // 2. add the new schema to the default group type
         AnyTypeTO type = ANY_TYPE_SERVICE.read(AnyTypeKind.GROUP.name());
-        String typeClassName = type.getClasses().get(0);
+        String typeClassName = type.getClasses().getFirst();
         AnyTypeClassTO typeClass = ANY_TYPE_CLASS_SERVICE.read(typeClassName);
         typeClass.getPlainSchemas().add(encrypted.getKey());
         ANY_TYPE_CLASS_SERVICE.update(typeClass);
@@ -656,7 +656,7 @@ public class GroupITCase extends AbstractITCase {
 
         assertEquals(encryptorManager.getInstance(System.getProperty("obscureSecretKey")).
                 encode("testvalue", encrypted.getCipherAlgorithm()),
-                group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
+                group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().getFirst());
 
         // 4. update schema to return cleartext values
         encrypted.setAnyTypeClass(typeClassName);
@@ -671,14 +671,14 @@ public class GroupITCase extends AbstractITCase {
                 new Attr.Builder(encrypted.getKey()).value("testvalue").build()).build());
         group = updateGroup(groupUR).getEntity();
 
-        assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
+        assertEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().getFirst());
 
         // 6. update schema again to disallow cleartext values
         encrypted.setConversionPattern(null);
         SCHEMA_SERVICE.update(SchemaType.PLAIN, encrypted);
 
         group = GROUP_SERVICE.read(group.getKey());
-        assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().get(0));
+        assertNotEquals("testvalue", group.getPlainAttr(encrypted.getKey()).orElseThrow().getValues().getFirst());
     }
 
     @Test
@@ -859,8 +859,8 @@ public class GroupITCase extends AbstractITCase {
             ProvisioningResult<GroupTO> result = createGroup(groupCR);
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
             GroupTO group = result.getEntity();
 
             // 2. update succeeds
@@ -869,8 +869,8 @@ public class GroupITCase extends AbstractITCase {
                     build());
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
             group = result.getEntity();
 
             // 3. enable capability override with only search allowed
@@ -887,8 +887,8 @@ public class GroupITCase extends AbstractITCase {
                     build());
             assertNotNull(result);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(ExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
+            assertEquals(ExecStatus.NOT_ATTEMPTED, result.getPropagationStatuses().getFirst().getStatus());
         } finally {
             ldap.setCapabilitiesOverride(Optional.empty());
             RESOURCE_SERVICE.update(ldap);
@@ -945,7 +945,7 @@ public class GroupITCase extends AbstractITCase {
         groupUR.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_LDAP).build());
         ProvisioningResult<GroupTO> groupUpdateResult = updateGroup(groupUR);
 
-        PropagationStatus propStatus = groupUpdateResult.getPropagationStatuses().get(0);
+        PropagationStatus propStatus = groupUpdateResult.getPropagationStatuses().getFirst();
         assertEquals(RESOURCE_NAME_LDAP, propStatus.getResource());
         assertEquals(ExecStatus.SUCCESS, propStatus.getStatus());
 
@@ -971,7 +971,7 @@ public class GroupITCase extends AbstractITCase {
                     return false;
                 }
             });
-            assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().get(0).getStatus());
+            assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().getFirst().getStatus());
 
             // 6. verify that the user above is now fond on LDAP
             ConnObject userOnLdap =
@@ -999,7 +999,7 @@ public class GroupITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
 
         assertFalse(userTO.getMemberships().isEmpty());
-        assertEquals(groupTO.getKey(), userTO.getMemberships().get(0).getGroupKey());
+        assertEquals(groupTO.getKey(), userTO.getMemberships().getFirst().getGroupKey());
     }
 
     @Test
@@ -1145,7 +1145,7 @@ public class GroupITCase extends AbstractITCase {
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().getFirst());
 
         // 3. update schema, set conversion pattern
         schema = SCHEMA_SERVICE.read(SchemaType.PLAIN, schema.getKey());
@@ -1155,7 +1155,7 @@ public class GroupITCase extends AbstractITCase {
         // 4. re-read group, verify that pattern was applied
         groupTO = GROUP_SERVICE.read(groupTO.getKey());
         assertNotNull(groupTO);
-        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
+        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().getFirst());
 
         // 5. modify group with new double value
         GroupUR groupUR = new GroupUR();
@@ -1164,7 +1164,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
+        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().getFirst());
 
         // 6. update schema, unset conversion pattern
         schema.setConversionPattern(null);
@@ -1177,7 +1177,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(groupUR).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).orElseThrow().getValues().getFirst());
     }
 
     @Test
@@ -1196,7 +1196,7 @@ public class GroupITCase extends AbstractITCase {
             ConnObject connObjectTO =
                     RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
-            assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").orElseThrow().getValues().get(0));
+            assertEquals("issueSYNCOPE1467", connObjectTO.getAttr("cn").orElseThrow().getValues().getFirst());
 
             GroupUR groupUR = new GroupUR();
             groupUR.setKey(groupTO.getKey());
@@ -1204,13 +1204,13 @@ public class GroupITCase extends AbstractITCase {
 
             ProvisioningResult<GroupTO> result = updateGroup(groupUR);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+            assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
+            assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
 
             connObjectTO = RESOURCE_SERVICE.readConnObject(
                     RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
             assertNotNull(connObjectTO);
-            assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").orElseThrow().getValues().get(0));
+            assertEquals("fixedSYNCOPE1467", connObjectTO.getAttr("cn").orElseThrow().getValues().getFirst());
         } finally {
             Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));
         }

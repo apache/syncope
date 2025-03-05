@@ -101,11 +101,11 @@ public class UserRequestITCase extends AbstractITCase {
         PagedResult<UserRequest> requests = client.getService(UserRequestService.class).
                 listRequests(new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
-        assertEquals("directorGroupRequest", requests.getResult().get(0).getBpmnProcess());
+        assertEquals("directorGroupRequest", requests.getResult().getFirst().getBpmnProcess());
 
         // 1st approval -> reject
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("firstLevelApprove").get().setValue(Boolean.FALSE.toString());
         USER_REQUEST_SERVICE.submitForm(form);
@@ -121,14 +121,14 @@ public class UserRequestITCase extends AbstractITCase {
 
         // 1st approval -> accept
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("firstLevelApprove").get().setValue(Boolean.TRUE.toString());
         USER_REQUEST_SERVICE.submitForm(form);
 
         // 2nd approval -> reject
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("secondLevelApprove").get().setValue(Boolean.FALSE.toString());
         user = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -145,14 +145,14 @@ public class UserRequestITCase extends AbstractITCase {
 
         // 1st approval -> accept
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("firstLevelApprove").get().setValue(Boolean.TRUE.toString());
         USER_REQUEST_SERVICE.submitForm(form);
 
         // 2nd approval -> accept
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("secondLevelApprove").get().setValue(Boolean.TRUE.toString());
         user = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -227,7 +227,7 @@ public class UserRequestITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, userForms.getTotalCount());
 
-        UserRequestForm form = userForms.getResult().get(0);
+        UserRequestForm form = userForms.getResult().getFirst();
         assertEquals("assignPrinterRequest", form.getBpmnProcess());
         form = service.claimForm(form.getTaskId());
 
@@ -246,11 +246,11 @@ public class UserRequestITCase extends AbstractITCase {
         PagedResult<UserRequest> requests = service.listRequests(
                 new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, requests.getTotalCount());
-        assertEquals("assignPrinterRequest", requests.getResult().get(0).getBpmnProcess());
+        assertEquals("assignPrinterRequest", requests.getResult().getFirst().getBpmnProcess());
 
         // get (as admin) the new form, claim and submit
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(user.getKey()).build()).getResult().getFirst();
         assertEquals("assignPrinterRequest", form.getBpmnProcess());
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
 
@@ -300,7 +300,7 @@ public class UserRequestITCase extends AbstractITCase {
                 new UserRequestQuery.Builder().user(user.getKey()).build());
         assertEquals(1, userForms.getTotalCount());
 
-        UserRequestForm form = userForms.getResult().get(0);
+        UserRequestForm form = userForms.getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         assertEquals(form.getProperty("providedVariable").get().getValue(), "test");
 

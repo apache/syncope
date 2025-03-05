@@ -166,7 +166,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getPlainAttrs())).
-                orElseGet(() -> new HashMap<>());
+                orElseGet(HashMap::new);
 
         List<Attr> plainAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attr = new Attr();

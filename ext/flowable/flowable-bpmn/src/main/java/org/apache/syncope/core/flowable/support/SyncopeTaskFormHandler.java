@@ -52,11 +52,11 @@ public class SyncopeTaskFormHandler extends DefaultTaskFormHandler {
         switch (formProperty.getType()) {
             case "dropdown":
                 if (formProperty.getFormValues().isEmpty()
-                        || !DropdownValueProvider.NAME.equals(formProperty.getFormValues().get(0).getId())) {
+                        || !DropdownValueProvider.NAME.equals(formProperty.getFormValues().getFirst().getId())) {
 
                     LOG.warn("A single value with id '" + DropdownValueProvider.NAME + "' was expected, ignoring");
                 } else {
-                    formType = new DropdownFormType(formProperty.getFormValues().get(0).getName());
+                    formType = new DropdownFormType(formProperty.getFormValues().getFirst().getName());
                 }
                 break;
 

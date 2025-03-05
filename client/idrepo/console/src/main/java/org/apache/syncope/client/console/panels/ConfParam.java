@@ -50,7 +50,7 @@ public class ConfParam implements Serializable {
                 ? values
                 : values.isEmpty()
                 ? null
-                : values.get(0);
+                : values.getFirst();
     }
 
     public void setValues(final Object value) {
@@ -76,7 +76,7 @@ public class ConfParam implements Serializable {
     }
 
     public boolean isInstance(final Class<?> clazz) {
-        return !values.isEmpty() && clazz.isInstance(values.get(0));
+        return !values.isEmpty() && clazz.isInstance(values.getFirst());
     }
 
     @Override

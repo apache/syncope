@@ -97,7 +97,7 @@ public class DynRealmTest extends AbstractTest {
         List<User> matching = searchDAO.search(SearchCond.of(dynRealmCond), AnyTypeKind.USER);
         assertNotNull(matching);
         assertFalse(matching.isEmpty());
-        User user = matching.get(0);
+        User user = matching.getFirst();
         assertTrue(anyMatchDAO.matches(user, SearchCond.of(dynRealmCond)));
 
         assertTrue(userDAO.findDynRealms(user.getKey()).contains(actual.getKey()));

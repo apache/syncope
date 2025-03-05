@@ -104,7 +104,7 @@ public abstract class AbstractService implements JAXRSService {
     protected String findActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
         if (uriInfo.getPathParameters(true).containsKey("key")) {
-            String keyInPath = uriInfo.getPathParameters(true).get("key").get(0);
+            String keyInPath = uriInfo.getPathParameters(true).get("key").getFirst();
             if (actualKey == null) {
                 actualKey = keyInPath;
             } else if (!actualKey.equals(keyInPath)) {

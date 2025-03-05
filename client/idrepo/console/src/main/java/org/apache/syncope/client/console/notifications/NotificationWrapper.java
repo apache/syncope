@@ -72,7 +72,7 @@ public class NotificationWrapper extends EntityWrapper<NotificationTO> {
     }
 
     public Map<String, String> getAboutFIQLs() {
-        if (CollectionUtils.isEmpty(this.aboutClauses) || this.aboutClauses.get(0).getValue().isEmpty()) {
+        if (CollectionUtils.isEmpty(this.aboutClauses) || this.aboutClauses.getFirst().getValue().isEmpty()) {
             return getInnerObject().getAbouts();
         } else {
             Map<String, String> res = new HashMap<>();

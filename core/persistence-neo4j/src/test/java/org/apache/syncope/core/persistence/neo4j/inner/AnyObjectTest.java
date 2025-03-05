@@ -63,10 +63,10 @@ public class AnyObjectTest extends AbstractTest {
         assertFalse(anyObject.getType().getClasses().isEmpty());
 
         PlainAttr model = anyObject.getPlainAttr("model").orElseThrow();
-        assertEquals("HP Laserjet 1300n", model.getValuesAsStrings().get(0));
+        assertEquals("HP Laserjet 1300n", model.getValuesAsStrings().getFirst());
 
         PlainAttr location = anyObject.getPlainAttr("location").orElseThrow();
-        assertEquals("2nd floor", location.getValuesAsStrings().get(0));
+        assertEquals("2nd floor", location.getValuesAsStrings().getFirst());
     }
 
     @Test

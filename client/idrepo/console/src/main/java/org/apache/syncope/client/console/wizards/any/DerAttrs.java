@@ -137,7 +137,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getDerAttrs())).
-                orElseGet(() -> new HashMap<>());
+                orElseGet(HashMap::new);
 
         List<Attr> derAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attr = new Attr();
@@ -183,7 +183,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
                     if (values == null || values.isEmpty()) {
                         model = new ResourceModel("derived.emptyvalue.message", StringUtils.EMPTY);
                     } else {
-                        model = new Model<>(values.get(0));
+                        model = new Model<>(values.getFirst());
                     }
 
                     AjaxTextFieldPanel panel = new AjaxTextFieldPanel(

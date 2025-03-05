@@ -690,7 +690,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             prop.setRequired(fpd.isRequired());
             prop.setWritable(fpd.isWritable());
             prop.setType(fpd.getType());
-            actions.flatMap(a -> a.getDefaultValue(fpd.getName())).ifPresent(v -> prop.setValue(v));
+            actions.flatMap(a -> a.getDefaultValue(fpd.getName())).ifPresent(prop::setValue);
             switch (prop.getType()) {
                 case String ->
                     prop.setStringRegEx(fpd.getStringRegEx());

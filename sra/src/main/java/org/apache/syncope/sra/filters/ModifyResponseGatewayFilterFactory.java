@@ -87,7 +87,7 @@ public abstract class ModifyResponseGatewayFilterFactory extends CustomGatewayFi
                             : super.writeWith(Flux.from(body).
                                     collectList().
                                     filter(list -> !list.isEmpty()).
-                                    map(list -> list.get(0).factory().join(list)).
+                                    map(list -> list.getFirst().factory().join(list)).
                                     doOnDiscard(PooledDataBuffer.class, DataBufferUtils::release).
                                     map(dataBuffer -> {
                                         if (dataBuffer.readableByteCount() > 0) {

@@ -107,10 +107,10 @@ public abstract class AbstractUIITCase {
         }, Objects::nonNull);
         JsonNode beans = JSON_MAPPER.readTree(beansJSON);
 
-        JsonNode uwfAdapter = beans.findValues("uwfAdapter").get(0);
+        JsonNode uwfAdapter = beans.findValues("uwfAdapter").getFirst();
         IS_FLOWABLE_ENABLED = uwfAdapter.get("resource").asText().contains("Flowable");
 
-        JsonNode anySearchDAO = beans.findValues("anySearchDAO").get(0);
+        JsonNode anySearchDAO = beans.findValues("anySearchDAO").getFirst();
         IS_EXT_SEARCH_ENABLED = anySearchDAO.get("type").asText().contains("Elasticsearch")
                 || anySearchDAO.get("type").asText().contains("OpenSearch");
     }
@@ -171,7 +171,7 @@ public abstract class AbstractUIITCase {
 
     protected static void closeCallBack(final Component modal) {
         modal.getBehaviors().stream().
-                filter(behavior -> (behavior instanceof AbstractAjaxBehavior)).
+                filter(AbstractAjaxBehavior.class::isInstance).
                 forEachOrdered(behavior -> TESTER.executeBehavior((AbstractAjaxBehavior) behavior));
     }
 

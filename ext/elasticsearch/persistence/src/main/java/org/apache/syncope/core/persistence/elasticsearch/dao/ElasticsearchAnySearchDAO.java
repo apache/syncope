@@ -442,7 +442,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 build()).toList();
 
         return queries.size() == 1
-                ? queries.get(0)
+                ? queries.getFirst()
                 : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
@@ -453,7 +453,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 build()).toList();
 
         return queries.size() == 1
-                ? queries.get(0)
+                ? queries.getFirst()
                 : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
@@ -476,7 +476,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 build()).toList();
 
         return queries.size() == 1
-                ? queries.get(0)
+                ? queries.getFirst()
                 : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 

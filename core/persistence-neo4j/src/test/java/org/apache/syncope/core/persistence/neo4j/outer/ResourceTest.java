@@ -281,7 +281,7 @@ public class ResourceTest extends AbstractTest {
 
         resource = resourceDAO.findById("ws-target-resource-2").orElseThrow();
         assertEquals(1, resource.getPropagationActions().size());
-        assertEquals(implementation, resource.getPropagationActions().get(0));
+        assertEquals(implementation, resource.getPropagationActions().getFirst());
 
         resource.getPropagationActions().clear();
         resource = resourceDAO.save(resource);

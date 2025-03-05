@@ -236,7 +236,7 @@ abstract class AbstractAnyDataBinder {
     protected void setRealm(final Any any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
             realmSearchDAO.findByFullPath(anyUR.getRealm().getValue()).ifPresentOrElse(
-                    newRealm -> any.setRealm(newRealm),
+                any::setRealm,
                     () -> LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue()));
         }
     }
@@ -305,9 +305,9 @@ abstract class AbstractAnyDataBinder {
         // otherwise only the fist one - if provided - is considered
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
-                : (values.isEmpty() || values.get(0) == null
+                : (values.isEmpty() || values.getFirst() == null
                 ? List.of()
-                : List.of(values.get(0)));
+                : List.of(values.getFirst()));
 
         valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {
@@ -465,7 +465,8 @@ abstract class AbstractAnyDataBinder {
                 if (schema.isUniqueConstraint()) {
                     if (attr.getUniqueValue() != null
                             && !patch.getAttr().getValues().isEmpty()
-                            && !patch.getAttr().getValues().get(0).equals(attr.getUniqueValue().getValueAsString())) {
+                            && !patch.getAttr().getValues().getFirst().equals(
+                                attr.getUniqueValue().getValueAsString())) {
 
                         attr.setUniqueValue(null);
                     }
@@ -477,7 +478,7 @@ abstract class AbstractAnyDataBinder {
                 List<String> valuesToBeAdded = patch.getAttr().getValues();
                 if (!valuesToBeAdded.isEmpty()
                         && (!schema.isUniqueConstraint() || attr.getUniqueValue() == null
-                        || !valuesToBeAdded.get(0).equals(attr.getUniqueValue().getValueAsString()))) {
+                        || !valuesToBeAdded.getFirst().equals(attr.getUniqueValue().getValueAsString()))) {
 
                     fillAttr(anyTO, valuesToBeAdded, schema, attr, invalidValues);
                 }
@@ -587,7 +588,7 @@ abstract class AbstractAnyDataBinder {
                 if (!beforeObject.equals(connObject)) {
                     propByRes.add(ResourceOperation.UPDATE, resource);
 
-                    beforeObject.getAttr(Uid.NAME).map(attr -> attr.getValues().get(0)).
+                    beforeObject.getAttr(Uid.NAME).map(attr -> attr.getValues().getFirst()).
                             ifPresent(value -> propByRes.addOldConnObjectKey(resource, value));
                 }
             } else {
@@ -612,7 +613,7 @@ abstract class AbstractAnyDataBinder {
         // 0. aux classes
         any.getAuxClasses().clear();
         anyCR.getAuxClasses().stream().
-                map(className -> anyTypeClassDAO.findById(className)).
+                map(anyTypeClassDAO::findById).
                 flatMap(Optional::stream).
                 forEach(auxClass -> {
                     if (auxClass == null) {

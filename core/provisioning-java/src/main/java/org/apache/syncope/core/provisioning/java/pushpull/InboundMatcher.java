@@ -187,7 +187,7 @@ public class InboundMatcher {
                         provision.get().getObjectClass(), resource, Name.NAME, nameValue);
             }
 
-            ConnectorObject connObj = found.iterator().next();
+            ConnectorObject connObj = found.getFirst();
             try {
                 List<InboundMatch> matches = match(
                         new SyncDeltaBuilder().
@@ -239,7 +239,7 @@ public class InboundMatcher {
                     null,
                     List.of(finalConnObjectKeyValue));
             if (!CollectionUtils.isEmpty(output)) {
-                finalConnObjectKeyValue = output.get(0).toString();
+                finalConnObjectKeyValue = output.getFirst().toString();
             }
         }
 
@@ -421,8 +421,8 @@ public class InboundMatcher {
             LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
         }
 
-        if (result.size() == 1 && result.get(0).getMatchTarget() == MatchType.ANY) {
-            virAttrHandler.setValues(result.get(0).getAny(), syncDelta.getObject());
+        if (result.size() == 1 && result.getFirst().getMatchTarget() == MatchType.ANY) {
+            virAttrHandler.setValues(result.getFirst().getAny(), syncDelta.getObject());
         }
 
         return result;
@@ -459,7 +459,7 @@ public class InboundMatcher {
                     null,
                     List.of(connObjectKey));
             if (!CollectionUtils.isEmpty(output)) {
-                connObjectKey = output.get(0).toString();
+                connObjectKey = output.getFirst().toString();
             }
         }
 
