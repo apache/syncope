@@ -198,7 +198,8 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).orElseGet(Map::of);
+        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).
+            orElseGet(Map::of);
     }
 
     @Override

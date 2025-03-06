@@ -32,7 +32,8 @@ public final class ConnPoolConfUtils {
         cpc.setMaxObjects(Optional.ofNullable(cpcto.getMaxObjects()).orElseGet(opc::getMaxObjects));
         cpc.setMaxWait(Optional.ofNullable(cpcto.getMaxWait()).orElseGet(opc::getMaxWait));
         cpc.setMinEvictableIdleTimeMillis(
-                Optional.ofNullable(cpcto.getMinEvictableIdleTimeMillis()).orElseGet(opc::getMinEvictableIdleTimeMillis));
+                Optional.ofNullable(cpcto.getMinEvictableIdleTimeMillis()).
+                    orElseGet(opc::getMinEvictableIdleTimeMillis));
         cpc.setMinIdle(Optional.ofNullable(cpcto.getMinIdle()).orElseGet(opc::getMinIdle));
 
         return cpc;

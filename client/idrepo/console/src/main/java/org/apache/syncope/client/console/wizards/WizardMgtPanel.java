@@ -211,7 +211,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends AbstractWiz
 
                     fragment.add(new Label(
                             "title",
-                            Optional.ofNullable(newItemEvent.getTitleModel()).orElseGet(() -> Model.of(StringUtils.EMPTY))));
+                            Optional.ofNullable(newItemEvent.getTitleModel()).
+                                orElseGet(() -> Model.of(StringUtils.EMPTY))));
 
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
