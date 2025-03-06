@@ -177,7 +177,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findById(key).map(Any::getResources).
-                orElse(List.of()).
+            orElseGet(List::of).
                 stream().map(ExternalResource::getKey).toList();
     }
 

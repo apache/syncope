@@ -78,6 +78,6 @@ public class SyncopeJexlFunctions {
         return Optional.ofNullable(connObj).
                 flatMap(obj -> Optional.ofNullable(obj.getAttributeByName(name)).
                 map(Attribute::getValue)).
-                orElse(List.of());
+            orElseGet(List::of);
     }
 }

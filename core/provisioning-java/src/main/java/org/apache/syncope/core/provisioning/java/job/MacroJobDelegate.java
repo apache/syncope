@@ -155,7 +155,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 : List.of(value.split(";"));
 
                         if (!actions.map(a -> a.getDropdownValues(fpd.getName()).keySet()).
-                                orElse(Set.of()).containsAll(values)) {
+                            orElseGet(Set::of).containsAll(values)) {
 
                             throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + values);
                         }

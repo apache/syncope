@@ -181,7 +181,7 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
 
     @Override
     public Map<String, String> getEnumValues() {
-        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).orElse(Map.of());
+        return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).orElseGet(Map::of);
     }
 
     @Override

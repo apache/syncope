@@ -87,7 +87,7 @@ public class MfaTrusStorageLogic extends AbstractAuthProfileLogic {
                         map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).flatMap(List::stream)
                 : authProfileDAO.findByOwner(principal).
                         map(AuthProfile::getMfaTrustedDevices).filter(Objects::nonNull).map(List::stream).
-                        orElse(Stream.empty())).
+            orElseGet(Stream::empty)).
                 filter(device -> {
                     EqualsBuilder builder = new EqualsBuilder();
                     builder.appendSuper(device.getExpirationDate().isAfter(ZonedDateTime.now()));

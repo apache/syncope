@@ -101,7 +101,7 @@ public class Neo4jAuditEvent extends AbstractGeneratedKeyNode implements AuditEv
 
     @Override
     public List<String> getInputs() {
-        return Optional.ofNullable(inputs).map(i -> POJOHelper.deserialize(i, TYPEREF)).orElse(List.of());
+        return Optional.ofNullable(inputs).map(i -> POJOHelper.deserialize(i, TYPEREF)).orElseGet(List::of);
     }
 
     @Override

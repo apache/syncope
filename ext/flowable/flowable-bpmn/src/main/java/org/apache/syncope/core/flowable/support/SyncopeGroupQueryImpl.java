@@ -50,13 +50,13 @@ public class SyncopeGroupQueryImpl extends GroupQueryImpl {
         if (id != null) {
             result = groupDAO.findByName(id).
                     map(group -> List.of(fromSyncopeGroup(group.getName()))).
-                    orElse(List.of());
+                orElseGet(List::of);
         } else if (userId != null) {
             result = userDAO.findByUsername(userId).
                     map(user -> userDAO.findAllGroupNames(user).stream().
                     map(SyncopeGroupQueryImpl::fromSyncopeGroup).
                     toList()).
-                    orElse(List.of());
+                orElseGet(List::of);
         }
     }
 

@@ -56,9 +56,9 @@ public class SyncopeTaskScheduler {
     }
 
     protected void register(final Job job, final Optional<ScheduledFuture<?>> future) {
-        jobs.putIfAbsent(
+        jobs.computeIfAbsent(
                 Pair.of(job.getContext().getDomain(), job.getContext().getJobName()),
-                MutablePair.of(job, future));
+            k -> MutablePair.of(job, future));
     }
 
     public void register(final Job job) {

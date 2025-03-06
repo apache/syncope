@@ -286,13 +286,13 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         List<Pair<String, String>> names = dnames.getObject().entrySet().stream().
                                 map(item -> Pair.of(
                                 item.getKey(),
-                                Optional.ofNullable(item.getValue().getLabel(locale)).orElse(item.getKey()))).
+                                Optional.ofNullable(item.getValue().getLabel(locale)).orElseGet(item::getKey))).
                                 collect(Collectors.toList());
                         if (anames != null && !CollectionUtils.isEmpty(anames.getObject())) {
                             names.addAll(anames.getObject().entrySet().stream().
                                     map(item -> Pair.of(
                                     item.getKey(),
-                                    Optional.ofNullable(item.getValue().getLabel(locale)).orElse(item.getKey()))).
+                                    Optional.ofNullable(item.getValue().getLabel(locale)).orElseGet(item::getKey))).
                                 toList());
                         }
                         return names.stream().
@@ -307,7 +307,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return Optional.ofNullable(roleNames).
                                 map(r -> r.getObject().stream().sorted().map(item -> Pair.of(item, item)).
                                 collect(Collectors.toList())).
-                                orElse(List.of());
+                            orElseGet(List::of);
 
                     case AUX_CLASS:
                         return auxClassNames.getObject().stream().sorted().

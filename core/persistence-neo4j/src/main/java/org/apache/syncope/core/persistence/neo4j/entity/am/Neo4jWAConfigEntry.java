@@ -40,7 +40,7 @@ public class Neo4jWAConfigEntry extends AbstractProvidedKeyNode implements WACon
 
     @Override
     public List<String> getValues() {
-        return Optional.ofNullable(waConfigValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElse(List.of());
+        return Optional.ofNullable(waConfigValues).map(v -> POJOHelper.deserialize(v, TYPEREF)).orElseGet(List::of);
     }
 
     @Override

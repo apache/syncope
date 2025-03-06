@@ -56,7 +56,7 @@ public final class MappingUtils {
         return Optional.ofNullable(provision).
                 flatMap(p -> Optional.ofNullable(p.getMapping())).
                 map(Mapping::getConnObjectKeyItem).
-                orElse(Optional.empty());
+            orElseGet(Optional::empty);
     }
 
     public static Stream<Item> getPropagationItems(final Stream<Item> items) {

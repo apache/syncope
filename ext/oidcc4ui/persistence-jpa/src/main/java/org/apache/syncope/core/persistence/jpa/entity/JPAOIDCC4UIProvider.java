@@ -210,7 +210,7 @@ public class JPAOIDCC4UIProvider extends AbstractGeneratedKeyEntity implements O
 
     @Override
     public List<String> getScopes() {
-        return Optional.ofNullable(scopes).map(s -> Stream.of(s.split(" ")).toList()).orElse(List.of());
+        return Optional.ofNullable(scopes).map(s -> Stream.of(s.split(" ")).toList()).orElseGet(List::of);
     }
 
     @Override

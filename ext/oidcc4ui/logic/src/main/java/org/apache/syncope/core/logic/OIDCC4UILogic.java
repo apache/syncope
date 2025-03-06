@@ -180,7 +180,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         List<String> matchingUsers = Optional.ofNullable(keyValue).
                 map(k -> userManager.findMatchingUser(k, op.getConnObjectKeyItem().get())).
-                orElse(List.of());
+            orElseGet(List::of);
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         // 3b. not found: create or selfreg if configured

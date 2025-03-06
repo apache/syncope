@@ -122,6 +122,6 @@ public class GoogleMfaAuthTokenLogic extends AbstractAuthProfileLogic {
     public List<GoogleMfaAuthToken> read(final String owner) {
         return authProfileDAO.findByOwner(owner).
                 map(AuthProfile::getGoogleMfaAuthTokens).
-                orElse(List.of());
+            orElseGet(List::of);
     }
 }

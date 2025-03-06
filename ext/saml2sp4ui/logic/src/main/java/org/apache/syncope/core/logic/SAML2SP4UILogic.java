@@ -375,7 +375,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         for (SAML2AuthenticationCredentials.SAMLAttribute attr : authCreds.getAttributes()) {
             if (!attr.getAttributeValues().isEmpty()) {
-                String attrName = Optional.ofNullable(attr.getFriendlyName()).orElse(attr.getName());
+                String attrName = Optional.ofNullable(attr.getFriendlyName()).orElseGet(attr::getName);
                 if (connObjectKeyItem != null && attrName.equals(connObjectKeyItem.getExtAttrName())) {
                     keyValue = attr.getAttributeValues().getFirst();
                 }
@@ -386,7 +386,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         List<String> matchingUsers = Optional.ofNullable(keyValue).
                 map(k -> userManager.findMatchingUser(k, idp.getKey())).
-                orElse(List.of());
+            orElseGet(List::of);
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         String username;

@@ -157,7 +157,7 @@ public class JPASRARoute extends AbstractGeneratedKeyEntity implements SRARoute 
     public List<SRARouteFilter> getFilters() {
         return Optional.ofNullable(filters).
                 map(f -> List.of(POJOHelper.deserialize(f, SRARouteFilter[].class))).
-                orElse(List.of());
+            orElseGet(List::of);
     }
 
     @Override
@@ -169,7 +169,7 @@ public class JPASRARoute extends AbstractGeneratedKeyEntity implements SRARoute 
     public List<SRARoutePredicate> getPredicates() {
         return Optional.ofNullable(predicates).
                 map(f -> List.of(POJOHelper.deserialize(f, SRARoutePredicate[].class))).
-                orElse(List.of());
+            orElseGet(List::of);
     }
 
     @Override

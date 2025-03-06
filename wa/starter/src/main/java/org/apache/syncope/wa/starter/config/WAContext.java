@@ -210,7 +210,7 @@ public class WAContext {
 
         return new RegisteredServiceMapper(
                 Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
-                        orElse(DelegatedClientAuthenticationHandler.class.getSimpleName()),
+                    orElseGet(DelegatedClientAuthenticationHandler.class::getSimpleName),
                 authenticationEventExecutionPlan,
                 multifactorAuthenticationProviders,
                 authMappers,

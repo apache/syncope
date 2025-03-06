@@ -69,7 +69,7 @@ public abstract class AbstractGroupableRelatable<
 
     @Override
     public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
-        return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElse(Stream.empty()),
+        return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElseGet(Stream::empty),
                 memberships().stream().map(m -> m.getPlainAttr(plainSchema)).
                         flatMap(Optional::stream)).
                 toList();

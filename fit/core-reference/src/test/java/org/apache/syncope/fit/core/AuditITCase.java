@@ -99,7 +99,7 @@ public class AuditITCase extends AbstractITCase {
     private static AuditEventTO queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
         List<AuditEventTO> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
-            fail("Timeout when executing query for key " + query.getEntityKey());
+            fail(() -> "Timeout when executing query for key " + query.getEntityKey());
             return null;
         }
         return results.getFirst();

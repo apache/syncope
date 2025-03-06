@@ -66,7 +66,7 @@ public class NotificationJob extends Job {
     @Override
     protected void execute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Waking up...");
-        String executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
+        String executor = Optional.ofNullable(context.getExecutor()).orElseGet(securityProperties::getAdminUser);
         for (String domain : domainHolder.getDomains().keySet()) {
             try {
                 AuthContextUtils.runAsAdmin(domain, () -> {

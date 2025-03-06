@@ -121,7 +121,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
                     return true;
                 });
 
-        executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
+        executor = Optional.ofNullable(context.getExecutor()).orElseGet(() -> securityProperties.getAdminUser());
     }
 
     protected TaskExec<SchedTask> initExecution() {
