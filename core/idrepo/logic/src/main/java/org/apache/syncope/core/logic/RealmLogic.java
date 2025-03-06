@@ -129,7 +129,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
                 count,
                 result.stream().map(realm -> binder.getRealmTO(
                 realm,
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_SEARCH).stream().
+                AuthContextUtils.getAuthorizations().getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of()).stream().
                         anyMatch(auth -> realm.getFullPath().startsWith(auth)))).
                         sorted(Comparator.comparing(RealmTO::getFullPath)).
                         collect(Collectors.toList()));
