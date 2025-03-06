@@ -27,6 +27,6 @@ public record VirAttrCacheValue(List<String> values) {
     public static VirAttrCacheValue of(final Collection<Object> values) {
         return new VirAttrCacheValue(Optional.ofNullable(values).
                 map(v -> v.stream().map(Object::toString).toList()).
-                orElse(List.of()));
+            orElseGet(List::of));
     }
 }

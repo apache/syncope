@@ -459,7 +459,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     attr.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))).
                     orElseGet(() -> attr.getValues().stream().anyMatch(StringUtils::isNotBlank))) {
 
-                List<String> oldValues = prevAttr.map(Attr::getValues).orElse(List.of());
+                List<String> oldValues = prevAttr.map(Attr::getValues).orElseGet(List::of);
                 panel.showExternAction(new LabelInfo("externalAction", oldValues));
             }
         }

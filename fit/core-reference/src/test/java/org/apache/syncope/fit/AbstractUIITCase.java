@@ -180,7 +180,7 @@ public abstract class AbstractUIITCase {
                 new ExactLevelFeedbackMessageFilter(FeedbackMessage.SUCCESS)).stream().
                 map(FeedbackMessage::getMessage).collect(Collectors.toSet());
         if (messages.size() != 1) {
-            fail("Expected single message but found " + messages);
+            fail(() -> "Expected single message but found " + messages);
         }
         assertEquals("Operation successfully executed", messages.iterator().next());
     }

@@ -140,7 +140,7 @@ public class PGJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                orElse(cond.getExpression());
+            orElseGet(cond::getExpression);
 
         boolean isStr = true;
         boolean lower = false;

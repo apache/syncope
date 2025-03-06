@@ -128,7 +128,7 @@ public class OpenFGAUIITCase extends OIDCC4UIITCase {
 
                     Response response = POLICY_SERVICE.create(PolicyType.ACCESS, policy);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create " + description);
+                        fail(() -> "Could not create " + description);
                     }
 
                     return POLICY_SERVICE.read(

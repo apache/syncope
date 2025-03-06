@@ -105,7 +105,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
                     query.getAnyTypeKey(),
                     query.getResourceKey(),
                     query.getAnyKey(),
-                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Set.of()));
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElseGet(Set::of));
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
@@ -134,7 +134,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
                     query.getAnyTypeKey(),
                     query.getResourceKey(),
                     query.getAnyKey(),
-                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Set.of()),
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElseGet(Set::of),
                     pullTask);
         }
 

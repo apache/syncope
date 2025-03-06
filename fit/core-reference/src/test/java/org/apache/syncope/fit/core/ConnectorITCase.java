@@ -444,7 +444,7 @@ public class ConnectorITCase extends AbstractITCase {
         try {
             CONNECTOR_SERVICE.check(connectorTO);
         } catch (Exception e) {
-            fail(ExceptionUtils.getStackTrace(e));
+            fail(() -> ExceptionUtils.getStackTrace(e));
         }
 
         conf.remove(password);
@@ -714,7 +714,7 @@ public class ConnectorITCase extends AbstractITCase {
             try {
                 RESOURCE_SERVICE.check(resourceTO);
             } catch (Exception e) {
-                fail(ExceptionUtils.getStackTrace(e));
+                fail(() -> ExceptionUtils.getStackTrace(e));
             }
             // ----------------------------------------
         } finally {

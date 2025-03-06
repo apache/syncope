@@ -119,7 +119,7 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-                orElse(attrValue.getValueAsString());
+            orElseGet(attrValue::getValueAsString);
 
         return neo4jTemplate.count(
                 "MATCH (n:" + label + ") "

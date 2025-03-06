@@ -229,7 +229,7 @@ abstract class AbstractSRAITCase extends AbstractITCase {
 
                     Response response = POLICY_SERVICE.create(PolicyType.AUTH, policy);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create " + description);
+                        fail(() -> "Could not create " + description);
                     }
 
                     return POLICY_SERVICE.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));

@@ -183,7 +183,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     List<SearchClause> clauses = Optional.ofNullable(fiql).
                             map(f -> SearchUtils.getSearchClauses(f.replaceAll(
                             SearchUtils.getTypeConditionPattern(scondAnnot.type()).pattern(), ""))).
-                            orElse(new ArrayList<>());
+                        orElseGet(ArrayList::new);
 
                     AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                     switch (scondAnnot.type()) {

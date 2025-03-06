@@ -922,7 +922,7 @@ public class DefaultMappingManager implements MappingManager {
                 values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
-        values = Optional.ofNullable(values).orElse(List.of());
+        values = Optional.ofNullable(values).orElseGet(List::of);
 
         IntAttrName intAttrName;
         try {

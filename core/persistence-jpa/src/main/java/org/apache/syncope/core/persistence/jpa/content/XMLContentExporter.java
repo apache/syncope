@@ -178,7 +178,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
                     String attrName = Optional.ofNullable(field.getAnnotation(Column.class)).
                             map(Column::name).
-                            orElse(a.getName());
+                        orElseGet(a::getName);
 
                     Optional.ofNullable(field.getAnnotation(CollectionTable.class)).
                             ifPresent(collectionTable -> relationTables.put(

@@ -202,7 +202,7 @@ public class SCIMDataBinder {
                 new Meta(
                         Resource.User,
                         userTO.getCreationDate(),
-                        Optional.ofNullable(userTO.getLastChangeDate()).orElse(userTO.getCreationDate()),
+                        Optional.ofNullable(userTO.getLastChangeDate()).orElseGet(userTO::getCreationDate),
                         userTO.getETagValue(),
                         location),
                 output(attributes, excludedAttributes, "userName", userTO.getUsername()),
@@ -993,7 +993,7 @@ public class SCIMDataBinder {
                 new Meta(
                         Resource.Group,
                         groupTO.getCreationDate(),
-                        Optional.ofNullable(groupTO.getLastChangeDate()).orElse(groupTO.getCreationDate()),
+                        Optional.ofNullable(groupTO.getLastChangeDate()).orElseGet(groupTO::getCreationDate),
                         groupTO.getETagValue(),
                         location),
                 output(attributes, excludedAttributes, "displayName", groupTO.getName()));

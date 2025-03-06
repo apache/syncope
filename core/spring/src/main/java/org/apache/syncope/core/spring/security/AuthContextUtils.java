@@ -84,7 +84,7 @@ public final class AuthContextUtils {
                 filter(SyncopeGrantedAuthority.class::isInstance).
                 map(SyncopeGrantedAuthority.class::cast).
                 collect(Collectors.toSet())).
-                orElse(Set.of());
+            orElseGet(Set::of);
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
@@ -93,7 +93,7 @@ public final class AuthContextUtils {
                 filter(SyncopeGrantedAuthority.class::isInstance).
                 map(SyncopeGrantedAuthority.class::cast).
                 collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms))).
-                orElse(Map.of());
+            orElseGet(Map::of);
     }
 
     public static String getDomain() {

@@ -175,7 +175,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         Pac4jOAuth20ClientProperties props = new Pac4jOAuth20ClientProperties();
         props.setId(conf.getClientId());
         props.setSecret(conf.getClientSecret());
-        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElseGet(authModuleTO::getKey));
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setAuthUrl(conf.getAuthUrl());
@@ -199,7 +199,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
 
         props.setId(conf.getClientId());
         props.setSecret(conf.getClientSecret());
-        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElseGet(authModuleTO::getKey));
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setCustomParams(conf.getCustomParams());
         props.setDiscoveryUri(conf.getDiscoveryUri());
@@ -278,7 +278,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
     @Override
     public Map<String, Object> map(final AuthModuleTO authModuleTO, final SAML2IdPAuthModuleConf conf) {
         Pac4jSamlClientProperties props = new Pac4jSamlClientProperties();
-        props.setClientName(Optional.ofNullable(conf.getClientName()).orElse(authModuleTO.getKey()));
+        props.setClientName(Optional.ofNullable(conf.getClientName()).orElseGet(authModuleTO::getKey));
         props.setEnabled(authModuleTO.getState() == AuthModuleState.ACTIVE);
         props.setAcceptedSkew(conf.getAcceptedSkew());
         props.setAssertionConsumerServiceIndex(conf.getAssertionConsumerServiceIndex());

@@ -37,7 +37,7 @@ public abstract class SCIMResource extends SCIMBean {
 
     protected SCIMResource(final String id, final List<String> schemas, final Meta meta) {
         this.id = id;
-        this.schemas = Optional.ofNullable(schemas).orElse(List.of());
+        this.schemas = Optional.ofNullable(schemas).orElseGet(List::of);
         this.meta = meta;
     }
 

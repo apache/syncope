@@ -111,7 +111,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
             return;
         }
 
-        String executor = Optional.ofNullable(context.getExecutor()).orElse(securityProperties.getAdminUser());
+        String executor = Optional.ofNullable(context.getExecutor()).orElseGet(() -> securityProperties.getAdminUser());
         ReportExec execution = entityFactory.newEntity(ReportExec.class);
         execution.setStart(OffsetDateTime.now());
         execution.setReport(report);

@@ -375,10 +375,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
 
         resource.setConfOverride(
-                Optional.ofNullable(resourceTO.getConfOverride()).orElse(Optional.empty()));
+                Optional.ofNullable(resourceTO.getConfOverride()).orElseGet(Optional::empty));
 
         resource.setCapabilitiesOverride(
-                Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElse(Optional.empty()));
+                Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElseGet(Optional::empty));
 
         resourceTO.getPropagationActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 resource::add,
