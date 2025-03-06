@@ -129,10 +129,11 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         long count = realmSearchDAO.countDescendants(baseRealm.getFullPath(), keyword);
 
+        Set<String> authorizations = AuthContextUtils.getAuthorizations().
+            getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of());
         List<RealmTO> result = realmSearchDAO.findDescendants(baseRealm.getFullPath(), keyword, pageable).stream().
                 map(realm -> binder.getRealmTO(
-                realm,
-                AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_SEARCH).stream().
+                realm, authorizations.stream().
                         anyMatch(auth -> realm.getFullPath().startsWith(auth)))).
                 sorted(Comparator.comparing(RealmTO::getFullPath)).
                 toList();
