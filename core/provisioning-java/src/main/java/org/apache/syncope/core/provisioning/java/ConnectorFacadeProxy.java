@@ -473,7 +473,7 @@ public class ConnectorFacadeProxy implements Connector {
                 OperationOptionsBuilder builder = new OperationOptionsBuilder(options).
                         setPageSize(DEFAULT_PAGE_SIZE).setPagedResultsOffset(-1);
 
-                final String[] cookies = new String[] { null };
+                final String[] cookies = { null };
                 do {
                     if (cookies[0] != null) {
                         builder.setPagedResultsCookie(cookies[0]);

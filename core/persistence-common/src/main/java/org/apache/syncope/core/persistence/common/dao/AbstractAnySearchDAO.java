@@ -75,7 +75,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
     };
 
-    protected static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
+    protected static final String[] RELATIONSHIP_FIELDS = { "realm", "userOwner", "groupOwner" };
 
     protected static SearchCond buildEffectiveCond(
             final SearchCond cond,

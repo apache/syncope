@@ -632,7 +632,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE265() {
-        String[] userKeys = new String[] {
+        String[] userKeys = {
             "1417acbe-cbf6-4277-9372-e75e04f97000",
             "74cd8ece-715a-44a4-a736-e17b46c4e7e6",
             "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee",

@@ -63,7 +63,7 @@ public class OpenSearchUtils {
         return domain.toLowerCase() + "_audit";
     }
 
-    protected static final char[] ELASTICSEARCH_REGEX_CHARS = new char[] {
+    protected static final char[] ELASTICSEARCH_REGEX_CHARS = {
         '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\', '&' };
 
     public static String escapeForLikeRegex(final char c) {

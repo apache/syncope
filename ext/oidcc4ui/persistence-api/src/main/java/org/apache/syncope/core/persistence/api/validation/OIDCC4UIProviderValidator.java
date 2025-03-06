@@ -56,7 +56,7 @@ public class OIDCC4UIProviderValidator extends AbstractValidator<OIDCC4UIProvide
             return false;
         }
 
-        final boolean[] isValid = new boolean[] { true };
+        final boolean[] isValid = { true };
 
         long passwords = oidcProvider.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 0) {
