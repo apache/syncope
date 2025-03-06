@@ -89,7 +89,7 @@ public abstract class ChartOptions implements Serializable {
 
     private Boolean showTooltips;
 
-    private String[] tooltipEvents = new String[] { "mousemove", "touchstart", "touchmove" };
+    private String[] tooltipEvents = { "mousemove", "touchstart", "touchmove" };
 
     private String tooltipFillColor;
 

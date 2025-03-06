@@ -57,7 +57,7 @@ public class SAML2SP4UIIdPValidator extends AbstractValidator<SAML2SP4UIIdPCheck
             return false;
         }
 
-        boolean[] isValid = new boolean[] { true };
+        boolean[] isValid = { true };
 
         long passwords = saml2IdP.getItems().stream().filter(Item::isPassword).count();
         if (passwords > 0) {
