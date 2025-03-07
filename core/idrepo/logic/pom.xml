@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.core</groupId>
     <artifactId>syncope-core-idrepo</artifactId>
-    <version>3.0.11</version>
+    <version>3.0.12-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core IdRepo Logic</name>
