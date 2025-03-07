@@ -568,7 +568,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // 3. as admin, update user: still pending approval
-        String updatedUsername = "changed-" + UUID.randomUUID().toString();
+        String updatedUsername = "changed-" + UUID.randomUUID();
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         userUR.setUsername(new StringReplacePatchItem.Builder().value(updatedUsername).build());

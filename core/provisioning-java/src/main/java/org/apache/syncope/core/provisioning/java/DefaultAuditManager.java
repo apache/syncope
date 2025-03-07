@@ -159,11 +159,12 @@ public class DefaultAuditManager implements AuditManager {
 
                 Optional<? extends AuditConf> auditConf = auditConfDAO.findById(opEvent.toString());
                 if (auditConf.isEmpty()) {
-                    LOG.debug("No audit conf found for {}, skipping", opEvent.toString());
+                    LOG.debug("No audit conf found for {}, skipping", opEvent);
                     return;
                 }
                 if (!auditConf.get().isActive()) {
-                    LOG.debug("Audit conf found for {} is not active, skipping", opEvent.toString());
+                    LOG.debug("Audit conf found for {} is not active, skipping", opEvent);
+                    LOG.debug("Audit conf found for {} is not active, skippping", opEvent);
                     return;
                 }
 

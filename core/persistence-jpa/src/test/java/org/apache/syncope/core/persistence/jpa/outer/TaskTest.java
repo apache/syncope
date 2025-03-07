@@ -262,7 +262,7 @@ public class TaskTest extends AbstractTest {
 
         // now adding InboundActions
         Implementation inboundActions = entityFactory.newEntity(Implementation.class);
-        inboundActions.setKey("InboundActions" + UUID.randomUUID().toString());
+        inboundActions.setKey("InboundActions" + UUID.randomUUID());
         inboundActions.setEngine(ImplementationEngine.JAVA);
         inboundActions.setType(IdMImplementationType.INBOUND_ACTIONS);
         inboundActions.setBody(InboundActions.class.getName());

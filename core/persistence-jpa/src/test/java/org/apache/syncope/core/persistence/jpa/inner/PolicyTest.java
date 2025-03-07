@@ -342,7 +342,7 @@ public class PolicyTest extends AbstractTest {
         ruleConf.setMinLength(6);
 
         Implementation rule = entityFactory.newEntity(Implementation.class);
-        rule.setKey("PasswordRule" + UUID.randomUUID().toString());
+        rule.setKey("PasswordRule" + UUID.randomUUID());
         rule.setEngine(ImplementationEngine.JAVA);
         rule.setType(IdRepoImplementationType.PASSWORD_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));

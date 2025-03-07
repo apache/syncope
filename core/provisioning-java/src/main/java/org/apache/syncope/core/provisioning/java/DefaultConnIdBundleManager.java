@@ -95,7 +95,7 @@ public class DefaultConnIdBundleManager implements ConnIdBundleManager {
                 bundleFileURLs.add(IOUtil.makeURL(bundleDirectory.toPath(), file));
             } catch (IOException ignore) {
                 // ignore exception and don't add bundle
-                LOG.debug("{}/{} is not a valid connector bundle", bundleDirectory.toString(), file, ignore);
+                LOG.debug("{}/{} is not a valid connector bundle", bundleDirectory, file, ignore);
             }
         }
 

@@ -932,7 +932,7 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void customPolicyRules() {
         ImplementationTO accountRule = new ImplementationTO();
-        accountRule.setKey("TestAccountRuleConf" + UUID.randomUUID().toString());
+        accountRule.setKey("TestAccountRuleConf" + UUID.randomUUID());
         accountRule.setEngine(ImplementationEngine.JAVA);
         accountRule.setType(IdRepoImplementationType.ACCOUNT_RULE);
         accountRule.setBody(POJOHelper.serialize(new TestAccountRuleConf()));
@@ -946,7 +946,7 @@ public class UserITCase extends AbstractITCase {
         assertNotNull(accountPolicy);
 
         ImplementationTO passwordRule = new ImplementationTO();
-        passwordRule.setKey("TestPasswordRuleConf" + UUID.randomUUID().toString());
+        passwordRule.setKey("TestPasswordRuleConf" + UUID.randomUUID());
         passwordRule.setEngine(ImplementationEngine.JAVA);
         passwordRule.setType(IdRepoImplementationType.PASSWORD_RULE);
         passwordRule.setBody(POJOHelper.serialize(new TestPasswordRuleConf()));
