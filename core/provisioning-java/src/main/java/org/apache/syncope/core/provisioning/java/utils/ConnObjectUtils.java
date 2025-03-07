@@ -92,7 +92,7 @@ public class ConnObjectUtils {
             case String string ->
                 result.append(string);
             default ->
-                result.append(pwd.toString());
+                result.append(pwd);
         }
 
         return result.toString();

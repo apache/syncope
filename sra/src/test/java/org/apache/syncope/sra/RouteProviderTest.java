@@ -384,8 +384,8 @@ public class RouteProviderTest extends AbstractTest {
                 factory(SRARoutePredicateFactory.BEFORE).args(ZonedDateTime.now().plusYears(1).toString()).
                 cond(SRARoutePredicateCond.AND).build());
         route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.BETWEEN).args(ZonedDateTime.now().minusYears(1).toString() + ","
-                + ZonedDateTime.now().plusYears(1).toString()).
+                factory(SRARoutePredicateFactory.BETWEEN).args(ZonedDateTime.now().minusYears(1) + ","
+                + ZonedDateTime.now().plusYears(1)).
                 cond(SRARoutePredicateCond.AND).build());
         route.getFilters().add(new SRARouteFilter.Builder().
                 factory(SRARouteFilterFactory.PREFIX_PATH).args("/prefix").build());
@@ -403,8 +403,8 @@ public class RouteProviderTest extends AbstractTest {
                 factory(SRARoutePredicateFactory.BEFORE).args(ZonedDateTime.now().minusYears(1).toString()).
                 cond(SRARoutePredicateCond.OR).build());
         route.getPredicates().add(new SRARoutePredicate.Builder().
-                factory(SRARoutePredicateFactory.BETWEEN).args(ZonedDateTime.now().plusYears(1).toString() + ","
-                + ZonedDateTime.now().minusYears(1).toString()).cond(SRARoutePredicateCond.OR).build());
+                factory(SRARoutePredicateFactory.BETWEEN).args(ZonedDateTime.now().plusYears(1) + ","
+                + ZonedDateTime.now().minusYears(1)).cond(SRARoutePredicateCond.OR).build());
 
         SyncopeCoreTestingServer.ROUTES.put(route.getKey(), route);
         routeRefresher.refresh();

@@ -153,9 +153,9 @@ public class ProvisioningImpl implements Provisioning {
 
             if (set.length() > 0) {
                 try (PreparedStatement statement =
-                        conn.prepareStatement("UPDATE testuser SET " + set.toString() + " WHERE userId=?")) {
+                        conn.prepareStatement("UPDATE testuser SET " + set + " WHERE userId=?")) {
                     statement.setString(1, accountid);
-                    String query = "UPDATE testuser SET " + set.toString() + " WHERE userId='" + accountid + "';";
+                    String query = "UPDATE testuser SET " + set + " WHERE userId='" + accountid + "';";
                     LOG.debug("Execute query: {}", query);
 
                     statement.executeUpdate();
@@ -181,7 +181,7 @@ public class ProvisioningImpl implements Provisioning {
         try {
 
             String queryString = "SELECT * FROM testuser" + (Optional.ofNullable(query)
-                    .map(operand -> " WHERE " + operand.toString()).orElse(""));
+                    .map(operand -> " WHERE " + operand).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
                     replaceAll("__UID__", "userId").
@@ -289,7 +289,7 @@ public class ProvisioningImpl implements Provisioning {
                         }
                     }
                 }
-                query = "INSERT INTO testuser (" + keys.toString() + ") VALUES (" + values.toString() + ')';
+                query = "INSERT INTO testuser (" + keys + ") VALUES (" + values + ')';
                 LOG.debug("Execute query: {}", query);
                 statement.executeUpdate(query);
             }

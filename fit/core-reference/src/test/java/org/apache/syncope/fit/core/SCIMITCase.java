@@ -624,7 +624,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNull(user.getNickName());
 
         // 4. update with path, replace complex value
-        String newMail = UUID.randomUUID().toString() + "@syncope.apache.org";
+        String newMail = UUID.randomUUID() + "@syncope.apache.org";
         assertNotEquals(
                 newMail,
                 user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
@@ -651,7 +651,7 @@ public class SCIMITCase extends AbstractITCase {
                 user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
 
         // 5. update with path, filter and sub
-        newMail = "verycomplex" + UUID.randomUUID().toString() + "@syncope.apache.org";
+        newMail = "verycomplex" + UUID.randomUUID() + "@syncope.apache.org";
         body =
                 "{"
                 + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"

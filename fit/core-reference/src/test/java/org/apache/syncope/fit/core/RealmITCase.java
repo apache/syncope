@@ -150,7 +150,7 @@ public class RealmITCase extends AbstractITCase {
         ruleConf.setMaxLength(8);
 
         ImplementationTO rule = new ImplementationTO();
-        rule.setKey("DefaultAccountRuleConf" + UUID.randomUUID().toString());
+        rule.setKey("DefaultAccountRuleConf" + UUID.randomUUID());
         rule.setEngine(ImplementationEngine.JAVA);
         rule.setType(IdRepoImplementationType.ACCOUNT_RULE);
         rule.setBody(POJOHelper.serialize(ruleConf));

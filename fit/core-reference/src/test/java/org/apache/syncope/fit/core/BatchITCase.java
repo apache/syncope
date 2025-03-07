@@ -189,7 +189,7 @@ public class BatchITCase extends AbstractITCase {
 
     @Test
     public void webClientSync() throws IOException {
-        String boundary = "--batch_" + UUID.randomUUID().toString();
+        String boundary = "--batch_" + UUID.randomUUID();
 
         Response response = WebClient.create(ADDRESS).path("batch").
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
@@ -210,7 +210,7 @@ public class BatchITCase extends AbstractITCase {
 
     @Test
     public void webClientAsync() throws IOException {
-        String boundary = "--batch_" + UUID.randomUUID().toString();
+        String boundary = "--batch_" + UUID.randomUUID();
 
         // request async processing
         Response response = WebClient.create(ADDRESS).path("batch").

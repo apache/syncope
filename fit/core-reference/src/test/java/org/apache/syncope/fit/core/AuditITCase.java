@@ -385,7 +385,7 @@ public class AuditITCase extends AbstractITCase {
                 null,
                 "validate",
                 OpEvent.Outcome.SUCCESS));
-        auditEvent.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEvent.setWho("syncope-user " + UUID.randomUUID());
         auditEvent.setWhen(OffsetDateTime.now());
         auditEvent.setBefore(UUID.randomUUID().toString());
         auditEvent.setOutput(UUID.randomUUID().toString());
@@ -420,7 +420,7 @@ public class AuditITCase extends AbstractITCase {
                 "AuthenticationEvent",
                 "auth",
                 OpEvent.Outcome.SUCCESS));
-        auditEvent.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEvent.setWho("syncope-user " + UUID.randomUUID());
         auditEvent.setWhen(OffsetDateTime.now());
         auditEvent.setBefore(UUID.randomUUID().toString());
         auditEvent.setOutput(UUID.randomUUID().toString());

@@ -109,7 +109,7 @@ public class BatchRequest {
      * @return batch response
      */
     public BatchResponse commit(final boolean async) {
-        String boundary = "--batch_" + UUID.randomUUID().toString();
+        String boundary = "--batch_" + UUID.randomUUID();
 
         WebClient webClient = WebClient.create(bcfb.getAddress()).path("batch").
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + jwt).
