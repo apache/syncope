@@ -2,6 +2,35 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.0-M1
+================================================================================
+
+** Bug
+    * [SYNCOPE-1849] - NullPointerException when logging into Console
+    * [SYNCOPE-1850] - Concurrent execution of a given task shall not be allowed
+    * [SYNCOPE-1851] - NullPointerExeption for Date fields in Macro execution forms
+    * [SYNCOPE-1853] - Deprovision is wrongly fired on group delete
+    * [SYNCOPE-1856] - Administrator can update and delete realms outside of the granted subtree
+    * [SYNCOPE-1857] - Unwanted Oracle persistence context enforce when Oracle driver is in classpath
+    * [SYNCOPE-1858] - Macro operation with dropdown form property without default value generates stacktrace
+    * [SYNCOPE-1860] - Standalone WAR artifacts duplicates JAR dependencies
+    * [SYNCOPE-1862] - Attribute release policy does not show up in the actuator endpoint registeredServices
+    * [SYNCOPE-1864] - Unwanted password propagation after update on pull
+    * [SYNCOPE-1867] - Prevent NPE when fetching realm entitlements to enforce authorization
+
+** New Feature
+    * [SYNCOPE-1834] - OpenFGA integration
+    * [SYNCOPE-1863] - Group relationships
+
+** Improvement
+    * [SYNCOPE-1854] - propagation not triggered after user updated while in status "updateApproved"
+    * [SYNCOPE-1855] - Refactor database search to use less nested queries
+    * [SYNCOPE-1859] - SearchPanel displays the schema keys and doesn't consider translations
+    * [SYNCOPE-1865] - Allow to specify signing and encryption algorithms for OIDC client application
+
+** Task
+    * [SYNCOPE-1852] - Migrate from 3.0
+
 Release Notes - Syncope - Version 4.0.0-M0
 ================================================================================
 
