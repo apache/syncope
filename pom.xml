@@ -400,13 +400,13 @@ under the License.
     <connid.rest.version>1.0.8</connid.rest.version>
     <connid.db.version>2.3.0</connid.db.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
-    <connid.ldap.version>1.5.9</connid.ldap.version>
-    <connid.ad.version>1.3.9</connid.ad.version>
+    <connid.ldap.version>1.5.10</connid.ldap.version>
+    <connid.ad.version>1.4.0</connid.ad.version>
     <connid.googleapps.version>1.4.5</connid.googleapps.version>
-    <connid.azure.version>2.0.2</connid.azure.version>
-    <connid.scim.version>1.0.4</connid.scim.version>
+    <connid.azure.version>3.0.0</connid.azure.version>
+    <connid.scim.version>1.0.5</connid.scim.version>
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
-    <connid.okta.version>3.0.6</connid.okta.version>
+    <connid.okta.version>3.0.7</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
     <cxf.version>3.6.6</cxf.version>
