@@ -36,8 +36,8 @@ under the License.
         It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
 
-      <subsection name="4.0.0-M0 Notturno">
-        <p>Release date: December 27th 2024</p>
+      <subsection name="4.0.0-M1 Notturno">
+        <p>Release date: March 7th 2025</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Notturno">Release notes</a>
         </p>
@@ -61,37 +61,37 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M0/syncope-4.0.0-M0-source-release.zip">syncope-4.0.0-M0-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M1/syncope-4.0.0-M1-source-release.zip">syncope-4.0.0-M1-source-release.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-4.0.0-M0-source-release.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-4.0.0-M0-source-release.zip.sha512">sha512</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M0/syncope-standalone-4.0.0-M0-distribution.zip">syncope-standalone-4.0.0-M0-distribution.zip</a>
-              </td>
-              <td>
-                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-standalone-4.0.0-M0-distribution.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-standalone-4.0.0-M0-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M1/syncope-4.0.0-M1-source-release.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M1/syncope-4.0.0-M1-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M0/syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar">syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M1/syncope-standalone-4.0.0-M1-distribution.zip">syncope-standalone-4.0.0-M1-distribution.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/4.0.0-M0/syncope-core-persistence-jpa-upgrader-4.0.0-M0.jar.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M1/syncope-standalone-4.0.0-M1-distribution.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M1/syncope-standalone-4.0.0-M1-distribution.zip.sha512">sha512</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/4.0.0-M1/syncope-core-persistence-jpa-upgrader-4.0.0-M1.jar">syncope-core-persistence-jpa-upgrader-4.0.0-M1.jar</a>
+              </td>
+              <td>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M1/syncope-core-persistence-jpa-upgrader-4.0.0-M1.jar.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/4.0.0-M1/syncope-core-persistence-jpa-upgrader-4.0.0-M1.jar.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
         </table>
       </subsection>
 
-      <subsection name="3.0.10 Maggiore">
-        <p>Release date: December 27th 2024</p>
+      <subsection name="3.0.11 Maggiore">
+        <p>Release date: March 7th 2025</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore">Release notes</a>
         </p>
@@ -115,20 +115,20 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.10/syncope-3.0.10-source-release.zip">syncope-3.0.10-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.11/syncope-3.0.11-source-release.zip">syncope-3.0.11-source-release.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.10/syncope-3.0.10-source-release.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.10/syncope-3.0.10-source-release.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-3.0.11-source-release.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-3.0.11-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.10/syncope-standalone-3.0.10-distribution.zip">syncope-standalone-3.0.10-distribution.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.11/syncope-standalone-3.0.11-distribution.zip">syncope-standalone-3.0.11-distribution.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.10/syncope-standalone-3.0.10-distribution.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.10/syncope-standalone-3.0.10-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-standalone-3.0.11-distribution.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-standalone-3.0.11-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
