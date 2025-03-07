@@ -85,21 +85,21 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. as anonymous
         Triple<Map<String, Set<String>>, List<String>, UserTO> self = ANONYMOUS_CLIENT.self();
         assertEquals(1, self.getLeft().size());
-        assertTrue(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
+        assertTrue(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
 
         // 3. as admin
         self = ADMIN_CLIENT.self();
         assertEquals(ANONYMOUS_CLIENT.platform().getEntitlements().size(), self.getLeft().size());
-        assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
+        assertFalse(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
 
         // 4. as user
         self = CLIENT_FACTORY.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getLeft().isEmpty());
-        assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
+        assertFalse(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals("bellini", self.getRight().getUsername());
     }

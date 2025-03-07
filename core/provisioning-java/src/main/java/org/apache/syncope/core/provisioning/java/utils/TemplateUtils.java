@@ -237,12 +237,13 @@ public class TemplateUtils {
                 fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
                 fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
 
-                userTO.getRoles().forEach(role -> {
-                    if (realmMember instanceof UserTO urm && !urm.getRoles().contains(role)) {
-                        urm.getRoles().add(role);
-                    } else if (realmMember instanceof UserCR urm && !urm.getRoles().contains(role)) {
-                        urm.getRoles().add(role);
-                    }
+                userTO.getRoles().
+                    forEach(role -> {
+                        if (realmMember instanceof UserTO urm) {
+                            urm.getRoles().add(role);
+                        } else if (realmMember instanceof UserCR urm) {
+                            urm.getRoles().add(role);
+                        }
                 });
 
                 userTO.getLinkedAccounts().forEach(account -> {
