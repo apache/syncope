@@ -237,8 +237,8 @@ public class TemplateUtils {
                 fillRelationships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
                 fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
 
-                userTO.getRoles()
-                    .forEach(role -> {
+                userTO.getRoles().
+                    forEach(role -> {
                         if (realmMember instanceof UserTO urm) {
                             urm.getRoles().add(role);
                         } else if (realmMember instanceof UserCR urm) {
