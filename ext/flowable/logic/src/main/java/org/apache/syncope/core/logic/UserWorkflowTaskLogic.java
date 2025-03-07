@@ -80,7 +80,7 @@ public class UserWorkflowTaskLogic extends AbstractTransactionalLogic<EntityTO> 
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(
                 new UserWorkflowResult<>(
-                        Pair.<UserUR, Boolean>of(userUR, null),
+                        Pair.of(userUR, null),
                         updated.getPropByRes(),
                         updated.getPropByLinkedAccount(),
                         updated.getPerformedTasks()));

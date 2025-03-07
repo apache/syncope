@@ -469,7 +469,7 @@ public class RealmChoicePanel extends Panel {
 
         realms.forEach(realm -> {
             List<RealmTO> children = new ArrayList<>();
-            tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
+            tree.put(realm.getKey(), Pair.of(realm, children));
 
             if (cache.containsKey(realm.getKey())) {
                 children.addAll(cache.get(realm.getKey()));

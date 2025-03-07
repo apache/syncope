@@ -166,7 +166,7 @@ public abstract class AbstractNotificationJobDelegate implements NotificationJob
     @Transactional
     @Override
     public void execute(final String executor) {
-        List<NotificationTask> tasks = taskDAO.<NotificationTask>findToExec(TaskType.NOTIFICATION);
+        List<NotificationTask> tasks = taskDAO.findToExec(TaskType.NOTIFICATION);
 
         setStatus("Sending out " + tasks.size() + " notifications");
 

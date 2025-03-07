@@ -189,7 +189,7 @@ public class DefaultNotificationManager implements NotificationManager {
         List<User> recipients = new ArrayList<>();
 
         Optional.ofNullable(notification.getRecipientsFIQL()).
-                ifPresent(fiql -> recipients.addAll(anySearchDAO.<User>search(
+                ifPresent(fiql -> recipients.addAll(anySearchDAO.search(
                 SearchCondConverter.convert(searchCondVisitor, fiql), List.of(), AnyTypeKind.USER)));
 
         if (notification.isSelfAsRecipient() && any instanceof final User user) {

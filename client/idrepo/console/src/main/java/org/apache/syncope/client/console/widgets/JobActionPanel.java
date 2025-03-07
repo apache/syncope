@@ -71,7 +71,7 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
         if (jobTO.isRunning()) {
             controls = new Fragment("controls", "runningFragment", this);
             controls.add(new Label("status", Model.of()).add(new PopoverBehavior(
-                    Model.<String>of(),
+                    Model.of(),
                     Model.of("<pre>" + (jobTO.getStatus() == null ? StringUtils.EMPTY : jobTO.getStatus()) + "</pre>"),
                     new PopoverConfig().withAnimation(true).withHoverTrigger().withHtml(true).
                             withPlacement(TooltipConfig.Placement.left))));
