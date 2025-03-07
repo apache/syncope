@@ -50,7 +50,7 @@ public class DashboardExtensionsPanel extends Panel {
             Constructor<? extends BaseExtWidget> constructor =
                     ClassUtils.getConstructorIfAvailable(clazz, String.class, PageReference.class);
             if (constructor == null) {
-                LOG.error("Could not find required construtor in {}, ignoring", clazz);
+                LOG.error("Could not find required constructor in {}, ignoring", clazz);
             } else {
                 try {
                     instances.add(constructor.newInstance("widget", pageRef));

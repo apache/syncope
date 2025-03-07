@@ -100,7 +100,7 @@ public class ProvisioningImpl implements Provisioning {
         LOG.debug("Update request received");
 
         if (data == null || data.isEmpty()) {
-            LOG.warn("Empty data recevied");
+            LOG.warn("Empty data received");
             return accountid;
         }
 

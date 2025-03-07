@@ -293,7 +293,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
 
         // -----------------------------------------
-        // Add Connector Intances
+        // Add Connector Instances
         // -----------------------------------------
         ListView<List<ConnInstanceTO>> conns =
                 new ListView<>("conns", new ArrayList<>(connModel.getObject().values())) {
