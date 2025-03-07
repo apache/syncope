@@ -712,7 +712,7 @@ public class DefaultPropagationManager implements PropagationManager {
      * Checks whether the given attribute shall be treated as an ordinary attribute or not, for purpose of building
      * AttributeDelta instances.
      *
-     * @param attr ConnId attibute
+     * @param attr ConnId attribute
      * @return whether the condition is matched or not
      */
     protected boolean isOrdinaryForAttrForDelta(final Attribute attr) {

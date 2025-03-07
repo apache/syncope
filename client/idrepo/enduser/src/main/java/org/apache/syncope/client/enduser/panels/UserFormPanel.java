@@ -106,7 +106,7 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
                 UserTO userTO = updatedWrapper.getInnerObject();
 
                 fixPlainAndVirAttrs(userTO, getOriginalItem().getInnerObject());
-                // update and set page paramters according to provisioning result
+                // update and set page parameters according to provisioning result
                 UserUR updateReq = AnyOperations.diff(userTO, getOriginalItem().getInnerObject(), false);
                 ProvisioningResult<UserTO> provisioningResult = updateReq.isEmpty()
                         ? new ProvisioningResult<>()

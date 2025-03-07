@@ -376,7 +376,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         try {
             RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
-            fail("Read should not succeeed");
+            fail("Read should not succeed");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
         }
@@ -384,7 +384,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE185() {
-        // 1. create user with LDAP resource, succesfully propagated
+        // 1. create user with LDAP resource, successfully propagated
         UserCR userCR = UserITCase.getSample("syncope185@syncope.apache.org");
         userCR.getVirAttrs().clear();
         userCR.getResources().add(RESOURCE_NAME_LDAP);
