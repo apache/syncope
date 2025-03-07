@@ -239,7 +239,7 @@ class OpenFGAClientTest {
                     try {
                         return client.read(request).getTuples();
                     } catch (Exception e) {
-                        return List.<Tuple>of();
+                        return List.of();
                     }
                 }, list -> !list.isEmpty());
 

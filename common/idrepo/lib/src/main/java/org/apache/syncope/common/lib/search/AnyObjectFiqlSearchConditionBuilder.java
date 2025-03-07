@@ -46,7 +46,7 @@ public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchCondi
 
     @Override
     public String query() {
-        return new FiqlSearchConditionBuilder.Builder(Collections.<String, String>emptyMap()).
+        return new FiqlSearchConditionBuilder.Builder(Collections.emptyMap()).
                 is(SpecialAttr.TYPE.toString()).equalTo(type).query();
     }
 

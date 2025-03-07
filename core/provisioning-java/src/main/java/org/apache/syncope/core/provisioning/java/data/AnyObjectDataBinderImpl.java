@@ -138,7 +138,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHandler.getValues(anyObject)
-                : Collections.<VirSchema, List<String>>emptyMap();
+                : Collections.emptyMap();
         fillTO(anyObjectTO,
                 anyObject.getRealm().getFullPath(),
                 anyObject.getAuxClasses(),

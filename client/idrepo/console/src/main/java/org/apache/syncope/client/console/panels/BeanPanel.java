@@ -149,7 +149,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
             private void setDescription(final ListItem<Field> item, final String description) {
                 Fragment fragment = new Fragment("description", "descriptionFragment", this);
                 fragment.add(new Label("descriptionLabel", Model.of()).add(new PopoverBehavior(
-                        Model.<String>of(),
+                        Model.of(),
                         Model.of(description),
                         new PopoverConfig().withPlacement(TooltipConfig.Placement.right)) {
 

@@ -72,7 +72,7 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
 
     @Override
     protected IModel<List<String>> getExtAttrNames() {
-        return Model.ofList(Collections.<String>singletonList("NameID"));
+        return Model.ofList(Collections.singletonList("NameID"));
     }
 
     @Override

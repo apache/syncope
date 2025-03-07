@@ -84,7 +84,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
         return binder.create(
                 AuthContextUtils.getUsername(),
-                Collections.<String, Object>emptyMap(),
+                Collections.emptyMap(),
                 getAuthorities(),
                 false);
     }

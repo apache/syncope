@@ -71,8 +71,8 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     public FieldPanel<T> setTitle(final String title, final boolean html) {
         this.title = title;
         field.add(new PopoverBehavior(
-                Model.<String>of(),
-                Optional.ofNullable(title).map(Model::of).orElseGet(Model::<String>of),
+                Model.of(),
+                Optional.ofNullable(title).map(Model::of).orElseGet(Model::of),
                 new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
                         index.getObject() != null && index.getObject() == 0
                         ? TooltipConfig.Placement.bottom

@@ -303,7 +303,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
                 @Override
                 protected Pair<String, List<SearchClause>> newModelObject() {
-                    return Pair.<String, List<SearchClause>>of(AnyTypeKind.USER.name(), new ArrayList<>());
+                    return Pair.of(AnyTypeKind.USER.name(), new ArrayList<>());
                 }
 
                 @Override
