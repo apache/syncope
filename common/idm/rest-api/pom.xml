@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.common</groupId>
     <artifactId>syncope-common-idm</artifactId>
-    <version>3.0.11-SNAPSHOT</version>
+    <version>3.0.11</version>
   </parent>
 
   <name>Apache Syncope Common IdM REST API</name>
