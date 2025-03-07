@@ -22,7 +22,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.client</groupId>
     <artifactId>syncope-client-idrepo</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.0-M1</version>
   </parent>
  
   <name>Apache Syncope Client IdRepo Common UI</name>
