@@ -118,9 +118,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
                         pkNode.addChild(node);
 
-                        if (roots.contains(node)) {
-                            roots.remove(node);
-                        }
+                        roots.remove(node);
                     });
         });
 

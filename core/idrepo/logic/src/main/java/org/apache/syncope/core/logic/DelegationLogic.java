@@ -55,7 +55,7 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
     }
 
     protected void securityChecks(final String delegating, final String entitlement) {
-        if (!AuthContextUtils.getAuthorizations().keySet().contains(entitlement)
+        if (!AuthContextUtils.getAuthorizations().containsKey(entitlement)
                 && (delegating == null || !delegating.equals(userDAO.findKey(AuthContextUtils.getUsername()).
                         orElseThrow(() -> new NotFoundException("Could not find authenticated user"))))) {
 
@@ -80,7 +80,7 @@ public class DelegationLogic extends AbstractTransactionalLogic<DelegationTO> {
     public List<DelegationTO> list() {
         Stream<DelegationTO> delegations = delegationDAO.findAll().stream().map(binder::getDelegationTO);
 
-        if (!AuthContextUtils.getAuthorizations().keySet().contains(IdRepoEntitlement.DELEGATION_LIST)) {
+        if (!AuthContextUtils.getAuthorizations().containsKey(IdRepoEntitlement.DELEGATION_LIST)) {
             String authUserKey = userDAO.findKey(AuthContextUtils.getUsername()).orElse(null);
             delegations = delegations.filter(delegation -> delegation.getDelegating().equals(authUserKey));
         }
