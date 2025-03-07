@@ -409,7 +409,7 @@ under the License.
     <connid.okta.version>3.0.6</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
 
-    <cxf.version>3.6.5</cxf.version>
+    <cxf.version>3.6.6</cxf.version>
     <bouncycastle.version>1.70</bouncycastle.version>
     <nimbus-jose-jwt.version>9.48</nimbus-jose-jwt.version>
 
@@ -471,7 +471,7 @@ under the License.
 
     <antlr4.version>4.13.2</antlr4.version>
 
-    <curator.version>5.7.0</curator.version>
+    <curator.version>5.8.0</curator.version>
     <zookeeper.version>3.9.3</zookeeper.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
