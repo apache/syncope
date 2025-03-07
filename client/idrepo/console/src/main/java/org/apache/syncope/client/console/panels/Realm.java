@@ -56,7 +56,6 @@ import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
@@ -251,7 +250,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             this.bean = bean;
             add(new ConnObjectPanel(
                     REMOTE_OBJECT_PANEL_ID,
-                    Pair.<IModel<?>, IModel<?>>of(new ResourceModel("before"), new ResourceModel("after")),
+                    Pair.of(new ResourceModel("before"), new ResourceModel("after")),
                     getConnObjectTOs(),
                     false));
         }

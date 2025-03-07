@@ -182,7 +182,7 @@ public final class StatusUtils implements Serializable {
 
             case SUCCESS:
                 alt = "success icon";
-                title = "Propagation succeded";
+                title = "Propagation succeeded";
                 clazz = Constants.ACTIVE_ICON;
                 break;
 

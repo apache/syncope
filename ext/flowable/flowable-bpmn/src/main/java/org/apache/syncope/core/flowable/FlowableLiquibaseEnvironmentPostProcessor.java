@@ -25,9 +25,9 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 
 /**
- * Needed with Flowable 6.5.0 or higer.
+ * Needed with Flowable 6.5.0 or higher.
  *
- * For more information, check https://github.com/flowable/flowable-engine/issues/2142
+ * For more information, check <a href="https://github.com/flowable/flowable-engine/issues/2142">here</a>
  */
 public class FlowableLiquibaseEnvironmentPostProcessor implements EnvironmentPostProcessor {
 

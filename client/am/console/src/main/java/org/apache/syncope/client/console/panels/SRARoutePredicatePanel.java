@@ -56,7 +56,7 @@ public class SRARoutePredicatePanel extends Panel {
         add(predicateContainer);
 
         predicateContainer.add(new Label("factoryInfo", Model.of()).add(new PopoverBehavior(
-                Model.<String>of(),
+                Model.of(),
                 Model.of(getString("factoryInfo.help")),
                 new PopoverConfig().withHtml(true).withPlacement(TooltipConfig.Placement.right)) {
 

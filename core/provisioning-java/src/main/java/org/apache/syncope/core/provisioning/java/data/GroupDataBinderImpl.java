@@ -510,7 +510,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(group);
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHandler.getValues(group)
-                : Collections.<VirSchema, List<String>>emptyMap();
+                : Collections.emptyMap();
         fillTO(groupTO,
                 group.getRealm().getFullPath(),
                 group.getAuxClasses(),

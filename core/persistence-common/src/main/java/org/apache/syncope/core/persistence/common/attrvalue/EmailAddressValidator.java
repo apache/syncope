@@ -30,7 +30,7 @@ public class EmailAddressValidator extends AbstractValidator {
 
     @Override
     protected void doValidate(final PlainSchema schema, final PlainAttrValue attrValue) {
-        Matcher matcher = Entity.EMAIL_PATTERN.matcher(attrValue.<CharSequence>getValue());
+        Matcher matcher = Entity.EMAIL_PATTERN.matcher(attrValue.getValue());
         if (!matcher.matches()) {
             throw new InvalidPlainAttrValueException("\"" + attrValue.getValue() + "\" is not a valid email address");
         }

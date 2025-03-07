@@ -193,7 +193,7 @@ public class RealmITCase extends AbstractITCase {
     public void deletingAuthPolicy() {
         // 1. create authentication policy
         DefaultAuthPolicyConf ruleConf = new DefaultAuthPolicyConf();
-        ruleConf.getAuthModules().addAll(List.of("LdapAuthentication1"));
+        ruleConf.getAuthModules().add("LdapAuthentication1");
 
         AuthPolicyTO policy = new AuthPolicyTO();
         policy.setName("Test Authentication policy");

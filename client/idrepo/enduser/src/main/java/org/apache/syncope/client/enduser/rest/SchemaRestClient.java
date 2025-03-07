@@ -75,7 +75,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         List<T> schemas = new ArrayList<>();
         try {
-            schemas.addAll(getService(SchemaService.class).<T>search(builder.build()));
+            schemas.addAll(getService(SchemaService.class).search(builder.build()));
         } catch (SyncopeClientException e) {
             LOG.error("While getting all {} schemas for {}", schemaType, anyTypeClasses, e);
         }

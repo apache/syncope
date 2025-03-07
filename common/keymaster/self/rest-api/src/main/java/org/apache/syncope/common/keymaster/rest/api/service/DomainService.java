@@ -83,10 +83,10 @@ public interface DomainService extends Serializable {
                     description = "Domain successfully created", headers = {
                 @Header(name = RESTHeaders.RESOURCE_KEY, schema =
                         @Schema(type = "string"),
-                        description = "Key of the domin created"),
+                        description = "Key of the domain created"),
                 @Header(name = HttpHeaders.LOCATION, schema =
                         @Schema(type = "string"),
-                        description = "URL of the domin created") }))
+                        description = "URL of the domain created") }))
     @POST
     @Consumes({ MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_JSON })

@@ -81,7 +81,7 @@ public class UserSelfFormPanel extends UserFormPanel {
         } else {
             UserTO userTO = form.getModelObject().getInnerObject();
             try {
-                // create and set page paramters according to provisioning result
+                // create and set page parameters according to provisioning result
                 UserCR req = new UserCR();
                 EntityTOUtils.toAnyCR(userTO, req);
                 req.setStorePassword(form.getModelObject() instanceof UserWrapper

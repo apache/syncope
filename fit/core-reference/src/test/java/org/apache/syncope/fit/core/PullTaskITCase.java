@@ -281,7 +281,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         removeTestUsers();
 
-        // Attemp to reset CSV content
+        // Attempt to reset CSV content
         Properties props = new Properties();
         try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             props.load(propStream);

@@ -230,7 +230,7 @@ public class StatusPanel extends Panel {
 
             add(new ConnObjectPanel(
                     REMOTE_OBJECT_PANEL_ID,
-                    Pair.<IModel<?>, IModel<?>>of(new ResourceModel("before"), new ResourceModel("after")),
+                    Pair.of(new ResourceModel("before"), new ResourceModel("after")),
                     getConnObjectTOs(),
                     false));
         }

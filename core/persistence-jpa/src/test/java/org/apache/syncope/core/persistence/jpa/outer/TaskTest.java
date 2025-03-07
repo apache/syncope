@@ -320,11 +320,11 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveMacroTaskSameCommandMultipleOccurrencies() {
+    public void saveMacroTaskSameCommandMultipleOccurrences() {
         MacroTask task = entityFactory.newEntity(MacroTask.class);
         task.setRealm(realmDAO.getRoot());
         task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
-        task.setName("saveMacroTaskSameCommandMultipleOccurrencies");
+        task.setName("saveMacroTaskSameCommandMultipleOccurrences");
         task.setContinueOnError(true);
 
         Implementation command1 = entityFactory.newEntity(Implementation.class);

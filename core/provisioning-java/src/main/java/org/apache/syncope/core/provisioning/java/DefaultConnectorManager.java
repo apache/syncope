@@ -229,7 +229,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         for (ExternalResource resource : resourceDAO.findAll()) {
             String beanName = getBeanName(resource);
             if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
-                LOG.info("Unegistering resource-connector pair {}-{}", resource, resource.getConnector());
+                LOG.info("Unregistering resource-connector pair {}-{}", resource, resource.getConnector());
 
                 getConnector(resource).dispose();
                 unregisterConnector(beanName);

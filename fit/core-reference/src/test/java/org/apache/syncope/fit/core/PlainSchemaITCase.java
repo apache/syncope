@@ -205,7 +205,7 @@ public class PlainSchemaITCase extends AbstractITCase {
                         build());
 
                 updateUser(userUR);
-                fail("This should not be reacheable");
+                fail("This should not be reachable");
             } catch (SyncopeClientException e) {
                 assertEquals(ClientExceptionType.InvalidValues, e.getType());
             }
@@ -295,7 +295,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         updatedTO.setType(AttrSchemaType.Date);
         try {
             SCHEMA_SERVICE.update(SchemaType.PLAIN, updatedTO);
-            fail("This should not be reacheable");
+            fail("This should not be reachable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
         }
@@ -325,7 +325,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setType(AttrSchemaType.Long);
         try {
             SCHEMA_SERVICE.update(SchemaType.PLAIN, schemaTO);
-            fail("This should not be reacheable");
+            fail("This should not be reachable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
         }
@@ -379,7 +379,7 @@ public class PlainSchemaITCase extends AbstractITCase {
         schemaTO.setUniqueConstraint(false);
         try {
             SCHEMA_SERVICE.update(SchemaType.PLAIN, schemaTO);
-            fail("This should not be reacheable");
+            fail("This should not be reachable");
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidPlainSchema, e.getType());
         }
