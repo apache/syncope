@@ -242,9 +242,9 @@ public class LiveSyncITCase extends AbstractITCase {
                     }, Objects::nonNull);
             assertEquals(email, user.getPlainAttr("email").orElseThrow().getValues().getFirst());
             assertEquals(email, user.getPlainAttr("userId").orElseThrow().getValues().getFirst());
-            assertEquals(email, user.getPlainAttr("userId").orElseThrow().getValues().getFirst());
             assertEquals("LiveSync", user.getPlainAttr("firstname").orElseThrow().getValues().getFirst());
             assertEquals("LiveSync", user.getPlainAttr("surname").orElseThrow().getValues().getFirst());
+            assertEquals("LiveSync LiveSync", user.getPlainAttr("fullname").orElseThrow().getValues().getFirst());
 
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
                     () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, actual.getKey(), true).getExecutions(),

@@ -184,7 +184,7 @@ under the License.
             </image>
             <image>
               <alias>openfga</alias>
-              <name>openfga/openfga:${docker.openfga.version}</name>
+              <name>openfga/openfga:${openfga.version}</name>
               <run>
                 <cmd>run</cmd>
               </run>
