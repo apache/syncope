@@ -204,15 +204,10 @@ class DebeziumITCase extends AbstractITCase {
             // 5. update existing customer
             debezium.update("UPDATE customers SET email=? WHERE id=?", "annek@syncope.apache.org", 1004);
 
-            user = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
-                    () -> {
-                        try {
-                            return USER_SERVICE.read("1004");
-                        } catch (SyncopeClientException e) {
-                            return null;
-                        }
-                    }, Objects::nonNull);
-            assertEquals("annek@syncope.apache.org", user.getPlainAttr("email").orElseThrow().getValues().getFirst());
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).
+                    pollInterval(1, TimeUnit.SECONDS).until(() -> "annek@syncope.apache.org".
+                    equals(USER_SERVICE.read("1004").getPlainAttr("email").orElseThrow().getValues().getFirst()));
+            user = USER_SERVICE.read("1004");
             assertEquals("annek@syncope.apache.org", user.getPlainAttr("userId").orElseThrow().getValues().getFirst());
             assertEquals("Anne", user.getPlainAttr("firstname").orElseThrow().getValues().getFirst());
             assertEquals("Kretchmar", user.getPlainAttr("surname").orElseThrow().getValues().getFirst());
