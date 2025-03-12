@@ -133,7 +133,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 attrTO.getValues().add(StringUtils.EMPTY);
             }
             return attrTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         anyTO.getVirAttrs().clear();
         anyTO.getVirAttrs().addAll(virAttrs);
@@ -143,7 +143,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getVirAttrs())).
-                orElseGet(() -> new HashMap<>());
+                orElseGet(HashMap::new);
 
         List<Attr> virAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attr = new Attr();
@@ -154,7 +154,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
             return attr;
-        }).collect(Collectors.toList());
+        }).toList();
 
         membershipTO.getVirAttrs().clear();
         membershipTO.getVirAttrs().addAll(virAttrs);

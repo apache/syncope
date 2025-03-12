@@ -23,9 +23,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.core.logic.wa.WAConfigLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class WAConfigServiceImpl extends AbstractService implements WAConfigService {
 
     protected final WAConfigLogic logic;

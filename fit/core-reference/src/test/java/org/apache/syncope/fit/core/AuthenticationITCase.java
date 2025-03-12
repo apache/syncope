@@ -74,7 +74,6 @@ import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -86,21 +85,21 @@ public class AuthenticationITCase extends AbstractITCase {
         // 1. as anonymous
         Triple<Map<String, Set<String>>, List<String>, UserTO> self = ANONYMOUS_CLIENT.self();
         assertEquals(1, self.getLeft().size());
-        assertTrue(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
+        assertTrue(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ANONYMOUS_UNAME, self.getRight().getUsername());
 
         // 3. as admin
         self = ADMIN_CLIENT.self();
         assertEquals(ANONYMOUS_CLIENT.platform().getEntitlements().size(), self.getLeft().size());
-        assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
+        assertFalse(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals(ADMIN_UNAME, self.getRight().getUsername());
 
         // 4. as user
         self = CLIENT_FACTORY.create("bellini", ADMIN_PWD).self();
         assertFalse(self.getLeft().isEmpty());
-        assertFalse(self.getLeft().keySet().contains(IdRepoEntitlement.ANONYMOUS));
+        assertFalse(self.getLeft().containsKey(IdRepoEntitlement.ANONYMOUS));
         assertEquals(List.of(), self.getMiddle());
         assertEquals("bellini", self.getRight().getUsername());
     }
@@ -256,7 +255,7 @@ public class AuthenticationITCase extends AbstractITCase {
             UserTO user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
             assertEquals("/even/two", user.getRealm());
-            assertEquals("surname", user.getPlainAttr("surname").get().getValues().get(0));
+            assertEquals("surname", user.getPlainAttr("surname").get().getValues().getFirst());
 
             // 5. as delegated, update user attempting to move under realm /odd -> fail
             UserUR userUR = new UserUR();
@@ -280,7 +279,7 @@ public class AuthenticationITCase extends AbstractITCase {
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
             assertEquals("/even/two", user.getRealm());
-            assertEquals("surname2", user.getPlainAttr("surname").get().getValues().get(0));
+            assertEquals("surname2", user.getPlainAttr("surname").get().getValues().getFirst());
 
             // 7. as delegated, delete user
             delegatedUserService.delete(user.getKey());
@@ -590,7 +589,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
         // 3. approve user
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -633,7 +632,7 @@ public class AuthenticationITCase extends AbstractITCase {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = queryForObject(jdbcTemplate, MAX_WAIT_SECONDS,
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
-        assertEquals(Encryptor.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
+        assertEquals(encryptorManager.getInstance().encode("password123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 5. successfully authenticate with old (on db resource) and new (on internal storage) password values
         Triple<Map<String, Set<String>>, List<String>, UserTO> self =

@@ -71,14 +71,14 @@ public class DefaultInboundCorrelationRule implements InboundCorrelationRule {
             String expression = null;
 
             if (attr.getValue() == null || attr.getValue().isEmpty()
-                    || (attr.getValue().size() == 1 && attr.getValue().get(0) == null)) {
+                    || (attr.getValue().size() == 1 && attr.getValue().getFirst() == null)) {
 
                 type = AttrCond.Type.ISNULL;
             } else {
                 type = AttrCond.Type.EQ;
                 expression = attr.getValue().size() > 1
                         ? attr.getValue().toString()
-                        : attr.getValue().get(0).toString();
+                        : attr.getValue().getFirst().toString();
             }
 
             AttrCond cond = "key".equalsIgnoreCase(schema)
@@ -89,11 +89,11 @@ public class DefaultInboundCorrelationRule implements InboundCorrelationRule {
             cond.setType(type);
             cond.setExpression(expression);
 
-            searchConds.add(SearchCond.getLeaf(cond));
+            searchConds.add(SearchCond.of(cond));
         });
 
         return conf.isOrSchemas()
-                ? SearchCond.getOr(searchConds)
-                : SearchCond.getAnd(searchConds);
+                ? SearchCond.or(searchConds)
+                : SearchCond.and(searchConds);
     }
 }

@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -40,7 +41,6 @@ import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConnectorFacadeFactory;
@@ -229,7 +229,7 @@ public class DefaultConnectorManager implements ConnectorManager {
         for (ExternalResource resource : resourceDAO.findAll()) {
             String beanName = getBeanName(resource);
             if (ApplicationContextProvider.getBeanFactory().containsSingleton(beanName)) {
-                LOG.info("Unegistering resource-connector pair {}-{}", resource, resource.getConnector());
+                LOG.info("Unregistering resource-connector pair {}-{}", resource, resource.getConnector());
 
                 getConnector(resource).dispose();
                 unregisterConnector(beanName);

@@ -58,7 +58,7 @@ public class DBPasswordPropagationActions implements PropagationActions {
                 filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
                 && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
 
-        return cipherAlgorithm.map(a -> (String) a.getValues().get(0)).orElse(CLEARTEXT);
+        return cipherAlgorithm.map(a -> (String) a.getValues().getFirst()).orElse(CLEARTEXT);
     }
 
     protected boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
@@ -88,7 +88,7 @@ public class DBPasswordPropagationActions implements PropagationActions {
 
                 ConnInstance connInstance = taskInfo.getResource().getConnector();
                 if (missing != null && missing.getValue() != null && missing.getValue().size() == 1
-                        && missing.getValue().get(0).equals(OperationalAttributes.PASSWORD_NAME)
+                        && missing.getValue().getFirst().equals(OperationalAttributes.PASSWORD_NAME)
                         && cipherAlgorithmMatches(getCipherAlgorithm(connInstance), user.getCipherAlgorithm())) {
 
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(

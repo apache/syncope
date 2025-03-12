@@ -32,11 +32,11 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -56,7 +56,7 @@ public final class MappingUtils {
         return Optional.ofNullable(provision).
                 flatMap(p -> Optional.ofNullable(p.getMapping())).
                 map(Mapping::getConnObjectKeyItem).
-                orElse(Optional.empty());
+            orElseGet(Optional::empty);
     }
 
     public static Stream<Item> getPropagationItems(final Stream<Item> items) {

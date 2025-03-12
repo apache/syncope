@@ -31,7 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
 import org.junit.jupiter.api.Test;
@@ -62,11 +62,11 @@ public class AnyObjectTest extends AbstractTest {
         assertNotNull(anyObject.getType());
         assertFalse(anyObject.getType().getClasses().isEmpty());
 
-        APlainAttr model = anyObject.getPlainAttr("model").orElseThrow();
-        assertEquals("HP Laserjet 1300n", model.getValuesAsStrings().get(0));
+        PlainAttr model = anyObject.getPlainAttr("model").orElseThrow();
+        assertEquals("HP Laserjet 1300n", model.getValuesAsStrings().getFirst());
 
-        APlainAttr location = anyObject.getPlainAttr("location").orElseThrow();
-        assertEquals("2nd floor", location.getValuesAsStrings().get(0));
+        PlainAttr location = anyObject.getPlainAttr("location").orElseThrow();
+        assertEquals("2nd floor", location.getValuesAsStrings().getFirst());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class AnyObjectTest extends AbstractTest {
     @Test
     public void deleteAttr() {
         AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
-        APlainAttr attr = anyObject.getPlainAttr("location").orElseThrow();
+        PlainAttr attr = anyObject.getPlainAttr("location").orElseThrow();
         anyObject.remove(attr);
 
         anyObjectDAO.save(anyObject);

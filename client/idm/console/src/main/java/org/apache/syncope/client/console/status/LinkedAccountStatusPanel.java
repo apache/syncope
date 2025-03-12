@@ -25,7 +25,6 @@ import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.ReconStatus;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -54,7 +53,7 @@ public class LinkedAccountStatusPanel extends RemoteObjectPanel {
 
         add(new ConnObjectPanel(
                 REMOTE_OBJECT_PANEL_ID,
-                Pair.<IModel<?>, IModel<?>>of(Model.of(Constants.SYNCOPE), new ResourceModel("resource")),
+                Pair.of(Model.of(Constants.SYNCOPE), new ResourceModel("resource")),
                 getConnObjectTOs(),
                 false));
     }

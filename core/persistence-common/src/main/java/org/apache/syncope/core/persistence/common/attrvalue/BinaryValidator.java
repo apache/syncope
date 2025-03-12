@@ -46,10 +46,8 @@ public class BinaryValidator extends AbstractValidator {
             String mimeType = TIKA.detect(binaryValue);
 
             boolean valid = true;
-            if (!mimeType.equals(attrValue.getAttr().getSchema().getMimeType())) {
-                if (MediaType.TEXT_PLAIN.equals(mimeType)
-                        && MediaType.APPLICATION_JSON.equals(attrValue.getAttr().getSchema().getMimeType())) {
-
+            if (!mimeType.equals(schema.getMimeType())) {
+                if (MediaType.TEXT_PLAIN.equals(mimeType) && MediaType.APPLICATION_JSON.equals(schema.getMimeType())) {
                     String decoded = new String(binaryValue).trim();
                     valid = (decoded.startsWith("{") && decoded.endsWith("}"))
                             || (decoded.startsWith("[") && decoded.endsWith("]"))
@@ -60,8 +58,7 @@ public class BinaryValidator extends AbstractValidator {
             }
             if (!valid) {
                 throw new InvalidPlainAttrValueException(
-                        "Found MIME type: '" + mimeType + "', expecting: '"
-                        + attrValue.getAttr().getSchema().getMimeType() + '\'');
+                        "Found MIME type: '" + mimeType + "', expecting: '" + schema.getMimeType() + '\'');
             }
         }
     }

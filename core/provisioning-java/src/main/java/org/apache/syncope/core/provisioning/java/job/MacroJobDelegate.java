@@ -155,7 +155,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 : List.of(value.split(";"));
 
                         if (!actions.map(a -> a.getDropdownValues(fpd.getName()).keySet()).
-                                orElse(Set.of()).containsAll(values)) {
+                            orElseGet(Set::of).containsAll(values)) {
 
                             throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + values);
                         }
@@ -294,8 +294,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                             if (String.class.equals(field.getType())) {
                                 field.setAccessible(true);
                                 Object value = field.get(args);
-                                if (value instanceof String) {
-                                    field.set(args, JexlUtils.evaluateTemplate((String) value, ctx));
+                                if (value instanceof final String s) {
+                                    field.set(args, JexlUtils.evaluateTemplate(s, ctx));
                                 }
                             }
                         },

@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MatchType;
-import org.apache.syncope.core.persistence.api.attrvalue.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -51,9 +50,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
@@ -77,7 +73,6 @@ import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaBuilder;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.identityconnectors.framework.common.objects.SyncToken;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
@@ -192,7 +187,7 @@ public class InboundMatcher {
                         provision.get().getObjectClass(), resource, Name.NAME, nameValue);
             }
 
-            ConnectorObject connObj = found.iterator().next();
+            ConnectorObject connObj = found.getFirst();
             try {
                 List<InboundMatch> matches = match(
                         new SyncDeltaBuilder().
@@ -244,7 +239,7 @@ public class InboundMatcher {
                     null,
                     List.of(finalConnObjectKeyValue));
             if (!CollectionUtils.isEmpty(output)) {
-                finalConnObjectKeyValue = output.get(0).toString();
+                finalConnObjectKeyValue = output.getFirst().toString();
             }
         }
 
@@ -260,7 +255,7 @@ public class InboundMatcher {
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
 
-        List<Any<?>> anys = new ArrayList<>();
+        List<Any> anys = new ArrayList<>();
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
@@ -272,7 +267,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("username");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.USER));
+                        anys.addAll(anySearchDAO.search(SearchCond.of(cond), AnyTypeKind.USER));
                     } else {
                         userDAO.findByUsername(finalConnObjectKeyValue).ifPresent(anys::add);
                     }
@@ -283,7 +278,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.GROUP));
+                        anys.addAll(anySearchDAO.search(SearchCond.of(cond), AnyTypeKind.GROUP));
                     } else {
                         groupDAO.findByName(finalConnObjectKeyValue).ifPresent(anys::add);
                     }
@@ -292,7 +287,7 @@ public class InboundMatcher {
                         AnyCond cond = new AnyCond(AttrCond.Type.IEQ);
                         cond.setSchema("name");
                         cond.setExpression(finalConnObjectKeyValue);
-                        anys.addAll(anySearchDAO.search(SearchCond.getLeaf(cond), AnyTypeKind.ANY_OBJECT));
+                        anys.addAll(anySearchDAO.search(SearchCond.of(cond), AnyTypeKind.ANY_OBJECT));
                     } else {
                         anys.addAll(anyObjectDAO.findByName(finalConnObjectKeyValue));
                     }
@@ -304,29 +299,15 @@ public class InboundMatcher {
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {
-                    PlainAttrValue value = intAttrName.getSchema().isUniqueConstraint()
-                            ? anyUtils.newPlainAttrUniqueValue()
-                            : anyUtils.newPlainAttrValue();
-                    try {
-                        value.parseValue((PlainSchema) intAttrName.getSchema(), finalConnObjectKeyValue);
-                    } catch (ParsingValidationException e) {
-                        LOG.error("While parsing provided {} {}", Uid.NAME, value, e);
-                        value.setStringValue(finalConnObjectKeyValue);
-                    }
-
-                    if (intAttrName.getSchema().isUniqueConstraint()) {
-                        anyUtils.dao().findByPlainAttrUniqueValue((PlainSchema) intAttrName.getSchema(),
-                                (PlainAttrUniqueValue) value, ignoreCaseMatch).
-                                ifPresent(anys::add);
-                    } else {
-                        anys.addAll(anyUtils.dao().findByPlainAttrValue((PlainSchema) intAttrName.getSchema(),
-                                value, ignoreCaseMatch));
-                    }
+                    AttrCond attrCond = new AttrCond(ignoreCaseMatch ? AttrCond.Type.IEQ : AttrCond.Type.EQ);
+                    attrCond.setSchema(intAttrName.getSchema().getKey());
+                    attrCond.setExpression(finalConnObjectKeyValue);
+                    anys.addAll(anySearchDAO.search(SearchCond.of(attrCond), anyTypeKind));
                 }
 
                 case DERIVED ->
-                    anys.addAll(anyUtils.dao().findByDerAttrValue((DerSchema) intAttrName.getSchema(),
-                            finalConnObjectKeyValue, ignoreCaseMatch));
+                    anys.addAll(anyUtils.dao().findByDerAttrValue(
+                            (DerSchema) intAttrName.getSchema(), finalConnObjectKeyValue, ignoreCaseMatch));
 
                 default -> {
                 }
@@ -440,8 +421,8 @@ public class InboundMatcher {
             LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
         }
 
-        if (result.size() == 1 && result.get(0).getMatchTarget() == MatchType.ANY) {
-            virAttrHandler.setValues(result.get(0).getAny(), syncDelta.getObject());
+        if (result.size() == 1 && result.getFirst().getMatchTarget() == MatchType.ANY) {
+            virAttrHandler.setValues(result.getFirst().getAny(), syncDelta.getObject());
         }
 
         return result;
@@ -478,7 +459,7 @@ public class InboundMatcher {
                     null,
                     List.of(connObjectKey));
             if (!CollectionUtils.isEmpty(output)) {
-                connObjectKey = output.get(0).toString();
+                connObjectKey = output.getFirst().toString();
             }
         }
 

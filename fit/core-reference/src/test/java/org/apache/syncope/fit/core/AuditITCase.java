@@ -99,10 +99,10 @@ public class AuditITCase extends AbstractITCase {
     private static AuditEventTO queryWithFailure(final AuditQuery query, final int maxWaitSeconds) {
         List<AuditEventTO> results = query(query, maxWaitSeconds);
         if (results.isEmpty()) {
-            fail("Timeout when executing query for key " + query.getEntityKey());
+            fail(() -> "Timeout when executing query for key " + query.getEntityKey());
             return null;
         }
-        return results.get(0);
+        return results.getFirst();
     }
 
     @Test
@@ -244,7 +244,7 @@ public class AuditITCase extends AbstractITCase {
         ConnConfProperty originalConfProp = SerializationUtils.clone(
                 ldapConn.getConf("maintainPosixGroupMembership").get());
         assertEquals(1, originalConfProp.getValues().size());
-        assertEquals("false", originalConfProp.getValues().get(0));
+        assertEquals("false", originalConfProp.getValues().getFirst());
 
         ldapConn.setDisplayName(originalDisplayName + " modified");
         ldapConn.getCapabilities().clear();
@@ -259,7 +259,7 @@ public class AuditITCase extends AbstractITCase {
         entries = query(query, MAX_WAIT_SECONDS);
         assertEquals(pre + 1, entries.size());
 
-        ConnInstanceTO restore = JSON_MAPPER.readValue(entries.get(0).getBefore(), ConnInstanceTO.class);
+        ConnInstanceTO restore = JSON_MAPPER.readValue(entries.getFirst().getBefore(), ConnInstanceTO.class);
         CONNECTOR_SERVICE.update(restore);
 
         ldapConn = CONNECTOR_SERVICE.read(connectorKey, null);
@@ -385,7 +385,7 @@ public class AuditITCase extends AbstractITCase {
                 null,
                 "validate",
                 OpEvent.Outcome.SUCCESS));
-        auditEvent.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEvent.setWho("syncope-user " + UUID.randomUUID());
         auditEvent.setWhen(OffsetDateTime.now());
         auditEvent.setBefore(UUID.randomUUID().toString());
         auditEvent.setOutput(UUID.randomUUID().toString());
@@ -420,7 +420,7 @@ public class AuditITCase extends AbstractITCase {
                 "AuthenticationEvent",
                 "auth",
                 OpEvent.Outcome.SUCCESS));
-        auditEvent.setWho("syncope-user " + UUID.randomUUID().toString());
+        auditEvent.setWho("syncope-user " + UUID.randomUUID());
         auditEvent.setWhen(OffsetDateTime.now());
         auditEvent.setBefore(UUID.randomUUID().toString());
         auditEvent.setOutput(UUID.randomUUID().toString());

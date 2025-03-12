@@ -1,5 +1,5 @@
 Apache Syncope
-Copyright 2012-2023 The Apache Software Foundation
+Copyright 2012-2025 The Apache Software Foundation
 
 This product includes software developed by:
 The Apache Software Foundation (http://www.apache.org/).
@@ -46,16 +46,6 @@ Copyright 2012-2022, Connect2id Ltd
 
 ==
 
-This product includes software developed by the JAXB project.
-Copyright (c) 2013-2016 The JAXB project.
-
-==
-
-This product includes software produced and maintained by Eclipse Metro
-All content is the property of the respective authors or their employers.
-
-==
-
 This product includes software produced and maintained by Jakarta Activation project
 All content is the property of the respective authors or their employers.
 
@@ -76,7 +66,7 @@ Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
 ==
 
-This product includes software developed by Micrometer Application Metrics
+This product includes software developed by Micrometer Application Metrics.
 Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
@@ -96,19 +86,14 @@ All content is the property of the respective authors or their employers.
 
 ==
 
+This product includes software developed by the Eclipse Project for Jakarta Servlet.
+Copyright (c) 1997, 2024 Oracle and/or its affiliates and others. All rights reserved.
+
+==
+
 This product includes software developed by the Eclipse Project for JAX-RS.
 Eclipse Project for JAX-RS is a trademark of the Eclipse Foundation.
 All content is the property of the respective authors or their employers. For more information regarding authorship of content, please consult the listed source code repository logs.
-
-==
-
-This product includes software developed by the JAF project
-Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
-
-==
-
-This product includs software developed by Oracle.
-Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
@@ -119,6 +104,11 @@ Copyright (c) Red Hat, Inc., Emmanuel Bernard
 
 This product includes software developed by the Joda Time project.
 Copyright (c) 2002-2016 Joda.org. All Rights Reserved.
+
+==
+
+This product includes software developed by Java Apereo CAS Client
+Copyright (c) 2007, JA-SIG, Inc.
 
 ==
 
@@ -140,8 +130,8 @@ This product includes software developed by the Woodstox Project.
 
 ==
 
-This product includes software developed by Modernizer Maven Plugin
-Copyright 2014-2022 Andrew Gaul <andrew@gaul.org>
+This product includes software developed by the Eclipse Angus Project.
+Copyright (c) 1997, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
@@ -152,11 +142,6 @@ All content is the property of the respective authors or their employers.
 
 This product includes software developed by Hibernate Validator
 Copyright 2022, The Hibernate Validator project
-
-==
-
-This product includes software developed by Java Apereo CAS Client
-Copyright (c) 2007, JA-SIG, Inc.
 
 ==
 

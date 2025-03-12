@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ConfParam implements Serializable {
 
@@ -51,16 +50,16 @@ public class ConfParam implements Serializable {
                 ? values
                 : values.isEmpty()
                 ? null
-                : values.get(0);
+                : values.getFirst();
     }
 
     public void setValues(final Object value) {
         this.values.clear();
-        if (value instanceof Collection) {
-            this.values.addAll(((Collection<?>) value).stream().
+        if (value instanceof final Collection<?> objects) {
+            this.values.addAll(objects.stream().
                     filter(Serializable.class::isInstance).
                     map(Serializable.class::cast).
-                    collect(Collectors.toList()));
+                toList());
             this.multivalue = true;
         } else {
             this.values.add((Serializable) value);
@@ -77,7 +76,7 @@ public class ConfParam implements Serializable {
     }
 
     public boolean isInstance(final Class<?> clazz) {
-        return !values.isEmpty() && clazz.isInstance(values.get(0));
+        return !values.isEmpty() && clazz.isInstance(values.getFirst());
     }
 
     @Override

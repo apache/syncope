@@ -43,6 +43,7 @@ import org.apache.syncope.core.logic.oidc.NoOpSessionStore;
 import org.apache.syncope.core.logic.oidc.OIDCC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.oidc.client.OidcClient;
@@ -64,8 +64,6 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected static final String JWT_CLAIM_ID_TOKEN = "ID_TOKEN";
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
     protected final OIDCClientCache oidcClientCacheLogin;
 
     protected final OIDCClientCache oidcClientCacheLogout;
@@ -78,13 +76,16 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final OIDCUserManager userManager;
 
+    protected final EncryptorManager encryptorManager;
+
     public OIDCC4UILogic(
             final OIDCClientCache oidcClientCacheLogin,
             final OIDCClientCache oidcClientCacheLogout,
             final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
             final OIDCC4UIProviderDAO opDAO,
-            final OIDCUserManager userManager) {
+            final OIDCUserManager userManager,
+            final EncryptorManager encryptorManager) {
 
         this.oidcClientCacheLogin = oidcClientCacheLogin;
         this.oidcClientCacheLogout = oidcClientCacheLogout;
@@ -92,6 +93,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         this.accessTokenDataBinder = accessTokenDataBinder;
         this.opDAO = opDAO;
         this.userManager = userManager;
+        this.encryptorManager = encryptorManager;
     }
 
     protected OidcClient getOidcClient(
@@ -178,7 +180,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         List<String> matchingUsers = Optional.ofNullable(keyValue).
                 map(k -> userManager.findMatchingUser(k, op.getConnObjectKeyItem().get())).
-                orElse(List.of());
+            orElseGet(List::of);
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         // 3b. not found: create or selfreg if configured
@@ -215,12 +217,12 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             throw new IllegalArgumentException("Several users match the provided value " + keyValue);
         } else {
             if (op.isUpdateMatching()) {
-                LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
+                LOG.debug("About to update {} for {}", matchingUsers.getFirst(), keyValue);
 
                 username = AuthContextUtils.callAsAdmin(AuthContextUtils.getDomain(),
-                        () -> userManager.update(matchingUsers.get(0), op, loginResp));
+                        () -> userManager.update(matchingUsers.getFirst(), op, loginResp));
             } else {
-                username = matchingUsers.get(0);
+                username = matchingUsers.getFirst();
             }
         }
 
@@ -233,7 +235,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         byte[] authorities = null;
         try {
-            authorities = ENCRYPTOR.encode(POJOHelper.serialize(
+            authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
                     authDataAccessor.getAuthorities(loginResp.getUsername(), null)), CipherAlgorithm.AES).
                     getBytes();
         } catch (Exception e) {

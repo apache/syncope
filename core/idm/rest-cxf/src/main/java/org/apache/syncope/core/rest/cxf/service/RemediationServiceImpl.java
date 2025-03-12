@@ -32,9 +32,7 @@ import org.apache.syncope.core.logic.RemediationLogic;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-@Service
 public class RemediationServiceImpl extends AbstractService implements RemediationService {
 
     protected final RemediationLogic logic;

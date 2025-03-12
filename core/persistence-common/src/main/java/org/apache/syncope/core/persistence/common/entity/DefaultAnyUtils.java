@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -55,25 +54,10 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,13 +95,9 @@ public class DefaultAnyUtils implements AnyUtils {
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
-    protected final PlainAttrValueDAO plainAttrValueDAO;
-
     protected final EntityFactory entityFactory;
 
     protected final AnyTypeKind anyTypeKind;
-
-    protected final boolean linkedAccount;
 
     protected final Map<String, Field> userFields = new HashMap<>();
 
@@ -130,19 +110,15 @@ public class DefaultAnyUtils implements AnyUtils {
             final GroupDAO groupDAO,
             final AnyObjectDAO anyObjectDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final EntityFactory entityFactory,
-            final AnyTypeKind anyTypeKind,
-            final boolean linkedAccount) {
+            final AnyTypeKind anyTypeKind) {
 
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.plainSchemaDAO = plainSchemaDAO;
-        this.plainAttrValueDAO = plainAttrValueDAO;
         this.entityFactory = entityFactory;
         this.anyTypeKind = anyTypeKind;
-        this.linkedAccount = linkedAccount;
 
         initFieldNames(entityFactory.userClass(), userFields);
         initFieldNames(entityFactory.groupClass(), groupFields);
@@ -155,7 +131,7 @@ public class DefaultAnyUtils implements AnyUtils {
     }
 
     @Override
-    public <T extends Any<?>> Class<T> anyClass() {
+    public <T extends Any> Class<T> anyClass() {
         Class result;
 
         switch (anyTypeKind) {
@@ -195,118 +171,6 @@ public class DefaultAnyUtils implements AnyUtils {
         }
 
         return Optional.ofNullable(fields.get(name));
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends PlainAttr<?>> Class<T> plainAttrClass() {
-        return (Class<T>) newPlainAttr().getClass();
-    }
-
-    @Override
-    public <T extends PlainAttr<?>> T newPlainAttr() {
-        T result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = linkedAccount
-                        ? (T) entityFactory.newEntity(LAPlainAttr.class)
-                        : (T) entityFactory.newEntity(UPlainAttr.class);
-                break;
-
-            case GROUP:
-                result = (T) entityFactory.newEntity(GPlainAttr.class);
-                break;
-
-            case ANY_OBJECT:
-                result = (T) entityFactory.newEntity(APlainAttr.class);
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends PlainAttrValue> Class<T> plainAttrValueClass() {
-        return (Class<T>) newPlainAttrValue().getClass();
-    }
-
-    @Override
-    public <T extends PlainAttrValue> T newPlainAttrValue() {
-        T result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = linkedAccount
-                        ? (T) entityFactory.newEntity(LAPlainAttrValue.class)
-                        : (T) entityFactory.newEntity(UPlainAttrValue.class);
-                break;
-
-            case GROUP:
-                result = (T) entityFactory.newEntity(GPlainAttrValue.class);
-                break;
-
-            case ANY_OBJECT:
-                result = (T) entityFactory.newEntity(APlainAttrValue.class);
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends PlainAttrUniqueValue> Class<T> plainAttrUniqueValueClass() {
-        return (Class<T>) newPlainAttrUniqueValue().getClass();
-    }
-
-    @Override
-    public <T extends PlainAttrUniqueValue> T newPlainAttrUniqueValue() {
-        T result = null;
-
-        switch (anyTypeKind) {
-            case USER:
-                result = linkedAccount
-                        ? (T) entityFactory.newEntity(LAPlainAttrUniqueValue.class)
-                        : (T) entityFactory.newEntity(UPlainAttrUniqueValue.class);
-                break;
-
-            case GROUP:
-                result = (T) entityFactory.newEntity(GPlainAttrUniqueValue.class);
-                break;
-
-            case ANY_OBJECT:
-                result = (T) entityFactory.newEntity(APlainAttrUniqueValue.class);
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public <T extends PlainAttrValue> T clonePlainAttrValue(final T src) {
-        T dst;
-        if (src instanceof PlainAttrUniqueValue) {
-            dst = newPlainAttrUniqueValue();
-        } else {
-            dst = newPlainAttrValue();
-        }
-
-        dst.setBinaryValue(src.getBinaryValue());
-        dst.setBooleanValue(src.getBooleanValue());
-        dst.setDateValue(src.getDateValue());
-        dst.setDoubleValue(src.getDoubleValue());
-        dst.setLongValue(src.getLongValue());
-        dst.setStringValue(src.getStringValue());
-
-        return dst;
     }
 
     @Override
@@ -383,7 +247,7 @@ public class DefaultAnyUtils implements AnyUtils {
     }
 
     @Override
-    public <A extends Any<?>> AnyDAO<A> dao() {
+    public <A extends Any> AnyDAO<A> dao() {
         AnyDAO<A> result = null;
 
         switch (anyTypeKind) {
@@ -407,7 +271,7 @@ public class DefaultAnyUtils implements AnyUtils {
 
     @Transactional(readOnly = true)
     @Override
-    public Set<ExternalResource> getAllResources(final Any<?> any) {
+    public Set<ExternalResource> getAllResources(final Any any) {
         Set<ExternalResource> resources = new HashSet<>();
 
         switch (any) {
@@ -440,27 +304,25 @@ public class DefaultAnyUtils implements AnyUtils {
         Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
         typeOwnClasses.addAll(any.getType().getClasses());
         typeOwnClasses.addAll(any.getAuxClasses());
-        if (!typeOwnClasses.stream().anyMatch(clazz -> clazz.getPlainSchemas().contains(schema))) {
+        if (typeOwnClasses.stream().noneMatch(clazz -> clazz.getPlainSchemas().contains(schema))) {
             LOG.warn("Schema {} not allowed for {}, ignoring", schema, any);
             return;
         }
 
-        PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
-        if (attr == null) {
-            attr = newPlainAttr();
-            attr.setSchema(schema);
-            ((PlainAttr) attr).setOwner(any);
-            any.add(attr);
+        any.getPlainAttr(schema.getKey()).ifPresentOrElse(
+                attr -> LOG.debug("{} has already {} set: {}", any, schema.getKey(), attr.getValuesAsStrings()),
+                () -> {
+                    PlainAttr attr = new PlainAttr();
+                    attr.setPlainSchema(schema);
+                    any.add(attr);
 
-            try {
-                attr.add(validator, value, this);
-                dao().save(any);
-            } catch (InvalidPlainAttrValueException e) {
-                LOG.error("Invalid value for attribute {} and {}: {}", schema.getKey(), any, value, e);
-            }
-        } else {
-            LOG.debug("{} has already {} set: {}", any, schema.getKey(), attr.getValuesAsStrings());
-        }
+                    try {
+                        attr.add(validator, value);
+                        dao().save(any);
+                    } catch (InvalidPlainAttrValueException e) {
+                        LOG.error("Invalid value for attribute {} and {}: {}", schema.getKey(), any, value, e);
+                    }
+                });
     }
 
     @Transactional
@@ -468,17 +330,11 @@ public class DefaultAnyUtils implements AnyUtils {
     public void removeAttr(final String key, final PlainSchema schema) {
         Any any = dao().findById(key).orElseThrow(() -> new NotFoundException(anyTypeKind + " " + key));
 
-        any.getPlainAttr(schema.getKey()).ifPresentOrElse(attr -> {
-            PlainAttr<?> plainAttr = (PlainAttr<?>) attr;
-            any.remove(plainAttr);
-            plainAttr.setOwner(null);
-            if (plainAttr instanceof GroupablePlainAttr groupablePlainAttr) {
-                groupablePlainAttr.setMembership(null);
-            }
-            plainAttrValueDAO.deleteAll(plainAttr, this);
-            plainSchemaDAO.delete(plainAttr);
-
-            dao().save(any);
-        }, () -> LOG.warn("Any {} does not contain {} PLAIN attribute", key, schema.getKey()));
+        any.getPlainAttr(schema.getKey()).ifPresentOrElse(
+                attr -> {
+                    any.remove(attr);
+                    dao().save(any);
+                },
+                () -> LOG.warn("Any {} does not contain {} PLAIN attribute", key, schema.getKey()));
     }
 }

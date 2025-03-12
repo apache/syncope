@@ -38,7 +38,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -84,7 +83,7 @@ public class Flowable extends BaseExtPage {
             @Override
             protected void populateItem(final Item<UserRequest> item) {
                 final UserRequest userRequest = item.getModelObject();
-                item.add(new Accordion("userRequestDetails", Collections.<ITab>singletonList(new AbstractTab(
+                item.add(new Accordion("userRequestDetails", Collections.singletonList(new AbstractTab(
                         new StringResourceModel("user.requests.accordion", container, Model.of(userRequest))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;

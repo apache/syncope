@@ -27,6 +27,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -36,9 +37,11 @@ public class RelationshipTypeITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        RelationshipTypeTO otherType = RELATIONSHIP_TYPE_SERVICE.read("inclusion");
-        assertNotNull(otherType);
-        assertEquals("inclusion", otherType.getKey());
+        RelationshipTypeTO relType = RELATIONSHIP_TYPE_SERVICE.read("inclusion");
+        assertNotNull(relType);
+        assertEquals("inclusion", relType.getKey());
+        assertEquals(PRINTER, relType.getLeftEndAnyType());
+        assertEquals(PRINTER, relType.getRightEndAnyType());
     }
 
     @Test
@@ -52,6 +55,8 @@ public class RelationshipTypeITCase extends AbstractITCase {
         RelationshipTypeTO newType = new RelationshipTypeTO();
         newType.setKey("new type");
         newType.setDescription("description");
+        newType.setLeftEndAnyType(AnyTypeKind.GROUP.name());
+        newType.setRightEndAnyType(PRINTER);
 
         Response response = RELATIONSHIP_TYPE_SERVICE.create(newType);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
@@ -59,6 +64,8 @@ public class RelationshipTypeITCase extends AbstractITCase {
         newType = getObject(response.getLocation(), RelationshipTypeService.class, RelationshipTypeTO.class);
         assertNotNull(newType);
         assertEquals("description", newType.getDescription());
+        assertEquals(AnyTypeKind.GROUP.name(), newType.getLeftEndAnyType());
+        assertEquals(PRINTER, newType.getRightEndAnyType());
 
         newType.setDescription("new description");
         RELATIONSHIP_TYPE_SERVICE.update(newType);
@@ -66,6 +73,8 @@ public class RelationshipTypeITCase extends AbstractITCase {
         newType = RELATIONSHIP_TYPE_SERVICE.read(newType.getKey());
         assertNotNull(newType);
         assertEquals("new description", newType.getDescription());
+        assertEquals(AnyTypeKind.GROUP.name(), newType.getLeftEndAnyType());
+        assertEquals(PRINTER, newType.getRightEndAnyType());
 
         RELATIONSHIP_TYPE_SERVICE.delete(newType.getKey());
 
@@ -80,7 +89,9 @@ public class RelationshipTypeITCase extends AbstractITCase {
     @Test
     public void createInvalidName() {
         RelationshipTypeTO newType = new RelationshipTypeTO();
-        newType.setKey("membership");
+        newType.setKey("umembership");
+        newType.setLeftEndAnyType(AnyTypeKind.GROUP.name());
+        newType.setRightEndAnyType(PRINTER);
         try {
             RELATIONSHIP_TYPE_SERVICE.create(newType);
             fail("This should not happen");

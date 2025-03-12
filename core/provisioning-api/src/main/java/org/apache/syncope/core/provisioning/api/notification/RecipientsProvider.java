@@ -26,5 +26,5 @@ import org.apache.syncope.core.persistence.api.entity.Notification;
 @FunctionalInterface
 public interface RecipientsProvider {
 
-    Set<String> provideRecipients(Notification notification, Any<?> any, Map<String, Object> jexlVars);
+    Set<String> provideRecipients(Notification notification, Any any, Map<String, Object> jexlVars);
 }

@@ -82,7 +82,7 @@ public class ConnectorRestClient extends BaseRestClient {
                     getLanguage());
             if (connInstance != null) {
                 result.addAll(service.buildObjectClassInfo(connInstance, true).stream().
-                        map(ConnIdObjectClass::getType).collect(Collectors.toList()));
+                        map(ConnIdObjectClass::getType).toList());
             }
         } catch (Exception e) {
             LOG.error("While reading object classes for connector {}", connectorKey, e);

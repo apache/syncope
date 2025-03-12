@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -84,7 +84,7 @@ public final class AuthContextUtils {
                 filter(SyncopeGrantedAuthority.class::isInstance).
                 map(SyncopeGrantedAuthority.class::cast).
                 collect(Collectors.toSet())).
-                orElse(Set.of());
+            orElseGet(Set::of);
     }
 
     public static Map<String, Set<String>> getAuthorizations() {
@@ -93,7 +93,7 @@ public final class AuthContextUtils {
                 filter(SyncopeGrantedAuthority.class::isInstance).
                 map(SyncopeGrantedAuthority.class::cast).
                 collect(Collectors.toMap(SyncopeGrantedAuthority::getAuthority, SyncopeGrantedAuthority::getRealms))).
-                orElse(Map.of());
+            orElseGet(Map::of);
     }
 
     public static String getDomain() {

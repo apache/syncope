@@ -53,7 +53,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -180,7 +179,7 @@ public class KeymasterITCase extends AbstractITCase {
         list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
-        assertEquals(sra1, list.get(0));
+        assertEquals(sra1, list.getFirst());
 
         assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
 
@@ -193,7 +192,7 @@ public class KeymasterITCase extends AbstractITCase {
         list = findNetworkServices(NetworkService.Type.SRA, List::isEmpty, 30);
         assertFalse(list.isEmpty());
         assertEquals(1, list.size());
-        assertEquals(sra1, list.get(0));
+        assertEquals(sra1, list.getFirst());
 
         assertEquals(sra1, serviceOps.get(NetworkService.Type.SRA));
 
@@ -214,9 +213,9 @@ public class KeymasterITCase extends AbstractITCase {
         List<Domain> initial = domainOps.list();
         assertNotNull(initial);
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
-        assumeTrue(initial.get(0) instanceof JPADomain);
+        assumeTrue(initial.getFirst() instanceof JPADomain);
 
-        JPADomain two = (JPADomain) initial.get(0);
+        JPADomain two = (JPADomain) initial.getFirst();
         String newdb = "syncopetest";
 
         // 1. create new domain
@@ -231,7 +230,7 @@ public class KeymasterITCase extends AbstractITCase {
                 databasePlatform(two.getDatabasePlatform()).
                 orm(two.getOrm()).
                 transactionIsolation(two.getTransactionIsolation()).
-                adminPassword(Encryptor.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
+                adminPassword(encryptorManager.getInstance().encode("password", CipherAlgorithm.BCRYPT)).
                 adminCipherAlgorithm(CipherAlgorithm.BCRYPT).
                 build());
 
@@ -311,12 +310,12 @@ public class KeymasterITCase extends AbstractITCase {
         assertNotNull(initial);
         assumeTrue(initial.stream().anyMatch(domain -> "Two".equals(domain.getKey())));
 
-        if (initial.get(0) instanceof JPADomain) {
+        if (initial.getFirst() instanceof JPADomain) {
             assertThrows(KeymasterException.class, () -> domainOps.create(new JPADomain.Builder("Two").build()));
-        } else if (initial.get(0) instanceof Neo4jDomain) {
+        } else if (initial.getFirst() instanceof Neo4jDomain) {
             assertThrows(KeymasterException.class, () -> domainOps.create(new Neo4jDomain.Builder("Two").build()));
         } else {
-            throw new IllegalStateException("Unsupported Domain class: " + initial.get(0).getClass().getName());
+            throw new IllegalStateException("Unsupported Domain class: " + initial.getFirst().getClass().getName());
         }
     }
 
@@ -336,9 +335,8 @@ public class KeymasterITCase extends AbstractITCase {
 
         try {
             // 1. change admin pwd for domain Two
-            domainOps.changeAdminPassword(
-                    two.getKey(),
-                    Encryptor.getInstance().encode("password3", CipherAlgorithm.AES),
+            domainOps.changeAdminPassword(two.getKey(),
+                    encryptorManager.getInstance().encode("password3", CipherAlgorithm.AES),
                     CipherAlgorithm.AES);
 
             // 2. attempt to access with old pwd -> fail

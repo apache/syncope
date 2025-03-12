@@ -128,7 +128,7 @@ public class BatchContent<T extends Serializable, S> extends MultilevelPanel.Sec
 
                     Map<String, String> results;
                     try {
-                        T singleItem = items.iterator().next();
+                        T singleItem = items.getFirst();
 
                         if (singleItem instanceof ExecTO) {
                             results = new HashMap<>();

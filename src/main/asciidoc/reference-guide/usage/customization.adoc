@@ -30,10 +30,10 @@ adding new features or replacing existing components.
 
 In general, the Embedded Mode (see the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/4.0/getting-started.html[Apache Syncope Getting Started Guide]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
+https://syncope.apache.org/docs/4.0/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
 for details) allows developers to work comfortably from a single workstation, with no need of additional setup; it is
 effectively implemented as the `all`
@@ -155,7 +155,7 @@ endif::[]
 ===== Extending configuration
 Apache Syncope <<architecture,components>> are built on https://spring.io/projects/spring-boot[Spring Boot^],
 hence designing and extending Syncope configuration very much comes down to
-https://docs.spring.io/spring-boot/3.3/index.html[their guide^], some aspects of which are briefly
+https://docs.spring.io/spring-boot/3.4/index.html[their guide^], some aspects of which are briefly
 highlighted here.
 
 To design your own configuration class, take inspiration from the following sample:
@@ -236,7 +236,7 @@ $ mkdir /opt/syncope/conf
 [TIP]
 ====
 The `conf` directory must be configured for deployment, following Spring Boot's
-https://docs.spring.io/spring-boot/3.3/reference/features/external-config.html[Externalized Configuration^]
+https://docs.spring.io/spring-boot/3.4/reference/features/external-config.html[Externalized Configuration^]
 settings; with above reference:
 
 * <<standalone>>: `--spring.config.additional-location=/opt/syncope/conf/`
@@ -383,7 +383,7 @@ elasticsearch.numberOfReplicas=1
 as `core/src/main/resources/core-elasticsearch.properties`.
 
 Do not forget to include `elasticsearch` as 
-https://docs.spring.io/spring-boot/3.3/reference/features/profiles.html[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from
@@ -436,7 +436,7 @@ opensearch.numberOfReplicas=1
 as `core/src/main/resources/core-opensearch.properties`.
 
 Do not forget to include `opensearch` as 
-https://docs.spring.io/spring-boot/3.3/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
 for the Core application.
 
 If needed, customize the `@Bean` declarations from
@@ -475,6 +475,60 @@ Add the following dependencies to `core/pom.xml`:
   <version>${syncope.version}</version>
 </dependency>
 ----
+
+[discrete]
+===== Enable the <<OpenFGA>> extension
+
+Add the following dependency to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.openfga</groupId>
+  <artifactId>syncope-ext-openfga-provisioning-java</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Create
+
+[source]
+....
+openfga.api-url=http://localhost:8080
+....
+
+as `core/src/main/resources/core-openfga.properties`. +
+More properties are available, as you can read from
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/openfga/client-openfga/src/main/java/org/apache/syncope/ext/openfga/client/OpenFGAProperties.java[OpenFGAProperties^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/ext/openfga/client-openfga/src/main/java/org/apache/syncope/ext/openfga/client/OpenFGAProperties.java[OpenFGAProperties^]
+endif::[]
+.
+
+Do not forget to include `openfga` as 
+https://docs.spring.io/spring-boot/3.4/reference/features/profiles.html#features.profiles.adding-active-profiles[Spring Boot profile^]
+for the Core application.
+
+If needed, customize the `@Bean` declarations from
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/openfga/client-openfga/src/main/java/org/apache/syncope/ext/openfga/client/OpenFGAClientContext.java[OpenFGAClientContext^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/ext/openfga/client-openfga/src/main/java/org/apache/syncope/ext/openfga/client/OpenFGAClientContext.java[OpenFGAClientContext^]
+endif::[]
+as explained <<extending-configuration,above>>.
+
+It is also required to initialize the OpenFGA authorization model: add a new Java <<implementations,implementation>> for
+`TASKJOB_DELEGATE` and use `org.apache.syncope.core.provisioning.java.job.OpenFGAReinit` as class. +
+Then, create a new <<tasks-scheduled, scheduled task>>, select the implementation just created as job delegate and execute it.
+
+[TIP]
+The `org.apache.syncope.core.provisioning.java.job.OpenFGAReinit` task created above is not meant for
+scheduled execution; rather, it can be run every time you want to blank and re-create the OpenFGA authorization model
+starting from Syncope's internal storage.
+
 
 [discrete]
 ===== New REST endpoints

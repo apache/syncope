@@ -117,7 +117,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
     protected void onDoubleClick(final AjaxRequestTarget target, final IModel<T> model) {
         togglePanel.close(target);
-        getActions(model).getActions().get(0).getLink().onClick(target, model.getObject());
+        getActions(model).getActions().getFirst().getLink().onClick(target, model.getObject());
     }
 
     @Override
@@ -145,7 +145,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                             togglePanel.toggleWithContent(target, getActions(model), model.getObject());
                         } else {
                             final AjaxDataTablePanel<?, ?> parent = findParent(AjaxDataTablePanel.class);
-                            final Model<Boolean> isCheck = Model.<Boolean>of(Boolean.FALSE);
+                            final Model<Boolean> isCheck = Model.of(Boolean.FALSE);
 
                             parent.visitChildren(CheckGroupSelector.class, (selector, ivisit) -> {
                                 if (selector.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {

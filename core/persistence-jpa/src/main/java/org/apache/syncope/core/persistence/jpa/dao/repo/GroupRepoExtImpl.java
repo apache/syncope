@@ -56,9 +56,10 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
@@ -74,8 +75,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     protected final ApplicationEventPublisher publisher;
 
-    protected final PlainSchemaDAO plainSchemaDAO;
-
     protected final AnyMatchDAO anyMatchDAO;
 
     protected final UserDAO userDAO;
@@ -89,8 +88,8 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     public GroupRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ApplicationEventPublisher publisher,
-            final PlainSchemaDAO plainSchemaDAO,
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
@@ -101,11 +100,11 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
         super(
                 dynRealmDAO,
+                plainSchemaDAO,
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
         this.publisher = publisher;
-        this.plainSchemaDAO = plainSchemaDAO;
         this.anyMatchDAO = anyMatchDAO;
         this.userDAO = userDAO;
         this.anyObjectDAO = anyObjectDAO;
@@ -178,7 +177,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findById(key).map(Any::getResources).
-                orElse(List.of()).
+            orElseGet(List::of).
                 stream().map(ExternalResource::getKey).toList();
     }
 
@@ -226,7 +225,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
 
     @Override
     public <S extends Group> S save(final S group) {
-        checkBeforeSave(group);
+        checkBeforeSave((JPAGroup) group);
         return entityManager.merge(group);
     }
 
@@ -302,13 +301,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
 
             anyObjectDAO.save(leftEnd);
             publisher.publishEvent(
@@ -319,13 +312,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);
-            leftEnd.getPlainAttrs(membership).forEach(attr -> {
-                leftEnd.remove(attr);
-                attr.setOwner(null);
-                attr.setMembership(null);
-
-                plainSchemaDAO.delete(attr);
-            });
+            leftEnd.getPlainAttrs(membership).forEach(leftEnd::remove);
 
             userDAO.save(leftEnd);
             publisher.publishEvent(

@@ -73,7 +73,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
                 Boolean value = null;
 
                 if (list != null && !list.isEmpty()) {
-                    value = Boolean.TRUE.toString().equalsIgnoreCase(list.get(0).toString());
+                    value = Boolean.TRUE.toString().equalsIgnoreCase(list.getFirst().toString());
                 }
 
                 return value;
@@ -107,9 +107,9 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
                 if (obj != null && !obj.toString().isEmpty()) {
                     if (obj instanceof String) {
                         bool = Boolean.TRUE.toString().equalsIgnoreCase(obj.toString());
-                    } else if (obj instanceof Boolean) {
+                    } else if (obj instanceof final Boolean b) {
                         // Don't parse anything
-                        bool = (Boolean) obj;
+                        bool = b;
                     }
                 }
 
@@ -138,7 +138,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
             @Override
             public Serializable getObject() {
                 return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
-                        map(values -> Boolean.TRUE.toString().equalsIgnoreCase(values.get(0))).
+                        map(values -> Boolean.TRUE.toString().equalsIgnoreCase(values.getFirst())).
                         orElse(null);
             }
 

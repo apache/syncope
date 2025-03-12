@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -84,57 +85,60 @@ public class LinkedAccountITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
         String connObjectKeyValue = "firstAccountOf" + userCR.getUsername();
-        String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
 
         LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
-        account.getPrivileges().add(privilege);
         userCR.getLinkedAccounts().add(account);
 
         UserTO user = createUser(userCR).getEntity();
         assertNotNull(user.getKey());
-        assertEquals(privilege, user.getLinkedAccounts().get(0).getPrivileges().iterator().next());
 
         // 2. verify that propagation task was generated and that account is found on resource
         PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(1, tasks.getTotalCount());
-        assertEquals(connObjectKeyValue, tasks.getResult().get(0).getConnObjectKey());
-        assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
-        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+        assertEquals(connObjectKeyValue, tasks.getResult().getFirst().getConnObjectKey());
+        assertEquals(ResourceOperation.CREATE, tasks.getResult().getFirst().getOperation());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().getFirst().getLatestExecStatus());
 
         ConnObject ldapObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
-        assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
-        assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
+        assertEquals(
+                user.getPlainAttr("email").orElseThrow().getValues(),
+                ldapObj.getAttr("mail").orElseThrow().getValues());
+        assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").orElseThrow().getValues().getFirst());
 
         // 3. update linked account
         UserUR userUR = new UserUR();
         userUR.setKey(user.getKey());
 
-        account.getPlainAttrs().clear();
+        account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
         account.getPlainAttrs().add(attr("email", "UPDATED_EMAIL@syncope.apache.org"));
         account.getPlainAttrs().add(attr("surname", "UPDATED_SURNAME"));
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
 
         user = updateUser(userUR).getEntity();
         assertEquals(1, user.getLinkedAccounts().size());
+        assertEquals("UPDATED_SURNAME", user.getLinkedAccounts().getFirst().
+                getPlainAttr("surname").orElseThrow().getValues().getFirst());
+        assertEquals("UPDATED_EMAIL@syncope.apache.org", user.getLinkedAccounts().getFirst().
+                getPlainAttr("email").orElseThrow().getValues().getFirst());
 
         // 4 verify that account was updated on resource
         ldapObj = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
 
-        assertTrue(ldapObj.getAttr("mail").get().getValues().contains("UPDATED_EMAIL@syncope.apache.org"));
-        assertEquals("UPDATED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
+        assertTrue(ldapObj.getAttr("mail").orElseThrow().getValues().contains("UPDATED_EMAIL@syncope.apache.org"));
+        assertEquals("UPDATED_SURNAME", ldapObj.getAttr("sn").orElseThrow().getValues().getFirst());
 
         // 5. remove linked account from user
         userUR = new UserUR();
         userUR.setKey(user.getKey());
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().
                 operation(PatchOperation.DELETE).
-                linkedAccountTO(user.getLinkedAccounts().get(0)).build());
+                linkedAccountTO(user.getLinkedAccounts().getFirst()).build());
 
         user = updateUser(userUR).getEntity();
         assertTrue(user.getLinkedAccounts().isEmpty());
@@ -148,50 +152,10 @@ public class LinkedAccountITCase extends AbstractITCase {
         Optional<PropagationTaskTO> deletTask =
                 tasks.getResult().stream().filter(task -> task.getOperation() == ResourceOperation.DELETE).findFirst();
         assertTrue(deletTask.isPresent());
-        assertEquals(connObjectKeyValue, deletTask.get().getConnObjectKey());
-        assertEquals(ExecStatus.SUCCESS.name(), deletTask.get().getLatestExecStatus());
+        assertEquals(connObjectKeyValue, deletTask.orElseThrow().getConnObjectKey());
+        assertEquals(ExecStatus.SUCCESS.name(), deletTask.orElseThrow().getLatestExecStatus());
 
         assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, connObjectKeyValue));
-    }
-
-    @Test
-    public void createWithLinkedAccountThenUpdateUsingPutThenRemove() throws NamingException {
-        // 1. create user with linked account
-        UserCR userCR = UserITCase.getSample(
-                "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
-        String connObjectKeyValue = "uid=" + userCR.getUsername() + ",ou=People,o=isp";
-        String privilege = APPLICATION_SERVICE.read("mightyApp").getPrivileges().get(0).getKey();
-
-        LinkedAccountTO account = new LinkedAccountTO.Builder(RESOURCE_NAME_LDAP, connObjectKeyValue).build();
-        account.setUsername("LinkedUsername");
-        account.getPlainAttrs().add(attr("surname", "LINKED_SURNAME"));
-        account.getPrivileges().add(privilege);
-        userCR.getLinkedAccounts().add(account);
-
-        UserTO user = createUser(userCR).getEntity();
-        assertNotNull(user.getKey());
-        assertEquals(1, user.getLinkedAccounts().size());
-        assertEquals(privilege, user.getLinkedAccounts().get(0).getPrivileges().iterator().next());
-        assertEquals("LinkedUsername", user.getLinkedAccounts().get(0).getUsername());
-        assertEquals("LINKED_SURNAME", account.getPlainAttr("surname").get().getValues().get(0));
-
-        // 2. update linked account
-        account.getPlainAttrs().clear();
-        account.setUsername("LinkedUsernameUpdated");
-        account.getPlainAttrs().add(attr("email", "UPDATED_EMAIL@syncope.apache.org"));
-        account.getPlainAttrs().add(attr("surname", "UPDATED_SURNAME"));
-        user.getLinkedAccounts().clear();
-        user.getLinkedAccounts().add(account);
-
-        user = updateUser(user).getEntity();
-        assertEquals(1, user.getLinkedAccounts().size());
-        assertEquals("LinkedUsernameUpdated", user.getLinkedAccounts().get(0).getUsername());
-        assertEquals("UPDATED_SURNAME", account.getPlainAttr("surname").get().getValues().get(0));
-
-        // 3. remove linked account from user
-        user.getLinkedAccounts().clear();
-        user = updateUser(user).getEntity();
-        assertTrue(user.getLinkedAccounts().isEmpty());
     }
 
     @Test
@@ -229,15 +193,17 @@ public class LinkedAccountITCase extends AbstractITCase {
                 new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(1, tasks.getTotalCount());
-        assertEquals(connObjectKeyValue, tasks.getResult().get(0).getConnObjectKey());
-        assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
-        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+        assertEquals(connObjectKeyValue, tasks.getResult().getFirst().getConnObjectKey());
+        assertEquals(ResourceOperation.CREATE, tasks.getResult().getFirst().getOperation());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().getFirst().getLatestExecStatus());
 
         ConnObject ldapObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), connObjectKeyValue);
         assertNotNull(ldapObj);
-        assertEquals(user.getPlainAttr("email").get().getValues(), ldapObj.getAttr("mail").get().getValues());
-        assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").get().getValues().get(0));
+        assertEquals(
+                user.getPlainAttr("email").orElseThrow().getValues(),
+                ldapObj.getAttr("mail").orElseThrow().getValues());
+        assertEquals("LINKED_SURNAME", ldapObj.getAttr("sn").orElseThrow().getValues().getFirst());
     }
 
     @Test
@@ -263,7 +229,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         user = updateUser(userUR).getEntity();
         assertEquals(1, user.getLinkedAccounts().size());
-        assertNull(user.getLinkedAccounts().get(0).getPassword());
+        assertNull(user.getLinkedAccounts().getFirst().getPassword());
 
         // 4. update linked account with adding a password
         account.setPassword("Password123");
@@ -285,18 +251,18 @@ public class LinkedAccountITCase extends AbstractITCase {
         // set a correct password
         account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
-        assertNotNull(user.getLinkedAccounts().get(0).getPassword());
+        assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
 
         // 5. update linked account  password
-        String beforeUpdatePassword = user.getLinkedAccounts().get(0).getPassword();
+        String beforeUpdatePassword = user.getLinkedAccounts().getFirst().getPassword();
         account.setPassword("Password123Updated");
         userUR = new UserUR();
         userUR.setKey(user.getKey());
 
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
         user = updateUser(userUR).getEntity();
-        assertNotNull(user.getLinkedAccounts().get(0).getPassword());
-        assertNotEquals(beforeUpdatePassword, user.getLinkedAccounts().get(0).getPassword());
+        assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
+        assertNotEquals(beforeUpdatePassword, user.getLinkedAccounts().getFirst().getPassword());
 
         // 6. set linked account password to null
         account.setPassword(null);
@@ -305,13 +271,15 @@ public class LinkedAccountITCase extends AbstractITCase {
 
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
         user = updateUser(userUR).getEntity();
-        assertNull(user.getLinkedAccounts().get(0).getPassword());
+        assertNull(user.getLinkedAccounts().getFirst().getPassword());
 
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "return.password.value", false);
     }
 
     @Test
     public void push() {
+        assumeFalse(IS_EXT_SEARCH_ENABLED);
+
         // 0a. read configured cipher algorithm in order to be able to restore it at the end of test
         String origpwdCipherAlgo = confParamOps.get(SyncopeConstants.MASTER_DOMAIN,
                 "password.cipher.algorithm", null, String.class);
@@ -339,9 +307,9 @@ public class LinkedAccountITCase extends AbstractITCase {
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST).
                             anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
             assertEquals(1, tasks.getTotalCount());
-            assertEquals(connObjectKeyValue, tasks.getResult().get(0).getConnObjectKey());
-            assertEquals(ResourceOperation.CREATE, tasks.getResult().get(0).getOperation());
-            assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+            assertEquals(connObjectKeyValue, tasks.getResult().getFirst().getConnObjectKey());
+            assertEquals(ResourceOperation.CREATE, tasks.getResult().getFirst().getOperation());
+            assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().getFirst().getLatestExecStatus());
 
             WebClient webClient = WebClient.create(BUILD_TOOLS_ADDRESS + "/rest/users/" + connObjectKeyValue).
                     accept(MediaType.APPLICATION_JSON_TYPE);
@@ -376,7 +344,7 @@ public class LinkedAccountITCase extends AbstractITCase {
 
             TaskTO task = TASK_SERVICE.read(TaskType.PUSH, sendUser.getKey(), true);
             assertEquals(1, task.getExecutions().size());
-            assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().get(0).getStatus());
+            assertEquals(ExecStatus.SUCCESS.name(), task.getExecutions().getFirst().getStatus());
 
             await().until(() -> TASK_SERVICE.search(
                     new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_REST)
@@ -451,7 +419,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         PagedResult<PullTaskTO> tasks = TASK_SERVICE.search(
                 new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_NAME_REST).build());
         if (tasks.getTotalCount() > 0) {
-            pullTaskKey = tasks.getResult().get(0).getKey();
+            pullTaskKey = tasks.getResult().getFirst().getKey();
         } else {
             PullTaskTO task = new PullTaskTO();
             task.setDestinationRealm(SyncopeConstants.ROOT_REALM);
@@ -527,28 +495,32 @@ public class LinkedAccountITCase extends AbstractITCase {
                     filter(account -> user1Key.equals(account.getConnObjectKeyValue())).
                     findFirst();
             assertTrue(firstAccount.isPresent());
-            assertFalse(firstAccount.get().isSuspended());
-            assertEquals(RESOURCE_NAME_REST, firstAccount.get().getResource());
-            assertEquals("linkedaccount1", firstAccount.get().getUsername());
-            assertEquals("Pasquale", firstAccount.get().getPlainAttr("firstname").get().getValues().get(0));
+            assertFalse(firstAccount.orElseThrow().isSuspended());
+            assertEquals(RESOURCE_NAME_REST, firstAccount.orElseThrow().getResource());
+            assertEquals("linkedaccount1", firstAccount.orElseThrow().getUsername());
+            assertEquals(
+                    "Pasquale",
+                    firstAccount.orElseThrow().getPlainAttr("firstname").orElseThrow().getValues().getFirst());
 
             Optional<LinkedAccountTO> secondAccount = accounts.stream().
                     filter(account -> user2Key.equals(account.getConnObjectKeyValue())).
                     findFirst();
             assertTrue(secondAccount.isPresent());
-            assertFalse(secondAccount.get().isSuspended());
-            assertEquals(RESOURCE_NAME_REST, secondAccount.get().getResource());
-            assertNull(secondAccount.get().getUsername());
-            assertEquals("Giovannino", secondAccount.get().getPlainAttr("firstname").get().getValues().get(0));
+            assertFalse(secondAccount.orElseThrow().isSuspended());
+            assertEquals(RESOURCE_NAME_REST, secondAccount.orElseThrow().getResource());
+            assertNull(secondAccount.orElseThrow().getUsername());
+            assertEquals(
+                    "Giovannino",
+                    secondAccount.orElseThrow().getPlainAttr("firstname").orElseThrow().getValues().getFirst());
 
             Optional<LinkedAccountTO> thirdAccount = accounts.stream().
                     filter(account -> user3Key.equals(account.getConnObjectKeyValue())).
                     filter(account -> "not.vivaldi".equals(account.getUsername())).
                     findFirst();
             assertTrue(thirdAccount.isPresent());
-            assertFalse(thirdAccount.get().isSuspended());
-            assertEquals(RESOURCE_NAME_REST, thirdAccount.get().getResource());
-            assertEquals("not.vivaldi", thirdAccount.get().getUsername());
+            assertFalse(thirdAccount.orElseThrow().isSuspended());
+            assertEquals(RESOURCE_NAME_REST, thirdAccount.orElseThrow().getResource());
+            assertEquals("not.vivaldi", thirdAccount.orElseThrow().getUsername());
 
             // 3. update / remove REST users
             response = webClient.path(user1Key).delete();
@@ -583,16 +555,16 @@ public class LinkedAccountITCase extends AbstractITCase {
                     filter(account -> user2Key.equals(account.getConnObjectKeyValue())).
                     findFirst();
             assertTrue(secondAccount.isPresent());
-            assertFalse(secondAccount.get().isSuspended());
-            assertEquals(user2Key, secondAccount.get().getConnObjectKeyValue());
-            assertEquals("linkedaccount2", secondAccount.get().getUsername());
+            assertFalse(secondAccount.orElseThrow().isSuspended());
+            assertEquals(user2Key, secondAccount.orElseThrow().getConnObjectKeyValue());
+            assertEquals("linkedaccount2", secondAccount.orElseThrow().getUsername());
 
             thirdAccount = accounts.stream().
                     filter(account -> "not.vivaldi".equals(account.getUsername())).
                     findFirst();
             assertTrue(thirdAccount.isPresent());
-            assertTrue(thirdAccount.get().isSuspended());
-            assertEquals(user3Key, thirdAccount.get().getConnObjectKeyValue());
+            assertTrue(thirdAccount.orElseThrow().isSuspended());
+            assertEquals(user3Key, thirdAccount.orElseThrow().getConnObjectKeyValue());
         } finally {
             // clean up
             UserUR patch = new UserUR();

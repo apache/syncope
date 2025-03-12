@@ -31,20 +31,19 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,27 +64,27 @@ public class PlainAttrTest extends AbstractTest {
     @Autowired
     private PlainAttrValidationManager validator;
 
+    @Autowired
+    private EncryptorManager encryptorManager;
+
     @Test
     public void save() throws ClassNotFoundException {
-        User user = userDAO.findById("1417acbe-cbf6-4277-9372-e75e04f97000").orElseThrow();
-
         PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(emailSchema);
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(emailSchema.getKey());
 
         Exception thrown = null;
         try {
-            attr.add(validator, "john.doe@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
-            attr.add(validator, "mario.rossi@gmail.com", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add(validator, "john.doe@gmail.com");
+            attr.add(validator, "mario.rossi@gmail.com");
         } catch (ValidationException e) {
             thrown = e;
         }
         assertNull(thrown);
 
         try {
-            attr.add(validator, "http://www.apache.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+            attr.add(validator, "http://www.apache.org");
         } catch (ValidationException e) {
             thrown = e;
         }
@@ -98,9 +97,8 @@ public class PlainAttrTest extends AbstractTest {
 
         PlainSchema emailSchema = plainSchemaDAO.findById("email").orElseThrow();
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(emailSchema);
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(emailSchema.getKey());
 
         user.add(attr);
 
@@ -124,19 +122,19 @@ public class PlainAttrTest extends AbstractTest {
         assertNotNull(obscureSchema.getSecretKey());
         assertNotNull(obscureSchema.getCipherAlgorithm());
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(obscureSchema);
-        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(obscureSchema.getKey());
+        attr.add(validator, "testvalue");
         user.add(attr);
 
         userDAO.save(user);
 
-        UPlainAttr obscure = user.getPlainAttr("obscure").orElseThrow();
+        PlainAttr obscure = user.getPlainAttr("obscure").orElseThrow();
         assertNotNull(obscure);
         assertEquals(1, obscure.getValues().size());
-        assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
-                encode("testvalue", obscureSchema.getCipherAlgorithm()), obscure.getValues().get(0).getStringValue());
+        assertEquals(encryptorManager.getInstance(obscureSchema.getSecretKey()).
+                encode("testvalue", obscureSchema.getCipherAlgorithm()),
+            obscure.getValues().getFirst().getStringValue());
     }
 
     @Test
@@ -154,12 +152,12 @@ public class PlainAttrTest extends AbstractTest {
 
         System.setProperty("obscureSecretKey", obscureSchema.getSecretKey());
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setSchema(obscureWithKeyAsSysprop);
-        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(obscureWithKeyAsSysprop.getKey());
+        attr.add(validator, "testvalue");
 
-        assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
-                encode("testvalue", obscureSchema.getCipherAlgorithm()), attr.getValues().get(0).getStringValue());
+        assertEquals(encryptorManager.getInstance(obscureSchema.getSecretKey()).
+                encode("testvalue", obscureSchema.getCipherAlgorithm()), attr.getValues().getFirst().getStringValue());
     }
 
     @Test
@@ -173,19 +171,19 @@ public class PlainAttrTest extends AbstractTest {
 
         obscureWithDecodeConversionPattern = plainSchemaDAO.save(obscureWithDecodeConversionPattern);
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setSchema(obscureWithDecodeConversionPattern);
-        attr.add(validator, "testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(obscureWithDecodeConversionPattern.getKey());
+        attr.add(validator, "testvalue");
 
-        assertEquals(Encryptor.getInstance(obscureWithDecodeConversionPattern.getSecretKey()).
+        assertEquals(encryptorManager.getInstance(obscureWithDecodeConversionPattern.getSecretKey()).
                 encode("testvalue", obscureWithDecodeConversionPattern.getCipherAlgorithm()),
-                attr.getValues().get(0).getStringValue());
+                attr.getValues().getFirst().getStringValue());
 
         obscureWithDecodeConversionPattern.setConversionPattern(SyncopeConstants.ENCRYPTED_DECODE_CONVERSION_PATTERN);
         plainSchemaDAO.save(obscureWithDecodeConversionPattern);
 
-        assertNotEquals("testvalue", attr.getValues().get(0).getStringValue());
-        assertEquals("testvalue", attr.getValuesAsStrings().get(0));
+        assertNotEquals("testvalue", attr.getValues().getFirst().getStringValue());
+        assertEquals("testvalue", attr.getValuesAsStrings().getFirst());
     }
 
     @Test
@@ -199,17 +197,16 @@ public class PlainAttrTest extends AbstractTest {
         new Random().nextBytes(bytes);
         String photoB64Value = Base64.getEncoder().encodeToString(bytes);
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(photoSchema);
-        attr.add(validator, photoB64Value, anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(photoSchema.getKey());
+        attr.add(validator, photoB64Value);
         user.add(attr);
 
         userDAO.save(user);
 
-        UPlainAttr photo = user.getPlainAttr("photo").orElseThrow();
+        PlainAttr photo = user.getPlainAttr("photo").orElseThrow();
         assertNotNull(photo);
         assertEquals(1, photo.getValues().size());
-        assertTrue(Arrays.equals(bytes, photo.getValues().get(0).getBinaryValue()));
+        assertTrue(Arrays.equals(bytes, photo.getValues().getFirst().getBinaryValue()));
     }
 }

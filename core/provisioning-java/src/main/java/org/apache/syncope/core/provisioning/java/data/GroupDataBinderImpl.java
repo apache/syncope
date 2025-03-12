@@ -20,21 +20,27 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
+import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -42,22 +48,24 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -86,7 +94,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final EntityFactory entityFactory,
@@ -106,7 +113,6 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -220,6 +226,46 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 },
                 () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType())));
 
+        // relationships
+        Set<Pair<String, String>> relationships = new HashSet<>();
+        groupCR.getRelationships().forEach(relationshipTO -> {
+            AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
+            if (otherEnd == null) {
+                LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
+            } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
+                SyncopeClientException noRight =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                noRight.getElements().add(
+                        "Relationships shall be created or updated only from their left end");
+                scce.addException(noRight);
+            } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
+                SyncopeClientException assigned =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                        + " in relationship " + relationshipTO.getType());
+                scce.addException(assigned);
+            } else if (group.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
+
+                relationshipTypeDAO.findById(relationshipTO.getType()).ifPresentOrElse(
+                        relationshipType -> {
+                            GRelationship relationship = entityFactory.newEntity(GRelationship.class);
+                            relationship.setType(relationshipType);
+                            relationship.setRightEnd(otherEnd);
+                            relationship.setLeftEnd(group);
+
+                            group.add(relationship);
+                        },
+                        () -> LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType()));
+            } else {
+                SyncopeClientException unrelatable =
+                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                        + " cannot be related");
+                scce.addException(unrelatable);
+            }
+        });
+
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
             throw scce;
@@ -235,7 +281,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // Save projection on Resources (before update)
         Map<String, ConnObject> beforeOnResources =
-                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false);
+                onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of());
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
@@ -356,6 +402,64 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         group.getTypeExtensions().
                 removeIf(typeExt -> groupUR.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
 
+        // relationships
+        Set<Pair<String, String>> relationships = new HashSet<>();
+        for (RelationshipUR patch : groupUR.getRelationships().stream().
+                filter(patch -> patch.getRelationshipTO() != null).toList()) {
+
+            RelationshipType relationshipType = relationshipTypeDAO.findById(patch.getRelationshipTO().getType()).
+                    orElse(null);
+            if (relationshipType == null) {
+                LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
+            } else {
+                GRelationship relationship = group.getRelationship(
+                        relationshipType, patch.getRelationshipTO().getOtherEndKey()).orElse(null);
+                if (relationship != null) {
+                    group.getRelationships().remove(relationship);
+                    relationship.setLeftEnd(null);
+                }
+
+                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    AnyObject otherEnd = anyObjectDAO.findById(patch.getRelationshipTO().getOtherEndKey()).orElse(null);
+                    if (otherEnd == null) {
+                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
+                    } else if (relationships.contains(
+                            Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
+
+                        SyncopeClientException assigned =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        assigned.getElements().add("Group was already in relationship "
+                                + patch.getRelationshipTO().getType() + " with "
+                                + otherEnd.getType().getKey() + " " + otherEnd.getName());
+                        scce.addException(assigned);
+                    } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
+                        SyncopeClientException noRight =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        noRight.getElements().add(
+                                "Relationships shall be created or updated only from their left end");
+                        scce.addException(noRight);
+                    } else if (group.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
+                        relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
+
+                        GRelationship newRelationship = entityFactory.newEntity(GRelationship.class);
+                        newRelationship.setType(relationshipType);
+                        newRelationship.setRightEnd(otherEnd);
+                        newRelationship.setLeftEnd(group);
+
+                        group.add(newRelationship);
+                    } else {
+                        LOG.error("{} cannot be related to {}", otherEnd, group);
+
+                        SyncopeClientException unrelatable =
+                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
+                        unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
+                                + " cannot be related");
+                        scce.addException(unrelatable);
+                    }
+                }
+            }
+        }
+
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
             throw scce;
@@ -366,7 +470,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // Build final information for next stage (propagation)
         PropagationByResource<String> propByRes = propByRes(
-                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, false));
+                beforeOnResources, onResources(group, groupDAO.findAllResourceKeys(group.getKey()), null, Set.of()));
         propByRes.merge(ownerPropByRes);
         return propByRes;
     }
@@ -406,7 +510,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(group);
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHandler.getValues(group)
-                : Collections.<VirSchema, List<String>>emptyMap();
+                : Collections.emptyMap();
         fillTO(groupTO,
                 group.getRealm().getFullPath(),
                 group.getAuxClasses(),
@@ -435,6 +539,13 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         group.getTypeExtensions().
                 forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
+        if (details) {
+            // relationships
+            groupTO.getRelationships().addAll(group.getRelationships().stream().map(relationship -> getRelationshipTO(
+                    relationship.getType().getKey(), RelationshipTO.End.LEFT, relationship.getRightEnd())).
+                    toList());
+        }
+
         return groupTO;
     }
 
@@ -445,11 +556,18 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     }
 
     protected static void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<String, PropagationByResource<String>> result) {
+            final Group group,
+            final Groupable<?, ?, ?, ?> any,
+            final Map<String, PropagationByResource<String>> result) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
         group.getResources().forEach(resource -> {
-            if (!any.getResources().contains(resource)) {
+            // exclude from propagation those objects that have that resource assigned by some other membership(s)
+            if (!any.getResources().contains(resource)
+                    && any.getMemberships().stream().
+                            filter(m -> !m.getRightEnd().equals(group)).
+                            noneMatch(m -> m.getRightEnd().getResources().contains(resource))) {
+
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
             }
 

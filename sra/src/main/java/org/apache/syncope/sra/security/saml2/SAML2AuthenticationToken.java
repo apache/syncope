@@ -35,7 +35,7 @@ public class SAML2AuthenticationToken extends AbstractAuthenticationToken {
     public SAML2AuthenticationToken(final SAML2AuthenticationCredentials credentials) {
         super(Optional.ofNullable(credentials.getUserProfile()).
                 map(p -> p.getRoles().stream().map(SimpleGrantedAuthority::new).collect(Collectors.toSet())).
-                orElse(Set.of()));
+            orElseGet(Set::of));
         this.credentials = credentials;
         this.setAuthenticated(true);
     }

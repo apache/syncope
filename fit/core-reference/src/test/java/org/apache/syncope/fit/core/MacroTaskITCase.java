@@ -213,7 +213,7 @@ public class MacroTaskITCase extends AbstractITCase {
         Response response = TASK_SERVICE.create(TaskType.MACRO, task);
         String newTaskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
-        task = TASK_SERVICE.<MacroTaskTO>read(TaskType.MACRO, newTaskKey, false);
+        task = TASK_SERVICE.read(TaskType.MACRO, newTaskKey, false);
         assertEquals(3, task.getCommands().size());
         assertEquals("GroovyCommand", task.getCommands().get(0).getKey());
         assertEquals(TestCommand.class.getSimpleName(), task.getCommands().get(1).getKey());
@@ -228,7 +228,7 @@ public class MacroTaskITCase extends AbstractITCase {
 
         TASK_SERVICE.update(TaskType.MACRO, task);
 
-        task = TASK_SERVICE.<MacroTaskTO>read(TaskType.MACRO, newTaskKey, false);
+        task = TASK_SERVICE.read(TaskType.MACRO, newTaskKey, false);
         assertEquals(4, task.getCommands().size());
         assertEquals("GroovyCommand", task.getCommands().get(0).getKey());
         assertEquals(TestCommand.class.getSimpleName(), task.getCommands().get(1).getKey());

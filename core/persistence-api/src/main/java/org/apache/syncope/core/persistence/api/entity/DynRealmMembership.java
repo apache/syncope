@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface DynRealmMembership extends DynMembership<Any<?>> {
+public interface DynRealmMembership extends DynMembership<Any> {
 
     DynRealm getDynRealm();
 

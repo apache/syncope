@@ -52,7 +52,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
             result = userDAO.findByUsername(id).
                     filter(user -> groupId == null || userDAO.findAllGroupNames(user).contains(groupId)).
                     map(user -> List.of(fromSyncopeUser(user))).
-                    orElse(List.of());
+                orElseGet(List::of);
         } else if (groupId != null) {
             groupDAO.findByName(groupId).map(group -> {
                 List<User> r = new ArrayList<>();
@@ -60,7 +60,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
                         filter(user -> !r.contains(user)).
                         forEach(r::add);
                 return r;
-            }).orElse(List.of());
+            }).orElseGet(List::of);
         }
     }
 

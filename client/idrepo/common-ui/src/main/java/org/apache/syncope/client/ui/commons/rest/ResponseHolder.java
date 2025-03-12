@@ -39,9 +39,9 @@ public class ResponseHolder implements Serializable {
     public ResponseHolder(final Response response) {
         Object entity = response.getEntity();
         if (response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()
-                && (entity instanceof InputStream)) {
+                && (entity instanceof final InputStream stream)) {
 
-            this.inputStream = (InputStream) entity;
+            this.inputStream = stream;
             this.contentType = response.getHeaderString(HttpHeaders.CONTENT_TYPE);
             this.location = response.getLocation() == null ? null : response.getLocation().toASCIIString();
             String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);

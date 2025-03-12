@@ -191,9 +191,9 @@ public class ExceptionMapperITCase extends AbstractITCase {
         }
 
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        assertTrue(ldap.getProvisions().get(0).getMapping().getConnObjectKeyItem().isPresent());
+        assertTrue(ldap.getProvisions().getFirst().getMapping().getConnObjectKeyItem().isPresent());
         try {
-            Item mapping = ldap.getProvisions().get(0).getMapping().getItems().get(0);
+            Item mapping = ldap.getProvisions().getFirst().getMapping().getItems().getFirst();
             mapping.setIntAttrName("memberships.cn");
             RESOURCE_SERVICE.update(ldap);
             fail("This should not happen");
@@ -201,6 +201,6 @@ public class ExceptionMapperITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidMapping, e.getType());
         }
         ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        assertTrue(ldap.getProvisions().get(0).getMapping().getConnObjectKeyItem().isPresent());
+        assertTrue(ldap.getProvisions().getFirst().getMapping().getConnObjectKeyItem().isPresent());
     }
 }

@@ -70,7 +70,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
     }
 
     @Override
-    public Filter getFilter(final Any<?> any, final ExternalResource resource, final Provision provision) {
+    public Filter getFilter(final Any any, final ExternalResource resource, final Provision provision) {
         List<Filter> filters = new ArrayList<>();
 
         provision.getMapping().getItems().stream().filter(
@@ -119,15 +119,15 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
                         List<CompleteCondition> valueConditions = new ArrayList<>();
 
                         attr.getValue().stream().filter(Objects::nonNull).forEach(value -> {
-                            if (value instanceof GuardedString) {
+                            if (value instanceof final GuardedString guardedString) {
                                 valueConditions.add(FIQL_BUILDER.is(attr.getName()).
-                                        equalTo(SecurityUtil.decrypt((GuardedString) value)));
-                            } else if (value instanceof GuardedByteArray) {
+                                        equalTo(SecurityUtil.decrypt(guardedString)));
+                            } else if (value instanceof final GuardedByteArray guardedByteArray) {
                                 valueConditions.add(FIQL_BUILDER.is(attr.getName()).
-                                        equalTo(new String(SecurityUtil.decrypt((GuardedByteArray) value))));
-                            } else if (value instanceof byte[]) {
+                                        equalTo(new String(SecurityUtil.decrypt(guardedByteArray))));
+                            } else if (value instanceof final byte[] bytes) {
                                 valueConditions.add(FIQL_BUILDER.is(attr.getName()).
-                                        equalTo(Base64.getEncoder().encodeToString((byte[]) value)));
+                                        equalTo(Base64.getEncoder().encodeToString(bytes)));
                             } else {
                                 valueConditions.add(FIQL_BUILDER.is(attr.getName()).equalTo(value.toString()));
                             }
@@ -135,7 +135,7 @@ public class DefaultPushCorrelationRule implements PushCorrelationRule {
 
                         if (!valueConditions.isEmpty()) {
                             conditions.add(valueConditions.size() == 1
-                                    ? valueConditions.get(0)
+                                    ? valueConditions.getFirst()
                                     : FIQL_BUILDER.and(valueConditions));
                         }
                     }

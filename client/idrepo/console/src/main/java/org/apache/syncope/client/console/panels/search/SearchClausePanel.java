@@ -22,10 +22,10 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.boot
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Type;
@@ -52,7 +53,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -76,6 +76,9 @@ import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.convert.ConversionException;
+import org.apache.wicket.util.convert.IConverter;
+import org.springframework.util.CollectionUtils;
 
 public class SearchClausePanel extends FieldPanel<SearchClause> {
 
@@ -121,7 +124,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         default void setFieldAccess(
                 FieldPanel<String> value,
                 AjaxTextFieldPanel property,
-                LoadableDetachableModel<List<String>> properties) {
+                LoadableDetachableModel<List<Pair<String, String>>> properties) {
 
             value.setEnabled(true);
             value.setModelObject(StringUtils.EMPTY);
@@ -129,7 +132,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             // reload properties list
             properties.detach();
-            property.setChoices(properties.getObject());
+            property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
         }
     }
 
@@ -153,8 +156,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     protected final IModel<List<String>> roleNames;
 
-    protected final IModel<List<String>> privilegeNames;
-
     protected final IModel<List<String>> auxClassNames;
 
     protected final IModel<List<String>> resourceNames;
@@ -163,7 +164,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     protected final LoadableDetachableModel<List<Comparator>> comparators;
 
-    protected final LoadableDetachableModel<List<String>> properties;
+    protected final LoadableDetachableModel<List<Pair<String, String>>> properties;
 
     protected final Fragment operatorFragment;
 
@@ -187,7 +188,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<Map<String, PlainSchemaTO>> dnames,
             final Pair<IModel<List<String>>, IModel<Long>> groupInfo,
             final IModel<List<String>> roleNames,
-            final IModel<List<String>> privilegeNames,
             final IModel<List<String>> auxClassNames,
             final IModel<List<String>> resourceNames) {
 
@@ -202,7 +202,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         this.dnames = dnames;
         this.groupInfo = groupInfo;
         this.roleNames = roleNames;
-        this.privilegeNames = privilegeNames;
         this.auxClassNames = auxClassNames;
         this.resourceNames = resourceNames;
 
@@ -248,7 +247,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
-                    case PRIVILEGE:
                     case GROUP_MEMBERSHIP:
                     case GROUP_MEMBER:
                     case RESOURCE:
@@ -277,46 +275,57 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<String> load() {
+            protected List<Pair<String, String>> load() {
                 if (field.getModel().getObject() == null || field.getModel().getObject().getType() == null) {
                     return List.of();
                 }
 
                 switch (field.getModel().getObject().getType()) {
                     case ATTRIBUTE:
-                        List<String> names = new ArrayList<>(dnames.getObject().keySet());
-                        if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
-                            names.addAll(anames.getObject().keySet());
+                        Locale locale = SyncopeConsoleSession.get().getLocale();
+                        List<Pair<String, String>> names = dnames.getObject().entrySet().stream().
+                                map(item -> Pair.of(
+                                item.getKey(),
+                                Optional.ofNullable(item.getValue().getLabel(locale)).orElseGet(item::getKey))).
+                                collect(Collectors.toList());
+                        if (anames != null && !CollectionUtils.isEmpty(anames.getObject())) {
+                            names.addAll(anames.getObject().entrySet().stream().
+                                    map(item -> Pair.of(
+                                    item.getKey(),
+                                    Optional.ofNullable(item.getValue().getLabel(locale)).orElseGet(item::getKey))).
+                                toList());
                         }
-                        return names.stream().sorted().collect(Collectors.toList());
+                        return names.stream().
+                                sorted(java.util.Comparator.comparing(name -> name.getValue().toLowerCase())).
+                                collect(Collectors.toList());
 
                     case GROUP_MEMBERSHIP:
-                        return groupInfo.getLeft().getObject();
+                        return groupInfo.getLeft().getObject().stream().
+                                map(item -> Pair.of(item, item)).collect(Collectors.toList());
 
                     case ROLE_MEMBERSHIP:
                         return Optional.ofNullable(roleNames).
-                                map(r -> r.getObject().stream().sorted().collect(Collectors.toList())).
-                                orElse(List.of());
-
-                    case PRIVILEGE:
-                        return Optional.ofNullable(privilegeNames).
-                                map(p -> p.getObject().stream().sorted().collect(Collectors.toList())).
-                                orElse(List.of());
+                                map(r -> r.getObject().stream().sorted().map(item -> Pair.of(item, item)).
+                                collect(Collectors.toList())).
+                            orElseGet(List::of);
 
                     case AUX_CLASS:
-                        return auxClassNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                        return auxClassNames.getObject().stream().sorted().
+                                map(item -> Pair.of(item, item)).collect(Collectors.toList());
 
                     case RESOURCE:
-                        return resourceNames.getObject().stream().
-                                sorted().collect(Collectors.toList());
+                        return resourceNames.getObject().stream().sorted().
+                                map(item -> Pair.of(item, item)).collect(Collectors.toList());
 
                     case RELATIONSHIP:
-                        return relationshipTypeRestClient.list().stream().
-                                map(RelationshipTypeTO::getKey).collect(Collectors.toList());
+                        return relationshipTypeRestClient.list().stream().sorted().
+                                map(item -> Pair.of(item.getKey(), item.getKey())).
+                                collect(Collectors.toList());
 
                     case CUSTOM:
-                        return customizer.properties();
+                        return customizer.properties().stream().
+                                map(item -> Pair.of(item, item)).
+                                collect(Collectors.toList());
 
                     default:
                         return List.of();
@@ -439,10 +448,40 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             operatorContainer.add(searchButtonFragment);
         }
 
-        AjaxTextFieldPanel property = new AjaxTextFieldPanel(
-                "property", "property", new PropertyModel<>(searchClause, "property"), true);
+        AjaxTextFieldPanel property = new AjaxTextFieldPanel("property", "property",
+                new PropertyModel<>(searchClause, "property"), true) {
+
+            private static final long serialVersionUID = -7157802546272668001L;
+
+            @Override
+            protected Optional<IConverter<String>> getConverter() {
+                return Optional.of(new IConverter<String>() {
+
+                    private static final long serialVersionUID = -2754107934642211828L;
+
+                    @Override
+                    public String convertToObject(final String label, final Locale locale) throws ConversionException {
+                        return properties.getObject().stream().
+                                filter(property -> property.getValue().equalsIgnoreCase(label)).
+                                findFirst().
+                                map(Pair::getKey).
+                                orElse(label);
+                    }
+
+                    @Override
+                    public String convertToString(final String key, final Locale locale) {
+                        return properties.getObject().stream().
+                                filter(property -> property.getKey().equalsIgnoreCase(key)).
+                                findFirst().
+                                map(Pair::getValue).
+                                orElse(key);
+                    }
+                });
+            }
+        };
+
         property.hideLabel().setOutputMarkupId(true).setEnabled(true);
-        property.setChoices(properties.getObject());
+        property.setChoices(properties.getObject().stream().map(Pair::getValue).collect(Collectors.toList()));
         field.add(property);
 
         property.getField().add(PREVENT_DEFAULT_RETURN);
@@ -457,7 +496,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     String[] inputAsArray = property.getField().getInputAsArray();
                     if (ArrayUtils.isEmpty(inputAsArray)) {
-                        property.setChoices(properties.getObject());
+                        property.setChoices(properties.getObject().stream().map(Pair::getKey)
+                                .collect(Collectors.toList()));
                     } else if (groupInfo.getRight().getObject() > Constants.MAX_GROUP_LIST_SIZE) {
                         String inputValue = inputAsArray.length > 1 && inputAsArray[1] != null
                                 ? inputAsArray[1]
@@ -621,7 +661,9 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     // reload properties list
                     properties.detach();
-                    property.setChoices(properties.getObject());
+                    property.setChoices(
+                            properties.getObject().stream().
+                                    map(Pair::getValue).collect(Collectors.toList()));
                     break;
 
                 case ROLE_MEMBERSHIP:
@@ -630,16 +672,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     // reload properties list
                     properties.detach();
-                    property.setChoices(properties.getObject());
-                    break;
-
-                case PRIVILEGE:
-                    value.setEnabled(false);
-                    value.setModelObject(StringUtils.EMPTY);
-
-                    // reload properties list
-                    properties.detach();
-                    property.setChoices(properties.getObject());
+                    property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
                     break;
 
                 case GROUP_MEMBERSHIP:
@@ -648,7 +681,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     // reload properties list
                     properties.detach();
-                    property.setChoices(properties.getObject());
+                    property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
                     break;
 
                 case GROUP_MEMBER:
@@ -664,7 +697,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     // reload properties list
                     properties.detach();
-                    property.setChoices(properties.getObject());
+                    property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
                     break;
 
                 case RELATIONSHIP:
@@ -674,7 +707,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     // reload properties list
                     properties.detach();
-                    property.setChoices(properties.getObject());
+                    property.setChoices(properties.getObject().stream().map(Pair::getKey).collect(Collectors.toList()));
                     break;
 
                 case CUSTOM:
@@ -772,7 +805,6 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case AUX_CLASS:
                     case ROLE_MEMBERSHIP:
-                    case PRIVILEGE:
                     case RESOURCE:
                         switch (object) {
                             case EQUALS:
@@ -1040,7 +1072,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
     public FieldPanel<SearchClause> clone() {
         SearchClausePanel panel = new SearchClausePanel(
                 getId(), name, null, required, types, customizer, anames, dnames, groupInfo,
-                roleNames, privilegeNames, auxClassNames, resourceNames);
+                roleNames, auxClassNames, resourceNames);
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         if (searchButton.isEnabled()) {

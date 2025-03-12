@@ -305,7 +305,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
-        Any<?> any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
                 dao().authFind(anyKey)).
                 orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
 
@@ -325,7 +325,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, key);
 
         // 1. find any
-        Any<?> any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
+        Any any = Optional.ofNullable(anyUtilsFactory.getInstance(triple.getLeft().getKind()).
                 dao().authFind(anyKey)).
                 orElseThrow(() -> new NotFoundException(triple.getLeft() + " " + anyKey));
 
@@ -345,12 +345,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (connObjs.size() > 1) {
             LOG.warn("Expected single match, found {}", connObjs);
         } else {
-            virAttrHandler.setValues(any, connObjs.get(0));
+            virAttrHandler.setValues(any, connObjs.getFirst());
         }
 
         return ConnObjectUtils.getConnObjectTO(
-                outboundMatcher.getFIQL(connObjs.get(0), triple.getMiddle(), triple.getRight()),
-                connObjs.get(0).getAttributes());
+                outboundMatcher.getFIQL(connObjs.getFirst(), triple.getMiddle(), triple.getRight()),
+                connObjs.getFirst().getAttributes());
     }
 
     @PreAuthorize("hasRole('" + IdMEntitlement.RESOURCE_GET_CONNOBJECT + "')")

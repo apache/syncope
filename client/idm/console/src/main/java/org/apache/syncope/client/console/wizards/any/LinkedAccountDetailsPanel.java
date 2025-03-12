@@ -34,6 +34,7 @@ import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.ConnObject;
+import org.apache.syncope.common.lib.to.ItemContainer;
 import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -162,7 +163,7 @@ public class LinkedAccountDetailsPanel extends WizardStep {
         try {
             resourceRestClient.read(resource).getProvision(AnyTypeKind.USER.name()).
                     flatMap(provision -> Optional.ofNullable(provision.getMapping())).
-                    flatMap(mapping -> mapping.getConnObjectKeyItem()).
+                    flatMap(ItemContainer::getConnObjectKeyItem).
                     ifPresent(connObjectKeyItem -> resourceRemoteKey.set(connObjectKeyItem.getExtAttrName()));
         } catch (Exception ex) {
             LOG.error("While reading mapping for resource {}", resource, ex);
@@ -180,7 +181,8 @@ public class LinkedAccountDetailsPanel extends WizardStep {
                 new SortParam<>(resourceRemoteKey.get(), true));
 
         connObjectKeyFieldValues = items.getRight().stream().
-                map(item -> item.getAttr(resourceRemoteKey.get()).map(attr -> attr.getValues().get(0)).orElse(null)).
+                map(item -> item.getAttr(resourceRemoteKey.get()).
+                    map(attr -> attr.getValues().getFirst()).orElse(null)).
                 filter(Objects::nonNull).
                 collect(Collectors.toList());
         ajaxTextFieldPanel.setChoices(connObjectKeyFieldValues);

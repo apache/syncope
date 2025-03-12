@@ -27,8 +27,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -69,8 +67,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     private final List<String> roles = new ArrayList<>();
 
     private final List<String> dynRoles = new ArrayList<>();
-
-    private final Set<String> privileges = new TreeSet<>();
 
     private final List<LinkedAccountTO> linkedAccounts = new ArrayList<>();
 
@@ -233,12 +229,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         return dynRoles;
     }
 
-    @JacksonXmlElementWrapper(localName = "privileges")
-    @JacksonXmlProperty(localName = "privilege")
-    public Set<String> getPrivileges() {
-        return privileges;
-    }
-
     @JacksonXmlElementWrapper(localName = "linkedAccounts")
     @JacksonXmlProperty(localName = "linkedAccount")
     public List<LinkedAccountTO> getLinkedAccounts() {
@@ -266,7 +256,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(username).
                 append(roles).
                 append(dynRoles).
-                append(privileges).
                 append(token).
                 append(tokenExpireTime).
                 append(lastLoginDate).
@@ -302,7 +291,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(username, other.username).
                 append(roles, other.roles).
                 append(dynRoles, other.dynRoles).
-                append(privileges, other.privileges).
                 append(token, other.token).
                 append(tokenExpireTime, other.tokenExpireTime).
                 append(lastLoginDate, other.lastLoginDate).

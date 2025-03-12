@@ -217,14 +217,14 @@ public final class JexlUtils {
             }
         });
 
-        if (object instanceof Any && ((Any<?>) object).getRealm() != null) {
-            jexlContext.set("realm", ((Any<?>) object).getRealm().getFullPath());
-        } else if (object instanceof AnyTO && ((AnyTO) object).getRealm() != null) {
-            jexlContext.set("realm", ((AnyTO) object).getRealm());
-        } else if (object instanceof Realm) {
-            jexlContext.set("fullPath", ((Realm) object).getFullPath());
-        } else if (object instanceof RealmTO) {
-            jexlContext.set("fullPath", ((RealmTO) object).getFullPath());
+        if (object instanceof final Any any && any.getRealm() != null) {
+            jexlContext.set("realm", any.getRealm().getFullPath());
+        } else if (object instanceof final AnyTO anyTO && anyTO.getRealm() != null) {
+            jexlContext.set("realm", anyTO.getRealm());
+        } else if (object instanceof Realm realm) {
+            jexlContext.set("fullPath", realm.getFullPath());
+        } else if (object instanceof RealmTO realmTO) {
+            jexlContext.set("fullPath", realmTO.getFullPath());
         }
     }
 
@@ -235,7 +235,7 @@ public final class JexlUtils {
                 value = StringUtils.EMPTY;
             } else {
                 value = attr.getValues().size() == 1
-                        ? attr.getValues().get(0)
+                        ? attr.getValues().getFirst()
                         : attr.getValues();
             }
 
@@ -245,9 +245,7 @@ public final class JexlUtils {
         });
     }
 
-    public static void addPlainAttrsToContext(
-            final Collection<? extends PlainAttr<?>> attrs, final JexlContext jexlContext) {
-
+    public static void addPlainAttrsToContext(final Collection<PlainAttr> attrs, final JexlContext jexlContext) {
         attrs.stream().filter(attr -> attr.getSchema() != null).forEach(attr -> {
             List<String> attrValues = attr.getValuesAsStrings();
             Object value;
@@ -255,18 +253,18 @@ public final class JexlUtils {
                 value = StringUtils.EMPTY;
             } else {
                 value = attrValues.size() == 1
-                        ? attrValues.get(0)
+                        ? attrValues.getFirst()
                         : attrValues;
             }
 
-            LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), value);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema(), value);
 
-            jexlContext.set(attr.getSchema().getKey(), value);
+            jexlContext.set(attr.getSchema(), value);
         });
     }
 
     public static void addDerAttrsToContext(
-            final Any<?> any,
+            final Any any,
             final DerAttrHandler derAttrHandler,
             final JexlContext jexlContext) {
 
@@ -277,7 +275,7 @@ public final class JexlUtils {
 
     public static boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
-            final Any<?> any,
+            final Any any,
             final DerAttrHandler derAttrHandler) {
 
         JexlContext jexlContext = new MapContext();

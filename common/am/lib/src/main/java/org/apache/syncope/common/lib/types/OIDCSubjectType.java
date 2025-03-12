@@ -19,7 +19,16 @@
 package org.apache.syncope.common.lib.types;
 
 public enum OIDCSubjectType {
-    PAIRWISE,
-    PUBLIC
+    PUBLIC("public"),
+    PAIRWISE("pairwise");
 
+    private final String externalForm;
+
+    OIDCSubjectType(final String external) {
+        this.externalForm = external;
+    }
+
+    public String getExternalForm() {
+        return externalForm;
+    }
 }

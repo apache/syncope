@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -264,7 +263,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     @Override
-    protected <T extends Any<?>> List<T> doSearch(
+    protected <T extends Any> List<T> doSearch(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,
@@ -300,74 +299,65 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         switch (cond.getType()) {
             case LEAF:
             case NOT_LEAF:
-                query = cond.getLeaf(AnyTypeCond.class).
+                query = cond.asLeaf(AnyTypeCond.class).
                         filter(leaf -> AnyTypeKind.ANY_OBJECT == kind).
                         map(this::getQuery).
                         orElse(null);
 
                 if (query == null) {
-                    query = cond.getLeaf(RelationshipTypeCond.class).
+                    query = cond.asLeaf(RelationshipTypeCond.class).
+                            map(this::getQuery).
+                            orElse(null);
+                }
+
+                if (query == null) {
+                    query = cond.asLeaf(RelationshipCond.class).
+                            map(this::getQuery).
+                            orElse(null);
+                }
+
+                if (query == null) {
+                    query = cond.asLeaf(MembershipCond.class).
                             filter(leaf -> AnyTypeKind.GROUP != kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(RelationshipCond.class).
-                            filter(leaf -> AnyTypeKind.GROUP != kind).
-                            map(this::getQuery).
-                            orElse(null);
-                }
-
-                if (query == null) {
-                    query = cond.getLeaf(MembershipCond.class).
-                            filter(leaf -> AnyTypeKind.GROUP != kind).
-                            map(this::getQuery).
-                            orElse(null);
-                }
-
-                if (query == null) {
-                    query = cond.getLeaf(MemberCond.class).
+                    query = cond.asLeaf(MemberCond.class).
                             filter(leaf -> AnyTypeKind.GROUP == kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(RoleCond.class).
+                    query = cond.asLeaf(RoleCond.class).
                             filter(leaf -> AnyTypeKind.USER == kind).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(PrivilegeCond.class).
-                            filter(leaf -> AnyTypeKind.USER == kind).
+                    query = cond.asLeaf(DynRealmCond.class).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(DynRealmCond.class).
+                    query = cond.asLeaf(AuxClassCond.class).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(AuxClassCond.class).
+                    query = cond.asLeaf(ResourceCond.class).
                             map(this::getQuery).
                             orElse(null);
                 }
 
                 if (query == null) {
-                    query = cond.getLeaf(ResourceCond.class).
-                            map(this::getQuery).
-                            orElse(null);
-                }
-
-                if (query == null) {
-                    query = cond.getLeaf(AnyCond.class).map(ac -> getQuery(ac, kind)).
-                            or(() -> cond.getLeaf(AttrCond.class).map(ac -> getQuery(ac, kind))).
+                    query = cond.asLeaf(AnyCond.class).map(ac -> getQuery(ac, kind)).
+                            or(() -> cond.asLeaf(AttrCond.class).map(this::getQuery)).
                             orElse(null);
                 }
 
@@ -450,7 +440,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 build()).toList();
 
         return queries.size() == 1
-                ? queries.get(0)
+                ? queries.getFirst()
                 : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
@@ -461,19 +451,13 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 build()).toList();
 
         return queries.size() == 1
-                ? queries.get(0)
+                ? queries.getFirst()
                 : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
     protected Query getQuery(final RoleCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
                 field("roles").value(FieldValue.of(cond.getRole())).build()).
-                build();
-    }
-
-    protected Query getQuery(final PrivilegeCond cond) {
-        return new Query.Builder().term(QueryBuilders.term().
-                field("privileges").value(FieldValue.of(cond.getPrivilege())).build()).
                 build();
     }
 
@@ -490,7 +474,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 build()).toList();
 
         return queries.size() == 1
-                ? queries.get(0)
+                ? queries.getFirst()
                 : new Query.Builder().disMax(QueryBuilders.disMax().queries(queries).build()).build();
     }
 
@@ -604,8 +588,8 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         return query;
     }
 
-    protected Query getQuery(final AttrCond cond, final AnyTypeKind kind) {
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, kind);
+    protected Query getQuery(final AttrCond cond) {
+        Pair<PlainSchema, PlainAttrValue> checked = check(cond);
 
         return fillAttrQuery(checked.getLeft(), checked.getRight(), cond);
     }

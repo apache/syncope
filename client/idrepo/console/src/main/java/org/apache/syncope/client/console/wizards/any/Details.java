@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.commons.RealmsUtils;
@@ -98,9 +97,9 @@ public class Details<T extends AnyTO> extends WizardStep {
                             : (fullRealmsTree
                                     ? realmRestClient.search(RealmsUtils.buildRootQuery())
                                     : realmRestClient.search(RealmsUtils.buildKeywordQuery(input))).getResult()).
-                            stream().filter(realm -> authRealms.stream().anyMatch(
-                            authRealm -> realm.getFullPath().startsWith(authRealm))).
-                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                            stream().map(RealmTO::getFullPath).
+                        filter(fullPath -> authRealms.stream().anyMatch(
+                        authRealm -> fullPath.startsWith(authRealm))).iterator();
                 }
             };
 

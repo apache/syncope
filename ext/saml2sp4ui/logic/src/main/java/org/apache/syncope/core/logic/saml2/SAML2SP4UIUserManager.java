@@ -180,7 +180,7 @@ public class SAML2SP4UIUserManager {
                 switch (intAttrName.getField()) {
                     case "username" -> {
                         if (!values.isEmpty()) {
-                            userTO.setUsername(values.get(0));
+                            userTO.setUsername(values.getFirst());
                         }
                     }
 
@@ -260,12 +260,16 @@ public class SAML2SP4UIUserManager {
             userUR = action.beforeUpdate(userUR, loginResponse);
         }
 
-        Pair<UserUR, List<PropagationStatus>> updated =
-                provisioningManager.update(userUR, false, userTO.getUsername(), SAML2SP_CONTEXT);
-        userTO = binder.getUserTO(updated.getLeft().getKey());
+        if (userUR.isEmpty()) {
+            LOG.debug("No actual changes to apply for {}, ignoring", userTO.getUsername());
+        } else {
+            Pair<UserUR, List<PropagationStatus>> updated =
+                    provisioningManager.update(userUR, false, userTO.getUsername(), SAML2SP_CONTEXT);
+            userTO = binder.getUserTO(updated.getLeft().getKey());
 
-        for (SAML2SP4UIIdPActions action : actions) {
-            userTO = action.afterUpdate(userTO, loginResponse);
+            for (SAML2SP4UIIdPActions action : actions) {
+                userTO = action.afterUpdate(userTO, loginResponse);
+            }
         }
 
         return userTO.getUsername();

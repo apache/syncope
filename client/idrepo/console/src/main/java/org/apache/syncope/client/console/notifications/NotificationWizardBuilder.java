@@ -303,7 +303,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
 
                 @Override
                 protected Pair<String, List<SearchClause>> newModelObject() {
-                    return Pair.<String, List<SearchClause>>of(AnyTypeKind.USER.name(), new ArrayList<>());
+                    return Pair.of(AnyTypeKind.USER.name(), new ArrayList<>());
                 }
 
                 @Override
@@ -368,8 +368,7 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                     + "<code>users[userName].attribute</code>, "
                     + "<code>anyObjects[anyObjectName].attribute</code>, "
                     + "<code>relationships[relationshipType][anyType].attribute</code> or "
-                    + "<code>memberships[groupName].attribute</code> or "
-                    + "<code>privileges[applicationKey]</code>", true);
+                    + "<code>memberships[groupName].attribute</code>", true);
             add(recipientAttrName);
 
             AjaxTextFieldPanel staticRecipientsFieldPanel =
@@ -413,11 +412,11 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
         result.add(Constants.USERNAME_FIELD_NAME);
 
         result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeClasses).
-                stream().map(PlainSchemaTO::getKey).collect(Collectors.toList()));
+                stream().map(PlainSchemaTO::getKey).toList());
         result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
-                stream().map(DerSchemaTO::getKey).collect(Collectors.toList()));
+                stream().map(DerSchemaTO::getKey).toList());
         result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
-                stream().map(VirSchemaTO::getKey).collect(Collectors.toList()));
+                stream().map(VirSchemaTO::getKey).toList());
 
         Collections.sort(result);
         return result;

@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
-public interface DynGroupMembership<A extends Any<?>> extends DynMembership<A> {
+public interface DynGroupMembership<A extends Any> extends DynMembership<A> {
 
     Group getGroup();
 

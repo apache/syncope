@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.policy.AccountPolicyException;
 import org.apache.syncope.core.spring.policy.PasswordPolicyException;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -75,6 +75,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
 
     protected final RuleProvider ruleProvider;
 
+    protected final EncryptorManager encryptorManager;
+
     public AbstractUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
@@ -83,7 +85,8 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
             final RuleProvider ruleEnforcer,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final EncryptorManager encryptorManager) {
 
         super(groupDAO, entityFactory, publisher);
 
@@ -92,6 +95,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         this.realmDAO = realmDAO;
         this.securityProperties = securityProperties;
         this.ruleProvider = ruleEnforcer;
+        this.encryptorManager = encryptorManager;
     }
 
     @Override
@@ -133,7 +137,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
                         matching = pwdHistory.subList(policy.getHistoryLength() >= pwdHistory.size()
                                 ? 0
                                 : pwdHistory.size() - policy.getHistoryLength(), pwdHistory.size()).stream().
-                                map(old -> Encryptor.getInstance().verify(
+                                map(old -> encryptorManager.getInstance().verify(
                                 clearPassword, user.getCipherAlgorithm(), old)).
                                 reduce(matching, (accumulator, item) -> accumulator | item);
                     }
@@ -249,7 +253,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         user = userDAO.save(user);
 
         // finally publish events for all groups affected by this operation, via membership
-        user.getMemberships().stream().forEach(m -> publisher.publishEvent(
+        user.getMemberships().forEach(m -> publisher.publishEvent(
                 new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, m.getRightEnd(), AuthContextUtils.getDomain())));
 
         return result;
@@ -303,7 +307,7 @@ public abstract class AbstractUserWorkflowAdapter extends AbstractWorkflowAdapte
         enforcePolicies(
                 user,
                 userUR.getPassword() == null && userUR.getLinkedAccounts().stream()
-                        .allMatch(linkedAccountUR -> linkedAccountUR.getLinkedAccountTO().getPassword() == null),
+                .allMatch(linkedAccountUR -> linkedAccountUR.getLinkedAccountTO().getPassword() == null),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null));
         user = userDAO.save(user);
 

@@ -100,7 +100,7 @@ public class TypeExtensionWizardBuilder extends BaseAjaxWizardBuilder<TypeExtens
                 List<String> anyTypes = anyTypeRestClient.list();
                 anyTypes.remove(AnyTypeKind.GROUP.name());
                 anyTypes.removeAll(anyTypes.stream().
-                        filter(anyType -> groupTO.getTypeExtension(anyType).isPresent()).collect(Collectors.toList()));
+                        filter(anyType -> groupTO.getTypeExtension(anyType).isPresent()).toList());
 
                 AjaxDropDownChoicePanel<String> anyTypeComponent = new AjaxDropDownChoicePanel<>(
                         "anyType.component", "anyType", new PropertyModel<>(typeExtensionTO, "anyType"));

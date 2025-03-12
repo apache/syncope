@@ -51,6 +51,7 @@ import org.apache.syncope.common.lib.types.MatchType;
 import org.apache.syncope.common.rest.api.beans.AbstractCSVSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.common.rest.api.beans.CSVPushSpec;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -94,7 +95,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPullJobDe
 import org.apache.syncope.core.provisioning.java.pushpull.stream.StreamPushJobDelegate;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -211,7 +211,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected ConnObject getOnSyncope(
-            final Any<?> any,
+            final Any any,
             final Item connObjectKeyItem,
             final ExternalResource resource,
             final Provision provision) {
@@ -221,7 +221,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         return getOnSyncope(
                 connObjectKeyItem,
                 prepared.getLeft(),
-                any instanceof User ? ((User) any).isSuspended() : null,
+                any instanceof final User user ? user.isSuspended() : null,
                 prepared.getRight());
     }
 
@@ -239,15 +239,15 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 attrs);
     }
 
-    protected Any<?> getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
+    protected Any getAny(final Provision provision, final AnyTypeKind anyTypeKind, final String anyKey) {
         AnyDAO<?> dao = anyUtilsFactory.getInstance(anyTypeKind).dao();
 
         String actualKey = anyKey;
         if (!SyncopeConstants.UUID_PATTERN.matcher(anyKey).matches()) {
-            actualKey = (dao instanceof UserDAO
-                    ? ((UserDAO) dao).findKey(anyKey)
-                    : dao instanceof GroupDAO
-                            ? ((GroupDAO) dao).findKey(anyKey)
+            actualKey = (dao instanceof final UserDAO userDAO
+                    ? userDAO.findKey(anyKey)
+                    : dao instanceof final GroupDAO groupDAO
+                            ? groupDAO.findKey(anyKey)
                             : ((AnyObjectDAO) dao).findKey(provision.getAnyType(), anyKey)).
                     orElse(null);
         }
@@ -270,7 +270,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 "ConnObjectKey for " + triple.getLeft().getKey()
                 + " on resource '" + triple.getMiddle().getKey() + "'"));
 
-        Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
+        Any any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
 
         ReconStatus status = new ReconStatus();
         status.setMatchType(MatchType.ANY);
@@ -287,13 +287,13 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 Optional.of(moreAttrsToGet.toArray(String[]::new)));
         if (!connObjs.isEmpty()) {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
-                    outboundMatcher.getFIQL(connObjs.get(0), triple.getMiddle(), triple.getRight()),
-                    connObjs.get(0).getAttributes()));
+                    outboundMatcher.getFIQL(connObjs.getFirst(), triple.getMiddle(), triple.getRight()),
+                    connObjs.getFirst().getAttributes()));
 
             if (connObjs.size() > 1) {
                 LOG.warn("Expected single match, found {}", connObjs);
             } else {
-                virAttrHandler.setValues(any, connObjs.get(0));
+                virAttrHandler.setValues(any, connObjs.getFirst());
             }
         }
 
@@ -412,8 +412,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     getAny(triple.getRight(), triple.getLeft().getKind(), anyKey),
                     pushTask,
                     AuthContextUtils.getWho()));
-            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-                sce.getElements().add(results.get(0).getMessage());
+            if (!results.isEmpty() && results.getFirst().getStatus() == ProvisioningReport.Status.FAILURE) {
+                sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
             sce.getElements().add(e.getMessage());
@@ -457,9 +457,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                                         pushTask,
                                         AuthContextUtils.getWho()));
                                 if (!results.isEmpty()
-                                        && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
+                                        && results.getFirst().getStatus() == ProvisioningReport.Status.FAILURE) {
 
-                                    sce.getElements().add(results.get(0).getMessage());
+                                    sce.getElements().add(results.getFirst().getMessage());
                                 }
                             } else {
                                 ProvisioningReport result = singlePushExecutor().push(
@@ -514,8 +514,8 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     moreAttrsToGet,
                     pullTask,
                     AuthContextUtils.getWho()));
-            if (!results.isEmpty() && results.get(0).getStatus() == ProvisioningReport.Status.FAILURE) {
-                sce.getElements().add(results.get(0).getMessage());
+            if (!results.isEmpty() && results.getFirst().getStatus() == ProvisioningReport.Status.FAILURE) {
+                sce.getElements().add(results.getFirst().getMessage());
             }
         } catch (JobExecutionException e) {
             sce.getElements().add(e.getMessage());
@@ -544,7 +544,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                     "ConnObjectKey cannot be determined for mapping " + anyTypeKey);
         }
 
-        Any<?> any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
+        Any any = getAny(triple.getRight(), triple.getLeft().getKind(), anyKey);
 
         String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, triple.getMiddle(), triple.getRight()).
                 orElseThrow(() -> new NotFoundException(
@@ -628,7 +628,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         Set<String> adminRealms = RealmUtils.getEffective(AuthContextUtils.getAuthorizations().get(entitlement), realm);
         SearchCond effectiveCond = searchCond == null ? anyUtils.dao().getAllMatchingCond() : searchCond;
 
-        List<Any<?>> matching;
+        List<Any> matching;
         if (spec.getIgnorePaging()) {
             matching = new ArrayList<>();
 

@@ -20,29 +20,60 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
 
 public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
+    protected static final String HAS_ATTRS_QUERY = "SELECT id FROM %TABLE%, %JSON_TABLE% ";
+
+    protected final PlainSchemaDAO plainSchemaDAO;
+
     public OraclePlainSchemaRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final ExternalResourceDAO resourceDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager) {
 
         super(anyUtilsFactory, resourceDAO, entityManager);
+        this.plainSchemaDAO = plainSchemaDAO;
     }
 
     @Override
-    public <T extends PlainAttr<?>> boolean hasAttrs(final PlainSchema schema, final Class<T> reference) {
+    public boolean hasAttrs(final PlainSchema schema) {
+        Query query = entityManager.createNativeQuery("SELECT COUNT(id) FROM ( "
+                + TABLES.stream().
+                        map(t -> HAS_ATTRS_QUERY.replace("%TABLE%", t).
+                        replace("%JSON_TABLE%", OracleJPAAnySearchDAO.from(schema))).
+                        collect(Collectors.joining(" UNION "))
+                + ")");
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final AnyUtils anyUtils,
+            final String anyKey,
+            final PlainSchema schema,
+            final PlainAttrValue attrValue) {
+
         Query query = entityManager.createNativeQuery(
                 "SELECT COUNT(id) FROM "
-                + new SearchSupport(getAnyTypeKind(reference)).field().name()
-                + " WHERE plainSchema = ?");
-        query.setParameter(1, schema.getKey());
+                + new SearchSupport(anyUtils.anyTypeKind()).table().name() + ","
+                + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(schema.getKey()).
+                        orElseThrow(() -> new NotFoundException("PlainSchema " + schema.getKey())))
+                + " WHERE " + schema.getKey() + ".uniqueValue=?1 AND id <> ?2");
+        query.setParameter(1, attrValue.getValue());
+        query.setParameter(2, anyKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }

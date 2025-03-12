@@ -66,7 +66,7 @@ public class ZookeeperDomainOpsITCase {
 
         List<Domain> list = domainOps.list();
         assertNotNull(list);
-        assertEquals(domain, list.get(0));
+        assertEquals(domain, list.getFirst());
 
         try {
             domainOps.create(new JPADomain.Builder(domain.getKey()).build());

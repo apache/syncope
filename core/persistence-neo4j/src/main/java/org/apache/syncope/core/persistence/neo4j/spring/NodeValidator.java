@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DynMembership;
 import org.apache.syncope.core.persistence.api.entity.Entity;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.policy.Policy;
@@ -56,7 +56,7 @@ public class NodeValidator {
                         && !Schema.class.equals(interf)
                         && !Task.class.equals(interf)
                         && !Policy.class.equals(interf)
-                        && !GroupableRelatable.class.equals(interf)
+                        && !Groupable.class.equals(interf)
                         && !Any.class.equals(interf)
                         && !DynMembership.class.equals(interf)
                         && Entity.class.isAssignableFrom(interf)) {

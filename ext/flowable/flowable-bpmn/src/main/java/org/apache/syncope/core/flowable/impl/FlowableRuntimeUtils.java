@@ -134,7 +134,7 @@ public final class FlowableRuntimeUtils {
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.warn("While setting user status: unexpected task number ({})", tasks.size());
         } else {
-            user.setStatus(tasks.get(0).getTaskDefinitionKey());
+            user.setStatus(tasks.getFirst().getTaskDefinitionKey());
         }
     }
 
@@ -146,7 +146,7 @@ public final class FlowableRuntimeUtils {
         if (tasks.isEmpty() || tasks.size() > 1) {
             LOG.debug("While checking if form task: unexpected task number ({})", tasks.size());
         } else {
-            result = tasks.get(0).getFormKey();
+            result = tasks.getFirst().getFormKey();
         }
 
         return result;

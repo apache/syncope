@@ -28,6 +28,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.SyncopeCoreLoader;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
@@ -49,7 +50,6 @@ import org.apache.syncope.core.provisioning.java.job.notification.NotificationJo
 import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.slf4j.Logger;
@@ -251,11 +251,11 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     public void load(final String domain) {
         AuthContextUtils.runAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
-            Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PUSH));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.MACRO));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.LIVE_SYNC));
+            Set<SchedTask> tasks = new HashSet<>(taskDAO.findAll(TaskType.SCHEDULED));
+            tasks.addAll(taskDAO.findAll(TaskType.PULL));
+            tasks.addAll(taskDAO.findAll(TaskType.PUSH));
+            tasks.addAll(taskDAO.findAll(TaskType.MACRO));
+            tasks.addAll(taskDAO.findAll(TaskType.LIVE_SYNC));
 
             boolean loadException = false;
             for (Iterator<SchedTask> it = tasks.iterator(); it.hasNext() && !loadException;) {
@@ -356,11 +356,11 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     public void unload(final String domain) {
         AuthContextUtils.runAsAdmin(domain, () -> {
             // 1. jobs for SchedTasks
-            Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PULL));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.PUSH));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.MACRO));
-            tasks.addAll(taskDAO.<SchedTask>findAll(TaskType.LIVE_SYNC));
+            Set<SchedTask> tasks = new HashSet<>(taskDAO.findAll(TaskType.SCHEDULED));
+            tasks.addAll(taskDAO.findAll(TaskType.PULL));
+            tasks.addAll(taskDAO.findAll(TaskType.PUSH));
+            tasks.addAll(taskDAO.findAll(TaskType.MACRO));
+            tasks.addAll(taskDAO.findAll(TaskType.LIVE_SYNC));
 
             tasks.forEach(task -> {
                 LOG.debug("Unloading job for {} Task {} {}",

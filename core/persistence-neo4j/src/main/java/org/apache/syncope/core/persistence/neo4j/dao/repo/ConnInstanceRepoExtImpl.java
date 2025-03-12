@@ -59,7 +59,7 @@ public class ConnInstanceRepoExtImpl implements ConnInstanceRepoExt {
 
         Set<String> authRealms = AuthContextUtils.getAuthorizations().get(IdMEntitlement.CONNECTOR_READ);
         if (authRealms == null || authRealms.isEmpty()
-                || !authRealms.stream().anyMatch(
+                || authRealms.stream().noneMatch(
                         realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))) {
 
             throw new DelegatedAdministrationException(

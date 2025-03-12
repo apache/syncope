@@ -69,7 +69,7 @@ public class SyncTokenSerializerTest extends AbstractTest {
         verify(jgen).writeStringField("type", "Integer");
         verify(jgen).writeNumberField("value", intNum);
 
-        byte[] bytes = new byte[] { 9, 0, 0, 1 };
+        byte[] bytes = { 9, 0, 0, 1 };
         source = new SyncToken(bytes);
         serializer.serialize(source, jgen, sp);
         verify(jgen).writeStringField("value", Base64.getEncoder().encodeToString(bytes));

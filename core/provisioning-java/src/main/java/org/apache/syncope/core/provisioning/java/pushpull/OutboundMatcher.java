@@ -132,7 +132,7 @@ public class OutboundMatcher {
 
         boolean isLinkedAccount = taskInfo.getAnyTypeKind() == AnyTypeKind.USER
                 && userDAO.linkedAccountExists(taskInfo.getEntityKey(), connObjectKeyValue);
-        Any<?> any = null;
+        Any any = null;
         if (!isLinkedAccount) {
             any = anyUtilsFactory.getInstance(taskInfo.getAnyTypeKind()).dao().findById(taskInfo.getEntityKey()).
                     orElse(null);
@@ -166,7 +166,7 @@ public class OutboundMatcher {
         }
 
         if (any != null && result.size() == 1) {
-            virAttrHandler.setValues(any, result.get(0));
+            virAttrHandler.setValues(any, result.getFirst());
         }
 
         return result;
@@ -192,7 +192,7 @@ public class OutboundMatcher {
     @Transactional(readOnly = true)
     public List<ConnectorObject> match(
             final Connector connector,
-            final Any<?> any,
+            final Any any,
             final ExternalResource resource,
             final Provision provision,
             final Optional<String[]> moreAttrsToGet,
@@ -239,7 +239,7 @@ public class OutboundMatcher {
         }
 
         if (any != null && result.size() == 1) {
-            virAttrHandler.setValues(any, result.get(0));
+            virAttrHandler.setValues(any, result.getFirst());
         }
 
         return result;

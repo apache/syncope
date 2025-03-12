@@ -65,6 +65,7 @@ import org.apache.cxf.helpers.IOUtils;
 import org.apache.openjpa.lib.util.collections.BidiMap;
 import org.apache.openjpa.lib.util.collections.DualHashBidiMap;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
@@ -74,7 +75,6 @@ import org.apache.syncope.core.persistence.common.content.MultiParentNodeOp;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAuditEvent;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
@@ -92,7 +92,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
-                allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
+            noneMatch(prefix -> tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
     protected static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
@@ -171,14 +171,14 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
     protected static Map<String, Pair<String, String>> relationTables(final BidiMap<String, EntityType<?>> entities) {
         Map<String, Pair<String, String>> relationTables = new HashMap<>();
 
-        entities.values().stream().forEach(e -> e.getAttributes().stream().
+        entities.values().forEach(e -> e.getAttributes().stream().
                 filter(a -> a.getPersistentAttributeType() != Attribute.PersistentAttributeType.BASIC).
                 forEach(a -> {
                     Field field = (Field) a.getJavaMember();
 
                     String attrName = Optional.ofNullable(field.getAnnotation(Column.class)).
                             map(Column::name).
-                            orElse(a.getName());
+                        orElseGet(a::getName);
 
                     Optional.ofNullable(field.getAnnotation(CollectionTable.class)).
                             ifPresent(collectionTable -> relationTables.put(
@@ -241,9 +241,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
                         pkNode.addChild(node);
 
-                        if (roots.contains(node)) {
-                            roots.remove(node);
-                        }
+                        roots.remove(node);
                     });
         }
 

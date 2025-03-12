@@ -40,6 +40,7 @@ import org.apache.syncope.core.flowable.task.PasswordReset;
 import org.apache.syncope.core.flowable.task.Reactivate;
 import org.apache.syncope.core.flowable.task.Suspend;
 import org.apache.syncope.core.flowable.task.Update;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -180,7 +181,8 @@ public class FlowableWorkflowContext {
             final RuleProvider ruleProvider,
             final DomainProcessEngine engine,
             final UserRequestHandler userRequestHandler,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final EncryptorManager encryptorManager) {
 
         return new FlowableUserWorkflowAdapter(
                 userDataBinder,
@@ -192,7 +194,8 @@ public class FlowableWorkflowContext {
                 ruleProvider,
                 engine,
                 userRequestHandler,
-                publisher);
+                publisher,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean

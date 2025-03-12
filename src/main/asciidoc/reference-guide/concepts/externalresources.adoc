@@ -135,8 +135,6 @@ name `anyObjectName`, if a relationship with the mapped entity exists
 owned by the any object of type `relationshipAnyType`, if a relationship of type `relationshipType` with the mapped entity exists
 ** `memberships[groupName].schema` - resolves to the attribute for the given `schema`, owned by the membership for group
 `groupName` of the mapped entity (user, any object), if such a membership exists
-** `privileges[applicationKey]` - resolves to the list of <<privileges,privileges>> related to the given application,
-owned by the mapped entity (which can only be user, in this case)
 * external attribute - the name of the attribute on the Identity Store
 * transformers - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression or Java class implementing
 ifeval::["{snapshotOrRelease}" == "release"]

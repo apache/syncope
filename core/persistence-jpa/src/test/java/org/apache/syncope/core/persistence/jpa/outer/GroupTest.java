@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -44,16 +43,17 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.dao.repo.GroupRepoExt;
@@ -96,6 +96,9 @@ public class GroupTest extends AbstractTest {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
+    private RelationshipTypeDAO relationshipTypeDAO;
+
+    @Autowired
     private PlainAttrValidationManager validator;
 
     @Test
@@ -119,7 +122,7 @@ public class GroupTest extends AbstractTest {
 
         assertEquals(
                 memberships.stream().map(m -> m.getLeftEnd().getKey()).collect(Collectors.toSet()),
-                groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806").stream().collect(Collectors.toSet()));
+            new HashSet<>(groupDAO.findUMembers("37d15e4c-cdc1-460b-a591-8505c8133806")));
 
         assertTrue(groupDAO.existsUMembership(
                 "74cd8ece-715a-44a4-a736-e17b46c4e7e6", "37d15e4c-cdc1-460b-a591-8505c8133806"));
@@ -253,10 +256,9 @@ public class GroupTest extends AbstractTest {
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.findById("cool").orElseThrow());
-        attr.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("cool");
+        attr.add(validator, "true");
         user.add(attr);
 
         user = userDAO.save(user);
@@ -303,7 +305,7 @@ public class GroupTest extends AbstractTest {
         actual = groupDAO.findById(actual.getKey()).orElseThrow();
         members = groupDAO.findUDynMembers(actual);
         assertEquals(1, members.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.getFirst());
 
         // 5. delete group and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getUDynMembership().getKey();
@@ -345,10 +347,9 @@ public class GroupTest extends AbstractTest {
         anyObject.setType(anyTypeDAO.findById("PRINTER").orElseThrow());
         anyObject.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
 
-        APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
-        attr.setOwner(anyObject);
-        attr.setSchema(plainSchemaDAO.findById("model").orElseThrow());
-        attr.add(validator, "Canon MFC8030", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("model");
+        attr.add(validator, "Canon MFC8030");
         anyObject.add(attr);
 
         anyObject = anyObjectDAO.save(anyObject);
@@ -403,7 +404,7 @@ public class GroupTest extends AbstractTest {
                 object -> "PRINTER".equals(anyObjectDAO.findById(object).
                         orElseThrow().getType().getKey())).toList();
         assertEquals(1, members.size());
-        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.get(0));
+        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.getFirst());
 
         // 5. delete group and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getADynMembership(anyTypeDAO.findById("PRINTER").orElseThrow()).get().getKey();
@@ -419,21 +420,48 @@ public class GroupTest extends AbstractTest {
     }
 
     @Test
+    public void relationships() {
+        RelationshipType groupType = entityFactory.newEntity(RelationshipType.class);
+        groupType.setKey("group type");
+        groupType.setLeftEndAnyType(anyTypeDAO.getGroup());
+        groupType.setRightEndAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
+        groupType = relationshipTypeDAO.save(groupType);
+
+        entityManager.flush();
+
+        Group group = groupDAO.findByName("root").orElseThrow();
+        assertTrue(group.getRelationships().isEmpty());
+
+        GRelationship newR = entityFactory.newEntity(GRelationship.class);
+        newR.setType(groupType);
+        newR.setLeftEnd(group);
+        newR.setRightEnd(anyObjectDAO.findById("8559d14d-58c2-46eb-a2d4-a7d35161e8f8").orElseThrow());
+        group.add(newR);
+
+        groupDAO.save(group);
+
+        entityManager.flush();
+
+        group = groupDAO.findByName("root").orElseThrow();
+        assertEquals(1, group.getRelationships().size());
+        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
+            group.getRelationships().getFirst().getRightEnd().getKey());
+    }
+
+    @Test
     public void issueSYNCOPE1512() {
         Group group = groupDAO.findByName("root").orElseThrow();
 
         // non unique
-        GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
-        title.setOwner(group);
-        title.setSchema(plainSchemaDAO.findById("title").orElseThrow());
-        title.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        PlainAttr title = new PlainAttr();
+        title.setSchema("title");
+        title.add(validator, "syncope's group");
         group.add(title);
 
         // unique
-        GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
-        originalName.setOwner(group);
-        originalName.setSchema(plainSchemaDAO.findById("originalName").orElseThrow());
-        originalName.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        PlainAttr originalName = new PlainAttr();
+        originalName.setSchema("originalName");
+        originalName.add(validator, "syncope's group");
         group.add(originalName);
 
         groupDAO.save(group);
@@ -441,7 +469,7 @@ public class GroupTest extends AbstractTest {
         entityManager.flush();
 
         group = groupDAO.findById(group.getKey()).orElseThrow();
-        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().get(0));
-        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().get(0));
+        assertEquals("syncope's group", group.getPlainAttr("title").get().getValuesAsStrings().getFirst());
+        assertEquals("syncope's group", group.getPlainAttr("originalName").get().getValuesAsStrings().getFirst());
     }
 }

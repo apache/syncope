@@ -18,38 +18,17 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
 import jakarta.persistence.PostUpdate;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JSONEntityListener;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public class JSONLinkedAccountListener extends JSONEntityListener<User, LAPlainAttr> {
-
-    protected static final TypeReference<List<JSONLAPlainAttr>> TYPEREF =
-            new TypeReference<List<JSONLAPlainAttr>>() {
-    };
-
-    @Override
-    protected List<? extends LAPlainAttr> getAttrs(final String plainAttrsJSON) {
-        return POJOHelper.deserialize(plainAttrsJSON, TYPEREF);
-    }
+public class JSONLinkedAccountListener extends JSONEntityListener<User> {
 
     @PostLoad
     public void read(final JPALinkedAccount linkedAccount) {
         super.json2list(linkedAccount, false);
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void save(final JPALinkedAccount linkedAccount) {
-        super.list2json(linkedAccount);
     }
 
     @PostPersist

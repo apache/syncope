@@ -31,7 +31,6 @@ import java.util.UUID;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -40,11 +39,10 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
@@ -82,9 +80,6 @@ public class UserTest extends AbstractTest {
     private ExternalResourceDAO resourceDAO;
 
     @Autowired
-    private ApplicationDAO applicationDAO;
-
-    @Autowired
     private DelegationDAO delegationDAO;
 
     @Autowired
@@ -114,9 +109,9 @@ public class UserTest extends AbstractTest {
     public void ships() {
         User user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getMemberships().size());
-        assertEquals("bf825fe1-7320-4a54-bd64-143b5c18ab97", user.getMemberships().get(0).getRightEnd().getKey());
+        assertEquals("bf825fe1-7320-4a54-bd64-143b5c18ab97", user.getMemberships().getFirst().getRightEnd().getKey());
 
-        user.remove(user.getMemberships().get(0));
+        user.remove(user.getMemberships().getFirst());
 
         UMembership newM = entityFactory.newEntity(UMembership.class);
         newM.setLeftEnd(user);
@@ -131,13 +126,13 @@ public class UserTest extends AbstractTest {
         assertEquals(1, user.getMemberships().size());
         assertEquals(
                 "ba9ed509-b1f5-48ab-a334-c8530a6422dc",
-                user.getMemberships().get(0).getRightEnd().getKey());
+                user.getMemberships().getFirst().getRightEnd().getKey());
         assertEquals(1, user.getRelationships().size());
         assertEquals(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
-                user.getRelationships().get(0).getRightEnd().getKey());
+                user.getRelationships().getFirst().getRightEnd().getKey());
 
-        user.getRelationships().remove(0);
+        user.getRelationships().removeFirst();
 
         URelationship newR = entityFactory.newEntity(URelationship.class);
         newR.setType(relationshipTypeDAO.findById("neighborhood").orElseThrow());
@@ -151,7 +146,7 @@ public class UserTest extends AbstractTest {
 
         user = userDAO.findByUsername("bellini").orElseThrow();
         assertEquals(1, user.getRelationships().size());
-        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", user.getRelationships().get(0).getRightEnd().getKey());
+        assertEquals("8559d14d-58c2-46eb-a2d4-a7d35161e8f8", user.getRelationships().getFirst().getRightEnd().getKey());
     }
 
     private LinkedAccount newLinkedAccount(final String connObjectKeyValue) {
@@ -166,26 +161,22 @@ public class UserTest extends AbstractTest {
 
         account.setConnObjectKeyValue(connObjectKeyValue);
         account.setResource(resourceDAO.findById("resource-ldap").orElseThrow());
-        account.add(applicationDAO.findPrivilege("getMighty").orElseThrow());
 
         account.setUsername(UUID.randomUUID().toString());
         account.setCipherAlgorithm(CipherAlgorithm.AES);
         account.setPassword("Password123");
 
-        AnyUtils anyUtils = anyUtilsFactory.getLinkedAccountInstance();
-        LAPlainAttr attr = anyUtils.newPlainAttr();
-        attr.setOwner(user);
-        attr.setAccount(account);
+        PlainAttr attr = new PlainAttr();
         account.add(attr);
-        attr.setSchema(plainSchemaDAO.findById("obscure").orElseThrow());
-        attr.add(validator, "testvalue", anyUtils);
+        attr.setSchema("obscure");
+        attr.add(validator, "testvalue");
 
         user = userDAO.save(user);
         entityManager.flush();
 
         assertEquals(1, user.getLinkedAccounts().size());
 
-        return user.getLinkedAccounts().get(0);
+        return user.getLinkedAccounts().getFirst();
     }
 
     @Test
@@ -194,7 +185,7 @@ public class UserTest extends AbstractTest {
         assertNotNull(account.getKey());
         assertEquals(1, account.getPlainAttrs().size());
         assertTrue(account.getPlainAttr("obscure").isPresent());
-        assertEquals(account.getOwner(), account.getPlainAttr("obscure").get().getOwner());
+        assertEquals("vivaldi", account.getOwner().getUsername());
 
         assertTrue(userDAO.linkedAccountExists(account.getOwner().getKey(), account.getConnObjectKeyValue()));
 
@@ -205,12 +196,7 @@ public class UserTest extends AbstractTest {
         List<LinkedAccount> accounts = userDAO.findLinkedAccountsByResource(
                 resourceDAO.findById("resource-ldap").orElseThrow());
         assertEquals(1, accounts.size());
-        assertEquals(account, accounts.get(0));
-
-        accounts = userDAO.findLinkedAccountsByPrivilege(
-                applicationDAO.findPrivilege("getMighty").orElseThrow());
-        assertEquals(1, accounts.size());
-        assertEquals(account, accounts.get(0));
+        assertEquals(account, accounts.getFirst());
     }
 
     @Test
@@ -279,7 +265,7 @@ public class UserTest extends AbstractTest {
         // add derived attributes to user
         User owner = userDAO.findByUsername("vivaldi").orElseThrow();
 
-        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().iterator().next();
+        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().getFirst();
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute

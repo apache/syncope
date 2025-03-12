@@ -381,7 +381,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(groups);
         assertEquals(1, groups.getTotalResults());
 
-        SCIMGroup additional = groups.getResources().get(0);
+        SCIMGroup additional = groups.getResources().getFirst();
         assertEquals("additional", additional.getDisplayName());
 
         // eq via POST
@@ -397,7 +397,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(groups);
         assertEquals(1, groups.getTotalResults());
 
-        additional = groups.getResources().get(0);
+        additional = groups.getResources().getFirst();
         assertEquals("additional", additional.getDisplayName());
 
         // gt
@@ -418,7 +418,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(users);
         assertEquals(1, users.getTotalResults());
 
-        SCIMUser newSCIMUser = users.getResources().get(0);
+        SCIMUser newSCIMUser = users.getResources().getFirst();
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
 
         SCIMEnterpriseUserConf beforeEntConf = CONF.getEnterpriseUserConf();
@@ -451,7 +451,7 @@ public class SCIMITCase extends AbstractITCase {
             });
             assertNotNull(users);
             assertEquals(1, users.getTotalResults());
-            assertFalse(users.getResources().get(0).getGroups().isEmpty());
+            assertFalse(users.getResources().getFirst().getGroups().isEmpty());
 
             // Extension User
             response = webClient().path("Users").query(
@@ -492,14 +492,14 @@ public class SCIMITCase extends AbstractITCase {
         UserTO userTO = USER_SERVICE.read(user.getId());
         assertEquals(user.getUserName(), userTO.getUsername());
         assertTrue(user.isActive());
-        assertEquals(user.getDisplayName(), userTO.getDerAttr("cn").get().getValues().get(0));
-        assertEquals(user.getName().getGivenName(), userTO.getPlainAttr("firstname").get().getValues().get(0));
-        assertEquals(user.getName().getFamilyName(), userTO.getPlainAttr("surname").get().getValues().get(0));
-        assertEquals(user.getName().getFormatted(), userTO.getPlainAttr("fullname").get().getValues().get(0));
-        assertEquals(user.getEmails().get(0).getValue(), userTO.getPlainAttr("userId").get().getValues().get(0));
-        assertEquals(user.getEmails().get(1).getValue(), userTO.getPlainAttr("email").get().getValues().get(0));
-        assertEquals(user.getRoles().get(0).getValue(), userTO.getRoles().get(0));
-        assertEquals(user.getGroups().get(0).getValue(), userTO.getMemberships().get(0).getGroupKey());
+        assertEquals(user.getDisplayName(), userTO.getDerAttr("cn").get().getValues().getFirst());
+        assertEquals(user.getName().getGivenName(), userTO.getPlainAttr("firstname").get().getValues().getFirst());
+        assertEquals(user.getName().getFamilyName(), userTO.getPlainAttr("surname").get().getValues().getFirst());
+        assertEquals(user.getName().getFormatted(), userTO.getPlainAttr("fullname").get().getValues().getFirst());
+        assertEquals(user.getEmails().get(0).getValue(), userTO.getPlainAttr("userId").get().getValues().getFirst());
+        assertEquals(user.getEmails().get(1).getValue(), userTO.getPlainAttr("email").get().getValues().getFirst());
+        assertEquals(user.getRoles().getFirst().getValue(), userTO.getRoles().getFirst());
+        assertEquals(user.getGroups().getFirst().getValue(), userTO.getMemberships().getFirst().getGroupKey());
     }
 
     @Test
@@ -530,14 +530,14 @@ public class SCIMITCase extends AbstractITCase {
         UserTO userTO = USER_SERVICE.read(user.getId());
         assertEquals(user.getUserName(), userTO.getUsername());
         assertTrue(user.isActive());
-        assertEquals(user.getDisplayName(), userTO.getDerAttr("cn").get().getValues().get(0));
-        assertEquals(user.getName().getGivenName(), userTO.getPlainAttr("firstname").get().getValues().get(0));
-        assertEquals(user.getName().getFamilyName(), userTO.getPlainAttr("surname").get().getValues().get(0));
-        assertEquals(user.getName().getFormatted(), userTO.getPlainAttr("fullname").get().getValues().get(0));
-        assertEquals(user.getEmails().get(0).getValue(), userTO.getPlainAttr("userId").get().getValues().get(0));
-        assertEquals(user.getEmails().get(1).getValue(), userTO.getPlainAttr("email").get().getValues().get(0));
+        assertEquals(user.getDisplayName(), userTO.getDerAttr("cn").get().getValues().getFirst());
+        assertEquals(user.getName().getGivenName(), userTO.getPlainAttr("firstname").get().getValues().getFirst());
+        assertEquals(user.getName().getFamilyName(), userTO.getPlainAttr("surname").get().getValues().getFirst());
+        assertEquals(user.getName().getFormatted(), userTO.getPlainAttr("fullname").get().getValues().getFirst());
+        assertEquals(user.getEmails().get(0).getValue(), userTO.getPlainAttr("userId").get().getValues().getFirst());
+        assertEquals(user.getEmails().get(1).getValue(), userTO.getPlainAttr("email").get().getValues().getFirst());
         assertEquals(user.getExtensionInfo().getAttributes().get("gender"),
-                userTO.getPlainAttr("gender").get().getValues().get(0));
+                userTO.getPlainAttr("gender").get().getValues().getFirst());
 
         response = webClient().path("Users").path(user.getId()).delete();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
@@ -624,7 +624,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNull(user.getNickName());
 
         // 4. update with path, replace complex value
-        String newMail = UUID.randomUUID().toString() + "@syncope.apache.org";
+        String newMail = UUID.randomUUID() + "@syncope.apache.org";
         assertNotEquals(
                 newMail,
                 user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
@@ -651,7 +651,7 @@ public class SCIMITCase extends AbstractITCase {
                 user.getEmails().stream().filter(v -> "work".equals(v.getType())).findFirst().get().getValue());
 
         // 5. update with path, filter and sub
-        newMail = "verycomplex" + UUID.randomUUID().toString() + "@syncope.apache.org";
+        newMail = "verycomplex" + UUID.randomUUID() + "@syncope.apache.org";
         body =
                 "{"
                 + "     \"schemas\": [\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
@@ -767,7 +767,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(group.getId());
         assertTrue(response.getLocation().toASCIIString().endsWith(group.getId()));
         assertEquals(1, group.getMembers().size());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", group.getMembers().get(0).getValue());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", group.getMembers().getFirst().getValue());
 
         response = webClient().path("Users").path("1417acbe-cbf6-4277-9372-e75e04f97000").get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -874,7 +874,7 @@ public class SCIMITCase extends AbstractITCase {
         group = response.readEntity(SCIMGroup.class);
         assertNotNull(group.getId());
         assertEquals(1, group.getMembers().size());
-        assertEquals("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", group.getMembers().get(0).getValue());
+        assertEquals("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", group.getMembers().getFirst().getValue());
 
         GroupTO groupTO = GROUP_SERVICE.read(group.getId());
         assertNotNull(groupTO);
@@ -907,7 +907,7 @@ public class SCIMITCase extends AbstractITCase {
 
         group = response.readEntity(SCIMGroup.class);
         assertEquals(1, group.getMembers().size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", group.getMembers().get(0).getValue());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", group.getMembers().getFirst().getValue());
     }
 
     @Test

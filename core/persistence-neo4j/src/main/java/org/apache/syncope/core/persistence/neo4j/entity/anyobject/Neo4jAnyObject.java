@@ -23,13 +23,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.common.validation.AnyObjectCheck;
@@ -46,7 +44,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @AnyObjectCheck
 @AttributableCheck
 public class Neo4jAnyObject
-        extends AbstractGroupableRelatable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship>
+        extends AbstractGroupableRelatable<AnyObject, AMembership, AnyObject, ARelationship>
         implements AnyObject {
 
     private static final long serialVersionUID = -3905046855521446823L;
@@ -59,8 +57,8 @@ public class Neo4jAnyObject
 
     public static final String ANY_OBJECT_AUX_CLASSES_REL = "ANY_OBJECT_AUX_CLASSES";
 
-    @CompositeProperty(converterRef = "aPlainAttrsConverter")
-    protected Map<String, JSONAPlainAttr> plainAttrs = new HashMap<>();
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
 
     @NotNull(message = "Blank name")
     protected String name;
@@ -85,7 +83,7 @@ public class Neo4jAnyObject
     protected List<Neo4jAMembership> memberships = new ArrayList<>();
 
     @Override
-    protected Map<String, ? extends APlainAttr> plainAttrs() {
+    protected Map<String, PlainAttr> plainAttrs() {
         return plainAttrs;
     }
 
@@ -122,22 +120,14 @@ public class Neo4jAnyObject
     }
 
     @Override
-    protected void setPlainAttrOwner(final APlainAttr plainAttr) {
-        plainAttr.setOwner(this);
-    }
-
-    @Override
-    public boolean add(final APlainAttr attr) {
-        checkType(attr, JSONAPlainAttr.class);
-        JSONAPlainAttr neo4jAttr = (JSONAPlainAttr) attr;
-
-        if (neo4jAttr.getMembershipKey() == null) {
-            return plainAttrs.put(neo4jAttr.getSchemaKey(), neo4jAttr) != null;
+    public boolean add(final PlainAttr attr) {
+        if (attr.getMembership() == null) {
+            return plainAttrs.put(attr.getSchema(), attr) != null;
         }
 
         return memberships().stream().
-                filter(membership -> membership.getKey().equals(neo4jAttr.getMembershipKey())).findFirst().
-                map(membership -> membership.add(neo4jAttr)).
+                filter(membership -> membership.getKey().equals(attr.getMembership())).findFirst().
+                map(membership -> membership.add(attr)).
                 orElse(false);
     }
 
@@ -156,15 +146,6 @@ public class Neo4jAnyObject
     public boolean add(final ARelationship relationship) {
         checkType(relationship, Neo4jARelationship.class);
         return this.relationships.add((Neo4jARelationship) relationship);
-    }
-
-    @Override
-    public Optional<? extends ARelationship> getRelationship(
-            final RelationshipType relationshipType, final String otherEndKey) {
-
-        return getRelationships().stream().filter(relationship -> relationshipType.equals(relationship.getType())
-                && otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
-                findFirst();
     }
 
     @Override

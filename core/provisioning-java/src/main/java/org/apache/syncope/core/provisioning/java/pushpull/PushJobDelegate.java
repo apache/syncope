@@ -30,6 +30,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -56,7 +57,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -104,7 +104,7 @@ public class PushJobDelegate
     }
 
     protected boolean doHandle(
-            final List<? extends Any<?>> anys,
+            final List<? extends Any> anys,
             final PushResultHandlerDispatcher dispatcher,
             final ExternalResource resource)
             throws JobExecutionException {
@@ -264,7 +264,7 @@ public class PushJobDelegate
                     anyType.getKind());
             boolean result = true;
             for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) && result; page++) {
-                List<? extends Any<?>> anys = searchDAO.search(
+                List<? extends Any> anys = searchDAO.search(
                         profile.getTask().getSourceRealm(),
                         true,
                         Set.of(profile.getTask().getSourceRealm().getFullPath()),

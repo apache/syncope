@@ -109,7 +109,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
             GroupTO groupTO = groupRestClient.read(membershipTO.getGroupKey());
             return groupTO.getTypeExtension(anyType).
                     map(TypeExtensionTO::getAuxClasses).
-                    orElse(List.of());
+                orElseGet(List::of);
         } catch (Exception e) {
             return List.of();
         }

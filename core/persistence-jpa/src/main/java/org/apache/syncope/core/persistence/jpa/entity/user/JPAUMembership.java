@@ -22,11 +22,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
@@ -47,8 +47,8 @@ public class JPAUMembership extends AbstractGeneratedKeyEntity implements UMembe
     private JPAGroup rightEnd;
 
     @Override
-    public MembershipType getType() {
-        return MembershipType.getInstance();
+    public UMembershipType getType() {
+        return UMembershipType.getInstance();
     }
 
     @Override

@@ -61,10 +61,14 @@ import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
+import org.apache.syncope.common.lib.types.OIDCApplicationType;
 import org.apache.syncope.common.lib.types.OIDCClientAuthenticationMethod;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
@@ -190,7 +194,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     return realmRestClient.search(fullRealmsTree
                             ? RealmsUtils.buildRootQuery()
                             : RealmsUtils.buildKeywordQuery(input)).getResult().stream().
-                            map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                            map(RealmTO::getFullPath).iterator();
                 }
             };
             fields.add(realm.setOutputMarkupId(true));
@@ -295,8 +299,61 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     clientSecret.setChoices(List.of(RandomStringUtils.secure().nextNumeric(15)));
                     fields.add(clientSecret.setRequired(true));
 
+                    AjaxTextFieldPanel idTokenIssuer = new AjaxTextFieldPanel(
+                            "field", "idTokenIssuer", new PropertyModel<>(clientAppTO, "idTokenIssuer"), false);
+                    fields.add(idTokenIssuer);
+
+                    AjaxCheckBoxPanel signIdToken = new AjaxCheckBoxPanel(
+                            "field", "signIdToken", new PropertyModel<>(clientAppTO, "signIdToken"));
+                    fields.add(signIdToken);
+                    AjaxDropDownChoicePanel<OIDCTokenSigningAlg> idTokenSigningAlg = new AjaxDropDownChoicePanel<>(
+                            "field", "idTokenSigningAlg", new PropertyModel<>(clientAppTO, "idTokenSigningAlg"), false);
+                    idTokenSigningAlg.setChoices(List.of(OIDCTokenSigningAlg.values()));
+                    fields.add(idTokenSigningAlg.addRequiredLabel());
+
                     fields.add(new AjaxCheckBoxPanel(
-                            "field", "signIdToken", new PropertyModel<>(clientAppTO, "signIdToken")));
+                            "field", "encryptIdToken", new PropertyModel<>(clientAppTO, "encryptIdToken")));
+                    AjaxDropDownChoicePanel<OIDCTokenEncryptionAlg> idTokenEncryptionAlg =
+                            new AjaxDropDownChoicePanel<>(
+                                    "field",
+                                    "idTokenEncryptionAlg",
+                                    new PropertyModel<>(clientAppTO, "idTokenEncryptionAlg"),
+                                    false);
+                    idTokenEncryptionAlg.setChoices(List.of(OIDCTokenEncryptionAlg.values()));
+                    fields.add(idTokenEncryptionAlg.addRequiredLabel());
+                    AjaxDropDownChoicePanel<OIDCTokenEncryptionEncoding> idTokenEncryptionEncoding =
+                            new AjaxDropDownChoicePanel<>(
+                                    "field",
+                                    "idTokenEncryptionEncoding",
+                                    new PropertyModel<>(clientAppTO, "idTokenEncryptionEncoding"),
+                                    false);
+                    idTokenEncryptionEncoding.setChoices(List.of(OIDCTokenEncryptionEncoding.values()));
+                    fields.add(idTokenEncryptionEncoding);
+
+                    AjaxDropDownChoicePanel<OIDCTokenSigningAlg> userInfoSigningAlg = new AjaxDropDownChoicePanel<>(
+                            "field",
+                            "userInfoSigningAlg",
+                            new PropertyModel<>(clientAppTO, "userInfoSigningAlg"),
+                            false);
+                    userInfoSigningAlg.setChoices(List.of(OIDCTokenSigningAlg.values()));
+                    fields.add(userInfoSigningAlg);
+                    AjaxDropDownChoicePanel<OIDCTokenEncryptionAlg> userInfoEncryptedResponseAlg =
+                            new AjaxDropDownChoicePanel<>(
+                                    "field",
+                                    "userInfoEncryptedResponseAlg",
+                                    new PropertyModel<>(clientAppTO, "userInfoEncryptedResponseAlg"),
+                                    false);
+                    userInfoEncryptedResponseAlg.setChoices(List.of(OIDCTokenEncryptionAlg.values()));
+                    fields.add(userInfoEncryptedResponseAlg);
+                    AjaxDropDownChoicePanel<OIDCTokenEncryptionEncoding> userInfoEncryptedResponseEncoding =
+                            new AjaxDropDownChoicePanel<>(
+                                    "field",
+                                    "userInfoEncryptedResponseEncoding",
+                                    new PropertyModel<>(clientAppTO, "userInfoEncryptedResponseEncoding"),
+                                    false);
+                    userInfoEncryptedResponseEncoding.setChoices(List.of(OIDCTokenEncryptionEncoding.values()));
+                    fields.add(userInfoEncryptedResponseEncoding);
+
                     fields.add(new AjaxCheckBoxPanel(
                             "field", "jwtAccessToken", new PropertyModel<>(clientAppTO, "jwtAccessToken")));
                     fields.add(new AjaxCheckBoxPanel(
@@ -307,8 +364,12 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     AjaxDropDownChoicePanel<OIDCSubjectType> subjectType = new AjaxDropDownChoicePanel<>(
                             "field", "subjectType", new PropertyModel<>(clientAppTO, "subjectType"), false);
                     subjectType.setChoices(List.of(OIDCSubjectType.values()));
-                    subjectType.addRequiredLabel().setEnabled(true);
-                    fields.add(subjectType);
+                    fields.add(subjectType.addRequiredLabel().setEnabled(true));
+
+                    AjaxDropDownChoicePanel<OIDCApplicationType> applicationType = new AjaxDropDownChoicePanel<>(
+                            "field", "applicationType", new PropertyModel<>(clientAppTO, "applicationType"), false);
+                    applicationType.setChoices(List.of(OIDCApplicationType.values()));
+                    fields.add(applicationType.addRequiredLabel().setEnabled(true));
 
                     AjaxTextFieldPanel redirectUri = new AjaxTextFieldPanel("panel", "redirectUris", new Model<>());
                     fields.add(new MultiFieldPanel.Builder<String>(

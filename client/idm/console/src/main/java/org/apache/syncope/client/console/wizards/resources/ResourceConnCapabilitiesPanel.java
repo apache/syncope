@@ -59,7 +59,7 @@ public class ResourceConnCapabilitiesPanel extends WizardStep {
                             }
                             return object;
                         }).
-                        orElse(List.of());
+                    orElseGet(List::of);
             }
 
             @Override

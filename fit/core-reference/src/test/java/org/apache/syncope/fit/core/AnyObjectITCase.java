@@ -139,7 +139,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         anyObjectTO = updateAnyObject(anyObjectUR).getEntity();
 
-        assertEquals(newLocation, anyObjectTO.getPlainAttr("location").get().getValues().get(0));
+        assertEquals(newLocation, anyObjectTO.getPlainAttr("location").get().getValues().getFirst());
     }
 
     @Test
@@ -195,15 +195,15 @@ public class AnyObjectITCase extends AbstractITCase {
         anyObjectCR = getSample("unlimited2");
         anyObjectCR.setRealm(SyncopeConstants.ROOT_REALM);
         anyObjectCR.getResources().clear();
-        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("neighborhood").
+        anyObjectCR.getRelationships().add(new RelationshipTO.Builder("inclusion").
                 otherEnd(left.getType(), left.getKey()).build());
         AnyObjectTO right = createAnyObject(anyObjectCR).getEntity();
 
         assertEquals(1, right.getRelationships().size());
-        assertEquals(left.getKey(), right.getRelationships().get(0).getOtherEndKey());
+        assertEquals(left.getKey(), right.getRelationships().getFirst().getOtherEndKey());
 
         AnyObjectUR anyObjectUR = new AnyObjectUR.Builder(left.getKey()).
-                relationship(new RelationshipUR.Builder(new RelationshipTO.Builder("neighborhood").
+                relationship(new RelationshipUR.Builder(new RelationshipTO.Builder("inclusion").
                         otherEnd(right.getType(), right.getKey()).build()).build()).build();
         left = updateAnyObject(anyObjectUR).getEntity();
         assertEquals(2, left.getRelationships().size());
@@ -273,11 +273,11 @@ public class AnyObjectITCase extends AbstractITCase {
         // Add relationships: printer1 -> printer2 and printer2 -> printer3
         AnyObjectUR relationship1To2 = new AnyObjectUR.Builder(key1)
                 .relationship(new RelationshipUR.Builder(
-                        new RelationshipTO.Builder("neighborhood").otherEnd(PRINTER, key2).build()).build())
+                        new RelationshipTO.Builder("inclusion").otherEnd(PRINTER, key2).build()).build())
                 .build();
         AnyObjectUR relationship2To3 = new AnyObjectUR.Builder(key2)
                 .relationship(new RelationshipUR.Builder(
-                        new RelationshipTO.Builder("neighborhood").otherEnd(PRINTER, key3).build()).build())
+                        new RelationshipTO.Builder("inclusion").otherEnd(PRINTER, key3).build()).build())
                 .build();
 
         updateAnyObject(relationship1To2);
@@ -290,7 +290,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         // Verify relationships for printer1
         assertEquals(1, printer1.getRelationships().size());
-        RelationshipTO rel1 = printer1.getRelationships().get(0);
+        RelationshipTO rel1 = printer1.getRelationships().getFirst();
         assertEquals(RelationshipTO.End.LEFT, rel1.getEnd());
         assertEquals(printer2.getKey(), rel1.getOtherEndKey());
         assertEquals(printer2.getType(), rel1.getOtherEndType());
@@ -311,7 +311,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         // Verify relationships for printer3
         assertEquals(1, printer3.getRelationships().size());
-        RelationshipTO rel3 = printer3.getRelationships().get(0);
+        RelationshipTO rel3 = printer3.getRelationships().getFirst();
         assertEquals(RelationshipTO.End.RIGHT, rel3.getEnd());
         assertEquals(printer2.getKey(), rel3.getOtherEndKey());
         assertEquals(printer2.getType(), rel3.getOtherEndType());
@@ -321,12 +321,10 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectCR printer4CR = getSample("printer4");
         printer4CR.getResources().clear();
         printer4CR.getRelationships().add(
-                new RelationshipTO.Builder("neighborhood", RelationshipTO.End.RIGHT).otherEnd(PRINTER, key1).build());
+                new RelationshipTO.Builder("inclusion", RelationshipTO.End.RIGHT).otherEnd(PRINTER, key1).build());
 
-        SyncopeClientException exception =
-                assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
-        assertEquals(ClientExceptionType.InvalidRelationship, exception.getType());
-        assertTrue(exception.getMessage().
-                contains("Relationships shall be created or updated only from their left end"));
+        SyncopeClientException e = assertThrows(SyncopeClientException.class, () -> createAnyObject(printer4CR));
+        assertEquals(ClientExceptionType.InvalidRelationship, e.getType());
+        assertTrue(e.getMessage().contains("Relationships shall be created or updated only from their left end"));
     }
 }

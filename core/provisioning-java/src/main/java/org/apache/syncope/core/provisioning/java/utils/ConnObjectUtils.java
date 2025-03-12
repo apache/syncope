@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -50,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.task.InboundTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -66,8 +66,6 @@ import org.springframework.util.CollectionUtils;
 public class ConnObjectUtils {
 
     protected static final Logger LOG = LoggerFactory.getLogger(ConnObjectUtils.class);
-
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     public static SyncToken toSyncToken(final String syncToken) {
         return Optional.ofNullable(syncToken).map(st -> POJOHelper.deserialize(st, SyncToken.class)).orElse(null);
@@ -94,7 +92,7 @@ public class ConnObjectUtils {
             case String string ->
                 result.append(string);
             default ->
-                result.append(pwd.toString());
+                result.append(pwd);
         }
 
         return result.toString();
@@ -149,6 +147,8 @@ public class ConnObjectUtils {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
+    protected final EncryptorManager encryptorManager;
+
     public ConnObjectUtils(
             final TemplateUtils templateUtils,
             final RealmSearchDAO realmSearchDAO,
@@ -156,7 +156,8 @@ public class ConnObjectUtils {
             final ExternalResourceDAO resourceDAO,
             final PasswordGenerator passwordGenerator,
             final MappingManager mappingManager,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final EncryptorManager encryptorManager) {
 
         this.templateUtils = templateUtils;
         this.realmSearchDAO = realmSearchDAO;
@@ -165,6 +166,7 @@ public class ConnObjectUtils {
         this.passwordGenerator = passwordGenerator;
         this.mappingManager = mappingManager;
         this.anyUtilsFactory = anyUtilsFactory;
+        this.encryptorManager = encryptorManager;
     }
 
     /**
@@ -193,7 +195,7 @@ public class ConnObjectUtils {
 
         // (for users) if password was not set above, generate if possible
         if (anyCR instanceof final UserCR userCR
-                && StringUtils.isBlank(((UserCR) anyCR).getPassword())
+                && StringUtils.isBlank(userCR.getPassword())
                 && generatePassword) {
 
             List<PasswordPolicy> passwordPolicies = new ArrayList<>();
@@ -266,7 +268,7 @@ public class ConnObjectUtils {
                 // update password if and only if password is really changed
                 User user = userDAO.authFind(key);
                 if (StringUtils.isBlank(updatedUser.getPassword())
-                        || ENCRYPTOR.verify(updatedUser.getPassword(),
+                        || encryptorManager.getInstance().verify(updatedUser.getPassword(),
                                 user.getCipherAlgorithm(), user.getPassword())) {
 
                     updatedUser.setPassword(null);

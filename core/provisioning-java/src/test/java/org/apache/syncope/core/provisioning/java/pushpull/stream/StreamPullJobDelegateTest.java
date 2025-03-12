@@ -25,7 +25,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -35,13 +34,13 @@ import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.stream.SyncopeStreamPullExecutor;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +77,7 @@ public class StreamPullJobDelegateTest extends AbstractTest {
                 "userId");
 
         StringBuilder csv = new StringBuilder();
-        csv.append(columns.stream().collect(Collectors.joining(",")));
+        csv.append(String.join(",", columns));
         csv.append('\n');
         csv.append("donizetti,");
         csv.append("donizetti@apache.org,");
@@ -120,16 +119,16 @@ public class StreamPullJobDelegateTest extends AbstractTest {
         });
         assertEquals(1, results.size());
 
-        assertEquals(AnyTypeKind.USER.name(), results.get(0).getAnyType());
-        assertNotNull(results.get(0).getKey());
-        assertEquals("donizetti", results.get(0).getName());
-        assertEquals("donizetti", results.get(0).getUidValue());
-        assertEquals(ResourceOperation.CREATE, results.get(0).getOperation());
-        assertEquals(ProvisioningReport.Status.SUCCESS, results.get(0).getStatus());
+        assertEquals(AnyTypeKind.USER.name(), results.getFirst().getAnyType());
+        assertNotNull(results.getFirst().getKey());
+        assertEquals("donizetti", results.getFirst().getName());
+        assertEquals("donizetti", results.getFirst().getUidValue());
+        assertEquals(ResourceOperation.CREATE, results.getFirst().getOperation());
+        assertEquals(ProvisioningReport.Status.SUCCESS, results.getFirst().getStatus());
 
-        User donizetti = userDAO.findById(results.get(0).getKey()).orElseThrow();
+        User donizetti = userDAO.findById(results.getFirst().getKey()).orElseThrow();
         assertNotNull(donizetti);
         assertEquals("donizetti", donizetti.getUsername());
-        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValuesAsStrings().get(0));
+        assertEquals("Gaetano", donizetti.getPlainAttr("firstname").get().getValuesAsStrings().getFirst());
     }
 }

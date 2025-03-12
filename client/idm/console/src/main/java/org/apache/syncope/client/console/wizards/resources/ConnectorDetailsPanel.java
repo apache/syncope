@@ -71,7 +71,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                                 ? RealmsUtils.buildRootQuery()
                                 : RealmsUtils.buildKeywordQuery(input)).getResult())
                         : List.<RealmTO>of()).stream().
-                        map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
+                        map(RealmTO::getFullPath).iterator();
             }
         };
         add(realm.addRequiredLabel().setOutputMarkupId(true));
@@ -123,9 +123,9 @@ public class ConnectorDetailsPanel extends WizardStep {
                 List<Pair<String, String>> connectors = bundles.stream().
                         filter(bundle -> bundle.getBundleName().equals(connInstanceTO.getBundleName())).
                         map(bundle -> Pair.of(bundle.getConnectorName(), bundle.getVersion())).
-                        collect(Collectors.toList());
+                    toList();
                 if (connectors.size() == 1) {
-                    Pair<String, String> entry = connectors.get(0);
+                    Pair<String, String> entry = connectors.getFirst();
 
                     connInstanceTO.setConnectorName(entry.getLeft());
                     connectorName.getField().setModelObject(entry.getLeft());
@@ -143,8 +143,8 @@ public class ConnectorDetailsPanel extends WizardStep {
                     version.setChoices(versions);
 
                     if (versions.size() == 1) {
-                        connInstanceTO.setVersion(versions.get(0));
-                        version.getField().setModelObject(versions.get(0));
+                        connInstanceTO.setVersion(versions.getFirst());
+                        version.getField().setModelObject(versions.getFirst());
                     } else {
                         connInstanceTO.setVersion(null);
                         version.getField().setModelObject(null);
@@ -167,8 +167,8 @@ public class ConnectorDetailsPanel extends WizardStep {
                         && bundle.getConnectorName().equals(connInstanceTO.getConnectorName())).
                         map(ConnIdBundle::getVersion).collect(Collectors.toList());
                 if (versions.size() == 1) {
-                    connInstanceTO.setVersion(versions.get(0));
-                    version.getField().setModelObject(versions.get(0));
+                    connInstanceTO.setVersion(versions.getFirst());
+                    version.getField().setModelObject(versions.getFirst());
                 }
                 version.setChoices(versions);
 

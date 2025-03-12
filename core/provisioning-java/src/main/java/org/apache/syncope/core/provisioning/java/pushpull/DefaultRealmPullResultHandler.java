@@ -571,7 +571,7 @@ public class DefaultRealmPullResultHandler
                         Set<String> adminRealms = Set.of(realm.getFullPath());
                         AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
                         keyCond.setSchema("key");
-                        SearchCond allMatchingCond = SearchCond.getLeaf(keyCond);
+                        SearchCond allMatchingCond = SearchCond.of(keyCond);
                         long users = searchDAO.count(
                                 realmDAO.getRoot(), true, adminRealms, allMatchingCond, AnyTypeKind.USER);
                         long groups = searchDAO.count(

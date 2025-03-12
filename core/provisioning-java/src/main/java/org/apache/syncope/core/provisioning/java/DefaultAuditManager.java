@@ -68,8 +68,8 @@ public class DefaultAuditManager implements AuditManager {
             if (((UserCR) masked).getSecurityAnswer() != null) {
                 ((UserCR) masked).setSecurityAnswer(MASKED_VALUE);
             }
-        } else if (object instanceof UserUR && ((UserUR) object).getPassword() != null) {
-            masked = SerializationUtils.clone((UserUR) object);
+        } else if (object instanceof final UserUR userUR && userUR.getPassword() != null) {
+            masked = SerializationUtils.clone(userUR);
             ((UserUR) masked).getPassword().setValue(MASKED_VALUE);
         } else {
             masked = object;
@@ -159,11 +159,12 @@ public class DefaultAuditManager implements AuditManager {
 
                 Optional<? extends AuditConf> auditConf = auditConfDAO.findById(opEvent.toString());
                 if (auditConf.isEmpty()) {
-                    LOG.debug("No audit conf found for {}, skippping", opEvent.toString());
+                    LOG.debug("No audit conf found for {}, skipping", opEvent);
                     return;
                 }
                 if (!auditConf.get().isActive()) {
-                    LOG.debug("Audit conf found for {} is not active, skippping", opEvent.toString());
+                    LOG.debug("Audit conf found for {} is not active, skipping", opEvent);
+                    LOG.debug("Audit conf found for {} is not active, skippping", opEvent);
                     return;
                 }
 

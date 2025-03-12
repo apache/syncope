@@ -22,9 +22,11 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, PersistenceTestContext.class })
+@TestPropertySource("classpath:core-test.properties")
 @DirtiesContext
 public abstract class AbstractTest {
 

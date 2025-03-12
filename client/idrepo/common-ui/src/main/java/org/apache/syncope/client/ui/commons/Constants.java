@@ -149,7 +149,7 @@ public final class Constants {
                 append("</a>");
 
         return new Label("jexlInfo", Model.of()).add(new PopoverBehavior(
-                Model.<String>of(),
+                Model.of(),
                 Model.of(body.toString()),
                 new PopoverConfig().withHtml(true).withPlacement(placement)) {
 

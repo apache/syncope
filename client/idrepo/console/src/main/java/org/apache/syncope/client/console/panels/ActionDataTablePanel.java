@@ -80,7 +80,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
         });
         batchForm.add(group);
 
-        columns.add(0, new CheckGroupColumn<>(group));
+        columns.addFirst(new CheckGroupColumn<>(group));
         dataTable = new AjaxFallbackDataTable<>("dataTable", columns, dataProvider, rowsPerPage, this);
         group.add(dataTable);
 

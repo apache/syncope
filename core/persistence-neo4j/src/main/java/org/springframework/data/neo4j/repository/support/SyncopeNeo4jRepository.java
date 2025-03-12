@@ -18,8 +18,8 @@
  */
 package org.springframework.data.neo4j.repository.support;
 
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.data.neo4j.core.mapping.CypherGenerator;
 import org.springframework.data.neo4j.core.mapping.Neo4jPersistentEntity;

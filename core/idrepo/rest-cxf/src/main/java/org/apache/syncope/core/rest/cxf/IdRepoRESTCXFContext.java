@@ -51,7 +51,6 @@ import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
-import org.apache.syncope.common.rest.api.service.ApplicationService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.CommandService;
 import org.apache.syncope.common.rest.api.service.DelegationService;
@@ -77,7 +76,6 @@ import org.apache.syncope.core.logic.AccessTokenLogic;
 import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.AnyTypeClassLogic;
 import org.apache.syncope.core.logic.AnyTypeLogic;
-import org.apache.syncope.core.logic.ApplicationLogic;
 import org.apache.syncope.core.logic.AuditLogic;
 import org.apache.syncope.core.logic.CommandLogic;
 import org.apache.syncope.core.logic.DelegationLogic;
@@ -108,7 +106,6 @@ import org.apache.syncope.core.rest.cxf.service.AccessTokenServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AnyObjectServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AnyTypeClassServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AnyTypeServiceImpl;
-import org.apache.syncope.core.rest.cxf.service.ApplicationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuditServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.CommandServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.DelegationServiceImpl;
@@ -361,12 +358,6 @@ public class IdRepoRESTCXFContext {
     @Bean
     public AnyTypeService anyTypeService(final AnyTypeLogic anyTypeLogic) {
         return new AnyTypeServiceImpl(anyTypeLogic);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationService applicationService(final ApplicationLogic applicationLogic) {
-        return new ApplicationServiceImpl(applicationLogic);
     }
 
     @ConditionalOnMissingBean

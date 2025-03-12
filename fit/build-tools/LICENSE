@@ -208,7 +208,47 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For ClassMate (https://github.com/FasterXML/java-classmate):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Caffeine (https://github.com/ben-manes/caffeine):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JNI binding for Zstd (https://github.com/luben/zstd-jni):
+This is licensed under the BSD license:
+
+Redistribution and use in source and binary forms, with or without 
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this 
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, 
+this list of conditions and the following disclaimer in the documentation 
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors 
+may be used to endorse or promote products derived from this software without 
+specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+==
+
+For Error Prone (https://errorprone.info/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -432,12 +472,27 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Jakarta Mail:
-This is licensed under the EPL 1.0, see above.
+For Method Parameter Name Access for Java (https://github.com/paul-hammant/paranamer):
+This is licensed under the BSD license, see above.
 
 ==
 
-For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
+For Scala Logging (https://github.com/lightbend-labs/scala-logging):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Yammer Metrics (https://github.com/StoyanTc/yammer-metrics):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0:
 
 Eclipse Distribution License - v 1.0
@@ -467,11 +522,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ==
 
-For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
-This is licensed under the EDL 1.0, see above.
-
-==
-
 For Eclipse Implementation of JAXB (https://projects.eclipse.org/projects/ee4j.jaxb-impl):
 This is licensed under the EDL 1.0, see above.
 
@@ -482,7 +532,27 @@ This is licensed under the EDL 1.0, see above.
 
 ==
 
+For Metrics (http://dropwizard.github.io/metrics/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Micrometer Application Metrics (https://micrometer.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Netty (https://netty.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Jakarta Annotations https://projects.eclipse.org/projects/ee4j.ca):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Mail (https://projects.eclipse.org/projects/ee4j.mail):
 This is licensed under the EPL 1.0, see above.
 
 ==
@@ -494,6 +564,35 @@ This is licensed under the EPL 1.0, see above.
 
 For Bean Validation API (http://beanvalidation.org/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For JOpt Simple (https://jopt-simple.github.io/jopt-simple/):
+This is licensed under the MIT license:
+
+ Permission is hereby granted, free  of charge, to any person obtaining
+ a  copy  of this  software  and  associated  documentation files  (the
+ "Software"), to  deal in  the Software without  restriction, including
+ without limitation  the rights to  use, copy, modify,  merge, publish,
+ distribute,  sublicense, and/or sell  copies of  the Software,  and to
+ permit persons to whom the Software  is furnished to do so, subject to
+ the following conditions:
+ 
+ The  above  copyright  notice  and  this permission  notice  shall  be
+ included in all copies or substantial portions of the Software.
+ 
+ THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+ EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+ MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+==
+
+For Argparse4j (https://argparse4j.github.io/):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -883,61 +982,52 @@ of liability.
 
 ==
 
-For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
-This is licensed under the MIT license:
+For jose.4.j (https://bitbucket.org/b_c/jose4j/):
+This is licensed under the AL 2.0, see above.
 
- Permission is hereby granted, free  of charge, to any person obtaining
- a  copy  of this  software  and  associated  documentation files  (the
- "Software"), to  deal in  the Software without  restriction, including
- without limitation  the rights to  use, copy, modify,  merge, publish,
- distribute,  sublicense, and/or sell  copies of  the Software,  and to
- permit persons to whom the Software  is furnished to do so, subject to
- the following conditions:
- 
- The  above  copyright  notice  and  this permission  notice  shall  be
- included in all copies or substantial portions of the Software.
- 
- THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
- EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
- MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
- WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+==
+
+For The Checker Framework (https://checkerframework.org/):
+This is licensed under the MIT license, see above.
 
 ==
 
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
-This is licensed under the BSD license:
-
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice, this 
-list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice, 
-this list of conditions and the following disclaimer in the documentation 
-and/or other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors 
-may be used to endorse or promote products derived from this software without 
-specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+This is licensed under the BSD license, see above.
 
 ==
 
 For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Eclipse Angus - Activation (https://eclipse-ee4j.github.io/angus-activation/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Eclipse Angus - Mail (https://eclipse-ee4j.github.io/angus-mail/):
+This is licensed under the EDL 1.0, see above.
+
+==
+
+For Hibernate Validator (https://hibernate.org/validator/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For JBoss Logging (http://www.jboss.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For LZ4 compression for Java (https://github.com/lz4/lz4-java):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -947,12 +1037,32 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For PCollections (https://github.com/hrldcpr/pcollections):
+This is licensed under the MIT license, see above.
+
+==
+
+For RocksDB (https://rocksdb.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For The Scala programming language (https://www.scala-lang.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Simple Logging Facade for Java - SLF4J (http://www.slf4j.org/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Spring (https://spring.io/projects):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For snappy-java (https://github.com/xerial/snappy-java):
 This is licensed under the AL 2.0, see above.
 
 ==

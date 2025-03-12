@@ -18,18 +18,28 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.util.List;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 public class RelationshipTypeDetailsPanel extends Panel {
 
     private static final long serialVersionUID = -4962850669086306255L;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     public RelationshipTypeDetailsPanel(final String id, final RelationshipTypeTO relationshipTypeTO) {
         super(id);
@@ -54,5 +64,30 @@ public class RelationshipTypeDetailsPanel extends Panel {
                 new PropertyModel<>(relationshipTypeTO, Constants.DESCRIPTION_FIELD_NAME));
         description.addRequiredLabel();
         form.add(description);
+
+        LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return anyTypeRestClient.listAnyTypes().stream().map(AnyTypeTO::getKey).toList();
+            }
+        };
+
+        AjaxDropDownChoicePanel<String> leftEndAnyType = new AjaxDropDownChoicePanel<>(
+                "leftEndAnyType", "leftEndAnyType", new PropertyModel<>(relationshipTypeTO, "leftEndAnyType"));
+        leftEndAnyType.setChoices(anyTypes);
+        leftEndAnyType.addRequiredLabel();
+        leftEndAnyType.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
+        form.add(leftEndAnyType);
+
+        AjaxDropDownChoicePanel<String> rightEndAnyType = new AjaxDropDownChoicePanel<>(
+                "rightEndAnyType", "rightEndAnyType", new PropertyModel<>(relationshipTypeTO, "rightEndAnyType"));
+        rightEndAnyType.setChoices(anyTypes.getObject().stream().
+                filter(t -> !AnyTypeKind.USER.name().equals(t) && !AnyTypeKind.GROUP.name().equals(t)).toList());
+        rightEndAnyType.addRequiredLabel();
+        rightEndAnyType.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
+        form.add(rightEndAnyType);
     }
 }

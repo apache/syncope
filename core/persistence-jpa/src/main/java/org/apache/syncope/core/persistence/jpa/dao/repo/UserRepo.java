@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
@@ -59,10 +58,6 @@ public interface UserRepo
     @Query("SELECT e FROM JPALinkedAccount e WHERE e.owner.id = :userKey")
     @Override
     List<LinkedAccount> findLinkedAccounts(@Param("userKey") String userKey);
-
-    @Query("SELECT e FROM JPALinkedAccount e WHERE :privilege MEMBER OF e.privileges")
-    @Override
-    List<LinkedAccount> findLinkedAccountsByPrivilege(@Param("privilege") Privilege privilege);
 
     @Query("SELECT e FROM JPALinkedAccount e WHERE e.resource = :resource")
     @Override

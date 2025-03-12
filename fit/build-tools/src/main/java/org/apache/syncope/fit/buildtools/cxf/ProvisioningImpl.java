@@ -100,7 +100,7 @@ public class ProvisioningImpl implements Provisioning {
         LOG.debug("Update request received");
 
         if (data == null || data.isEmpty()) {
-            LOG.warn("Empty data recevied");
+            LOG.warn("Empty data received");
             return accountid;
         }
 
@@ -123,7 +123,7 @@ public class ProvisioningImpl implements Provisioning {
                     if (attr.getValues() == null || attr.getValues().isEmpty()) {
                         value = null;
                     } else if (attr.getValues().size() == 1) {
-                        value = attr.getValues().get(0).toString();
+                        value = attr.getValues().getFirst().toString();
                     } else {
                         value = attr.getValues().toString();
                     }
@@ -153,9 +153,9 @@ public class ProvisioningImpl implements Provisioning {
 
             if (set.length() > 0) {
                 try (PreparedStatement statement =
-                        conn.prepareStatement("UPDATE testuser SET " + set.toString() + " WHERE userId=?")) {
+                        conn.prepareStatement("UPDATE testuser SET " + set + " WHERE userId=?")) {
                     statement.setString(1, accountid);
-                    String query = "UPDATE testuser SET " + set.toString() + " WHERE userId='" + accountid + "';";
+                    String query = "UPDATE testuser SET " + set + " WHERE userId='" + accountid + "';";
                     LOG.debug("Execute query: {}", query);
 
                     statement.executeUpdate();
@@ -181,7 +181,7 @@ public class ProvisioningImpl implements Provisioning {
         try {
 
             String queryString = "SELECT * FROM testuser" + (Optional.ofNullable(query)
-                    .map(operand -> " WHERE " + operand.toString()).orElse(""));
+                    .map(operand -> " WHERE " + operand).orElse(""));
 
             queryString = queryString.replaceAll("__NAME__", "userId").
                     replaceAll("__UID__", "userId").
@@ -256,7 +256,7 @@ public class ProvisioningImpl implements Provisioning {
                         if (attr.getValues() == null || attr.getValues().isEmpty()) {
                             value = null;
                         } else if (attr.getValues().size() == 1) {
-                            value = attr.getValues().get(0).toString();
+                            value = attr.getValues().getFirst().toString();
                         } else {
                             value = attr.getValues().toString();
                         }
@@ -285,11 +285,11 @@ public class ProvisioningImpl implements Provisioning {
                         values.append(Optional.ofNullable(value).map(s -> '\'' + s + '\'').orElse(null));
 
                         if (attr.isKey() && !attr.getValues().isEmpty()) {
-                            accountid = attr.getValues().get(0).toString();
+                            accountid = attr.getValues().getFirst().toString();
                         }
                     }
                 }
-                query = "INSERT INTO testuser (" + keys.toString() + ") VALUES (" + values.toString() + ')';
+                query = "INSERT INTO testuser (" + keys + ") VALUES (" + values + ')';
                 LOG.debug("Execute query: {}", query);
                 statement.executeUpdate(query);
             }

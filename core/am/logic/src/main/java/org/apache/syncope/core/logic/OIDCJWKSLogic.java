@@ -83,7 +83,7 @@ public class OIDCJWKSLogic extends AbstractTransactionalLogic<OIDCJWKSTO> {
     protected OIDCJWKSTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        OIDCJWKS jwks = dao.get().orElseThrow(() -> new UnresolvedReferenceException());
+        OIDCJWKS jwks = dao.get().orElseThrow(UnresolvedReferenceException::new);
         return binder.getOIDCJWKSTO(jwks);
     }
 }

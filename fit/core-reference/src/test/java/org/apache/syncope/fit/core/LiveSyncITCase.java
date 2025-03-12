@@ -168,8 +168,8 @@ public class LiveSyncITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("kafka@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_KAFKA);
         ProvisioningResult<UserTO> created = createUser(userCR);
-        assertEquals(RESOURCE_NAME_KAFKA, created.getPropagationStatuses().get(0).getResource());
-        assertEquals(ExecStatus.SUCCESS, created.getPropagationStatuses().get(0).getStatus());
+        assertEquals(RESOURCE_NAME_KAFKA, created.getPropagationStatuses().getFirst().getResource());
+        assertEquals(ExecStatus.SUCCESS, created.getPropagationStatuses().getFirst().getStatus());
 
         assertTrue(found(SyncDeltaType.CREATE, created.getEntity().getUsername()));
 
@@ -177,8 +177,8 @@ public class LiveSyncITCase extends AbstractITCase {
         req.setKey(created.getEntity().getKey());
         req.getPlainAttrs().add(attrAddReplacePatch("firstname", "Updated"));
         ProvisioningResult<UserTO> updated = updateUser(req);
-        assertEquals(RESOURCE_NAME_KAFKA, updated.getPropagationStatuses().get(0).getResource());
-        assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().get(0).getStatus());
+        assertEquals(RESOURCE_NAME_KAFKA, updated.getPropagationStatuses().getFirst().getResource());
+        assertEquals(ExecStatus.SUCCESS, updated.getPropagationStatuses().getFirst().getStatus());
 
         assertTrue(found(SyncDeltaType.UPDATE, updated.getEntity().getUsername()));
 
@@ -240,11 +240,11 @@ public class LiveSyncITCase extends AbstractITCase {
                             return null;
                         }
                     }, Objects::nonNull);
-            assertEquals(email, user.getPlainAttr("email").orElseThrow().getValues().get(0));
-            assertEquals(email, user.getPlainAttr("userId").orElseThrow().getValues().get(0));
-            assertEquals(email, user.getPlainAttr("userId").orElseThrow().getValues().get(0));
-            assertEquals("LiveSync", user.getPlainAttr("firstname").orElseThrow().getValues().get(0));
-            assertEquals("LiveSync", user.getPlainAttr("surname").orElseThrow().getValues().get(0));
+            assertEquals(email, user.getPlainAttr("email").orElseThrow().getValues().getFirst());
+            assertEquals(email, user.getPlainAttr("userId").orElseThrow().getValues().getFirst());
+            assertEquals("LiveSync", user.getPlainAttr("firstname").orElseThrow().getValues().getFirst());
+            assertEquals("LiveSync", user.getPlainAttr("surname").orElseThrow().getValues().getFirst());
+            assertEquals("LiveSync LiveSync", user.getPlainAttr("fullname").orElseThrow().getValues().getFirst());
 
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
                     () -> TASK_SERVICE.read(TaskType.LIVE_SYNC, actual.getKey(), true).getExecutions(),

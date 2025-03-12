@@ -134,12 +134,12 @@ public class AuthProfileTest extends AbstractTest {
         String secret = SecureRandomUtils.generateRandomUUID().toString();
         List<GoogleMfaAuthAccount> googleMfaAuthAccounts = authProfile.getGoogleMfaAuthAccounts();
         assertFalse(googleMfaAuthAccounts.isEmpty());
-        GoogleMfaAuthAccount googleMfaAuthAccount = googleMfaAuthAccounts.get(0);
+        GoogleMfaAuthAccount googleMfaAuthAccount = googleMfaAuthAccounts.getFirst();
         googleMfaAuthAccount.setSecretKey(secret);
 
         authProfile.setGoogleMfaAuthAccounts(googleMfaAuthAccounts);
         authProfile = authProfileDAO.save(authProfile);
-        assertEquals(secret, authProfile.getGoogleMfaAuthAccounts().get(0).getSecretKey());
+        assertEquals(secret, authProfile.getGoogleMfaAuthAccounts().getFirst().getSecretKey());
     }
 
     @Test

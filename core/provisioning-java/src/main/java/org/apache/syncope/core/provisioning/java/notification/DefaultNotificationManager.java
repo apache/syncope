@@ -53,12 +53,12 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
@@ -178,7 +178,7 @@ public class DefaultNotificationManager implements NotificationManager {
      */
     protected NotificationTask getNotificationTask(
             final Notification notification,
-            final Any<?> any,
+            final Any any,
             final Map<String, Object> jexlVars) {
 
         jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
@@ -189,11 +189,11 @@ public class DefaultNotificationManager implements NotificationManager {
         List<User> recipients = new ArrayList<>();
 
         Optional.ofNullable(notification.getRecipientsFIQL()).
-                ifPresent(fiql -> recipients.addAll(anySearchDAO.<User>search(
+                ifPresent(fiql -> recipients.addAll(anySearchDAO.search(
                 SearchCondConverter.convert(searchCondVisitor, fiql), List.of(), AnyTypeKind.USER)));
 
-        if (notification.isSelfAsRecipient() && any instanceof User) {
-            recipients.add((User) any);
+        if (notification.isSelfAsRecipient() && any instanceof final User user) {
+            recipients.add(user);
         }
 
         Set<String> recipientEmails = new HashSet<>();
@@ -292,36 +292,36 @@ public class DefaultNotificationManager implements NotificationManager {
             final Object output,
             final Object... input) {
 
-        Optional<? extends Any<?>> any = Optional.empty();
+        Optional<? extends Any> any = Optional.empty();
 
         if (before instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
         } else if (output instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
-        } else if (output instanceof Pair
-                && ((Pair) output).getRight() instanceof UserTO) {
+        } else if (output instanceof final Pair pair
+                && pair.getRight() instanceof final UserTO userTO) {
 
-            any = userDAO.findById(((UserTO) ((Pair) output).getRight()).getKey());
-        } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getEntity() instanceof UserTO) {
+            any = userDAO.findById(userTO.getKey());
+        } else if (output instanceof final ProvisioningResult provisioningResult1
+                && provisioningResult1.getEntity() instanceof UserTO) {
 
-            any = userDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+            any = userDAO.findById(provisioningResult1.getEntity().getKey());
         } else if (before instanceof AnyObjectTO anyObjectTO) {
             any = anyObjectDAO.findById(anyObjectTO.getKey());
         } else if (output instanceof AnyObjectTO anyObjectTO) {
             any = anyObjectDAO.findById(anyObjectTO.getKey());
-        } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getEntity() instanceof AnyObjectTO) {
+        } else if (output instanceof final ProvisioningResult result
+                && result.getEntity() instanceof AnyObjectTO) {
 
-            any = anyObjectDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+            any = anyObjectDAO.findById(result.getEntity().getKey());
         } else if (before instanceof GroupTO groupTO) {
             any = groupDAO.findById(groupTO.getKey());
         } else if (output instanceof GroupTO groupTO) {
             any = groupDAO.findById(groupTO.getKey());
-        } else if (output instanceof ProvisioningResult
-                && ((ProvisioningResult) output).getEntity() instanceof GroupTO) {
+        } else if (output instanceof final ProvisioningResult provisioningResult
+                && provisioningResult.getEntity() instanceof GroupTO) {
 
-            any = groupDAO.findById(((ProvisioningResult) output).getEntity().getKey());
+            any = groupDAO.findById(provisioningResult.getEntity().getKey());
         }
 
         AnyType anyType = any.map(Any::getType).orElse(null);
@@ -402,12 +402,12 @@ public class DefaultNotificationManager implements NotificationManager {
 
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {
-                    Optional<? extends UPlainAttr> attr = membership == null
+                    Optional<PlainAttr> attr = membership == null
                             ? user.getPlainAttr(recipientAttrName)
                             : user.getPlainAttr(recipientAttrName, membership);
                     email = attr.map(a -> a.getValuesAsStrings().isEmpty()
                             ? null
-                            : a.getValuesAsStrings().get(0)).
+                            : a.getValuesAsStrings().getFirst()).
                             orElse(null);
                 }
 
@@ -425,7 +425,7 @@ public class DefaultNotificationManager implements NotificationManager {
                                 List<String> virAttrValues = membership == null
                                         ? virAttrHandler.getValues(user, virSchema)
                                         : virAttrHandler.getValues(user, membership, virSchema);
-                                return virAttrValues.isEmpty() ? null : virAttrValues.get(0);
+                                return virAttrValues.isEmpty() ? null : virAttrValues.getFirst();
                             }).
                             orElse(null);
                 }

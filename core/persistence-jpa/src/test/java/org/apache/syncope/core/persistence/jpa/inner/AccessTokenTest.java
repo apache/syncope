@@ -85,7 +85,7 @@ public class AccessTokenTest extends AbstractTest {
 
         list = page.get().toList();
         assertEquals(1, list.size());
-        assertEquals("2", list.get(0).getKey());
+        assertEquals("2", list.getFirst().getKey());
     }
 
     @Test

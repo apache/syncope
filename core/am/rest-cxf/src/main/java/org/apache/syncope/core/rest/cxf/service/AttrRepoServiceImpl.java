@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.core.logic.AttrRepoLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AttrRepoServiceImpl extends AbstractService implements AttrRepoService {
 
     protected final AttrRepoLogic logic;

@@ -147,7 +147,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             @Override
             public void onEndRequest(final RequestCycle cycle) {
                 if (cycle.getResponse() instanceof WebResponse webResponse) {
-                    props.getSecurityHeaders().forEach((name, value) -> webResponse.setHeader(name, value));
+                    props.getSecurityHeaders().forEach(webResponse::setHeader);
                 }
             }
         });

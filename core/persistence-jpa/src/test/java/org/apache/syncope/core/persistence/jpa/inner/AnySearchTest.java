@@ -50,16 +50,15 @@ import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.AuxClassCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
-import org.apache.syncope.core.persistence.api.dao.search.PrivilegeCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
@@ -110,10 +109,65 @@ public class AnySearchTest extends AbstractTest {
     public void adjustLoginDateForLocalSystem() throws ParseException {
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        UPlainAttr loginDate = rossini.getPlainAttr("loginDate").get();
-        loginDate.getValues().get(0).setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
+        PlainAttr loginDate = rossini.getPlainAttr("loginDate").orElseThrow();
+        loginDate.getValues().getFirst().setDateValue(FormatUtils.parseDate(LOGIN_DATE_VALUE, "yyyy-MM-dd"));
 
         userDAO.save(rossini);
+    }
+
+    @Test
+    public void searchTwoPlainSchemas() {
+        AttrCond firstnameCond = new AttrCond(AttrCond.Type.EQ);
+        firstnameCond.setSchema("firstname");
+        firstnameCond.setExpression("Gioacchino");
+
+        AttrCond surnameCond = new AttrCond(AttrCond.Type.EQ);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("Rossini");
+
+        SearchCond cond = SearchCond.and(SearchCond.of(firstnameCond), SearchCond.of(surnameCond));
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        surnameCond = new AttrCond(AttrCond.Type.EQ);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("Verdi");
+
+        cond = SearchCond.and(SearchCond.of(firstnameCond), SearchCond.negate(surnameCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        AttrCond fullnameCond = new AttrCond(AttrCond.Type.EQ);
+        fullnameCond.setSchema("fullname");
+        fullnameCond.setExpression("Vincenzo Bellini");
+
+        AttrCond userIdCond = new AttrCond(AttrCond.Type.EQ);
+        userIdCond.setSchema("userId");
+        userIdCond.setExpression("bellini@apache.org");
+
+        cond = SearchCond.and(SearchCond.of(fullnameCond), SearchCond.of(userIdCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+
+        userIdCond = new AttrCond(AttrCond.Type.EQ);
+        userIdCond.setSchema("userId");
+        userIdCond.setExpression("rossini@apache.org");
+
+        cond = SearchCond.and(SearchCond.of(fullnameCond), SearchCond.negate(userIdCond));
+        assertTrue(cond.isValid());
+
+        users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
     }
 
     @Test
@@ -129,12 +183,12 @@ public class AnySearchTest extends AbstractTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
-        SearchCond subCond = SearchCond.getAnd(
-                SearchCond.getLeaf(fullnameLeafCond), SearchCond.getLeaf(groupCond));
+        SearchCond subCond = SearchCond.and(
+                SearchCond.of(fullnameLeafCond), SearchCond.of(groupCond));
 
         assertTrue(subCond.isValid());
 
-        SearchCond cond = SearchCond.getAnd(subCond, SearchCond.getLeaf(loginDateCond));
+        SearchCond cond = SearchCond.and(subCond, SearchCond.of(loginDateCond));
 
         assertTrue(cond.isValid());
 
@@ -156,12 +210,12 @@ public class AnySearchTest extends AbstractTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
-        SearchCond subCond = SearchCond.getAnd(
-                SearchCond.getLeaf(fullnameLeafCond), SearchCond.getLeaf(groupCond));
+        SearchCond subCond = SearchCond.and(
+                SearchCond.of(fullnameLeafCond), SearchCond.of(groupCond));
 
         assertTrue(subCond.isValid());
 
-        SearchCond cond = SearchCond.getAnd(subCond, SearchCond.getLeaf(loginDateCond));
+        SearchCond cond = SearchCond.and(subCond, SearchCond.of(loginDateCond));
 
         assertTrue(cond.isValid());
 
@@ -176,7 +230,7 @@ public class AnySearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
 
-        SearchCond cond = SearchCond.getNotLeaf(fullnameLeafCond);
+        SearchCond cond = SearchCond.negate(fullnameLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -194,7 +248,7 @@ public class AnySearchTest extends AbstractTest {
         usernameLeafCond.setSchema("username");
         usernameLeafCond.setExpression("verdi");
 
-        SearchCond cond = SearchCond.getNotLeaf(usernameLeafCond);
+        SearchCond cond = SearchCond.negate(usernameLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -210,7 +264,7 @@ public class AnySearchTest extends AbstractTest {
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("giuseppe verdi");
 
-        SearchCond cond = SearchCond.getNotLeaf(fullnameLeafCond);
+        SearchCond cond = SearchCond.negate(fullnameLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -228,14 +282,14 @@ public class AnySearchTest extends AbstractTest {
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        SearchCond cond = SearchCond.getLeaf(coolLeafCond);
+        SearchCond cond = SearchCond.of(coolLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -244,16 +298,16 @@ public class AnySearchTest extends AbstractTest {
         anyCond.setSchema("realm");
         anyCond.setExpression("c5b75db1-fce7-470f-b780-3b9934d82a9d");
 
-        List<User> users = searchDAO.search(SearchCond.getLeaf(anyCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("rossini", users.get(0).getUsername());
+        assertEquals("rossini", users.getFirst().getUsername());
 
         anyCond.setExpression("/even");
-        users = searchDAO.search(SearchCond.getLeaf(anyCond), AnyTypeKind.USER);
+        users = searchDAO.search(SearchCond.of(anyCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("rossini", users.get(0).getUsername());
+        assertEquals("rossini", users.getFirst().getUsername());
     }
 
     @Test
@@ -269,12 +323,12 @@ public class AnySearchTest extends AbstractTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
-        SearchCond subCond = SearchCond.getAnd(
-                SearchCond.getLeaf(fullnameLeafCond), SearchCond.getLeaf(groupCond));
+        SearchCond subCond = SearchCond.and(
+                SearchCond.of(fullnameLeafCond), SearchCond.of(groupCond));
 
         assertTrue(subCond.isValid());
 
-        SearchCond cond = SearchCond.getAnd(subCond, SearchCond.getLeaf(loginDateCond));
+        SearchCond cond = SearchCond.and(subCond, SearchCond.of(loginDateCond));
 
         assertTrue(cond.isValid());
 
@@ -300,13 +354,13 @@ public class AnySearchTest extends AbstractTest {
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("child");
 
-        List<User> matchingChild = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
+        List<User> matchingChild = searchDAO.search(SearchCond.of(groupCond), AnyTypeKind.USER);
         assertNotNull(matchingChild);
         assertTrue(matchingChild.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
 
         groupCond.setGroup("otherchild");
 
-        List<User> matchingOtherChild = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
+        List<User> matchingOtherChild = searchDAO.search(SearchCond.of(groupCond), AnyTypeKind.USER);
         assertNotNull(matchingOtherChild);
         assertTrue(matchingOtherChild.stream().anyMatch(user -> "rossini".equals(user.getUsername())));
 
@@ -317,14 +371,14 @@ public class AnySearchTest extends AbstractTest {
 
         groupCond.setGroup("%child");
 
-        List<User> matchingStar = searchDAO.search(SearchCond.getLeaf(groupCond), AnyTypeKind.USER);
+        List<User> matchingStar = searchDAO.search(SearchCond.of(groupCond), AnyTypeKind.USER);
         assertNotNull(matchingStar);
         assertTrue(matchingStar.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
         assertTrue(matchingStar.stream().anyMatch(user -> "rossini".equals(user.getUsername())));
         assertEquals(union, matchingStar.stream().map(User::getUsername).collect(Collectors.toSet()));
 
         matchingStar = searchDAO.search(realmDAO.getRoot(), false, SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeaf(groupCond), Pageable.unpaged(), AnyTypeKind.USER);
+                SearchCond.of(groupCond), Pageable.unpaged(), AnyTypeKind.USER);
         assertNotNull(matchingStar);
         assertTrue(matchingStar.stream().anyMatch(user -> "verdi".equals(user.getUsername())));
         assertTrue(matchingStar.stream().noneMatch(user -> "rossini".equals(user.getUsername())));
@@ -335,17 +389,7 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("Other");
 
-        List<User> users = searchDAO.search(SearchCond.getLeaf(roleCond), AnyTypeKind.USER);
-        assertNotNull(users);
-        assertEquals(1, users.size());
-    }
-
-    @Test
-    public void searchByPrivilege() {
-        PrivilegeCond privilegeCond = new PrivilegeCond();
-        privilegeCond.setPrivilege("postMighty");
-
-        List<User> users = searchDAO.search(SearchCond.getLeaf(privilegeCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.of(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -355,14 +399,14 @@ public class AnySearchTest extends AbstractTest {
         AttrCond coolLeafCond = new AttrCond(AttrCond.Type.ISNULL);
         coolLeafCond.setSchema("cool");
 
-        List<User> users = searchDAO.search(SearchCond.getLeaf(coolLeafCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.of(coolLeafCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
 
         coolLeafCond = new AttrCond(AttrCond.Type.ISNOTNULL);
         coolLeafCond.setSchema("cool");
 
-        users = searchDAO.search(SearchCond.getLeaf(coolLeafCond), AnyTypeKind.USER);
+        users = searchDAO.search(SearchCond.of(coolLeafCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
     }
@@ -372,7 +416,7 @@ public class AnySearchTest extends AbstractTest {
         AuxClassCond ac = new AuxClassCond();
         ac.setAuxClass("csv");
 
-        List<Group> groups = searchDAO.search(SearchCond.getLeaf(ac), AnyTypeKind.GROUP);
+        List<Group> groups = searchDAO.search(SearchCond.of(ac), AnyTypeKind.GROUP);
         assertNotNull(groups);
         assertEquals(2, groups.size());
     }
@@ -385,7 +429,7 @@ public class AnySearchTest extends AbstractTest {
         ResourceCond ws1 = new ResourceCond();
         ws1.setResource("ws-target-resource-list-mappings-2");
 
-        SearchCond searchCondition = SearchCond.getAnd(SearchCond.getNotLeaf(ws2), SearchCond.getLeaf(ws1));
+        SearchCond searchCondition = SearchCond.and(SearchCond.negate(ws2), SearchCond.of(ws1));
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -399,7 +443,7 @@ public class AnySearchTest extends AbstractTest {
         booleanCond.setSchema("show");
         booleanCond.setExpression("true");
 
-        List<Group> matchingGroups = searchDAO.search(SearchCond.getLeaf(booleanCond), AnyTypeKind.GROUP);
+        List<Group> matchingGroups = searchDAO.search(SearchCond.of(booleanCond), AnyTypeKind.GROUP);
         assertNotNull(matchingGroups);
         assertFalse(matchingGroups.isEmpty());
     }
@@ -414,15 +458,15 @@ public class AnySearchTest extends AbstractTest {
         idRightCond.setSchema("key");
         idRightCond.setExpression("2");
 
-        SearchCond searchCondition = SearchCond.getAnd(
-                SearchCond.getLeaf(usernameLeafCond),
-                SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.and(
+                SearchCond.of(usernameLeafCond),
+                SearchCond.of(idRightCond));
 
         List<User> matching = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matching);
         assertEquals(1, matching.size());
-        assertEquals("rossini", matching.iterator().next().getUsername());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matching.iterator().next().getKey());
+        assertEquals("rossini", matching.getFirst().getUsername());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matching.getFirst().getKey());
     }
 
     @Test
@@ -435,17 +479,17 @@ public class AnySearchTest extends AbstractTest {
         idRightCond.setSchema("key");
         idRightCond.setExpression("37d15e4c-cdc1-460b-a591-8505c8133806");
 
-        SearchCond searchCondition = SearchCond.getAnd(
-                SearchCond.getLeaf(groupNameLeafCond),
-                SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.and(
+                SearchCond.of(groupNameLeafCond),
+                SearchCond.of(idRightCond));
 
         assertTrue(searchCondition.isValid());
 
         List<Group> matching = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
         assertNotNull(matching);
         assertEquals(1, matching.size());
-        assertEquals("root", matching.iterator().next().getName());
-        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", matching.iterator().next().getKey());
+        assertEquals("root", matching.getFirst().getName());
+        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", matching.getFirst().getKey());
     }
 
     @Test
@@ -458,9 +502,9 @@ public class AnySearchTest extends AbstractTest {
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
 
-        SearchCond searchCondition = SearchCond.getOr(
-                SearchCond.getLeaf(usernameLeafCond),
-                SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.or(
+                SearchCond.of(usernameLeafCond),
+                SearchCond.of(idRightCond));
 
         List<User> matchingUsers = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matchingUsers);
@@ -477,9 +521,9 @@ public class AnySearchTest extends AbstractTest {
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("gIuseppe v%");
 
-        SearchCond searchCondition = SearchCond.getOr(
-                SearchCond.getLeaf(usernameLeafCond),
-                SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.or(
+                SearchCond.of(usernameLeafCond),
+                SearchCond.of(idRightCond));
 
         List<User> matchingUsers = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(matchingUsers);
@@ -492,13 +536,13 @@ public class AnySearchTest extends AbstractTest {
         idLeafCond.setSchema("key");
         idLeafCond.setExpression("74cd8ece-715a-44a4-a736-e17b46c4e7e6");
 
-        SearchCond searchCondition = SearchCond.getLeaf(idLeafCond);
+        SearchCond searchCondition = SearchCond.of(idLeafCond);
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("74cd8ece-715a-44a4-a736-e17b46c4e7e6", users.iterator().next().getKey());
+        assertEquals("74cd8ece-715a-44a4-a736-e17b46c4e7e6", users.getFirst().getKey());
     }
 
     @Test
@@ -506,7 +550,7 @@ public class AnySearchTest extends AbstractTest {
         AnyTypeCond tcond = new AnyTypeCond();
         tcond.setAnyTypeKey("PRINTER");
 
-        SearchCond searchCondition = SearchCond.getLeaf(tcond);
+        SearchCond searchCondition = SearchCond.of(tcond);
         assertTrue(searchCondition.isValid());
 
         List<AnyObject> printers = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
@@ -521,29 +565,29 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void searchByRelationshipType() {
-        // 1. first search for printers involved in "neighborhood" relationship
+        // 1. first search for printers involved in "inclusion" relationship
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
-        relationshipTypeCond.setRelationshipTypeKey("neighborhood");
+        relationshipTypeCond.setRelationshipType("inclusion");
 
         AnyTypeCond tcond = new AnyTypeCond();
         tcond.setAnyTypeKey("PRINTER");
 
-        SearchCond searchCondition = SearchCond.getAnd(
-                SearchCond.getLeaf(relationshipTypeCond), SearchCond.getLeaf(tcond));
-        assertTrue(searchCondition.isValid());
+        SearchCond cond = SearchCond.and(SearchCond.of(relationshipTypeCond), SearchCond.of(tcond));
+        assertTrue(cond.isValid());
 
-        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        List<AnyObject> anyObjects = searchDAO.search(cond, AnyTypeKind.ANY_OBJECT);
         assertNotNull(anyObjects);
         assertEquals(2, anyObjects.size());
         assertTrue(anyObjects.stream().anyMatch(any -> "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(any.getKey())));
         assertTrue(anyObjects.stream().anyMatch(any -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(any.getKey())));
 
         // 2. search for users involved in "neighborhood" relationship
-        searchCondition = SearchCond.getLeaf(relationshipTypeCond);
-        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
+        relationshipTypeCond.setRelationshipType("neighborhood");
+        cond = SearchCond.of(relationshipTypeCond);
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertTrue(users.stream().anyMatch(any -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(any.getKey())));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -552,13 +596,13 @@ public class AnySearchTest extends AbstractTest {
         creationDateCond.setSchema("creationDate");
         creationDateCond.setExpression("2021-04-15 12:45:00");
 
-        SearchCond searchCondition = SearchCond.getLeaf(creationDateCond);
+        SearchCond searchCondition = SearchCond.of(creationDateCond);
         assertTrue(searchCondition.isValid());
 
         List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(anyObjects);
         assertEquals(1, anyObjects.size());
-        assertEquals("9e1d130c-d6a3-48b1-98b3-182477ed0688", anyObjects.iterator().next().getKey());
+        assertEquals("9e1d130c-d6a3-48b1-98b3-182477ed0688", anyObjects.getFirst().getKey());
     }
 
     @Test
@@ -567,13 +611,13 @@ public class AnySearchTest extends AbstractTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-27");
 
-        SearchCond searchCondition = SearchCond.getLeaf(loginDateCond);
+        SearchCond searchCondition = SearchCond.of(loginDateCond);
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", users.iterator().next().getKey());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", users.getFirst().getKey());
     }
 
     @Test
@@ -584,8 +628,8 @@ public class AnySearchTest extends AbstractTest {
         AttrCond idRightCond = new AttrCond(AttrCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
-        SearchCond searchCondition = SearchCond.getOr(
-                SearchCond.getLeaf(usernameLeafCond), SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.or(
+                SearchCond.of(usernameLeafCond), SearchCond.of(idRightCond));
 
         List<Sort.Order> orderByClauses = new ArrayList<>();
         orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "username"));
@@ -604,7 +648,7 @@ public class AnySearchTest extends AbstractTest {
         AnyCond idLeafCond = new AnyCond(AnyCond.Type.LIKE);
         idLeafCond.setSchema("name");
         idLeafCond.setExpression("%r");
-        SearchCond searchCondition = SearchCond.getLeaf(idLeafCond);
+        SearchCond searchCondition = SearchCond.of(idLeafCond);
         assertTrue(searchCondition.isValid());
 
         Sort.Order orderByClause = new Sort.Order(Sort.DEFAULT_DIRECTION, "name");
@@ -622,7 +666,7 @@ public class AnySearchTest extends AbstractTest {
     public void member() {
         MemberCond memberCond = new MemberCond();
         memberCond.setMember("1417acbe-cbf6-4277-9372-e75e04f97000");
-        SearchCond searchCondition = SearchCond.getLeaf(memberCond);
+        SearchCond searchCondition = SearchCond.of(memberCond);
         assertTrue(searchCondition.isValid());
 
         List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
@@ -678,7 +722,7 @@ public class AnySearchTest extends AbstractTest {
                     PageRequest.of(0, 10),
                     AnyTypeKind.GROUP);
             assertEquals(1, groups.size());
-            assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.get(0).getKey());
+            assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.getFirst().getKey());
         } finally {
             SecurityContextHolder.getContext().setAuthentication(null);
         }
@@ -693,7 +737,7 @@ public class AnySearchTest extends AbstractTest {
         AnyCond changePwdDateCond = new AnyCond(AttrCond.Type.ISNULL);
         changePwdDateCond.setSchema("changePwdDate");
 
-        SearchCond cond = SearchCond.getAnd(SearchCond.getNotLeaf(statusCond), SearchCond.getLeaf(changePwdDateCond));
+        SearchCond cond = SearchCond.and(SearchCond.negate(statusCond), SearchCond.of(changePwdDateCond));
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -710,7 +754,7 @@ public class AnySearchTest extends AbstractTest {
         ws1.setResource("ws-target-resource-list-mappings-1");
 
         SearchCond searchCondition =
-                SearchCond.getAnd(SearchCond.getNotLeaf(ws2), SearchCond.getNotLeaf(ws1));
+                SearchCond.and(SearchCond.negate(ws2), SearchCond.negate(ws1));
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -725,7 +769,7 @@ public class AnySearchTest extends AbstractTest {
         cond.setSchema("key");
         cond.setExpression("test%");
 
-        SearchCond searchCondition = SearchCond.getLeaf(cond);
+        SearchCond searchCondition = SearchCond.of(cond);
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -739,7 +783,7 @@ public class AnySearchTest extends AbstractTest {
         cond.setSchema("username");
         cond.setExpression("%ossin%");
 
-        SearchCond searchCondition = SearchCond.getLeaf(cond);
+        SearchCond searchCondition = SearchCond.of(cond);
         assertTrue(searchCondition.isValid());
 
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
@@ -756,8 +800,7 @@ public class AnySearchTest extends AbstractTest {
         likeCond.setSchema("username");
         likeCond.setExpression("%ossin%");
 
-        SearchCond searchCond = SearchCond.getOr(
-                SearchCond.getLeaf(isNullCond), SearchCond.getLeaf(likeCond));
+        SearchCond searchCond = SearchCond.or(SearchCond.of(isNullCond), SearchCond.of(likeCond));
 
         long count = searchDAO.count(
                 realmDAO.getRoot(), true, SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.USER);
@@ -774,13 +817,13 @@ public class AnySearchTest extends AbstractTest {
         genderCond.setSchema("gender");
         genderCond.setExpression("M");
 
-        SearchCond orCond = SearchCond.getOr(SearchCond.getLeaf(rossiniCond), SearchCond.getLeaf(genderCond));
+        SearchCond orCond = SearchCond.or(SearchCond.of(rossiniCond), SearchCond.of(genderCond));
 
         AttrCond belliniCond = new AttrCond(AttrCond.Type.EQ);
         belliniCond.setSchema("surname");
         belliniCond.setExpression("Bellini");
 
-        SearchCond searchCond = SearchCond.getAnd(orCond, SearchCond.getLeaf(belliniCond));
+        SearchCond searchCond = SearchCond.and(orCond, SearchCond.of(belliniCond));
 
         List<User> users = searchDAO.search(searchCond, AnyTypeKind.USER);
         assertNotNull(users);
@@ -821,7 +864,7 @@ public class AnySearchTest extends AbstractTest {
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("citizen");
 
-        SearchCond searchCondition = SearchCond.getLeaf(groupCond);
+        SearchCond searchCondition = SearchCond.of(groupCond);
 
         List<AnyObject> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertEquals(2, matching.size());
@@ -829,7 +872,7 @@ public class AnySearchTest extends AbstractTest {
         AnyTypeCond anyTypeCond = new AnyTypeCond();
         anyTypeCond.setAnyTypeKey(service.getKey());
 
-        searchCondition = SearchCond.getAnd(SearchCond.getLeaf(groupCond), SearchCond.getLeaf(anyTypeCond));
+        searchCondition = SearchCond.and(SearchCond.of(groupCond), SearchCond.of(anyTypeCond));
 
         matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertEquals(1, matching.size());
@@ -849,7 +892,7 @@ public class AnySearchTest extends AbstractTest {
                 realmDAO.getRoot(),
                 true,
                 SyncopeConstants.FULL_ADMIN_REALMS,
-                SearchCond.getLeaf(fullnameLeafCond),
+                SearchCond.of(fullnameLeafCond),
                 Pageable.unpaged(Sort.by(orderByClauses)),
                 AnyTypeKind.USER);
         assertFalse(users.isEmpty());
@@ -863,7 +906,7 @@ public class AnySearchTest extends AbstractTest {
         AttrCond idRightCond = new AttrCond(AttrCond.Type.ISNOTNULL);
         idRightCond.setSchema("firstname");
 
-        SearchCond searchCondition = SearchCond.getAnd(SearchCond.getLeaf(idLeftCond), SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.and(SearchCond.of(idLeftCond), SearchCond.of(idRightCond));
 
         List<Sort.Order> orderByClauses = List.of(new Sort.Order(Sort.Direction.ASC, "ctype"));
 
@@ -876,7 +919,7 @@ public class AnySearchTest extends AbstractTest {
         AttrCond fullnameCond = new AttrCond(AttrCond.Type.ISNOTNULL);
         fullnameCond.setSchema("fullname");
 
-        SearchCond cond = SearchCond.getLeaf(fullnameCond);
+        SearchCond cond = SearchCond.of(fullnameCond);
         assertTrue(cond.isValid());
 
         users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -885,7 +928,7 @@ public class AnySearchTest extends AbstractTest {
         fullnameCond = new AttrCond(AttrCond.Type.ISNULL);
         fullnameCond.setSchema("fullname");
 
-        cond = SearchCond.getLeaf(fullnameCond);
+        cond = SearchCond.of(fullnameCond);
         assertTrue(cond.isValid());
 
         users = searchDAO.search(cond, AnyTypeKind.USER);
@@ -898,7 +941,7 @@ public class AnySearchTest extends AbstractTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression(LOGIN_DATE_VALUE);
 
-        SearchCond cond = SearchCond.getNotLeaf(loginDateCond);
+        SearchCond cond = SearchCond.negate(loginDateCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);

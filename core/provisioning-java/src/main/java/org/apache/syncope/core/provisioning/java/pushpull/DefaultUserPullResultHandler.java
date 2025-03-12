@@ -88,7 +88,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return userDataBinder.getUserTO((User) any, true);
     }
 
@@ -296,7 +296,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             } catch (PropagationException e) {
                 // A propagation failure doesn't imply a pull failure.
                 // The propagation exception status will be reported into the propagation task execution.
-                LOG.error("Could not propagate linked acccount {}", account.getConnObjectKeyValue());
+                LOG.error("Could not propagate linked account {}", account.getConnObjectKeyValue());
                 output = e;
                 resultStatus = OpEvent.Outcome.FAILURE;
             } catch (Exception e) {
@@ -414,7 +414,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
         } catch (PropagationException e) {
             // A propagation failure doesn't imply a pull failure.
             // The propagation exception status will be reported into the propagation task execution.
-            LOG.error("Could not propagate linked acccount {}", accountTO.getConnObjectKeyValue());
+            LOG.error("Could not propagate linked account {}", accountTO.getConnObjectKeyValue());
             output = e;
             resultStatus = OpEvent.Outcome.FAILURE;
         } catch (Exception e) {
@@ -533,7 +533,7 @@ public class DefaultUserPullResultHandler extends AbstractPullResultHandler impl
             } catch (PropagationException e) {
                 // A propagation failure doesn't imply a pull failure.
                 // The propagation exception status will be reported into the propagation task execution.
-                LOG.error("Could not propagate linked acccount {}", account.getConnObjectKeyValue());
+                LOG.error("Could not propagate linked account {}", account.getConnObjectKeyValue());
                 output = e;
                 resultStatus = OpEvent.Outcome.FAILURE;
             } catch (Exception e) {

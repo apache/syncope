@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
-import org.springframework.stereotype.Service;
 
-@Service
 public class GoogleMfaAuthTokenServiceImpl extends AbstractService implements GoogleMfaAuthTokenService {
 
     protected final GoogleMfaAuthTokenLogic logic;

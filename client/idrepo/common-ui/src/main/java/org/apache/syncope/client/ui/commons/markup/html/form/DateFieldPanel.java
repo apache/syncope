@@ -55,10 +55,10 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
             @Override
             public Date getObject() {
                 Date date = null;
-                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
+                if (list != null && !list.isEmpty() && StringUtils.hasText(list.getFirst().toString())) {
                     try {
                         // Parse string using datePattern
-                        date = fmt.parse(list.get(0).toString());
+                        date = fmt.parse(list.getFirst().toString());
                     } catch (ParseException e) {
                         LOG.error("invalid parse exception", e);
                     }
@@ -100,9 +100,9 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
                         } catch (ParseException e) {
                             LOG.error("While parsing date", e);
                         }
-                    } else if (obj instanceof Date) {
+                    } else if (obj instanceof final Date date1) {
                         // Don't parse anything
-                        date = (Date) obj;
+                        date = date1;
                     } else {
                         // consider Long
                         date = new Date((Long) obj);
@@ -134,7 +134,7 @@ public abstract class DateFieldPanel extends FieldPanel<Date> {
                 return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
                         map(values -> {
                             try {
-                                return fmt.parse(values.get(0));
+                                return fmt.parse(values.getFirst());
                             } catch (ParseException e) {
                                 LOG.error("While parsing date", e);
                                 return null;

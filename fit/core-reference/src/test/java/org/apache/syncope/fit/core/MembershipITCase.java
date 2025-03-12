@@ -96,14 +96,14 @@ public class MembershipITCase extends AbstractITCase {
 
             // 1. verify that 'aLong' is correctly populated for user
             assertEquals(1, userTO.getPlainAttr("aLong").orElseThrow().getValues().size());
-            assertEquals("1976", userTO.getPlainAttr("aLong").orElseThrow().getValues().get(0));
+            assertEquals("1976", userTO.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
 
             // 2. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, userCR.getMemberships().size());
             membership = userTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").orElseThrow();
             assertNotNull(membership);
             assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
-            assertEquals("1977", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
+            assertEquals("1977", membership.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
 
             // 3. verify that derived attributes from 'csv' and 'other' are also populated for user's membership
             assertFalse(membership.getDerAttr("csvuserid").orElseThrow().getValues().isEmpty());
@@ -125,7 +125,7 @@ public class MembershipITCase extends AbstractITCase {
 
             // 4. verify that 'aLong' is correctly populated for user
             assertEquals(1, userTO.getPlainAttr("aLong").orElseThrow().getValues().size());
-            assertEquals("1977", userTO.getPlainAttr("aLong").orElseThrow().getValues().get(0));
+            assertEquals("1977", userTO.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
             assertFalse(userTO.getPlainAttr("ctype").isPresent());
 
             // 5. verify that 'aLong' is correctly populated for user's membership
@@ -133,10 +133,10 @@ public class MembershipITCase extends AbstractITCase {
             membership = userTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").orElseThrow();
             assertNotNull(membership);
             assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
-            assertEquals("1976", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
+            assertEquals("1976", membership.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
 
             // 6. verify that 'ctype' is correctly populated for user's membership
-            assertEquals("membership type", membership.getPlainAttr("ctype").orElseThrow().getValues().get(0));
+            assertEquals("membership type", membership.getPlainAttr("ctype").orElseThrow().getValues().getFirst());
 
             // finally remove membership
             userUR = new UserUR();
@@ -199,7 +199,7 @@ public class MembershipITCase extends AbstractITCase {
         membership = user.getMembership(groupTO.getKey()).orElseThrow();
         assertNotNull(membership);
         assertEquals(1, membership.getPlainAttr("aLong").orElseThrow().getValues().size());
-        assertEquals("1454", membership.getPlainAttr("aLong").orElseThrow().getValues().get(0));
+        assertEquals("1454", membership.getPlainAttr("aLong").orElseThrow().getValues().getFirst());
 
         // verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
         assertFalse(membership.getDerAttr("csvuserid").orElseThrow().getValues().isEmpty());
@@ -292,9 +292,9 @@ public class MembershipITCase extends AbstractITCase {
                     fiql(SyncopeClient.getUserSearchConditionBuilder().
                             is("username").equalTo(user.getUsername()).query()).build());
             assertEquals(1, users.getTotalCount());
-            assertEquals(1, users.getResult().get(0).getMemberships().size());
-            assertEquals("5432", users.getResult().get(0).getMemberships().get(0).
-                    getPlainAttr("aLong").orElseThrow().getValues().get(0));
+            assertEquals(1, users.getResult().getFirst().getMemberships().size());
+            assertEquals("5432", users.getResult().getFirst().getMemberships().getFirst().
+                    getPlainAttr("aLong").orElseThrow().getValues().getFirst());
         } catch (Exception e) {
             LOG.error("Unexpected error", e);
             fail(e::getMessage);
@@ -330,10 +330,10 @@ public class MembershipITCase extends AbstractITCase {
 
         AnyObjectUR req = new AnyObjectUR();
         req.setKey(anyObjecTO.getKey());
-        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build());
-        MembershipUR mp = new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").build();
-        mp.getPlainAttrs().add(attr("any", "useless"));
-        req.getMemberships().add(mp);
+        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").
+                build());
+        req.getMemberships().add(new MembershipUR.Builder("034740a9-fa10-453b-af37-dc7897e98fb1").
+                plainAttr(attr("any", "useless")).build());
 
         try {
             updateAnyObject(req).getEntity();

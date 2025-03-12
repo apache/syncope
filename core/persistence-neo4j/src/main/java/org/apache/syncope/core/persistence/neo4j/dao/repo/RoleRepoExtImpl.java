@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -34,7 +33,6 @@ import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPrivilege;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
@@ -87,11 +85,6 @@ public class RoleRepoExtImpl extends AbstractDAO implements RoleRepoExt {
     @Override
     public Optional<? extends Role> findById(final String key) {
         return findById(key, Neo4jRole.class, cache);
-    }
-
-    @Override
-    public List<Role> findByPrivileges(final Privilege privilege) {
-        return findByRelationship(Neo4jRole.NODE, Neo4jPrivilege.NODE, privilege.getKey(), Neo4jRole.class, cache);
     }
 
     @Override

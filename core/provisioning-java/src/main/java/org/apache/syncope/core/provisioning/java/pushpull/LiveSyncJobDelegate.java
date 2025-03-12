@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -68,7 +69,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandle
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
@@ -80,7 +80,7 @@ public class LiveSyncJobDelegate
         extends AbstractProvisioningJobDelegate<LiveSyncTask>
         implements StoppableSchedTaskJobDelegate {
 
-    protected static record LiveSyncInfo(
+    protected record LiveSyncInfo(
             Provision provision,
             OrgUnit orgUnit,
             ObjectClass objectClass,

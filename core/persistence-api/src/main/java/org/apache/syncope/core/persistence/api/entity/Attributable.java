@@ -21,11 +21,11 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.List;
 import java.util.Optional;
 
-public interface Attributable<P extends PlainAttr<?>> extends Entity {
+public interface Attributable extends Entity {
 
-    boolean add(P attr);
+    boolean add(PlainAttr attr);
 
-    boolean remove(P attr);
+    boolean remove(PlainAttr attr);
 
     /**
      * Returns the plain attribute for this instance and the given schema name.s
@@ -33,12 +33,12 @@ public interface Attributable<P extends PlainAttr<?>> extends Entity {
      * @param plainSchema plain schema name
      * @return plain attribute for this instance and the given schema name
      */
-    Optional<? extends P> getPlainAttr(String plainSchema);
+    Optional<PlainAttr> getPlainAttr(String plainSchema);
 
     /**
      * Returns the plain attributes for this instance.
      *
      * @return plain attribute for this instance
      */
-    List<? extends P> getPlainAttrs();
+    List<PlainAttr> getPlainAttrs();
 }

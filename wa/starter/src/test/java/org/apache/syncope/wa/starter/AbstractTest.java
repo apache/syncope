@@ -19,7 +19,9 @@
 package org.apache.syncope.wa.starter;
 
 import static org.awaitility.Awaitility.await;
+import static org.mockito.Mockito.mock;
 
+import com.okta.sdk.client.Client;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +42,16 @@ import org.apereo.cas.authentication.principal.Service;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributeDao;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributeDaoFilter;
 import org.apereo.cas.authentication.principal.attribute.PersonAttributes;
+import org.apereo.cas.persondir.PersonDirectoryAttributeRepositoryPlanConfigurer;
 import org.apereo.cas.services.RegisteredService;
+import org.apereo.cas.util.spring.beans.BeanContainer;
+import org.apereo.cas.util.spring.beans.BeanSupplier;
+import org.apereo.inspektr.common.web.ClientInfo;
+import org.apereo.inspektr.common.web.ClientInfoHolder;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -66,6 +76,8 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(locations = { "classpath:wa.properties", "classpath:test.properties" })
 @ContextConfiguration(initializers = ZookeeperTestingServer.class)
 public abstract class AbstractTest {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractTest.class);
 
     private static class DummyIPersonAttributeDao implements PersonAttributeDao {
 
@@ -205,11 +217,6 @@ public abstract class AbstractTest {
                 public AttributeDefinitionStore store(final Resource resource) {
                     return this;
                 }
-
-                @Override
-                public AttributeDefinitionStore importStore(final AttributeDefinitionStore definitionStore) {
-                    return this;
-                }
             };
         }
 
@@ -224,6 +231,29 @@ public abstract class AbstractTest {
         public PersonAttributeDao aggregatingAttributeRepository() {
             return new DummyIPersonAttributeDao();
         }
+
+        @Bean(name = "oktaPersonDirectoryClient")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public Client oktaPersonDirectoryClient() {
+            return null;
+        }
+
+        @Bean(name = "oktaPersonAttributeDaos")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public BeanContainer<PersonAttributeDao> oktaPersonAttributeDaos() {
+            return BeanContainer.empty();
+        }
+
+        @Bean(name = "oktaAttributeRepositoryPlanConfigurer")
+        @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+        public PersonDirectoryAttributeRepositoryPlanConfigurer oktaAttributeRepositoryPlanConfigurer() {
+            return BeanSupplier.of(PersonDirectoryAttributeRepositoryPlanConfigurer.class).otherwiseProxy().get();
+        }
+    }
+
+    @BeforeAll
+    public static void setupClientInfo() {
+        ClientInfoHolder.setClientInfo(mock(ClientInfo.class));
     }
 
     @LocalServerPort

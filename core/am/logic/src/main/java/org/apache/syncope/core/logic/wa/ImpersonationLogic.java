@@ -43,7 +43,7 @@ public class ImpersonationLogic extends AbstractAuthProfileLogic {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<ImpersonationAccount> read(final String owner) {
-        return authProfileDAO.findByOwner(owner).map(AuthProfile::getImpersonationAccounts).orElse(List.of());
+        return authProfileDAO.findByOwner(owner).map(AuthProfile::getImpersonationAccounts).orElseGet(List::of);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

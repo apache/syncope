@@ -80,14 +80,14 @@ public final class StatusUtils implements Serializable {
     public static Boolean isEnabled(final ConnObject connObject) {
         return connObject.getAttr(ConnIdSpecialName.ENABLE).
                 filter(s -> !s.getValues().isEmpty()).
-                map(s -> Boolean.valueOf(s.getValues().get(0))).
+                map(s -> Boolean.valueOf(s.getValues().getFirst())).
                 orElse(Boolean.FALSE);
     }
 
     public static String getConnObjectLink(final ConnObject connObject) {
         return connObject.getAttr(ConnIdSpecialName.NAME).
                 filter(s -> !s.getValues().isEmpty()).
-                map(s -> s.getValues().get(0)).
+                map(s -> s.getValues().getFirst()).
                 orElse(null);
     }
 
@@ -182,7 +182,7 @@ public final class StatusUtils implements Serializable {
 
             case SUCCESS:
                 alt = "success icon";
-                title = "Propagation succeded";
+                title = "Propagation succeeded";
                 clazz = Constants.ACTIVE_ICON;
                 break;
 

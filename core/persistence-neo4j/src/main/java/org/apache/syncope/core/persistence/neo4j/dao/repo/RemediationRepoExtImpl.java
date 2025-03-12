@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.text.TextStringBuilder;
 import org.apache.commons.text.matcher.StringMatcherFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -85,7 +84,7 @@ public class RemediationRepoExtImpl extends AbstractDAO implements RemediationRe
         }
 
         if (!conditions.isEmpty()) {
-            query.append("WHERE ").append(conditions.stream().collect(Collectors.joining(" AND ")));
+            query.append("WHERE ").append(String.join(" AND ", conditions));
         }
 
         return query;

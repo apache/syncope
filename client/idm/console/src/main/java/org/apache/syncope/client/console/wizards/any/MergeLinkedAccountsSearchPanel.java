@@ -103,9 +103,9 @@ public class MergeLinkedAccountsSearchPanel extends WizardStep {
                     + SearchUtils.buildFIQL(userSearchPanel.getModel().getObject(),
                             SyncopeClient.getUserSearchConditionBuilder());
             userDirectoryPanel.search(fiql, target);
-        } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+        } else if (event.getPayload() instanceof final AnySelectionDirectoryPanel.ItemSelection itemSelection) {
             AnySelectionDirectoryPanel.ItemSelection<?> payload =
-                    (AnySelectionDirectoryPanel.ItemSelection) event.getPayload();
+                itemSelection;
 
             AnyTO sel = payload.getSelection();
             wizardModel.setMergingUser(userRestClient.read(sel.getKey()));

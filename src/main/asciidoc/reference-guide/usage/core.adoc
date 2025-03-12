@@ -60,7 +60,7 @@ based on owned <<entitlements,entitlements>>.
 
 [NOTE]
 Users can examine their own entitlements looking at the `<<x-syncope-entitlements,X-Syncope-Entitlements>>`
-header value, and their own privileges looking at the `<<x-syncope-privileges,X-Syncope-Privileges>>` header value.
+header value.
 
 [TIP]
 ====
@@ -98,7 +98,7 @@ The set of RESTful services provided by Apache Syncope can be divided as:
 . endpoints disclosing information about the given Syncope deployment (available <<schema,schema>>, configured
 <<extensions,extensions>>, Groups, ...), requiring some sort of shared authentication defined by the
 `anonymousKey` value  in the `security.properties` file - for more information, read about Spring Security's
-https://docs.spring.io/spring-security/reference/6.3/servlet/authentication/anonymous.html#page-title[Anonymous Authentication^];
+https://docs.spring.io/spring-security/reference/6.4/servlet/authentication/anonymous.html#page-title[Anonymous Authentication^];
 . endpoints for self-service (self-update, password change, ...), requiring user authentication and no entitlements;
 . endpoints for administrative operations, requiring user authentication with authorization granted by the related
 <<entitlements,entitlements>>, handed over to users via <<roles,roles>>.
@@ -217,11 +217,6 @@ the <<entitlements,entitlements>> owned by the requesting user.
 
 When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Delegations` response header will list all
 delegating users for each <<delegation,Delegation>> for which the requesting user is delegated.
-
-===== X-Syncope-Privileges
-
-When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Privileges` response header will list all
-the <<privileges,privileges>> owned by the requesting user.
 
 ==== Batch
 

@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -122,8 +123,9 @@ public class RealmChoicePanel extends Panel {
                 Map<String, Pair<RealmTO, List<RealmTO>>> map = reloadRealmParentMap();
                 Stream<Pair<String, RealmTO>> full;
                 if (fullRealmsTree) {
-                    full = map.entrySet().stream().
-                            map(el -> Pair.of(el.getValue().getLeft().getFullPath(), el.getValue().getKey())).
+                    full = map.values().stream().
+                            map(realmTOListPair ->
+                                Pair.of(realmTOListPair.getLeft().getFullPath(), realmTOListPair.getKey())).
                             sorted(Comparator.comparing(Pair::getLeft));
                 } else {
                     full = map.entrySet().stream().
@@ -194,6 +196,15 @@ public class RealmChoicePanel extends Panel {
                 AjaxLink<Void> bcitem = new AjaxLink<>("bcitem") {
 
                     private static final long serialVersionUID = -817438685948164787L;
+
+                    @Override
+                    protected void onInitialize() {
+                        super.onInitialize();
+                        String fullPath = RealmsUtils.getFullPath(item.getModelObject());
+                        if (!SyncopeConstants.ROOT_REALM.equals(fullPath) && fullPath.lastIndexOf("/") == 0) {
+                            item.add(new AttributeModifier("class", "breadcrumb-item no-separator"));
+                        }
+                    }
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
@@ -458,7 +469,7 @@ public class RealmChoicePanel extends Panel {
 
         realms.forEach(realm -> {
             List<RealmTO> children = new ArrayList<>();
-            tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
+            tree.put(realm.getKey(), Pair.of(realm, children));
 
             if (cache.containsKey(realm.getKey())) {
                 children.addAll(cache.get(realm.getKey()));

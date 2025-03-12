@@ -137,9 +137,6 @@ public final class SearchUtils implements Serializable {
         if (SpecialAttr.ROLES.toString().equals(property)) {
             clause.setType(SearchClause.Type.ROLE_MEMBERSHIP);
             clause.setProperty(value);
-        } else if (SpecialAttr.PRIVILEGES.toString().equals(property)) {
-            clause.setType(SearchClause.Type.PRIVILEGE);
-            clause.setProperty(value);
         } else if (SpecialAttr.RELATIONSHIPS.toString().equals(property)) {
             clause.setType(SearchClause.Type.RELATIONSHIP);
             clause.setProperty(value);
@@ -167,7 +164,7 @@ public final class SearchUtils implements Serializable {
 
         ConditionType ct = sc.getConditionType();
         if (sc instanceof final SyncopeFiqlSearchCondition<SearchBean> sfsc
-            && sc.getConditionType() == ConditionType.CUSTOM) {
+                && sc.getConditionType() == ConditionType.CUSTOM) {
             if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
                 ct = ConditionType.EQUALS;
             } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {
@@ -268,10 +265,10 @@ public final class SearchUtils implements Serializable {
                         if (StringUtils.isNotBlank(clause.getProperty())) {
                             String groupKey = clause.getProperty();
 
-                            if (builder instanceof UserFiqlSearchConditionBuilder) {
+                            if (builder instanceof final UserFiqlSearchConditionBuilder conditionBuilder) {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                        ? ((UserFiqlSearchConditionBuilder) builder).inGroups(groupKey)
-                                        : ((UserFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
+                                        ? conditionBuilder.inGroups(groupKey)
+                                        : conditionBuilder.notInGroups(groupKey);
                             } else {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
                                         ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)
@@ -409,44 +406,21 @@ public final class SearchUtils implements Serializable {
                         }
                         break;
 
-                    case PRIVILEGE:
-                        if (StringUtils.isNotBlank(clause.getProperty())
-                                && builder instanceof UserFiqlSearchConditionBuilder) {
-
-                            switch (clause.getComparator()) {
-                                case EQUALS:
-                                    condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            withPrivileges(clause.getProperty());
-                                    break;
-                                case NOT_EQUALS:
-                                    condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            withoutPrivileges(clause.getProperty());
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        break;
-
                     case RELATIONSHIP:
                         if (StringUtils.isNotBlank(clause.getProperty())) {
-                            if (builder instanceof UserFiqlSearchConditionBuilder) {
+                            if (builder instanceof UserFiqlSearchConditionBuilder ubuilder) {
                                 switch (clause.getComparator()) {
                                     case IS_NOT_NULL:
-                                        condition = ((UserFiqlSearchConditionBuilder) builder).
-                                                inRelationshipTypes(clause.getProperty());
+                                        condition = ubuilder.inRelationshipTypes(clause.getProperty());
                                         break;
                                     case IS_NULL:
-                                        condition = ((UserFiqlSearchConditionBuilder) builder).
-                                                notInRelationshipTypes(clause.getProperty());
+                                        condition = ubuilder.notInRelationshipTypes(clause.getProperty());
                                         break;
                                     case EQUALS:
-                                        condition = ((UserFiqlSearchConditionBuilder) builder).
-                                                inRelationships(value);
+                                        condition = ubuilder.inRelationships(value);
                                         break;
                                     case NOT_EQUALS:
-                                        condition = ((UserFiqlSearchConditionBuilder) builder).
-                                                notInRelationships(value);
+                                        condition = ubuilder.notInRelationships(value);
                                         break;
                                     default:
                                         break;

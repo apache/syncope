@@ -31,12 +31,10 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -71,13 +69,12 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     }
 
     @Override
-    protected String getQuery(
+    protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,
             final boolean not,
+            final Pair<PlainSchema, PlainAttrValue> checked,
             final List<Object> parameters,
             final SearchSupport svs) {
-
-        Pair<PlainSchema, PlainAttrValue> checked = check(cond, svs.anyTypeKind);
 
         // normalize NULL / NOT NULL checks
         if (not) {
@@ -88,45 +85,39 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
             }
         }
 
-        StringBuilder query =
-                new StringBuilder("SELECT DISTINCT any_id FROM ").append(svs.field().name()).append(" WHERE ");
         switch (cond.getType()) {
-            case ISNOTNULL:
-                query.append("JSON_SEARCH(plainAttrs, 'one', '").
-                        append(checked.getLeft().getKey()).
-                        append("', NULL, '$[*].schema') IS NOT NULL");
-                break;
+            case ISNOTNULL -> {
+                return Pair.of(true, new AnySearchNode.Leaf(
+                        svs.field(),
+                        "JSON_SEARCH("
+                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + ") IS NOT NULL"));
+            }
 
-            case ISNULL:
-                query.append("JSON_SEARCH(plainAttrs, 'one', '").
-                        append(checked.getLeft().getKey()).
-                        append("', NULL, '$[*].schema') IS NULL");
-                break;
+            case ISNULL -> {
+                return Pair.of(true, new AnySearchNode.Leaf(
+                        svs.field(),
+                        "JSON_SEARCH("
+                        + "plainAttrs, 'one', '" + checked.getLeft().getKey() + "', NULL, '$[*].schema'"
+                        + ") IS NULL"));
+            }
 
-            default:
+            default -> {
                 if (!not && cond.getType() == AttrCond.Type.EQ) {
-                    PlainAttr<?> container = anyUtilsFactory.getInstance(svs.anyTypeKind).newPlainAttr();
-                    container.setSchema(checked.getLeft());
-                    if (checked.getRight() instanceof PlainAttrUniqueValue plainAttrUniqueValue) {
-                        container.setUniqueValue(plainAttrUniqueValue);
+                    PlainAttr container = new PlainAttr();
+                    container.setPlainSchema(checked.getLeft());
+                    if (checked.getLeft().isUniqueConstraint()) {
+                        container.setUniqueValue(checked.getRight());
                     } else {
                         container.add(checked.getRight());
                     }
 
-                    query.append("JSON_CONTAINS(plainAttrs, '").
-                            append(POJOHelper.serialize(List.of(container)).replace("'", "''")).
-                            append("')");
+                    return Pair.of(true, new AnySearchNode.Leaf(
+                            svs.field(),
+                            "JSON_CONTAINS("
+                            + "plainAttrs, '" + POJOHelper.serialize(List.of(container)).replace("'", "''")
+                            + "')"));
                 } else {
-                    query = new StringBuilder("SELECT DISTINCT any_id FROM ");
-                    if (not && !(cond instanceof AnyCond) && checked.getLeft().isMultivalue()) {
-                        query.append(svs.field().name()).append(" WHERE ");
-                    } else {
-                        query.append((checked.getLeft().isUniqueConstraint()
-                                ? svs.asSearchViewSupport().uniqueAttr().name()
-                                : svs.asSearchViewSupport().attr().name())).
-                                append(" WHERE schema_id='").append(checked.getLeft().getKey());
-                    }
-
                     Optional.ofNullable(checked.getRight().getDateValue()).
                             map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
                             ifPresent(formatted -> {
@@ -134,10 +125,9 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                                 checked.getRight().setStringValue(formatted);
                             });
 
-                    fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
+                    return super.getQuery(cond, not, checked, parameters, svs);
                 }
+            }
         }
-
-        return query.toString();
     }
 }

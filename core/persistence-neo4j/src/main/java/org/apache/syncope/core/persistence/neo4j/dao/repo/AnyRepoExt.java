@@ -27,9 +27,6 @@ import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
@@ -37,7 +34,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
 
-public interface AnyRepoExt<A extends Any<?>> {
+public interface AnyRepoExt<A extends Any> {
 
     String REGEX_CHARS = "{}[]()?+*.\"'";
 
@@ -78,11 +75,6 @@ public interface AnyRepoExt<A extends Any<?>> {
     Optional<OffsetDateTime> findLastChange(String key);
 
     A authFind(String key);
-
-    List<A> findByPlainAttrValue(PlainSchema schema, PlainAttrValue attrValue, boolean ignoreCaseMatch);
-
-    Optional<A> findByPlainAttrUniqueValue(
-            PlainSchema schema, PlainAttrUniqueValue attrUniqueValue, boolean ignoreCaseMatch);
 
     List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
 

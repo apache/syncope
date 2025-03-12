@@ -94,11 +94,11 @@ public class StatusPanel extends Panel {
 
         final StatusBean syncope = new StatusBean(any, Constants.SYNCOPE);
 
-        if (any instanceof UserTO) {
-            syncope.setConnObjectLink(((UserTO) any).getUsername());
+        if (any instanceof final UserTO userTO) {
+            syncope.setConnObjectLink(userTO.getUsername());
 
             Status syncopeStatus = Status.UNDEFINED;
-            if (((UserTO) any).getStatus() != null) {
+            if (userTO.getStatus() != null) {
                 try {
                     syncopeStatus = Status.valueOf(((UserTO) any).getStatus().toUpperCase());
                 } catch (IllegalArgumentException e) {
@@ -106,8 +106,8 @@ public class StatusPanel extends Panel {
                 }
             }
             syncope.setStatus(syncopeStatus);
-        } else if (any instanceof GroupTO) {
-            syncope.setConnObjectLink(((GroupTO) any).getName());
+        } else if (any instanceof final GroupTO groupTO) {
+            syncope.setConnObjectLink(groupTO.getName());
             syncope.setStatus(Status.ACTIVE);
         }
 
@@ -230,7 +230,7 @@ public class StatusPanel extends Panel {
 
             add(new ConnObjectPanel(
                     REMOTE_OBJECT_PANEL_ID,
-                    Pair.<IModel<?>, IModel<?>>of(new ResourceModel("before"), new ResourceModel("after")),
+                    Pair.of(new ResourceModel("before"), new ResourceModel("after")),
                     getConnObjectTOs(),
                     false));
         }

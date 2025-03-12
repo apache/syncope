@@ -22,10 +22,10 @@
 Once you have obtained a working installation of Apache Syncope using one of the methods reported above, you should consider 
 reading the
 ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.0/reference-guide.html[Apache Syncope Reference Guide.]
 endif::[]
 ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide.]
+https://syncope.apache.org/docs/4.0/reference-guide.pdf[Apache Syncope Reference Guide.]
 endif::[]
 to understand how to configure, extend, customize and deploy your new Apache Syncope project.
 

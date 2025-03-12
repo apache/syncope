@@ -28,12 +28,13 @@ public final class ConnPoolConfUtils {
         ConnPoolConf cpc = new ConnPoolConf();
         ObjectPoolConfiguration opc = new ObjectPoolConfiguration();
 
-        cpc.setMaxIdle(Optional.ofNullable(cpcto.getMaxIdle()).orElse(opc.getMaxIdle()));
-        cpc.setMaxObjects(Optional.ofNullable(cpcto.getMaxObjects()).orElse(opc.getMaxObjects()));
-        cpc.setMaxWait(Optional.ofNullable(cpcto.getMaxWait()).orElse(opc.getMaxWait()));
+        cpc.setMaxIdle(Optional.ofNullable(cpcto.getMaxIdle()).orElseGet(opc::getMaxIdle));
+        cpc.setMaxObjects(Optional.ofNullable(cpcto.getMaxObjects()).orElseGet(opc::getMaxObjects));
+        cpc.setMaxWait(Optional.ofNullable(cpcto.getMaxWait()).orElseGet(opc::getMaxWait));
         cpc.setMinEvictableIdleTimeMillis(
-                Optional.ofNullable(cpcto.getMinEvictableIdleTimeMillis()).orElse(opc.getMinEvictableIdleTimeMillis()));
-        cpc.setMinIdle(Optional.ofNullable(cpcto.getMinIdle()).orElse(opc.getMinIdle()));
+                Optional.ofNullable(cpcto.getMinEvictableIdleTimeMillis()).
+                    orElseGet(opc::getMinEvictableIdleTimeMillis));
+        cpc.setMinIdle(Optional.ofNullable(cpcto.getMinIdle()).orElseGet(opc::getMinIdle));
 
         return cpc;
     }

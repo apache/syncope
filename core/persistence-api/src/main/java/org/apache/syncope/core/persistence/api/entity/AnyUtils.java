@@ -32,23 +32,9 @@ public interface AnyUtils {
 
     AnyTypeKind anyTypeKind();
 
-    <T extends Any<?>> Class<T> anyClass();
+    <T extends Any> Class<T> anyClass();
 
     Optional<Field> getField(String name);
-
-    <T extends PlainAttr<?>> Class<T> plainAttrClass();
-
-    <T extends PlainAttr<?>> T newPlainAttr();
-
-    <T extends PlainAttrValue> Class<T> plainAttrValueClass();
-
-    <T extends PlainAttrValue> T newPlainAttrValue();
-
-    <T extends PlainAttrUniqueValue> Class<T> plainAttrUniqueValueClass();
-
-    <T extends PlainAttrUniqueValue> T newPlainAttrUniqueValue();
-
-    <T extends PlainAttrValue> T clonePlainAttrValue(T src);
 
     <T extends AnyTO> T newAnyTO();
 
@@ -56,9 +42,9 @@ public interface AnyUtils {
 
     <U extends AnyUR> U newAnyUR(String key);
 
-    <A extends Any<?>> AnyDAO<A> dao();
+    <A extends Any> AnyDAO<A> dao();
 
-    Set<ExternalResource> getAllResources(Any<?> any);
+    Set<ExternalResource> getAllResources(Any any);
 
     void addAttr(PlainAttrValidationManager validator, String key, PlainSchema schema, String value);
 

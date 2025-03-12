@@ -32,6 +32,7 @@ public class RelationshipTypeModalPanel extends AbstractModalPanel<RelationshipT
             final BaseModal<RelationshipTypeTO> modal,
             final RelationshipTypeTO relationshipTypeTO,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.relationshipTypeTO = relationshipTypeTO;
         add(new RelationshipTypeDetailsPanel("relationshipTypeDetails", this.relationshipTypeTO));

@@ -32,7 +32,7 @@ public class Neo4jMacroTaskCommandRelationship
         implements Comparable<Neo4jMacroTaskCommandRelationship> {
 
     public static BiFunction<Integer, Neo4jMacroTaskCommand, Neo4jMacroTaskCommandRelationship> builder() {
-        return (Integer i, Neo4jMacroTaskCommand e) -> new Neo4jMacroTaskCommandRelationship(i, e);
+        return Neo4jMacroTaskCommandRelationship::new;
     }
 
     @RelationshipId

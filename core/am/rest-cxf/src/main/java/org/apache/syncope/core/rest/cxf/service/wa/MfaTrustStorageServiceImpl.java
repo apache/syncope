@@ -25,9 +25,7 @@ import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.core.logic.wa.MfaTrusStorageLogic;
 import org.apache.syncope.core.rest.cxf.service.AbstractService;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-@Service
 public class MfaTrustStorageServiceImpl extends AbstractService implements MfaTrustStorageService {
 
     protected final MfaTrusStorageLogic logic;

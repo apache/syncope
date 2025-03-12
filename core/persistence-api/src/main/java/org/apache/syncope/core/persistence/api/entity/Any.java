@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.time.OffsetDateTime;
 import java.util.List;
 
-public interface Any<P extends PlainAttr<?>> extends Attributable<P>, Entity {
+public interface Any extends Attributable, Entity {
 
     OffsetDateTime getCreationDate();
 

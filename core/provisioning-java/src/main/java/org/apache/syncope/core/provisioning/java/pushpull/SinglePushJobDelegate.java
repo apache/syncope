@@ -90,7 +90,7 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
             final ExternalResource resource,
             final Provision provision,
             final Connector connector,
-            final Any<?> any,
+            final Any any,
             final PushTaskTO pushTaskTO,
             final String executor) throws JobExecutionException {
 
@@ -128,8 +128,8 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
 
             return profile.getResults();
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While pushing to connector", e);
         }
     }
@@ -155,10 +155,10 @@ public class SinglePushJobDelegate extends PushJobDelegate implements SyncopeSin
                 action.afterAll(profile);
             }
 
-            return profile.getResults().get(0);
+            return profile.getResults().getFirst();
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While pushing to connector", e);
         }
     }

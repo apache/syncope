@@ -32,7 +32,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 import org.springframework.jndi.JndiObjectFactoryBean;
@@ -87,7 +87,7 @@ public class EmbeddedPostgreSQLContext {
         }
     }
 
-    @ConditionalOnClass(name = "org.postgresql.Driver")
+    @ConditionalOnProperty(prefix = "persistence", name = "db-type", havingValue = "POSTGRESQL", matchIfMissing = true)
     @Bean(name = "MasterDataSource")
     public JndiObjectFactoryBean masterDataSource(final Environment env) throws SQLException {
         String dbhost = env.getProperty("POSTGRES_HOST", DEFAULT_POSTGRES_HOST);

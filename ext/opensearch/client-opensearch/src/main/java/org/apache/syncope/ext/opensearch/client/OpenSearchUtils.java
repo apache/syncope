@@ -35,11 +35,12 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AuditEvent;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.Privilege;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -62,7 +63,7 @@ public class OpenSearchUtils {
         return domain.toLowerCase() + "_audit";
     }
 
-    protected static final char[] ELASTICSEARCH_REGEX_CHARS = new char[] {
+    protected static final char[] ELASTICSEARCH_REGEX_CHARS = {
         '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\', '&' };
 
     public static String escapeForLikeRegex(final char c) {
@@ -93,6 +94,17 @@ public class OpenSearchUtils {
         this.anyObjectDAO = anyObjectDAO;
     }
 
+    protected void relationships(final List<? extends Relationship<?, ?>> input, final Map<String, Object> builder) {
+        List<String> relationships = new ArrayList<>();
+        List<String> relationshipTypes = new ArrayList<>();
+        input.forEach(relationship -> {
+            relationships.add(relationship.getRightEnd().getKey());
+            relationshipTypes.add(relationship.getType().getKey());
+        });
+        builder.put("relationships", relationships);
+        builder.put("relationshipTypes", relationshipTypes);
+    }
+
     /**
      * Returns the document specialized with content from the provided any.
      *
@@ -101,7 +113,7 @@ public class OpenSearchUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional
-    public Map<String, Object> document(final Any<?> any) {
+    public Map<String, Object> document(final Any any) {
         Map<String, Object> builder = new HashMap<>();
         builder.put("id", any.getKey());
         builder.put("realm", any.getRealm().getKey());
@@ -121,14 +133,7 @@ public class OpenSearchUtils {
 
                 builder.put("memberships", anyObjectDAO.findAllGroupKeys(anyObject));
 
-                List<String> relationships = new ArrayList<>();
-                List<String> relationshipTypes = new ArrayList<>();
-                anyObjectDAO.findAllRelationships(anyObject).forEach(relationship -> {
-                    relationships.add(relationship.getRightEnd().getKey());
-                    relationshipTypes.add(relationship.getType().getKey());
-                });
-                builder.put("relationships", relationships);
-                builder.put("relationshipTypes", relationshipTypes);
+                relationships(anyObjectDAO.findAllRelationships(anyObject), builder);
 
                 builder.put("resources", anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
                 builder.put("dynRealms", anyObjectDAO.findDynRealms(anyObject.getKey()));
@@ -149,6 +154,8 @@ public class OpenSearchUtils {
                 members.addAll(groupDAO.findADynMembers(group));
                 builder.put("members", members);
 
+                relationships(group.getRelationships(), builder);
+
                 builder.put("resources", groupDAO.findAllResourceKeys(group.getKey()));
                 builder.put("dynRealms", groupDAO.findDynRealms(group.getKey()));
 
@@ -164,25 +171,11 @@ public class OpenSearchUtils {
                 builder.put("suspended", user.isSuspended());
                 builder.put("mustChangePassword", user.isMustChangePassword());
 
-                List<String> roles = new ArrayList<>();
-                Set<String> privileges = new HashSet<>();
-                userDAO.findAllRoles(user).forEach(role -> {
-                    roles.add(role.getKey());
-                    privileges.addAll(role.getPrivileges().stream().map(Privilege::getKey).collect(Collectors.toSet()));
-                });
-                builder.put("roles", roles);
-                builder.put("privileges", privileges);
+                builder.put("roles", userDAO.findAllRoles(user).stream().map(Role::getKey).toList());
 
                 builder.put("memberships", userDAO.findAllGroupKeys(user));
 
-                List<String> relationships = new ArrayList<>();
-                Set<String> relationshipTypes = new HashSet<>();
-                user.getRelationships().forEach(relationship -> {
-                    relationships.add(relationship.getRightEnd().getKey());
-                    relationshipTypes.add(relationship.getType().getKey());
-                });
-                builder.put("relationships", relationships);
-                builder.put("relationshipTypes", relationshipTypes);
+                relationships(user.getRelationships(), builder);
 
                 builder.put("resources", userDAO.findAllResourceKeys(user.getKey()));
                 builder.put("dynRealms", userDAO.findDynRealms(user.getKey()));
@@ -193,31 +186,30 @@ public class OpenSearchUtils {
             }
         }
 
-        for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
+        for (PlainAttr plainAttr : any.getPlainAttrs()) {
             List<Object> values = plainAttr.getValues().stream().
                     map(PlainAttrValue::getValue).collect(Collectors.toList());
 
             Optional.ofNullable(plainAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-            builder.put(plainAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+            builder.put(plainAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
         }
 
         // add also flattened membership attributes
-        if (any instanceof GroupableRelatable) {
-            GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
+        if (any instanceof Groupable<?, ?, ?, ?> groupable) {
             groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
                 List<Object> values = mAttr.getValues().stream().
                         map(PlainAttrValue::getValue).collect(Collectors.toList());
 
                 Optional.ofNullable(mAttr.getUniqueValue()).ifPresent(v -> values.add(v.getValue()));
 
-                Object attr = builder.computeIfAbsent(mAttr.getSchema().getKey(), k -> new HashSet<>());
+                Object attr = builder.computeIfAbsent(mAttr.getSchema(), k -> new HashSet<>());
                 // also support case in which there is also an existing attribute set previously
                 if (attr instanceof Collection) {
                     ((Collection<Object>) attr).addAll(values);
                 } else {
                     values.add(attr);
-                    builder.put(mAttr.getSchema().getKey(), values.size() == 1 ? values.get(0) : values);
+                    builder.put(mAttr.getSchema(), values.size() == 1 ? values.getFirst() : values);
                 }
             }));
         }

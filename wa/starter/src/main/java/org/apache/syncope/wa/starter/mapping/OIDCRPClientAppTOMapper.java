@@ -21,7 +21,6 @@ package org.apache.syncope.wa.starter.mapping;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.OIDCScopeConstants;
@@ -29,12 +28,10 @@ import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.OIDCGrantType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionAlg;
+import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.wa.WAClientApp;
-import org.apereo.cas.oidc.claims.OidcAddressScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcEmailScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcPhoneScopeAttributeReleasePolicy;
-import org.apereo.cas.oidc.claims.OidcProfileScopeAttributeReleasePolicy;
-import org.apereo.cas.services.BaseMappedAttributeReleasePolicy;
+import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.OidcRegisteredService;
 import org.apereo.cas.services.RegisteredService;
@@ -46,7 +43,6 @@ import org.apereo.cas.services.RegisteredServiceProxyGrantingTicketExpirationPol
 import org.apereo.cas.services.RegisteredServiceProxyTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceServiceTicketExpirationPolicy;
 import org.apereo.cas.services.RegisteredServiceTicketGrantingTicketExpirationPolicy;
-import org.apereo.cas.services.ReturnAllowedAttributeReleasePolicy;
 
 public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
@@ -69,17 +65,41 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
 
         OIDCRPClientAppTO rp = OIDCRPClientAppTO.class.cast(clientApp.getClientAppTO());
         OidcRegisteredService service = new OidcRegisteredService();
+
         setCommon(service, rp);
 
         service.setServiceId(rp.getRedirectUris().stream().
                 filter(Objects::nonNull).
                 collect(Collectors.joining("|")));
+
         service.setClientId(rp.getClientId());
         service.setClientSecret(rp.getClientSecret());
+
+        service.setIdTokenIssuer(rp.getIdTokenIssuer());
         service.setSignIdToken(rp.isSignIdToken());
-        if (!service.isSignIdToken()) {
-            service.setIdTokenSigningAlg("none");
+        if (service.isSignIdToken()) {
+            Optional.ofNullable(rp.getIdTokenSigningAlg()).
+                    filter(v -> v != OIDCTokenSigningAlg.none).
+                    ifPresent(v -> service.setIdTokenSigningAlg(v.name()));
+        } else {
+            service.setIdTokenSigningAlg(OIDCTokenSigningAlg.none.name());
         }
+        service.setEncryptIdToken(rp.isEncryptIdToken());
+        if (service.isEncryptIdToken()) {
+            Optional.ofNullable(rp.getIdTokenEncryptionAlg()).
+                    filter(v -> v != OIDCTokenEncryptionAlg.none).
+                    ifPresent(v -> service.setIdTokenEncryptionAlg(v.getExternalForm()));
+            Optional.ofNullable(rp.getIdTokenEncryptionEncoding()).
+                    ifPresent(v -> service.setIdTokenEncryptionEncoding(v.getExternalForm()));
+        } else {
+            service.setIdTokenEncryptionAlg(OIDCTokenEncryptionAlg.none.getExternalForm());
+        }
+        Optional.ofNullable(rp.getUserInfoSigningAlg()).ifPresent(v -> service.setUserInfoSigningAlg(v.name()));
+        Optional.ofNullable(rp.getUserInfoEncryptedResponseAlg()).
+                ifPresent(v -> service.setUserInfoEncryptedResponseAlg(v.getExternalForm()));
+        Optional.ofNullable(rp.getUserInfoEncryptedResponseEncoding()).
+                ifPresent(v -> service.setUserInfoEncryptedResponseEncoding(v.getExternalForm()));
+
         service.setJwtAccessToken(rp.isJwtAccessToken());
         service.setBypassApprovalPrompt(rp.isBypassApprovalPrompt());
         service.setGenerateRefreshToken(rp.isGenerateRefreshToken());
@@ -88,50 +108,25 @@ public class OIDCRPClientAppTOMapper extends AbstractClientAppMapper {
         } else {
             service.setJwks(rp.getJwks());
         }
+        Optional.ofNullable(rp.getSubjectType()).ifPresent(v -> service.setSubjectType(v.getExternalForm()));
+        Optional.ofNullable(rp.getApplicationType()).ifPresent(v -> service.setApplicationType(v.getExternalForm()));
         service.setSupportedGrantTypes(rp.getSupportedGrantTypes().stream().
-                map(OIDCGrantType::name).collect(Collectors.toSet()));
+                map(OIDCGrantType::getExternalForm).collect(Collectors.toSet()));
         service.setSupportedResponseTypes(rp.getSupportedResponseTypes().stream().
                 map(OIDCResponseType::getExternalForm).collect(Collectors.toSet()));
-        Optional.ofNullable(rp.getSubjectType()).ifPresent(st -> service.setSubjectType(st.name()));
         service.setLogoutUrl(rp.getLogoutUri());
         service.setTokenEndpointAuthenticationMethod(rp.getTokenEndpointAuthenticationMethod().name());
 
         service.setScopes(new HashSet<>(rp.getScopes()));
 
-        Set<String> customClaims = new HashSet<>();
-        if (attributeReleasePolicy instanceof BaseMappedAttributeReleasePolicy baseMapped) {
-            customClaims.addAll(baseMapped.
-                    getAllowedAttributes().values().stream().
-                    map(Objects::toString).collect(Collectors.toSet()));
-        } else if (attributeReleasePolicy instanceof ReturnAllowedAttributeReleasePolicy returnAllowed) {
-            customClaims.addAll(returnAllowed.
-                    getAllowedAttributes().stream().collect(Collectors.toSet()));
-        } else if (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chaining) {
-            chaining.getPolicies().stream().
-                    filter(ReturnAllowedAttributeReleasePolicy.class::isInstance).
-                    findFirst().map(ReturnAllowedAttributeReleasePolicy.class::cast).
-                    map(p -> p.getAllowedAttributes().stream().collect(Collectors.toSet())).
-                    ifPresent(customClaims::addAll);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.PROFILE)) {
-            customClaims.removeAll(OidcProfileScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.ADDRESS)) {
-            customClaims.removeAll(OidcAddressScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.EMAIL)) {
-            customClaims.removeAll(OidcEmailScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
-        if (rp.getScopes().contains(OIDCScopeConstants.PHONE)) {
-            customClaims.removeAll(OidcPhoneScopeAttributeReleasePolicy.ALLOWED_CLAIMS);
-        }
+        if (attributeReleasePolicy instanceof OidcCustomScopeAttributeReleasePolicy
+                || (attributeReleasePolicy instanceof ChainingAttributeReleasePolicy chain
+                && chain.getPolicies().stream().anyMatch(OidcCustomScopeAttributeReleasePolicy.class::isInstance))) {
 
-        if (!customClaims.isEmpty()) {
             service.getScopes().add(OIDCScopeConstants.SYNCOPE);
         }
 
-        // never set attribute relase policy for OIDC services to avoid becoming scope-free for CAS
-        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, null,
+        setPolicies(service, authPolicy, mfaPolicy, accessStrategy, attributeReleasePolicy,
                 tgtExpirationPolicy, stExpirationPolicy, tgtProxyExpirationPolicy, stProxyExpirationPolicy);
 
         return service;

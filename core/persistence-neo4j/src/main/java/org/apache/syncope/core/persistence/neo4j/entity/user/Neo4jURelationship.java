@@ -19,11 +19,13 @@
 package org.apache.syncope.core.persistence.neo4j.entity.user;
 
 import jakarta.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.common.entity.AMembershipType;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
+import org.apache.syncope.core.persistence.common.validation.RelationshipCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
@@ -31,6 +33,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jURelationship.NODE)
+@RelationshipCheck
 public class Neo4jURelationship extends AbstractGeneratedKeyNode implements URelationship {
 
     private static final long serialVersionUID = 2778494939240083204L;
@@ -58,7 +61,9 @@ public class Neo4jURelationship extends AbstractGeneratedKeyNode implements URel
 
     @Override
     public void setType(final RelationshipType type) {
-        if (MembershipType.getInstance().getKey().equalsIgnoreCase(type.getKey())) {
+        if (UMembershipType.KEY.equalsIgnoreCase(type.getKey())
+                || AMembershipType.KEY.equalsIgnoreCase(type.getKey())) {
+
             throw new IllegalArgumentException("This is not a membership");
         }
         checkType(type, Neo4jRelationshipType.class);

@@ -35,9 +35,7 @@ import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectCR, AnyObjectUR>
         implements AnyObjectService {
 
@@ -95,7 +93,7 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
     public PagedResult<AnyObjectTO> search(final AnyQuery anyQuery) {
         if (StringUtils.isBlank(anyQuery.getFiql()) || -1 == anyQuery.getFiql().indexOf(SpecialAttr.TYPE.toString())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
-            sce.getElements().add(SpecialAttr.TYPE.toString() + " is required in the FIQL string");
+            sce.getElements().add(SpecialAttr.TYPE + " is required in the FIQL string");
             throw sce;
         }
 

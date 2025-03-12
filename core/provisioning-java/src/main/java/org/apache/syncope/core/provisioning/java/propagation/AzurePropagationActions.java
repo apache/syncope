@@ -59,7 +59,7 @@ public class AzurePropagationActions implements PropagationActions {
             }
 
             Optional.ofNullable(AttributeUtil.getNameFromAttributes(attrs)).ifPresent(attrs::remove);
-            attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().get(0).toString()));
+            attrs.add(new Name(AttributeUtil.find(getEmailAttrName(), attrs).getValue().getFirst().toString()));
         }
     }
 

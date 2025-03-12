@@ -43,7 +43,7 @@ public class BinaryCertPreviewer extends BinaryPreviewer {
     public Component preview(final byte[] uploadedBytes) {
         Label commonNameLabel = new Label("certCommonName", new Model<>());
         if (uploadedBytes.length == 0) {
-            LOG.info("Enpty certificate");
+            LOG.info("Empty certificate");
             return commonNameLabel;
         }
 

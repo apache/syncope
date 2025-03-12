@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.request;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
@@ -28,13 +29,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.to.RelatableTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
 @JsonPropertyOrder(value = { "_class", "name" })
 @Schema(allOf = { AnyCR.class })
-public class GroupCR extends AnyCR {
+public class GroupCR extends AnyCR implements RelatableTO {
 
     private static final long serialVersionUID = -4559772531167385473L;
 
@@ -84,6 +88,21 @@ public class GroupCR extends AnyCR {
             getInstance().getTypeExtensions().addAll(typeExtensions);
             return this;
         }
+
+        public Builder relationship(final RelationshipTO relationship) {
+            getInstance().getRelationships().add(relationship);
+            return this;
+        }
+
+        public Builder relationships(final RelationshipTO... relationships) {
+            getInstance().getRelationships().addAll(List.of(relationships));
+            return this;
+        }
+
+        public Builder relationships(final Collection<RelationshipTO> relationships) {
+            getInstance().getRelationships().addAll(relationships);
+            return this;
+        }
     }
 
     private String name;
@@ -97,6 +116,8 @@ public class GroupCR extends AnyCR {
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
+
+    private final List<RelationshipTO> relationships = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -150,6 +171,21 @@ public class GroupCR extends AnyCR {
         return typeExtensions;
     }
 
+    @JsonIgnore
+    @Override
+    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
+        return relationships.stream().filter(
+                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
+                findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
+    @Override
+    public List<RelationshipTO> getRelationships() {
+        return relationships;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -160,6 +196,7 @@ public class GroupCR extends AnyCR {
                 append(udynMembershipCond).
                 append(adynMembershipConds).
                 append(typeExtensions).
+                append(relationships).
                 build();
     }
 
@@ -183,6 +220,7 @@ public class GroupCR extends AnyCR {
                 append(udynMembershipCond, other.udynMembershipCond).
                 append(adynMembershipConds, other.adynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
+                append(relationships, other.relationships).
                 build();
     }
 }

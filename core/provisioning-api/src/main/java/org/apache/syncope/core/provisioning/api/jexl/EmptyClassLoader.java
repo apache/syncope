@@ -25,11 +25,11 @@ class EmptyClassLoader extends ClassLoader {
 
     @Override
     public Class<?> loadClass(final String name) throws ClassNotFoundException {
-        throw new ClassNotFoundException("This classloader won't attemp to load " + name);
+        throw new ClassNotFoundException("This classloader won't attempt to load " + name);
     }
 
     @Override
     protected Class<?> loadClass(final String name, final boolean resolve) throws ClassNotFoundException {
-        throw new ClassNotFoundException("This classloader won't attemp to load " + name);
+        throw new ClassNotFoundException("This classloader won't attempt to load " + name);
     }
 }

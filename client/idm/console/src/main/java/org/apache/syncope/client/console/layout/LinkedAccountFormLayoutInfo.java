@@ -37,8 +37,6 @@ public class LinkedAccountFormLayoutInfo implements Serializable {
 
     private final List<String> whichPlainAttrs = new ArrayList<>();
 
-    private boolean privileges = true;
-
     protected Class<? extends LinkedAccountForm> getDefaultFormClass() {
         return LinkedAccountWizardBuilder.class;
     }
@@ -74,13 +72,4 @@ public class LinkedAccountFormLayoutInfo implements Serializable {
     public List<String> getWhichCredentials() {
         return whichCredentials;
     }
-
-    public boolean isPrivileges() {
-        return privileges;
-    }
-
-    public void setPrivileges(final boolean privileges) {
-        this.privileges = privileges;
-    }
-
 }

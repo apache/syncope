@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
@@ -89,6 +90,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyFinder anyFinder,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator,
@@ -101,6 +103,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                 derSchemaDAO,
                 virSchemaDAO,
                 dynRealmDAO,
+                anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT),
                 neo4jTemplate,
                 neo4jClient);
@@ -213,8 +216,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    public List<Relationship<Any<?>, AnyObject>> findAllRelationships(final AnyObject anyObject) {
-        List<Relationship<Any<?>, AnyObject>> result = new ArrayList<>();
+    public List<Relationship<Any, AnyObject>> findAllRelationships(final AnyObject anyObject) {
+        List<Relationship<Any, AnyObject>> result = new ArrayList<>();
 
         result.addAll(toList(neo4jClient.query(
                 "MATCH (n:" + Neo4jARelationship.NODE + ")-[]-(a:" + Neo4jAnyObject.NODE + " {id: $aid}) "
@@ -233,7 +236,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
         return result;
     }
 
-    protected Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
+    protected <S extends AnyObject> Pair<S, Pair<Set<String>, Set<String>>> doSave(final S anyObject) {
         checkBeforeSave(anyObject);
 
         // unlink any resource or aux class that was unlinked from anyObject
@@ -265,7 +268,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             beforeRels.forEach(r -> neo4jTemplate.deleteById(r, Neo4jARelationship.class));
         });
 
-        AnyObject merged = neo4jTemplate.save(nodeValidator.validate(anyObject));
+        S merged = neo4jTemplate.save(nodeValidator.validate(anyObject));
 
         anyObjectCache.put(EntityCacheKey.of(merged.getKey()), (Neo4jAnyObject) merged);
 
@@ -276,9 +279,8 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        return (S) doSave(anyObject).getLeft();
+        return doSave(anyObject).getLeft();
     }
 
     @Override

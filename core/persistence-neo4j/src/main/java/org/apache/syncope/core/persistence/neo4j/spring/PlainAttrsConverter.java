@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.spring;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.neo4j.entity.AbstractPlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.internal.value.NullValue;
@@ -29,18 +29,11 @@ import org.neo4j.driver.internal.value.StringValue;
 import org.springframework.data.neo4j.core.convert.Neo4jConversionService;
 import org.springframework.data.neo4j.core.convert.Neo4jPersistentPropertyToMapConverter;
 
-public class PlainAttrsConverter<PA extends AbstractPlainAttr<?>>
-        implements Neo4jPersistentPropertyToMapConverter<String, Map<String, PA>> {
-
-    protected final Class<PA> reference;
-
-    public PlainAttrsConverter(final Class<PA> reference) {
-        this.reference = reference;
-    }
+public class PlainAttrsConverter implements Neo4jPersistentPropertyToMapConverter<String, Map<String, PlainAttr>> {
 
     @Override
     public Map<String, Value> decompose(
-            final Map<String, PA> property,
+            final Map<String, PlainAttr> property,
             final Neo4jConversionService neo4jConversionService) {
 
         if (property == null) {
@@ -57,14 +50,21 @@ public class PlainAttrsConverter<PA extends AbstractPlainAttr<?>>
     }
 
     @Override
-    public Map<String, PA> compose(
+    public Map<String, PlainAttr> compose(
             final Map<String, Value> source,
             final Neo4jConversionService neo4jConversionService) {
 
-        Map<String, PA> composed = new HashMap<>(source.size());
+        Map<String, PlainAttr> composed = new HashMap<>(source.size());
         source.forEach((k, v) -> {
             if (v instanceof StringValue) {
-                composed.put(k, POJOHelper.deserialize(v.asString(), reference));
+                PlainAttr attr = POJOHelper.deserialize(v.asString(), PlainAttr.class);
+                attr.setSchema(k);
+                if (attr.isValid()) {
+                    attr.getValues().forEach(value -> value.setAttr(attr));
+                    Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
+
+                    composed.put(k, attr);
+                }
             }
         });
         return composed;

@@ -27,19 +27,17 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.DelegationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Delegation;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.neo4j.AbstractTest;
 import org.junit.jupiter.api.Test;
@@ -57,9 +55,6 @@ public class RoleTest extends AbstractTest {
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -81,10 +76,9 @@ public class RoleTest extends AbstractTest {
         user.setRealm(realmSearchDAO.findByFullPath("/even/two").orElseThrow());
         user.add(anyTypeClassDAO.findById("other").orElseThrow());
 
-        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
-        attr.setOwner(user);
-        attr.setSchema(plainSchemaDAO.findById("cool").orElseThrow());
-        attr.add(validator, "true", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("cool");
+        attr.add(validator, "true");
         user.add(attr);
 
         user = userDAO.save(user);
@@ -123,7 +117,7 @@ public class RoleTest extends AbstractTest {
         actual = roleDAO.findById(actual.getKey()).orElseThrow();
         members = roleDAO.findDynMembers(actual);
         assertEquals(1, members.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.getFirst());
 
         // 5. delete role and verify that dynamic membership was also removed
         roleDAO.delete(actual);

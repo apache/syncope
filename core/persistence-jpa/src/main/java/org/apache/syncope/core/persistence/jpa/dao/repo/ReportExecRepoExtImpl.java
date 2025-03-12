@@ -60,7 +60,7 @@ public class ReportExecRepoExtImpl implements ReportExecRepoExt {
         List<ReportExec> result = query.getResultList();
         return result == null || result.isEmpty()
                 ? null
-                : result.iterator().next();
+                : result.getFirst();
     }
 
     @Override

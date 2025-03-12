@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -38,7 +37,6 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -116,7 +114,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             implementationDAO.findById(schemaTO.getDropdownValueProvider()).ifPresentOrElse(
                     schema::setDropdownValueProvider,
                     () -> LOG.debug("Invalid {} {}, ignoring...",
-                        Implementation.class.getSimpleName(), schemaTO.getDropdownValueProvider()));
+                            Implementation.class.getSimpleName(), schemaTO.getDropdownValueProvider()));
         }
 
         schema.setMandatoryCondition(schemaTO.getMandatoryCondition());
@@ -135,7 +133,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             implementationDAO.findById(schemaTO.getValidator()).ifPresentOrElse(
                     schema::setValidator,
                     () -> LOG.debug("Invalid {} {}, ignoring...",
-                        Implementation.class.getSimpleName(), schemaTO.getValidator()));
+                            Implementation.class.getSimpleName(), schemaTO.getValidator()));
         }
 
         PlainSchema saved = plainSchemaDAO.save(schema);
@@ -153,7 +151,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                         atc.set(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid {}{}, ignoring...",
-                        AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
+                            AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
             saved.getAnyTypeClass().getPlainSchemas().remove(saved);
             saved.setAnyTypeClass(null);
@@ -175,13 +173,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
     public PlainSchema update(final PlainSchemaTO schemaTO, final PlainSchema schema) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        boolean hasAttrs = false;
-        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(anyTypeKind);
-            hasAttrs |= plainSchemaDAO.hasAttrs(schema, anyUtils.plainAttrClass());
-        }
-
-        if (hasAttrs) {
+        if (plainSchemaDAO.hasAttrs(schema)) {
             if (schema.getType() != schemaTO.getType()) {
                 SyncopeClientException e = SyncopeClientException.build(ClientExceptionType.InvalidPlainSchema);
                 e.getElements().add("Cannot change type since " + schema.getKey() + " has attributes");
@@ -273,7 +265,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                         atc.set(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid {}{}, ignoring...",
-                        AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
+                            AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
             saved.getAnyTypeClass().getDerSchemas().remove(saved);
             saved.setAnyTypeClass(null);
@@ -353,7 +345,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                         atc.set(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid {}{}, ignoring...",
-                        AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
+                            AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
         } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
             saved.getAnyTypeClass().getVirSchemas().remove(saved);
             saved.setAnyTypeClass(null);

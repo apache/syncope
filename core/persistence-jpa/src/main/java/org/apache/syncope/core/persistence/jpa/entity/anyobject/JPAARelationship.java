@@ -24,16 +24,19 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.common.entity.AMembershipType;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
+import org.apache.syncope.core.persistence.common.validation.RelationshipCheck;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPARelationshipType;
 
 @Entity
 @Table(name = JPAARelationship.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "type_id", "left_anyObject_id", "right_anyObject_id" }))
+@RelationshipCheck
 public class JPAARelationship extends AbstractGeneratedKeyEntity implements ARelationship {
 
     private static final long serialVersionUID = 6608821135023815357L;
@@ -58,7 +61,9 @@ public class JPAARelationship extends AbstractGeneratedKeyEntity implements ARel
 
     @Override
     public void setType(final RelationshipType type) {
-        if (MembershipType.getInstance().getKey().equalsIgnoreCase(type.getKey())) {
+        if (UMembershipType.KEY.equalsIgnoreCase(type.getKey())
+                || AMembershipType.KEY.equalsIgnoreCase(type.getKey())) {
+
             throw new IllegalArgumentException("This is not a membership");
         }
         checkType(type, JPARelationshipType.class);

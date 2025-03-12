@@ -50,23 +50,23 @@ public class LinkedAccountSampleInboundCorrelationRule implements InboundCorrela
         if (email != null && !CollectionUtils.isEmpty(email.getValue())) {
             cond.setSchema("email");
             cond.setType(AttrCond.Type.EQ);
-            cond.setExpression(email.getValue().get(0).toString());
+            cond.setExpression(email.getValue().getFirst().toString());
         } else {
             cond.setSchema("");
         }
 
-        return SearchCond.getLeaf(cond);
+        return SearchCond.of(cond);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public InboundMatch matching(final Any<?> any, final LiveSyncDelta syncDelta, final Provision provision) {
+    public InboundMatch matching(final Any any, final LiveSyncDelta syncDelta, final Provision provision) {
         // if match with internal user vivaldi was found but firstName is different, update linked account
         // instead of updating user
         Attribute firstName = syncDelta.getObject().getAttributeByName("firstName");
         if (VIVALDI_KEY.equals(any.getKey())
                 && firstName != null && !CollectionUtils.isEmpty(firstName.getValue())
-                && !"Antonio".equals(firstName.getValue().get(0).toString())) {
+                && !"Antonio".equals(firstName.getValue().getFirst().toString())) {
 
             return new InboundMatch(MatchType.LINKED_ACCOUNT, any);
         }

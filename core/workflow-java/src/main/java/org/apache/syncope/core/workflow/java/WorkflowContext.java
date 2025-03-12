@@ -19,6 +19,7 @@
 package org.apache.syncope.core.workflow.java;
 
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -51,7 +52,8 @@ public class WorkflowContext {
             final SecurityProperties securityProperties,
             final RuleProvider ruleProvider,
             final ConfParamOps confParamOps,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final EncryptorManager encryptorManager) {
 
         return new DefaultUserWorkflowAdapter(
                 userDataBinder,
@@ -62,7 +64,8 @@ public class WorkflowContext {
                 securityProperties,
                 ruleProvider,
                 confParamOps,
-                publisher);
+                publisher,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean

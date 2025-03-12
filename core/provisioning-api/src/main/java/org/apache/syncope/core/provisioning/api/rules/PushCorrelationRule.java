@@ -51,7 +51,7 @@ public interface PushCorrelationRule {
      * @param provision resource provision
      * @return filter.
      */
-    Filter getFilter(Any<?> any, ExternalResource resource, Provision provision);
+    Filter getFilter(Any any, ExternalResource resource, Provision provision);
 
     /**
      * Returns a FIQL string to match the given connector object when searching into the external resource identified by

@@ -96,8 +96,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             }
         });
 
-        return taskTO.get().getExecutions().stream().
-                sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().orElseThrow();
+        return taskTO.get().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
     }
 
     public static ExecTO execSchedTask(
@@ -161,7 +160,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
                 PagedResult<NotificationTaskTO> tasks = TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
                 if (!tasks.getResult().isEmpty()) {
-                    notificationTask.set(tasks.getResult().get(0));
+                    notificationTask.set(tasks.getResult().getFirst());
                 }
             } catch (Exception e) {
                 // ignore

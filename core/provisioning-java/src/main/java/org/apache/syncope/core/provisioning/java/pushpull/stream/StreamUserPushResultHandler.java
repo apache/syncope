@@ -41,8 +41,8 @@ public class StreamUserPushResultHandler extends DefaultUserPushResultHandler {
     private DerAttrHandler derAttrHandler;
 
     @Override
-    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
-        Provision provision = profile.getTask().getResource().getProvisions().get(0);
+    protected void provision(final Any any, final Boolean enabled, final ProvisioningReport result) {
+        Provision provision = profile.getTask().getResource().getProvisions().getFirst();
 
         Stream<Item> items = MappingUtils.getPropagationItems(provision.getMapping().getItems().stream());
 

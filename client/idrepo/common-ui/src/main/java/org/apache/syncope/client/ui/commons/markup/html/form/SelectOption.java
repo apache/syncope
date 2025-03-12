@@ -52,12 +52,12 @@ public class SelectOption implements Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        if (obj == null || !(obj instanceof SelectOption)) {
+        if (obj == null || !(obj instanceof final SelectOption selectOption)) {
             return false;
         }
 
-        return (keyValue == null && ((SelectOption) obj).keyValue == null) || keyValue != null
-                && keyValue.equals(((SelectOption) obj).keyValue);
+        return (keyValue == null && selectOption.keyValue == null) || keyValue != null
+                && keyValue.equals(selectOption.keyValue);
     }
 
     @Override

@@ -119,7 +119,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     protected List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
         classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
-                map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
+                map(AnyTypeClassTO::getKey).toList());
         setSchemas(classes);
         setAttrs();
         return getAttrsFromTO();
@@ -459,7 +459,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                     attr.getValues().stream().filter(StringUtils::isNotBlank).collect(Collectors.toList()))).
                     orElseGet(() -> attr.getValues().stream().anyMatch(StringUtils::isNotBlank))) {
 
-                List<String> oldValues = prevAttr.map(Attr::getValues).orElse(List.of());
+                List<String> oldValues = prevAttr.map(Attr::getValues).orElseGet(List::of);
                 panel.showExternAction(new LabelInfo("externalAction", oldValues));
             }
         }

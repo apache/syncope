@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.command.CommandArgs;
@@ -470,7 +469,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         schedTaskTO.setActive(schedTask.isActive());
         schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
 
-        schedTaskTO.getExecutions().stream().sorted(Comparator.comparing(ExecTO::getStart).reversed()).findFirst().
+        schedTaskTO.getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).
                 map(ExecTO::getStart).ifPresentOrElse(
                 schedTaskTO::setLastExec,
                 () -> schedTaskTO.setLastExec(schedTaskTO.getStart()));
@@ -691,7 +690,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             prop.setRequired(fpd.isRequired());
             prop.setWritable(fpd.isWritable());
             prop.setType(fpd.getType());
-            actions.flatMap(a -> a.getDefaultValue(fpd.getName())).ifPresent(v -> prop.setValue(v));
+            actions.flatMap(a -> a.getDefaultValue(fpd.getName())).ifPresent(prop::setValue);
             switch (prop.getType()) {
                 case String ->
                     prop.setStringRegEx(fpd.getStringRegEx());
@@ -713,7 +712,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 }
             }
             return prop;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         return form;
     }

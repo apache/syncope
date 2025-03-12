@@ -21,39 +21,44 @@ package org.apache.syncope.core.persistence.common.validation;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
-public class AttributableValidator extends AbstractValidator<AttributableCheck, Attributable<?>> {
+public class AttributableValidator extends AbstractValidator<AttributableCheck, Attributable> {
 
-    protected boolean isValid(final PlainAttr<?> attr, final ConstraintValidatorContext context) {
+    protected boolean isValid(
+            final PlainAttr attr,
+            final PlainSchema schema,
+            final ConstraintValidatorContext context) {
+
         context.disableDefaultConstraintViolation();
 
         boolean isValid;
         if (attr == null) {
             isValid = true;
         } else {
-            if (attr.getSchema().isUniqueConstraint()) {
+            if (schema.isUniqueConstraint()) {
                 isValid = attr.getValues().isEmpty() && attr.getUniqueValue() != null;
             } else {
                 isValid = !attr.getValues().isEmpty() && attr.getUniqueValue() == null;
 
-                if (!attr.getSchema().isMultivalue()) {
+                if (!schema.isMultivalue()) {
                     isValid &= attr.getValues().size() == 1;
                 }
             }
 
             if (!isValid) {
                 LOG.error("Invalid values for attribute schema={}, values={}",
-                        attr.getSchema().getKey(), attr.getValuesAsStrings());
+                        attr.getSchema(), attr.getValuesAsStrings());
 
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidValueList,
                                 "Invalid values " + attr.getValuesAsStrings())).
-                        addPropertyNode(attr.getSchema().getKey()).addConstraintViolation();
+                        addPropertyNode(attr.getSchema()).addConstraintViolation();
             }
         }
 
@@ -92,28 +97,9 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
                 LOG.error("More than one non-null value for {}", value);
 
                 context.buildConstraintViolationWithTemplate(
-                        AbstractValidator.getTemplate(EntityViolationType.MoreThanOneNonNull,
-                                "More than one non-null value found")).
+                        getTemplate(EntityViolationType.MoreThanOneNonNull, "More than one non-null value found")).
                         addPropertyNode(value.getClass().getSimpleName().replaceAll("\\n", " ")).
                         addConstraintViolation();
-
-            } else if (value instanceof PlainAttrUniqueValue plainAttrUniqueValue) {
-                PlainSchema uniqueValueSchema = plainAttrUniqueValue.getSchema();
-                PlainSchema attrSchema = value.getAttr().getSchema();
-
-                isValid = uniqueValueSchema.equals(attrSchema);
-
-                if (!isValid) {
-                    LOG.error("Unique value schema for {} is {}, while owning attribute's schema is {}",
-                        value, uniqueValueSchema, attrSchema);
-
-                    context.buildConstraintViolationWithTemplate(
-                            AbstractValidator.getTemplate(EntityViolationType.InvalidPlainAttr,
-                                    "Unique value schema is " + uniqueValueSchema
-                                    + ", while owning attribute's schema is " + attrSchema)).
-                            addPropertyNode("schema").
-                            addConstraintViolation();
-                }
             }
         }
 
@@ -121,13 +107,23 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
     }
 
     @Override
-    public boolean isValid(final Attributable<?> entity, final ConstraintValidatorContext context) {
+    public boolean isValid(final Attributable entity, final ConstraintValidatorContext context) {
+        PlainSchemaDAO schemaDAO = ApplicationContextProvider.getApplicationContext().getBean(PlainSchemaDAO.class);
+
         context.disableDefaultConstraintViolation();
 
         AtomicReference<Boolean> isValid = new AtomicReference<>(Boolean.TRUE);
         entity.getPlainAttrs().forEach(attr -> {
-            isValid.getAndSet(isValid.get() && isValid(attr, context));
-            attr.getValues().forEach(value -> isValid.getAndSet(isValid.get() && isValid(value, context)));
+            PlainSchema schema = schemaDAO.findById(attr.getSchema()).orElse(null);
+            if (schema == null) {
+                isValid.getAndSet(false);
+                context.buildConstraintViolationWithTemplate(
+                        getTemplate(EntityViolationType.InvalidSchema, "Invalid schema " + attr.getSchema())).
+                        addPropertyNode(attr.getSchema()).addConstraintViolation();
+            } else {
+                isValid.getAndSet(isValid.get() && isValid(attr, schema, context));
+                attr.getValues().forEach(value -> isValid.getAndSet(isValid.get() && isValid(value, context)));
+            }
         });
 
         return isValid.get();

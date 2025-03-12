@@ -95,7 +95,7 @@ public class LinkedAccountsITCase extends AbstractConsoleITCase {
         USER = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(USER.getKey());
-        assertEquals(account.getConnObjectKeyValue(), USER.getLinkedAccounts().get(0).getConnObjectKeyValue());
+        assertEquals(account.getConnObjectKeyValue(), USER.getLinkedAccounts().getFirst().getConnObjectKeyValue());
     }
 
     @AfterEach

@@ -55,11 +55,11 @@ public class PrincipalToRequestHeaderFilterFactory extends AbstractGatewayFilter
                     SecurityContext ctx = cachedSession.getAttribute(
                             WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME);
                     if (ctx != null && ctx.getAuthentication() != null) {
-                        if (ctx.getAuthentication().getPrincipal() instanceof OidcUser) {
-                            principal = ((OidcUser) ctx.getAuthentication().getPrincipal()).
+                        if (ctx.getAuthentication().getPrincipal() instanceof final OidcUser oidcUser) {
+                            principal = oidcUser.
                                     getIdToken().getTokenValue();
-                        } else if (ctx.getAuthentication().getPrincipal() instanceof OAuth2User) {
-                            principal = Objects.toString(((OAuth2User) ctx.getAuthentication().getPrincipal()).
+                        } else if (ctx.getAuthentication().getPrincipal() instanceof final OAuth2User oAuth2User) {
+                            principal = Objects.toString(oAuth2User.
                                     getAttributes().get(StandardClaimNames.PREFERRED_USERNAME), null);
                         } else {
                             principal = ctx.getAuthentication().getName();

@@ -124,7 +124,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. now approve and verify that propagation has happened
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -160,7 +160,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 2. unclaim and verify that propagation has NOT happened
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.unclaimForm(form.getTaskId());
         assertNull(form.getAssignee());
         assertNotNull(userTO);
@@ -174,7 +174,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 3. approve and verify that propagation has happened
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -204,7 +204,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void authenticateByPlainAttribute() {
         UserTO rossini = USER_SERVICE.read("rossini");
         assertNotNull(rossini);
-        String userId = rossini.getPlainAttr("userId").get().getValues().get(0);
+        String userId = rossini.getPlainAttr("userId").get().getValues().getFirst();
         assertNotNull(userId);
 
         Triple<Map<String, Set<String>>, List<String>, UserTO> self = CLIENT_FACTORY.create(userId, ADMIN_PWD).self();
@@ -274,7 +274,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 3. approve self-update as admin
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(updated.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(updated.getKey()).build()).getResult().getFirst();
         form = USER_REQUEST_SERVICE.claimForm(form.getTaskId());
         form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
         updated = USER_REQUEST_SERVICE.submitForm(form).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
@@ -465,12 +465,12 @@ public class UserSelfITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().getFirst().getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
 
         // 2. request if there is any pending task for user just created
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         assertNotNull(form);
         assertNotNull(form.getUsername());
         assertEquals(userTO.getUsername(), form.getUsername());
@@ -547,7 +547,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertNotNull(result);
         UserTO userTO = result.getEntity();
         assertEquals(1, userTO.getMemberships().size());
-        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getGroupKey());
+        assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().getFirst().getGroupKey());
         assertEquals("createApproval", userTO.getStatus());
         assertEquals(Set.of(RESOURCE_NAME_TESTDB), userTO.getResources());
 
@@ -568,14 +568,14 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(preForms + 1, forms.getTotalCount());
 
         // 3. as admin, update user: still pending approval
-        String updatedUsername = "changed-" + UUID.randomUUID().toString();
+        String updatedUsername = "changed-" + UUID.randomUUID();
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
         userUR.setUsername(new StringReplacePatchItem.Builder().value(updatedUsername).build());
         updateUser(userUR);
 
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getKey()).build()).getResult().getFirst();
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNotNull(form.getUserTO());
@@ -641,7 +641,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(preForms + 1, forms.getTotalCount());
 
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(created.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(created.getKey()).build()).getResult().getFirst();
         assertNotNull(form);
         assertNotNull(form.getTaskId());
         assertNull(form.getAssignee());
@@ -661,7 +661,7 @@ public class UserSelfITCase extends AbstractITCase {
 
         // the patch is not updated in the approval form
         form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(created.getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(created.getKey()).build()).getResult().getFirst();
         assertEquals(req, form.getUserUR());
 
         // approve the user
@@ -716,7 +716,7 @@ public class UserSelfITCase extends AbstractITCase {
         assertEquals(preForms + 1, forms.getTotalCount());
 
         UserRequestForm form = USER_REQUEST_SERVICE.listForms(
-                new UserRequestQuery.Builder().user(userTO.getEntity().getKey()).build()).getResult().get(0);
+                new UserRequestQuery.Builder().user(userTO.getEntity().getKey()).build()).getResult().getFirst();
         assertNotNull(form);
 
         // 3. first claim by bellini ....

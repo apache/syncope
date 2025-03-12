@@ -20,11 +20,12 @@ package org.apache.syncope.wa.bootstrap.mapping;
 
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
+import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
 
 public interface AttrReleaseMapper {
 
     boolean supports(AttrReleasePolicyConf conf);
 
-    RegisteredServiceAttributeReleasePolicy build(AttrReleasePolicyTO policy);
+    RegisteredServiceAttributeReleasePolicy build(ClientAppTO clientApp, AttrReleasePolicyTO policy);
 }

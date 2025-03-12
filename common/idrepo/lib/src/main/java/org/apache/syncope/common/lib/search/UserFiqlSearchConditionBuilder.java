@@ -88,18 +88,6 @@ public class UserFiqlSearchConditionBuilder
                 notInRoles(role, moreRoles);
     }
 
-    public UserCompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
-        return newBuilderInstance().
-                is(SpecialAttr.PRIVILEGES.toString()).
-                withPrivileges(privilege, morePrivileges);
-    }
-
-    public UserCompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
-        return newBuilderInstance().
-                is(SpecialAttr.PRIVILEGES.toString()).
-                withoutPrivileges(privilege, morePrivileges);
-    }
-
     protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder<
             UserProperty, UserPartialCondition, UserCompleteCondition>
             implements UserProperty, UserPartialCondition, UserCompleteCondition {
@@ -165,18 +153,6 @@ public class UserFiqlSearchConditionBuilder
         public UserCompleteCondition notInRoles(final String role, final String... moreRoles) {
             this.result = SpecialAttr.ROLES.toString();
             return condition(FiqlParser.NEQ, role, (Object[]) moreRoles);
-        }
-
-        @Override
-        public UserCompleteCondition withPrivileges(final String privilege, final String... morePrivileges) {
-            this.result = SpecialAttr.PRIVILEGES.toString();
-            return condition(FiqlParser.EQ, privilege, (Object[]) morePrivileges);
-        }
-
-        @Override
-        public UserCompleteCondition withoutPrivileges(final String privilege, final String... morePrivileges) {
-            this.result = SpecialAttr.PRIVILEGES.toString();
-            return condition(FiqlParser.NEQ, privilege, (Object[]) morePrivileges);
         }
     }
 }

@@ -74,12 +74,12 @@ public class MailTemplateTest extends AbstractTest {
     public void requestPasswordReset() throws IOException {
         Map<String, Object> ctx = new HashMap<>();
 
-        String username = "test" + UUID.randomUUID().toString();
+        String username = "test" + UUID.randomUUID();
         UserTO user = new UserTO();
         user.setUsername(username);
         ctx.put("user", user);
 
-        String token = "token " + UUID.randomUUID().toString();
+        String token = "token " + UUID.randomUUID();
         List<String> input = new ArrayList<>();
         input.add(token);
         ctx.put("input", input);
@@ -100,7 +100,7 @@ public class MailTemplateTest extends AbstractTest {
     public void optin() throws IOException {
         Map<String, Object> ctx = new HashMap<>();
 
-        String username = "test" + UUID.randomUUID().toString();
+        String username = "test" + UUID.randomUUID();
         UserTO user = new UserTO();
         user.setUsername(username);
         user.getPlainAttrs().add(new Attr.Builder("firstname").value("John").build());
@@ -109,7 +109,7 @@ public class MailTemplateTest extends AbstractTest {
         user.getMemberships().add(new MembershipTO.Builder(UUID.randomUUID().toString()).groupName("a group").build());
         ctx.put("user", user);
 
-        String token = "token " + UUID.randomUUID().toString();
+        String token = "token " + UUID.randomUUID();
         List<String> input = new ArrayList<>();
         input.add(token);
         ctx.put("input", input);

@@ -35,20 +35,19 @@ import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractAttributable;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
@@ -60,11 +59,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt<A> {
+public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnyRepoExt.class);
 
     protected final DynRealmDAO dynRealmDAO;
+
+    protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final EntityManager entityManager;
 
@@ -76,11 +77,13 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
 
     protected AbstractAnyRepoExt(
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final EntityManager entityManager,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils) {
 
         this.dynRealmDAO = dynRealmDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
         this.entityManager = entityManager;
         this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
@@ -140,27 +143,8 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public List<A> findByPlainAttrValue(
-            final PlainSchema schema,
-            final PlainAttrValue attrValue,
-            final boolean ignoreCaseMatch) {
-
-        return anyFinder.findByPlainAttrValue(table, anyUtils, schema, attrValue, ignoreCaseMatch);
-    }
-
-    @Override
-    public Optional<A> findByPlainAttrUniqueValue(
-            final PlainSchema schema,
-            final PlainAttrUniqueValue attrUniqueValue,
-            final boolean ignoreCaseMatch) {
-
-        return anyFinder.findByPlainAttrUniqueValue(table, anyUtils, schema, attrUniqueValue, ignoreCaseMatch);
-    }
-
-    @Override
     public List<A> findByDerAttrValue(final DerSchema derSchema, final String value, final boolean ignoreCaseMatch) {
-        return anyFinder.findByDerAttrValue(table, anyUtils, derSchema, value, ignoreCaseMatch);
+        return anyFinder.findByDerAttrValue(anyUtils.anyTypeKind(), derSchema, value, ignoreCaseMatch);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -198,20 +182,19 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
             }
         }
 
-        typeExtensionClasses.entrySet().stream().map(entry -> {
-            result.getForMemberships().put(entry.getKey(), new HashSet<>());
-            return entry;
-        }).forEach(entry -> entry.getValue().forEach(typeClass -> {
-            if (reference.equals(PlainSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-            } else if (reference.equals(DerSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            } else if (reference.equals(VirSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getVirSchemas());
-            }
+        typeExtensionClasses.entrySet().stream().peek(
+            entry -> result.getForMemberships().put(entry.getKey(), new HashSet<>())).
+                forEach(entry -> entry.getValue().forEach(typeClass -> {
+                    if (reference.equals(PlainSchema.class)) {
+                        result.getForMemberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                    } else if (reference.equals(DerSchema.class)) {
+                        result.getForMemberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                    } else if (reference.equals(VirSchema.class)) {
+                        result.getForMemberships().get(entry.getKey()).
+                                addAll((Collection<? extends S>) typeClass.getVirSchemas());
+                    }
         }));
 
         return result;
@@ -234,27 +217,34 @@ public abstract class AbstractAnyRepoExt<A extends Any<?>> implements AnyRepoExt
                 toList();
     }
 
-    protected void checkBeforeSave(final A any) {
+    protected <T extends AbstractAttributable> void checkBeforeSave(final T attributable) {
         // check UNIQUE constraints
-        new ArrayList<>(((AbstractAttributable<?>) any).getPlainAttrsList()).stream().
+        new ArrayList<>(attributable.getPlainAttrsList()).stream().
                 filter(attr -> attr.getUniqueValue() != null).
                 forEach(attr -> {
-                    Optional<A> other = findByPlainAttrUniqueValue(attr.getSchema(), attr.getUniqueValue(), false);
-                    if (other.isEmpty() || other.get().getKey().equals(any.getKey())) {
-                        LOG.debug("No duplicate value found for {}={}",
-                                attr.getSchema().getKey(), attr.getUniqueValue().getValueAsString());
-                    } else {
+                    if (plainSchemaDAO.existsPlainAttrUniqueValue(
+                            anyUtils,
+                            attributable.getKey(),
+                            plainSchemaDAO.findById(attr.getSchema()).
+                                    orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())),
+                            attr.getUniqueValue())) {
+
                         throw new DuplicateException("Duplicate value found for "
-                                + attr.getSchema().getKey() + "=" + attr.getUniqueValue().getValueAsString());
+                                + attr.getSchema() + "=" + attr.getUniqueValue().getValueAsString());
+                    } else {
+                        LOG.debug("No duplicate value found for {}={}",
+                                attr.getSchema(), attr.getUniqueValue().getValueAsString());
                     }
                 });
 
         // update sysInfo
-        OffsetDateTime now = OffsetDateTime.now();
-        String who = AuthContextUtils.getWho();
-        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
-        any.setLastModifier(who);
-        any.setLastChangeDate(now);
+        if (attributable instanceof Any any) {
+            OffsetDateTime now = OffsetDateTime.now();
+            String who = AuthContextUtils.getWho();
+            LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, who, any);
+            any.setLastModifier(who);
+            any.setLastChangeDate(now);
+        }
     }
 
     @Override

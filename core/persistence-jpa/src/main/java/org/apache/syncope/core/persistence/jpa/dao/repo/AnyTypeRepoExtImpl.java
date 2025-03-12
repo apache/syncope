@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import jakarta.persistence.EntityManager;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
@@ -29,10 +30,17 @@ public class AnyTypeRepoExtImpl implements AnyTypeRepoExt {
 
     protected final RemediationDAO remediationDAO;
 
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
     protected final EntityManager entityManager;
 
-    public AnyTypeRepoExtImpl(final RemediationDAO remediationDAO, final EntityManager entityManager) {
+    public AnyTypeRepoExtImpl(
+            final RemediationDAO remediationDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final EntityManager entityManager) {
+
         this.remediationDAO = remediationDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
         this.entityManager = entityManager;
     }
 
@@ -63,6 +71,8 @@ public class AnyTypeRepoExtImpl implements AnyTypeRepoExt {
             remediation.setAnyType(null);
             remediationDAO.delete(remediation);
         });
+
+        relationshipTypeDAO.findByEndAnyType(anyType).forEach(relationshipTypeDAO::deleteById);
 
         entityManager.remove(anyType);
     }

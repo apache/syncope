@@ -126,7 +126,8 @@ public class WA extends BasePage {
         body.add(content);
 
         if (!instances.isEmpty()) {
-            String actuatorEndpoint = StringUtils.appendIfMissing(instances.get(0).getAddress(), "/") + "actuator/env";
+            String actuatorEndpoint = StringUtils.appendIfMissing(
+                instances.getFirst().getAddress(), "/") + "actuator/env";
             try {
                 Response response = WebClientBuilder.build(actuatorEndpoint,
                         SyncopeWebApplication.get().getAnonymousUser(),
@@ -153,7 +154,7 @@ public class WA extends BasePage {
             }
 
             if (StringUtils.isBlank(waPrefix)) {
-                waPrefix = StringUtils.removeEnd(instances.get(0).getAddress(), "/");
+                waPrefix = StringUtils.removeEnd(instances.getFirst().getAddress(), "/");
             }
         }
     }

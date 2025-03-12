@@ -23,11 +23,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MappedSuperclass;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 @MappedSuperclass
 public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity implements AnyTemplate {

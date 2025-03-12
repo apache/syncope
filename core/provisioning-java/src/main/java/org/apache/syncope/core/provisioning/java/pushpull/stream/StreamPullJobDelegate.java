@@ -168,7 +168,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         try {
             ExternalResource resource =
                     externalResource(anyType, keyColumn, columns, conflictResolutionAction, inboundCorrelationRule);
-            Provision provision = resource.getProvisions().get(0);
+            Provision provision = resource.getProvisions().getFirst();
 
             task = entityFactory.newEntity(PullTask.class);
             task.setName(pullTaskTO.getName());
@@ -247,8 +247,8 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
 
             return profile.getResults();
         } catch (Exception e) {
-            throw e instanceof JobExecutionException
-                    ? (JobExecutionException) e
+            throw e instanceof final JobExecutionException jobExecutionException
+                    ? jobExecutionException
                     : new JobExecutionException("While stream pulling", e);
         }
     }

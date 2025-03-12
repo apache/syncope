@@ -23,6 +23,7 @@ import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -39,6 +40,26 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
 
     public RelationshipTypeRepoExtImpl(final EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    @Override
+    public List<String> findByEndAnyType(final AnyType anyType) {
+        TypedQuery<RelationshipType> query = entityManager.createQuery(
+                "SELECT DISTINCT e FROM " + JPARelationshipType.class.getSimpleName() + " e "
+                + "WHERE e.leftEndAnyType=:anyType OR e.rightEndAnyType=:anyType",
+                RelationshipType.class);
+        query.setParameter("anyType", anyType);
+        return query.getResultList().stream().map(RelationshipType::getKey).toList();
+    }
+
+    @Override
+    public List<? extends RelationshipType> findByLeftEndAnyType(final AnyType anyType) {
+        TypedQuery<RelationshipType> query = entityManager.createQuery(
+                "SELECT DISTINCT e FROM " + JPARelationshipType.class.getSimpleName() + " e "
+                + "WHERE e.leftEndAnyType=:anyType",
+                RelationshipType.class);
+        query.setParameter("anyType", anyType);
+        return query.getResultList();
     }
 
     protected Collection<? extends Relationship<?, ?>> findRelationshipsByType(final RelationshipType type) {
@@ -65,7 +86,7 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
             return;
         }
 
-        findRelationshipsByType(type).stream().map(relationship -> {
+        findRelationshipsByType(type).stream().peek(relationship -> {
             switch (relationship) {
                 case URelationship uRelationship ->
                     uRelationship.getLeftEnd().getRelationships().remove(uRelationship);
@@ -79,7 +100,6 @@ public class RelationshipTypeRepoExtImpl implements RelationshipTypeRepoExt {
                 }
             }
             relationship.setLeftEnd(null);
-            return relationship;
         }).forEach(entityManager::remove);
 
         entityManager.remove(type);

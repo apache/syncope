@@ -27,13 +27,13 @@ import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,22 +41,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 
 public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> {
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
-    protected static byte[] getAuthorities() {
-        byte[] authorities = null;
-        try {
-            authorities = ENCRYPTOR.encode(POJOHelper.serialize(
-                    AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
-                    getBytes();
-        } catch (Exception e) {
-            LOG.error("Could not fetch authorities", e);
-        }
-
-        return authorities;
-    }
-
     protected final SecurityProperties securityProperties;
+
+    protected final EncryptorManager encryptorManager;
 
     protected final AccessTokenDataBinder binder;
 
@@ -64,12 +51,27 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
     public AccessTokenLogic(
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final AccessTokenDataBinder binder,
             final AccessTokenDAO accessTokenDAO) {
 
         this.securityProperties = securityProperties;
+        this.encryptorManager = encryptorManager;
         this.binder = binder;
         this.accessTokenDAO = accessTokenDAO;
+    }
+
+    protected byte[] getAuthorities() {
+        byte[] authorities = null;
+        try {
+            authorities = encryptorManager.getInstance().encode(POJOHelper.serialize(
+                    AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
+                    getBytes();
+        } catch (Exception e) {
+            LOG.error("Could not fetch authorities", e);
+        }
+
+        return authorities;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -82,7 +84,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
 
         return binder.create(
                 AuthContextUtils.getUsername(),
-                Collections.<String, Object>emptyMap(),
+                Collections.emptyMap(),
                 getAuthorities(),
                 false);
     }

@@ -31,7 +31,7 @@ under the License.
   <description>Apache Syncope Docker Enduser</description>
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope-docker-enduser</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
@@ -76,26 +76,6 @@ under the License.
     
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <inherited>false</inherited>
-        <configuration>
-          <webXml>${basedir}/../../fit/enduser-reference/src/main/webapp/WEB-INF/web.xml</webXml>
-          <webResources>
-            <resource>
-              <directory>${basedir}</directory>
-              <targetPath>META-INF</targetPath>
-              <includes>
-                <include>LICENSE</include>
-                <include>NOTICE</include>
-              </includes>
-            </resource>
-          </webResources>        
-          <outputDirectory>${project.build.outputDirectory}</outputDirectory>        
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>

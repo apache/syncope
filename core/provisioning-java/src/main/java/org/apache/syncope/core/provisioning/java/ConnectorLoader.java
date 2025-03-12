@@ -37,6 +37,6 @@ public class ConnectorLoader implements SyncopeCoreLoader {
 
     @Override
     public void load(final String domain) {
-        AuthContextUtils.runAsAdmin(domain, () -> connectorManager.load());
+        AuthContextUtils.runAsAdmin(domain, connectorManager::load);
     }
 }

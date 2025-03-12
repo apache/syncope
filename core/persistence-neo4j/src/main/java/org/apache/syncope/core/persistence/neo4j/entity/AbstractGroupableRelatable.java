@@ -25,39 +25,34 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 
 public abstract class AbstractGroupableRelatable<
-        L extends Any<P>,
-        M extends Membership<L>,
-        P extends GroupablePlainAttr<L, M>,
-        R extends Any<?>,
-        REL extends Relationship<L, R>>
-        extends AbstractAny<P> implements GroupableRelatable<L, M, P, R, REL> {
+        L extends Any, M extends Membership<L>, R extends Any, REL extends Relationship<L, R>>
+        extends AbstractRelatable<L, R, REL> implements Groupable<L, M, R, REL> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 
-    protected abstract List<? extends AbstractMembership<L, P>> memberships();
+    protected abstract List<? extends AbstractMembership<L>> memberships();
 
     @Override
-    public boolean remove(final P attr) {
-        if (attr.getMembershipKey() == null) {
-            return plainAttrs().put(attr.getSchemaKey(), null) != null;
+    public boolean remove(final PlainAttr attr) {
+        if (attr.getMembership() == null) {
+            return plainAttrs().put(attr.getSchema(), null) != null;
         }
 
         return memberships().stream().
-                filter(m -> m.getKey().equals(attr.getMembershipKey())).findFirst().
-                map(membership -> membership.plainAttrs().put(attr.getSchemaKey(), null) != null).
+                filter(m -> m.getKey().equals(attr.getMembership())).findFirst().
+                map(membership -> membership.plainAttrs().put(attr.getSchema(), null) != null).
                 orElse(false);
     }
 
     @Override
-    public Optional<? extends P> getPlainAttr(final String plainSchema, final Membership<?> membership) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema, final Membership<?> membership) {
         return memberships().stream().
                 filter(m -> m.getKey().equals(membership.getKey())).findFirst().
                 flatMap(m -> m.getPlainAttr(plainSchema));
@@ -65,23 +60,23 @@ public abstract class AbstractGroupableRelatable<
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<? extends P> getPlainAttrs() {
+    public List<PlainAttr> getPlainAttrs() {
         return plainAttrs().entrySet().stream().
                 filter(e -> e.getValue() != null).
                 sorted(Comparator.comparing(Map.Entry::getKey)).
-                map(e -> (P) e.getValue()).toList();
+                map(Map.Entry::getValue).toList();
     }
 
     @Override
-    public Collection<? extends P> getPlainAttrs(final String plainSchema) {
-        return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElse(Stream.empty()),
+    public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
+        return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElseGet(Stream::empty),
                 memberships().stream().map(m -> m.getPlainAttr(plainSchema)).
                         flatMap(Optional::stream)).
                 toList();
     }
 
     @Override
-    public Collection<? extends P> getPlainAttrs(final Membership<?> membership) {
+    public Collection<PlainAttr> getPlainAttrs(final Membership<?> membership) {
         return memberships().stream().
                 filter(m -> m.getKey().equals(membership.getKey())).
                 flatMap(m -> m.getPlainAttrs().stream()).toList();
@@ -98,20 +93,6 @@ public abstract class AbstractGroupableRelatable<
         return getMemberships().stream().
                 filter(membership -> groupKey != null && groupKey.equals(membership.getRightEnd().getKey())).
                 findFirst();
-    }
-
-    @Override
-    public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
-        return getRelationships().stream().
-                filter(relationship -> relationshipType != null && relationshipType.equals(relationship.getType())).
-                toList();
-    }
-
-    @Override
-    public Collection<? extends REL> getRelationships(final String otherEndKey) {
-        return getRelationships().stream().
-                filter(relationship -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
-                toList();
     }
 
     @PostLoad

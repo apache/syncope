@@ -30,7 +30,7 @@ import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @AnyCheck
-public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGeneratedKeyNode implements Any<P> {
+public abstract class AbstractAny extends AbstractGeneratedKeyNode implements Any {
 
     private static final long serialVersionUID = -2666540708092702810L;
 
@@ -154,25 +154,22 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractGenera
         this.status = status;
     }
 
-    protected abstract Map<String, ? extends P> plainAttrs();
+    protected abstract Map<String, PlainAttr> plainAttrs();
 
     @Override
-    public Optional<P> getPlainAttr(final String plainSchema) {
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
         return Optional.ofNullable(plainAttrs().get(plainSchema));
     }
 
-    protected abstract void setPlainAttrOwner(P plainAttr);
-
     @SuppressWarnings("unchecked")
-    protected void doComplete(final Map<String, ? extends P> plainAttrs) {
+    protected void doComplete(final Map<String, PlainAttr> plainAttrs) {
         for (var itor = plainAttrs.entrySet().iterator(); itor.hasNext();) {
             var entry = itor.next();
             Optional.ofNullable(entry.getValue()).ifPresent(attr -> {
-                ((AbstractPlainAttr<?>) attr).setSchema(entry.getKey());
+                attr.setSchema(entry.getKey());
                 if (attr.getSchema() == null) {
                     itor.remove();
                 } else {
-                    setPlainAttrOwner(attr);
                     attr.getValues().forEach(value -> value.setAttr(attr));
                     Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
                 }

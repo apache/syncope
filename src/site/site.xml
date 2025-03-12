@@ -29,7 +29,7 @@ under the License.
   <skin>
     <groupId>org.apache.maven.skins</groupId>
     <artifactId>maven-fluido-skin</artifactId>
-    <version>2.0.0-M11</version>
+    <version>2.0.1</version>
   </skin>
   <custom>
     <fluidoSkin>
@@ -68,7 +68,6 @@ under the License.
     </menu>
         
     <menu name="Development">
-      <item name="Roadmap" href="https://cwiki.apache.org/confluence/display/SYNCOPE/Roadmap"/>
       <item name="How to contribute?" href="contributing"/>
       <item name="Source Repository" href="source-repository"/>
       <item name="Continuous Integration" href="integration"/>
@@ -87,22 +86,8 @@ under the License.
 
     <footer>
       <![CDATA[
-Copyright &copy; 2024, the Apache Software Foundation.<br/>
+Copyright &copy; 2025, the Apache Software Foundation.<br/>
 Apache, Syncope, Apache Syncope, the Apache feather logo and the Apache Syncope project logo are trademarks of The Apache Software Foundation. All other marks mentioned may be trademarks or registered trademarks of their respective owners.
-    
-    <div class="pull-right">
-      <a href="https://www.openhub.net/p/syncope"><img src="https://www.openhub.net/p/syncope/widgets/project_thin_badge.gif"/></a>
-      <a href="https://bestpractices.coreinfrastructure.org/projects/154">
-        <img src="https://bestpractices.coreinfrastructure.org/projects/154/badge" style="vertical-align: top"/>
-      </a>
-      <img src="https://img.shields.io/maven-central/v/org.apache.syncope/syncope.png" style="vertical-align: top"/>
-      <a href="https://github.com/apache/syncope/actions/workflows/crosschecks.yml">
-        <img src="https://github.com/apache/syncope/actions/workflows/crosschecks.yml/badge.svg" style="max-width:100%;vertical-align: top">
-      </a>
-      <a href="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml">
-        <img src="https://github.com/apache/syncope/actions/workflows/codeql-analysis.yml/badge.svg" style="max-width:100%;vertical-align: top">
-      </a>
-    </div>
       ]]>
     </footer>
   </body>

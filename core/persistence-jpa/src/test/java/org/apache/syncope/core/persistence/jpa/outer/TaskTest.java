@@ -262,7 +262,7 @@ public class TaskTest extends AbstractTest {
 
         // now adding InboundActions
         Implementation inboundActions = entityFactory.newEntity(Implementation.class);
-        inboundActions.setKey("InboundActions" + UUID.randomUUID().toString());
+        inboundActions.setKey("InboundActions" + UUID.randomUUID());
         inboundActions.setEngine(ImplementationEngine.JAVA);
         inboundActions.setType(IdMImplementationType.INBOUND_ACTIONS);
         inboundActions.setBody(InboundActions.class.getName());
@@ -320,11 +320,11 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveMacroTaskSameCommandMultipleOccurrencies() {
+    public void saveMacroTaskSameCommandMultipleOccurrences() {
         MacroTask task = entityFactory.newEntity(MacroTask.class);
         task.setRealm(realmDAO.getRoot());
         task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
-        task.setName("saveMacroTaskSameCommandMultipleOccurrencies");
+        task.setName("saveMacroTaskSameCommandMultipleOccurrences");
         task.setContinueOnError(true);
 
         Implementation command1 = entityFactory.newEntity(Implementation.class);

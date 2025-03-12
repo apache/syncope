@@ -45,7 +45,7 @@ public final class RealmsUtils {
         String base = SyncopeConsoleSession.get().getSearchableRealms().isEmpty()
                 || SyncopeConsoleSession.get().getSearchableRealms().contains(SyncopeConstants.ROOT_REALM)
                 ? SyncopeConstants.ROOT_REALM
-                : getFullPath(SyncopeConsoleSession.get().getSearchableRealms().get(0));
+                : getFullPath(SyncopeConsoleSession.get().getSearchableRealms().getFirst());
         return new RealmQuery.Builder().base(base).build();
     }
 

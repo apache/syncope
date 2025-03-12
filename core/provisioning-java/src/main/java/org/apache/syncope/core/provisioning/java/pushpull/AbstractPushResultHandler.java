@@ -67,8 +67,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     protected static void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
         if (!reporter.getStatuses().isEmpty()) {
-            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
-            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
+            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().getFirst().getStatus()));
+            result.setMessage(reporter.getStatuses().getFirst().getFailureReason());
         }
     }
 
@@ -128,15 +128,14 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Autowired
     protected SyncopeTaskScheduler scheduler;
 
-    protected abstract String getName(Any<?> any);
+    protected abstract String getName(Any any);
 
     protected void update(
-            final Any<?> any,
+            final Any any,
             final Boolean enable,
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
-
-        boolean changepwd = any instanceof User;
+        
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
                 map(ExternalResource::getKey).toList();
 
@@ -151,21 +150,21 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 null,
                 any.getType().getKind(),
                 any.getKey(),
-                changepwd,
+                any instanceof User ? List.of(profile.getTask().getResource().getKey()) : List.of(),
                 enable,
                 propByRes,
                 null,
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
 
-    protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void deprovision(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -182,14 +181,14 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
 
-    protected void provision(final Any<?> any, final Boolean enable, final ProvisioningReport result) {
+    protected void provision(final Any any, final Boolean enable, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -206,14 +205,14 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 before.getVirAttrs(),
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.empty());
+            taskInfos.getFirst().setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, securityProperties.getAdminUser());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, securityProperties.getAdminUser());
             reportPropagation(result, reporter);
         }
     }
 
-    protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
+    protected void link(final Any any, final boolean unlink, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
@@ -224,7 +223,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setStatus(ProvisioningReport.Status.SUCCESS);
     }
 
-    protected void unassign(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void unassign(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.DELETE).
@@ -235,7 +234,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         deprovision(any, beforeObj, result);
     }
 
-    protected void assign(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void assign(final Any any, final Boolean enabled, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
@@ -249,7 +248,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public boolean handle(final String anyKey) {
-        Any<?> any = null;
+        Any any = null;
         try {
             any = getAnyUtils().dao().authFind(anyKey);
 
@@ -293,7 +292,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected void doHandle(final Any<?> any, final Provision provision) throws JobExecutionException {
+    protected void doHandle(final Any any, final Provision provision) throws JobExecutionException {
         ProvisioningReport result = new ProvisioningReport();
         profile.getResults().add(result);
 
@@ -332,7 +331,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 default:
             }
         }
-        ConnectorObject beforeObj = connObjs.isEmpty() ? null : connObjs.get(0);
+        ConnectorObject beforeObj = connObjs.isEmpty() ? null : connObjs.getFirst();
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {

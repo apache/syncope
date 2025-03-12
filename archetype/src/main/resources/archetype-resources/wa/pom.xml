@@ -30,7 +30,11 @@ under the License.
   <name>Apache Syncope sample project - WA</name>
   <groupId>${groupId}</groupId>
   <artifactId>${artifactId}</artifactId>
-  <packaging>war</packaging>
+  <packaging>${packaging}</packaging>
+
+  <properties>
+    <packaging>war</packaging>
+  </properties>
 
   <dependencyManagement>
     <dependencies>
@@ -114,7 +118,11 @@ under the License.
   <profiles>
     <profile>
       <id>standalone</id>
-        
+
+      <properties>
+        <packaging>jar</packaging>
+      </properties>
+
       <build>
         <plugins>
           <plugin>

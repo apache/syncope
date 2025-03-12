@@ -21,18 +21,19 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public interface PlainSchemaRepoExt {
 
     List<? extends PlainSchema> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 
-    <T extends PlainAttr<?>> boolean hasAttrs(PlainSchema schema, Class<T> reference);
+    boolean hasAttrs(PlainSchema schema);
+
+    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
 
     PlainSchema save(PlainSchema schema);
 
     void deleteById(String key);
-
-    <T extends PlainAttr<?>> void delete(T plainAttr);
 }

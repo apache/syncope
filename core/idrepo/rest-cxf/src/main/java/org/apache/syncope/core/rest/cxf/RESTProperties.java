@@ -20,10 +20,12 @@ package org.apache.syncope.core.rest.cxf;
 
 import org.apache.syncope.core.provisioning.java.ExecutorProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 @ConfigurationProperties("rest")
 public class RESTProperties {
 
+    @NestedConfigurationProperty
     private final ExecutorProperties batchExecutor = new ExecutorProperties();
 
     public ExecutorProperties getBatchExecutor() {

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -45,10 +46,10 @@ public class SearchCond extends AbstractSearchCond {
 
     private SearchCond right;
 
-    public static SearchCond getLeaf(final AbstractSearchCond leaf) {
+    public static SearchCond of(final AbstractSearchCond leaf) {
         SearchCond cond;
-        if (leaf instanceof SearchCond) {
-            cond = (SearchCond) leaf;
+        if (leaf instanceof SearchCond searchCond) {
+            cond = searchCond;
         } else {
             cond = new SearchCond();
             cond.leaf = leaf;
@@ -59,15 +60,15 @@ public class SearchCond extends AbstractSearchCond {
         return cond;
     }
 
-    public static SearchCond getNotLeaf(final AbstractSearchCond leaf) {
-        SearchCond cond = getLeaf(leaf);
+    public static SearchCond negate(final AbstractSearchCond leaf) {
+        SearchCond cond = of(leaf);
 
         cond.type = Type.NOT_LEAF;
 
         return cond;
     }
 
-    public static SearchCond getAnd(final SearchCond left, final SearchCond right) {
+    private static SearchCond and(final SearchCond left, final SearchCond right) {
         SearchCond cond = new SearchCond();
 
         cond.type = Type.AND;
@@ -77,17 +78,21 @@ public class SearchCond extends AbstractSearchCond {
         return cond;
     }
 
-    public static SearchCond getAnd(final List<SearchCond> conditions) {
+    public static SearchCond and(final List<SearchCond> conditions) {
         if (conditions.size() == 1) {
-            return conditions.get(0);
+            return conditions.getFirst();
         } else if (conditions.size() > 2) {
-            return getAnd(conditions.get(0), getAnd(conditions.subList(1, conditions.size())));
+            return and(conditions.getFirst(), and(conditions.subList(1, conditions.size())));
         } else {
-            return getAnd(conditions.get(0), conditions.get(1));
+            return and(conditions.get(0), conditions.get(1));
         }
     }
 
-    public static SearchCond getOr(final SearchCond left, final SearchCond right) {
+    public static SearchCond and(final SearchCond... conditions) {
+        return and(Arrays.asList(conditions));
+    }
+
+    private static SearchCond or(final SearchCond left, final SearchCond right) {
         SearchCond cond = new SearchCond();
 
         cond.type = Type.OR;
@@ -97,18 +102,22 @@ public class SearchCond extends AbstractSearchCond {
         return cond;
     }
 
-    public static SearchCond getOr(final List<SearchCond> conditions) {
+    public static SearchCond or(final List<SearchCond> conditions) {
         if (conditions.size() == 1) {
-            return conditions.get(0);
+            return conditions.getFirst();
         } else if (conditions.size() > 2) {
-            return getOr(conditions.get(0), getOr(conditions.subList(1, conditions.size())));
+            return or(conditions.getFirst(), or(conditions.subList(1, conditions.size())));
         } else {
-            return getOr(conditions.get(0), conditions.get(1));
+            return or(conditions.get(0), conditions.get(1));
         }
     }
 
+    public static SearchCond or(final SearchCond... conditions) {
+        return or(Arrays.asList(conditions));
+    }
+
     public Optional<AnyTypeCond> getAnyTypeCond() {
-        return Optional.ofNullable(leaf instanceof AnyTypeCond ? (AnyTypeCond) leaf : null);
+        return Optional.ofNullable(leaf instanceof final AnyTypeCond anyTypeCond ? anyTypeCond : null);
     }
 
     /**
@@ -126,8 +135,8 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                if (leaf instanceof AnyTypeCond) {
-                    anyTypeName = ((AnyTypeCond) leaf).getAnyTypeKey();
+                if (leaf instanceof AnyTypeCond anyTypeCond) {
+                    anyTypeName = anyTypeCond.getAnyTypeKey();
                 }
                 break;
 
@@ -148,7 +157,7 @@ public class SearchCond extends AbstractSearchCond {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSearchCond> Optional<T> getLeaf(final Class<T> clazz) {
+    public <T extends AbstractSearchCond> Optional<T> asLeaf(final Class<T> clazz) {
         return Optional.ofNullable((T) (clazz.isInstance(leaf) ? leaf : null));
     }
 

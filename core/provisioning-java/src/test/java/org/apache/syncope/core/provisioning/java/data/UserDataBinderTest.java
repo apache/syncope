@@ -115,6 +115,6 @@ public class UserDataBinderTest extends AbstractTest {
         assertEquals(2, user.getPlainAttrs("obscure").size());
         assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").orElseThrow()));
         assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> a.getMembership() == null));
-        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> newM.equals(a.getMembership())));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(a -> newM.getKey().equals(a.getMembership())));
     }
 }

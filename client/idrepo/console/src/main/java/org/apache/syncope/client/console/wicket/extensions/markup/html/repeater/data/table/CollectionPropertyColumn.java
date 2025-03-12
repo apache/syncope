@@ -42,8 +42,8 @@ public class CollectionPropertyColumn<T> extends PropertyColumn<T, String> {
 
         Object value = getDataModel(rowModel).getObject();
 
-        if (value instanceof Collection) {
-            List values = new ArrayList((Collection) value);
+        if (value instanceof final Collection collection) {
+            List values = new ArrayList(collection);
             Collections.sort(values);
             cellItem.add(new CollectionPanel(componentId, values));
         }

@@ -62,17 +62,17 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
     }
 
     @Override
-    protected String getName(final Any<?> any) {
+    protected String getName(final Any any) {
         return User.class.cast(any).getUsername();
     }
 
     @Override
-    protected AnyTO getAnyTO(final Any<?> any) {
+    protected AnyTO getAnyTO(final Any any) {
         return userDataBinder.getUserTO((User) any, true);
     }
 
     @Override
-    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
+    protected void provision(final Any any, final Boolean enabled, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -102,7 +102,7 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
 
     @Override
     protected void update(
-            final Any<?> any,
+            final Any any,
             final Boolean enable,
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
@@ -127,22 +127,22 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 any.getType().getKind(),
                 any.getKey(),
-                true,
+                List.of(profile.getTask().getResource().getKey()),
                 enable,
                 propByRes,
                 propByLinkedAccount,
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
 
     @Override
-    protected void deprovision(final Any<?> any, final ConnectorObject beforeObj, final ProvisioningReport result) {
+    protected void deprovision(final Any any, final ConnectorObject beforeObj, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any);
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -165,9 +165,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 propByLinkedAccount,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.of(beforeObj));
+            taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -374,9 +374,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 null,
                 null);
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.empty());
+            taskInfos.getFirst().setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }
@@ -401,9 +401,9 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                         propByLinkedAccount,
                         ""));
         if (!taskInfos.isEmpty()) {
-            taskInfos.get(0).setBeforeObj(Optional.empty());
+            taskInfos.getFirst().setBeforeObj(Optional.empty());
             PropagationReporter reporter = new DefaultPropagationReporter();
-            taskExecutor.execute(taskInfos.get(0), reporter, profile.getExecutor());
+            taskExecutor.execute(taskInfos.getFirst(), reporter, profile.getExecutor());
             reportPropagation(result, reporter);
         }
     }

@@ -24,11 +24,12 @@ import com.nimbusds.jose.KeyLengthException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.policy.DefaultRuleProvider;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
@@ -123,11 +124,12 @@ public class SecurityContext {
     @Bean
     public SyncopeJWTSSOProvider syncopeJWTSSOProvider(
             final SecurityProperties props,
+            final EncryptorManager encryptorManager,
             final AccessTokenJWSVerifier accessTokenJWSVerifier,
             final UserDAO userDAO,
             final AccessTokenDAO accessTokenDAO) {
 
-        return new SyncopeJWTSSOProvider(props, accessTokenJWSVerifier, userDAO, accessTokenDAO);
+        return new SyncopeJWTSSOProvider(props, encryptorManager, accessTokenJWSVerifier, userDAO, accessTokenDAO);
     }
 
     @ConditionalOnMissingBean
@@ -145,5 +147,10 @@ public class SecurityContext {
     @Bean
     public ApplicationContextProvider applicationContextProvider() {
         return new ApplicationContextProvider();
+    }
+
+    @Bean
+    public EncryptorManager encryptorManager() {
+        return new DefaultEncryptorManager();
     }
 }

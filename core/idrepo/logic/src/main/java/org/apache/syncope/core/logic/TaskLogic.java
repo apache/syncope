@@ -128,8 +128,8 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
     }
 
     protected void securityChecks(final String entitlement, final String realm) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(entitlement);
-        if (authRealms.stream().noneMatch(r -> realm.startsWith(r))) {
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().getOrDefault(entitlement, Set.of());
+        if (authRealms.isEmpty() || authRealms.stream().noneMatch(realm::startsWith)) {
             throw new DelegatedAdministrationException(realm, MacroTask.class.getSimpleName(), null);
         }
     }
@@ -348,7 +348,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 try {
                     jobManager.register(
                             (SchedTask) task,
-                            Optional.ofNullable(startAt).orElseGet(() -> OffsetDateTime.now()),
+                            Optional.ofNullable(startAt).orElseGet(OffsetDateTime::now),
                             executor,
                             dryRun,
                             additionalDataMap);
@@ -450,7 +450,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         long count = taskExecDAO.count(task, before, after);
 
         List<ExecTO> result = taskExecDAO.findAll(task, before, after, pageable).stream().
-                map(exec -> binder.getExecTO(exec)).toList();
+                map(binder::getExecTO).toList();
 
         return new SyncopePage<>(result, pageable, count);
     }

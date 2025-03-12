@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 
@@ -28,7 +28,7 @@ public class SAML2SPEntityRestClient extends BaseRestClient {
     private static final long serialVersionUID = -1392090291817187902L;
 
     public List<SAML2SPEntityTO> list() {
-        return getService(SAML2SPEntityService.class).list().stream().collect(Collectors.toList());
+        return new ArrayList<>(getService(SAML2SPEntityService.class).list());
     }
 
     public SAML2SPEntityTO get(final String key) {

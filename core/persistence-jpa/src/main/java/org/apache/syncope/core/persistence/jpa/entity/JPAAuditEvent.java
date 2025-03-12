@@ -110,7 +110,7 @@ public class JPAAuditEvent extends AbstractGeneratedKeyEntity implements AuditEv
 
     @Override
     public List<String> getInputs() {
-        return Optional.ofNullable(inputs).map(i -> POJOHelper.deserialize(i, TYPEREF)).orElse(List.of());
+        return Optional.ofNullable(inputs).map(i -> POJOHelper.deserialize(i, TYPEREF)).orElseGet(List::of);
     }
 
     @Override

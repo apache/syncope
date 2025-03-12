@@ -172,10 +172,10 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
 
         Map<String, String> row = new LinkedHashMap<>();
         attrs.stream().filter(attr -> !AttributeUtil.isSpecial(attr)).forEach(attr -> {
-            if (CollectionUtils.isEmpty(attr.getValue()) || attr.getValue().get(0) == null) {
+            if (CollectionUtils.isEmpty(attr.getValue()) || attr.getValue().getFirst() == null) {
                 row.put(attr.getName(), null);
             } else if (attr.getValue().size() == 1) {
-                row.put(attr.getName(), attr.getValue().get(0).toString());
+                row.put(attr.getName(), attr.getValue().getFirst().toString());
             } else if (arrayElementsSeparator == null) {
                 row.put(attr.getName(), attr.getValue().toString());
             } else {

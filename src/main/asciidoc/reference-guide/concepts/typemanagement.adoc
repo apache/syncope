@@ -48,7 +48,7 @@ https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/text/DateForma
 ** `Dropdown` - allows to specify an <<implementations,implementation>> which will dynamically return the value(s) that
 can be selected
 ** `Encrypted`
-*** secret key (stored or referenced as https://docs.spring.io/spring-framework/reference/6.1/core/beans/environment.html#beans-using-propertysource[Spring property^])
+*** secret key (stored or referenced as https://docs.spring.io/spring-framework/reference/6.2/core/beans/environment.html#beans-using-propertysource[Spring property^])
 *** cipher algorithm
 *** whether transparent encryption is to be enabled, e.g. attribute values are stored as encrypted but available as
 cleartext on-demand (requires AES ciphering)
@@ -216,8 +216,8 @@ increase readability):
 
 ==== RelationshipType
 
-Relationships allow the creation of a link between a user and an any object, or between two Any Objects; relationship types
-define the available link types.
+Relationships allow the creation of a link between a user, a group or an any object with an any object; relationship
+types define the available link types.
 
 .Relationship between Any Objects (printers)
 ====
@@ -248,9 +248,18 @@ The following any object of type `PRINTER` contains a relationship of type `neig
   ],
   "relationships": [
     {
-      "type": "neighbourhood",
-      "rightType": "PRINTER",
-      "rightKey": "8559d14d-58c2-46eb-a2d4-a7d35161e8f8"
+      "type": "neighborhood",
+      "end": "LEFT",
+      "otherEndType": "PRINTER",
+      "otherEndKey": "8559d14d-58c2-46eb-a2d4-a7d35161e8f8",
+      "otherEndName": "Canon MF 8030cn"
+    },
+    {
+      "type": "neighborhood",
+      "end": "RIGHT",
+      "otherEndType": "USER",
+      "otherEndKey": "c9b2dec2-00a7-4855-97c0-d854842b4b24",
+      "otherEndName": "bellini"
     }
   ]
 }

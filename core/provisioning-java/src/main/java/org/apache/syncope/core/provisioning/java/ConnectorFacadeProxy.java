@@ -27,13 +27,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.common.CollectionUtil;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -473,7 +473,7 @@ public class ConnectorFacadeProxy implements Connector {
                 OperationOptionsBuilder builder = new OperationOptionsBuilder(options).
                         setPageSize(DEFAULT_PAGE_SIZE).setPagedResultsOffset(-1);
 
-                final String[] cookies = new String[] { null };
+                final String[] cookies = { null };
                 do {
                     if (cookies[0] != null) {
                         builder.setPagedResultsCookie(cookies[0]);
@@ -521,30 +521,30 @@ public class ConnectorFacadeProxy implements Connector {
             Class<?> propertySchemaClass = ClassUtils.forName(propType, ClassUtils.getDefaultClassLoader());
 
             if (GuardedString.class.equals(propertySchemaClass)) {
-                value = new GuardedString(values.get(0).toString().toCharArray());
+                value = new GuardedString(values.getFirst().toString().toCharArray());
             } else if (GuardedByteArray.class.equals(propertySchemaClass)) {
-                value = new GuardedByteArray((byte[]) values.get(0));
+                value = new GuardedByteArray((byte[]) values.getFirst());
             } else if (Character.class.equals(propertySchemaClass) || Character.TYPE.equals(propertySchemaClass)) {
-                value = values.get(0) == null || values.get(0).toString().isEmpty()
-                        ? null : values.get(0).toString().charAt(0);
+                value = values.getFirst() == null || values.getFirst().toString().isEmpty()
+                        ? null : values.getFirst().toString().charAt(0);
             } else if (Integer.class.equals(propertySchemaClass) || Integer.TYPE.equals(propertySchemaClass)) {
-                value = Integer.valueOf(values.get(0).toString());
+                value = Integer.valueOf(values.getFirst().toString());
             } else if (Long.class.equals(propertySchemaClass) || Long.TYPE.equals(propertySchemaClass)) {
-                value = Long.valueOf(values.get(0).toString());
+                value = Long.valueOf(values.getFirst().toString());
             } else if (Float.class.equals(propertySchemaClass) || Float.TYPE.equals(propertySchemaClass)) {
-                value = Float.valueOf(values.get(0).toString());
+                value = Float.valueOf(values.getFirst().toString());
             } else if (Double.class.equals(propertySchemaClass) || Double.TYPE.equals(propertySchemaClass)) {
-                value = Double.valueOf(values.get(0).toString());
+                value = Double.valueOf(values.getFirst().toString());
             } else if (Boolean.class.equals(propertySchemaClass) || Boolean.TYPE.equals(propertySchemaClass)) {
-                value = Boolean.valueOf(values.get(0).toString());
+                value = Boolean.valueOf(values.getFirst().toString());
             } else if (URI.class.equals(propertySchemaClass)) {
-                value = URI.create(values.get(0).toString());
+                value = URI.create(values.getFirst().toString());
             } else if (File.class.equals(propertySchemaClass)) {
-                value = Path.of(values.get(0).toString()).toFile();
+                value = Path.of(values.getFirst().toString()).toFile();
             } else if (String[].class.equals(propertySchemaClass)) {
                 value = values.toArray(String[]::new);
             } else {
-                value = values.get(0) == null ? null : values.get(0).toString();
+                value = values.getFirst() == null ? null : values.getFirst().toString();
             }
         } catch (Exception e) {
             LOG.error("Invalid ConnConfProperty specified: {} {}", propType, values, e);

@@ -100,7 +100,7 @@ public interface PropagationManager {
      * @param anyUR update request
      * @param kind any type kind
      * @param key any key
-     * @param changePwd whether password should be included for propagation attributes or not
+     * @param changePwdRes the resources in which the password must be included in the propagation attributes
      * @param enable whether any should be enabled or not, may be null to leave unchanged
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
@@ -112,7 +112,7 @@ public interface PropagationManager {
             AnyUR anyUR,
             AnyTypeKind kind,
             String key,
-            boolean changePwd,
+            List<String> changePwdRes,
             Boolean enable,
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
@@ -123,13 +123,13 @@ public interface PropagationManager {
      * Create the update tasks for the user on each resource associated, unless in {@code excludedResources}.
      *
      * @param wfResult user to be propagated (and info associated), as per result from workflow
-     * @param changePwd whether password should be included for propagation attributes or not
+     * @param changePwdRes the resources in which the password must be included in the propagation attributes
      * @param excludedResources external resources not to be considered for propagation
      * @return list of propagation tasks
      */
     List<PropagationTaskInfo> getUserUpdateTasks(
             UserWorkflowResult<Pair<UserUR, Boolean>> wfResult,
-            boolean changePwd,
+            List<String> changePwdRes,
             Collection<String> excludedResources);
 
     /**
@@ -160,7 +160,7 @@ public interface PropagationManager {
 
     PropagationTaskInfo newTask(
             DerAttrHandler derAttrHandler,
-            Any<?> any,
+            Any any,
             ExternalResource resource,
             ResourceOperation operation,
             Provision provision,
@@ -186,7 +186,8 @@ public interface PropagationManager {
      * @param kind any type kind
      * @param key any key
      * @param password to be set (for users)
-     * @param changePwd whether password should be included for propagation attributes or not (for users)
+     * @param changePwdRes the resources in which the password must be included in the propagation attributes (for 
+     * users)
      * @param enable whether any should be enabled or not, may be null to leave unchanged
      * @param excludedResources external resource keys not to be considered for propagation
      * @return map with prepared attributes per External Resource
@@ -195,7 +196,7 @@ public interface PropagationManager {
             AnyTypeKind kind,
             String key,
             String password,
-            boolean changePwd,
+            List<String> changePwdRes,
             Boolean enable,
             Collection<String> excludedResources);
 

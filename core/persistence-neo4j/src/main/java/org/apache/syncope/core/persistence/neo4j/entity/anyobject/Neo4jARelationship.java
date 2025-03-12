@@ -19,16 +19,19 @@
 package org.apache.syncope.core.persistence.neo4j.entity.anyobject;
 
 import jakarta.validation.constraints.NotNull;
-import org.apache.syncope.core.persistence.api.entity.MembershipType;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.common.entity.AMembershipType;
+import org.apache.syncope.core.persistence.common.entity.UMembershipType;
+import org.apache.syncope.core.persistence.common.validation.RelationshipCheck;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractGeneratedKeyNode;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRelationshipType;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jARelationship.NODE)
+@RelationshipCheck
 public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARelationship {
 
     private static final long serialVersionUID = 2778494939240083204L;
@@ -44,10 +47,10 @@ public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARel
     private Neo4jRelationshipType type;
 
     @Relationship(type = SOURCE_REL, direction = Relationship.Direction.OUTGOING)
-    private AnyObject leftEnd;
+    private Neo4jAnyObject leftEnd;
 
     @Relationship(type = DEST_REL, direction = Relationship.Direction.OUTGOING)
-    private AnyObject rightEnd;
+    private Neo4jAnyObject rightEnd;
 
     @Override
     public RelationshipType getType() {
@@ -56,7 +59,9 @@ public class Neo4jARelationship extends AbstractGeneratedKeyNode implements ARel
 
     @Override
     public void setType(final RelationshipType type) {
-        if (MembershipType.getInstance().getKey().equalsIgnoreCase(type.getKey())) {
+        if (UMembershipType.KEY.equalsIgnoreCase(type.getKey())
+                || AMembershipType.KEY.equalsIgnoreCase(type.getKey())) {
+
             throw new IllegalArgumentException("This is not a membership");
         }
         checkType(type, Neo4jRelationshipType.class);

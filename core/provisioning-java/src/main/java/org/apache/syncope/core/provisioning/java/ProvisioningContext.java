@@ -27,6 +27,7 @@ import javax.cache.expiry.CreatedExpiryPolicy;
 import javax.cache.expiry.Duration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyMatchDAO;
@@ -34,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditConfDAO;
 import org.apache.syncope.core.persistence.api.dao.AuditEventDAO;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -82,7 +81,6 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
-import org.apache.syncope.core.provisioning.api.data.ApplicationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AttrRepoDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuditDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AuthModuleDataBinder;
@@ -123,7 +121,6 @@ import org.apache.syncope.core.provisioning.java.data.AccessTokenDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyObjectDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeClassDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeDataBinderImpl;
-import org.apache.syncope.core.provisioning.java.data.ApplicationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AttrRepoDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuditDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AuthModuleDataBinderImpl;
@@ -397,19 +394,18 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public MappingManager mappingManager(
-            final AnyUtilsFactory anyUtilsFactory,
             final AnyTypeDAO anyTypeDAO,
             final UserDAO userDAO,
             final AnyObjectDAO anyObjectDAO,
             final GroupDAO groupDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final RealmSearchDAO realmSearchDAO,
-            final ApplicationDAO applicationDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
             final VirAttrHandler virAttrHandler,
             final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
-            final IntAttrNameParser intAttrNameParser) {
+            final IntAttrNameParser intAttrNameParser,
+            final EncryptorManager encryptorManager) {
 
         return new DefaultMappingManager(
                 anyTypeDAO,
@@ -418,13 +414,12 @@ public class ProvisioningContext {
                 groupDAO,
                 relationshipTypeDAO,
                 realmSearchDAO,
-                applicationDAO,
                 implementationDAO,
                 derAttrHandler,
                 virAttrHandler,
                 virAttrCache,
-                anyUtilsFactory,
-                intAttrNameParser);
+                intAttrNameParser,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean
@@ -442,7 +437,8 @@ public class ProvisioningContext {
             final TemplateUtils templateUtils,
             final RealmSearchDAO realmSearchDAO,
             final UserDAO userDAO,
-            final ExternalResourceDAO resourceDAO) {
+            final ExternalResourceDAO resourceDAO,
+            final EncryptorManager encryptorManager) {
 
         return new ConnObjectUtils(
                 templateUtils,
@@ -451,7 +447,8 @@ public class ProvisioningContext {
                 resourceDAO,
                 passwordGenerator,
                 mappingManager,
-                anyUtilsFactory);
+                anyUtilsFactory,
+                encryptorManager);
     }
 
     @ConditionalOnMissingBean
@@ -739,7 +736,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
@@ -757,7 +753,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -787,25 +782,18 @@ public class ProvisioningContext {
     public AnyTypeDataBinder anyTypeDataBinder(
             final EntityFactory entityFactory,
             final SecurityProperties securityProperties,
+            final EncryptorManager encryptorManager,
             final AnyTypeDAO anyTypeDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final AccessTokenDAO accessTokenDAO) {
 
         return new AnyTypeDataBinderImpl(
                 securityProperties,
+                encryptorManager,
                 anyTypeDAO,
                 anyTypeClassDAO,
                 accessTokenDAO,
                 entityFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public ApplicationDataBinder applicationDataBinder(
-            final ApplicationDAO applicationDAO,
-            final EntityFactory entityFactory) {
-
-        return new ApplicationDataBinderImpl(applicationDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -897,7 +885,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
@@ -915,7 +902,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -992,8 +978,11 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public RelationshipTypeDataBinder relationshipTypeDataBinder(final EntityFactory entityFactory) {
-        return new RelationshipTypeDataBinderImpl(entityFactory);
+    public RelationshipTypeDataBinder relationshipTypeDataBinder(
+            final AnyTypeDAO anyTypeDAO,
+            final EntityFactory entityFactory) {
+
+        return new RelationshipTypeDataBinderImpl(anyTypeDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -1046,14 +1035,12 @@ public class ProvisioningContext {
             final SearchCondVisitor searchCondVisitor,
             final RealmSearchDAO realmSearchDAO,
             final DynRealmDAO dynRealmDAO,
-            final RoleDAO roleDAO,
-            final ApplicationDAO applicationDAO) {
+            final RoleDAO roleDAO) {
 
         return new RoleDataBinderImpl(
                 realmSearchDAO,
                 dynRealmDAO,
                 roleDAO,
-                applicationDAO,
                 entityFactory,
                 searchCondVisitor);
     }
@@ -1143,7 +1130,6 @@ public class ProvisioningContext {
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final PlainSchemaDAO plainSchemaDAO,
-            final PlainAttrValueDAO plainAttrValueDAO,
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
@@ -1154,7 +1140,6 @@ public class ProvisioningContext {
             final PlainAttrValidationManager validator,
             final RoleDAO roleDAO,
             final SecurityQuestionDAO securityQuestionDAO,
-            final ApplicationDAO applicationDAO,
             final AccessTokenDAO accessTokenDAO,
             final DelegationDAO delegationDAO,
             final ConfParamOps confParamOps) {
@@ -1167,7 +1152,6 @@ public class ProvisioningContext {
                 userDAO,
                 groupDAO,
                 plainSchemaDAO,
-                plainAttrValueDAO,
                 resourceDAO,
                 relationshipTypeDAO,
                 entityFactory,
@@ -1180,7 +1164,6 @@ public class ProvisioningContext {
                 validator,
                 roleDAO,
                 securityQuestionDAO,
-                applicationDAO,
                 accessTokenDAO,
                 delegationDAO,
                 confParamOps,

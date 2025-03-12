@@ -77,7 +77,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void read() {
-        PushTaskTO pushTaskTO = TASK_SERVICE.<PushTaskTO>read(
+        PushTaskTO pushTaskTO = TASK_SERVICE.read(
                 TaskType.PUSH, "0bc11a19-6454-45c2-a4e3-ceef84e5d79b", true);
         assertEquals(UnmatchingRule.ASSIGN, pushTaskTO.getUnmatchingRule());
         assertEquals(MatchingRule.UPDATE, pushTaskTO.getMatchingRule());

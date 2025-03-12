@@ -30,9 +30,7 @@ import org.apache.syncope.common.rest.api.service.UserRequestService;
 import org.apache.syncope.core.logic.UserRequestLogic;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.data.domain.Page;
-import org.springframework.stereotype.Service;
 
-@Service
 public class UserRequestServiceImpl extends AbstractService implements UserRequestService {
 
     protected final UserRequestLogic logic;

@@ -156,7 +156,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         IChoiceRenderer<? super T> renderer = getChoiceRenderer();
                         Collection<? extends T> choices = getChoices();
 
-                        List<String> ids = builder.idExtractor.apply(getValue()).collect(Collectors.toList());
+                        List<String> ids = builder.idExtractor.apply(getValue()).toList();
                         List<T> unselected = new ArrayList<>(choices.size());
                         choices.forEach(choice -> {
                             if (!ids.contains(renderer.getIdValue(choice, 0))) {

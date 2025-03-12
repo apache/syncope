@@ -79,8 +79,8 @@ public class DefaultAuthMapper implements AuthMapper {
         if (!authHandlers.isEmpty()) {
             mfaAuthHandlers.addAll(authEventExecPlan.getObject().getAuthenticationHandlers().stream().
                     filter(MultifactorAuthenticationHandler.class::isInstance).
-                    filter(mfaAuthHander -> policyConf.getAuthModules().contains(mfaAuthHander.getName())).
-                    map(AuthenticationHandler::getName).
+                map(AuthenticationHandler::getName).
+                filter(name -> policyConf.getAuthModules().contains(name)).
                     collect(Collectors.toSet()));
             authHandlers.removeAll(mfaAuthHandlers);
 
@@ -88,7 +88,7 @@ public class DefaultAuthMapper implements AuthMapper {
                     filter(m -> m.getConf() instanceof Pac4jAuthModuleConf).
                     map(m -> Pair.of(
                     m.getKey(),
-                    Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName()).orElse(m.getKey()))).
+                    Optional.ofNullable(((Pac4jAuthModuleConf) m.getConf()).getClientName()).orElseGet(m::getKey))).
                     collect(Collectors.toSet()));
             if (!delegatedAuthHandlers.isEmpty()) {
                 authHandlers.removeAll(delegatedAuthHandlers.stream().map(Pair::getLeft).collect(Collectors.toSet()));

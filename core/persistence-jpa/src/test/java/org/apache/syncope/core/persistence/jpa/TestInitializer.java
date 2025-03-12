@@ -20,10 +20,10 @@ package org.apache.syncope.core.persistence.jpa;
 
 import javax.sql.DataSource;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.content.ContentLoader;
 import org.apache.syncope.core.persistence.jpa.spring.DomainRoutingEntityManagerFactory;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -65,7 +65,7 @@ public class TestInitializer implements InitializingBean {
         contentLoader.load(SyncopeConstants.MASTER_DOMAIN);
 
         if (domainHolder.getDomains().containsKey("Two")) {
-            AuthContextUtils.runAsAdmin("Two", () -> entityManagerFactory.createEntityManager());
+            AuthContextUtils.runAsAdmin("Two", entityManagerFactory::createEntityManager);
 
             AuthContextUtils.runAsAdmin("Two", () -> contentLoader.load("Two"));
         }

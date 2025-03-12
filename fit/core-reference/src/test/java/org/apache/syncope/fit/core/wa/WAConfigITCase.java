@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.apache.syncope.common.lib.Attr;
@@ -45,9 +44,7 @@ public class WAConfigITCase extends AbstractITCase {
         config = new Attr.Builder(config.getSchema()).values(updatedValue).build();
         WA_CONFIG_SERVICE.set(config);
 
-        Attr updatedTO = WA_CONFIG_SERVICE.get(config.getSchema());
-        updatedTO.getValues().stream().allMatch(((Collection) updatedValue)::contains);
-        return updatedTO;
+        return WA_CONFIG_SERVICE.get(config.getSchema());
     }
 
     private static <T extends Serializable> void deleteEntry(final Attr configTO) {

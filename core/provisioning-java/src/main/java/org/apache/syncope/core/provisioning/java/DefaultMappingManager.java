@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
 import org.apache.commons.jexl3.JexlContext;
@@ -49,9 +50,9 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.ApplicationDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -59,25 +60,22 @@ import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
+import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.Account;
-import org.apache.syncope.core.persistence.api.entity.user.LAPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.FormatUtils;
@@ -94,7 +92,6 @@ import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
 import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.security.Encryptor;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -105,107 +102,45 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class DefaultMappingManager implements MappingManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(MappingManager.class);
 
-    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+    protected static Optional<String> processPreparedAttr(
+            final Pair<String, Attribute> preparedAttr,
+            final Set<Attribute> attributes) {
 
-    protected final AnyTypeDAO anyTypeDAO;
-
-    protected final UserDAO userDAO;
-
-    protected final AnyObjectDAO anyObjectDAO;
-
-    protected final GroupDAO groupDAO;
-
-    protected final RelationshipTypeDAO relationshipTypeDAO;
-
-    protected final RealmSearchDAO realmSearchDAO;
-
-    protected final ApplicationDAO applicationDAO;
-
-    protected final ImplementationDAO implementationDAO;
-
-    protected final DerAttrHandler derAttrHandler;
-
-    protected final VirAttrHandler virAttrHandler;
-
-    protected final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
-
-    protected final AnyUtilsFactory anyUtilsFactory;
-
-    protected final IntAttrNameParser intAttrNameParser;
-
-    public DefaultMappingManager(
-            final AnyTypeDAO anyTypeDAO,
-            final UserDAO userDAO,
-            final AnyObjectDAO anyObjectDAO,
-            final GroupDAO groupDAO,
-            final RelationshipTypeDAO relationshipTypeDAO,
-            final RealmSearchDAO realmSearchDAO,
-            final ApplicationDAO applicationDAO,
-            final ImplementationDAO implementationDAO,
-            final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
-            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
-            final AnyUtilsFactory anyUtilsFactory,
-            final IntAttrNameParser intAttrNameParser) {
-
-        this.anyTypeDAO = anyTypeDAO;
-        this.userDAO = userDAO;
-        this.anyObjectDAO = anyObjectDAO;
-        this.groupDAO = groupDAO;
-        this.relationshipTypeDAO = relationshipTypeDAO;
-        this.realmSearchDAO = realmSearchDAO;
-        this.applicationDAO = applicationDAO;
-        this.implementationDAO = implementationDAO;
-        this.derAttrHandler = derAttrHandler;
-        this.virAttrHandler = virAttrHandler;
-        this.virAttrCache = virAttrCache;
-        this.anyUtilsFactory = anyUtilsFactory;
-        this.intAttrNameParser = intAttrNameParser;
-    }
-
-    protected List<Implementation> getTransformers(final Item item) {
-        return item.getTransformers().stream().
-                map(implementationDAO::findById).
-                flatMap(Optional::stream).
-                collect(Collectors.toList());
-    }
-
-    protected String processPreparedAttr(final Pair<String, Attribute> preparedAttr, final Set<Attribute> attributes) {
-        String connObjectKey = null;
-
-        if (preparedAttr != null) {
-            if (preparedAttr.getLeft() != null) {
-                connObjectKey = preparedAttr.getLeft();
-            }
-
-            if (preparedAttr.getRight() != null) {
-                Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getRight().getName(), attributes);
-
-                if (alreadyAdded == null) {
-                    attributes.add(preparedAttr.getRight());
-                } else {
-                    attributes.remove(alreadyAdded);
-
-                    Set<Object> values = new HashSet<>();
-                    if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
-                        values.addAll(alreadyAdded.getValue());
-                    }
-
-                    if (preparedAttr.getRight().getValue() != null) {
-                        values.addAll(preparedAttr.getRight().getValue());
-                    }
-
-                    attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
-                }
-            }
+        if (preparedAttr == null) {
+            return Optional.empty();
         }
 
-        return connObjectKey;
+        String connObjectKey = null;
+
+        if (preparedAttr.getLeft() != null) {
+            connObjectKey = preparedAttr.getLeft();
+        }
+
+        if (preparedAttr.getRight() != null) {
+            Optional.ofNullable(AttributeUtil.find(preparedAttr.getRight().getName(), attributes)).ifPresentOrElse(
+                    alreadyAdded -> {
+                        attributes.remove(alreadyAdded);
+
+                        Set<Object> values = new HashSet<>();
+                        if (!CollectionUtils.isEmpty(alreadyAdded.getValue())) {
+                            values.addAll(alreadyAdded.getValue());
+                        }
+                        if (preparedAttr.getRight().getValue() != null) {
+                            values.addAll(preparedAttr.getRight().getValue());
+                        }
+
+                        attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
+                    },
+                    () -> attributes.add(preparedAttr.getRight()));
+        }
+
+        return Optional.ofNullable(connObjectKey);
     }
 
     protected static Name getName(final String evalConnObjectLink, final String connObjectKey) {
@@ -221,10 +156,103 @@ public class DefaultMappingManager implements MappingManager {
             name = new Name(evalConnObjectLink);
 
             // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("connObjectKey will be used just as {} attribute", Uid.NAME);
+            LOG.debug("connObjectKey [{}] will be used as {}", connObjectKey, Uid.NAME);
         }
 
         return name;
+    }
+
+    protected static String getIntValue(final Realm realm, final Item orgUnitItem) {
+        String value = null;
+        switch (orgUnitItem.getIntAttrName()) {
+            case "key":
+                value = realm.getKey();
+                break;
+
+            case "name":
+                value = realm.getName();
+                break;
+
+            case "fullpath":
+                value = realm.getFullPath();
+                break;
+
+            default:
+        }
+
+        return value;
+    }
+
+    protected static PlainAttrValue clonePlainAttrValue(final PlainAttrValue src) {
+        PlainAttrValue dst = new PlainAttrValue();
+
+        dst.setBinaryValue(src.getBinaryValue());
+        dst.setBooleanValue(src.getBooleanValue());
+        dst.setDateValue(src.getDateValue());
+        dst.setDoubleValue(src.getDoubleValue());
+        dst.setLongValue(src.getLongValue());
+        dst.setStringValue(src.getStringValue());
+
+        return dst;
+    }
+
+    protected final AnyTypeDAO anyTypeDAO;
+
+    protected final UserDAO userDAO;
+
+    protected final AnyObjectDAO anyObjectDAO;
+
+    protected final GroupDAO groupDAO;
+
+    protected final RelationshipTypeDAO relationshipTypeDAO;
+
+    protected final RealmSearchDAO realmSearchDAO;
+
+    protected final ImplementationDAO implementationDAO;
+
+    protected final DerAttrHandler derAttrHandler;
+
+    protected final VirAttrHandler virAttrHandler;
+
+    protected final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
+
+    protected final IntAttrNameParser intAttrNameParser;
+
+    protected final EncryptorManager encryptorManager;
+
+    public DefaultMappingManager(
+            final AnyTypeDAO anyTypeDAO,
+            final UserDAO userDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final GroupDAO groupDAO,
+            final RelationshipTypeDAO relationshipTypeDAO,
+            final RealmSearchDAO realmSearchDAO,
+            final ImplementationDAO implementationDAO,
+            final DerAttrHandler derAttrHandler,
+            final VirAttrHandler virAttrHandler,
+            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
+            final IntAttrNameParser intAttrNameParser,
+            final EncryptorManager encryptorManager) {
+
+        this.anyTypeDAO = anyTypeDAO;
+        this.userDAO = userDAO;
+        this.anyObjectDAO = anyObjectDAO;
+        this.groupDAO = groupDAO;
+        this.relationshipTypeDAO = relationshipTypeDAO;
+        this.realmSearchDAO = realmSearchDAO;
+        this.implementationDAO = implementationDAO;
+        this.derAttrHandler = derAttrHandler;
+        this.virAttrHandler = virAttrHandler;
+        this.virAttrCache = virAttrCache;
+        this.intAttrNameParser = intAttrNameParser;
+        this.encryptorManager = encryptorManager;
+    }
+
+    protected List<Implementation> getTransformers(final Item item) {
+        return item.getTransformers().stream().
+                map(implementationDAO::findById).
+                flatMap(Optional::stream).
+                collect(Collectors.toList());
     }
 
     /**
@@ -237,16 +265,16 @@ public class DefaultMappingManager implements MappingManager {
      * @param connObjectKey connector object key
      * @return the value to be propagated as __NAME__
      */
-    protected Name evaluateNAME(final Any<?> any, final Provision provision, final String connObjectKey) {
+    protected Name evaluateNAME(final Any any, final Provision provision, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for {}: ", any.getType().getKey());
+            // log but avoid to throw exception: leave it to the external resource
+            LOG.debug("Missing connObjectKey for {}", any.getType().getKey());
         }
 
         // Evaluate connObjectKey expression
-        String connObjectLink = provision.getMapping() == null
-                ? null
-                : provision.getMapping().getConnObjectLink();
+        String connObjectLink = Optional.ofNullable(provision.getMapping()).
+                map(Mapping::getConnObjectLink).
+                orElse(null);
         String evalConnObjectLink = null;
         if (StringUtils.isNotBlank(connObjectLink)) {
             JexlContext jexlContext = new MapContext();
@@ -271,8 +299,8 @@ public class DefaultMappingManager implements MappingManager {
      */
     protected Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
         if (StringUtils.isBlank(connObjectKey)) {
-            // LOG error but avoid to throw exception: leave it to the external resource
-            LOG.warn("Missing ConnObjectKey value for Realms");
+            // log but avoid to throw exception: leave it to the external resource
+            LOG.debug("Missing connObjectKey for Realms");
         }
 
         // Evaluate connObjectKey expression
@@ -290,7 +318,7 @@ public class DefaultMappingManager implements MappingManager {
     @Transactional(readOnly = true)
     @Override
     public Pair<String, Set<Attribute>> prepareAttrsFromAny(
-            final Any<?> any,
+            final Any any,
             final String password,
             final boolean changePwd,
             final Boolean enable,
@@ -301,13 +329,13 @@ public class DefaultMappingManager implements MappingManager {
                 any, provision, any.getPlainAttrs());
 
         Set<Attribute> attributes = new HashSet<>();
-        String[] connObjectKeyValue = new String[1];
+        AtomicReference<String> connObjectKeyValue = new AtomicReference<>();
 
         MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
 
             try {
-                String processedConnObjectKeyValue = processPreparedAttr(
+                processPreparedAttr(
                         prepareAttr(
                                 resource,
                                 provision,
@@ -317,10 +345,7 @@ public class DefaultMappingManager implements MappingManager {
                                 AccountGetter.DEFAULT,
                                 AccountGetter.DEFAULT,
                                 PlainAttrGetter.DEFAULT),
-                        attributes);
-                if (processedConnObjectKeyValue != null) {
-                    connObjectKeyValue[0] = processedConnObjectKeyValue;
-                }
+                        attributes).ifPresent(connObjectKeyValue::set);
             } catch (Exception e) {
                 LOG.error("Expression '{}' processing failed", mapItem.getIntAttrName(), e);
             }
@@ -330,28 +355,25 @@ public class DefaultMappingManager implements MappingManager {
             Attribute connObjectKeyAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
             if (connObjectKeyAttr != null) {
                 attributes.remove(connObjectKeyAttr);
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue[0]));
+                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue.get()));
             }
-            Name name = evaluateNAME(any, provision, connObjectKeyValue[0]);
-            attributes.add(name);
-            if (connObjectKeyAttr == null
-                    && connObjectKeyValue[0] != null && !connObjectKeyValue[0].equals(name.getNameValue())) {
 
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue[0]));
-            }
+            Name name = evaluateNAME(any, provision, connObjectKeyValue.get());
+            attributes.add(name);
+
+            Optional.ofNullable(connObjectKeyValue.get()).
+                    filter(cokv -> connObjectKeyAttr == null && !cokv.equals(name.getNameValue())).
+                    ifPresent(cokv -> attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), cokv)));
         });
 
-        if (enable != null) {
-            attributes.add(AttributeBuilder.buildEnabled(enable));
-        }
+        Optional.ofNullable(enable).ifPresent(e -> attributes.add(AttributeBuilder.buildEnabled(e)));
+
         if (!changePwd) {
-            Attribute pwdAttr = AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes);
-            if (pwdAttr != null) {
-                attributes.remove(pwdAttr);
-            }
+            Optional.ofNullable(AttributeUtil.find(OperationalAttributes.PASSWORD_NAME, attributes)).
+                    ifPresent(attributes::remove);
         }
 
-        return Pair.of(connObjectKeyValue[0], attributes);
+        return Pair.of(connObjectKeyValue.get(), attributes);
     }
 
     @Transactional(readOnly = true)
@@ -383,12 +405,9 @@ public class DefaultMappingManager implements MappingManager {
                                 acct -> account.getUsername() == null ? AccountGetter.DEFAULT.apply(acct) : account,
                                 acct -> account.getPassword() == null ? AccountGetter.DEFAULT.apply(acct) : account,
                                 (attributable, schema) -> {
-                                    PlainAttr<?> result = null;
+                                    PlainAttr result = null;
                                     if (attributable instanceof User) {
-                                        Optional<? extends LAPlainAttr> accountAttr = account.getPlainAttr(schema);
-                                        if (accountAttr.isPresent()) {
-                                            result = accountAttr.get();
-                                        }
+                                        result = account.getPlainAttr(schema).orElse(null);
                                     }
                                     if (result == null) {
                                         result = PlainAttrGetter.DEFAULT.apply(attributable, schema);
@@ -428,33 +447,12 @@ public class DefaultMappingManager implements MappingManager {
         return attributes;
     }
 
-    protected String getIntValue(final Realm realm, final Item orgUnitItem) {
-        String value = null;
-        switch (orgUnitItem.getIntAttrName()) {
-            case "key":
-                value = realm.getKey();
-                break;
-
-            case "name":
-                value = realm.getName();
-                break;
-
-            case "fullpath":
-                value = realm.getFullPath();
-                break;
-
-            default:
-        }
-
-        return value;
-    }
-
     @Override
     public Pair<String, Set<Attribute>> prepareAttrsFromRealm(final Realm realm, final OrgUnit orgUnit) {
         LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, orgUnit);
 
         Set<Attribute> attributes = new HashSet<>();
-        String[] connObjectKeyValue = new String[1];
+        AtomicReference<String> connObjectKeyValue = new AtomicReference<>();
 
         MappingUtils.getPropagationItems(orgUnit.getItems().stream()).forEach(orgUnitItem -> {
             LOG.debug("Processing expression '{}'", orgUnitItem.getIntAttrName());
@@ -462,45 +460,45 @@ public class DefaultMappingManager implements MappingManager {
             String value = getIntValue(realm, orgUnitItem);
 
             if (orgUnitItem.isConnObjectKey()) {
-                connObjectKeyValue[0] = value;
+                connObjectKeyValue.set(value);
             }
 
-            Attribute alreadyAdded = AttributeUtil.find(orgUnitItem.getExtAttrName(), attributes);
-            if (alreadyAdded == null) {
-                if (value == null) {
-                    attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName()));
-                } else {
-                    attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), value));
-                }
-            } else if (value != null) {
-                attributes.remove(alreadyAdded);
+            Optional.ofNullable(AttributeUtil.find(orgUnitItem.getExtAttrName(), attributes)).ifPresentOrElse(
+                    alreadyAdded -> {
+                        attributes.remove(alreadyAdded);
 
-                Set<Object> values = new HashSet<>();
-                if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
-                    values.addAll(alreadyAdded.getValue());
-                }
-                values.add(value);
+                        Set<Object> values = new HashSet<>();
+                        if (!CollectionUtils.isEmpty(alreadyAdded.getValue())) {
+                            values.addAll(alreadyAdded.getValue());
+                        }
+                        values.add(value);
 
-                attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), values));
-            }
+                        attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), values));
+                    },
+                    () -> {
+                        if (value == null) {
+                            attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName()));
+                        } else {
+                            attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), value));
+                        }
+                    });
         });
 
-        Optional<Item> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
-        if (connObjectKeyItem.isPresent()) {
-            Attribute connObjectKeyAttr = AttributeUtil.find(connObjectKeyItem.get().getExtAttrName(), attributes);
-            if (connObjectKeyAttr != null) {
-                attributes.remove(connObjectKeyAttr);
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue[0]));
-            }
-            attributes.add(evaluateNAME(realm, orgUnit, connObjectKeyValue[0]));
-        }
+        orgUnit.getConnObjectKeyItem().ifPresent(item -> {
+            Optional.ofNullable(AttributeUtil.find(item.getExtAttrName(), attributes)).ifPresent(attr -> {
+                attributes.remove(attr);
+                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.get()));
+            });
+            attributes.add(evaluateNAME(realm, orgUnit, connObjectKeyValue.get()));
+        });
 
-        return Pair.of(connObjectKeyValue[0], attributes);
+        return Pair.of(connObjectKeyValue.get(), attributes);
     }
 
     protected Optional<String> decodePassword(final Account account) {
         try {
-            return Optional.of(ENCRYPTOR.decode(account.getPassword(), account.getCipherAlgorithm()));
+            return Optional.of(encryptorManager.getInstance().
+                    decode(account.getPassword(), account.getCipherAlgorithm()));
         } catch (Exception e) {
             LOG.error("Could not decode password for {}", account, e);
             return Optional.empty();
@@ -510,11 +508,9 @@ public class DefaultMappingManager implements MappingManager {
     protected Optional<String> getPasswordAttrValue(final Account account, final String defaultValue) {
         Optional<String> passwordAttrValue;
         if (account instanceof LinkedAccount) {
-            if (account.getPassword() == null) {
-                passwordAttrValue = Optional.of(defaultValue);
-            } else {
-                passwordAttrValue = decodePassword(account);
-            }
+            passwordAttrValue = account.getPassword() == null
+                    ? Optional.of(defaultValue)
+                    : decodePassword(account);
         } else {
             if (StringUtils.isNotBlank(defaultValue)) {
                 passwordAttrValue = Optional.of(defaultValue);
@@ -533,7 +529,7 @@ public class DefaultMappingManager implements MappingManager {
             final ExternalResource resource,
             final Provision provision,
             final Item item,
-            final Any<?> any,
+            final Any any,
             final String password,
             final AccountGetter usernameAccountGetter,
             final AccountGetter passwordAccountGetter,
@@ -559,11 +555,15 @@ public class DefaultMappingManager implements MappingManager {
         schemaType = intValues.getLeft();
         List<PlainAttrValue> values = intValues.getRight();
 
-        LOG.debug("Define mapping for: \n* ExtAttrName {}\n* is connObjectKey {}\n"
-            + "* is password {}\n* mandatory condition {}\n* Schema {}\n"
-            + "* ClassType {}\n* AttrSchemaType {}\n* Values {}",
-            item.getExtAttrName(), item.isConnObjectKey(), item.isPassword(), item.getMandatoryCondition(),
-            intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
+        LOG.debug(
+                """
+                  Define mapping for: 
+                  * Item {}
+                  * Schema {}
+                  * ClassType {}
+                  * AttrSchemaType {}
+                  * Values {}""",
+                item, intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
 
         Pair<String, Attribute> result;
         if (readOnlyVirSchema) {
@@ -575,8 +575,8 @@ public class DefaultMappingManager implements MappingManager {
                 if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                     objValues.add(value.getValue());
                 } else {
-                    PlainSchema plainSchema = intAttrName.getSchema() instanceof PlainSchema
-                            ? (PlainSchema) intAttrName.getSchema()
+                    PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
+                            ? schema
                             : null;
                     if (plainSchema == null || plainSchema.getType() != schemaType) {
                         objValues.add(value.getValueAsString(schemaType));
@@ -587,7 +587,7 @@ public class DefaultMappingManager implements MappingManager {
             }
 
             if (item.isConnObjectKey()) {
-                result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
+                result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
             } else if (item.isPassword() && any instanceof User) {
                 result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
                         map(passwordAttrValue -> Pair.of(
@@ -612,74 +612,72 @@ public class DefaultMappingManager implements MappingManager {
             final Item mapItem,
             final IntAttrName intAttrName,
             final AttrSchemaType schemaType,
-            final Any<?> any,
+            final Any any,
             final AccountGetter usernameAccountGetter,
             final PlainAttrGetter plainAttrGetter) {
 
         LOG.debug("Get internal values for {} as '{}' on {}", any, mapItem.getIntAttrName(), resource);
 
-        List<Any<?>> references = new ArrayList<>();
-        Membership<?> membership = null;
+        List<Any> references = new ArrayList<>();
         if (intAttrName.getEnclosingGroup() == null
                 && intAttrName.getRelatedAnyObject() == null
                 && intAttrName.getRelationshipAnyType() == null
                 && intAttrName.getRelationshipType() == null
                 && intAttrName.getRelatedUser() == null) {
+
             references.add(any);
         }
-        if (any instanceof GroupableRelatable<?, ?, ?, ?, ?> groupableRelatable) {
-            if (intAttrName.getEnclosingGroup() != null) {
-                Group group = groupDAO.findByName(intAttrName.getEnclosingGroup()).orElse(null);
-                if (group == null
-                        || any instanceof User
-                                ? !userDAO.findAllGroupKeys((User) any).contains(group.getKey())
-                                : any instanceof AnyObject
-                                        ? !anyObjectDAO.findAllGroupKeys((AnyObject) any).contains(group.getKey())
-                                        : false) {
+        Membership<?> membership = null;
 
-                    LOG.warn("No (dyn) membership for {} in {}, ignoring",
-                            intAttrName.getEnclosingGroup(), groupableRelatable);
-                } else {
-                    references.add(group);
-                }
-            } else if (intAttrName.getRelatedUser() != null) {
-                User user = userDAO.findByUsername(intAttrName.getRelatedUser()).orElse(null);
-                if (user == null || user.getRelationships(groupableRelatable.getKey()).isEmpty()) {
-                    LOG.warn("No relationship for {} in {}, ignoring",
-                            intAttrName.getRelatedUser(), groupableRelatable);
-                } else if (groupableRelatable.getType().getKind() == AnyTypeKind.USER) {
-                    LOG.warn("Users cannot have relationship with other users, ignoring");
-                } else {
-                    references.add(user);
-                }
-            } else if (intAttrName.getRelatedAnyObject() != null) {
-                AnyObject anyObject = anyObjectDAO.findById(intAttrName.getRelatedAnyObject()).orElse(null);
-                if (anyObject == null || groupableRelatable.getRelationships(anyObject.getKey()).isEmpty()) {
-                    LOG.warn("No relationship for {} in {}, ignoring",
-                            intAttrName.getRelatedAnyObject(), groupableRelatable);
-                } else {
-                    references.add(anyObject);
-                }
-            } else if (intAttrName.getRelationshipAnyType() != null && intAttrName.getRelationshipType() != null) {
-                RelationshipType relationshipType = relationshipTypeDAO.findById(
-                        intAttrName.getRelationshipType()).orElse(null);
-                AnyType anyType = anyTypeDAO.findById(intAttrName.getRelationshipAnyType()).orElse(null);
-                if (relationshipType == null || groupableRelatable.getRelationships(relationshipType).isEmpty()) {
-                    LOG.warn("No relationship for type {} in {}, ignoring",
-                            intAttrName.getRelationshipType(), groupableRelatable);
-                } else if (anyType == null) {
-                    LOG.warn("No anyType {}, ignoring", intAttrName.getRelationshipAnyType());
-                } else {
-                    references.addAll(groupableRelatable.getRelationships(relationshipType).stream().
-                            filter(relationship -> anyType.equals(relationship.getRightEnd().getType())).
-                            map(Relationship::getRightEnd).
-                            toList());
-                }
-            } else if (intAttrName.getMembershipOfGroup() != null) {
-                membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).
-                        flatMap(group -> groupableRelatable.getMembership(group.getKey())).
-                        orElse(null);
+        if (intAttrName.getEnclosingGroup() != null) {
+            Group group = groupDAO.findByName(intAttrName.getEnclosingGroup()).orElse(null);
+            if (group == null
+                    || any instanceof User
+                            ? !userDAO.findAllGroupKeys((User) any).contains(group.getKey())
+                            : any instanceof final AnyObject anyObject
+                                    ? !anyObjectDAO.findAllGroupKeys(anyObject).contains(group.getKey())
+                                    : false) {
+
+                LOG.warn("No (dyn) membership for {} in {}, ignoring", intAttrName.getEnclosingGroup(), any);
+            } else {
+                references.add(group);
             }
+        } else if (intAttrName.getRelatedUser() != null) {
+            User user = userDAO.findByUsername(intAttrName.getRelatedUser()).orElse(null);
+            if (user == null || user.getRelationships(any.getKey()).isEmpty()) {
+                LOG.warn("No relationship for {} in {}, ignoring", intAttrName.getRelatedUser(), any);
+            } else if (any.getType().getKind() == AnyTypeKind.USER) {
+                LOG.warn("Users cannot have relationship with other users, ignoring");
+            } else {
+                references.add(user);
+            }
+        } else if (intAttrName.getRelatedAnyObject() != null && any instanceof Relatable<?, ?, ?> relatable) {
+            AnyObject anyObject = anyObjectDAO.findById(intAttrName.getRelatedAnyObject()).orElse(null);
+            if (anyObject == null || relatable.getRelationships(anyObject.getKey()).isEmpty()) {
+                LOG.warn("No relationship for {} in {}, ignoring", intAttrName.getRelatedAnyObject(), relatable);
+            } else {
+                references.add(anyObject);
+            }
+        } else if (intAttrName.getRelationshipAnyType() != null && intAttrName.getRelationshipType() != null
+                && any instanceof Relatable<?, ?, ?> relatable) {
+
+            RelationshipType relationshipType = relationshipTypeDAO.findById(
+                    intAttrName.getRelationshipType()).orElse(null);
+            AnyType anyType = anyTypeDAO.findById(intAttrName.getRelationshipAnyType()).orElse(null);
+            if (relationshipType == null || relatable.getRelationships(relationshipType).isEmpty()) {
+                LOG.warn("No relationship for type {} in {}, ignoring", intAttrName.getRelationshipType(), relatable);
+            } else if (anyType == null) {
+                LOG.warn("No anyType {}, ignoring", intAttrName.getRelationshipAnyType());
+            } else {
+                references.addAll(relatable.getRelationships(relationshipType).stream().
+                        filter(relationship -> anyType.equals(relationship.getRightEnd().getType())).
+                        map(Relationship::getRightEnd).
+                        toList());
+            }
+        } else if (intAttrName.getMembershipOfGroup() != null && any instanceof Groupable<?, ?, ?, ?> groupable) {
+            membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).
+                    flatMap(group -> groupable.getMembership(group.getKey())).
+                    orElse(null);
         }
         if (references.isEmpty()) {
             LOG.warn("Could not determine the reference instance for {}", mapItem.getIntAttrName());
@@ -689,10 +687,9 @@ public class DefaultMappingManager implements MappingManager {
         List<PlainAttrValue> values = new ArrayList<>();
         boolean transform = true;
 
-        for (Any<?> ref : references) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(ref);
+        for (Any ref : references) {
             if (intAttrName.getField() != null) {
-                PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                PlainAttrValue attrValue = new PlainAttrValue();
 
                 switch (intAttrName.getField()) {
                     case "key" -> {
@@ -777,18 +774,18 @@ public class DefaultMappingManager implements MappingManager {
             } else if (intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN -> {
-                        PlainAttr<?> attr;
+                        PlainAttr attr;
                         if (membership == null) {
-                            attr = plainAttrGetter.apply((Attributable) ref, intAttrName.getSchema().getKey());
+                            attr = plainAttrGetter.apply(ref, intAttrName.getSchema().getKey());
                         } else {
-                            attr = ((GroupableRelatable<?, ?, ?, ?, ?>) ref).getPlainAttr(
+                            attr = ((Groupable<?, ?, ?, ?>) ref).getPlainAttr(
                                     intAttrName.getSchema().getKey(), membership).orElse(null);
                         }
                         if (attr != null) {
                             if (attr.getUniqueValue() != null) {
-                                values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
+                                values.add(clonePlainAttrValue(attr.getUniqueValue()));
                             } else if (attr.getValues() != null) {
-                                attr.getValues().forEach(value -> values.add(anyUtils.clonePlainAttrValue(value)));
+                                attr.getValues().forEach(value -> values.add(clonePlainAttrValue(value)));
                             }
                         }
                     }
@@ -799,7 +796,7 @@ public class DefaultMappingManager implements MappingManager {
                                 ? derAttrHandler.getValue(ref, derSchema)
                                 : derAttrHandler.getValue(ref, membership, derSchema);
                         if (derValue != null) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            PlainAttrValue attrValue = new PlainAttrValue();
                             attrValue.setStringValue(derValue);
                             values.add(attrValue);
                         }
@@ -819,7 +816,7 @@ public class DefaultMappingManager implements MappingManager {
                                 ? virAttrHandler.getValues(ref, virSchema)
                                 : virAttrHandler.getValues(ref, membership, virSchema);
                         virValues.forEach(virValue -> {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                            PlainAttrValue attrValue = new PlainAttrValue();
                             attrValue.setStringValue(virValue);
                             values.add(attrValue);
                         });
@@ -828,16 +825,6 @@ public class DefaultMappingManager implements MappingManager {
                     default -> {
                     }
                 }
-            } else if (intAttrName.getPrivilegesOfApplication() != null && ref instanceof User) {
-                applicationDAO.findById(intAttrName.getPrivilegesOfApplication()).ifPresentOrElse(
-                        application -> userDAO.findAllRoles((User) ref).stream().
-                                flatMap(role -> role.getPrivileges(application).stream()).
-                                forEach(privilege -> {
-                                    PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                                    attrValue.setStringValue(privilege.getKey());
-                                    values.add(attrValue);
-                                }),
-                        () -> LOG.warn("Invalid application: {}", intAttrName.getPrivilegesOfApplication()));
             }
         }
 
@@ -860,7 +847,7 @@ public class DefaultMappingManager implements MappingManager {
     protected String getGroupOwnerValue(
             final ExternalResource resource,
             final Provision provision,
-            final Any<?> any) {
+            final Any any) {
 
         Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
@@ -884,7 +871,7 @@ public class DefaultMappingManager implements MappingManager {
     @Transactional(readOnly = true)
     @Override
     public Optional<String> getConnObjectKeyValue(
-            final Any<?> any,
+            final Any any,
             final ExternalResource resource,
             final Provision provision) {
 
@@ -911,7 +898,7 @@ public class DefaultMappingManager implements MappingManager {
         }
         return Optional.ofNullable(intValues.getRight().isEmpty()
                 ? null
-                : intValues.getRight().get(0).getValueAsString());
+                : intValues.getRight().getFirst().getValueAsString());
     }
 
     @Transactional(readOnly = true)
@@ -935,7 +922,7 @@ public class DefaultMappingManager implements MappingManager {
                 values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
-        values = Optional.ofNullable(values).orElse(List.of());
+        values = Optional.ofNullable(values).orElseGet(List::of);
 
         IntAttrName intAttrName;
         try {
@@ -949,52 +936,52 @@ public class DefaultMappingManager implements MappingManager {
             switch (intAttrName.getField()) {
                 case "password" -> {
                     if (anyTO instanceof UserTO && !values.isEmpty()) {
-                        ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.get(0)));
+                        ((UserTO) anyTO).setPassword(ConnObjectUtils.getPassword(values.getFirst()));
                     }
                 }
 
                 case "username" -> {
                     if (anyTO instanceof UserTO userTO) {
-                        userTO.setUsername(values.isEmpty() || values.get(0) == null
+                        userTO.setUsername(values.isEmpty() || values.getFirst() == null
                                 ? null
-                                : values.get(0).toString());
+                                : values.getFirst().toString());
                     }
                 }
 
                 case "name" -> {
                     switch (anyTO) {
                         case GroupTO groupTO ->
-                            groupTO.setName(values.isEmpty() || values.get(0) == null
+                            groupTO.setName(values.isEmpty() || values.getFirst() == null
                                     ? null
-                                    : values.get(0).toString());
+                                    : values.getFirst().toString());
                         case AnyObjectTO anyObjectTO ->
-                            anyObjectTO.setName(values.isEmpty() || values.get(0) == null
+                            anyObjectTO.setName(values.isEmpty() || values.getFirst() == null
                                     ? null
-                                    : values.get(0).toString());
+                                    : values.getFirst().toString());
                         default -> {
                         }
                     }
                 }
 
                 case "mustChangePassword" -> {
-                    if (anyTO instanceof UserTO && !values.isEmpty() && values.get(0) != null) {
-                        ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.get(0).toString()));
+                    if (anyTO instanceof UserTO && !values.isEmpty() && values.getFirst() != null) {
+                        ((UserTO) anyTO).setMustChangePassword(BooleanUtils.toBoolean(values.getFirst().toString()));
                     }
                 }
 
                 case "userOwner", "groupOwner" -> {
-                    if (anyTO instanceof GroupTO && attr != null) {
+                    if (anyTO instanceof final GroupTO groupTO && attr != null) {
                         // using a special attribute (with schema "", that will be ignored) for carrying the
                         // GroupOwnerSchema value
                         Attr attrTO = new Attr();
                         attrTO.setSchema(StringUtils.EMPTY);
-                        if (values.isEmpty() || values.get(0) == null) {
+                        if (values.isEmpty() || values.getFirst() == null) {
                             attrTO.getValues().add(StringUtils.EMPTY);
                         } else {
-                            attrTO.getValues().add(values.get(0).toString());
+                            attrTO.getValues().add(values.getFirst().toString());
                         }
 
-                        ((GroupTO) anyTO).getPlainAttrs().add(attrTO);
+                        groupTO.getPlainAttrs().add(attrTO);
                     }
                 }
                 default -> {
@@ -1003,8 +990,9 @@ public class DefaultMappingManager implements MappingManager {
         } else if (intAttrName.getSchemaType() != null && attr != null) {
             GroupableRelatableTO groupableTO;
             Group group;
-            if (anyTO instanceof GroupableRelatableTO && intAttrName.getMembershipOfGroup() != null) {
-                groupableTO = (GroupableRelatableTO) anyTO;
+            if (anyTO instanceof final GroupableRelatableTO groupableRelatableTO
+                && intAttrName.getMembershipOfGroup() != null) {
+                groupableTO = groupableRelatableTO;
                 group = groupDAO.findByName(intAttrName.getMembershipOfGroup()).orElse(null);
             } else {
                 groupableTO = null;
@@ -1093,13 +1081,13 @@ public class DefaultMappingManager implements MappingManager {
             }
         }
 
-        if (values != null && !values.isEmpty() && values.get(0) != null) {
+        if (values != null && !values.isEmpty() && values.getFirst() != null) {
             switch (item.getIntAttrName()) {
                 case "name" ->
-                    realmTO.setName(values.get(0).toString());
+                    realmTO.setName(values.getFirst().toString());
 
                 case "fullpath" -> {
-                    String parentFullPath = StringUtils.substringBeforeLast(values.get(0).toString(), "/");
+                    String parentFullPath = StringUtils.substringBeforeLast(values.getFirst().toString(), "/");
                     realmSearchDAO.findByFullPath(parentFullPath).ifPresentOrElse(
                             parent -> realmTO.setParent(parent.getFullPath()),
                             () -> LOG.warn("Could not find Realm with path {}, ignoring", parentFullPath));
@@ -1111,11 +1099,11 @@ public class DefaultMappingManager implements MappingManager {
         }
     }
 
-    @Transactional(readOnly = true)
     @Override
     public boolean hasMustChangePassword(final Provision provision) {
-        return provision != null && provision.getMapping() != null
-                && provision.getMapping().getItems().stream().
-                        anyMatch(mappingItem -> "mustChangePassword".equals(mappingItem.getIntAttrName()));
+        return Optional.ofNullable(provision.getMapping()).
+                map(mapping -> mapping.getItems().stream().
+                anyMatch(item -> "mustChangePassword".equals(item.getIntAttrName()))).
+                orElse(false);
     }
 }

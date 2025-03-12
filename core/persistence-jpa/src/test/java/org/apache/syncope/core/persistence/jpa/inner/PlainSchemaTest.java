@@ -27,14 +27,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +61,7 @@ public class PlainSchemaTest extends AbstractTest {
     public void findByIdLike() {
         List<? extends PlainSchema> schemas = plainSchemaDAO.findByIdLike("fullna%");
         assertEquals(1, schemas.size());
-        assertEquals(0, schemas.get(0).getLabels().size());
+        assertEquals(0, schemas.getFirst().getLabels().size());
     }
 
     @Test
@@ -74,10 +76,37 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void hasAttrs() {
         PlainSchema schema = plainSchemaDAO.findById("icon").orElseThrow();
-        assertTrue(plainSchemaDAO.hasAttrs(schema, GPlainAttr.class));
+        assertTrue(plainSchemaDAO.hasAttrs(schema));
 
         schema = plainSchemaDAO.findById("aLong").orElseThrow();
-        assertFalse(plainSchemaDAO.hasAttrs(schema, UPlainAttr.class));
+        assertFalse(plainSchemaDAO.hasAttrs(schema));
+    }
+
+    @Test
+    public void existsPlainAttrUniqueValue() {
+        PlainAttrValue value = new PlainAttrValue();
+        value.setStringValue("rossini@apache.org");
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("userId");
+        attr.setUniqueValue(value);
+
+        assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
+                anyUtilsFactory.getInstance(AnyTypeKind.USER),
+                "1417acbe-cbf6-4277-9372-e75e04f97000",
+                plainSchemaDAO.findById("userId").orElseThrow(),
+                attr.getUniqueValue()));
+        assertTrue(plainSchemaDAO.existsPlainAttrUniqueValue(
+                anyUtilsFactory.getInstance(AnyTypeKind.USER),
+                UUID.randomUUID().toString(),
+                plainSchemaDAO.findById("userId").orElseThrow(),
+                attr.getUniqueValue()));
+
+        value.setStringValue("none@apache.org");
+        assertFalse(plainSchemaDAO.existsPlainAttrUniqueValue(
+                anyUtilsFactory.getInstance(AnyTypeKind.USER),
+                "1417acbe-cbf6-4277-9372-e75e04f97000",
+                plainSchemaDAO.findById("userId").orElseThrow(),
+                attr.getUniqueValue()));
     }
 
     @Test

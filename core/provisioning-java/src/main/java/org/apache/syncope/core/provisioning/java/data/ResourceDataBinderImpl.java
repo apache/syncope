@@ -257,7 +257,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         } else if (resourceTO.getOrgUnit() != null) {
             OrgUnit orgUnitTO = resourceTO.getOrgUnit();
 
-            OrgUnit orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(() -> new OrgUnit());
+            OrgUnit orgUnit = Optional.ofNullable(resource.getOrgUnit()).orElseGet(OrgUnit::new);
 
             if (orgUnitTO.getObjectClass() == null) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
@@ -317,7 +317,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
                                 () -> LOG.debug("Invalid {} {}, ignoring...",
-                                    Implementation.class.getSimpleName(), key)));
+                                        Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -375,10 +375,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
 
         resource.setConfOverride(
-                Optional.ofNullable(resourceTO.getConfOverride()).orElse(Optional.empty()));
+                Optional.ofNullable(resourceTO.getConfOverride()).orElseGet(Optional::empty));
 
         resource.setCapabilitiesOverride(
-                Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElse(Optional.empty()));
+                Optional.ofNullable(resourceTO.getCapabilitiesOverride()).orElseGet(Optional::empty));
 
         resourceTO.getPropagationActions().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                 resource::add,
@@ -420,8 +420,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }
 
                 if (intAttrName == null
-                        || intAttrName.getSchemaType() == null && intAttrName.getField() == null
-                        && intAttrName.getPrivilegesOfApplication() == null) {
+                        || intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
 
                     LOG.error("'{}' not existing", itemTO.getIntAttrName());
                     invalidMapping.getElements().add('\'' + itemTO.getIntAttrName() + "' not existing");
@@ -430,8 +429,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     if (intAttrName.getSchemaType() != null
                             && intAttrName.getEnclosingGroup() == null
                             && intAttrName.getRelatedAnyObject() == null
-                            && intAttrName.getRelationshipType() == null
-                            && intAttrName.getPrivilegesOfApplication() == null) {
+                            && intAttrName.getRelationshipType() == null) {
 
                         switch (intAttrName.getSchemaType()) {
                             case PLAIN:
@@ -474,7 +472,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         itemTO.getTransformers().forEach(key -> implementationDAO.findById(key).ifPresentOrElse(
                                 transformer -> item.getTransformers().add(transformer.getKey()),
                                 () -> LOG.debug("Invalid {} {}, ignoring...",
-                                    Implementation.class.getSimpleName(), key)));
+                                        Implementation.class.getSimpleName(), key)));
                         // remove all implementations not contained in the TO
                         item.getTransformers().
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
@@ -507,13 +505,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name()
                                     + " allowed when referring to any objects");
-                        }
-                        if (intAttrName.getPrivilegesOfApplication() != null
-                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
-
-                            invalidMapping.getElements().add(
-                                    "Only " + MappingPurpose.PROPAGATION.name()
-                                    + " allowed when referring to privileges");
                         }
                         if (intAttrName.getSchemaType() == SchemaType.DERIVED
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {

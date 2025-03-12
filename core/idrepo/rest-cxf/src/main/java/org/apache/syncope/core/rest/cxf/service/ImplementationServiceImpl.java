@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.core.logic.ImplementationLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ImplementationServiceImpl extends AbstractService implements ImplementationService {
 
     protected final ImplementationLogic logic;

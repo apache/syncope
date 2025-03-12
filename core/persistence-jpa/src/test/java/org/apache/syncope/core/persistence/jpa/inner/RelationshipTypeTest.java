@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.attrvalue.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -44,10 +45,24 @@ public class RelationshipTypeTest extends AbstractTest {
     @Autowired
     private AnyObjectDAO anyObjectDAO;
 
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
     @Test
     public void find() {
         RelationshipType inclusion = relationshipTypeDAO.findById("inclusion").orElseThrow();
         assertEquals("inclusion", inclusion.getKey());
+        assertEquals(anyTypeDAO.findById("PRINTER").orElseThrow(), inclusion.getLeftEndAnyType());
+        assertEquals(anyTypeDAO.findById("PRINTER").orElseThrow(), inclusion.getRightEndAnyType());
+    }
+
+    @Test
+    public void findByEndAnyType() {
+        List<String> relationshipTypes =
+                relationshipTypeDAO.findByEndAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
+        assertEquals(2, relationshipTypes.size());
+        assertTrue(relationshipTypes.contains("inclusion"));
+        assertTrue(relationshipTypes.contains("neighborhood"));
     }
 
     @Test
@@ -61,6 +76,8 @@ public class RelationshipTypeTest extends AbstractTest {
         RelationshipType newType = entityFactory.newEntity(RelationshipType.class);
         newType.setKey("new type");
         newType.setDescription("description");
+        newType.setLeftEndAnyType(anyTypeDAO.getGroup());
+        newType.setRightEndAnyType(anyTypeDAO.findById("PRINTER").orElseThrow());
 
         newType = relationshipTypeDAO.save(newType);
         assertNotNull(newType);
@@ -87,13 +104,13 @@ public class RelationshipTypeTest extends AbstractTest {
 
     @Test
     public void deleteOnAnyObject() {
-        RelationshipType neighborhood = relationshipTypeDAO.findById("neighborhood").orElseThrow();
+        RelationshipType neighborhood = relationshipTypeDAO.findById("inclusion").orElseThrow();
 
         AnyObject anyObject = anyObjectDAO.findById("fc6dbc3a-6c07-4965-8781-921e7401a4a5").orElseThrow();
         assertNotNull(anyObject.getRelationships(neighborhood));
         assertFalse(anyObject.getRelationships(neighborhood).isEmpty());
 
-        relationshipTypeDAO.deleteById("neighborhood");
+        relationshipTypeDAO.deleteById("inclusion");
 
         entityManager.flush();
 

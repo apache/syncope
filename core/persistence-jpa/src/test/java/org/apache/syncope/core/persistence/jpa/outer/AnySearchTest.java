@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -44,14 +43,12 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -86,9 +83,6 @@ public class AnySearchTest extends AbstractTest {
     private RoleDAO roleDAO;
 
     @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
     private PlainAttrValidationManager validator;
 
     @Test
@@ -111,10 +105,10 @@ public class AnySearchTest extends AbstractTest {
         RoleCond roleCond = new RoleCond();
         roleCond.setRole(role.getKey());
 
-        List<User> users = searchDAO.search(SearchCond.getLeaf(roleCond), AnyTypeKind.USER);
+        List<User> users = searchDAO.search(SearchCond.of(roleCond), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -141,7 +135,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(
                 realmDAO.getRoot(), true,
                 Set.of(SyncopeConstants.ROOT_REALM),
-                SearchCond.getLeaf(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
+                SearchCond.of(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertTrue(users.stream().anyMatch(user -> rossini.getKey().equals(user.getKey())));
 
@@ -149,10 +143,10 @@ public class AnySearchTest extends AbstractTest {
         users = searchDAO.search(
                 group.getRealm(), true,
                 Set.of(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())),
-                SearchCond.getLeaf(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
+                SearchCond.of(anyCond), PageRequest.of(0, 100), AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals(rossini.getKey(), users.get(0).getKey());
+        assertEquals(rossini.getKey(), users.getFirst().getKey());
     }
 
     @Test
@@ -160,7 +154,7 @@ public class AnySearchTest extends AbstractTest {
         AttrCond attrCond = new AttrCond(AttrCond.Type.EQ);
         attrCond.setSchema("ctype");
         attrCond.setExpression("otherchildctype");
-        SearchCond cond = SearchCond.getLeaf(attrCond);
+        SearchCond cond = SearchCond.of(attrCond);
 
         List<AnyObject> results = searchDAO.search(cond, AnyTypeKind.ANY_OBJECT);
         assertTrue(results.isEmpty());
@@ -173,11 +167,10 @@ public class AnySearchTest extends AbstractTest {
         anyObject.add(memb);
         anyObject = anyObjectDAO.save(anyObject);
 
-        APlainAttr attr = entityFactory.newEntity(APlainAttr.class);
-        attr.setSchema(plainSchemaDAO.findById("ctype").orElseThrow());
-        attr.add(validator, "otherchildctype", anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
-        attr.setOwner(anyObject);
-        attr.setMembership(anyObject.getMemberships().get(0));
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema("ctype");
+        attr.add(validator, "otherchildctype");
+        attr.setMembership(anyObject.getMemberships().getFirst().getKey());
         anyObject.add(attr);
         anyObjectDAO.save(anyObject);
 
@@ -196,14 +189,14 @@ public class AnySearchTest extends AbstractTest {
         coolLeafCond.setSchema("cool");
         coolLeafCond.setExpression("true");
 
-        SearchCond cond = SearchCond.getLeaf(coolLeafCond);
+        SearchCond cond = SearchCond.of(coolLeafCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
 
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.get(0).getKey());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", users.getFirst().getKey());
     }
 
     @Test
@@ -214,8 +207,8 @@ public class AnySearchTest extends AbstractTest {
         AttrCond idRightCond = new AttrCond(AttrCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
-        SearchCond searchCondition = SearchCond.getOr(
-                SearchCond.getLeaf(usernameLeafCond), SearchCond.getLeaf(idRightCond));
+        SearchCond searchCondition = SearchCond.or(
+                SearchCond.of(usernameLeafCond), SearchCond.of(idRightCond));
 
         List<Sort.Order> orderByClauses = new ArrayList<>();
         orderByClauses.add(new Sort.Order(Sort.Direction.DESC, "surname"));
@@ -234,17 +227,15 @@ public class AnySearchTest extends AbstractTest {
         Group group = groupDAO.findByName("root").orElseThrow();
 
         // non unique
-        GPlainAttr title = entityFactory.newEntity(GPlainAttr.class);
-        title.setOwner(group);
-        title.setSchema(plainSchemaDAO.findById("title").orElseThrow());
-        title.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        PlainAttr title = new PlainAttr();
+        title.setSchema("title");
+        title.add(validator, "syncope's group");
         group.add(title);
 
         // unique
-        GPlainAttr originalName = entityFactory.newEntity(GPlainAttr.class);
-        originalName.setOwner(group);
-        originalName.setSchema(plainSchemaDAO.findById("originalName").orElseThrow());
-        originalName.add(validator, "syncope's group", anyUtilsFactory.getInstance(AnyTypeKind.GROUP));
+        PlainAttr originalName = new PlainAttr();
+        originalName.setSchema("originalName");
+        originalName.add(validator, "syncope's group");
         group.add(originalName);
 
         groupDAO.save(group);
@@ -255,17 +246,17 @@ public class AnySearchTest extends AbstractTest {
         titleCond.setSchema("title");
         titleCond.setExpression("syncope's group");
 
-        List<Group> matching = searchDAO.search(SearchCond.getLeaf(titleCond), AnyTypeKind.GROUP);
+        List<Group> matching = searchDAO.search(SearchCond.of(titleCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
-        assertEquals(group.getKey(), matching.get(0).getKey());
+        assertEquals(group.getKey(), matching.getFirst().getKey());
 
         AttrCond originalNameCond = new AttrCond(AttrCond.Type.EQ);
         originalNameCond.setSchema("originalName");
         originalNameCond.setExpression("syncope's group");
 
-        matching = searchDAO.search(SearchCond.getLeaf(originalNameCond), AnyTypeKind.GROUP);
+        matching = searchDAO.search(SearchCond.of(originalNameCond), AnyTypeKind.GROUP);
         assertEquals(1, matching.size());
-        assertEquals(group.getKey(), matching.get(0).getKey());
+        assertEquals(group.getKey(), matching.getFirst().getKey());
     }
 
     @Test
@@ -275,21 +266,20 @@ public class AnySearchTest extends AbstractTest {
         emailCond.setSchema("email");
         emailCond.setExpression("verdi@syncope.org");
 
-        SearchCond cond = SearchCond.getLeaf(emailCond);
+        SearchCond cond = SearchCond.of(emailCond);
         assertTrue(cond.isValid());
 
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("verdi", users.get(0).getUsername());
+        assertEquals("verdi", users.getFirst().getUsername());
 
         // 1. set rossini's email address for conditions as per SYNCOPE-1790
         User rossini = userDAO.findByUsername("rossini").orElseThrow();
 
-        UPlainAttr mail = entityFactory.newEntity(UPlainAttr.class);
-        mail.setOwner(rossini);
-        mail.setSchema(plainSchemaDAO.findById("email").orElseThrow());
-        mail.add(validator, "bisverdi@syncope.org", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        PlainAttr mail = new PlainAttr();
+        mail.setSchema("email");
+        mail.add(validator, "bisverdi@syncope.org");
         rossini.add(mail);
 
         userDAO.save(rossini);
@@ -298,12 +288,12 @@ public class AnySearchTest extends AbstractTest {
         rossini = userDAO.findByUsername("rossini").orElseThrow();
         assertEquals(
                 "bisverdi@syncope.org",
-                rossini.getPlainAttr("email").map(a -> a.getValuesAsStrings().get(0)).orElseThrow());
+                rossini.getPlainAttr("email").map(a -> a.getValuesAsStrings().getFirst()).orElseThrow());
 
         // 2. search again
         users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
-        assertEquals("verdi", users.get(0).getUsername());
+        assertEquals("verdi", users.getFirst().getUsername());
     }
 }

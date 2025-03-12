@@ -392,72 +392,76 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2024-12-27T11:02:14Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-03-07T13:42:57Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.0-SNAPSHOT</connid.version>
-    <connid.soap.version>1.5.0-SNAPSHOT</connid.soap.version>
-    <connid.rest.version>1.1.0-SNAPSHOT</connid.rest.version>
-    <connid.db.version>2.4.0-SNAPSHOT</connid.db.version>
+    <connid.version>1.6.0.0</connid.version>
+    <connid.soap.version>1.5.0</connid.soap.version>
+    <connid.rest.version>1.1.0</connid.rest.version>
+    <connid.db.version>2.4.0</connid.db.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
-    <connid.ldap.version>1.5.9</connid.ldap.version>
-    <connid.ad.version>1.3.9</connid.ad.version>
+    <connid.ldap.version>1.5.10</connid.ldap.version>
+    <connid.ad.version>1.4.0</connid.ad.version>
     <connid.googleapps.version>1.4.5</connid.googleapps.version>
-    <connid.azure.version>2.0.2</connid.azure.version>
-    <connid.scim.version>1.0.4</connid.scim.version>
+    <connid.azure.version>3.0.0</connid.azure.version>
+    <connid.scim.version>1.0.5</connid.scim.version>
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
-    <connid.okta.version>3.0.6</connid.okta.version>
+    <connid.okta.version>3.0.7</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0</connid.kafka.version>
 
-    <cxf.version>4.0.6</cxf.version>
-    <bouncycastle.version>1.79</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.0</nimbus-jose-jwt.version>
+    <cxf.version>4.1.1</cxf.version>
+    <bouncycastle.version>1.80</bouncycastle.version>
+    <nimbus-jose-jwt.version>10.0.2</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.3.7</spring-boot.version>
-    <spring-cloud-gateway.version>4.1.6</spring-cloud-gateway.version>
+    <spring-boot.version>3.4.3</spring-boot.version>
+    <spring-cloud-gateway.version>4.2.0</spring-cloud-gateway.version>
 
     <openjpa.version>4.0.1</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-11</groovy.version>
+    <groovy.version>5.0.0-alpha-12</groovy.version>
 
     <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>8.17.0</elasticsearch.version>
-    <opensearch.version>2.18.0</opensearch.version>
-    <opensearch-java.version>2.19.0</opensearch-java.version>
+    <elasticsearch.version>8.17.3</elasticsearch.version>
+    <opensearch.version>2.19.1</opensearch.version>
+    <opensearch-java.version>2.22.0</opensearch-java.version>
+
+    <openfga.version>v1</openfga.version>
+
+    <debezium.version>3.0</debezium.version>
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
     <commons-text.version>1.13.0</commons-text.version>
 
-    <pac4j.version>6.0.6</pac4j.version>
+    <pac4j.version>6.1.1</pac4j.version>
 
-    <cas.version>7.1.3</cas.version>
+    <cas.version>7.2.0-RC6</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <swagger-core.version>2.2.27</swagger-core.version>
-    <swagger-ui.version>5.18.2</swagger-ui.version>
+    <swagger-core.version>2.2.29</swagger-core.version>
+    <swagger-ui.version>5.20.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
     <bootbox.version>6.0.0</bootbox.version>
     <bootstrap5-toggle.version>5.1.1</bootstrap5-toggle.version>
-    <font-awesome.version>6.7.1</font-awesome.version>
+    <font-awesome.version>6.7.2</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <codemirror.version>5.62.2</codemirror.version>
     <googlediffmatchpath.version>895a9512bb</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.4.3</chartjs.version>
 
-    <wicket.version>10.3.0</wicket.version>
-    <wicketstuff.version>10.3.0</wicketstuff.version>
+    <wicket.version>10.4.0</wicket.version>
+    <wicketstuff.version>10.4.0</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.9</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
@@ -465,11 +469,11 @@ under the License.
 
     <antlr4.version>4.13.2</antlr4.version>
 
-    <curator.version>5.7.1</curator.version>
+    <curator.version>5.8.0</curator.version>
     <zookeeper.version>3.9.3</zookeeper.version>
 
     <zonky.embedded-postgres.version>2.1.0</zonky.embedded-postgres.version>
-    <zonky.embedded-postgres-binaries.version>17.2.0</zonky.embedded-postgres-binaries.version>
+    <zonky.embedded-postgres-binaries.version>17.4.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -498,21 +502,21 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.33</tomcat.version>
-    <wildfly.version>34.0.1.Final</wildfly.version>
-    <payara.version>6.2024.12</payara.version>
-    <jakarta.faces.version>4.1.2</jakarta.faces.version>
+    <tomcat.version>10.1.39</tomcat.version>
+    <wildfly.version>35.0.1.Final</wildfly.version>
+    <payara.version>6.2025.2</payara.version>
+    <jakarta.faces.version>4.1.3</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
-    <docker.neo4j.version>5.26.0</docker.neo4j.version>
+    <docker.neo4j.version>5.26.2</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.4</jdbc.postgresql.version>
-    <jdbc.mysql.version>9.1.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.5.1</jdbc.mariadb.version>
-    <jdbc.oracle.version>23.6.0.24.10</jdbc.oracle.version>
+    <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
+    <jdbc.mysql.version>9.2.0</jdbc.mysql.version>
+    <jdbc.mariadb.version>3.5.2</jdbc.mariadb.version>
+    <jdbc.oracle.version>23.7.0.25.01</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
 
@@ -684,12 +688,28 @@ under the License.
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
 
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-data-neo4j</artifactId>
+        <version>${spring-boot.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jdbc</artifactId>
         <version>${spring-boot.version}</version>
         <exclusions>
           <exclusion>
@@ -807,6 +827,17 @@ under the License.
       </dependency>
 
       <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-core</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-el</artifactId>
+        <version>${tomcat.version}</version>
+      </dependency>
+
+      <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-spring-boot-starter-jaxrs</artifactId>
         <version>${cxf.version}</version>
@@ -875,7 +906,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
       </dependency>
 
       <dependency>
@@ -1009,12 +1040,22 @@ under the License.
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
           </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+          </exclusion>
         </exclusions>
       </dependency>
       <dependency>
         <groupId>org.pac4j</groupId>
         <artifactId>pac4j-oidc</artifactId>
         <version>${pac4j.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>findbugs-annotations</artifactId>
+          </exclusion>          
+        </exclusions>
       </dependency>
       <!-- PAC4J -->
 
@@ -1118,7 +1159,7 @@ under the License.
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
         <artifactId>pdfbox</artifactId>
-        <version>3.0.3</version>
+        <version>3.0.4</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -1274,7 +1315,7 @@ under the License.
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.18.3</version>
+        <version>1.19.1</version>
       </dependency>
 
       <dependency>
@@ -1301,7 +1342,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>2.1.2</version>
+        <version>2.1.3</version>
         <exclusions>
           <exclusion>
             <groupId>com.sun.mail</groupId>
@@ -1338,7 +1379,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>4.1.5</version>
+        <version>${spring-cloud-gateway.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -1406,7 +1447,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.13.0</version>
+          <version>3.14.0</version>
           <configuration>
             <release>${targetJdk}</release>
             <useIncrementalCompilation>false</useIncrementalCompilation>
@@ -1576,6 +1617,12 @@ under the License.
         </plugin>
 
         <plugin>
+          <groupId>org.openapitools</groupId>
+          <artifactId>openapi-generator-maven-plugin</artifactId>
+          <version>7.12.0</version>
+        </plugin>
+
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
           <version>3.4.2</version>
@@ -1614,7 +1661,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.16</version>
+          <version>1.10.18</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
@@ -1752,7 +1799,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
@@ -1878,6 +1925,7 @@ under the License.
             <exclude>**/.*</exclude>
             <exclude>**/*.lst</exclude>
             <exclude>**/*.json</exclude>
+            <exclude>**/*font*awesome*</exclude>
             <exclude>**/banner.txt</exclude>
             <exclude>**/target/**</exclude>
           </excludes>
@@ -1985,7 +2033,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.8.0</version>
+        <version>3.9.0</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -2029,12 +2077,12 @@ under the License.
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.0.0/api/</link>
-            <link>https://docs.spring.io/spring-boot/3.3/api/java/</link>
-            <link>https://docs.spring.io/spring-framework/docs/6.1.x/javadoc-api/</link>
-            <link>https://docs.spring.io/spring-security/site/docs/6.3.6/api/</link>
+            <link>https://tika.apache.org/3.1.0/api/</link>
+            <link>https://docs.spring.io/spring-boot/3.4/api/java/</link>
+            <link>https://docs.spring.io/spring-framework/docs/6.2.x/javadoc-api/</link>
+            <link>https://docs.spring.io/spring-security/site/docs/6.4.x/api/</link>
             <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.27/apidocs/</link>
+            <link>https://docs.swagger.io/swagger-core/v2.2.28/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>
@@ -2085,7 +2133,7 @@ under the License.
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
-            <version>3.1.3</version>
+            <version>3.1.4</version>
           </plugin>
 
           <plugin>
@@ -2189,6 +2237,7 @@ under the License.
                   <attributes>
                     <title>Apache Syncope ${project.version} - Getting Started</title>
                     <imagesdir>images</imagesdir>
+                    <stylesdir>css</stylesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2222,6 +2271,7 @@ under the License.
                   <attributes>
                     <title>Apache Syncope ${project.version} - Reference Guide</title>
                     <imagesdir>images</imagesdir>
+                    <stylesdir>css</stylesdir>
                   </attributes>
                 </configuration>
               </execution>
@@ -2322,48 +2372,6 @@ under the License.
           </plugin>
         </plugins>
       </build>
-    </profile>
-
-    <profile>
-      <id>jdk24</id>
-
-      <activation>
-        <jdk>[24,)</jdk>
-      </activation>
-
-      <properties>
-        <mockito.version>5.15.2</mockito.version>
-        <byte-buddy.version>1.15.11</byte-buddy.version>
-      </properties>
-
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-          </dependency>
-          <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
     </profile>
   </profiles>
 

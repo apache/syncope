@@ -108,18 +108,19 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
             public T getObject() {
                 T value = null;
 
-                if (list != null && !list.isEmpty() && list.get(0) != null && !list.get(0).toString().isEmpty()) {
+                if (list != null && !list.isEmpty() && list.getFirst() != null
+                    && !list.getFirst().toString().isEmpty()) {
                     value = reference.equals(Integer.class)
-                            ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toInt(list.getFirst().toString()))
                             : reference.equals(Long.class)
-                            ? reference.cast(NumberUtils.toLong(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toLong(list.getFirst().toString()))
                             : reference.equals(Short.class)
-                            ? reference.cast(NumberUtils.toShort(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toShort(list.getFirst().toString()))
                             : reference.equals(Float.class)
-                            ? reference.cast(NumberUtils.toFloat(list.get(0).toString()))
+                            ? reference.cast(NumberUtils.toFloat(list.getFirst().toString()))
                             : reference.equals(byte.class)
-                            ? reference.cast(NumberUtils.toByte(list.get(0).toString()))
-                            : reference.cast(NumberUtils.toDouble(list.get(0).toString()));
+                            ? reference.cast(NumberUtils.toByte(list.getFirst().toString()))
+                            : reference.cast(NumberUtils.toDouble(list.getFirst().toString()));
                 }
 
                 return value;
@@ -165,18 +166,18 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
                         } catch (NumberFormatException e) {
                             LOG.error("While attempting to parse {}", obj, e);
                         }
-                    } else if (obj instanceof Number) {
+                    } else if (obj instanceof final Number number1) {
                         number = reference.equals(Integer.class)
-                                ? reference.cast(((Number) obj).intValue())
+                                ? reference.cast(number1.intValue())
                                 : reference.equals(Long.class)
-                                ? reference.cast(((Number) obj).longValue())
+                                ? reference.cast(number1.longValue())
                                 : reference.equals(Short.class)
-                                ? reference.cast(((Number) obj).shortValue())
+                                ? reference.cast(number1.shortValue())
                                 : reference.equals(Float.class)
-                                ? reference.cast(((Number) obj).floatValue())
+                                ? reference.cast(number1.floatValue())
                                 : reference.equals(byte.class)
-                                ? reference.cast(((Number) obj).byteValue())
-                                : reference.cast(((Number) obj).doubleValue());
+                                ? reference.cast(number1.byteValue())
+                                : reference.cast(number1.doubleValue());
                     }
                 }
 
@@ -205,16 +206,16 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
             public T getObject() {
                 return attributable.getPlainAttr(schema).map(Attr::getValues).filter(Predicate.not(List::isEmpty)).
                         map(values -> reference.equals(Integer.class)
-                        ? reference.cast(NumberUtils.toInt(values.get(0)))
+                        ? reference.cast(NumberUtils.toInt(values.getFirst()))
                         : reference.equals(Long.class)
-                        ? reference.cast(NumberUtils.toLong(values.get(0)))
+                        ? reference.cast(NumberUtils.toLong(values.getFirst()))
                         : reference.equals(Short.class)
-                        ? reference.cast(NumberUtils.toShort(values.get(0)))
+                        ? reference.cast(NumberUtils.toShort(values.getFirst()))
                         : reference.equals(Float.class)
-                        ? reference.cast(NumberUtils.toFloat(values.get(0)))
+                        ? reference.cast(NumberUtils.toFloat(values.getFirst()))
                         : reference.equals(byte.class)
-                        ? reference.cast(NumberUtils.toByte(values.get(0)))
-                        : reference.cast(NumberUtils.toDouble(values.get(0)))).
+                        ? reference.cast(NumberUtils.toByte(values.getFirst()))
+                        : reference.cast(NumberUtils.toDouble(values.getFirst()))).
                         orElse(null);
             }
 

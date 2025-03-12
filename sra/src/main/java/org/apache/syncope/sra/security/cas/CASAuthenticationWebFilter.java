@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.sra.security.cas;
 
-import java.net.URI;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.apache.syncope.sra.session.SessionUtils;
 import org.apereo.cas.client.Protocol;
@@ -97,7 +96,7 @@ public class CASAuthenticationWebFilter extends AuthenticationWebFilter {
                 return webFilterExchange.getExchange().getSession().
                         flatMap(session -> redirectStrategy.sendRedirect(
                         webFilterExchange.getExchange(),
-                        session.<URI>getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI)));
+                        session.getRequiredAttribute(SessionUtils.INITIAL_REQUEST_URI)));
             }
         };
     }

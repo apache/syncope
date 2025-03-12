@@ -90,7 +90,7 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
         GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.update(owner, acct);
         assertEquals(1, GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.list().getTotalCount());
-        acct = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner).getResult().get(0);
+        acct = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner).getResult().getFirst();
         assertEquals(acct.getSecretKey(), acct.getSecretKey());
         GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.delete(owner);
     }

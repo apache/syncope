@@ -58,18 +58,18 @@ public class VirSchemaITCase extends AbstractITCase {
         ResourceTO csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
-        assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
+        assertTrue(csv.getProvisions().getFirst().getVirSchemas().isEmpty());
 
         VirSchemaTO schema = new VirSchemaTO();
         schema.setKey("virtualTest" + getUUIDString());
         schema.setExtAttrName("name");
         schema.setResource(RESOURCE_NAME_CSV);
-        schema.setAnyType(csv.getProvisions().get(0).getAnyType());
+        schema.setAnyType(csv.getProvisions().getFirst().getAnyType());
         schema.getLabels().put(Locale.ENGLISH, "Virtual");
 
         schema = createSchema(SchemaType.VIRTUAL, schema);
         assertNotNull(schema);
-        assertEquals(csv.getProvisions().get(0).getAnyType(), schema.getAnyType());
+        assertEquals(csv.getProvisions().getFirst().getAnyType(), schema.getAnyType());
         assertEquals(1, schema.getLabels().size());
         assertEquals("Virtual", schema.getLabel(Locale.ENGLISH));
         assertEquals(schema.getKey(), schema.getLabel(Locale.CHINESE));
@@ -77,7 +77,7 @@ public class VirSchemaITCase extends AbstractITCase {
         csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
-        assertFalse(csv.getProvisions().get(0).getVirSchemas().isEmpty());
+        assertFalse(csv.getProvisions().getFirst().getVirSchemas().isEmpty());
 
         schema = SCHEMA_SERVICE.read(SchemaType.VIRTUAL, schema.getKey());
         assertNotNull(schema);
@@ -94,7 +94,7 @@ public class VirSchemaITCase extends AbstractITCase {
         csv = RESOURCE_SERVICE.read(RESOURCE_NAME_CSV);
         assertNotNull(csv);
         assertEquals(1, csv.getProvisions().size());
-        assertTrue(csv.getProvisions().get(0).getVirSchemas().isEmpty());
+        assertTrue(csv.getProvisions().getFirst().getVirSchemas().isEmpty());
     }
 
     @Test
@@ -131,13 +131,13 @@ public class VirSchemaITCase extends AbstractITCase {
         ResourceTO ws1 = RESOURCE_SERVICE.read(RESOURCE_NAME_WS1);
         assertNotNull(ws1);
         assertEquals(1, ws1.getProvisions().size());
-        assertTrue(ws1.getProvisions().get(0).getVirSchemas().isEmpty());
+        assertTrue(ws1.getProvisions().getFirst().getVirSchemas().isEmpty());
 
         VirSchemaTO schema = new VirSchemaTO();
         schema.setKey("http://schemas.examples.org/security/authorization/organizationUnit");
         schema.setExtAttrName("name");
         schema.setResource(RESOURCE_NAME_WS1);
-        schema.setAnyType(ws1.getProvisions().get(0).getAnyType());
+        schema.setAnyType(ws1.getProvisions().getFirst().getAnyType());
 
         try {
             createSchema(SchemaType.VIRTUAL, schema);

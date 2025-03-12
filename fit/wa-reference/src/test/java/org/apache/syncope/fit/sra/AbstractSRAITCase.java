@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.ws.rs.core.HttpHeaders;
@@ -49,9 +48,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
-import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
 import org.apache.syncope.common.lib.to.SRARouteTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -65,9 +62,7 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-public abstract class AbstractSRAITCase extends AbstractITCase {
-
-    protected static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
+abstract class AbstractSRAITCase extends AbstractITCase {
 
     protected static final String SRA_ADDRESS = "http://127.0.0.1:8080";
 
@@ -234,41 +229,10 @@ public abstract class AbstractSRAITCase extends AbstractITCase {
 
                     Response response = POLICY_SERVICE.create(PolicyType.AUTH, policy);
                     if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create Syncope Auth Policy");
+                        fail(() -> "Could not create " + description);
                     }
 
                     return POLICY_SERVICE.read(PolicyType.AUTH, response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                });
-    }
-
-    protected static AttrReleasePolicyTO getAttrReleasePolicy() {
-        String description = "SRA attr release policy";
-
-        return POLICY_SERVICE.list(PolicyType.ATTR_RELEASE).stream().
-                map(AttrReleasePolicyTO.class::cast).
-                filter(policy -> description.equals(policy.getName())
-                && policy.getConf() instanceof DefaultAttrReleasePolicyConf).
-                findFirst().
-                orElseGet(() -> {
-                    DefaultAttrReleasePolicyConf policyConf = new DefaultAttrReleasePolicyConf();
-                    policyConf.getAllowedAttrs().add("family_name");
-                    policyConf.getAllowedAttrs().add("name");
-                    policyConf.getAllowedAttrs().add("given_name");
-                    policyConf.getAllowedAttrs().add("email");
-                    policyConf.getAllowedAttrs().add("groups");
-
-                    AttrReleasePolicyTO policy = new AttrReleasePolicyTO();
-                    policy.setName(description);
-                    policy.setConf(policyConf);
-
-                    Response response = POLICY_SERVICE.create(PolicyType.ATTR_RELEASE, policy);
-                    if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-                        fail("Could not create Test Attr Release Policy");
-                    }
-
-                    return POLICY_SERVICE.read(
-                            PolicyType.ATTR_RELEASE,
-                            response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
     }
 

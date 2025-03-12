@@ -34,12 +34,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.oracle.OracleContainer;
 
 @SpringJUnitConfig(classes = { MasterDomain.class, PersistenceTestContext.class })
+@TestPropertySource("classpath:core-test.properties")
 public abstract class AbstractTest {
 
     private static String JDBC_DRIVER;
@@ -130,7 +132,7 @@ public abstract class AbstractTest {
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
             masterDomain.start();
-            JDBC_URL_SUPPLIER = () -> masterDomain.getJdbcUrl();
+            JDBC_URL_SUPPLIER = masterDomain::getJdbcUrl;
 
             MySQLContainer<?> twoDomain = new MySQLContainer<>("mysql:" + dockerMySQLVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
@@ -138,7 +140,7 @@ public abstract class AbstractTest {
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
             twoDomain.start();
-            JDBC2_URL_SUPPLIER = () -> twoDomain.getJdbcUrl();
+            JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
         } else if (classExists("org.mariadb.jdbc.Driver")) {
             JDBC_DRIVER = "org.mariadb.jdbc.Driver";
             DATABASE_PLATFORM = "org.apache.openjpa.jdbc.sql.MariaDBDictionary("
@@ -153,7 +155,7 @@ public abstract class AbstractTest {
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
             masterDomain.start();
-            JDBC_URL_SUPPLIER = () -> masterDomain.getJdbcUrl();
+            JDBC_URL_SUPPLIER = masterDomain::getJdbcUrl;
 
             MariaDBContainer<?> twoDomain = new MariaDBContainer<>("mariadb:" + dockerMariaDBVersion).
                     withTmpFs(Map.of("/var/lib/mysql", "rw")).
@@ -161,7 +163,7 @@ public abstract class AbstractTest {
                     withUrlParam("characterEncoding", "UTF-8").
                     withReuse(true);
             twoDomain.start();
-            JDBC2_URL_SUPPLIER = () -> twoDomain.getJdbcUrl();
+            JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
 
             // https://jira.mariadb.org/browse/MDEV-27898
             DB_USER_SUPPLIER = () -> "root";
@@ -179,13 +181,13 @@ public abstract class AbstractTest {
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withReuse(true);
             masterDomain.start();
-            JDBC_URL_SUPPLIER = () -> masterDomain.getJdbcUrl();
+            JDBC_URL_SUPPLIER = masterDomain::getJdbcUrl;
 
             OracleContainer twoDomain = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
                     withReuse(true);
             twoDomain.start();
-            JDBC2_URL_SUPPLIER = () -> twoDomain.getJdbcUrl();
+            JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
         }
     }
 

@@ -27,20 +27,16 @@ public class AnyUtilsFactory {
 
     protected final AnyUtils userAnyUtils;
 
-    protected final AnyUtils linkedAccountAnyUtils;
-
     protected final AnyUtils groupAnyUtils;
 
     protected final AnyUtils anyObjectAnyUtils;
 
     public AnyUtilsFactory(
             final AnyUtils userAnyUtils,
-            final AnyUtils linkedAccountAnyUtils,
             final AnyUtils groupAnyUtils,
             final AnyUtils anyObjectAnyUtils) {
 
         this.userAnyUtils = userAnyUtils;
-        this.linkedAccountAnyUtils = linkedAccountAnyUtils;
         this.groupAnyUtils = groupAnyUtils;
         this.anyObjectAnyUtils = anyObjectAnyUtils;
     }
@@ -59,7 +55,7 @@ public class AnyUtilsFactory {
         }
     }
 
-    public AnyUtils getInstance(final Any<?> any) {
+    public AnyUtils getInstance(final Any any) {
         AnyTypeKind anyTypeKind = null;
         if (any instanceof User) {
             anyTypeKind = AnyTypeKind.USER;
@@ -74,9 +70,5 @@ public class AnyUtilsFactory {
         }
 
         return getInstance(anyTypeKind);
-    }
-
-    public AnyUtils getLinkedAccountInstance() {
-        return linkedAccountAnyUtils;
     }
 }

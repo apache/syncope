@@ -104,7 +104,7 @@ public abstract class AbstractService implements JAXRSService {
     protected String findActualKey(final AnyDAO<?> dao, final String pretendingKey) {
         String actualKey = pretendingKey;
         if (uriInfo.getPathParameters(true).containsKey("key")) {
-            String keyInPath = uriInfo.getPathParameters(true).get("key").get(0);
+            String keyInPath = uriInfo.getPathParameters(true).get("key").getFirst();
             if (actualKey == null) {
                 actualKey = keyInPath;
             } else if (!actualKey.equals(keyInPath)) {
@@ -119,10 +119,10 @@ public abstract class AbstractService implements JAXRSService {
             throw sce;
         }
         if (!SyncopeConstants.UUID_PATTERN.matcher(actualKey).matches()) {
-            actualKey = dao instanceof UserDAO
-                    ? ((UserDAO) dao).findKey(actualKey).orElse(null)
-                    : dao instanceof GroupDAO
-                            ? ((GroupDAO) dao).findKey(actualKey).orElse(null)
+            actualKey = dao instanceof final UserDAO userDAO
+                    ? userDAO.findKey(actualKey).orElse(null)
+                    : dao instanceof final GroupDAO groupDAO
+                            ? groupDAO.findKey(actualKey).orElse(null)
                             : null;
         }
         return actualKey;

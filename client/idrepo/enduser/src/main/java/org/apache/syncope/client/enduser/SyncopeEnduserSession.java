@@ -114,7 +114,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
             error = Error.INVALID_SECURITY_ANSWER;
         }
         if (error == null) {
-            return sce.getType().name() + ": " + sce.getElements().stream().collect(Collectors.joining(", "));
+            return sce.getType().name() + ": " + String.join(", ", sce.getElements());
         }
         return getApplication().getResourceSettings().getLocalizer().
                 getString(error.key(), null, null, null, null, error.fallback());

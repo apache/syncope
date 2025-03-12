@@ -94,12 +94,12 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
-            ((AjaxWizard.NewItemCancelEvent<?>) event.getPayload()).getTarget().ifPresent(modal::close);
+        if (event.getPayload() instanceof final AjaxWizard.NewItemCancelEvent<?> newItemCancelEvent) {
+            newItemCancelEvent.getTarget().ifPresent(modal::close);
         }
-        if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+        if (event.getPayload() instanceof final AjaxWizard.NewItemFinishEvent<?> newItemFinishEvent) {
             Optional<AjaxRequestTarget> target =
-                    ((AjaxWizard.NewItemFinishEvent<?>) event.getPayload()).getTarget();
+                    newItemFinishEvent.getTarget();
             try {
                 mergeAccounts();
 
@@ -131,7 +131,6 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
                             username(acct.getUsername()).
                             build();
             linkedAccount.getPlainAttrs().addAll(acct.getPlainAttrs());
-            linkedAccount.getPrivileges().addAll(acct.getPrivileges());
             LinkedAccountUR patch = new LinkedAccountUR.Builder().
                     linkedAccountTO(linkedAccount).
                     operation(PatchOperation.ADD_REPLACE).
@@ -145,7 +144,6 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
                     resource, mergingUserTO.getType(), mergingUserTO.getKey());
             LinkedAccountTO linkedAccount = new LinkedAccountTO.Builder(resource, connObjectKeyValue).build();
             linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
-            linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
             LinkedAccountUR patch = new LinkedAccountUR.Builder().
                     linkedAccountTO(linkedAccount).
                     operation(PatchOperation.ADD_REPLACE).
@@ -163,7 +161,6 @@ public class MergeLinkedAccountsWizardBuilder extends BaseAjaxWizardBuilder<User
                 username(mergingUserTO.getUsername()).
                 build();
         linkedAccount.getPlainAttrs().addAll(mergingUserTO.getPlainAttrs());
-        linkedAccount.getPrivileges().addAll(mergingUserTO.getPrivileges());
         LinkedAccountUR patch = new LinkedAccountUR.Builder().linkedAccountTO(linkedAccount).
                 operation(PatchOperation.ADD_REPLACE).
                 build();

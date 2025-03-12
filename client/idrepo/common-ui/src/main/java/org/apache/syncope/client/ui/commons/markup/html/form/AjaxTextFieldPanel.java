@@ -21,6 +21,7 @@ package org.apache.syncope.client.ui.commons.markup.html.form;
 import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -33,6 +34,7 @@ import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTe
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.IAutoCompleteRenderer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.convert.IConverter;
 
 public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
 
@@ -82,6 +84,14 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
                     }
                 };
             }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public <C> IConverter<C> getConverter(final Class<C> type) {
+                return AjaxTextFieldPanel.this.getConverter().
+                        map(converter -> (IConverter<C>) converter).
+                        orElseGet(() -> super.getConverter(type));
+            }
         };
         setHTMLInputNotAllowed();
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
@@ -103,6 +113,10 @@ public class AjaxTextFieldPanel extends TextFieldPanel implements Cloneable {
         if (choices != null) {
             this.choices = choices;
         }
+    }
+
+    protected Optional<IConverter<String>> getConverter() {
+        return Optional.empty();
     }
 
     public FieldPanel<String> enableJexlHelp() {

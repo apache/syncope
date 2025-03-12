@@ -93,7 +93,7 @@ public class DefaultPasswordGenerator implements PasswordGenerator {
     public String generate(final List<PasswordPolicy> policies) {
         List<DefaultPasswordRuleConf> ruleConfs = new ArrayList<>();
 
-        policies.stream().forEach(policy -> getPasswordRules(policy).stream().
+        policies.forEach(policy -> getPasswordRules(policy).stream().
                 filter(rule -> rule.getConf() instanceof DefaultPasswordRuleConf).
                 forEach(rule -> ruleConfs.add((DefaultPasswordRuleConf) rule.getConf())));
 

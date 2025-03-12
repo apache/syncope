@@ -69,11 +69,13 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AnySearchDAO.class);
 
+    protected static final String ALWAYS_FALSE_CLAUSE = "1=2";
+
     private static final String[] ORDER_BY_NOT_ALLOWED = {
         "serialVersionUID", "password", "securityQuestion", "securityAnswer", "token", "tokenExpireTime"
     };
 
-    protected static final String[] RELATIONSHIP_FIELDS = new String[] { "realm", "userOwner", "groupOwner" };
+    protected static final String[] RELATIONSHIP_FIELDS = { "realm", "userOwner", "groupOwner" };
 
     protected static SearchCond buildEffectiveCond(
             final SearchCond cond,
@@ -87,10 +89,10 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
         List<SearchCond> dynRealmConds = dynRealmKeys.stream().map(key -> {
             DynRealmCond dynRealmCond = new DynRealmCond();
             dynRealmCond.setDynRealm(key);
-            return SearchCond.getLeaf(dynRealmCond);
+            return SearchCond.of(dynRealmCond);
         }).toList();
         if (!dynRealmConds.isEmpty()) {
-            result.add(SearchCond.getOr(dynRealmConds));
+            result.add(SearchCond.or(dynRealmConds));
         }
 
         List<SearchCond> groupOwnerConds = groupOwners.stream().map(key -> {
@@ -105,16 +107,16 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 membershipCond.setGroup(key);
                 asc = membershipCond;
             }
-            return SearchCond.getLeaf(asc);
+            return SearchCond.of(asc);
         }).toList();
         if (!groupOwnerConds.isEmpty()) {
-            result.add(SearchCond.getOr(groupOwnerConds));
+            result.add(SearchCond.or(groupOwnerConds));
         }
 
-        return SearchCond.getAnd(result);
+        return SearchCond.and(result);
     }
 
-    protected static String key(final AttrSchemaType schemaType) {
+    public static String key(final AttrSchemaType schemaType) {
         String key;
         switch (schemaType) {
             case Boolean:
@@ -210,12 +212,12 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(final SearchCond cond, final AnyTypeKind kind) {
+    public <T extends Any> List<T> search(final SearchCond cond, final AnyTypeKind kind) {
         return search(cond, List.of(), kind);
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(
+    public <T extends Any> List<T> search(
             final SearchCond cond, final List<Sort.Order> orderBy, final AnyTypeKind kind) {
 
         return search(
@@ -227,7 +229,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 kind);
     }
 
-    protected abstract <T extends Any<?>> List<T> doSearch(
+    protected abstract <T extends Any> List<T> doSearch(
             Realm base,
             boolean recursive,
             Set<String> adminRealms,
@@ -235,15 +237,11 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             Pageable pageable,
             AnyTypeKind kind);
 
-    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond, final AnyTypeKind kind) {
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(kind);
-
+    protected Pair<PlainSchema, PlainAttrValue> check(final AttrCond cond) {
         PlainSchema schema = plainSchemaDAO.findById(cond.getSchema()).
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
-        PlainAttrValue attrValue = schema.isUniqueConstraint()
-                ? anyUtils.newPlainAttrUniqueValue()
-                : anyUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = new PlainAttrValue();
         try {
             if (cond.getType() != AttrCond.Type.LIKE
                     && cond.getType() != AttrCond.Type.ILIKE
@@ -281,6 +279,9 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 schema.setType(attrSchemaType);
             }
         }
+        if (schema.getType() == null || schema.getType() == AttrSchemaType.Dropdown) {
+            schema.setType(AttrSchemaType.String);
+        }
 
         // Deal with any Integer fields logically mapping to boolean values
         boolean foundBooleanMin = false;
@@ -304,7 +305,7 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
             schema.setType(AttrSchemaType.String);
         }
 
-        PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+        PlainAttrValue attrValue = new PlainAttrValue();
         if (computed.getType() != AttrCond.Type.LIKE
                 && computed.getType() != AttrCond.Type.ILIKE
                 && computed.getType() != AttrCond.Type.ISNULL
@@ -371,23 +372,23 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
+    protected <T extends Any> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
         List<String> keys = raw.stream().
-                map(key -> key instanceof Object[] ? (String) ((Object[]) key)[0] : ((String) key)).
+                map(key -> key instanceof Object[] array ? (String) (array)[0] : ((String) key)).
                 toList();
 
         // sort anys according to keys' sorting, as their ordering is same as raw, e.g. the actual query results
-        List<Any<?>> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
+        List<Any> anys = anyUtilsFactory.getInstance(kind).dao().findByKeys(keys).stream().
                 sorted(Comparator.comparing(any -> keys.indexOf(any.getKey()))).toList();
 
-        keys.stream().filter(key -> !anys.stream().anyMatch(any -> key.equals(any.getKey()))).
+        keys.stream().filter(key -> anys.stream().noneMatch(any -> key.equals(any.getKey()))).
                 forEach(key -> LOG.error("Could not find {} with id {}, even if returned by native query", kind, key));
 
         return (List<T>) anys;
     }
 
     @Override
-    public <T extends Any<?>> List<T> search(
+    public <T extends Any> List<T> search(
             final Realm base,
             final boolean recursive,
             final Set<String> adminRealms,

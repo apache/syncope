@@ -37,6 +37,7 @@ import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -49,9 +50,10 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
+import org.apache.syncope.core.persistence.common.dao.AnyFinder;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
+import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
@@ -67,6 +69,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     public AnyObjectRepoExtImpl(
             final AnyUtilsFactory anyUtilsFactory,
             final DynRealmDAO dynRealmDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
             final EntityManager entityManager,
@@ -74,6 +77,7 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
 
         super(
                 dynRealmDAO,
+                plainSchemaDAO,
                 entityManager,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT));
@@ -157,20 +161,20 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     }
 
     @Override
-    public List<Relationship<Any<?>, AnyObject>> findAllRelationships(final AnyObject anyObject) {
-        List<Relationship<Any<?>, AnyObject>> result = new ArrayList<>();
+    public List<Relationship<Any, AnyObject>> findAllRelationships(final AnyObject anyObject) {
+        List<Relationship<Any, AnyObject>> result = new ArrayList<>();
 
         @SuppressWarnings("unchecked")
-        TypedQuery<Relationship<Any<?>, AnyObject>> aquery =
-                (TypedQuery<Relationship<Any<?>, AnyObject>>) entityManager.createQuery(
+        TypedQuery<Relationship<Any, AnyObject>> aquery =
+                (TypedQuery<Relationship<Any, AnyObject>>) entityManager.createQuery(
                         "SELECT e FROM " + JPAARelationship.class.getSimpleName()
                         + " e WHERE e.rightEnd=:anyObject OR e.leftEnd=:anyObject");
         aquery.setParameter("anyObject", anyObject);
         result.addAll(aquery.getResultList());
 
         @SuppressWarnings("unchecked")
-        TypedQuery<Relationship<Any<?>, AnyObject>> uquery =
-                (TypedQuery<Relationship<Any<?>, AnyObject>>) entityManager.createQuery(
+        TypedQuery<Relationship<Any, AnyObject>> uquery =
+                (TypedQuery<Relationship<Any, AnyObject>>) entityManager.createQuery(
                         "SELECT e FROM " + JPAURelationship.class.getSimpleName()
                         + " e WHERE e.rightEnd=:anyObject");
         uquery.setParameter("anyObject", anyObject);
@@ -194,12 +198,13 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject> implemen
     @Override
     @SuppressWarnings("unchecked")
     public <S extends AnyObject> S save(final S anyObject) {
-        checkBeforeSave(anyObject);
+        checkBeforeSave((JPAAnyObject) anyObject);
         return (S) doSave(anyObject).getLeft();
     }
 
     @Override
     public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final AnyObject anyObject) {
+        checkBeforeSave((JPAAnyObject) anyObject);
         return doSave(anyObject).getRight();
     }
 

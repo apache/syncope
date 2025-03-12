@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
@@ -44,7 +43,7 @@ public class WAConfigModalPanel extends AbstractModalPanel<Attr> {
     protected static Attr toAttr(final ConfParam confParam) {
         Attr attr = new Attr.Builder(confParam.getSchema()).build();
         attr.getValues().addAll(
-                confParam.getValues().stream().map(Serializable::toString).collect(Collectors.toList()));
+                confParam.getValues().stream().map(Serializable::toString).toList());
         return attr;
     }
 

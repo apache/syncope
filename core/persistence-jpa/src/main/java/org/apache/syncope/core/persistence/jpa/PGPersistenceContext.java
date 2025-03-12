@@ -31,32 +31,26 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.jpa.dao.AnyFinder;
-import org.apache.syncope.core.persistence.jpa.dao.PGAnyFinder;
 import org.apache.syncope.core.persistence.jpa.dao.PGJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PGPlainSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.entity.PGEntityFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnClass(name = "org.postgresql.Driver")
+@ConditionalOnProperty(
+        prefix = PersistenceProperties.PREFIX, name = PersistenceProperties.DB_TYPE, havingValue = "POSTGRESQL",
+        matchIfMissing = true)
 public class PGPersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
     public EntityFactory entityFactory() {
         return new PGEntityFactory();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public AnyFinder anyFinder(final @Lazy PlainSchemaDAO plainSchemaDAO, final EntityManager entityManager) {
-        return new PGAnyFinder(plainSchemaDAO, entityManager);
     }
 
     @ConditionalOnMissingBean

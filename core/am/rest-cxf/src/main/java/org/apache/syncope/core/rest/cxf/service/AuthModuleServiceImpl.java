@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.core.logic.AuthModuleLogic;
-import org.springframework.stereotype.Service;
 
-@Service
 public class AuthModuleServiceImpl extends AbstractService implements AuthModuleService {
 
     protected final AuthModuleLogic logic;

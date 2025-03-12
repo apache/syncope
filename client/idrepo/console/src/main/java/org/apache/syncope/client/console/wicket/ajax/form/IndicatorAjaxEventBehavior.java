@@ -23,7 +23,7 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 
 /**
- * An {@link AjaxEventBehavior} not showin veil.
+ * An {@link AjaxEventBehavior} not showing veil.
  */
 public abstract class IndicatorAjaxEventBehavior
         extends AjaxEventBehavior implements IAjaxIndicatorAware {

@@ -117,7 +117,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 attrTO.getValues().add(StringUtils.EMPTY);
             }
             return attrTO;
-        }).collect(Collectors.toList()));
+        }).toList());
 
         userTO.getVirAttrs().clear();
         userTO.getVirAttrs().addAll(virAttrs);
@@ -127,7 +127,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(userTO).getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getVirAttrs())).
-                orElseGet(() -> new HashMap<>());
+                orElseGet(HashMap::new);
 
         List<Attr> virAttrs = membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             Attr attr = new Attr();
@@ -138,7 +138,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
             return attr;
-        }).collect(Collectors.toList());
+        }).toList();
 
         membershipTO.getVirAttrs().clear();
         membershipTO.getVirAttrs().addAll(virAttrs);
@@ -166,8 +166,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                     Attr attrTO = item.getModelObject();
 
                     // set default values, if any
-                    if (attrTO.getValues().stream().filter(StringUtils::isNotBlank)
-                            .collect(Collectors.toList()).isEmpty()) {
+                    if (attrTO.getValues().stream().filter(StringUtils::isNotBlank).count() == 0) {
                         attrTO.getValues().clear();
                         attrTO.getValues().addAll(getDefaultValues(attrTO.getSchema(), groupName));
                     }

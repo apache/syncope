@@ -45,7 +45,7 @@ public interface AnyObjectRepoExt extends AnyRepoExt<AnyObject> {
 
     List<Group> findDynGroups(String key);
 
-    List<Relationship<Any<?>, AnyObject>> findAllRelationships(AnyObject anyObject);
+    List<Relationship<Any, AnyObject>> findAllRelationships(AnyObject anyObject);
 
     Collection<Group> findAllGroups(AnyObject anyObject);
 

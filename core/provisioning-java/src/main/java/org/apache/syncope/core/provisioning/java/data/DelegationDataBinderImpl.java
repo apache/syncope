@@ -94,7 +94,7 @@ public class DelegationDataBinderImpl implements DelegationDataBinder {
         // 2. remove all roles not contained in the TO
         for (Iterator<? extends Role> itor = delegation.getRoles().iterator(); itor.hasNext();) {
             Role role = itor.next();
-            if (!delegationTO.getRoles().stream().anyMatch(roleKey -> roleKey.equals(role.getKey()))) {
+            if (delegationTO.getRoles().stream().noneMatch(roleKey -> roleKey.equals(role.getKey()))) {
                 itor.remove();
             }
         }

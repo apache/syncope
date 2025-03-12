@@ -34,7 +34,7 @@ COPY saml.keystore.jks /opt/syncope/conf/
 COPY bundles/*.jar /opt/syncope/bundles/
 COPY lib/*.jar /opt/syncope/lib/
 
-COPY lib/syncope-docker-core-*war /opt/syncope/lib/syncope.war
+COPY lib/syncope-docker-core-*jar /opt/syncope/lib/syncope.jar
 
 ENV SPRING_PROFILES_ACTIVE=docker
 ENV LOADER_PATH="/opt/syncope/conf,/opt/syncope/lib"

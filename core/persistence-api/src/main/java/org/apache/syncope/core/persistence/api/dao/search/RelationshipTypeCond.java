@@ -26,25 +26,25 @@ public class RelationshipTypeCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 906241367466433419L;
 
-    private String relationshipTypeKey;
+    private String relationshipType;
 
     public String getRelationshipTypeKey() {
-        return relationshipTypeKey;
+        return relationshipType;
     }
 
-    public void setRelationshipTypeKey(final String relationshipTypeKey) {
-        this.relationshipTypeKey = relationshipTypeKey;
+    public void setRelationshipType(final String relationshipTypeKey) {
+        this.relationshipType = relationshipTypeKey;
     }
 
     @Override
     public final boolean isValid() {
-        return relationshipTypeKey != null;
+        return relationshipType != null;
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
-                append(relationshipTypeKey).
+                append(relationshipType).
                 build();
     }
 
@@ -61,14 +61,14 @@ public class RelationshipTypeCond extends AbstractSearchCond {
         }
         final RelationshipTypeCond other = (RelationshipTypeCond) obj;
         return new EqualsBuilder().
-                append(relationshipTypeKey, other.relationshipTypeKey).
+                append(relationshipType, other.relationshipType).
                 build();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this).
-                append(relationshipTypeKey).
+                append(relationshipType).
                 build();
     }
 }

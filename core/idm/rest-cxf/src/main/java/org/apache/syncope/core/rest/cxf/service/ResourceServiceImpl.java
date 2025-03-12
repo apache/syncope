@@ -45,9 +45,7 @@ import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ResourceServiceImpl extends AbstractService implements ResourceService {
 
     protected final ResourceLogic logic;

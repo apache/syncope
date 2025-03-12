@@ -51,9 +51,7 @@ import org.apache.syncope.core.persistence.api.search.FilterVisitor;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.springframework.stereotype.Service;
 
-@Service
 public class ReconciliationServiceImpl extends AbstractSearchService implements ReconciliationService {
 
     protected final ReconciliationLogic logic;
@@ -107,7 +105,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
                     query.getAnyTypeKey(),
                     query.getResourceKey(),
                     query.getAnyKey(),
-                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Set.of()));
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElseGet(Set::of));
         }
 
         Pair<Filter, Set<String>> fromFIQL = buildFromFIQL(query);
@@ -136,7 +134,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
                     query.getAnyTypeKey(),
                     query.getResourceKey(),
                     query.getAnyKey(),
-                    Optional.ofNullable(query.getMoreAttrsToGet()).orElse(Set.of()),
+                    Optional.ofNullable(query.getMoreAttrsToGet()).orElseGet(Set::of),
                     pullTask);
         }
 

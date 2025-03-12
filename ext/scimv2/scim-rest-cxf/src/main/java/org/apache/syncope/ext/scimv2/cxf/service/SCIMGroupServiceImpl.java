@@ -124,7 +124,7 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
 
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(group);
-        SearchCond searchCond = SearchCond.getLeaf(membCond);
+        SearchCond searchCond = SearchCond.of(membCond);
         long count = userLogic.search(
                 searchCond, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
         for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE); page++) {

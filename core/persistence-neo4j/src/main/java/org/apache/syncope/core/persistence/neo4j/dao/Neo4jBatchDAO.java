@@ -95,7 +95,7 @@ public class Neo4jBatchDAO implements BatchDAO {
                 "MATCH (n:" + Neo4jAccessToken.NODE + " WHERE n.expirationTime < $now) "
                 + "DETACH DELETE n "
                 + "RETURN count(*) AS deleted").bindAll(Map.of("now", OffsetDateTime.now())).
-                fetch().one().orElse(Map.of("deleted", 0L));
+                fetch().one().orElseGet(() -> Map.of("deleted", 0L));
 
         return (long) result.getOrDefault(result.get("deleted"), 0L);
     }

@@ -75,7 +75,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
             response = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                     TopologyNode.Status.UNREACHABLE, checker.key);
         } catch (Exception e) {
-            LOG.error("Unexpected exception conneting to {}", checker.key, e);
+            LOG.error("Unexpected exception connecting to {}", checker.key, e);
             response = String.format("{ \"status\": \"%s\", \"target\": \"%s\"}",
                     TopologyNode.Status.FAILURE, checker.key);
         }
@@ -195,7 +195,7 @@ public class TopologyWebSocketBehavior extends WebSocketBehavior {
                 default:
             }
         } catch (IOException e) {
-            LOG.error("Eror managing websocket message", e);
+            LOG.error("Error managing websocket message", e);
         }
     }
 

@@ -755,7 +755,7 @@ public abstract class AbstractPullResultHandler
             case CREATE:
             case UPDATE:
             case CREATE_OR_UPDATE:
-                if (matches.get(0).getAny() == null) {
+                if (matches.getFirst().getAny() == null) {
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                         case PROVISION:
@@ -773,7 +773,7 @@ public abstract class AbstractPullResultHandler
                     // update VirAttrCache
                     virSchemaDAO.findByResourceAndAnyType(
                             profile.getTask().getResource().getKey(),
-                            matches.get(0).getAny().getType().getKey()).
+                            matches.getFirst().getAny().getType().getKey()).
                             forEach(vs -> {
                                 Attribute attr = delta.getObject().getAttributeByName(vs.getExtAttrName());
                                 matches.forEach(match -> {
@@ -817,7 +817,8 @@ public abstract class AbstractPullResultHandler
 
             case DELETE:
                 // Skip DELETE in case of InboundCorrelationRule.NO_MATCH
-                result = matches.get(0).getAny() == null ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
+                result = matches.getFirst().getAny() == null
+                    ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
                 break;
 
             default:

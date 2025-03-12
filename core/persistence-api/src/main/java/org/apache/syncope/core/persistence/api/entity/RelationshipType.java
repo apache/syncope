@@ -23,4 +23,12 @@ public interface RelationshipType extends ProvidedKeyEntity {
     String getDescription();
 
     void setDescription(String description);
+
+    AnyType getLeftEndAnyType();
+
+    void setLeftEndAnyType(AnyType anyType);
+
+    AnyType getRightEndAnyType();
+
+    void setRightEndAnyType(AnyType anyType);
 }

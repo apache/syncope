@@ -267,7 +267,7 @@ public class TaskTest extends AbstractTest {
 
         // now adding InboundActions
         Implementation inboundActions = entityFactory.newEntity(Implementation.class);
-        inboundActions.setKey("InboundActions" + UUID.randomUUID().toString());
+        inboundActions.setKey("InboundActions" + UUID.randomUUID());
         inboundActions.setEngine(ImplementationEngine.JAVA);
         inboundActions.setType(IdMImplementationType.INBOUND_ACTIONS);
         inboundActions.setBody(InboundActions.class.getName());
@@ -319,7 +319,7 @@ public class TaskTest extends AbstractTest {
 
         task = (PullTask) taskDAO.findById(TaskType.PULL, "c41b9b71-9bfa-4f90-89f2-84787def4c5c").orElseThrow();
         assertEquals(1, task.getActions().size());
-        assertEquals(implementation, task.getActions().get(0));
+        assertEquals(implementation, task.getActions().getFirst());
 
         task.getActions().clear();
         task = taskDAO.save(task);
@@ -421,11 +421,11 @@ public class TaskTest extends AbstractTest {
     }
 
     @Test
-    public void saveMacroTaskSameCommandMultipleOccurrencies() {
+    public void saveMacroTaskSameCommandMultipleOccurrences() {
         MacroTask task = entityFactory.newEntity(MacroTask.class);
         task.setRealm(realmDAO.getRoot());
         task.setJobDelegate(implementationDAO.findById("MacroJobDelegate").orElseThrow());
-        task.setName("saveMacroTaskSameCommandMultipleOccurrencies");
+        task.setName("saveMacroTaskSameCommandMultipleOccurrences");
         task.setContinueOnError(true);
 
         Implementation command1 = entityFactory.newEntity(Implementation.class);

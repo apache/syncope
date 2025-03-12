@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao.repo;
 
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 
+@FunctionalInterface
 public interface AttrRepoRepoExt {
 
     AttrRepo save(AttrRepo attrRepo);

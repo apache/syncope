@@ -1,0 +1,1433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<schemas>
+    <schema>
+        <table name="ADynGroupMembership">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="fiql" type="varchar" size="255"/>
+            <column name="GROUP_ID" type="varchar" size="36"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeGroup" column="GROUP_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <index name="I_DYNGSHP_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_DYNGSHP_GROUP" column="GROUP_ID"/>
+        </table>
+        <table name="AMembership">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="anyObject_id" type="varchar" size="36"/>
+            <column name="group_id" type="varchar" size="36"/>
+            <fk to-table="AnyObject" column="anyObject_id"/>
+            <fk to-table="SyncopeGroup" column="group_id"/>
+            <index name="I_MMBRSHP_LEFTEND" column="anyObject_id"/>
+            <index name="I_MMBRSHP_RIGHTEND" column="group_id"/>
+        </table>
+        <table name="ARelationship">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="left_anyObject_id" type="varchar" size="36"/>
+            <column name="right_anyObject_id" type="varchar" size="36"/>
+            <column name="TYPE_ID" type="varchar" size="255"/>
+            <fk to-table="AnyObject" column="left_anyObject_id"/>
+            <fk to-table="AnyObject" column="right_anyObject_id"/>
+            <fk to-table="RelationshipType" column="TYPE_ID"/>
+            <index name="I_RLTNSHP_LEFTEND" column="left_anyObject_id"/>
+            <index name="I_RLTNSHP_RIGHTEND" column="right_anyObject_id"/>
+            <index name="I_RLTNSHP_TYPE" column="TYPE_ID"/>
+            <unique name="U_RLTNSHP_TYPE_ID">
+                <on column="TYPE_ID"/>
+                <on column="left_anyObject_id"/>
+                <on column="right_anyObject_id"/>
+            </unique>
+        </table>
+        <table name="AccessPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+        </table>
+        <table name="AccessToken">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="authorities" type="blob" size="-1"/>
+            <column name="body" type="clob" size="-1"/>
+            <column name="expirationTime" type="timestamp"/>
+            <column name="owner" type="varchar" size="255"/>
+            <unique name="U_CCSSTKN_OWNER" column="owner"/>
+        </table>
+        <table name="AccountPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="maxAuthenticationAttempts" type="integer"/>
+            <column name="propagateSuspension" type="bit"/>
+        </table>
+        <table name="AccountPolicyRule">
+            <column name="policy_id" type="varchar" size="36"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="AccountPolicy" column="policy_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_CCNTYRL_ELEMENT" column="implementation_id"/>
+            <index name="I_CCNTYRL_POLICY_ID" column="policy_id"/>
+            <unique name="U_CCNTYRL_POLICY_ID">
+                <on column="policy_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="AnyAbout">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="anyType_filter" type="clob" size="-1"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <column name="NOTIFICATION_ID" type="varchar" size="36"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="Notification" column="NOTIFICATION_ID"/>
+            <index name="I_NYABOUT_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_NYABOUT_NOTIFICATION" column="NOTIFICATION_ID"/>
+            <unique name="U_NYABOUT_NOTIFICATION_ID">
+                <on column="NOTIFICATION_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="AnyObject">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="creationContext" type="varchar" size="255"/>
+            <column name="creationDate" type="timestamp"/>
+            <column name="creator" type="varchar" size="255"/>
+            <column name="lastChangeContext" type="varchar" size="255"/>
+            <column name="lastChangeDate" type="timestamp"/>
+            <column name="lastModifier" type="varchar" size="255"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="plainAttrs" type="clob" type-name="jsonb" size="-1"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="TYPE_ID" type="varchar" size="255"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="AnyType" column="TYPE_ID"/>
+            <index name="I_NYOBJCT_REALM" column="REALM_ID"/>
+            <index name="I_NYOBJCT_TYPE" column="TYPE_ID"/>
+            <unique name="U_NYOBJCT_NAME">
+                <on column="name"/>
+                <on column="TYPE_ID"/>
+            </unique>
+        </table>
+        <table name="AnyObject_AnyTypeClass">
+            <column name="anyObject_id" type="varchar" size="36"/>
+            <column name="anyTypeClass_id" type="varchar" size="255"/>
+            <fk to-table="AnyObject" column="anyObject_id"/>
+            <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
+            <index name="I_NYBJLSS_ANYOBJECT_ID" column="anyObject_id"/>
+            <index name="I_NYBJLSS_ELEMENT" column="anyTypeClass_id"/>
+            <unique name="U_NYBJLSS_ANYOBJECT_ID">
+                <on column="anyObject_id"/>
+                <on column="anyTypeClass_id"/>
+            </unique>
+        </table>
+        <table name="AnyObject_ExternalResource">
+            <column name="anyObject_id" type="varchar" size="36"/>
+            <column name="resource_id" type="varchar" size="255"/>
+            <fk to-table="AnyObject" column="anyObject_id"/>
+            <fk to-table="ExternalResource" column="resource_id"/>
+            <index name="I_NYBJSRC_ANYOBJECT_ID" column="anyObject_id"/>
+            <index name="I_NYBJSRC_ELEMENT" column="resource_id"/>
+            <unique name="U_NYBJSRC_ANYOBJECT_ID">
+                <on column="anyObject_id"/>
+                <on column="resource_id"/>
+            </unique>
+        </table>
+        <table name="AnyTemplateLiveSyncTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="template" type="clob" size="-1"/>
+            <column name="LIVESYNCTASK_ID" type="varchar" size="36"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="LiveSyncTask" column="LIVESYNCTASK_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <index name="I_NYTMTSK_ANYTYPE1" column="ANYTYPE_ID"/>
+            <index name="I_NYTMTSK_LIVESYNCTASK" column="LIVESYNCTASK_ID"/>
+            <unique name="U_NYTMTSK_LIVESYNCTASK_ID">
+                <on column="LIVESYNCTASK_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="AnyTemplatePullTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="template" type="clob" size="-1"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <column name="PULLTASK_ID" type="varchar" size="36"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="PullTask" column="PULLTASK_ID"/>
+            <index name="I_NYTMTSK_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_NYTMTSK_PULLTASK" column="PULLTASK_ID"/>
+            <unique name="U_NYTMTSK_PULLTASK_ID">
+                <on column="PULLTASK_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="AnyTemplateRealm">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="template" type="clob" size="-1"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <index name="I_NYTMRLM_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_NYTMRLM_REALM" column="REALM_ID"/>
+            <unique name="U_NYTMRLM_REALM_ID">
+                <on column="REALM_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="AnyType">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="kind" type="varchar" size="20"/>
+        </table>
+        <table name="AnyTypeClass">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+        </table>
+        <table name="AnyType_AnyTypeClass">
+            <column name="anyType_id" type="varchar" size="255"/>
+            <column name="anyTypeClass_id" type="varchar" size="255"/>
+            <fk to-table="AnyType" column="anyType_id"/>
+            <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
+            <index name="I_NYTYLSS_ANYTYPE_ID" column="anyType_id"/>
+            <index name="I_NYTYLSS_ELEMENT" column="anyTypeClass_id"/>
+        </table>
+        <table name="AttrReleasePolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="arporder" type="integer"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+            <column name="status" type="bit"/>
+        </table>
+        <table name="AttrRepo">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="attrRepoOrder" type="integer"/>
+            <column name="attrRepoState" type="varchar" size="20"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="items" type="clob" size="-1"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+        </table>
+        <table name="AuditConf">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="active" type="bit"/>
+        </table>
+        <table name="AuditEvent">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="before_value" type="clob" size="-1"/>
+            <column name="inputs" type="clob" size="-1"/>
+            <column name="opEvent" type="varchar" size="255"/>
+            <column name="output" type="clob" size="-1"/>
+            <column name="throwable" type="clob" size="-1"/>
+            <column name="event_date" type="timestamp" not-null="true"/>
+            <column name="who" type="varchar" size="255"/>
+        </table>
+        <table name="AuthModule">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="authModuleOrder" type="integer"/>
+            <column name="authModuleState" type="varchar" size="20"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="items" type="clob" size="-1"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+        </table>
+        <table name="AuthPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+        </table>
+        <table name="AuthProfile">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="googleMfaAuthAccounts" type="clob" size="-1"/>
+            <column name="googleMfaAuthTokens" type="clob" size="-1"/>
+            <column name="impersonationAccounts" type="clob" size="-1"/>
+            <column name="mfaTrustedDevices" type="clob" size="-1"/>
+            <column name="owner" type="varchar" not-null="true" size="255"/>
+            <column name="webAuthnDeviceCredentials" type="clob" size="-1"/>
+            <unique name="U_UTHPRFL_OWNER" column="owner"/>
+        </table>
+        <table name="CASSPClientApp">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="clientAppId" type="bigint" not-null="true"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="informationUrl" type="varchar" size="255"/>
+            <column name="logo" type="varchar" size="255"/>
+            <column name="logoutType" type="varchar" size="20"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="privacyUrl" type="varchar" size="255"/>
+            <column name="properties" type="clob" size="-1"/>
+            <column name="theme" type="varchar" size="255"/>
+            <column name="usernameAttributeProviderConf" type="clob" size="-1"/>
+            <column name="serviceId" type="varchar" not-null="true" size="255"/>
+            <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
+            <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
+            <column name="AUTHPOLICY_ID" type="varchar" size="36"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="TICKETEXPIRATIONPOLICY_ID" type="varchar" size="36"/>
+            <fk to-table="AccessPolicy" column="ACCESSPOLICY_ID"/>
+            <fk to-table="AttrReleasePolicy" column="ATTRRELEASEPOLICY_ID"/>
+            <fk to-table="AuthPolicy" column="AUTHPOLICY_ID"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="TicketExpirationPolicy" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_CSSPTPP_ACCESSPOLICY" column="ACCESSPOLICY_ID"/>
+            <index name="I_CSSPTPP_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
+            <index name="I_CSSPTPP_AUTHPOLICY" column="AUTHPOLICY_ID"/>
+            <index name="I_CSSPTPP_REALM" column="REALM_ID"/>
+            <index name="I_CSSPTPP_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <unique name="U_CSSPTPP_CLIENTAPPID" column="clientAppId"/>
+            <unique name="U_CSSPTPP_NAME" column="name"/>
+            <unique name="U_CSSPTPP_SERVICEID" column="serviceId"/>
+        </table>
+        <table name="ConfParam">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="jsonValue" type="clob" size="-1"/>
+        </table>
+        <table name="ConnInstance">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="bundleName" type="varchar" size="255"/>
+            <column name="capabilities" type="clob" size="-1"/>
+            <column name="connRequestTimeout" type="integer"/>
+            <column name="connectorName" type="varchar" size="255"/>
+            <column name="displayName" type="varchar" size="255"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+            <column name="location" type="varchar" size="255"/>
+            <column name="poolConf" type="varchar" size="255"/>
+            <column name="version" type="varchar" size="255"/>
+            <column name="ADMINREALM_ID" type="varchar" size="36"/>
+            <fk to-table="Realm" column="ADMINREALM_ID"/>
+            <index name="I_CNNNTNC_ADMINREALM" column="ADMINREALM_ID"/>
+            <unique name="U_CNNNTNC_DISPLAYNAME" column="displayName"/>
+        </table>
+        <table name="Delegation">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="DELEGATED_ID" type="varchar" size="36"/>
+            <column name="DELEGATING_ID" type="varchar" size="36"/>
+            <fk to-table="SyncopeUser" column="DELEGATED_ID"/>
+            <fk to-table="SyncopeUser" column="DELEGATING_ID"/>
+            <index name="I_DLGTION_DELEGATED" column="DELEGATED_ID"/>
+            <index name="I_DLGTION_DELEGATING" column="DELEGATING_ID"/>
+            <unique name="U_DLGTION_DELEGATING_ID">
+                <on column="DELEGATING_ID"/>
+                <on column="DELEGATED_ID"/>
+            </unique>
+        </table>
+        <table name="Delegation_SyncopeRole">
+            <column name="JPADELEGATION_ID" type="varchar" size="36"/>
+            <column name="ROLES_ID" type="varchar" size="255"/>
+            <fk to-table="Delegation" column="JPADELEGATION_ID"/>
+            <fk to-table="SyncopeRole" column="ROLES_ID"/>
+            <index name="I_DLGTPRL_ELEMENT" column="ROLES_ID"/>
+            <index name="I_DLGTPRL_JPADELEGATION_ID" column="JPADELEGATION_ID"/>
+        </table>
+        <table name="DerSchema">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="expression" type="varchar" size="255"/>
+            <column name="ANYTYPECLASS_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeSchema" column="id"/>
+            <fk to-table="AnyTypeClass" column="ANYTYPECLASS_ID"/>
+            <index name="I_DRSCHEM_ANYTYPECLASS" column="ANYTYPECLASS_ID"/>
+        </table>
+        <table name="DynRealm">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+        </table>
+        <table name="DynRealmMembership">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="fiql" type="varchar" size="255"/>
+            <column name="DYNREALM_ID" type="varchar" size="255"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="DynRealm" column="DYNREALM_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <index name="I_DYNRSHP_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_DYNRSHP_DYNREALM" column="DYNREALM_ID"/>
+        </table>
+        <table name="ExternalResource">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="capabilitiesOverride" type="clob" size="-1"/>
+            <column name="createTraceLevel" type="varchar" size="20"/>
+            <column name="deleteTraceLevel" type="varchar" size="20"/>
+            <column name="enforceMandatoryCondition" type="bit"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+            <column name="orgUnit" type="clob" size="-1"/>
+            <column name="propagationPriority" type="integer"/>
+            <column name="provisioningTraceLevel" type="varchar" size="20"/>
+            <column name="provisions" type="clob" size="-1"/>
+            <column name="updateTraceLevel" type="varchar" size="20"/>
+            <column name="ACCOUNTPOLICY_ID" type="varchar" size="36"/>
+            <column name="CONNECTOR_ID" type="varchar" size="36"/>
+            <column name="INBOUNDPOLICY_ID" type="varchar" size="36"/>
+            <column name="PASSWORDPOLICY_ID" type="varchar" size="36"/>
+            <column name="PROPAGATIONPOLICY_ID" type="varchar" size="36"/>
+            <column name="PROVISIONSORTER_ID" type="varchar" size="255"/>
+            <column name="PUSHPOLICY_ID" type="varchar" size="36"/>
+            <fk to-table="AccountPolicy" column="ACCOUNTPOLICY_ID"/>
+            <fk to-table="ConnInstance" column="CONNECTOR_ID"/>
+            <fk to-table="InboundPolicy" column="INBOUNDPOLICY_ID"/>
+            <fk to-table="PasswordPolicy" column="PASSWORDPOLICY_ID"/>
+            <fk to-table="PropagationPolicy" column="PROPAGATIONPOLICY_ID"/>
+            <fk to-table="Implementation" column="PROVISIONSORTER_ID"/>
+            <fk to-table="PushPolicy" column="PUSHPOLICY_ID"/>
+            <index name="I_XTRNSRC_ACCOUNTPOLICY" column="ACCOUNTPOLICY_ID"/>
+            <index name="I_XTRNSRC_CONNECTOR" column="CONNECTOR_ID"/>
+            <index name="I_XTRNSRC_INBOUNDPOLICY" column="INBOUNDPOLICY_ID"/>
+            <index name="I_XTRNSRC_PASSWORDPOLICY" column="PASSWORDPOLICY_ID"/>
+            <index name="I_XTRNSRC_PROPAGATIONPOLICY" column="PROPAGATIONPOLICY_ID"/>
+            <index name="I_XTRNSRC_PROVISIONSORTER" column="PROVISIONSORTER_ID"/>
+            <index name="I_XTRNSRC_PUSHPOLICY" column="PUSHPOLICY_ID"/>
+        </table>
+        <table name="ExternalResourcePropAction">
+            <column name="resource_id" type="varchar" size="255"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="ExternalResource" column="resource_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_XTRNCTN_ELEMENT" column="implementation_id"/>
+            <index name="I_XTRNCTN_RESOURCE_ID" column="resource_id"/>
+            <unique name="U_XTRNCTN_RESOURCE_ID">
+                <on column="resource_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="FIQLQuery">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="fiql" type="varchar" size="255"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="target" type="varchar" size="255"/>
+            <column name="OWNER_ID" type="varchar" size="36"/>
+            <fk to-table="SyncopeUser" column="OWNER_ID"/>
+            <index name="I_FQLQURY_OWNER" column="OWNER_ID"/>
+            <unique name="U_FQLQURY_OWNER_ID">
+                <on column="OWNER_ID"/>
+                <on column="name"/>
+            </unique>
+        </table>
+        <table name="FormPropertyDef">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="datePattern" type="varchar" size="255"/>
+            <column name="dropdownFreeForm" type="bit"/>
+            <column name="dropdownSingleSelection" type="bit"/>
+            <column name="enumValues" type="clob" size="-1"/>
+            <column name="idx" type="integer"/>
+            <column name="labels" type="clob" size="-1"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="readable" type="bit"/>
+            <column name="required" type="bit"/>
+            <column name="stringRegEx" type="varchar" size="255"/>
+            <column name="type" type="varchar" size="20"/>
+            <column name="writable" type="bit"/>
+            <column name="MACROTASK_ID" type="varchar" size="36"/>
+            <fk to-table="MacroTask" column="MACROTASK_ID"/>
+            <index name="I_FRMPYDF_MACROTASK" column="MACROTASK_ID"/>
+        </table>
+        <table name="GRelationship">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="group_id" type="varchar" size="36"/>
+            <column name="anyObject_id" type="varchar" size="36"/>
+            <column name="TYPE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeGroup" column="group_id"/>
+            <fk to-table="AnyObject" column="anyObject_id"/>
+            <fk to-table="RelationshipType" column="TYPE_ID"/>
+            <index name="I_GRLTSHP_LEFTEND" column="group_id"/>
+            <index name="I_GRLTSHP_RIGHTEND" column="anyObject_id"/>
+            <index name="I_GRLTSHP_TYPE" column="TYPE_ID"/>
+            <unique name="U_GRLTSHP_TYPE_ID">
+                <on column="TYPE_ID"/>
+                <on column="group_id"/>
+                <on column="anyObject_id"/>
+            </unique>
+        </table>
+        <table name="Implementation">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="body" type="clob" size="-1"/>
+            <column name="engine" type="varchar" not-null="true" size="20"/>
+            <column name="type" type="varchar" not-null="true" size="255"/>
+        </table>
+        <table name="InboundCorrelationRuleEntity">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="INBOUNDPOLICY_ID" type="varchar" size="36"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <column name="IMPLEMENTATION_ID" type="varchar" size="255"/>
+            <fk to-table="InboundPolicy" column="INBOUNDPOLICY_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="Implementation" column="IMPLEMENTATION_ID"/>
+            <index name="I_NBNDTTY_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_NBNDTTY_IMPLEMENTATION" column="IMPLEMENTATION_ID"/>
+            <index name="I_NBNDTTY_INBOUNDPOLICY" column="INBOUNDPOLICY_ID"/>
+            <unique name="U_NBNDTTY_INBOUNDPOLICY_ID">
+                <on column="INBOUNDPOLICY_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="InboundPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="conflictResolutionAction" type="varchar" size="20"/>
+        </table>
+        <table name="JobStatus">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="jobStatus" type="varchar" size="255"/>
+        </table>
+        <table name="LinkedAccount">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="cipherAlgorithm" type="varchar" size="20"/>
+            <column name="connObjectKeyValue" type="varchar" size="255"/>
+            <column name="password" type="varchar" size="255"/>
+            <column name="plainAttrs" type="clob" type-name="jsonb" size="-1"/>
+            <column name="suspended" type="bit"/>
+            <column name="username" type="varchar" size="255"/>
+            <column name="OWNER_ID" type="varchar" size="36"/>
+            <column name="RESOURCE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeUser" column="OWNER_ID"/>
+            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
+            <index name="I_LNKDCNT_OWNER" column="OWNER_ID"/>
+            <index name="I_LNKDCNT_RESOURCE" column="RESOURCE_ID"/>
+            <unique name="U_LNKDCNT_CONNOBJECTKEYVALUE">
+                <on column="connObjectKeyValue"/>
+                <on column="RESOURCE_ID"/>
+            </unique>
+        </table>
+        <table name="LiveSyncTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="cronExpression" type="varchar" size="255"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="startAt" type="timestamp"/>
+            <column name="concurrentSettings" type="clob" size="-1"/>
+            <column name="matchingRule" type="varchar" size="20"/>
+            <column name="performCreate" type="bit"/>
+            <column name="performDelete" type="bit"/>
+            <column name="performUpdate" type="bit"/>
+            <column name="syncStatus" type="bit"/>
+            <column name="unmatchingRule" type="varchar" size="20"/>
+            <column name="remediation" type="bit"/>
+            <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
+            <column name="RESOURCE_ID" type="varchar" size="255"/>
+            <column name="DESTINATIONREALM_ID" type="varchar" size="36"/>
+            <column name="LIVESYNCDELTAMAPPER_ID" type="varchar" size="255"/>
+            <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
+            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
+            <fk to-table="Realm" column="DESTINATIONREALM_ID"/>
+            <fk to-table="Implementation" column="LIVESYNCDELTAMAPPER_ID"/>
+            <index name="I_LVSYTSK_DESTINATIONREALM" column="DESTINATIONREALM_ID"/>
+            <index name="I_LVSYTSK_JOBDELEGATE" column="JOBDELEGATE_ID"/>
+            <index name="I_LVSYTSK_LIVESYNCDELTAMAPPER" column="LIVESYNCDELTAMAPPER_ID"/>
+            <index name="I_LVSYTSK_RESOURCE" column="RESOURCE_ID"/>
+            <unique name="U_LVSYTSK_NAME" column="name"/>
+            <unique name="U_LVSYTSK_RESOURCE_ID" column="RESOURCE_ID"/>
+        </table>
+        <table name="LiveSyncTaskAction">
+            <column name="task_id" type="varchar" size="36"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="LiveSyncTask" column="task_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_LVSYCTN_ELEMENT" column="implementation_id"/>
+            <index name="I_LVSYCTN_TASK_ID" column="task_id"/>
+            <unique name="U_LVSYCTN_TASK_ID">
+                <on column="task_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="LiveSyncTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="LiveSyncTask" column="TASK_ID"/>
+            <index name="I_LVSYKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="MacroTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="cronExpression" type="varchar" size="255"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="startAt" type="timestamp"/>
+            <column name="continueOnError" type="bit"/>
+            <column name="saveExecs" type="bit"/>
+            <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
+            <column name="MACROACTIONS_ID" type="varchar" size="255"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
+            <fk to-table="Implementation" column="MACROACTIONS_ID"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <index name="I_MCROTSK_JOBDELEGATE" column="JOBDELEGATE_ID"/>
+            <index name="I_MCROTSK_MACROACTIONS" column="MACROACTIONS_ID"/>
+            <index name="I_MCROTSK_REALM" column="REALM_ID"/>
+            <unique name="U_MCROTSK_NAME" column="name"/>
+        </table>
+        <table name="MacroTaskCommand">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="args" type="clob" size="-1"/>
+            <column name="idx" type="integer"/>
+            <column name="MACROTASK_ID" type="varchar" size="36"/>
+            <column name="COMMAND_ID" type="varchar" size="255"/>
+            <fk to-table="MacroTask" column="MACROTASK_ID"/>
+            <fk to-table="Implementation" column="COMMAND_ID"/>
+            <index name="I_MCRTMND_COMMAND" column="COMMAND_ID"/>
+            <index name="I_MCRTMND_MACROTASK" column="MACROTASK_ID"/>
+        </table>
+        <table name="MacroTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="MacroTask" column="TASK_ID"/>
+            <index name="I_MCRTKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="MailTemplate">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="htmlTemplate" type="clob" size="-1"/>
+            <column name="textTemplate" type="clob" size="-1"/>
+        </table>
+        <table name="NetworkService">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="address" type="varchar" size="255"/>
+            <column name="type" type="varchar" size="20"/>
+            <unique name="U_NTWRRVC_TYPE">
+                <on column="type"/>
+                <on column="address"/>
+            </unique>
+        </table>
+        <table name="Notification">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="events" type="clob" size="-1"/>
+            <column name="recipientAttrName" type="varchar" size="255"/>
+            <column name="recipientsFIQL" type="varchar" size="255"/>
+            <column name="selfAsRecipient" type="bit"/>
+            <column name="sender" type="varchar" size="255"/>
+            <column name="staticRecipients" type="clob" size="-1"/>
+            <column name="subject" type="varchar" size="255"/>
+            <column name="traceLevel" type="varchar" size="20"/>
+            <column name="RECIPIENTSPROVIDER_ID" type="varchar" size="255"/>
+            <column name="template_id" type="varchar" size="255"/>
+            <fk to-table="Implementation" column="RECIPIENTSPROVIDER_ID"/>
+            <fk to-table="MailTemplate" column="template_id"/>
+            <index name="I_NTFCTON_RECIPIENTSPROVIDER" column="RECIPIENTSPROVIDER_ID"/>
+            <index name="I_NTFCTON_TEMPLATE" column="template_id"/>
+        </table>
+        <table name="NotificationTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="anyTypeKind" type="varchar" size="20"/>
+            <column name="entityKey" type="varchar" size="255"/>
+            <column name="executed" type="bit"/>
+            <column name="htmlBody" type="clob" size="-1"/>
+            <column name="recipients" type="clob" size="-1"/>
+            <column name="sender" type="varchar" size="255"/>
+            <column name="subject" type="varchar" size="255"/>
+            <column name="textBody" type="clob" size="-1"/>
+            <column name="traceLevel" type="varchar" size="20"/>
+            <column name="NOTIFICATION_ID" type="varchar" size="36"/>
+            <fk to-table="Notification" column="NOTIFICATION_ID"/>
+            <index name="I_NTFCTSK_NOTIFICATION" column="NOTIFICATION_ID"/>
+        </table>
+        <table name="NotificationTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="NotificationTask" column="TASK_ID"/>
+            <index name="I_NTFCKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="OIDCJWKS">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="json" type="clob" not-null="true" size="-1"/>
+        </table>
+        <table name="OIDCRPClientApp">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="clientAppId" type="bigint" not-null="true"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="informationUrl" type="varchar" size="255"/>
+            <column name="logo" type="varchar" size="255"/>
+            <column name="logoutType" type="varchar" size="20"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="privacyUrl" type="varchar" size="255"/>
+            <column name="properties" type="clob" size="-1"/>
+            <column name="theme" type="varchar" size="255"/>
+            <column name="usernameAttributeProviderConf" type="clob" size="-1"/>
+            <column name="bypassApprovalPrompt" type="bit"/>
+            <column name="clientId" type="varchar" not-null="true" size="255"/>
+            <column name="clientSecret" type="varchar" size="255"/>
+            <column name="generateRefreshToken" type="bit"/>
+            <column name="jwks" type="clob" size="-1"/>
+            <column name="jwksUri" type="varchar" size="255"/>
+            <column name="jwtAccessToken" type="bit"/>
+            <column name="logoutUri" type="varchar" size="255"/>
+            <column name="redirectUris" type="clob" size="-1"/>
+            <column name="scopes" type="clob" size="-1"/>
+            <column name="signIdToken" type="bit"/>
+            <column name="subjectType" type="varchar" size="20"/>
+            <column name="supportedGrantTypes" type="clob" size="-1"/>
+            <column name="supportedResponseTypes" type="clob" size="-1"/>
+            <column name="tokenEndpointAuthenticationMethod" type="varchar" size="20"/>
+            <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
+            <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
+            <column name="AUTHPOLICY_ID" type="varchar" size="36"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="TICKETEXPIRATIONPOLICY_ID" type="varchar" size="36"/>
+            <fk to-table="AccessPolicy" column="ACCESSPOLICY_ID"/>
+            <fk to-table="AttrReleasePolicy" column="ATTRRELEASEPOLICY_ID"/>
+            <fk to-table="AuthPolicy" column="AUTHPOLICY_ID"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="TicketExpirationPolicy" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_DCRPTPP_ACCESSPOLICY" column="ACCESSPOLICY_ID"/>
+            <index name="I_DCRPTPP_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
+            <index name="I_DCRPTPP_AUTHPOLICY" column="AUTHPOLICY_ID"/>
+            <index name="I_DCRPTPP_REALM" column="REALM_ID"/>
+            <index name="I_DCRPTPP_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <unique name="U_DCRPTPP_CLIENTAPPID" column="clientAppId"/>
+            <unique name="U_DCRPTPP_NAME" column="name"/>
+            <unique name="U_DCRPTPP_CLIENTID" column="clientId"/>
+        </table>
+        <table name="PasswordPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="allowNullPassword" type="bit"/>
+            <column name="historyLength" type="integer"/>
+        </table>
+        <table name="PasswordPolicyRule">
+            <column name="policy_id" type="varchar" size="36"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="PasswordPolicy" column="policy_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_PSSWYRL_ELEMENT" column="implementation_id"/>
+            <index name="I_PSSWYRL_POLICY_ID" column="policy_id"/>
+            <unique name="U_PSSWYRL_POLICY_ID">
+                <on column="policy_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="PlainSchema">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="cipherAlgorithm" type="varchar" size="20"/>
+            <column name="conversionPattern" type="varchar" size="255"/>
+            <column name="enumValues" type="clob" size="-1"/>
+            <column name="mandatoryCondition" type="varchar" size="255"/>
+            <column name="mimeType" type="varchar" size="255"/>
+            <column name="multivalue" type="bit"/>
+            <column name="readonly" type="bit"/>
+            <column name="secretKey" type="varchar" size="255"/>
+            <column name="type" type="varchar" size="20"/>
+            <column name="uniqueConstraint" type="bit"/>
+            <column name="ANYTYPECLASS_ID" type="varchar" size="255"/>
+            <column name="DROPDOWNVALUEPROVIDER_ID" type="varchar" size="255"/>
+            <column name="VALIDATOR_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeSchema" column="id"/>
+            <fk to-table="AnyTypeClass" column="ANYTYPECLASS_ID"/>
+            <fk to-table="Implementation" column="DROPDOWNVALUEPROVIDER_ID"/>
+            <fk to-table="Implementation" column="VALIDATOR_ID"/>
+            <index name="I_PLNSCHM_ANYTYPECLASS" column="ANYTYPECLASS_ID"/>
+            <index name="I_PLNSCHM_DROPDOWNVALUEPROVIDER" column="DROPDOWNVALUEPROVIDER_ID"/>
+            <index name="I_PLNSCHM_VALIDATOR" column="VALIDATOR_ID"/>
+        </table>
+        <table name="PropagationPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="backOffParams" type="varchar" size="255"/>
+            <column name="backOffStrategy" type="varchar" size="20"/>
+            <column name="fetchAroundProvisioning" type="bit"/>
+            <column name="maxAttempts" type="integer"/>
+            <column name="updateDelta" type="bit"/>
+        </table>
+        <table name="PropagationTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="anyType" type="varchar" size="255"/>
+            <column name="anyTypeKind" type="varchar" size="20"/>
+            <column name="connObjectKey" type="varchar" size="255"/>
+            <column name="entityKey" type="varchar" size="255"/>
+            <column name="objectClassName" type="varchar" size="255"/>
+            <column name="oldConnObjectKey" type="varchar" size="255"/>
+            <column name="operation" type="varchar" size="20"/>
+            <column name="propagationData" type="clob" size="-1"/>
+            <column name="RESOURCE_ID" type="varchar" size="255"/>
+            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
+            <index name="I_PRPGTSK_RESOURCE" column="RESOURCE_ID"/>
+        </table>
+        <table name="PropagationTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="PropagationTask" column="TASK_ID"/>
+            <index name="I_PRPGKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="PullTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="cronExpression" type="varchar" size="255"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="startAt" type="timestamp"/>
+            <column name="concurrentSettings" type="clob" size="-1"/>
+            <column name="matchingRule" type="varchar" size="20"/>
+            <column name="performCreate" type="bit"/>
+            <column name="performDelete" type="bit"/>
+            <column name="performUpdate" type="bit"/>
+            <column name="syncStatus" type="bit"/>
+            <column name="unmatchingRule" type="varchar" size="20"/>
+            <column name="remediation" type="bit"/>
+            <column name="pullMode" type="varchar" size="23"/>
+            <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
+            <column name="RESOURCE_ID" type="varchar" size="255"/>
+            <column name="DESTINATIONREALM_ID" type="varchar" size="36"/>
+            <column name="RECONFILTERBUILDER_ID" type="varchar" size="255"/>
+            <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
+            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
+            <fk to-table="Realm" column="DESTINATIONREALM_ID"/>
+            <fk to-table="Implementation" column="RECONFILTERBUILDER_ID"/>
+            <index name="I_PULLTSK_DESTINATIONREALM" column="DESTINATIONREALM_ID"/>
+            <index name="I_PULLTSK_JOBDELEGATE" column="JOBDELEGATE_ID"/>
+            <index name="I_PULLTSK_RECONFILTERBUILDER" column="RECONFILTERBUILDER_ID"/>
+            <index name="I_PULLTSK_RESOURCE" column="RESOURCE_ID"/>
+            <unique name="U_PULLTSK_NAME" column="name"/>
+        </table>
+        <table name="PullTaskAction">
+            <column name="task_id" type="varchar" size="36"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="PullTask" column="task_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_PLLTCTN_ELEMENT" column="implementation_id"/>
+            <index name="I_PLLTCTN_TASK_ID" column="task_id"/>
+            <unique name="U_PLLTCTN_TASK_ID">
+                <on column="task_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="PullTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="PullTask" column="TASK_ID"/>
+            <index name="I_PLLTKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="PushCorrelationRuleEntity">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="PUSHPOLICY_ID" type="varchar" size="36"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <column name="IMPLEMENTATION_ID" type="varchar" size="255"/>
+            <fk to-table="PushPolicy" column="PUSHPOLICY_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="Implementation" column="IMPLEMENTATION_ID"/>
+            <index name="I_PSHCTTY_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_PSHCTTY_IMPLEMENTATION" column="IMPLEMENTATION_ID"/>
+            <index name="I_PSHCTTY_PUSHPOLICY" column="PUSHPOLICY_ID"/>
+            <unique name="U_PSHCTTY_PUSHPOLICY_ID">
+                <on column="PUSHPOLICY_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="PushPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="conflictResolutionAction" type="varchar" size="20"/>
+        </table>
+        <table name="PushTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="cronExpression" type="varchar" size="255"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="startAt" type="timestamp"/>
+            <column name="concurrentSettings" type="clob" size="-1"/>
+            <column name="matchingRule" type="varchar" size="20"/>
+            <column name="performCreate" type="bit"/>
+            <column name="performDelete" type="bit"/>
+            <column name="performUpdate" type="bit"/>
+            <column name="syncStatus" type="bit"/>
+            <column name="unmatchingRule" type="varchar" size="20"/>
+            <column name="filters" type="clob" size="-1"/>
+            <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
+            <column name="RESOURCE_ID" type="varchar" size="255"/>
+            <column name="SOURCEREALM_ID" type="varchar" size="36"/>
+            <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
+            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
+            <fk to-table="Realm" column="SOURCEREALM_ID"/>
+            <index name="I_PUSHTSK_JOBDELEGATE" column="JOBDELEGATE_ID"/>
+            <index name="I_PUSHTSK_RESOURCE" column="RESOURCE_ID"/>
+            <index name="I_PUSHTSK_SOURCEREALM" column="SOURCEREALM_ID"/>
+            <unique name="U_PUSHTSK_NAME" column="name"/>
+        </table>
+        <table name="PushTaskAction">
+            <column name="task_id" type="varchar" size="36"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="PushTask" column="task_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_PSHTCTN_ELEMENT" column="implementation_id"/>
+            <index name="I_PSHTCTN_TASK_ID" column="task_id"/>
+            <unique name="U_PSHTCTN_TASK_ID">
+                <on column="task_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="PushTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="PushTask" column="TASK_ID"/>
+            <index name="I_PSHTKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="Realm">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="fullPath" type="varchar" not-null="true" size="255"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
+            <column name="ACCOUNTPOLICY_ID" type="varchar" size="36"/>
+            <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
+            <column name="AUTHPOLICY_ID" type="varchar" size="36"/>
+            <column name="PARENT_ID" type="varchar" size="36"/>
+            <column name="PASSWORDPOLICY_ID" type="varchar" size="36"/>
+            <column name="TICKETEXPIRATIONPOLICY_ID" type="varchar" size="36"/>
+            <fk to-table="AccessPolicy" column="ACCESSPOLICY_ID"/>
+            <fk to-table="AccountPolicy" column="ACCOUNTPOLICY_ID"/>
+            <fk to-table="AttrReleasePolicy" column="ATTRRELEASEPOLICY_ID"/>
+            <fk to-table="AuthPolicy" column="AUTHPOLICY_ID"/>
+            <fk to-table="Realm" column="PARENT_ID"/>
+            <fk to-table="PasswordPolicy" column="PASSWORDPOLICY_ID"/>
+            <fk to-table="TicketExpirationPolicy" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_REALM_ACCESSPOLICY" column="ACCESSPOLICY_ID"/>
+            <index name="I_REALM_ACCOUNTPOLICY" column="ACCOUNTPOLICY_ID"/>
+            <index name="I_REALM_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
+            <index name="I_REALM_AUTHPOLICY" column="AUTHPOLICY_ID"/>
+            <index name="I_REALM_PARENT" column="PARENT_ID"/>
+            <index name="I_REALM_PASSWORDPOLICY" column="PASSWORDPOLICY_ID"/>
+            <index name="I_REALM_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <unique name="U_REALM_FULLPATH" column="fullPath"/>
+            <unique name="U_REALM_NAME">
+                <on column="name"/>
+                <on column="PARENT_ID"/>
+            </unique>
+        </table>
+        <table name="RealmAction">
+            <column name="realm_id" type="varchar" size="36"/>
+            <column name="implementation_id" type="varchar" size="255"/>
+            <fk to-table="Realm" column="realm_id"/>
+            <fk to-table="Implementation" column="implementation_id"/>
+            <index name="I_RLMCTON_ELEMENT" column="implementation_id"/>
+            <index name="I_RLMCTON_REALM_ID" column="realm_id"/>
+            <unique name="U_RLMCTON_REALM_ID">
+                <on column="realm_id"/>
+                <on column="implementation_id"/>
+            </unique>
+        </table>
+        <table name="Realm_ExternalResource">
+            <column name="realm_id" type="varchar" size="36"/>
+            <column name="resource_id" type="varchar" size="255"/>
+            <fk to-table="Realm" column="realm_id"/>
+            <fk to-table="ExternalResource" column="resource_id"/>
+            <index name="I_RLM_SRC_ELEMENT" column="resource_id"/>
+            <index name="I_RLM_SRC_REALM_ID" column="realm_id"/>
+            <unique name="U_RLM_SRC_REALM_ID">
+                <on column="realm_id"/>
+                <on column="resource_id"/>
+            </unique>
+        </table>
+        <table name="RelationshipType">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="LEFTENDANYTYPE_ID" type="varchar" size="255"/>
+            <column name="RIGHTENDANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="AnyType" column="LEFTENDANYTYPE_ID"/>
+            <fk to-table="AnyType" column="RIGHTENDANYTYPE_ID"/>
+            <index name="I_RLTNTYP_LEFTENDANYTYPE" column="LEFTENDANYTYPE_ID"/>
+            <index name="I_RLTNTYP_RIGHTENDANYTYPE" column="RIGHTENDANYTYPE_ID"/>
+        </table>
+        <table name="Remediation">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="error" type="clob" size="-1"/>
+            <column name="instant" type="timestamp"/>
+            <column name="operation" type="varchar" size="20"/>
+            <column name="payload" type="clob" size="-1"/>
+            <column name="remoteName" type="varchar" size="255"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <column name="PULLTASK_ID" type="varchar" size="36"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="PullTask" column="PULLTASK_ID"/>
+            <index name="I_RMDTION_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_RMDTION_PULLTASK" column="PULLTASK_ID"/>
+        </table>
+        <table name="Report">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="cronExpression" type="varchar" size="255"/>
+            <column name="fileExt" type="varchar" size="255"/>
+            <column name="mimeType" type="varchar" size="255"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
+            <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
+            <index name="I_REPORT_JOBDELEGATE" column="JOBDELEGATE_ID"/>
+            <unique name="U_REPORT_NAME" column="name"/>
+        </table>
+        <table name="ReportExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="execResult" type="blob" size="-1"/>
+            <column name="REPORT_ID" type="varchar" size="36"/>
+            <fk to-table="Report" column="REPORT_ID"/>
+            <index name="I_RPORTXC_REPORT" column="REPORT_ID"/>
+        </table>
+        <table name="SAML2IdPEntity">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="encryptionCertificate" type="blob" size="-1"/>
+            <column name="encryptionKey" type="blob" size="-1"/>
+            <column name="metadata" type="blob" not-null="true" size="-1"/>
+            <column name="signingCertificate" type="blob" size="-1"/>
+            <column name="signingKey" type="blob" size="-1"/>
+        </table>
+        <table name="SAML2SPClientApp">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="clientAppId" type="bigint" not-null="true"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="informationUrl" type="varchar" size="255"/>
+            <column name="logo" type="varchar" size="255"/>
+            <column name="logoutType" type="varchar" size="20"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="privacyUrl" type="varchar" size="255"/>
+            <column name="properties" type="clob" size="-1"/>
+            <column name="theme" type="varchar" size="255"/>
+            <column name="usernameAttributeProviderConf" type="clob" size="-1"/>
+            <column name="assertionAudiences" type="clob" size="-1"/>
+            <column name="encryptAssertions" type="bit"/>
+            <column name="encBlAlg" type="clob" size="-1"/>
+            <column name="encDataAlg" type="clob" size="-1"/>
+            <column name="encKeyAlg" type="clob" size="-1"/>
+            <column name="encryptionOptional" type="bit"/>
+            <column name="entityId" type="varchar" not-null="true" size="255"/>
+            <column name="metadataLocation" type="varchar" not-null="true" size="255"/>
+            <column name="metadataSignatureLocation" type="varchar" size="255"/>
+            <column name="nameIdQualifier" type="varchar" size="255"/>
+            <column name="reqAuthnContextClass" type="varchar" size="255"/>
+            <column name="requiredNameIdFormat" type="smallint"/>
+            <column name="spNameIdQualifier" type="varchar" size="255"/>
+            <column name="signAssertions" type="bit"/>
+            <column name="signResponses" type="bit"/>
+            <column name="sigAlgs" type="clob" size="-1"/>
+            <column name="sigBlAlg" type="clob" size="-1"/>
+            <column name="sigRefDigestMethod" type="clob" size="-1"/>
+            <column name="skewAllowance" type="integer"/>
+            <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
+            <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
+            <column name="AUTHPOLICY_ID" type="varchar" size="36"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="TICKETEXPIRATIONPOLICY_ID" type="varchar" size="36"/>
+            <fk to-table="AccessPolicy" column="ACCESSPOLICY_ID"/>
+            <fk to-table="AttrReleasePolicy" column="ATTRRELEASEPOLICY_ID"/>
+            <fk to-table="AuthPolicy" column="AUTHPOLICY_ID"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="TicketExpirationPolicy" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <index name="I_SML2TPP_ACCESSPOLICY" column="ACCESSPOLICY_ID"/>
+            <index name="I_SML2TPP_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
+            <index name="I_SML2TPP_AUTHPOLICY" column="AUTHPOLICY_ID"/>
+            <index name="I_SML2TPP_REALM" column="REALM_ID"/>
+            <index name="I_SML2TPP_TICKETEXPIRATIONPOLICY" column="TICKETEXPIRATIONPOLICY_ID"/>
+            <unique name="U_SML2TPP_CLIENTAPPID" column="clientAppId"/>
+            <unique name="U_SML2TPP_NAME" column="name"/>
+            <unique name="U_SML2TPP_ENTITYID" column="entityId"/>
+        </table>
+        <table name="SAML2SPEntity">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="keystore" type="blob" size="-1"/>
+            <column name="metadata" type="blob" size="-1"/>
+        </table>
+        <table name="SRARoute">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="csrf" type="bit"/>
+            <column name="error" type="varchar" size="255"/>
+            <column name="filters" type="clob" size="-1"/>
+            <column name="logout" type="bit"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="postLogout" type="varchar" size="255"/>
+            <column name="predicates" type="clob" size="-1"/>
+            <column name="routeOrder" type="integer"/>
+            <column name="routeType" type="varchar" size="20"/>
+            <column name="target" type="varchar" size="255"/>
+            <unique name="U_SRROUTE_NAME" column="name"/>
+        </table>
+        <table name="SchedTask">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="active" type="bit"/>
+            <column name="cronExpression" type="varchar" size="255"/>
+            <column name="description" type="varchar" size="255"/>
+            <column name="name" type="varchar" not-null="true" size="255"/>
+            <column name="startAt" type="timestamp"/>
+            <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
+            <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
+            <index name="I_SCHDTSK_JOBDELEGATE" column="JOBDELEGATE_ID"/>
+            <unique name="U_SCHDTSK_NAME" column="name"/>
+        </table>
+        <table name="SchedTaskExec">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="endDate" type="timestamp"/>
+            <column name="executor" type="varchar" size="255"/>
+            <column name="message" type="clob" size="-1"/>
+            <column name="startDate" type="timestamp" not-null="true"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="TASK_ID" type="varchar" size="36"/>
+            <fk to-table="SchedTask" column="TASK_ID"/>
+            <fk to-table="PullTask" column="TASK_ID"/>
+            <fk to-table="PushTask" column="TASK_ID"/>
+            <fk to-table="MacroTask" column="TASK_ID"/>
+            <fk to-table="LiveSyncTask" column="TASK_ID"/>
+            <index name="I_SCHDKXC_TASK" column="TASK_ID"/>
+        </table>
+        <table name="SecurityQuestion">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="content" type="varchar" size="255"/>
+            <unique name="U_SCRTSTN_CONTENT" column="content"/>
+        </table>
+        <table name="SyncopeBatch">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="expiryTime" type="timestamp"/>
+            <column name="results" type="clob" size="-1"/>
+        </table>
+        <table name="SyncopeDomain">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="spec" type="clob" size="-1"/>
+        </table>
+        <table name="SyncopeGroup">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="creationContext" type="varchar" size="255"/>
+            <column name="creationDate" type="timestamp"/>
+            <column name="creator" type="varchar" size="255"/>
+            <column name="lastChangeContext" type="varchar" size="255"/>
+            <column name="lastChangeDate" type="timestamp"/>
+            <column name="lastModifier" type="varchar" size="255"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="plainAttrs" type="clob" type-name="jsonb" size="-1"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="GROUPOWNER_ID" type="varchar" size="36"/>
+            <column name="USEROWNER_ID" type="varchar" size="36"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="SyncopeGroup" column="GROUPOWNER_ID"/>
+            <fk to-table="SyncopeUser" column="USEROWNER_ID"/>
+            <index name="I_SYNCGRP_GROUPOWNER" column="GROUPOWNER_ID"/>
+            <index name="I_SYNCGRP_REALM" column="REALM_ID"/>
+            <index name="I_SYNCGRP_USEROWNER" column="USEROWNER_ID"/>
+            <unique name="U_SYNCGRP_NAME" column="name"/>
+        </table>
+        <table name="SyncopeGroup_AnyTypeClass">
+            <column name="group_id" type="varchar" size="36"/>
+            <column name="anyTypeClass_id" type="varchar" size="255"/>
+            <fk to-table="SyncopeGroup" column="group_id"/>
+            <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
+            <index name="I_SYNCLSS_ELEMENT" column="anyTypeClass_id"/>
+            <index name="I_SYNCLSS_GROUP_ID" column="group_id"/>
+            <unique name="U_SYNCLSS_GROUP_ID">
+                <on column="group_id"/>
+                <on column="anyTypeClass_id"/>
+            </unique>
+        </table>
+        <table name="SyncopeGroup_ExternalResource">
+            <column name="group_id" type="varchar" size="36"/>
+            <column name="resource_id" type="varchar" size="255"/>
+            <fk to-table="SyncopeGroup" column="group_id"/>
+            <fk to-table="ExternalResource" column="resource_id"/>
+            <index name="I_SYNCSRC_ELEMENT" column="resource_id"/>
+            <index name="I_SYNCSRC_GROUP_ID" column="group_id"/>
+            <unique name="U_SYNCSRC_GROUP_ID">
+                <on column="group_id"/>
+                <on column="resource_id"/>
+            </unique>
+        </table>
+        <table name="SyncopeRole">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="anyLayout" type="clob" size="-1"/>
+            <column name="dynMembershipCond" type="varchar" size="255"/>
+            <column name="entitlements" type="clob" size="-1"/>
+        </table>
+        <table name="SyncopeRole_DynRealm">
+            <column name="role_id" type="varchar" size="255"/>
+            <column name="dynamicRealm_id" type="varchar" size="255"/>
+            <fk to-table="SyncopeRole" column="role_id"/>
+            <fk to-table="DynRealm" column="dynamicRealm_id"/>
+            <index name="I_SYNCRLM_ELEMENT" column="dynamicRealm_id"/>
+            <index name="I_SYNCRLM_ROLE_ID" column="role_id"/>
+            <unique name="U_SYNCRLM_ROLE_ID">
+                <on column="role_id"/>
+                <on column="dynamicRealm_id"/>
+            </unique>
+        </table>
+        <table name="SyncopeRole_Realm">
+            <column name="role_id" type="varchar" size="255"/>
+            <column name="realm_id" type="varchar" size="36"/>
+            <fk to-table="SyncopeRole" column="role_id"/>
+            <fk to-table="Realm" column="realm_id"/>
+            <index name="I_SYNCRLM_ELEMENT1" column="realm_id"/>
+            <index name="I_SYNCRLM_ROLE_ID1" column="role_id"/>
+            <unique name="U_SYNCRLM_ROLE_ID1">
+                <on column="role_id"/>
+                <on column="realm_id"/>
+            </unique>
+        </table>
+        <table name="SyncopeSchema">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="labels" type="clob" size="-1"/>
+        </table>
+        <table name="SyncopeUser">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="creationContext" type="varchar" size="255"/>
+            <column name="creationDate" type="timestamp"/>
+            <column name="creator" type="varchar" size="255"/>
+            <column name="lastChangeContext" type="varchar" size="255"/>
+            <column name="lastChangeDate" type="timestamp"/>
+            <column name="lastModifier" type="varchar" size="255"/>
+            <column name="status" type="varchar" size="255"/>
+            <column name="changePwdDate" type="timestamp"/>
+            <column name="cipherAlgorithm" type="varchar" size="20"/>
+            <column name="failedLogins" type="integer"/>
+            <column name="lastLoginDate" type="timestamp"/>
+            <column name="mustChangePassword" type="bit"/>
+            <column name="password" type="varchar" size="255"/>
+            <column name="passwordHistory" type="clob" size="-1"/>
+            <column name="plainAttrs" type="clob" type-name="jsonb" size="-1"/>
+            <column name="securityAnswer" type="varchar" size="255"/>
+            <column name="suspended" type="bit"/>
+            <column name="token" type="clob" size="-1"/>
+            <column name="tokenExpireTime" type="timestamp"/>
+            <column name="username" type="varchar" size="255"/>
+            <column name="REALM_ID" type="varchar" size="36"/>
+            <column name="SECURITYQUESTION_ID" type="varchar" size="36"/>
+            <fk to-table="Realm" column="REALM_ID"/>
+            <fk to-table="SecurityQuestion" column="SECURITYQUESTION_ID"/>
+            <index name="I_SYNCPSR_REALM" column="REALM_ID"/>
+            <index name="I_SYNCPSR_SECURITYQUESTION" column="SECURITYQUESTION_ID"/>
+            <unique name="U_SYNCPSR_USERNAME" column="username"/>
+        </table>
+        <table name="SyncopeUser_AnyTypeClass">
+            <column name="user_id" type="varchar" size="36"/>
+            <column name="anyTypeClass_id" type="varchar" size="255"/>
+            <fk to-table="SyncopeUser" column="user_id"/>
+            <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
+            <index name="I_SYNCLSS_ELEMENT1" column="anyTypeClass_id"/>
+            <index name="I_SYNCLSS_USER_ID" column="user_id"/>
+            <unique name="U_SYNCLSS_USER_ID">
+                <on column="user_id"/>
+                <on column="anyTypeClass_id"/>
+            </unique>
+        </table>
+        <table name="SyncopeUser_ExternalResource">
+            <column name="user_id" type="varchar" size="36"/>
+            <column name="resource_id" type="varchar" size="255"/>
+            <fk to-table="SyncopeUser" column="user_id"/>
+            <fk to-table="ExternalResource" column="resource_id"/>
+            <index name="I_SYNCSRC_ELEMENT1" column="resource_id"/>
+            <index name="I_SYNCSRC_USER_ID" column="user_id"/>
+            <unique name="U_SYNCSRC_USER_ID">
+                <on column="user_id"/>
+                <on column="resource_id"/>
+            </unique>
+        </table>
+        <table name="SyncopeUser_SyncopeRole">
+            <column name="user_id" type="varchar" size="36"/>
+            <column name="role_id" type="varchar" size="255"/>
+            <fk to-table="SyncopeUser" column="user_id"/>
+            <fk to-table="SyncopeRole" column="role_id"/>
+            <index name="I_SYNCPRL_ELEMENT" column="role_id"/>
+            <index name="I_SYNCPRL_USER_ID" column="user_id"/>
+            <unique name="U_SYNCPRL_USER_ID">
+                <on column="user_id"/>
+                <on column="role_id"/>
+            </unique>
+        </table>
+        <table name="TicketExpirationPolicy">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="name" type="varchar" size="255"/>
+            <column name="jsonConf" type="clob" size="-1"/>
+        </table>
+        <table name="TypeExtension">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="GROUP_ID" type="varchar" size="36"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeGroup" column="GROUP_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <index name="I_TYPXNSN_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_TYPXNSN_GROUP" column="GROUP_ID"/>
+            <unique name="U_TYPXNSN_GROUP_ID">
+                <on column="GROUP_ID"/>
+                <on column="ANYTYPE_ID"/>
+            </unique>
+        </table>
+        <table name="TypeExtension_AnyTypeClass">
+            <column name="typeExtension_id" type="varchar" size="36"/>
+            <column name="anyTypeClass_id" type="varchar" size="255"/>
+            <fk to-table="TypeExtension" column="typeExtension_id"/>
+            <fk to-table="AnyTypeClass" column="anyTypeClass_id"/>
+            <index name="I_TYPXLSS_ELEMENT" column="anyTypeClass_id"/>
+            <index name="I_TYPXLSS_TYPEEXTENSION_ID" column="typeExtension_id"/>
+            <unique name="U_TYPXLSS_TYPEEXTENSION_ID">
+                <on column="typeExtension_id"/>
+                <on column="anyTypeClass_id"/>
+            </unique>
+        </table>
+        <table name="UDynGroupMembership">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="fiql" type="varchar" size="255"/>
+            <column name="GROUP_ID" type="varchar" size="36"/>
+            <fk to-table="SyncopeGroup" column="GROUP_ID"/>
+            <index name="I_DYNGSHP_GROUP1" column="GROUP_ID"/>
+        </table>
+        <table name="UMembership">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="user_id" type="varchar" size="36"/>
+            <column name="group_id" type="varchar" size="36"/>
+            <fk to-table="SyncopeUser" column="user_id"/>
+            <fk to-table="SyncopeGroup" column="group_id"/>
+            <index name="I_MMBRSHP_LEFTEND1" column="user_id"/>
+            <index name="I_MMBRSHP_RIGHTEND1" column="group_id"/>
+        </table>
+        <table name="URelationship">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="user_id" type="varchar" size="36"/>
+            <column name="anyObject_id" type="varchar" size="36"/>
+            <column name="TYPE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeUser" column="user_id"/>
+            <fk to-table="AnyObject" column="anyObject_id"/>
+            <fk to-table="RelationshipType" column="TYPE_ID"/>
+            <index name="I_RLTNSHP_LEFTEND1" column="user_id"/>
+            <index name="I_RLTNSHP_RIGHTEND1" column="anyObject_id"/>
+            <index name="I_RLTNSHP_TYPE1" column="TYPE_ID"/>
+            <unique name="U_RLTNSHP_TYPE_ID1">
+                <on column="TYPE_ID"/>
+                <on column="user_id"/>
+                <on column="anyObject_id"/>
+            </unique>
+        </table>
+        <table name="VirSchema">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="extAttrName" type="varchar" size="255"/>
+            <column name="readonly" type="bit"/>
+            <column name="ANYTYPECLASS_ID" type="varchar" size="255"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
+            <column name="RESOURCE_ID" type="varchar" size="255"/>
+            <fk to-table="SyncopeSchema" column="id"/>
+            <fk to-table="AnyTypeClass" column="ANYTYPECLASS_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
+            <index name="I_VIRSCHM_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_VIRSCHM_ANYTYPECLASS" column="ANYTYPECLASS_ID"/>
+            <index name="I_VIRSCHM_RESOURCE" column="RESOURCE_ID"/>
+        </table>
+        <table name="WAConfigEntry">
+            <pk column="id"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="waConfigValues" type="clob" size="-1"/>
+        </table>
+    </schema>
+</schemas>

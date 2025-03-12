@@ -123,15 +123,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                 builder = processBadRequestExceptions(ex);
             }
             // process JAX-RS validation errors
-            if (builder == null && ex instanceof ValidationException) {
-                builder = builder(validationEM.toResponse((ValidationException) ex)).
+            if (builder == null && ex instanceof final ValidationException validationException) {
+                builder = builder(validationEM.toResponse(validationException)).
                         header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.name()).
                         header(RESTHeaders.ERROR_INFO, ClientExceptionType.RESTValidation.getInfoHeaderValue(
                                 ExceptionUtils.getRootCauseMessage(ex)));
             }
             // process web application exceptions
-            if (builder == null && ex instanceof WebApplicationException) {
-                builder = builder(((WebApplicationException) ex).getResponse()).
+            if (builder == null && ex instanceof final WebApplicationException webApplicationException) {
+                builder = builder(webApplicationException.getResponse()).
                         header(RESTHeaders.ERROR_CODE, ClientExceptionType.Unknown.name()).
                         header(RESTHeaders.ERROR_INFO, ClientExceptionType.Unknown.getInfoHeaderValue(
                                 ExceptionUtils.getRootCauseMessage(ex)));
@@ -204,9 +204,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             iee = invalidEntityException;
         }
         if (ex instanceof TransactionSystemException && ex.getCause() instanceof RollbackException
-                && ex.getCause().getCause() instanceof InvalidEntityException) {
+                && ex.getCause().getCause() instanceof final InvalidEntityException invalidEntityException) {
 
-            iee = (InvalidEntityException) ex.getCause().getCause();
+            iee = invalidEntityException;
         }
 
         if (iee != null) {
@@ -324,6 +324,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
         return Optional.ofNullable(message).
                 orElseGet(() -> Optional.ofNullable(ex.getCause()).
                 map(Throwable::getMessage).
-                orElseGet(() -> ex.getMessage()));
+                orElseGet(ex::getMessage));
     }
 }

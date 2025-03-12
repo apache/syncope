@@ -320,12 +320,10 @@ public final class AnyOperations {
         Map<Pair<String, String>, LinkedAccountTO> originalAccounts =
                 EntityTOUtils.buildLinkedAccountMap(original.getLinkedAccounts());
 
-        updatedAccounts.entrySet().stream().
-                forEachOrdered(entry -> {
-                    result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
-                            operation(PatchOperation.ADD_REPLACE).
-                            linkedAccountTO(entry.getValue()).build());
-                });
+        updatedAccounts.forEach((key, value) ->
+            result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
+                operation(PatchOperation.ADD_REPLACE).
+                linkedAccountTO(value).build()));
 
         if (!incremental) {
             originalAccounts.keySet().stream().filter(account -> !updatedAccounts.containsKey(account)).
@@ -375,12 +373,13 @@ public final class AnyOperations {
     public static <TO extends AnyTO, P extends AnyUR> P diff(
             final TO updated, final TO original, final boolean incremental) {
 
-        if (updated instanceof UserTO && original instanceof UserTO) {
-            return (P) diff((UserTO) updated, (UserTO) original, incremental);
-        } else if (updated instanceof GroupTO && original instanceof GroupTO) {
-            return (P) diff((GroupTO) updated, (GroupTO) original, incremental);
-        } else if (updated instanceof AnyObjectTO && original instanceof AnyObjectTO) {
-            return (P) diff((AnyObjectTO) updated, (AnyObjectTO) original, incremental);
+        if (updated instanceof UserTO updatedUserTO && original instanceof UserTO originalUserTO) {
+            return (P) diff(updatedUserTO, originalUserTO, incremental);
+        } else if (updated instanceof GroupTO updatedGroupTO && original instanceof GroupTO originalGroupTO) {
+            return (P) diff(updatedGroupTO, originalGroupTO, incremental);
+        } else if (updated instanceof AnyObjectTO updatedAnyObjectTO
+            && original instanceof AnyObjectTO originalObjectTO) {
+            return (P) diff(updatedAnyObjectTO, originalObjectTO, incremental);
         }
 
         throw new IllegalArgumentException("Unsupported: " + updated.getClass().getName());
