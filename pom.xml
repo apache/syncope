@@ -432,7 +432,9 @@ under the License.
     <opensearch.version>2.19.1</opensearch.version>
     <opensearch-java.version>2.22.0</opensearch-java.version>
 
-    <docker.openfga.version>v1</docker.openfga.version>
+    <openfga.version>v1</openfga.version>
+
+    <debezium.version>3.0</debezium.version>
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
