@@ -348,10 +348,10 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         propByRes.addAll(ResourceOperation.UPDATE, resources);
 
         UserWorkflowResult<Pair<UserUR, Boolean>> wfResult = new UserWorkflowResult<>(
-                Pair.of(userUR, (Boolean) null), propByRes, null, "update");
+                Pair.of(userUR, null), propByRes, null, "update");
 
         List<PropagationTaskInfo> taskInfos = propagationManager.getUserUpdateTasks(wfResult,
-                userUR.getPassword().getResources(), null);
+                userUR.getPassword() == null ? List.of() : userUR.getPassword().getResources(), null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);
 
         return propagationReporter.getStatuses();
