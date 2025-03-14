@@ -123,7 +123,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 userUR.getKey(),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                userUR.getPassword() != null ? userUR.getPassword().getResources() : List.of(),
+                userUR.getPassword() == null ? List.of() : userUR.getPassword().getResources(),
                 null,
                 Set.of());
 
@@ -163,7 +163,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 userUR.getKey(),
                 Optional.ofNullable(userUR.getPassword()).map(PasswordPatch::getValue).orElse(null),
-                userUR.getPassword() != null ? userUR.getPassword().getResources() : List.of(),
+                userUR.getPassword() == null ? List.of() : userUR.getPassword().getResources(),
                 enabled,
                 excludedResources);
 
