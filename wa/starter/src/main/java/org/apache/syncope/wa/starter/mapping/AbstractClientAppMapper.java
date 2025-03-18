@@ -41,6 +41,7 @@ abstract class AbstractClientAppMapper implements ClientAppMapper {
 
     protected void setCommon(final BaseWebBasedRegisteredService service, final ClientAppTO clientApp) {
         service.setId(clientApp.getClientAppId());
+        service.setEvaluationOrder(clientApp.getEvaluationOrder());
         service.setName(clientApp.getName());
         service.setDescription(clientApp.getDescription());
         service.setLogo(clientApp.getLogo());

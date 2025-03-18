@@ -53,6 +53,8 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     private Long clientAppId;
 
+    private int evaluationOrder;
+
     private String description;
 
     private String logo;
@@ -119,6 +121,14 @@ public abstract class ClientAppTO implements NamedEntityTO {
 
     public void setClientAppId(final Long clientAppId) {
         this.clientAppId = clientAppId;
+    }
+
+    public int getEvaluationOrder() {
+        return evaluationOrder;
+    }
+
+    public void setEvaluationOrder(final int evaluationOrder) {
+        this.evaluationOrder = evaluationOrder;
     }
 
     public String getDescription() {
@@ -222,6 +232,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(key)
                 .append(realm)
                 .append(clientAppId)
+                .append(evaluationOrder)
                 .append(name)
                 .append(description)
                 .append(logo)
@@ -255,6 +266,7 @@ public abstract class ClientAppTO implements NamedEntityTO {
                 .append(this.key, rhs.key)
                 .append(this.realm, rhs.realm)
                 .append(this.clientAppId, rhs.clientAppId)
+                .append(this.evaluationOrder, rhs.evaluationOrder)
                 .append(this.name, rhs.name)
                 .append(this.description, rhs.description)
                 .append(this.logo, rhs.logo)

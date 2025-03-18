@@ -60,6 +60,8 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Column(unique = true, nullable = false)
     private Long clientAppId;
 
+    private int evaluationOrder;
+
     private String description;
 
     private String logo;
@@ -102,6 +104,16 @@ public class AbstractClientApp extends AbstractGeneratedKeyEntity implements Cli
     @Override
     public void setClientAppId(final Long clientAppId) {
         this.clientAppId = clientAppId;
+    }
+
+    @Override
+    public int getEvaluationOrder() {
+        return evaluationOrder;
+    }
+
+    @Override
+    public void setEvaluationOrder(final int evaluationOrder) {
+        this.evaluationOrder = evaluationOrder;
     }
 
     @Override
