@@ -22,17 +22,13 @@ github:
     - request-routing
     - service-mesh
     - microservices
+  dependabot_alerts:  false
+  dependabot_updates: true
   enabled_merge_buttons:
-    # enable squash button:
-    squash:  true
-    # enable merge button:
-    merge:   false
-    # disable rebase button:
-    rebase:  true
-
-  github:
-    dependabot_alerts:  false
-    dependabot_updates: true
+    squash: true
+    squash_commit_message: PR_TITLE
+    merge: false
+    rebase: true
 
   notifications:
     commits:              commits@syncope.apache.org
