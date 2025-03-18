@@ -22,17 +22,18 @@ github:
     - request-routing
     - service-mesh
     - microservices
+  dependabot_alerts:  false
+  dependabot_updates: true
   enabled_merge_buttons:
-    # enable squash button:
-    squash:  true
-    # enable merge button:
-    merge:   false
-    # disable rebase button:
-    rebase:  true
+    squash: true
+    squash_commit_message: PR_TITLE
+    merge: false
+    rebase: true
 
-  notifications:
-    commits:              commits@syncope.apache.org
-    issues:               dev@syncope.apache.org
-    pullrequests_status:  dev@syncope.apache.org
-    pullrequests_comment: dev@syncope.apache.org
-    jira_options:         link label worklog
+notifications:
+  commits:              commits@syncope.apache.org
+  issues:               dev@syncope.apache.org
+  pullrequests_status:  dev@syncope.apache.org
+  pullrequests_comment: dev@syncope.apache.org
+  pullrequests_bot_dependabot: dev@syncope.apache.org
+  jira_options:         link label worklog
