@@ -135,6 +135,8 @@ public abstract class ClientAppDirectoryPanel<T extends ClientAppTO>
                 Constants.NAME_FIELD_NAME, Constants.NAME_FIELD_NAME));
         columns.add(new PropertyColumn<>(
                 new StringResourceModel("clientAppId", this), "clientAppId", "clientAppId"));
+        columns.add(new PropertyColumn<>(
+                new StringResourceModel("evaluationOrder", this), "evaluationOrder", "evaluationOrder"));
 
         addCustomColumnFields(columns);
 

@@ -213,6 +213,10 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     "field", "clientAppId", Long.class,
                     new PropertyModel<>(clientAppTO, "clientAppId")).setRequired(true));
 
+            fields.add(new AjaxNumberFieldPanel.Builder<Integer>().build(
+                    "field", "evaluationOrder", Integer.class,
+                    new PropertyModel<>(clientAppTO, "evaluationOrder")).setRequired(true));
+
             fields.add(new AjaxTextFieldPanel(
                     "field", Constants.DESCRIPTION_FIELD_NAME,
                     new PropertyModel<>(clientAppTO, Constants.DESCRIPTION_FIELD_NAME), false));
