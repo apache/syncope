@@ -39,6 +39,10 @@ public interface ClientApp extends Entity {
 
     void setClientAppId(Long clientAppId);
 
+    int getEvaluationOrder();
+
+    void setEvaluationOrder(int evaluationOrder);
+
     String getDescription();
 
     void setDescription(String description);

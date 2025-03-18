@@ -54,6 +54,8 @@ public abstract class AbstractClientApp extends AbstractGeneratedKeyNode impleme
     @NotNull
     private Long clientAppId;
 
+    private int evaluationOrder;
+
     private String description;
 
     private String logo;
@@ -93,6 +95,16 @@ public abstract class AbstractClientApp extends AbstractGeneratedKeyNode impleme
     @Override
     public void setClientAppId(final Long clientAppId) {
         this.clientAppId = clientAppId;
+    }
+
+    @Override
+    public int getEvaluationOrder() {
+        return evaluationOrder;
+    }
+
+    @Override
+    public void setEvaluationOrder(final int evaluationOrder) {
+        this.evaluationOrder = evaluationOrder;
     }
 
     @Override
