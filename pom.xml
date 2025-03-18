@@ -2373,6 +2373,19 @@ under the License.
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>jdk25</id>
+
+      <activation>
+        <jdk>25</jdk>
+      </activation>
+
+      <properties>
+        <byte-buddy.version>1.17.2</byte-buddy.version>
+        <mockito.version>5.16.1</mockito.version>
+      </properties>
+    </profile>
   </profiles>
 
   <modules>
