@@ -963,14 +963,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
             futures.add(tp.submit(() -> createLdapRemoteObject(
                     "uid=pullFromLDAP_" + idx + ",ou=People,o=isp",
                     Map.of(
+                            "objectClass", "inetOrgPerson",
                             "uid", "pullFromLDAP_" + idx,
-                            "email", "pullFromLDAP_" + idx + "@syncope.apache.org",
+                            "cn", "pullFromLDAP_" + idx,
+                            "mail", "pullFromLDAP_" + idx + "@syncope.apache.org",
                             "description", "Active",
                             "givenName", "pullFromLDAP_" + idx,
                             "sn", "Surname",
                             "registeredAddress", "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
                             "title", "odd",
-                            "password", "password"))));
+                            "userpassword", "password"))));
         }
         futures.forEach(future -> {
             try {
@@ -1539,14 +1541,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
         createLdapRemoteObject(
                 "uid=pullFromLDAP_issue1656,ou=People,o=isp",
                 Map.of(
+                        "objectClass", "inetOrgPerson",
                         "uid", "pullFromLDAP_issue1656",
-                        "email", "pullFromLDAP_issue1656@syncope.apache.org",
+                        "cn", "pullFromLDAP_issue1656",
+                        "mail", "pullFromLDAP_issue1656@syncope.apache.org",
                         "description", "Active",
                         "givenName", "pullFromLDAP_issue1656",
                         "sn", "Surname",
                         "registeredAddress", "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
                         "title", "odd",
-                        "password", "password"));
+                        "userpassword", "password"));
 
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);

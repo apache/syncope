@@ -154,7 +154,7 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(connObjectKeyValue, deletTask.orElseThrow().getConnObjectKey());
         assertEquals(ExecStatus.SUCCESS.name(), deletTask.orElseThrow().getLatestExecStatus());
 
-        assertNull(getLdapRemoteObject(connObjectKeyValue));
+        assertNull(getLdapRemoteObject("uid=" + connObjectKeyValue + ",ou=People,o=isp"));
     }
 
     @Test

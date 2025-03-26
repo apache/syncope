@@ -873,7 +873,9 @@ public abstract class AbstractITCase {
             execOnLDAP(ldapConn -> {
                 List<Modification> modifications = new ArrayList<>();
                 attributes.forEach((key, value) -> modifications.add(
-                        new Modification(ModificationType.REPLACE, key, value)));
+                        value == null
+                                ? new Modification(ModificationType.DELETE, key)
+                                : new Modification(ModificationType.REPLACE, key, value)));
 
                 ldapConn.modify(objectDn, modifications);
 
