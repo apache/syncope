@@ -42,7 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import javax.naming.NamingException;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -906,7 +905,7 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE454() throws NamingException {
+    public void issueSYNCOPE454() {
         // 1. create user with LDAP resource (with 'Generate password if missing' enabled)
         UserCR userCR = UserITCase.getUniqueSample("syncope454@syncope.apache.org");
         userCR.getResources().add(RESOURCE_NAME_LDAP);
@@ -1404,15 +1403,13 @@ public class UserIssuesITCase extends AbstractITCase {
         Attr userDn = connObject.getAttr(Name.NAME).orElseThrow();
         assertNotNull(userDn);
         assertEquals(1, userDn.getValues().size());
-        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN,
-            RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
+        assertNotNull(getLdapRemoteObject(userDn.getValues().getFirst()));
 
         // 4. remove user
         USER_SERVICE.delete(user.getKey());
 
         // 5. verify that user is not in LDAP anymore
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN,
-            RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().getFirst()));
+        assertNull(getLdapRemoteObject(userDn.getValues().getFirst()));
     }
 
     @Test

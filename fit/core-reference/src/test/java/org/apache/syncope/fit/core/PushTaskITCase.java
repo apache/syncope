@@ -305,8 +305,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             // 4. update vivaldi on ldap: reconciliation status does not find it anymore, as remote key was changed
             Map<String, String> attrs = new HashMap<>();
             attrs.put("sn", "VivaldiZ");
-            updateLdapRemoteObject(
-                    RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "uid=vivaldi,ou=People,o=isp", attrs);
+            updateLdapRemoteObject("uid=vivaldi,ou=People,o=isp", attrs);
 
             status = RECONCILIATION_SERVICE.status(
                     new ReconQuery.Builder(AnyTypeKind.USER.name(), RESOURCE_NAME_LDAP).anyKey("vivaldi").build());
@@ -327,9 +326,9 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void orgUnit() {
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=even,o=isp"));
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=two,ou=even,o=isp"));
+        assertNull(getLdapRemoteObject("ou=odd,o=isp"));
+        assertNull(getLdapRemoteObject("ou=even,o=isp"));
+        assertNull(getLdapRemoteObject("ou=two,ou=even,o=isp"));
 
         // 1. create task for pulling org units
         PushTaskTO task = new PushTaskTO();
@@ -349,9 +348,9 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(exec.getStatus()));
 
         // 2. check
-        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
-        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=even,o=isp"));
-        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=two,ou=even,o=isp"));
+        assertNotNull(getLdapRemoteObject("ou=odd,o=isp"));
+        assertNotNull(getLdapRemoteObject("ou=even,o=isp"));
+        assertNotNull(getLdapRemoteObject("ou=two,ou=even,o=isp"));
     }
 
     @Test

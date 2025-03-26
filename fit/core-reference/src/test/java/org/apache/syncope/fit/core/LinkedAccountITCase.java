@@ -35,7 +35,6 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import javax.naming.NamingException;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -80,7 +79,7 @@ import org.junit.jupiter.api.Test;
 public class LinkedAccountITCase extends AbstractITCase {
 
     @Test
-    public void createWithLinkedAccountThenUpdateThenRemove() throws NamingException {
+    public void createWithLinkedAccountThenUpdateThenRemove() {
         // 1. create user with linked account
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
@@ -155,11 +154,11 @@ public class LinkedAccountITCase extends AbstractITCase {
         assertEquals(connObjectKeyValue, deletTask.orElseThrow().getConnObjectKey());
         assertEquals(ExecStatus.SUCCESS.name(), deletTask.orElseThrow().getLatestExecStatus());
 
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, connObjectKeyValue));
+        assertNull(getLdapRemoteObject(connObjectKeyValue));
     }
 
     @Test
-    public void createWithoutLinkedAccountThenAdd() throws NamingException {
+    public void createWithoutLinkedAccountThenAdd() {
         // 1. create user without linked account
         UserCR userCR = UserITCase.getSample(
                 "linkedAccount" + RandomStringUtils.insecure().nextNumeric(5) + "@syncope.apache.org");
@@ -174,7 +173,7 @@ public class LinkedAccountITCase extends AbstractITCase {
                         anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
         assertEquals(0, tasks.getTotalCount());
 
-        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, connObjectKeyValue));
+        assertNull(getLdapRemoteObject(connObjectKeyValue));
 
         // 2. add linked account to user
         UserUR userUR = new UserUR();
@@ -207,7 +206,7 @@ public class LinkedAccountITCase extends AbstractITCase {
     }
 
     @Test
-    public void createWithoutLinkedAccountThenAddAndUpdatePassword() throws NamingException {
+    public void createWithoutLinkedAccountThenAddAndUpdatePassword() {
         // 1. set the return value parameter to true
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "return.password.value", true);
 

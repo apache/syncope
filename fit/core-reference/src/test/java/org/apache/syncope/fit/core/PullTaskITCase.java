@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -51,13 +50,9 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -176,39 +171,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
         }
         assertNotNull(pullActions);
-    }
-
-    private static Pair<String, Set<Attribute>> prepareLdapAttributes(
-            final String uid,
-            final String email,
-            final String description,
-            final String givenName,
-            final String sn,
-            final String registeredAddress,
-            final String title,
-            final String password) {
-
-        String entryDn = "uid=" + uid + ",ou=People,o=isp";
-        Set<Attribute> attributes = new HashSet<>();
-
-        attributes.add(new BasicAttribute("description", description));
-        attributes.add(new BasicAttribute("givenName", givenName));
-        attributes.add(new BasicAttribute("mail", email));
-        attributes.add(new BasicAttribute("sn", sn));
-        attributes.add(new BasicAttribute("cn", uid));
-        attributes.add(new BasicAttribute("uid", uid));
-        attributes.add(new BasicAttribute("registeredaddress", registeredAddress));
-        attributes.add(new BasicAttribute("title", title));
-        attributes.add(new BasicAttribute("userpassword", password));
-
-        Attribute oc = new BasicAttribute("objectClass");
-        oc.add("top");
-        oc.add("person");
-        oc.add("inetOrgPerson");
-        oc.add("organizationalPerson");
-        attributes.add(oc);
-
-        return Pair.of(entryDn, attributes);
     }
 
     private static void cleanUpRemediations() {
@@ -340,11 +302,11 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(IS_FLOWABLE_ENABLED
                     ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").
-                orElseThrow().getValues().getFirst());
+                    orElseThrow().getValues().getFirst());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").
-                orElseThrow().getValues().getFirst());
+                    orElseThrow().getValues().getFirst());
             assertTrue(Integer.parseInt(userTO.getPlainAttr("fullname").
-                orElseThrow().getValues().getFirst()) <= 10);
+                    orElseThrow().getValues().getFirst()) <= 10);
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
 
@@ -355,7 +317,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             userTO = USER_SERVICE.read("test7");
             assertNotNull(userTO);
             assertEquals("TYPE_OTHER", userTO.getPlainAttr("ctype").
-                orElseThrow().getValues().getFirst());
+                    orElseThrow().getValues().getFirst());
             assertEquals(3, userTO.getResources().size());
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_TESTDB));
             assertTrue(userTO.getResources().contains(RESOURCE_NAME_WS2));
@@ -492,14 +454,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // Check for SYNCOPE-436
         assertEquals("pullFromLDAP",
                 matchingUsers.getResult().getFirst().getVirAttr("virtualReadOnly").
-                    orElseThrow().getValues().getFirst());
+                        orElseThrow().getValues().getFirst());
         // Check for SYNCOPE-270
         assertNotNull(matchingUsers.getResult().getFirst().getPlainAttr("obscure"));
         // Check for SYNCOPE-123
         assertNotNull(matchingUsers.getResult().getFirst().getPlainAttr("photo"));
         // Check for SYNCOPE-1343
         assertEquals("odd", matchingUsers.getResult().getFirst().getPlainAttr("title").
-            orElseThrow().getValues().getFirst());
+                orElseThrow().getValues().getFirst());
 
         PagedResult<UserTO> matchByLastChangeContext = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -522,8 +484,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(userConnObject);
         assertEquals("odd", userConnObject.getAttr("title").orElseThrow().getValues().getFirst());
         Attr userDn = userConnObject.getAttr(Name.NAME).orElseThrow();
-        updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                userDn.getValues().getFirst(), Collections.singletonMap("title", null));
+        updateLdapRemoteObject(userDn.getValues().getFirst(), Collections.singletonMap("title", null));
 
         // SYNCOPE-317
         execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
@@ -557,8 +518,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), matchingGroups.getResult().getFirst().getKey());
         assertNotNull(groupConnObject);
         Attr groupDn = groupConnObject.getAttr(Name.NAME).orElseThrow();
-        updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                groupDn.getValues().getFirst(), Map.of("uniquemember", "uid=admin,ou=system"));
+        updateLdapRemoteObject(groupDn.getValues().getFirst(), Map.of("uniquemember", "uid=admin,ou=system"));
 
         execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
@@ -984,7 +944,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void concurrentPull() throws NamingException, InterruptedException {
+    public void concurrentPull() throws InterruptedException {
         assumeFalse(IS_NEO4J_PERSISTENCE);
 
         long usersBefore = USER_SERVICE.search(new AnyQuery.Builder().fiql(
@@ -1000,21 +960,17 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         for (int i = 0; i < 20; i++) {
             String idx = StringUtils.leftPad(String.valueOf(i), 2, "0");
-            futures.add(tp.submit(() -> {
-                try {
-                    createLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, prepareLdapAttributes(
-                            "pullFromLDAP_" + idx,
-                            "pullFromLDAP_" + idx + "@syncope.apache.org",
-                            "Active",
-                            "pullFromLDAP_" + idx,
-                            "Surname",
-                            "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
-                            "odd",
-                            "password"));
-                } catch (NamingException e) {
-                    LOG.error("While creating LDAP {}-th user", idx, e);
-                }
-            }));
+            futures.add(tp.submit(() -> createLdapRemoteObject(
+                    "uid=pullFromLDAP_" + idx + ",ou=People,o=isp",
+                    Map.of(
+                            "uid", "pullFromLDAP_" + idx,
+                            "email", "pullFromLDAP_" + idx + "@syncope.apache.org",
+                            "description", "Active",
+                            "givenName", "pullFromLDAP_" + idx,
+                            "sn", "Surname",
+                            "registeredAddress", "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
+                            "title", "odd",
+                            "password", "password"))));
         }
         futures.forEach(future -> {
             try {
@@ -1531,9 +1487,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             Attr userDn = connObject.getAttr(Name.NAME).orElseThrow();
             assertNotNull(userDn);
             assertEquals(1, userDn.getValues().size());
-            assertNotNull(
-                    getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                        userDn.getValues().getFirst()));
+            assertNotNull(getLdapRemoteObject(userDn.getValues().getFirst()));
 
             // ...and propagated
             PagedResult<TaskTO> propagationTasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).
@@ -1542,7 +1496,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(1, propagationTasks.getSize());
 
             // 4. update the user on the external resource
-            updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+            updateLdapRemoteObject(
                     userDn.getValues().getFirst(), Map.of("mail", "pullFromLDAP2@syncope.apache.org"));
 
             connObject = RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
@@ -1580,17 +1534,19 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void issueSYNCOPE1656() throws NamingException {
+    public void issueSYNCOPE1656() {
         // preliminary create a new LDAP object
-        createLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, prepareLdapAttributes(
-                "pullFromLDAP_issue1656",
-                "pullFromLDAP_issue1656@syncope.apache.org",
-                "Active",
-                "pullFromLDAP_issue1656",
-                "Surname",
-                "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
-                "odd",
-                "password"));
+        createLdapRemoteObject(
+                "uid=pullFromLDAP_issue1656,ou=People,o=isp",
+                Map.of(
+                        "uid", "pullFromLDAP_issue1656",
+                        "email", "pullFromLDAP_issue1656@syncope.apache.org",
+                        "description", "Active",
+                        "givenName", "pullFromLDAP_issue1656",
+                        "sn", "Surname",
+                        "registeredAddress", "5BAA61E4C9B93F3F0682250B6CF8331B7EE68FD8",
+                        "title", "odd",
+                        "password", "password"));
 
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
@@ -1624,8 +1580,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             Attr userDn = connObject.getAttr(Name.NAME).orElseThrow();
             assertNotNull(userDn);
             assertEquals(1, userDn.getValues().size());
-            updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                    userDn.getValues().getFirst(), Map.of("mail", "pullFromLDAP_issue1656@"));
+            updateLdapRemoteObject(userDn.getValues().getFirst(), Map.of("mail", "pullFromLDAP_issue1656@"));
             // 3. Pull again from resource-ldap
             execution = execSchedTask(TASK_SERVICE, TaskType.PULL, pullTask.getKey(), MAX_WAIT_SECONDS, false);
             assertEquals(ExecStatus.SUCCESS, ExecStatus.valueOf(execution.getStatus()));
@@ -1643,8 +1598,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     "\"pullFromLDAP_issue1656@\" is not a valid email address")));
         } finally {
             // remove test entities
-            removeLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
-                    "uid=pullFromLDAP_issue1656,ou=People,o=isp");
+            removeLdapRemoteObject("uid=pullFromLDAP_issue1656,ou=People,o=isp");
             cleanUpRemediations();
             Optional.ofNullable(pullTask.getKey()).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t));
             Optional.ofNullable(pullFromLDAP4issue1656).ifPresent(u -> USER_SERVICE.delete(u.getKey()));
