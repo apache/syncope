@@ -34,7 +34,6 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -314,7 +313,7 @@ class SyncReplITCase extends AbstractITCase {
                 } catch (SyncopeClientException e) {
                     return List.of();
                 }
-            }, Predicate.not(List::isEmpty));
+            }, match -> match.size() == 2);
             assertEquals(2, preexisting.size());
             assertTrue(preexisting.stream().anyMatch(u -> "user01".equals(u.getUsername())
                     && "user01@syncope.apache.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
