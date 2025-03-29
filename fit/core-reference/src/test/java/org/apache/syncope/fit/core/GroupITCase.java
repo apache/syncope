@@ -40,11 +40,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -1086,34 +1081,7 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(groupTO);
 
             // 4. check that a single group exists in LDAP for the group created and updated above
-            int entries = 0;
-            DirContext ctx = null;
-            try {
-                ctx = getLdapResourceDirContext(null, null);
-
-                SearchControls ctls = new SearchControls();
-                ctls.setReturningAttributes(new String[] { "*", "+" });
-                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-                NamingEnumeration<SearchResult> result =
-                        ctx.search("ou=groups,o=isp", "(description=" + groupTO.getKey() + ')', ctls);
-                while (result.hasMore()) {
-                    result.next();
-                    entries++;
-                }
-            } catch (Exception e) {
-                // ignore
-            } finally {
-                if (ctx != null) {
-                    try {
-                        ctx.close();
-                    } catch (NamingException e) {
-                        // ignore
-                    }
-                }
-            }
-
-            assertEquals(1, entries);
+            assertEquals(1, ldapSearch("ou=groups,o=isp", "(description=" + groupTO.getKey() + ')').getEntryCount());
         } finally {
             SCHEMA_SERVICE.update(SchemaType.DERIVED, orig);
             Optional.ofNullable(groupTO).ifPresent(g -> GROUP_SERVICE.delete(g.getKey()));

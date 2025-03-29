@@ -46,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
@@ -201,7 +200,6 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 action.beforeAll(profile);
             }
 
-            GroupPullResultHandler ghandler = buildGroupHandler();
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
                 switch (anyType.getKind()) {
@@ -236,7 +234,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                     MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
 
             try {
-                setGroupOwners(ghandler, groupDAO, anyTypeDAO, inboundMatcher, profile);
+                setGroupOwners();
             } catch (Exception e) {
                 LOG.error("While setting group owners", e);
             }

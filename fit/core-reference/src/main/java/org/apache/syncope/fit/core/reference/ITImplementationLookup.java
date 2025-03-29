@@ -63,6 +63,8 @@ import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullAction
 import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.SyncReplInboundActions;
+import org.apache.syncope.core.provisioning.java.pushpull.SyncReplLiveSyncDeltaMapper;
 import org.apache.syncope.core.spring.policy.DefaultAccountRule;
 import org.apache.syncope.core.spring.policy.DefaultPasswordRule;
 import org.apache.syncope.core.spring.policy.HaveIBeenPwnedPasswordRule;
@@ -148,6 +150,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(IdMImplementationType.RECON_FILTER_BUILDER, classNames);
 
             classNames = new HashSet<>();
+            classNames.add(SyncReplLiveSyncDeltaMapper.class.getName());
             classNames.add(TestLiveSyncDeltaMapper.class.getName());
             put(IdMImplementationType.LIVE_SYNC_DELTA_MAPPER, classNames);
 
@@ -168,9 +171,10 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             classNames.add(LDAPPasswordPullActions.class.getName());
-            classNames.add(TestInboundActions.class.getName());
             classNames.add(LDAPMembershipPullActions.class.getName());
             classNames.add(DBPasswordPullActions.class.getName());
+            classNames.add(SyncReplInboundActions.class.getName());
+            classNames.add(TestInboundActions.class.getName());
             put(IdMImplementationType.INBOUND_ACTIONS, classNames);
 
             classNames = new HashSet<>();

@@ -47,7 +47,7 @@ public final class IdMImplementationType {
             Pair.of(INBOUND_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule"),
             Pair.of(PUSH_CORRELATION_RULE, "org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule"),
             Pair.of(PROVISION_SORTER, "org.apache.syncope.core.provisioning.api.ProvisionSorter"),
-            Pair.of(LIVE_SYNC_DELTA_MAPPER, "org.apache.syncope.core.provisioning.api.LiveSyncDeltaMapper"));
+            Pair.of(LIVE_SYNC_DELTA_MAPPER, "org.apache.syncope.core.provisioning.api.pushpull.LiveSyncDeltaMapper"));
 
     public static Map<String, String> values() {
         return VALUES;

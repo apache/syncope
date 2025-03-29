@@ -16,16 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api;
+package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.util.Set;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
-import org.identityconnectors.framework.common.objects.LiveSyncDelta;
-import org.identityconnectors.framework.common.objects.SyncDelta;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
+import org.identityconnectors.framework.common.objects.AttributeUtil;
 
-public interface LiveSyncDeltaMapper {
+public class SyncReplInboundActions implements InboundActions {
 
-    SyncDelta map(LiveSyncDelta liveSyncDelta, OrgUnit orgUnit);
+    protected static final String SYNCREPL_COOKIE_NAME = AttributeUtil.createSpecialName("SYNCREPL_COOKIE");
 
-    SyncDelta map(LiveSyncDelta liveSyncDelta, Provision provision);
+    @Override
+    public Set<String> moreAttrsToGet(final ProvisioningProfile<?, ?> profile, final OrgUnit orgUnit) {
+        return Set.of(SYNCREPL_COOKIE_NAME);
+    }
+
+    @Override
+    public Set<String> moreAttrsToGet(final ProvisioningProfile<?, ?> profile, final Provision provision) {
+        return Set.of(SYNCREPL_COOKIE_NAME);
+    }
 }
