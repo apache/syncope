@@ -55,15 +55,15 @@ a| Allows to work with https://openjpa.apache.org/builds/4.0.1/apache-openjpa/do
 |===
 
 | `ssoSessions`
-| https://apereo.github.io/cas/development/authentication/Configuring-SSO.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.2.x/authentication/Configuring-SSO.html#actuator-endpoints[More details^]
 | `registeredServices`
-| https://apereo.github.io/cas/development/services/Service-Management.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.2.x/services/Service-Management.html#actuator-endpoints[More details^]
 | `authenticationHandlers`
-| https://apereo.github.io/cas/development/authentication/Configuring-Authentication-Components.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.2.x/authentication/Configuring-Authentication-Components.html#actuator-endpoints[More details^]
 | `authenticationPolicies`
-| https://apereo.github.io/cas/development/authentication/Configuring-Authentication-Policy.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.2.x/authentication/Configuring-Authentication-Policy.html#actuator-endpoints[More details^]
 | `resolveAttributes`
-| https://apereo.github.io/cas/development/integration/Attribute-Resolution.html#actuator-endpoints[More details^]
+| https://apereo.github.io/cas/7.2.x/integration/Attribute-Resolution.html#actuator-endpoints[More details^]
 
 |===
 

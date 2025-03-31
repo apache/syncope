@@ -34,17 +34,17 @@ When defining a client application, the following parameters shall be specified:
 . name - regular expression to match requests
 . description - optional textual description
 . username attribute provider, mapping to
-https://apereo.github.io/cas/development/integration/Attribute-Release-PrincipalId-Attribute.html[CAS Attribute-based Principal Id^]
+https://apereo.github.io/cas/7.2.x/integration/Attribute-Release-PrincipalId-Attribute.html[CAS Attribute-based Principal Id^]
 . <<policies-authentication,authentication policy>>
 . <<policies-access,access policy>>
 . <<policies-attribute-release,attribute release policy>>
 . <<policies-ticket-expiration,ticket expiration policy>>
 . additional properties
 . logout type, mapping to
-https://apereo.github.io/cas/development/installation/Logout-Single-Signout.html#slo-requests[the equivalent CAS setting^]
+https://apereo.github.io/cas/7.2.x/installation/Logout-Single-Signout.html#slo-requests[the equivalent CAS setting^]
 
 More parameters are required to be specified depending on the actual client application type.
 
 [NOTE]
 Client Applications are dynamically translated into
-https://apereo.github.io/cas/development/services/Service-Management.html[CAS Services^].
+https://apereo.github.io/cas/7.2.x/services/Service-Management.html[CAS Services^].
