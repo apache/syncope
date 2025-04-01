@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -59,6 +61,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
@@ -114,16 +117,23 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @Transactional(readOnly = true)
     public Pair<Integer, List<RealmTO>> search(
             final String keyword,
-            final String base,
+            final Set<String> bases,
             final int page,
             final int size) {
 
-        Realm baseRealm = Optional.ofNullable(base == null ? realmDAO.getRoot() : realmDAO.findByFullPath(base)).
-                orElseThrow(() -> new NotFoundException(base));
+        Set<String> baseRealms = new HashSet<>();
+        if (CollectionUtils.isEmpty(bases)) {
+            baseRealms.add(SyncopeConstants.ROOT_REALM);
+        } else {
+            for (String base : bases) {
+                baseRealms.add(Optional.ofNullable(realmDAO.findByFullPath(base)).map(Realm::getFullPath).
+                        orElseThrow(() -> new NotFoundException("Realm " + base)));
+            }
+        }
 
-        int count = realmDAO.countDescendants(baseRealm.getFullPath(), keyword);
+        int count = realmDAO.countDescendants(baseRealms, keyword);
 
-        List<Realm> result = realmDAO.findDescendants(baseRealm.getFullPath(), keyword, page, size);
+        List<Realm> result = realmDAO.findDescendants(baseRealms, keyword, page, size);
 
         return Pair.of(
                 count,
@@ -154,7 +164,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             }
         }
 
-         securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_CREATE), parent.getFullPath());
+        securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_CREATE), parent.getFullPath());
 
         String fullPath = StringUtils.appendIfMissing(parent.getFullPath(), "/") + realmTO.getName();
         if (realmDAO.findByFullPath(fullPath) != null) {

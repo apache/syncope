@@ -96,7 +96,7 @@ public class Details<T extends AnyTO> extends WizardStep {
                     return (pageRef.getPage() instanceof Realms
                             ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
                             : (fullRealmsTree
-                                    ? realmRestClient.search(RealmsUtils.buildRootQuery())
+                                    ? realmRestClient.search(RealmsUtils.buildBaseQuery())
                                     : realmRestClient.search(RealmsUtils.buildKeywordQuery(input))).getResult()).
                             stream().filter(realm -> authRealms.stream().anyMatch(
                             authRealm -> realm.getFullPath().startsWith(authRealm))).

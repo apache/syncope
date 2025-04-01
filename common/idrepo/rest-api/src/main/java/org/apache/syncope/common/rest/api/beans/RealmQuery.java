@@ -18,6 +18,12 @@
  */
 package org.apache.syncope.common.rest.api.beans;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.QueryParam;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -38,15 +44,28 @@ public class RealmQuery extends AbstractQuery {
             return this;
         }
 
-        public Builder base(final String base) {
-            getInstance().setBase(base);
+        public Builder base(final String... bases) {
+            if (bases != null) {
+                Set<String> b = Optional.ofNullable(getInstance().getBases()).orElseGet(HashSet::new);
+                b.addAll(Stream.of(bases).collect(Collectors.toSet()));
+                getInstance().setBases(b);
+            }
+            return this;
+        }
+
+        public Builder bases(final Collection<String> bases) {
+            if (bases != null) {
+                Set<String> b = Optional.ofNullable(getInstance().getBases()).orElseGet(HashSet::new);
+                b.addAll(bases);
+                getInstance().setBases(b);
+            }
             return this;
         }
     }
 
     private String keyword;
 
-    private String base;
+    private Set<String> bases;
 
     public String getKeyword() {
         return keyword;
@@ -57,13 +76,13 @@ public class RealmQuery extends AbstractQuery {
         this.keyword = keyword;
     }
 
-    public String getBase() {
-        return base;
+    public Set<String> getBases() {
+        return bases;
     }
 
-    @QueryParam("base")
-    public void setBase(final String base) {
-        this.base = base;
+    @QueryParam("bases")
+    public void setBases(final Set<String> bases) {
+        this.bases = bases;
     }
 
     @Override
@@ -81,7 +100,7 @@ public class RealmQuery extends AbstractQuery {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(keyword, other.keyword).
-                append(base, other.base).
+                append(bases, other.bases).
                 build();
     }
 
@@ -90,7 +109,7 @@ public class RealmQuery extends AbstractQuery {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(keyword).
-                append(base).
+                append(bases).
                 build();
     }
 }

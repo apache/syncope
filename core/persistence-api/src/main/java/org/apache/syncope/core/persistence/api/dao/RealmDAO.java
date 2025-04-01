@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
@@ -43,10 +44,14 @@ public interface RealmDAO extends DAO<Realm> {
 
     int countDescendants(String base, String keyword);
 
+    int countDescendants(Set<String> bases, String keyword);
+
     List<Realm> findDescendants(String base, String keyword, int page, int itemsPerPage);
 
+    List<Realm> findDescendants(Set<String> bases, String keyword, int page, int itemsPerPage);
+
     List<String> findDescendants(String base, String prefix);
-    
+
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
     List<Realm> findByLogicActions(Implementation logicActions);
