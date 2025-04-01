@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -458,5 +459,16 @@ public class RealmITCase extends AbstractITCase {
             USER_SERVICE.delete(manager.getKey());
             ROLE_SERVICE.delete(role.getKey());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1871() {
+        PagedResult<RealmTO> result = REALM_SERVICE.search(new RealmQuery.Builder().base("/odd").base("/even").build());
+        assertDoesNotThrow(() -> result.getResult().stream().
+                filter(r -> "odd".equals(r.getName())).findFirst().orElseThrow());
+        assertDoesNotThrow(() -> result.getResult().stream().
+                filter(r -> "even".equals(r.getName())).findFirst().orElseThrow());
+        assertDoesNotThrow(() -> result.getResult().stream().
+                filter(r -> "two".equals(r.getName())).findFirst().orElseThrow());
     }
 }

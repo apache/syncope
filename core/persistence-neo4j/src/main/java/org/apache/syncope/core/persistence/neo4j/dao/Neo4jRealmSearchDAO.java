@@ -22,6 +22,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -31,8 +34,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -40,17 +41,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(RealmSearchDAO.class);
-
-    protected static StringBuilder buildDescendantQuery(
-            final String base,
+    protected static StringBuilder buildDescendantsQuery(
+            final Set<String> bases,
             final String keyword,
             final Map<String, Object> parameters) {
 
+        AtomicInteger index = new AtomicInteger(0);
+        String basesClause = bases.stream().map(base -> {
+            int idx = index.incrementAndGet();
+            parameters.put("base" + idx, base);
+            parameters.put("like" + idx, SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*");
+            return "n.fullPath = $base" + idx + " OR n.fullPath =~ $like" + idx;
+        }).collect(Collectors.joining(" OR "));
+
         StringBuilder queryString = new StringBuilder("MATCH (n:").append(Neo4jRealm.NODE).append(") ").
-                append("WHERE (n.fullPath = $base OR n.fullPath =~ $like)");
-        parameters.put("base", base);
-        parameters.put("like", SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*");
+                append("WHERE (").append(basesClause).append(')');
 
         if (keyword != null) {
             queryString.append(" AND toLower(n.name) =~ $name");
@@ -103,17 +108,27 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
 
     @Override
     public long countDescendants(final String base, final String keyword) {
+        return countDescendants(Set.of(base), keyword);
+    }
+
+    @Override
+    public long countDescendants(final Set<String> bases, final String keyword) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters).append(" RETURN COUNT(n)");
+        StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters).append(" RETURN COUNT(n)");
         return neo4jTemplate.count(queryString.toString(), parameters);
     }
 
     @Override
     public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
+        return findDescendants(Set.of(base), keyword, pageable);
+    }
+
+    @Override
+    public List<Realm> findDescendants(final Set<String> bases, final String keyword, final Pageable pageable) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters).
+        StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters).
                 append(" RETURN n.id ORDER BY n.fullPath");
         if (pageable.isPaged()) {
             queryString.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
@@ -128,7 +143,7 @@ public class Neo4jRealmSearchDAO extends AbstractDAO implements RealmSearchDAO {
     public List<String> findDescendants(final String base, final String prefix) {
         Map<String, Object> parameters = new HashMap<>();
 
-        StringBuilder queryString = buildDescendantQuery(base, null, parameters).
+        StringBuilder queryString = buildDescendantsQuery(Set.of(base), null, parameters).
                 append(" AND (n.fullPath = $prefix OR n.fullPath =~ $likePrefix)").
                 append(" RETURN n.id ORDER BY n.fullPath");
         parameters.put("prefix", prefix);

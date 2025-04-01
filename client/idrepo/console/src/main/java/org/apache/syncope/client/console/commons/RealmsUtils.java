@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -41,12 +42,14 @@ public final class RealmsUtils {
         return new RealmQuery.Builder().keyword(input.contains("*") ? input : "*" + input + "*").build();
     }
 
-    public static RealmQuery buildRootQuery() {
-        String base = SyncopeConsoleSession.get().getSearchableRealms().isEmpty()
-                || SyncopeConsoleSession.get().getSearchableRealms().contains(SyncopeConstants.ROOT_REALM)
-                ? SyncopeConstants.ROOT_REALM
-                : getFullPath(SyncopeConsoleSession.get().getSearchableRealms().getFirst());
-        return new RealmQuery.Builder().base(base).build();
+    public static RealmQuery buildBaseQuery() {
+        List<String> realms = SyncopeConsoleSession.get().getSearchableRealms();
+
+        if (realms.isEmpty() || realms.contains(SyncopeConstants.ROOT_REALM)) {
+            return new RealmQuery.Builder().base(SyncopeConstants.ROOT_REALM).build();
+        }
+
+        return new RealmQuery.Builder().bases(realms.stream().map(RealmsUtils::getFullPath).toList()).build();
     }
 
     private RealmsUtils() {

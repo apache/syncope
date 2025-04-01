@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -61,6 +63,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
@@ -120,18 +123,24 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @Transactional(readOnly = true)
     public Page<RealmTO> search(
             final String keyword,
-            final String base,
+            final Set<String> bases,
             final Pageable pageable) {
 
-        Realm baseRealm = base == null
-                ? realmDAO.getRoot()
-                : realmSearchDAO.findByFullPath(base).orElseThrow(() -> new NotFoundException("Realm " + base));
+        Set<String> baseRealms = new HashSet<>();
+        if (CollectionUtils.isEmpty(bases)) {
+            baseRealms.add(SyncopeConstants.ROOT_REALM);
+        } else {
+            for (String base : bases) {
+                baseRealms.add(realmSearchDAO.findByFullPath(base).map(Realm::getFullPath).
+                        orElseThrow(() -> new NotFoundException("Realm " + base)));
+            }
+        }
 
-        long count = realmSearchDAO.countDescendants(baseRealm.getFullPath(), keyword);
+        long count = realmSearchDAO.countDescendants(baseRealms, keyword);
 
         Set<String> authorizations = AuthContextUtils.getAuthorizations().
-            getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of());
-        List<RealmTO> result = realmSearchDAO.findDescendants(baseRealm.getFullPath(), keyword, pageable).stream().
+                getOrDefault(IdRepoEntitlement.REALM_SEARCH, Set.of());
+        List<RealmTO> result = realmSearchDAO.findDescendants(baseRealms, keyword, pageable).stream().
                 map(realm -> binder.getRealmTO(
                 realm, authorizations.stream().
                         anyMatch(auth -> realm.getFullPath().startsWith(auth)))).

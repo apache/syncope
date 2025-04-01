@@ -316,7 +316,7 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             return false;
         }
 
-        RealmQuery query = RealmsUtils.buildRootQuery();
+        RealmQuery query = RealmsUtils.buildBaseQuery();
         query.setPage(1);
         query.setSize(0);
         return restClient.search(query).getTotalCount() < props.getRealmsFullTreeThreshold();

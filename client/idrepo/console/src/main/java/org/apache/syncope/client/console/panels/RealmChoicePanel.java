@@ -454,7 +454,7 @@ public class RealmChoicePanel extends Panel {
 
     protected Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap() {
         List<RealmTO> realmsToList = realmRestClient.search(fullRealmsTree
-                ? RealmsUtils.buildRootQuery()
+                ? RealmsUtils.buildBaseQuery()
                 : RealmsUtils.buildKeywordQuery(searchQuery)).getResult();
 
         return reloadRealmParentMap(realmsToList.stream().
