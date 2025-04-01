@@ -68,7 +68,7 @@ public class ConnectorDetailsPanel extends WizardStep {
             protected Iterator<String> getChoices(final String input) {
                 return (RealmsUtils.checkInput(input)
                         ? (realmRestClient.search(fullRealmsTree
-                                ? RealmsUtils.buildRootQuery()
+                                ? RealmsUtils.buildBaseQuery()
                                 : RealmsUtils.buildKeywordQuery(input)).getResult())
                         : List.<RealmTO>of()).stream().
                         map(RealmTO::getFullPath).iterator();
