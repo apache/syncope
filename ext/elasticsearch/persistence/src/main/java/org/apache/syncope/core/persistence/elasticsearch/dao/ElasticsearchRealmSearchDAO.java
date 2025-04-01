@@ -29,8 +29,10 @@ import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
@@ -139,13 +141,16 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
 
-    protected Query buildDescendantQuery(final String base, final String keyword) {
-        Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(
-                new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(base).build()).build(),
-                new Query.Builder().regexp(QueryBuilders.regexp().
-                        field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*").
-                        build()).build()).build()).build();
+    protected Query buildDescendantsQuery(final Set<String> bases, final String keyword) {
+        List<Query> basesQueries = new ArrayList<>();
+        bases.forEach(base -> {
+            basesQueries.add(new Query.Builder().term(QueryBuilders.term().
+                    field("fullPath").value(base).build()).build());
+            basesQueries.add(new Query.Builder().regexp(QueryBuilders.regexp().
+                    field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*").
+                    build()).build());
+        });
+        Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(basesQueries).build()).build();
 
         if (keyword == null) {
             return prefix;
@@ -175,9 +180,14 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
 
     @Override
     public long countDescendants(final String base, final String keyword) {
+        return countDescendants(Set.of(base), keyword);
+    }
+
+    @Override
+    public long countDescendants(final Set<String> bases, final String keyword) {
         CountRequest request = new CountRequest.Builder().
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
-                query(buildDescendantQuery(base, keyword)).
+                query(buildDescendantsQuery(bases, keyword)).
                 build();
 
         try {
@@ -190,10 +200,15 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
 
     @Override
     public List<Realm> findDescendants(final String base, final String keyword, final Pageable pageable) {
+        return findDescendants(Set.of(base), keyword, pageable);
+    }
+
+    @Override
+    public List<Realm> findDescendants(final Set<String> bases, final String keyword, final Pageable pageable) {
         SearchRequest request = new SearchRequest.Builder().
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
-                query(buildDescendantQuery(base, keyword)).
+                query(buildDescendantsQuery(bases, keyword)).
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(REALM_SORT_OPTIONS).
@@ -222,8 +237,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                         build()).build()).build()).build();
 
         Query query = new Query.Builder().bool(QueryBuilders.bool().must(
-                buildDescendantQuery(base, (String) null),
-                prefixQuery).build()).
+                buildDescendantsQuery(Set.of(base), (String) null), prefixQuery).build()).
                 build();
 
         SearchRequest request = new SearchRequest.Builder().
