@@ -1695,7 +1695,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.3</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <encoding>utf-8</encoding>
@@ -1705,7 +1705,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.5.2</version>
+          <version>3.5.3</version>
           <configuration>
             <redirectTestOutputToFile>true</redirectTestOutputToFile>
             <runOrder>alphabetical</runOrder>
@@ -2389,7 +2389,7 @@ under the License.
       </activation>
 
       <properties>
-        <byte-buddy.version>1.17.4</byte-buddy.version>
+        <byte-buddy.version>1.17.5</byte-buddy.version>
         <mockito.version>5.16.1</mockito.version>
       </properties>
 

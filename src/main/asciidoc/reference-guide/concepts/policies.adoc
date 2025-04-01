@@ -329,7 +329,7 @@ endif::[]
 
 [NOTE]
 Access Policy instances are dynamically translated into
-https://apereo.github.io/cas/development/services/Configuring-Service-Access-Strategy.html#configure-service-access-strategy[CAS Service Access Strategy^].
+https://apereo.github.io/cas/7.2.x/services/Configuring-Service-Access-Strategy.html#configure-service-access-strategy[CAS Service Access Strategy^].
 
 [[policies-attribute-release]]
 ==== Attribute Release
@@ -341,7 +341,7 @@ values.
 
 [NOTE]
 Attribute Release Policy instances are dynamically translated into
-https://apereo.github.io/cas/development/integration/Attribute-Release-Policies.html#attribute-release-policies[CAS Attribute Release Policy^].
+https://apereo.github.io/cas/7.2.x/integration/Attribute-Release-Policies.html#attribute-release-policies[CAS Attribute Release Policy^].
 
 [[policies-authentication]]
 ==== Authentication
@@ -368,7 +368,7 @@ be considered successful.
 
 [NOTE]
 Authentication Policy instances are dynamically translated into
-https://apereo.github.io/cas/development/authentication/Configuring-Authentication-Policy.html#authentication-policy[CAS Authentication Policy^].
+https://apereo.github.io/cas/7.2.x/authentication/Configuring-Authentication-Policy.html#authentication-policy[CAS Authentication Policy^].
 
 [[policies-propagation]]
 ==== Propagation
@@ -487,4 +487,4 @@ Ticket Expiration policies control the duration of various types of WA sessions.
 
 [NOTE]
 Ticket Expiration Policy instances are dynamically translated into
-https://apereo.github.io/cas/development/ticketing/Configuring-Ticket-Expiration-Policy.html[their CAS equivalent^].
+https://apereo.github.io/cas/7.2.x/ticketing/Configuring-Ticket-Expiration-Policy.html[their CAS equivalent^].

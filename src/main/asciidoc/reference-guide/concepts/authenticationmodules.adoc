@@ -24,24 +24,24 @@ technology or repository, in the context of a certain <<policies-authentication,
 Several authentication modules are provided:
 
 * Principal Authentication:
-    ** https://apereo.github.io/cas/development/authentication/Database-Authentication.html[Database^]
-    ** https://apereo.github.io/cas/development/authentication/JAAS-Authentication.html[JAAS^]
-    ** https://apereo.github.io/cas/development/authentication/LDAP-Authentication.html[LDAP^]
-    ** https://apereo.github.io/cas/development/authentication/SPNEGO-Authentication.html[SPNEGO^]
-    ** https://apereo.github.io/cas/development/authentication/Syncope-Authentication.html[Syncope^]
-    ** https://apereo.github.io/cas/development/authentication/Azure-ActiveDirectory-Authentication.html[Azure Active Directory^]
-    ** https://apereo.github.io/cas/development/authentication/Okta-Authentication.html[Okta^]
-    ** https://apereo.github.io/cas/development/authentication/X509-Authentication.html[X509^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-Generic-OpenID-Connect.html[OpenID Connect^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-OAuth20.html[OAuth2^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-SAML.htmll[SAML^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-Apple.html[Apple Signin^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-Azure-AD.html[Azure Active Directory (OIDC)^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-Google-OpenID-Connect.html[Google OpenID^]
-    ** https://apereo.github.io/cas/development/integration/Delegate-Authentication-Keycloak.html[Keycloak^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/Database-Authentication.html[Database^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/JAAS-Authentication.html[JAAS^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/LDAP-Authentication.html[LDAP^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/SPNEGO-Authentication.html[SPNEGO^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/Syncope-Authentication.html[Syncope^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/Azure-ActiveDirectory-Authentication.html[Azure Active Directory^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/Okta-Authentication.html[Okta^]
+    ** https://apereo.github.io/cas/7.2.x/authentication/X509-Authentication.html[X509^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-Generic-OpenID-Connect.html[OpenID Connect^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-OAuth20.html[OAuth2^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-SAML.htmll[SAML^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-Apple.html[Apple Signin^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-Azure-AD.html[Azure Active Directory (OIDC)^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-Google-OpenID-Connect.html[Google OpenID^]
+    ** https://apereo.github.io/cas/7.2.x/integration/Delegate-Authentication-Keycloak.html[Keycloak^]
 * MFA:
-    ** https://apereo.github.io/cas/development/mfa/DuoSecurity-Authentication.html[Duo Security^]
-    ** https://apereo.github.io/cas/development/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator^]
+    ** https://apereo.github.io/cas/7.2.x/mfa/DuoSecurity-Authentication.html[Duo Security^]
+    ** https://apereo.github.io/cas/7.2.x/mfa/GoogleAuthenticator-Authentication.html[Google Authenticator^]
 
 [TIP]
 ====
@@ -64,4 +64,4 @@ class.
 
 [NOTE]
 Authentication Modules are dynamically translated into
-https://apereo.github.io/cas/development/authentication/Configuring-Authentication-Components.html#authentication-handlers[CAS Authentication Handlers^].
+https://apereo.github.io/cas/7.2.x/authentication/Configuring-Authentication-Components.html#authentication-handlers[CAS Authentication Handlers^].
