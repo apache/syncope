@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -99,6 +100,12 @@ public class RealmTest extends AbstractTest {
         assertNotNull(list);
         assertFalse(list.isEmpty());
         list.forEach(Assertions::assertNotNull);
+
+        list = realmDAO.findDescendants(Set.of("/even", "/odd"), null, -1, -1);
+        assertEquals(3, list.size());
+        assertNotNull(list.stream().filter(realm -> "even".equals(realm.getName())).findFirst().orElseThrow());
+        assertNotNull(list.stream().filter(realm -> "two".equals(realm.getName())).findFirst().orElseThrow());
+        assertNotNull(list.stream().filter(realm -> "odd".equals(realm.getName())).findFirst().orElseThrow());
     }
 
     @Test

@@ -18,7 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -131,14 +133,16 @@ public class OpenSearchRealmDAO extends JPARealmDAO {
         return result.stream().map(this::find).collect(Collectors.toList());
     }
 
-    protected Query buildDescendantQuery(final String base, final String keyword) {
-        Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(
-                new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(FieldValue.of(base)).build()).build(),
-                new Query.Builder().regexp(QueryBuilders.regexp().
-                        field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*").
-                        build()).build()).build()).build();
-
+    protected Query buildDescendantsQuery(final Set<String> bases, final String keyword) {
+        List<Query> basesQueries = new ArrayList<>();
+        bases.forEach(base -> {
+            basesQueries.add(new Query.Builder().term(QueryBuilders.term().
+                    field("fullPath").value(FieldValue.of(base)).build()).build());
+            basesQueries.add(new Query.Builder().regexp(QueryBuilders.regexp().
+                    field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*").
+                    build()).build());
+        });
+        Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(basesQueries).build()).build();
         if (keyword == null) {
             return prefix;
         }
@@ -167,15 +171,20 @@ public class OpenSearchRealmDAO extends JPARealmDAO {
 
     @Override
     public int countDescendants(final String base, final String keyword) {
+        return countDescendants(Set.of(base), keyword);
+    }
+
+    @Override
+    public int countDescendants(final Set<String> bases, final String keyword) {
         CountRequest request = new CountRequest.Builder().
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
-                query(buildDescendantQuery(base, keyword)).
+                query(buildDescendantsQuery(bases, keyword)).
                 build();
 
         try {
             return (int) client.count(request).count();
         } catch (Exception e) {
-            LOG.error("While counting in OpenSearch", e);
+            LOG.error("While counting in Elasticsearch", e);
             return 0;
         }
     }
@@ -187,10 +196,20 @@ public class OpenSearchRealmDAO extends JPARealmDAO {
             final int page,
             final int itemsPerPage) {
 
+        return findDescendants(Set.of(base), keyword, page, itemsPerPage);
+    }
+
+    @Override
+    public List<Realm> findDescendants(
+            final Set<String> bases,
+            final String keyword,
+            final int page,
+            final int itemsPerPage) {
+
         SearchRequest request = new SearchRequest.Builder().
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
-                query(buildDescendantQuery(base, keyword)).
+                query(buildDescendantsQuery(bases, keyword)).
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(ES_SORT_OPTIONS_REALM).
@@ -218,7 +237,7 @@ public class OpenSearchRealmDAO extends JPARealmDAO {
                         build()).build()).build()).build();
 
         Query query = new Query.Builder().bool(QueryBuilders.bool().must(
-                buildDescendantQuery(base, (String) null),
+                buildDescendantsQuery(Set.of(base), null),
                 prefixQuery).build()).
                 build();
 

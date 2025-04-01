@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -49,6 +50,34 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
 public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
+
+    protected static int setParameter(final List<Object> parameters, final Object parameter) {
+        parameters.add(parameter);
+        return parameters.size();
+    }
+
+    protected static StringBuilder buildDescendantsQuery(
+            final Set<String> bases,
+            final String keyword,
+            final List<Object> parameters) {
+
+        String basesClause = bases.stream().
+                map(base -> "e.fullPath=?" + setParameter(parameters, base)
+                + " OR e.fullPath LIKE ?" + setParameter(
+                        parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
+                collect(Collectors.joining(" OR "));
+
+        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
+                append(JPARealm.class.getSimpleName()).append(" e ").
+                append("WHERE (").append(basesClause).append(')');
+
+        if (keyword != null) {
+            queryString.append(" AND LOWER(e.name) LIKE ?").
+                    append(setParameter(parameters, "%" + keyword.replaceAll("_", "\\\\_").toLowerCase() + "%"));
+        }
+
+        return queryString;
+    }
 
     protected final RoleDAO roleDAO;
 
@@ -123,37 +152,16 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return query.getResultList();
     }
 
-    protected int setParameter(final List<Object> parameters, final Object parameter) {
-        parameters.add(parameter);
-        return parameters.size();
-    }
-
-    protected StringBuilder buildDescendantQuery(
-            final String base,
-            final String keyword,
-            final List<Object> parameters) {
-
-        StringBuilder queryString = new StringBuilder("SELECT e FROM ").
-                append(JPARealm.class.getSimpleName()).append(" e ").
-                append("WHERE (e.fullPath=?").
-                append(setParameter(parameters, base)).
-                append(" OR e.fullPath LIKE ?").
-                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
-                append(')');
-
-        if (keyword != null) {
-            queryString.append(" AND LOWER(e.name) LIKE ?").
-                    append(setParameter(parameters, "%" + keyword.replaceAll("_", "\\\\_").toLowerCase() + "%"));
-        }
-
-        return queryString;
+    @Override
+    public int countDescendants(final String base, final String keyword) {
+        return countDescendants(Set.of(base), keyword);
     }
 
     @Override
-    public int countDescendants(final String base, final String keyword) {
+    public int countDescendants(final Set<String> bases, final String keyword) {
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
+        StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters);
         Query query = entityManager().createQuery(StringUtils.replaceOnce(
                 queryString.toString(),
                 "SELECT e ",
@@ -173,9 +181,19 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
             final int page,
             final int itemsPerPage) {
 
+        return findDescendants(Set.of(base), keyword, page, itemsPerPage);
+    }
+
+    @Override
+    public List<Realm> findDescendants(
+            final Set<String> bases,
+            final String keyword,
+            final int page,
+            final int itemsPerPage) {
+
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildDescendantQuery(base, keyword, parameters);
+        StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters);
         TypedQuery<Realm> query = entityManager().createQuery(
                 queryString.append(" ORDER BY e.fullPath").toString(), Realm.class);
 
@@ -196,7 +214,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
     public List<String> findDescendants(final String base, final String prefix) {
         List<Object> parameters = new ArrayList<>();
 
-        StringBuilder queryString = buildDescendantQuery(base, null, parameters);
+        StringBuilder queryString = buildDescendantsQuery(Set.of(base), null, parameters);
         TypedQuery<Realm> query = entityManager().createQuery(queryString.
                 append(" AND (e.fullPath=?").
                 append(setParameter(parameters, prefix)).
@@ -296,16 +314,6 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         query.setParameter("realm", realm);
 
         return query.getResultList();
-    }
-
-    protected StringBuilder buildDescendantQuery(final String base, final List<Object> parameters) {
-        return new StringBuilder("SELECT e FROM ").
-                append(JPARealm.class.getSimpleName()).append(" e ").
-                append("WHERE e.fullPath=?").
-                append(setParameter(parameters, base)).
-                append(" OR e.fullPath LIKE ?").
-                append(setParameter(parameters, SyncopeConstants.ROOT_REALM.equals(base) ? "/%" : base + "/%")).
-                append(" ORDER BY e.fullPath");
     }
 
     protected String buildFullPath(final Realm realm) {

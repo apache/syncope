@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.Optional;
+import java.util.Set;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -43,7 +44,7 @@ public class TestCommand implements Command<TestCommandArgs> {
     private AnyObjectLogic anyObjectLogic;
 
     private Optional<RealmTO> getRealm(final String fullPath) {
-        return realmLogic.search(null, fullPath, -1, -1).getRight().stream().
+        return realmLogic.search(null, Set.of(fullPath), -1, -1).getRight().stream().
                 filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 

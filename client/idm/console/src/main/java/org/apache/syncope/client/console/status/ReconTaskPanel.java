@@ -140,7 +140,7 @@ public class ReconTaskPanel extends MultilevelPanel.SecondLevel {
                 protected Iterator<String> getChoices(final String input) {
                     return (RealmsUtils.checkInput(input)
                             ? (realmRestClient.search(fullRealmsTree
-                                    ? RealmsUtils.buildRootQuery()
+                                    ? RealmsUtils.buildBaseQuery()
                                     : RealmsUtils.buildKeywordQuery(input)).getResult())
                             : List.<RealmTO>of()).stream().
                             map(RealmTO::getFullPath).collect(Collectors.toList()).iterator();
