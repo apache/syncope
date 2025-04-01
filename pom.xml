@@ -2382,7 +2382,7 @@ under the License.
       </activation>
 
       <properties>
-        <byte-buddy.version>1.17.4</byte-buddy.version>
+        <byte-buddy.version>1.17.5</byte-buddy.version>
         <mockito.version>5.16.1</mockito.version>
       </properties>
 
