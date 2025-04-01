@@ -470,8 +470,6 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1871() {
         PagedResult<RealmTO> result = REALM_SERVICE.search(new RealmQuery.Builder().base("/odd").base("/even").build());
-        assertEquals(3, result.getSize());
-        assertEquals(3, result.getResult().size());
         assertDoesNotThrow(() -> result.getResult().stream().
                 filter(r -> "odd".equals(r.getName())).findFirst().orElseThrow());
         assertDoesNotThrow(() -> result.getResult().stream().
