@@ -1607,7 +1607,7 @@ under the License.
                   <name>bitnami/openldap:2.6</name>
                   <run>
                     <env>
-                      <LDAP_PORT_NUMBER>2389</LDAP_PORT_NUMBER>
+                      <LDAP_PORT_NUMBER>1389</LDAP_PORT_NUMBER>
                       <LDAP_ROOT>o=isp</LDAP_ROOT>
                       <LDAP_USER_OU>People</LDAP_USER_OU>
                       <LDAP_GROUP_OU>Groups</LDAP_GROUP_OU>

@@ -236,6 +236,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends BaseAjaxWizar
 
             liveSyncTaskSpecifics.add(remediation("liveSyncRemediation", taskTO));
 
+            liveSyncTaskSpecifics.add(new AjaxNumberFieldPanel.Builder<Integer>().
+                    min(1).build(
+                    "liveSyncDelaySecondsAcrossInvocations",
+                    "liveSyncDelaySecondsAcrossInvocations",
+                    Integer.class,
+                    new PropertyModel<>(taskTO, "delaySecondsAcrossInvocations")));
+
             AjaxDropDownChoicePanel<String> liveSyncDeltaMapper = new AjaxDropDownChoicePanel<>(
                     "liveSyncDeltaMapper", "liveSyncDeltaMapper",
                     new PropertyModel<>(taskTO, "liveSyncDeltaMapper"), false);

@@ -31,6 +31,8 @@ public class LiveSyncTaskTO extends InboundTaskTO implements TemplatableTO {
 
     private static final long serialVersionUID = -2727384303923661649L;
 
+    private int delaySecondsAcrossInvocations = 5;
+
     private String liveSyncDeltaMapper;
 
     private final Map<String, AnyTO> templates = new HashMap<>();
@@ -42,6 +44,14 @@ public class LiveSyncTaskTO extends InboundTaskTO implements TemplatableTO {
     @Override
     public String getDiscriminator() {
         return getClass().getName();
+    }
+
+    public int getDelaySecondsAcrossInvocations() {
+        return delaySecondsAcrossInvocations;
+    }
+
+    public void setDelaySecondsAcrossInvocations(final int delaySecondsAcrossInvocations) {
+        this.delaySecondsAcrossInvocations = delaySecondsAcrossInvocations;
     }
 
     public String getLiveSyncDeltaMapper() {
@@ -61,6 +71,7 @@ public class LiveSyncTaskTO extends InboundTaskTO implements TemplatableTO {
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
+                append(delaySecondsAcrossInvocations).
                 append(liveSyncDeltaMapper).
                 append(templates).
                 build();
@@ -80,6 +91,7 @@ public class LiveSyncTaskTO extends InboundTaskTO implements TemplatableTO {
         final LiveSyncTaskTO other = (LiveSyncTaskTO) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
+                append(delaySecondsAcrossInvocations, other.delaySecondsAcrossInvocations).
                 append(liveSyncDeltaMapper, other.liveSyncDeltaMapper).
                 append(templates, other.templates).
                 build();

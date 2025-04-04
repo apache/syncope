@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.neo4j.entity.task;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +54,10 @@ public class Neo4jLiveSyncTask extends Neo4jInboundTask<LiveSyncTask> implements
 
     public static final String LIVE_SYNC_TASK_EXEC_REL = "LIVE_SYNC_TASK_EXEC";
 
+    @Min(1)
+    @NotNull
+    private Integer delaySecondsAcrossInvocations = 5;
+
     @Relationship(type = LIVE_SYNC_MAPPER_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation liveSyncDeltaMapper;
 
@@ -67,6 +73,16 @@ public class Neo4jLiveSyncTask extends Neo4jInboundTask<LiveSyncTask> implements
 
     @Relationship(type = LIVE_SYNC_TASK_EXEC_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jLiveSyncTaskExec> executions = new ArrayList<>();
+
+    @Override
+    public int getDelaySecondsAcrossInvocations() {
+        return Optional.ofNullable(delaySecondsAcrossInvocations).orElse(5);
+    }
+
+    @Override
+    public void setDelaySecondsAcrossInvocations(final int delaySecondsAcrossInvocations) {
+        this.delaySecondsAcrossInvocations = delaySecondsAcrossInvocations;
+    }
 
     @Override
     public Implementation getLiveSyncDeltaMapper() {

@@ -28,6 +28,10 @@ public interface LiveSyncTask extends InboundTask<LiveSyncTask> {
 
     void setLiveSyncDeltaMapper(Implementation liveSyncDeltaMapper);
 
+    int getDelaySecondsAcrossInvocations();
+
+    void setDelaySecondsAcrossInvocations(int delaySecondsAcrossInvocations);
+
     boolean add(AnyTemplateLiveSyncTask template);
 
     @Override

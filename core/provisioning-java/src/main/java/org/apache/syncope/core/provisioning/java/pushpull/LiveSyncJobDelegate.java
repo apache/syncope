@@ -86,6 +86,8 @@ public class LiveSyncJobDelegate
     @Autowired
     protected LiveSyncTaskSaver liveSyncTaskSaver;
 
+    protected int delaySecondsAcrossInvocations = 5;
+
     protected LiveSyncDeltaMapper mapper;
 
     protected List<LiveSyncInfo> infos;
@@ -99,6 +101,8 @@ public class LiveSyncJobDelegate
             final JobExecutionContext context) throws JobExecutionException {
 
         super.init(taskType, taskKey, context);
+
+        delaySecondsAcrossInvocations = task.getDelaySecondsAcrossInvocations();
 
         Implementation impl = Optional.ofNullable(task.getLiveSyncDeltaMapper()).
                 orElseThrow(() -> new JobExecutionException(
@@ -269,6 +273,113 @@ public class LiveSyncJobDelegate
                 && !Objects.equals(fromProvision, ConnObjectUtils.toString(latestSyncTokens.get(objectClass)));
     }
 
+    protected void doLivesync() throws JobExecutionException {
+        profile.getResults().clear();
+
+        TaskExec<SchedTask> execution = initExecution();
+        execution.setTask(null);
+
+        String message;
+        String status;
+        OpEvent.Outcome result;
+        try {
+            if (!profile.isDryRun()) {
+                for (InboundActions action : profile.getActions()) {
+                    action.beforeAll(profile);
+                }
+            }
+
+            infos.forEach(info -> {
+                setStatus("Live syncing " + info.objectClass().getObjectClassValue());
+
+                OperationOptions options = Optional.ofNullable(
+                        latestSyncTokens.get(info.objectClass().getObjectClassValue())).
+                        map(syncToken -> new OperationOptionsBuilder(info.options()).
+                        setPagedResultsCookie(syncToken.getValue().toString()).build()).
+                        orElseGet(() -> info.options());
+
+                profile.getConnector().livesync(
+                        info.objectClass(),
+                        liveSyncDelta -> {
+                            try {
+                                LOG.debug("LiveSyncDelta: {}", liveSyncDelta);
+                                SyncDelta syncDelta = info.provision() == null
+                                ? mapper.map(liveSyncDelta, info.orgUnit())
+                                : mapper.map(liveSyncDelta, info.provision());
+                                LOG.debug("Mapped SyncDelta: {}", syncDelta);
+
+                                return dispatcher.handle(syncDelta);
+                            } catch (Exception e) {
+                                LOG.error("While live syncing from {} with {}",
+                                        task.getResource().getKey(), liveSyncDelta, e);
+                                return false;
+                            }
+                        },
+                        options);
+
+                if (info.provision() != null && info.uidOnCreate() != null) {
+                    AnyUtils anyUtils = anyUtilsFactory.getInstance(info.anyTypeKind());
+                    profile.getResults().stream().
+                            filter(r -> r.getUidValue() != null && r.getKey() != null
+                            && r.getOperation() == ResourceOperation.CREATE
+                            && r.getAnyType().equals(info.provision().getAnyType())).
+                            forEach(r -> liveSyncTaskSaver.addAttr(
+                            anyUtils,
+                            validator,
+                            r.getKey(),
+                            info.uidOnCreate(),
+                            r.getUidValue()));
+                }
+
+                if (info.anyTypeKind() == AnyTypeKind.GROUP) {
+                    try {
+                        setGroupOwners();
+                    } catch (Exception e) {
+                        LOG.error("While setting group owners", e);
+                    }
+                }
+            });
+
+            if (!profile.isDryRun()) {
+                for (InboundActions action : profile.getActions()) {
+                    action.afterAll(profile);
+                }
+            }
+
+            message = createReport(profile.getResults(), task.getResource(), profile.isDryRun());
+            status = TaskJob.Status.SUCCESS.name();
+            result = OpEvent.Outcome.SUCCESS;
+        } catch (Throwable t) {
+            LOG.error("While executing task {}", task.getKey(), t);
+
+            message = ExceptionUtils2.getFullStackTrace(t);
+            status = TaskJob.Status.FAILURE.name();
+            result = OpEvent.Outcome.FAILURE;
+        }
+
+        if (!profile.getResults().isEmpty()) {
+            liveSyncTaskSaver.save(task.getKey(), execution, message, status, result, this::hasToBeRegistered);
+        }
+
+        if (!profile.isDryRun()) {
+            boolean anySyncTokenChanged = false;
+            for (int i = 0; i < infos.size() && !anySyncTokenChanged; i++) {
+                if (infos.get(i).provision() != null) {
+                    anySyncTokenChanged = syncTokenChanged(
+                            infos.get(i).provision().getSyncToken(),
+                            infos.get(i).objectClass().getObjectClassValue());
+                } else if (infos.get(i).orgUnit() != null) {
+                    anySyncTokenChanged = syncTokenChanged(
+                            infos.get(i).orgUnit().getSyncToken(),
+                            infos.get(i).objectClass().getObjectClassValue());
+                }
+            }
+            if (anySyncTokenChanged) {
+                liveSyncTaskSaver.save(task.getResource().getKey(), latestSyncTokens);
+            }
+        }
+    }
+
     @Override
     protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         if (infos.isEmpty()) {
@@ -278,109 +389,17 @@ public class LiveSyncJobDelegate
 
         LOG.debug("Executing live sync on {}", task.getResource());
 
-        while (!stopRequested) {
-            profile.getResults().clear();
-
-            TaskExec<SchedTask> execution = initExecution();
-            execution.setTask(null);
-
-            String message;
-            String status;
-            OpEvent.Outcome result;
-            try {
-                if (!profile.isDryRun()) {
-                    for (InboundActions action : profile.getActions()) {
-                        action.beforeAll(profile);
+        Object lock = new Object();
+        synchronized (lock) {
+            while (!stopRequested) {
+                try {
+                    doLivesync();
+                } finally {
+                    try {
+                        lock.wait(delaySecondsAcrossInvocations * 1000);
+                    } catch (InterruptedException e) {
+                        // ignore
                     }
-                }
-
-                infos.forEach(info -> {
-                    setStatus("Live syncing " + info.objectClass().getObjectClassValue());
-
-                    OperationOptions options = Optional.ofNullable(
-                            latestSyncTokens.get(info.objectClass().getObjectClassValue())).
-                            map(syncToken -> new OperationOptionsBuilder(info.options()).
-                            setPagedResultsCookie(syncToken.getValue().toString()).build()).
-                            orElseGet(() -> info.options());
-
-                    profile.getConnector().livesync(
-                            info.objectClass(),
-                            liveSyncDelta -> {
-                                try {
-                                    LOG.debug("LiveSyncDelta: {}", liveSyncDelta);
-                                    SyncDelta syncDelta = info.provision() == null
-                                    ? mapper.map(liveSyncDelta, info.orgUnit())
-                                    : mapper.map(liveSyncDelta, info.provision());
-                                    LOG.debug("Mapped SyncDelta: {}", syncDelta);
-
-                                    return dispatcher.handle(syncDelta);
-                                } catch (Exception e) {
-                                    LOG.error("While live syncing from {} with {}",
-                                            task.getResource().getKey(), liveSyncDelta, e);
-                                    return false;
-                                }
-                            },
-                            options);
-
-                    if (info.provision() != null && info.uidOnCreate() != null) {
-                        AnyUtils anyUtils = anyUtilsFactory.getInstance(info.anyTypeKind());
-                        profile.getResults().stream().
-                                filter(r -> r.getUidValue() != null && r.getKey() != null
-                                && r.getOperation() == ResourceOperation.CREATE
-                                && r.getAnyType().equals(info.provision().getAnyType())).
-                                forEach(r -> liveSyncTaskSaver.addAttr(
-                                anyUtils,
-                                validator,
-                                r.getKey(),
-                                info.uidOnCreate(),
-                                r.getUidValue()));
-                    }
-
-                    if (info.anyTypeKind() == AnyTypeKind.GROUP) {
-                        try {
-                            setGroupOwners();
-                        } catch (Exception e) {
-                            LOG.error("While setting group owners", e);
-                        }
-                    }
-                });
-
-                if (!profile.isDryRun()) {
-                    for (InboundActions action : profile.getActions()) {
-                        action.afterAll(profile);
-                    }
-                }
-
-                message = createReport(profile.getResults(), task.getResource(), profile.isDryRun());
-                status = TaskJob.Status.SUCCESS.name();
-                result = OpEvent.Outcome.SUCCESS;
-            } catch (Throwable t) {
-                LOG.error("While executing task {}", task.getKey(), t);
-
-                message = ExceptionUtils2.getFullStackTrace(t);
-                status = TaskJob.Status.FAILURE.name();
-                result = OpEvent.Outcome.FAILURE;
-            }
-
-            if (!profile.getResults().isEmpty()) {
-                liveSyncTaskSaver.save(task.getKey(), execution, message, status, result, this::hasToBeRegistered);
-            }
-
-            if (!profile.isDryRun()) {
-                boolean anySyncTokenChanged = false;
-                for (int i = 0; i < infos.size() && !anySyncTokenChanged; i++) {
-                    if (infos.get(i).provision() != null) {
-                        anySyncTokenChanged = syncTokenChanged(
-                                infos.get(i).provision().getSyncToken(),
-                                infos.get(i).objectClass().getObjectClassValue());
-                    } else if (infos.get(i).orgUnit() != null) {
-                        anySyncTokenChanged = syncTokenChanged(
-                                infos.get(i).orgUnit().getSyncToken(),
-                                infos.get(i).objectClass().getObjectClassValue());
-                    }
-                }
-                if (anySyncTokenChanged) {
-                    liveSyncTaskSaver.save(task.getResource().getKey(), latestSyncTokens);
                 }
             }
         }
