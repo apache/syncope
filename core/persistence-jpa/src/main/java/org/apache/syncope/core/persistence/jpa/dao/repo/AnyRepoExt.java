@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface AnyRepoExt<A extends Any> {
@@ -33,7 +32,7 @@ public interface AnyRepoExt<A extends Any> {
 
     A authFind(String key);
 
-    List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
+    List<A> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 

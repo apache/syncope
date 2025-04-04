@@ -250,11 +250,12 @@ public class UserTest extends AbstractTest {
 
         // search by ksuffix derived attribute
         List<User> list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("ksuffix").orElseThrow(), firstname + 'k', false);
+                derSchemaDAO.findById("ksuffix").orElseThrow().getExpression(), firstname + 'k', false);
         assertEquals(1, list.size());
 
         // search by kprefix derived attribute
-        list = userDAO.findByDerAttrValue(derSchemaDAO.findById("kprefix").orElseThrow(), 'k' + firstname, false);
+        list = userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("kprefix").orElseThrow().getExpression(), 'k' + firstname, false);
         assertEquals(1, list.size());
     }
 }

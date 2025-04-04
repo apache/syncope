@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -51,6 +52,7 @@ import org.apache.syncope.core.persistence.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
+import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.LiveSyncDeltaMapper;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
@@ -262,10 +264,9 @@ public class LiveSyncJobDelegate
         end();
     }
 
-    protected boolean syncTokenChanged(final String syncToken, final String objectClass) {
-        return (syncToken == null && !latestSyncTokens.containsKey(objectClass))
-                || (syncToken != null && latestSyncTokens.containsKey(objectClass)
-                && !syncToken.equals(ConnObjectUtils.toString(latestSyncTokens.get(objectClass))));
+    protected boolean syncTokenChanged(final String fromProvision, final String objectClass) {
+        return latestSyncTokens.containsKey(objectClass)
+                && !Objects.equals(fromProvision, ConnObjectUtils.toString(latestSyncTokens.get(objectClass)));
     }
 
     @Override
@@ -287,6 +288,12 @@ public class LiveSyncJobDelegate
             String status;
             OpEvent.Outcome result;
             try {
+                if (!profile.isDryRun()) {
+                    for (InboundActions action : profile.getActions()) {
+                        action.beforeAll(profile);
+                    }
+                }
+
                 infos.forEach(info -> {
                     setStatus("Live syncing " + info.objectClass().getObjectClassValue());
 
@@ -338,7 +345,13 @@ public class LiveSyncJobDelegate
                     }
                 });
 
-                message = createReport(profile.getResults(), task.getResource(), context.isDryRun());
+                if (!profile.isDryRun()) {
+                    for (InboundActions action : profile.getActions()) {
+                        action.afterAll(profile);
+                    }
+                }
+
+                message = createReport(profile.getResults(), task.getResource(), profile.isDryRun());
                 status = TaskJob.Status.SUCCESS.name();
                 result = OpEvent.Outcome.SUCCESS;
             } catch (Throwable t) {
@@ -353,7 +366,7 @@ public class LiveSyncJobDelegate
                 liveSyncTaskSaver.save(task.getKey(), execution, message, status, result, this::hasToBeRegistered);
             }
 
-            if (!context.isDryRun()) {
+            if (!profile.isDryRun()) {
                 boolean anySyncTokenChanged = false;
                 for (int i = 0; i < infos.size() && !anySyncTokenChanged; i++) {
                     if (infos.get(i).provision() != null) {

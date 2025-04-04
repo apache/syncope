@@ -26,7 +26,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncResultsHandler;
-import org.springframework.transaction.annotation.Transactional;
 
 public class PullResultHandlerDispatcher
         extends SyncopeResultHandlerDispatcher<PullTask, InboundActions, SyncopePullResultHandler>
@@ -42,7 +41,6 @@ public class PullResultHandlerDispatcher
         this.executor = executor;
     }
 
-    @Transactional
     @Override
     public boolean handle(final SyncDelta delta) {
         if (tpte.isEmpty()) {

@@ -112,28 +112,28 @@ public class UserTest extends AbstractTest {
     @Test
     public void findByDerAttrValue() {
         List<User> list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow(), "Vivaldi, Antonio", false);
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "Vivaldi, Antonio", false);
         assertEquals(1, list.size());
 
         list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow(), "VIVALDI, ANTONIO", false);
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "VIVALDI, ANTONIO", false);
         assertEquals(0, list.size());
 
         list = userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow(), "VIVALDI, ANTONIO", true);
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "VIVALDI, ANTONIO", true);
         assertEquals(1, list.size());
     }
 
     @Test
     public void findByInvalidDerAttrValue() {
         assertTrue(userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("cn").orElseThrow(), "Antonio, Maria, Rossi", false).isEmpty());
+                derSchemaDAO.findById("cn").orElseThrow().getExpression(), "Antonio, Maria, Rossi", false).isEmpty());
     }
 
     @Test
     public void findByInvalidDerAttrExpression() {
-        assertTrue(userDAO.findByDerAttrValue(
-                derSchemaDAO.findById("noschema").orElseThrow(), "Antonio, Maria", false).isEmpty());
+        assertThrows(IllegalArgumentException.class, () -> userDAO.findByDerAttrValue(
+                derSchemaDAO.findById("noschema").orElseThrow().getExpression(), "Antonio, Maria", false).isEmpty());
     }
 
     @Test

@@ -116,7 +116,7 @@ public class SAML2SP4UIUserManager {
             return Collections.emptyList();
         }
         return inboundMatcher.matchByConnObjectKeyValue(
-                idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
+                idp.getConnObjectKeyItem().get(), connObjectKeyValue, AnyTypeKind.USER, null, false).stream().
                 filter(match -> match.getAny() != null).
                 map(match -> ((User) match.getAny()).getUsername()).
                 toList();

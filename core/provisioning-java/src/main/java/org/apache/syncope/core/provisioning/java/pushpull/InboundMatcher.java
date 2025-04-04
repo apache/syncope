@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
@@ -138,27 +139,41 @@ public class InboundMatcher {
 
     public Optional<InboundMatch> match(
             final AnyType anyType,
-            final String nameValue,
+            final String connObjectLinkValue,
             final ExternalResource resource,
             final Connector connector) {
 
-        Optional<Provision> provision = resource.getProvisionByAnyType(anyType.getKey());
-        if (provision.isEmpty()) {
+        Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
+        if (provision == null) {
             return Optional.empty();
         }
 
+        // first, attempt to match the provided connObjectLinkValue against the configured connObjectLink
+        // (if available) via internal search
+        if (StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
+            List<? extends Any> found = anyUtilsFactory.getInstance(anyType.getKind()).dao().
+                    findByDerAttrValue(
+                            provision.getMapping().getConnObjectLink(),
+                            connObjectLinkValue,
+                            provision.isIgnoreCaseMatch());
+            if (!found.isEmpty()) {
+                return Optional.of(new InboundMatch(MatchType.ANY, found.getFirst()));
+            }
+        }
+
+        // then, attempt to lookup the provided connObjectLinkValue onto the connector
         Stream<Item> mapItems = Stream.concat(
-                provision.get().getMapping().getItems().stream(),
+                provision.getMapping().getItems().stream(),
                 virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
                         map(VirSchema::asLinkingMappingItem));
 
         List<ConnectorObject> found = new ArrayList<>();
 
         try {
-            Name nameAttr = new Name(nameValue);
+            Name nameAttr = new Name(connObjectLinkValue);
             connector.search(
-                    new ObjectClass(provision.get().getObjectClass()),
-                    provision.get().isIgnoreCaseMatch()
+                    new ObjectClass(provision.getObjectClass()),
+                    provision.isIgnoreCaseMatch()
                     ? FilterBuilder.equalsIgnoreCase(nameAttr)
                     : FilterBuilder.equalTo(nameAttr),
                     new SearchResultsHandler() {
@@ -174,17 +189,18 @@ public class InboundMatcher {
                 }
             }, MappingUtils.buildOperationOptions(mapItems));
         } catch (Throwable t) {
-            LOG.warn("While searching for {} ...", nameValue, t);
+            LOG.warn("While searching for {} ...", connObjectLinkValue, t);
         }
 
         Optional<InboundMatch> result = Optional.empty();
 
         if (found.isEmpty()) {
-            LOG.debug("No {} found on {} with {} {}", provision.get().getObjectClass(), resource, Name.NAME, nameValue);
+            LOG.debug("No {} found on {} with {} {}",
+                    provision.getObjectClass(), resource, Name.NAME, connObjectLinkValue);
         } else {
             if (found.size() > 1) {
                 LOG.warn("More than one {} found on {} with {} {} - taking first only",
-                        provision.get().getObjectClass(), resource, Name.NAME, nameValue);
+                        provision.getObjectClass(), resource, Name.NAME, connObjectLinkValue);
             }
 
             ConnectorObject connObj = found.getFirst();
@@ -196,7 +212,7 @@ public class InboundMatcher {
                                 setObject(connObj).
                                 build(),
                         resource,
-                        provision.get(),
+                        provision,
                         anyType.getKind());
                 if (matches.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", anyType.getKind(), connObj);
@@ -227,8 +243,8 @@ public class InboundMatcher {
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
             final AnyTypeKind anyTypeKind,
-            final boolean ignoreCaseMatch,
-            final ExternalResource resource) {
+            final ExternalResource resource,
+            final boolean ignoreCaseMatch) {
 
         String finalConnObjectKeyValue = connObjectKeyValue;
         for (ItemTransformer transformer
@@ -307,7 +323,9 @@ public class InboundMatcher {
 
                 case DERIVED ->
                     anys.addAll(anyUtils.dao().findByDerAttrValue(
-                            (DerSchema) intAttrName.getSchema(), finalConnObjectKeyValue, ignoreCaseMatch));
+                            ((DerSchema) intAttrName.getSchema()).getExpression(),
+                            finalConnObjectKeyValue,
+                            ignoreCaseMatch));
 
                 default -> {
                 }
@@ -413,8 +431,8 @@ public class InboundMatcher {
                             connObjectKeyItem.get(),
                             connObjectKeyValue,
                             anyTypeKind,
-                            provision.isIgnoreCaseMatch(),
-                            resource);
+                            resource,
+                            provision.isIgnoreCaseMatch());
                 }
             }
         } catch (RuntimeException e) {

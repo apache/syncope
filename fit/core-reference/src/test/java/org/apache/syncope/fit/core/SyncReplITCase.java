@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnIdBundle;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.LiveSyncTaskTO;
@@ -63,6 +64,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.SyncReplInboundActions;
 import org.apache.syncope.core.provisioning.java.pushpull.SyncReplLiveSyncDeltaMapper;
 import org.apache.syncope.fit.AbstractITCase;
@@ -74,7 +76,7 @@ class SyncReplITCase extends AbstractITCase {
 
     private static final String RESOURCE_NAME_OPENLDAP = "resource-openldap";
 
-    private static final int OPENLDAP_PORT = 2389;
+    private static final int OPENLDAP_PORT = 1389;
 
     private static final String ADMIN_PASSWORD = "adminpassword";
 
@@ -128,16 +130,27 @@ class SyncReplITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
                 // PlainSchema
-                PlainSchemaTO entryUUID = new PlainSchemaTO();
-                entryUUID.setKey("entryUUID");
-                entryUUID.setType(AttrSchemaType.String);
-                entryUUID.setMandatoryCondition("false");
-                entryUUID.setReadonly(true);
-                createSchema(SchemaType.PLAIN, entryUUID);
+                PlainSchemaTO userEntryUUID = new PlainSchemaTO();
+                userEntryUUID.setKey("userEntryUUID");
+                userEntryUUID.setType(AttrSchemaType.String);
+                userEntryUUID.setMandatoryCondition("false");
+                userEntryUUID.setReadonly(true);
+                createSchema(SchemaType.PLAIN, userEntryUUID);
 
                 AnyTypeClassTO minimalUser = ANY_TYPE_CLASS_SERVICE.read("minimal user");
-                minimalUser.getPlainSchemas().add(entryUUID.getKey());
+                minimalUser.getPlainSchemas().add(userEntryUUID.getKey());
                 ANY_TYPE_CLASS_SERVICE.update(minimalUser);
+
+                PlainSchemaTO groupEntryUUID = new PlainSchemaTO();
+                groupEntryUUID.setKey("groupEntryUUID");
+                groupEntryUUID.setType(AttrSchemaType.String);
+                groupEntryUUID.setMandatoryCondition("false");
+                groupEntryUUID.setReadonly(true);
+                createSchema(SchemaType.PLAIN, groupEntryUUID);
+
+                AnyTypeClassTO minimalGroup = ANY_TYPE_CLASS_SERVICE.read("minimal group");
+                minimalGroup.getPlainSchemas().add(groupEntryUUID.getKey());
+                ANY_TYPE_CLASS_SERVICE.update(minimalGroup);
 
                 // ConnInstance
                 ConnIdBundle bundle = CONNECTOR_SERVICE.getBundles(null).stream().
@@ -159,7 +172,7 @@ class SyncReplITCase extends AbstractITCase {
                         filter(s -> "url".equals(s.getName())).findFirst().orElseThrow();
                 ConnConfProperty prop = new ConnConfProperty();
                 prop.setSchema(schema);
-                prop.getValues().add("ldap://" + System.getProperty("OPENLDAP_IP") + ":2389");
+                prop.getValues().add("ldap://" + System.getProperty("OPENLDAP_IP") + ":" + OPENLDAP_PORT);
                 connector.getConf().add(prop);
 
                 schema = bundle.getProperties().stream().
@@ -183,6 +196,27 @@ class SyncReplITCase extends AbstractITCase {
                 prop.getValues().add("o=isp");
                 connector.getConf().add(prop);
 
+                schema = bundle.getProperties().stream().
+                        filter(s -> "groupObjectClass".equals(s.getName())).findFirst().orElseThrow();
+                prop = new ConnConfProperty();
+                prop.setSchema(schema);
+                prop.getValues().add("groupOfNames");
+                connector.getConf().add(prop);
+
+                schema = bundle.getProperties().stream().
+                        filter(s -> "groupMemberAttribute".equals(s.getName())).findFirst().orElseThrow();
+                prop = new ConnConfProperty();
+                prop.setSchema(schema);
+                prop.getValues().add("member");
+                connector.getConf().add(prop);
+
+                schema = bundle.getProperties().stream().
+                        filter(s -> "legacyCompatibilityMode".equals(s.getName())).findFirst().orElseThrow();
+                prop = new ConnConfProperty();
+                prop.setSchema(schema);
+                prop.getValues().add(true);
+                connector.getConf().add(prop);
+
                 ConnPoolConf cpc = new ConnPoolConf();
                 cpc.setMaxObjects(10);
                 connector.setPoolConf(cpc);
@@ -197,20 +231,21 @@ class SyncReplITCase extends AbstractITCase {
                 resource.setKey(RESOURCE_NAME_OPENLDAP);
                 resource.setConnector(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
 
-                Provision provision = new Provision();
-                provision.setAnyType(AnyTypeKind.USER.name());
-                provision.setObjectClass("inetOrgPerson");
-                resource.getProvisions().add(provision);
+                Provision user = new Provision();
+                user.setAnyType(AnyTypeKind.USER.name());
+                user.setObjectClass("inetOrgPerson");
+                user.setIgnoreCaseMatch(true);
+                user.setUidOnCreate(userEntryUUID.getKey());
+                resource.getProvisions().add(user);
 
                 Mapping mapping = new Mapping();
-                provision.setUidOnCreate(entryUUID.getKey());
-                provision.setMapping(mapping);
+                user.setMapping(mapping);
 
-                mapping.setConnObjectLink("'uid=' + username + ',ou=people,o=isp'");
+                mapping.setConnObjectLink("'cn=' + username + ',ou=People,o=isp'");
 
                 Item item = new Item();
-                item.setIntAttrName(entryUUID.getKey());
-                item.setExtAttrName(entryUUID.getKey());
+                item.setIntAttrName(userEntryUUID.getKey());
+                item.setExtAttrName(userEntryUUID.getKey());
                 item.setPurpose(MappingPurpose.PULL);
                 mapping.setConnObjectKeyItem(item);
 
@@ -250,6 +285,30 @@ class SyncReplITCase extends AbstractITCase {
                 item.setPurpose(MappingPurpose.PULL);
                 mapping.add(item);
 
+                Provision group = new Provision();
+                group.setAnyType(AnyTypeKind.GROUP.name());
+                group.setObjectClass("groupOfNames");
+                group.setIgnoreCaseMatch(true);
+                group.setUidOnCreate(groupEntryUUID.getKey());
+                resource.getProvisions().add(group);
+
+                mapping = new Mapping();
+                group.setMapping(mapping);
+
+                mapping.setConnObjectLink("'cn=' + name + ',ou=Groups,o=isp'");
+
+                item = new Item();
+                item.setIntAttrName(groupEntryUUID.getKey());
+                item.setExtAttrName(groupEntryUUID.getKey());
+                item.setPurpose(MappingPurpose.PULL);
+                mapping.setConnObjectKeyItem(item);
+
+                item = new Item();
+                item.setIntAttrName("name");
+                item.setExtAttrName("cn");
+                item.setPurpose(MappingPurpose.PULL);
+                mapping.add(item);
+
                 resource = createResource(resource);
             }
         }
@@ -285,6 +344,7 @@ class SyncReplITCase extends AbstractITCase {
         task.setResource(RESOURCE_NAME_OPENLDAP);
         task.setLiveSyncDeltaMapper(SyncReplLiveSyncDeltaMapper.class.getSimpleName());
         task.getActions().add(SyncReplInboundActions.class.getSimpleName());
+        task.getActions().add(LDAPMembershipPullActions.class.getSimpleName());
         task.setPerformCreate(true);
         task.setPerformUpdate(true);
         task.setPerformDelete(true);
@@ -303,9 +363,20 @@ class SyncReplITCase extends AbstractITCase {
 
         try {
             // 2. check preexisting
-            List<UserTO> preexisting = await().
-                    atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).
-                    pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            List<GroupTO> pregroups = await().
+                    atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+
+                try {
+                    return GROUP_SERVICE.<GroupTO>search(
+                            new AnyQuery.Builder().fiql("name==readers").build()).getResult();
+                } catch (SyncopeClientException e) {
+                    return List.of();
+                }
+            }, match -> match.size() == 1);
+            assertEquals(1, pregroups.size());
+
+            List<UserTO> preusers = await().
+                    atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
 
                 try {
                     return USER_SERVICE.<UserTO>search(
@@ -314,12 +385,13 @@ class SyncReplITCase extends AbstractITCase {
                     return List.of();
                 }
             }, match -> match.size() == 2);
-            assertEquals(2, preexisting.size());
-            assertTrue(preexisting.stream().anyMatch(u -> "user01".equals(u.getUsername())
-                    && "user01@syncope.apache.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
-            assertTrue(preexisting.stream().anyMatch(u -> "user02".equals(u.getUsername())
-                    && "user02@syncope.apache.org".equals(u.getPlainAttr("email").orElseThrow().getValues().get(0))));
-            assertTrue(preexisting.stream().allMatch(u -> u.getPlainAttr("entryUUID").isPresent()));
+            assertEquals(2, preusers.size());
+            assertTrue(preusers.stream().anyMatch(u -> "user01".equals(u.getUsername()) && "user01@syncope.apache.org".
+                    equals(u.getPlainAttr("email").orElseThrow().getValues().getFirst())));
+            assertTrue(preusers.stream().anyMatch(u -> "user02".equals(u.getUsername()) && "user02@syncope.apache.org".
+                    equals(u.getPlainAttr("email").orElseThrow().getValues().getFirst())));
+            assertTrue(preusers.stream().allMatch(u -> u.getPlainAttr("userEntryUUID").isPresent()));
+            assertTrue(preusers.stream().allMatch(u -> u.getMembership(pregroups.getFirst().getKey()).isPresent()));
 
             // 3. ldap update
             execOnOpenLDAP(ldapConn -> ldapConn.modify("cn=user01,ou=People,o=isp",
@@ -327,7 +399,7 @@ class SyncReplITCase extends AbstractITCase {
 
             // 4. check that change is now in Syncope
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
-                    () -> USER_SERVICE.read("user01").getPlainAttr("email").orElseThrow().getValues().get(0),
+                    () -> USER_SERVICE.read("user01").getPlainAttr("email").orElseThrow().getValues().getFirst(),
                     "user01_new@syncope.apache.org"::equals);
 
             // 5. ldap create
@@ -343,15 +415,16 @@ class SyncReplITCase extends AbstractITCase {
             });
 
             // 6. check that the new user is now in Syncope
-            UserTO jdoe = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
-                    () -> {
-                        try {
-                            return USER_SERVICE.read("jdoe");
-                        } catch (SyncopeClientException e) {
-                            return null;
-                        }
-                    }, Objects::nonNull);
-            assertTrue(jdoe.getPlainAttr("entryUUID").isPresent());
+            UserTO jdoe = await().
+                    atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+
+                try {
+                    return USER_SERVICE.read("jdoe");
+                } catch (SyncopeClientException e) {
+                    return null;
+                }
+            }, Objects::nonNull);
+            assertTrue(jdoe.getPlainAttr("userEntryUUID").isPresent());
 
             // 7. ldap delete
             execOnOpenLDAP(ldapConn -> ldapConn.delete("uid=jdoe,ou=People,o=isp"));

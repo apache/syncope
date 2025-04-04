@@ -104,7 +104,7 @@ public class OIDCUserManager {
             final Item connObjectKeyItem) {
 
         return inboundMatcher.matchByConnObjectKeyValue(
-                connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, false, null).stream().
+                connObjectKeyItem, connObjectKeyValue, AnyTypeKind.USER, null, false).stream().
                 filter(match -> match.getAny() != null).
                 map(match -> ((User) match.getAny()).getUsername()).
                 toList();
