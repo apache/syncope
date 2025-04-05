@@ -32,7 +32,6 @@ import com.unboundid.ldap.sdk.Modification;
 import com.unboundid.ldap.sdk.ModificationType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -415,16 +414,13 @@ class SyncReplITCase extends AbstractITCase {
             });
 
             // 6. check that the new user is now in Syncope
-            UserTO jdoe = await().
-                    atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
-
+            await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
                 try {
                     return USER_SERVICE.read("jdoe");
                 } catch (SyncopeClientException e) {
                     return null;
                 }
-            }, Objects::nonNull);
-            assertTrue(jdoe.getPlainAttr("userEntryUUID").isPresent());
+            }, jdoe -> jdoe.getPlainAttr("userEntryUUID").isPresent());
 
             // 7. ldap delete
             execOnOpenLDAP(ldapConn -> ldapConn.delete("uid=jdoe,ou=People,o=isp"));
