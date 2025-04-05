@@ -202,6 +202,11 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>com.unboundid</groupId>
+      <artifactId>unboundid-ldapsdk</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-tester</artifactId>
       <scope>test</scope>
@@ -1553,6 +1558,80 @@ under the License.
               </execution>
               <execution>
                 <id>stop-debezium</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                  <goal>remove</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven3-plugin</artifactId>
+            <inherited>true</inherited>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>syncrepl-it</id>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <includes>
+                <include>**/org/apache/syncope/fit/core/SyncReplITCase.java</include>
+              </includes>
+              <systemPropertyVariables>
+                <OPENLDAP_IP>${docker.container.openldap.ip}</OPENLDAP_IP>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <configuration>
+              <images>
+                <image>
+                  <alias>openldap</alias>
+                  <name>bitnami/openldap:2.6</name>
+                  <run>
+                    <env>
+                      <LDAP_PORT_NUMBER>1389</LDAP_PORT_NUMBER>
+                      <LDAP_ROOT>o=isp</LDAP_ROOT>
+                      <LDAP_USER_OU>People</LDAP_USER_OU>
+                      <LDAP_GROUP_OU>Groups</LDAP_GROUP_OU>
+                      <LDAP_ENABLE_SYNCPROV>yes</LDAP_ENABLE_SYNCPROV>
+                    </env>
+                    <volumes>
+                      <bind>
+                        <volume>/etc/localtime:/etc/localtime:ro</volume>
+                      </bind>
+                    </volumes>
+                  </run>
+                </image>                
+              </images>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-openldap</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-openldap</id>
                 <phase>post-integration-test</phase>
                 <goals>
                   <goal>stop</goal>

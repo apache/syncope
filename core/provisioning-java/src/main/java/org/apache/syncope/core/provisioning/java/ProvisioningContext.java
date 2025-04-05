@@ -160,7 +160,7 @@ import org.apache.syncope.core.provisioning.java.notification.DefaultNotificatio
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationManager;
 import org.apache.syncope.core.provisioning.java.propagation.PriorityPropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.java.pushpull.InboundMatcher;
-import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncTaskExecSaver;
+import org.apache.syncope.core.provisioning.java.pushpull.LiveSyncTaskSaver;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
@@ -695,14 +695,21 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public LiveSyncTaskExecSaver liveSyncTaskExecSaver(
+    public LiveSyncTaskSaver liveSyncTaskExecSaver(
+            final ExternalResourceDAO resourceDAO,
             final TaskDAO taskDAO,
             final TaskExecDAO taskExecDAO,
             final TaskUtilsFactory taskUtilsFactory,
             final NotificationManager notificationManager,
             final AuditManager auditManager) {
 
-        return new LiveSyncTaskExecSaver(taskDAO, taskExecDAO, taskUtilsFactory, notificationManager, auditManager);
+        return new LiveSyncTaskSaver(
+                resourceDAO,
+                taskDAO,
+                taskExecDAO,
+                taskUtilsFactory,
+                notificationManager,
+                auditManager);
     }
 
     @ConditionalOnMissingBean

@@ -27,6 +27,16 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.unboundid.ldap.sdk.AddRequest;
+import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.LDAPConnection;
+import com.unboundid.ldap.sdk.LDAPException;
+import com.unboundid.ldap.sdk.Modification;
+import com.unboundid.ldap.sdk.ModificationType;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResult;
+import com.unboundid.ldap.sdk.SearchResultEntry;
+import com.unboundid.ldap.sdk.SearchScope;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -36,23 +46,13 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
-import javax.naming.directory.ModificationItem;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -186,6 +186,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.context.support.TestPropertySourceUtils;
+import org.springframework.util.function.ThrowingFunction;
 
 @SpringJUnitConfig(
         classes = { CoreITContext.class, SelfKeymasterClientContext.class, ZookeeperKeymasterClientContext.class },
@@ -279,10 +280,6 @@ public abstract class AbstractITCase {
     protected static final String RESOURCE_NAME_REST = "rest-target-resource";
 
     protected static final String RESOURCE_NAME_KAFKA = "resource-kafka";
-
-    protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
-
-    protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
 
     protected static final String PRINTER = "PRINTER";
 
@@ -786,120 +783,114 @@ public abstract class AbstractITCase {
                 (InputStream) response.getEntity(), response.getMediaType(), new BatchResponseItem());
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes", "UseOfObsoleteCollectionType" })
-    protected static InitialDirContext getLdapResourceDirContext(final String bindDn, final String bindPwd)
-            throws NamingException {
-        ResourceTO ldapRes = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
-        ConnInstanceTO ldapConn = CONNECTOR_SERVICE.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage());
+    private static <T> T execOnLDAP(
+            final String bindDn,
+            final String bindPassword,
+            final ConnInstanceTO connInstance,
+            final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
 
-        Properties env = new Properties();
-        env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").get().getValues().getFirst()
-                + ':' + ldapConn.getConf("port").get().getValues().getFirst() + '/');
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL,
-                bindDn == null ? ldapConn.getConf("principal").get().getValues().getFirst() : bindDn);
-        env.put(Context.SECURITY_CREDENTIALS,
-                bindPwd == null ? ldapConn.getConf("credentials").get().getValues().getFirst() : bindPwd);
+        try (LDAPConnection ldapConn = new LDAPConnection(
+                connInstance.getConf("host").orElseThrow().getValues().getFirst().toString(),
+                Integer.parseInt(connInstance.getConf("port").orElseThrow().getValues().getFirst().toString()),
+                bindDn,
+                bindPassword)) {
 
-        return new InitialDirContext(env);
+            return function.apply(ldapConn);
+        }
     }
 
-    protected static Object getLdapRemoteObject(final String bindDn, final String bindPwd, final String objectDn) {
-        InitialDirContext ctx = null;
+    private static <T> T execOnLDAP(
+            final String bindDn,
+            final String bindPassword,
+            final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
+
+        ConnInstanceTO connInstance = CONNECTOR_SERVICE.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
+
+        return execOnLDAP(bindDn, bindPassword, connInstance, function);
+    }
+
+    private static <T> T execOnLDAP(final ThrowingFunction<LDAPConnection, T> function) throws LDAPException {
+        ConnInstanceTO connInstance = CONNECTOR_SERVICE.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
+
+        return execOnLDAP(
+                connInstance.getConf("principal").orElseThrow().getValues().getFirst().toString(),
+                connInstance.getConf("credentials").orElseThrow().getValues().getFirst().toString(),
+                connInstance,
+                function);
+    }
+
+    protected static SearchResult ldapSearch(final String baseDn, final String filter) {
         try {
-            ctx = getLdapResourceDirContext(bindDn, bindPwd);
-            return ctx.lookup(objectDn);
-        } catch (Exception e) {
-            LOG.error("Could not fetch {}", objectDn, e);
+            return execOnLDAP(ldapConn -> ldapConn.search(
+                    new SearchRequest(baseDn, SearchScope.SUB, filter)));
+        } catch (LDAPException e) {
+            LOG.error("While searching from {} with filter {}", baseDn, filter, e);
+            return new SearchResult(e);
+        }
+    }
+
+    protected static SearchResultEntry getLdapRemoteObject(final String objectDn) {
+        try {
+            return execOnLDAP(ldapConn -> ldapConn.searchForEntry(
+                    new SearchRequest(objectDn, SearchScope.BASE, "objectClass=*")));
+        } catch (LDAPException e) {
+            LOG.error("While reading {}", objectDn, e);
             return null;
-        } finally {
-            if (ctx != null) {
-                try {
-                    ctx.close();
-                } catch (NamingException e) {
-                    // ignore
-                }
-            }
         }
     }
 
-    protected static void createLdapRemoteObject(
+    protected static SearchResultEntry getLdapRemoteObject(
             final String bindDn,
-            final String bindPwd,
-            final Pair<String, Set<Attribute>> entryAttrs) throws NamingException {
-
-        InitialDirContext ctx = null;
-        try {
-            ctx = getLdapResourceDirContext(bindDn, bindPwd);
-
-            BasicAttributes entry = new BasicAttributes();
-            entryAttrs.getRight().forEach(entry::put);
-
-            ctx.createSubcontext(entryAttrs.getLeft(), entry);
-
-        } catch (NamingException e) {
-            LOG.error("While creating {} with {}", entryAttrs.getLeft(), entryAttrs.getRight(), e);
-            throw e;
-        } finally {
-            if (ctx != null) {
-                try {
-                    ctx.close();
-                } catch (NamingException e) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    protected static void updateLdapRemoteObject(
-            final String bindDn,
-            final String bindPwd,
-            final String objectDn,
-            final Map<String, String> attributes) {
-
-        InitialDirContext ctx = null;
-        try {
-            ctx = getLdapResourceDirContext(bindDn, bindPwd);
-
-            List<ModificationItem> items = new ArrayList<>();
-            attributes.forEach((key, value) -> items.add(new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                    new BasicAttribute(key, value))));
-
-            ctx.modifyAttributes(objectDn, items.toArray(ModificationItem[]::new));
-        } catch (Exception e) {
-            LOG.error("While updating {} with {}", objectDn, attributes, e);
-        } finally {
-            if (ctx != null) {
-                try {
-                    ctx.close();
-                } catch (NamingException e) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    protected static void removeLdapRemoteObject(
-            final String bindDn,
-            final String bindPwd,
+            final String bindPassword,
             final String objectDn) {
 
-        InitialDirContext ctx = null;
         try {
-            ctx = getLdapResourceDirContext(bindDn, bindPwd);
+            return execOnLDAP(bindDn, bindPassword, ldapConn -> ldapConn.searchForEntry(
+                    new SearchRequest(objectDn, SearchScope.BASE, "objectClass=*")));
+        } catch (LDAPException e) {
+            LOG.error("While reading {}", objectDn, e);
+            return null;
+        }
+    }
 
-            ctx.destroySubcontext(objectDn);
-        } catch (Exception e) {
+    protected static void createLdapRemoteObject(final String objectDn, final Map<String, String> attributes) {
+        try {
+            execOnLDAP(ldapConn -> {
+                List<Attribute> attrs = new ArrayList<>();
+                attributes.forEach((key, value) -> attrs.add(new Attribute(key, value)));
+
+                ldapConn.add(new AddRequest(objectDn, attrs));
+
+                return null;
+            });
+        } catch (LDAPException e) {
+            LOG.error("While creating {} with {}", objectDn, attributes, e);
+        }
+    }
+
+    protected static void updateLdapRemoteObject(final String objectDn, final Map<String, String> attributes) {
+        try {
+            execOnLDAP(ldapConn -> {
+                List<Modification> modifications = new ArrayList<>();
+                attributes.forEach((key, value) -> modifications.add(
+                        value == null
+                                ? new Modification(ModificationType.DELETE, key)
+                                : new Modification(ModificationType.REPLACE, key, value)));
+
+                ldapConn.modify(objectDn, modifications);
+
+                return null;
+            });
+        } catch (LDAPException e) {
+            LOG.error("While updating {} with {}", objectDn, attributes, e);
+        }
+    }
+
+    protected static void removeLdapRemoteObject(final String objectDn) {
+        try {
+            execOnLDAP(ldapConn -> ldapConn.delete(objectDn));
+        } catch (LDAPException e) {
             LOG.error("While removing {}", objectDn, e);
-        } finally {
-            if (ctx != null) {
-                try {
-                    ctx.close();
-                } catch (NamingException e) {
-                    // ignore
-                }
-            }
         }
     }
 

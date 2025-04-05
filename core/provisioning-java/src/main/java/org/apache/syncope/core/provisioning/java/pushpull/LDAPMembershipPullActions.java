@@ -23,9 +23,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.MembershipUR;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -43,14 +45,10 @@ import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
 import org.apache.syncope.core.spring.implementation.InstanceScope;
 import org.apache.syncope.core.spring.implementation.SyncopeImplementation;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.LiveSyncDelta;
-import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.OperationOptionsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,40 +93,16 @@ public class LDAPMembershipPullActions implements InboundActions {
                 filter(property -> "groupMemberAttribute".equals(property.getSchema().getName())
                 && !property.getValues().isEmpty()).findFirst().
                 map(groupMembership -> (String) groupMembership.getValues().getFirst()).
-                orElse("uniquemember");
+                orElse("uniqueMember");
     }
 
-    /**
-     * Read values of attribute returned by getGroupMembershipAttrName(); if not present in the given delta, perform an
-     * additional read on the underlying connector.
-     *
-     * @param delta representing the pulling group
-     * @param connector associated to the current resource
-     * @return value of attribute returned by
-     * {@link #getGroupMembershipAttrName}
-     */
-    protected List<Object> getMembAttrValues(final LiveSyncDelta delta, final Connector connector) {
-        String groupMemberName = getGroupMembershipAttrName(connector);
-
-        // first, try to read the configured attribute from delta, returned by the ongoing pull
-        Attribute membAttr = delta.getObject().getAttributeByName(groupMemberName);
-        // if not found, perform an additional read on the underlying connector for the same connector object
-        if (membAttr == null) {
-            ConnectorObject remoteObj = connector.getObject(
-                    ObjectClass.GROUP,
-                    delta.getUid(),
-                    false,
-                    new OperationOptionsBuilder().setAttributesToGet(groupMemberName).build());
-            if (remoteObj == null) {
-                LOG.debug("Object for '{}' not found", delta.getUid().getUidValue());
-            } else {
-                membAttr = remoteObj.getAttributeByName(groupMemberName);
-            }
+    @Override
+    public Set<String> moreAttrsToGet(final ProvisioningProfile<?, ?> profile, final Provision provision) {
+        if (!AnyTypeKind.GROUP.name().equals(provision.getAnyType())) {
+            return InboundActions.super.moreAttrsToGet(profile, provision);
         }
 
-        return membAttr == null || membAttr.getValue() == null
-                ? List.of()
-                : membAttr.getValue();
+        return Set.of(getGroupMembershipAttrName(profile.getConnector()));
     }
 
     /**
@@ -165,6 +139,19 @@ public class LDAPMembershipPullActions implements InboundActions {
     }
 
     /**
+     * Read values of attribute returned by {@link #getGroupMembershipAttrName}.
+     *
+     * @param delta representing the pulling group
+     * @param connector associated to the current resource
+     * @return value of attribute returned by {@link #getGroupMembershipAttrName}
+     */
+    protected List<Object> getMembAttrValues(final LiveSyncDelta delta, final Connector connector) {
+        return Optional.ofNullable(delta.getObject().getAttributeByName(getGroupMembershipAttrName(connector))).
+                map(Attribute::getValue).filter(Objects::nonNull).
+                orElseGet(() -> List.of());
+    }
+
+    /**
      * Keep track of members of the group being updated after actual update took place.
      * {@inheritDoc}
      */
@@ -187,21 +174,18 @@ public class LDAPMembershipPullActions implements InboundActions {
             return;
         }
 
-        getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> {
-            Optional<InboundMatch> match = inboundMatcher.match(
-                    anyTypeDAO.getUser(),
-                    membValue.toString(),
-                    profile.getTask().getResource(),
-                    profile.getConnector());
-            if (match.isPresent()) {
-                Set<String> memb = membershipsAfter.computeIfAbsent(
-                        match.get().getAny().getKey(),
-                        k -> Collections.synchronizedSet(new HashSet<>()));
-                memb.add(entity.getKey());
-            } else {
-                LOG.warn("Could not find matching user for {}", membValue);
-            }
-        });
+        getMembAttrValues(delta, profile.getConnector()).forEach(membValue -> inboundMatcher.match(
+                anyTypeDAO.getUser(),
+                membValue.toString(),
+                profile.getTask().getResource(),
+                profile.getConnector()).ifPresentOrElse(
+                match -> {
+                    Set<String> memb = membershipsAfter.computeIfAbsent(
+                            match.getAny().getKey(),
+                            k -> Collections.synchronizedSet(new HashSet<>()));
+                    memb.add(entity.getKey());
+                },
+                () -> LOG.warn("Could not find matching user for {}", membValue)));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -214,14 +198,11 @@ public class LDAPMembershipPullActions implements InboundActions {
             userUR.setKey(user);
             updateReqs.add(userUR);
 
-            groups.forEach(group -> {
-                Set<String> before = membershipsBefore.get(user);
-                if (before == null || !before.contains(group)) {
-                    userUR.getMemberships().add(new MembershipUR.Builder(group).
-                            operation(PatchOperation.ADD_REPLACE).
-                            build());
-                }
-            });
+            Set<String> before = membershipsBefore.getOrDefault(user, Set.of());
+            groups.stream().filter(group -> !before.contains(group)).
+                    forEach(group -> userUR.getMemberships().add(new MembershipUR.Builder(group).
+                    operation(PatchOperation.ADD_REPLACE).
+                    build()));
         });
 
         membershipsBefore.forEach((user, groups) -> {
@@ -233,21 +214,18 @@ public class LDAPMembershipPullActions implements InboundActions {
                         return req;
                     });
 
-            groups.forEach(group -> {
-                Set<String> after = membershipsAfter.get(user);
-                if (after == null || !after.contains(group)) {
-                    userUR.getMemberships().add(new MembershipUR.Builder(group).
-                            operation(PatchOperation.DELETE).
-                            build());
-                }
-            });
+            Set<String> after = membershipsAfter.getOrDefault(user, Set.of());
+            groups.stream().filter(group -> !after.contains(group)).
+                    forEach(group -> userUR.getMemberships().add(new MembershipUR.Builder(group).
+                    operation(PatchOperation.DELETE).
+                    build()));
         });
 
         membershipsAfter.clear();
         membershipsBefore.clear();
 
         String context = "PullTask " + profile.getTask().getKey() + " '" + profile.getTask().getName() + "'";
-        updateReqs.stream().filter(req -> !req.isEmpty()).forEach(req -> {
+        updateReqs.stream().filter(Predicate.not(UserUR::isEmpty)).forEach(req -> {
             LOG.debug("About to update memberships for User {}", req.getKey());
             userProvisioningManager.update(req, true, profile.getExecutor(), context);
         });

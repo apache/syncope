@@ -31,11 +31,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -95,16 +94,11 @@ public class AnyFinder {
     @Transactional(readOnly = true)
     public <A extends Any> List<A> findByDerAttrValue(
             final AnyTypeKind anyTypeKind,
-            final DerSchema derSchema,
+            final String expression,
             final String value,
             final boolean ignoreCaseMatch) {
 
-        if (derSchema == null) {
-            LOG.error("No DerSchema");
-            return List.of();
-        }
-
-        Parser parser = new Parser(derSchema.getExpression());
+        Parser parser = new Parser(expression);
 
         // Schema keys
         List<String> identifiers = new ArrayList<>();
@@ -143,19 +137,15 @@ public class AnyFinder {
 
         // Create several clauses: one for eanch identifiers
         for (int i = 0; i < identifiers.size() && !used.contains(identifiers.get(i)); i++) {
-            // verify schema existence and get schema type
-            PlainSchema schema = plainSchemaDAO.findById(identifiers.get(i)).orElse(null);
+            used.add(identifiers.get(i));
 
-            if (schema == null) {
-                LOG.error("Invalid schema '{}', ignoring", identifiers.get(i));
-            } else {
-                used.add(identifiers.get(i));
-
-                AttrCond cond = new AttrCond(ignoreCaseMatch ? AttrCond.Type.IEQ : AttrCond.Type.EQ);
-                cond.setSchema(schema.getKey());
-                cond.setExpression(attrValues.get(i));
-                andConditions.add(SearchCond.of(cond));
-            }
+            AttrCond cond = plainSchemaDAO.findById(identifiers.get(i)).
+                    map(schema -> new AttrCond()).
+                    orElseGet(() -> new AnyCond());
+            cond.setType(ignoreCaseMatch ? AttrCond.Type.IEQ : AttrCond.Type.EQ);
+            cond.setSchema(identifiers.get(i));
+            cond.setExpression(attrValues.get(i));
+            andConditions.add(SearchCond.of(cond));
         }
 
         LOG.debug("Generated search {} conditions: {}", anyTypeKind, andConditions);

@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Optional;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
-import org.apache.syncope.core.provisioning.api.LiveSyncDeltaMapper;
+import org.apache.syncope.core.provisioning.api.pushpull.LiveSyncDeltaMapper;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.LiveSyncDelta;
@@ -70,7 +70,7 @@ public class TestLiveSyncDeltaMapper implements LiveSyncDeltaMapper {
         try {
             tree = JSON_MAPPER.readTree(value);
         } catch (IOException e) {
-            throw new IllegalStateException("Could to parse the received value as JSON", e);
+            throw new IllegalStateException("Could not parse the received value as JSON", e);
         }
 
         SyncDeltaBuilder builder = new SyncDeltaBuilder().

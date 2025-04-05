@@ -16,27 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.task;
+package org.apache.syncope.core.provisioning.api.pushpull;
 
-import java.util.List;
-import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.common.lib.to.OrgUnit;
+import org.apache.syncope.common.lib.to.Provision;
+import org.identityconnectors.framework.common.objects.LiveSyncDelta;
+import org.identityconnectors.framework.common.objects.SyncDelta;
 
-public interface LiveSyncTask extends InboundTask<LiveSyncTask> {
+public interface LiveSyncDeltaMapper {
 
-    Implementation getLiveSyncDeltaMapper();
+    SyncDelta map(LiveSyncDelta liveSyncDelta, OrgUnit orgUnit);
 
-    void setLiveSyncDeltaMapper(Implementation liveSyncDeltaMapper);
-
-    int getDelaySecondsAcrossInvocations();
-
-    void setDelaySecondsAcrossInvocations(int delaySecondsAcrossInvocations);
-
-    boolean add(AnyTemplateLiveSyncTask template);
-
-    @Override
-    Optional<? extends AnyTemplateLiveSyncTask> getTemplate(String anyType);
-
-    @Override
-    List<? extends AnyTemplateLiveSyncTask> getTemplates();
+    SyncDelta map(LiveSyncDelta liveSyncDelta, Provision provision);
 }

@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.springframework.data.domain.Page;
@@ -48,12 +47,12 @@ public interface AnyDAO<A extends Any> extends DAO<A> {
      * specify a derived attribute expression you must be quite sure that string literals used to build the expression
      * cannot be found into the attribute values used to replace attribute schema keys used as identifiers.
      *
-     * @param schema derived schema
+     * @param expression JEXL expression
      * @param value derived attribute value
      * @param ignoreCaseMatch whether comparison for string values should take case into account or not
      * @return list of any objects
      */
-    List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
+    List<A> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
 
     List<A> findByResourcesContaining(ExternalResource resource);
 

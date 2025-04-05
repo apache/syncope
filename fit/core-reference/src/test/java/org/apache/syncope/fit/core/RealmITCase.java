@@ -369,12 +369,9 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, resultDescendant.getPropagationStatuses().getFirst().getStatus());
 
         // 3. check on LDAP
-        assertNotNull(
-                getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
-        assertNotNull(
-                getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=child,ou=test,o=isp"));
-        assertNotNull(
-                getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,ou=child,ou=test,o=isp"));
+        assertNotNull(getLdapRemoteObject("ou=test,o=isp"));
+        assertNotNull(getLdapRemoteObject("ou=child,ou=test,o=isp"));
+        assertNotNull(getLdapRemoteObject("ou=test,ou=child,ou=test,o=isp"));
 
         // 4. remove realms
         REALM_SERVICE.delete("/test/child/test");
@@ -382,12 +379,9 @@ public class RealmITCase extends AbstractITCase {
         REALM_SERVICE.delete("/test");
 
         // 5. check on LDAP: both realms should be deleted
-        assertNull(
-                getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,ou=child,ou=test,o=isp"));
-        assertNull(
-                getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=child,ou=test,o=isp"));
-        assertNull(
-                getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
+        assertNull(getLdapRemoteObject("ou=test,ou=child,ou=test,o=isp"));
+        assertNull(getLdapRemoteObject("ou=child,ou=test,o=isp"));
+        assertNull(getLdapRemoteObject("ou=test,o=isp"));
     }
 
     @Test

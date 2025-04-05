@@ -195,6 +195,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                 }
                 liveSyncTask.setJobDelegate(jobDelegate);
 
+                liveSyncTask.setDelaySecondsAcrossInvocations(liveSyncTaskTO.getDelaySecondsAcrossInvocations());
+
                 if (liveSyncTaskTO.getLiveSyncDeltaMapper() == null) {
                     liveSyncTask.setLiveSyncDeltaMapper(null);
                 } else {
@@ -584,6 +586,8 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                         ? MatchingRule.UPDATE : liveSyncTask.getMatchingRule());
                 liveSyncTaskTO.setUnmatchingRule(liveSyncTask.getUnmatchingRule() == null
                         ? UnmatchingRule.PROVISION : liveSyncTask.getUnmatchingRule());
+
+                liveSyncTaskTO.setDelaySecondsAcrossInvocations(liveSyncTask.getDelaySecondsAcrossInvocations());
 
                 liveSyncTaskTO.setLiveSyncDeltaMapper(liveSyncTask.getLiveSyncDeltaMapper().getKey());
 

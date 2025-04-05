@@ -43,7 +43,6 @@ import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
@@ -128,7 +127,6 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             AnyType anyType = anyTypeDAO.findById(provision.getAnyType()).
                     orElseThrow(() -> new NotFoundException("AnyType" + provision.getAnyType()));
 
-            GroupPullResultHandler ghandler = buildGroupHandler();
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
                 switch (anyType.getKind()) {
@@ -164,7 +162,7 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
                     MappingUtils.buildOperationOptions(mapItems, matg.toArray(String[]::new)));
 
             try {
-                setGroupOwners(ghandler, groupDAO, anyTypeDAO, inboundMatcher, profile);
+                setGroupOwners();
             } catch (Exception e) {
                 LOG.error("While setting group owners", e);
             }

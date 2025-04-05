@@ -18,189 +18,48 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.ProvisionSorter;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.job.StoppableSchedTaskJobDelegate;
-import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
-import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.SyncToken;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class PullJobDelegate
-        extends AbstractProvisioningJobDelegate<PullTask>
+        extends AbstractPullExecutor<PullTask>
         implements SyncopePullExecutor, StoppableSchedTaskJobDelegate {
 
-    public static void setGroupOwners(
-            final GroupPullResultHandler ghandler,
-            final GroupDAO groupDAO,
-            final AnyTypeDAO anyTypeDAO,
-            final InboundMatcher inboundMatcher,
-            final ProvisioningProfile<PullTask, InboundActions> profile) {
-
-        ghandler.getGroupOwnerMap().forEach((groupKey, ownerKey) -> {
-            Group group = groupDAO.findById(groupKey).orElseThrow(() -> new NotFoundException("Group " + groupKey));
-
-            if (StringUtils.isBlank(ownerKey)) {
-                group.setGroupOwner(null);
-                group.setUserOwner(null);
-            } else {
-                inboundMatcher.match(
-                        anyTypeDAO.getUser(),
-                        ownerKey,
-                        profile.getTask().getResource(),
-                        profile.getConnector()).ifPresentOrElse(
-                        userMatch -> group.setUserOwner((User) userMatch.getAny()),
-                        () -> inboundMatcher.match(
-                                anyTypeDAO.getGroup(),
-                                ownerKey,
-                                profile.getTask().getResource(),
-                                profile.getConnector()).
-                                ifPresent(groupMatch -> group.setGroupOwner((Group) groupMatch.getAny())));
-            }
-
-            groupDAO.save(group);
-        });
-    }
-
-    @Autowired
-    protected GroupDAO groupDAO;
-
-    @Autowired
-    protected PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    protected VirSchemaDAO virSchemaDAO;
-
-    @Autowired
-    protected InboundMatcher inboundMatcher;
-
-    @Autowired
-    protected PlainAttrValidationManager validator;
-
-    protected final Map<String, SyncToken> latestSyncTokens = Collections.synchronizedMap(new HashMap<>());
-
-    protected ProvisioningProfile<PullTask, InboundActions> profile;
-
-    protected final Map<String, MutablePair<Integer, String>> handled = new HashMap<>();
-
-    protected final Map<String, InboundActions> perContextActions = new ConcurrentHashMap<>();
-
     protected Optional<ReconFilterBuilder> perContextReconFilterBuilder = Optional.empty();
-
-    protected PullResultHandlerDispatcher dispatcher;
-
-    @Override
-    public void setLatestSyncToken(final String objectClass, final SyncToken latestSyncToken) {
-        latestSyncTokens.put(objectClass, latestSyncToken);
-    }
-
-    @Override
-    public void reportHandled(final String objectClass, final Name name) {
-        synchronized (handled) {
-            MutablePair<Integer, String> pair = Optional.ofNullable(handled.get(objectClass)).orElseGet(() -> {
-                MutablePair<Integer, String> p = MutablePair.of(0, null);
-                handled.put(objectClass, p);
-                return p;
-            });
-            pair.setLeft(pair.getLeft() + 1);
-            pair.setRight(name.getNameValue());
-
-            if (!handled.isEmpty()) {
-                StringBuilder builder = new StringBuilder("Processed:\n");
-                handled.forEach((k, v) -> builder.append(' ').append(v.getLeft()).append('\t').
-                        append(k).
-                        append(" / latest: ").append(v.getRight()).
-                        append('\n'));
-                setStatus(builder.toString());
-            }
-        }
-    }
-
-    protected List<InboundActions> getInboundActions(final List<? extends Implementation> impls) {
-        List<InboundActions> result = new ArrayList<>();
-
-        impls.forEach(impl -> {
-            try {
-                result.add(ImplementationManager.build(
-                        impl,
-                        () -> perContextActions.get(impl.getKey()),
-                        instance -> perContextActions.put(impl.getKey(), instance)));
-            } catch (Exception e) {
-                LOG.warn("While building {}", impl, e);
-            }
-        });
-
-        return result;
-    }
 
     protected ReconFilterBuilder getReconFilterBuilder(final PullTask task) throws ClassNotFoundException {
         return ImplementationManager.build(
                 task.getReconFilterBuilder(),
                 () -> perContextReconFilterBuilder.orElse(null),
                 instance -> perContextReconFilterBuilder = Optional.of(instance));
-    }
-
-    protected RealmPullResultHandler buildRealmHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultRealmPullResultHandler.class);
-    }
-
-    protected AnyObjectPullResultHandler buildAnyObjectHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultAnyObjectPullResultHandler.class);
-    }
-
-    protected UserPullResultHandler buildUserHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultUserPullResultHandler.class);
-    }
-
-    protected GroupPullResultHandler buildGroupHandler() {
-        return ApplicationContextProvider.getBeanFactory().createBean(DefaultGroupPullResultHandler.class);
     }
 
     @Override
@@ -222,7 +81,7 @@ public class PullJobDelegate
                 executor,
                 context.isDryRun());
 
-        latestSyncTokens.clear();
+        dispatcher = new PullResultHandlerDispatcher(profile, this);
     }
 
     @Override
@@ -233,10 +92,6 @@ public class PullJobDelegate
     @Override
     protected String doExecute(final JobExecutionContext context) throws JobExecutionException {
         LOG.debug("Executing pull on {}", task.getResource());
-
-        dispatcher = new PullResultHandlerDispatcher(profile, this);
-
-        latestSyncTokens.clear();
 
         if (!profile.isDryRun()) {
             for (InboundActions action : profile.getActions()) {
@@ -265,7 +120,7 @@ public class PullJobDelegate
                 switch (task.getPullMode()) {
                     case INCREMENTAL:
                         if (!context.isDryRun()) {
-                            latestSyncTokens.put(
+                            setLatestSyncToken(
                                     orgUnit.getObjectClass(),
                                     ConnObjectUtils.toSyncToken(orgUnit.getSyncToken()));
                         }
@@ -303,9 +158,7 @@ public class PullJobDelegate
         }
 
         // ...then provisions for any types
-        ProvisionSorter provisionSorter = getProvisionSorter(task);
-
-        GroupPullResultHandler ghandler = buildGroupHandler();
+        ghandler = buildGroupHandler();
         for (Provision provision : task.getResource().getProvisions().stream().
                 filter(provision -> provision.getMapping() != null).sorted(provisionSorter).
                 toList()) {
@@ -349,7 +202,7 @@ public class PullJobDelegate
                 switch (task.getPullMode()) {
                     case INCREMENTAL:
                         if (!context.isDryRun()) {
-                            latestSyncTokens.put(
+                            setLatestSyncToken(
                                     provision.getObjectClass(),
                                     ConnObjectUtils.toSyncToken(provision.getSyncToken()));
                         }
@@ -383,9 +236,13 @@ public class PullJobDelegate
                 throw new JobExecutionException("While pulling from connector", t);
             } finally {
                 if (setSyncTokens) {
-                    latestSyncTokens.forEach((objectClass, syncToken) -> task.getResource().
-                            getProvisionByObjectClass(objectClass).
-                            ifPresent(p -> p.setSyncToken(ConnObjectUtils.toString(syncToken))));
+                    latestSyncTokens.forEach((objectClass, syncToken) -> {
+                        task.getResource().getProvisionByObjectClass(objectClass).
+                                ifPresent(p -> p.setSyncToken(ConnObjectUtils.toString(syncToken)));
+                        Optional.ofNullable(task.getResource().getOrgUnit()).
+                                filter(ou -> objectClass.equals(ou.getObjectClass())).
+                                ifPresent(ou -> ou.setSyncToken(ConnObjectUtils.toString(syncToken)));
+                    });
                     resourceDAO.save(task.getResource());
                 }
             }
@@ -417,7 +274,7 @@ public class PullJobDelegate
         }
 
         try {
-            setGroupOwners(ghandler, groupDAO, anyTypeDAO, inboundMatcher, profile);
+            setGroupOwners();
         } catch (Exception e) {
             LOG.error("While setting group owners", e);
         }

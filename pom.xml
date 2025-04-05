@@ -409,6 +409,7 @@ under the License.
     <connid.okta.version>3.0.7</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0</connid.kafka.version>
+    <connid.ldup.version>0.1.0-SNAPSHOT</connid.ldup.version>
 
     <cxf.version>4.1.1</cxf.version>
     <bouncycastle.version>1.80</bouncycastle.version>
@@ -1612,6 +1613,12 @@ under the License.
                 <version>${connid.kafka.version}</version>
                 <classifier>bundle</classifier>
               </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles</groupId>
+                <artifactId>net.tirasa.connid.bundles.ldup</artifactId>
+                <version>${connid.ldup.version}</version>
+                <classifier>bundle</classifier>
+              </artifactItem>
             </artifactItems>
           </configuration>
         </plugin>
@@ -2383,7 +2390,7 @@ under the License.
 
       <properties>
         <byte-buddy.version>1.17.5</byte-buddy.version>
-        <mockito.version>5.16.1</mockito.version>
+        <mockito.version>5.17.0</mockito.version>
       </properties>
 
       <dependencyManagement>

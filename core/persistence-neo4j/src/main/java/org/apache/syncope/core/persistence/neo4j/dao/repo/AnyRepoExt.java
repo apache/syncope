@@ -25,7 +25,6 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
@@ -76,7 +75,7 @@ public interface AnyRepoExt<A extends Any> {
 
     A authFind(String key);
 
-    List<A> findByDerAttrValue(DerSchema schema, String value, boolean ignoreCaseMatch);
+    List<A> findByDerAttrValue(String expression, String value, boolean ignoreCaseMatch);
 
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 

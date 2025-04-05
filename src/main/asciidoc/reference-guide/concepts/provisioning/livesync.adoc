@@ -47,10 +47,10 @@ endif::[]
 
 Once a record is received, the configured <<implementations,implementation>> of
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LiveSyncDeltaMapper.java[LiveSyncDeltaMapper^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/LiveSyncDeltaMapper.java[LiveSyncDeltaMapper^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LiveSyncDeltaMapper.java[LiveSyncDeltaMapper^]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/LiveSyncDeltaMapper.java[LiveSyncDeltaMapper^]
 endif::[]
 is invoked to transform the record into a format which is in turn provided to an internally created and processed
 <<tasks-pull,pull task>>.
