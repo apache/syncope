@@ -409,7 +409,7 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-            orElseGet(cond::getExpression);
+                orElseGet(cond::getExpression);
 
         boolean isStr = true;
         boolean lower = false;
@@ -1013,43 +1013,36 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final AnyTypeKind kind) {
 
         Map<String, Object> parameters = new HashMap<>();
-        try {
-            AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, parameters);
 
-            // 1. get the query string from the search condition
-            QueryInfo queryInfo = getQuery(
-                    kind, buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters);
+        AdminRealmsFilter filter = getAdminRealmsFilter(base, recursive, adminRealms, parameters);
 
-            // 2. wrap query
-            wrapQuery(queryInfo, pageable.getSort(), kind, filter.filter());
-            TextStringBuilder query = queryInfo.query();
+        // 1. get the query string from the search condition
+        QueryInfo queryInfo = getQuery(
+                kind, buildEffectiveCond(cond, filter.dynRealmKeys(), filter.groupOwners(), kind), parameters);
 
-            List<String> orderBy = parseOrderBy(kind, pageable.getSort());
-            String orderByStmt = String.join(", ", orderBy);
+        // 2. wrap query
+        wrapQuery(queryInfo, pageable.getSort(), kind, filter.filter());
+        TextStringBuilder query = queryInfo.query();
 
-            // 3. include membership plain attr queries
-            membershipAttrConds(query, queryInfo, orderBy, kind);
+        List<String> orderBy = parseOrderBy(kind, pageable.getSort());
+        String orderByStmt = String.join(", ", orderBy);
 
-            // 4. prepare the search query
-            query.append("RETURN id ").
-                    append("ORDER BY ").append(orderByStmt);
+        // 3. include membership plain attr queries
+        membershipAttrConds(query, queryInfo, orderBy, kind);
 
-            if (pageable.isPaged()) {
-                query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
-                        append(" LIMIT ").append(pageable.getPageSize());
-            }
+        // 4. prepare the search query
+        query.append("RETURN id ").
+                append("ORDER BY ").append(orderByStmt);
 
-            LOG.debug("Query with auth and order by statements: {}, parameters: {}", query, parameters);
-
-            // 5. Prepare the result (avoiding duplicates)
-            return buildResult(neo4jClient.query(query.toString()).bindAll(parameters).fetch().all().stream().
-                    map(found -> found.get("id")).toList(), kind);
-        } catch (SyncopeClientException e) {
-            throw e;
-        } catch (Exception e) {
-            LOG.error("While searching for {}", kind, e);
+        if (pageable.isPaged()) {
+            query.append(" SKIP ").append(pageable.getPageSize() * pageable.getPageNumber()).
+                    append(" LIMIT ").append(pageable.getPageSize());
         }
 
-        return List.of();
+        LOG.debug("Query with auth and order by statements: {}, parameters: {}", query, parameters);
+
+        // 5. Prepare the result (avoiding duplicates)
+        return buildResult(neo4jClient.query(query.toString()).bindAll(parameters).fetch().all().stream().
+                map(found -> found.get("id")).toList(), kind);
     }
 }
