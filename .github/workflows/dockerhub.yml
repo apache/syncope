@@ -19,7 +19,7 @@ name: "Push to DockerHub"
 on:
   push:
     branches:
-      - master
+      - 4_0_X
     tags:
       - syncope-4.0.*
 

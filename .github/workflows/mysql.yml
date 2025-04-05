@@ -18,10 +18,10 @@ name: "MySQL"
 
 on:
   push:
-    branches: ['master', 'pr-*']
+    branches: ['4_0_X', 'pr-*']
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [4_0_X]
   schedule:
     - cron: '0 13 * * 4'
 
