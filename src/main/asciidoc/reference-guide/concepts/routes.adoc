@@ -68,7 +68,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/sra/src/main/java/org/apache/syncope/sra/predicates/CustomRoutePredicateFactory.java[CustomRoutePredicateFactory^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/sra/src/main/java/org/apache/syncope/sra/predicates/CustomRoutePredicateFactory.java[CustomRoutePredicateFactory^].
+https://github.com/apache/syncope/blob/4_0_X/sra/src/main/java/org/apache/syncope/sra/predicates/CustomRoutePredicateFactory.java[CustomRoutePredicateFactory^].
 endif::[]
 
 ==== Filters
@@ -116,5 +116,5 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/sra/src/main/java/org/apache/syncope/sra/filters/CustomGatewayFilterFactory.java[CustomGatewayFilterFactory^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/sra/src/main/java/org/apache/syncope/sra/filters/CustomGatewayFilterFactory.java[CustomGatewayFilterFactory^].
+https://github.com/apache/syncope/blob/4_0_X/sra/src/main/java/org/apache/syncope/sra/filters/CustomGatewayFilterFactory.java[CustomGatewayFilterFactory^].
 endif::[]

@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Fork from https://github.com/asciidoctor/asciidoctor-pdf/blob/master/data/themes/default-theme.yml
-# PDF styling guide: https://github.com/asciidoctor/asciidoctor-pdf/blob/master/docs/theming-guide.adoc
+# Fork from https://github.com/asciidoctor/asciidoctor-pdf/blob/4_0_X/data/themes/default-theme.yml
+# PDF styling guide: https://github.com/asciidoctor/asciidoctor-pdf/blob/4_0_X/docs/theming-guide.adoc
 
 page:
   background_color: ffffff

@@ -54,7 +54,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/saml2sp4ui[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/saml2sp4ui[source tree^]
+https://github.com/apache/syncope/tree/4_0_X/ext/saml2sp4ui[source tree^]
 endif::[]
 .
 ====
@@ -88,7 +88,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/oidcc4ui[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/oidcc4ui[source tree^]
+https://github.com/apache/syncope/tree/4_0_X/ext/oidcc4ui[source tree^]
 endif::[]
 .
 ====
@@ -119,7 +119,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/elasticsearch[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/elasticsearch[source tree^]
+https://github.com/apache/syncope/tree/4_0_X/ext/elasticsearch[source tree^]
 endif::[]
 .
 ====
@@ -141,7 +141,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/opensearch[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/opensearch[source tree^]
+https://github.com/apache/syncope/tree/4_0_X/ext/opensearch[source tree^]
 endif::[]
 .
 ====
@@ -166,7 +166,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/scimv2[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/scimv2[source tree^]
+https://github.com/apache/syncope/tree/4_0_X/ext/scimv2[source tree^]
 endif::[]
 .
 ====
@@ -190,7 +190,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/openfga[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/ext/openfga[source tree^]
+https://github.com/apache/syncope/tree/4_0_X/ext/openfga[source tree^]
 endif::[]
 .
 ====

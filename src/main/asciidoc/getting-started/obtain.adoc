@@ -143,7 +143,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/docker-compose[available^].
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources/docker-compose[available^].
+https://github.com/apache/syncope/tree/4_0_X/docker/src/main/resources/docker-compose[available^].
 endif::[]
 
 .Core, Admin UI and Enduser UI with PostgreSQL, with embedded Keymaster
@@ -396,7 +396,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/kubernetes[available^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources/kubernetes[available^],
+https://github.com/apache/syncope/tree/4_0_X/docker/src/main/resources/kubernetes[available^],
 endif::[]
 that can be used to install Apache Syncope directly in Kubernetes.
 
@@ -429,7 +429,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/docker/src/main/resources/kubernetes[folder^],
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/docker/src/main/resources/kubernetes[folder^],
+https://github.com/apache/syncope/tree/4_0_X/docker/src/main/resources/kubernetes[folder^],
 endif::[]
 wherever you downloaded it
 

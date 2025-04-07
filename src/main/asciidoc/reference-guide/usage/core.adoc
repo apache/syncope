@@ -69,7 +69,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
+https://github.com/apache/syncope/blob/4_0_X/core/spring/src/main/resources/securityContext.xml[securityContext.xml^];
 endif::[]
 while normally not needed, this configuration can be anyway customized via the <<override-behavior,override behavior>>.
 
@@ -84,7 +84,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/java/org/apache/syncope/core/spring/security/JWTSSOProvider.java[JWTSSOProvider^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/core/spring/src/main/java/org/apache/syncope/core/spring/security/JWTSSOProvider.java[JWTSSOProvider^]
+https://github.com/apache/syncope/tree/4_0_X/core/spring/src/main/java/org/apache/syncope/core/spring/security/JWTSSOProvider.java[JWTSSOProvider^]
 endif::[]
 interface.
 
@@ -159,7 +159,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
+https://github.com/apache/syncope/blob/4_0_X/common/idrepo/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
 endif::[]
 and `X-Application-Error-Info` might be optionally populated with more details, if available.
 

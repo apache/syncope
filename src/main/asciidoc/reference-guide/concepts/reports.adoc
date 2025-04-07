@@ -29,7 +29,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportJobDelegate.java[AbstractReportJobDelegate^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportJobDelegate.java[AbstractReportJobDelegate^]
+https://github.com/apache/syncope/blob/4_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/report/AbstractReportJobDelegate.java[AbstractReportJobDelegate^]
 endif::[]
 providing the custom logic to extract information from Syncope and generate output according to the configured mime type
 * scheduling information:
