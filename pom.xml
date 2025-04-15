@@ -439,7 +439,7 @@ under the License.
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.4.0</commons-jexl.version>
-    <commons-text.version>1.13.0</commons-text.version>
+    <commons-text.version>1.13.1</commons-text.version>
 
     <pac4j.version>5.5.0</pac4j.version>
 
