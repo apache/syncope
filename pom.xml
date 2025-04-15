@@ -409,7 +409,7 @@ under the License.
     <connid.okta.version>3.0.7</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0</connid.kafka.version>
-    <connid.ldup.version>0.1.0-SNAPSHOT</connid.ldup.version>
+    <connid.ldup.version>0.1.0</connid.ldup.version>
 
     <cxf.version>4.1.1</cxf.version>
     <bouncycastle.version>1.80</bouncycastle.version>
