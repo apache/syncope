@@ -49,13 +49,17 @@ under the License.
               <div class="multipanel-box box">
                 <span wicket:id="panel">[form field]</span>
               </div>
-              <div class="multipanel-btn-minus input-group-addon">
-                <a wicket:id="drop" class="btn btn-danger btn-circle btn-lg"><i class="fa fa-minus"></i></a>
-              </div>
+              <span wicket:id="panelMinus">[plus]</span>
             </div>
             <span wicket:id="panelPlus">[plus]</span>
           </div>
         </span>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="fragmentMinus">
+        <div class="multipanel-btn-minus input-group-addon">
+          <a wicket:id="drop" class="btn btn-danger btn-circle btn-lg"><i class="fa fa-minus"></i></a>
+        </div>
       </wicket:fragment>
 
       <wicket:fragment wicket:id="fragmentPlus">

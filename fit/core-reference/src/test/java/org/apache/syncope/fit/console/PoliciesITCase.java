@@ -700,8 +700,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
                 + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action");
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer",
-                Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer", Modal.class);
 
         Component modal = TESTER.getComponentFromLastRenderedPage(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:5:outer");

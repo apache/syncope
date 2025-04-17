@@ -184,7 +184,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "neighborhood");
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
                 + "specification:type:dropDownChoiceField", Constants.ON_CHANGE);
-         formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "neighborhood");
+        formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "neighborhood");
         // The ON_CHANGE above should enable this component, but it doesn't; doing it by hand
         Component otherType = findComponentById(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:specification",
@@ -518,11 +518,11 @@ public class UsersITCase extends AbstractConsoleITCase {
         // ... remove all values from multivalue field
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
-                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:drop",
+                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:1:panelMinus:drop",
                 Constants.ON_CLICK);
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:"
                 + "outer:form:content:form:view:membershipsPlainSchemas:0:membershipPlainSchemas:tabs:0:body:"
-                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:drop",
+                + "content:schemas:5:panel:multiValueContainer:innerForm:content:view:0:panelMinus:drop",
                 Constants.ON_CLICK);
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
