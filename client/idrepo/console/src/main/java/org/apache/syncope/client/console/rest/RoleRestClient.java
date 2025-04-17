@@ -25,7 +25,9 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.service.RoleService;
 
 /**
@@ -55,15 +57,21 @@ public class RoleRestClient extends BaseRestClient {
         return getService(RoleService.class).list();
     }
 
-    public String readAnyLayout(final String roleKey) {
+    public String readAnyLayout(final String role) {
         try {
             return IOUtils.toString(InputStream.class.cast(
-                    getService(RoleService.class).getAnyLayout(roleKey).getEntity()),
+                    getService(RoleService.class).getAnyLayout(role).getEntity()),
                     StandardCharsets.UTF_8);
+        } catch (SyncopeClientException e) {
+            if (e.getType() == ClientExceptionType.NotFound) {
+                LOG.warn("Could not locate console layout info for role {}", role);
+            } else {
+                LOG.error("While retrieving console layout info for role {}", role, e);
+            }
         } catch (Exception e) {
-            LOG.error("Error retrieving console layout info for role {}", roleKey, e);
-            return StringUtils.EMPTY;
+            LOG.error(e.getMessage(), e);
         }
+        return StringUtils.EMPTY;
     }
 
     public void setAnyLayout(final String roleKey, final String content) {
