@@ -87,6 +87,12 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
                 new PropertyModel<>(model.getObject().getConf(), "bypassEnabled"),
                 false));
 
+        add(new AjaxCheckBoxPanel(
+                "forceMfaExecution",
+                "forceMfaExecution",
+                new PropertyModel<>(model.getObject().getConf(), "forceMfaExecution"),
+                false));
+        
         add(new AjaxTextFieldPanel(
                 "bypassPrincipalAttributeName",
                 "bypassPrincipalAttributeName",
