@@ -69,10 +69,19 @@ http://curl.haxx.se/[curl^], for example:
 
 ....
 curl -X GET -u admin:password -o MasterContent.xml \
-  http://localhost:9080/syncope/rest/configurations/stream?tableThreshold=100
+  http://localhost:9080/syncope/rest/configurations/stream?threshold=100
 ....
 
-where `tableThreshold` indicates the maximum number of rows to take for each table of internal storage.
+where `threshold` indicates the maximum number of rows to take for each element of internal storage.
+
+It is possible to specify which element(s) to include in the export:
+
+....
+curl -X GET -u admin:password -o MasterContent.xml \
+  http://localhost:9080/syncope/rest/configurations/stream?elements=Realm&elements=PushPolicy
+....
+
+which will include only `Realm` and `PushPolicy` elements from internal storage.
 
 ==== Import
 

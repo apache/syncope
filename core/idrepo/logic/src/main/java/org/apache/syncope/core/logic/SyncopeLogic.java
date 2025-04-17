@@ -144,12 +144,17 @@ public class SyncopeLogic extends AbstractLogic<EntityTO> {
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.KEYMASTER + "')")
     @Transactional(readOnly = true)
-    public void exportInternalStorageContent(final int tableThreshold, final OutputStream os) {
+    public void exportInternalStorageContent(
+            final int threshold,
+            final OutputStream os,
+            final List<String> elements) {
+
         try {
             exporter.export(
                     AuthContextUtils.getDomain(),
-                    tableThreshold,
-                    os);
+                    threshold,
+                    os,
+                    elements.toArray(String[]::new));
             LOG.debug("Internal storage content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting internal storage content", e);

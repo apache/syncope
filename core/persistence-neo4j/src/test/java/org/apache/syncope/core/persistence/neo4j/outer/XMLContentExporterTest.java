@@ -23,9 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -41,6 +38,15 @@ public class XMLContentExporterTest extends AbstractTest {
     @Autowired
     private ContentExporter exporter;
 
+    private static void checkRealms(final String exported) {
+        List<String> realms = exported.lines().filter(row -> row.trim().startsWith("<Realm ")).toList();
+        assertEquals(4, realms.size());
+        assertTrue(realms.get(0).contains("name=\"/\""));
+        assertTrue(realms.get(1).contains("name=\"even\""));
+        assertTrue(realms.get(2).contains("name=\"two\""));
+        assertTrue(realms.get(3).contains("name=\"odd\""));
+    }
+
     /**
      * Also checks for SYNCOPE-1307.
      *
@@ -55,14 +61,22 @@ public class XMLContentExporterTest extends AbstractTest {
         String exported = baos.toString(StandardCharsets.UTF_8);
         assertTrue(StringUtils.isNotBlank(exported));
 
-        Files.writeString(Path.of("/tmp/export.xml"), exported,
-                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
+        checkRealms(exported);
+    }
 
-        List<String> realms = exported.lines().filter(row -> row.trim().startsWith("<Realm ")).toList();
-        assertEquals(4, realms.size());
-        assertTrue(realms.get(0).contains("name=\"/\""));
-        assertTrue(realms.get(1).contains("name=\"even\""));
-        assertTrue(realms.get(2).contains("name=\"two\""));
-        assertTrue(realms.get(3).contains("name=\"odd\""));
+    @Test
+    public void exportElements() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        exporter.export(SyncopeConstants.MASTER_DOMAIN, 100, baos, "AccountPolicy", "Realm");
+
+        String exported = baos.toString(StandardCharsets.UTF_8);
+        assertTrue(StringUtils.isNotBlank(exported));
+
+        List<String> accountPolicies = exported.lines().
+                filter(row -> row.trim().startsWith("<AccountPolicy ")).toList();
+        assertEquals(2, accountPolicies.size());
+
+        checkRealms(exported);
     }
 }

@@ -41,6 +41,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
+import java.util.List;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -81,7 +82,7 @@ public interface SyncopeService extends JAXRSService {
                             description = "Allows the server to inform the "
                             + "client about the fact that a specified preference was applied") }) })
     @POST
-    @Path("/batch")
+    @Path("batch")
     @Consumes(RESTHeaders.MULTIPART_MIXED)
     @Produces(RESTHeaders.MULTIPART_MIXED)
     Response batch(InputStream input);
@@ -104,7 +105,7 @@ public interface SyncopeService extends JAXRSService {
                             @Schema(type = "integer"),
                             description = "seconds after which attempt again to get batch results") }),
         @ApiResponse(responseCode = "404", description = "No batch process was found for the provided boundary") })
-    @Path("/batch")
+    @Path("batch")
     @Produces(RESTHeaders.MULTIPART_MIXED)
     Response batch();
 
@@ -120,7 +121,7 @@ public interface SyncopeService extends JAXRSService {
      * the provided Realm
      */
     @POST
-    @Path("/assignableGroups/{realm:.*}")
+    @Path("assignableGroups/{realm:.*}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     PagedResult<GroupTO> searchAssignableGroups(
             @NotNull @PathParam("realm") String realm,
@@ -135,17 +136,20 @@ public interface SyncopeService extends JAXRSService {
      * @return User type extension information, for the provided group
      */
     @GET
-    @Path("/userTypeExtension/{groupName}")
+    @Path("userTypeExtension/{groupName}")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     TypeExtensionTO readUserTypeExtension(@NotNull @PathParam("groupName") String groupName);
 
     /**
-     * Exports internal storage content as downloadable XML file.
+     * Exports the internal storage content as downloadable XML file.
      *
-     * @param tableThreshold the maximum number of rows to take for each table of internal storage
+     * @param threshold the maximum number of rows to take for each element of internal storage
+     * @param elements if provided, the list of elements to export; otherwise all elements will be included
      * @return internal storage content as downloadable XML file
      */
     @GET
     @Path("internalStorage/stream")
-    Response exportInternalStorageContent(@QueryParam("tableThreshold") @DefaultValue("100") int tableThreshold);
+    Response exportInternalStorageContent(
+            @QueryParam("threshold") @DefaultValue("100") int threshold,
+            @QueryParam("elements") List<String> elements);
 }
