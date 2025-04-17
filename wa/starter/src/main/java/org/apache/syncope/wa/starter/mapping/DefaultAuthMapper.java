@@ -125,7 +125,7 @@ public class DefaultAuthMapper implements AuthMapper {
                 mfaPolicy.setBypassEnabled(policyConf.isBypassEnabled());
             }
 
-            mfaPolicy.setForceExecution(true);
+            mfaPolicy.setForceExecution(policyConf.isForceMfaExecution());
             mfaPolicy.setMultifactorAuthenticationProviders(mfaProviders);
         }
 

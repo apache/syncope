@@ -31,6 +31,8 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     private boolean bypassEnabled;
 
+    private boolean forceMfaExecution = true;
+    
     private String bypassPrincipalAttributeName;
 
     private String bypassPrincipalAttributeValue;
@@ -51,6 +53,14 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     public void setBypassEnabled(final boolean bypassEnabled) {
         this.bypassEnabled = bypassEnabled;
+    }
+
+    public boolean isForceMfaExecution() {
+        return forceMfaExecution;
+    }
+
+    public void setForceMfaExecution(final boolean forceMfaExecution) {
+        this.forceMfaExecution = forceMfaExecution;
     }
 
     public String getBypassPrincipalAttributeName() {
