@@ -42,12 +42,16 @@ under the License.
       <span wicket:id="view">
         <div class="input-group">
           <span wicket:id="panel">[form field]</span>
-          <div class="input-group-addon me-1 ms-2">
-            <a wicket:id="drop"><i class="fa fa-minus"></i></a>
-          </div>
+          <span wicket:id="panelMinus">[minus]</span>
           <span wicket:id="panelPlus">[plus]</span>
         </div>
       </span>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentMinus">
+      <div class="input-group-addon me-1 ms-2">
+        <a wicket:id="drop"><i class="fa fa-minus"></i></a>
+      </div>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentPlus">
