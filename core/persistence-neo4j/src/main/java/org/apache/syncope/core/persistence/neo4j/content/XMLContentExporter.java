@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.TransformerHandler;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.common.content.AbstractXMLContentExporter;
 import org.apache.syncope.core.persistence.common.content.MultiParentNode;
@@ -80,13 +81,17 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
         this.mappingContext = mappingContext;
     }
 
-    protected List<Neo4jPersistentEntity<?>> persistentEntities() {
+    protected List<Neo4jPersistentEntity<?>> persistentEntities(final String[] elements) {
         Map<String, Neo4jPersistentEntity<?>> entities = mappingContext.getPersistentEntities().stream().
                 filter(e -> !LABELS_TO_BE_EXCLUDED.contains(e.getPrimaryLabel())
                 && !e.getPrimaryLabel().startsWith("Abstract")
                 && !e.getPrimaryLabel().contains("PlainAttr")).
                 collect(Collectors.toMap(
                         Neo4jPersistentEntity::getPrimaryLabel, Function.identity(), (first, second) -> first));
+
+        if (ArrayUtils.isNotEmpty(elements)) {
+            entities.entrySet().removeIf(e -> !ArrayUtils.contains(elements, e.getKey()));
+        }
 
         Set<MultiParentNode> roots = new HashSet<>();
         Map<String, MultiParentNode> exploited = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -191,11 +196,12 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
     public void export(
             final String domain,
             final int threshold,
-            final OutputStream os) throws SAXException, TransformerConfigurationException {
+            final OutputStream os,
+            final String... elements) throws SAXException, TransformerConfigurationException {
 
         TransformerHandler handler = start(os);
 
-        for (Neo4jPersistentEntity<?> entity : persistentEntities()) {
+        for (Neo4jPersistentEntity<?> entity : persistentEntities(elements)) {
             try (Session session = domainHolder.getDomains().get(domain).session()) {
                 StringBuilder query = new StringBuilder("MATCH (n:" + entity.getPrimaryLabel() + ")-[r]-() ");
                 if (Neo4jSchedTask.NODE.equals(entity.getPrimaryLabel())) {
@@ -205,7 +211,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
                 }
                 query.append("RETURN n, collect(r) AS rels ORDER BY n.id");
 
-                Stream<Record> records = session.run(query.toString()).stream();
+                Stream<Record> records = session.run(query.toString()).stream().limit(threshold);
                 if (Neo4jRealm.NODE.equals(entity.getPrimaryLabel())) {
                     records = records.sorted(REALM_COMPARATOR);
                 }

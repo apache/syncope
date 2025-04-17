@@ -197,8 +197,8 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
     }
 
     @Override
-    public Response exportInternalStorageContent(final int tableThreshold) {
-        StreamingOutput sout = os -> logic.exportInternalStorageContent(tableThreshold, os);
+    public Response exportInternalStorageContent(final int threshold, final List<String> elements) {
+        StreamingOutput sout = os -> logic.exportInternalStorageContent(threshold, os, elements);
 
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).

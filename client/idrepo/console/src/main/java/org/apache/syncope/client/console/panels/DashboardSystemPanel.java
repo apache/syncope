@@ -19,25 +19,26 @@
 package org.apache.syncope.client.console.panels;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.SyncopeRestClient;
-import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
-import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -67,17 +68,16 @@ public class DashboardSystemPanel extends Panel {
         add(new Label("os", systemInfo.getOs()));
         add(new Label("jvm", systemInfo.getJvm()));
 
-        Model<Integer> tableThresholdModel = Model.of(100);
-        add(new TextField<>("tableThreshold", tableThresholdModel).add(new IndicatorAjaxFormComponentUpdatingBehavior(
-                Constants.ON_CHANGE) {
+        AjaxNumberFieldPanel<Integer> threshold = new AjaxNumberFieldPanel.Builder<Integer>().
+                min(0).step(10).enableOnChange().
+                build("threshold", "threshold", Integer.class, Model.of(100));
+        add(threshold.addRequiredLabel());
 
-            private static final long serialVersionUID = -1107858522700306810L;
-
-            @Override
-            protected void onUpdate(final AjaxRequestTarget target) {
-                // nothing to do
-            }
-        }));
+        ListModel<String> elementsModel = new ListModel<>(new ArrayList<>());
+        add(new MultiFieldPanel.Builder<>(elementsModel).build(
+                "elements",
+                "elements",
+                new AjaxTextFieldPanel("panel", "elements", Model.of())));
 
         Link<Void> dbExportLink = new Link<>("dbExportLink") {
 
@@ -87,7 +87,8 @@ public class DashboardSystemPanel extends Panel {
             public void onClick() {
                 try {
                     HttpResourceStream stream = new HttpResourceStream(new ResponseHolder(
-                            syncopeRestClient.exportInternalStorageContent(tableThresholdModel.getObject())));
+                            syncopeRestClient.exportInternalStorageContent(
+                                    threshold.getModelObject(), elementsModel.getObject())));
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(

@@ -187,15 +187,20 @@ public class RESTITCase extends AbstractITCase {
 
     @Test
     public void exportInternalStorageContent() throws IOException {
-        Response response = SYNCOPE_SERVICE.exportInternalStorageContent(100);
-        assertNotNull(response);
+        Response response = SYNCOPE_SERVICE.exportInternalStorageContent(100, List.of());
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
-        String contentDisposition = response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION);
-        assertNotNull(contentDisposition);
+        assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
+        assertTrue(response.readEntity(String.class).length() > 1000);
 
-        String configExport = response.readEntity(String.class);
-        assertFalse(configExport.isEmpty());
-        assertTrue(configExport.length() > 1000);
+        response = SYNCOPE_SERVICE.exportInternalStorageContent(100, List.of("AccountPolicy", "Realm"));
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatusInfo().getStatusCode());
+        assertTrue(response.getMediaType().toString().startsWith(MediaType.TEXT_XML));
+        assertNotNull(response.getHeaderString(HttpHeaders.CONTENT_DISPOSITION));
+
+        String export = response.readEntity(String.class);
+        assertTrue(export.contains("<AccountPolicy "));
+        assertTrue(export.contains("<Realm "));
+        assertFalse(export.contains("<AccessPolicy "));
     }
 }

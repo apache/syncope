@@ -59,6 +59,7 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.TransformerHandler;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
@@ -92,7 +93,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
     protected static boolean isTableAllowed(final String tableName) {
         return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
-            noneMatch(prefix -> tableName.toUpperCase().startsWith(prefix.toUpperCase()));
+                noneMatch(prefix -> tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
     protected static String getValues(final ResultSet rs, final String columnName, final Integer columnType)
@@ -178,7 +179,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
 
                     String attrName = Optional.ofNullable(field.getAnnotation(Column.class)).
                             map(Column::name).
-                        orElseGet(a::getName);
+                            orElseGet(a::getName);
 
                     Optional.ofNullable(field.getAnnotation(CollectionTable.class)).
                             ifPresent(collectionTable -> relationTables.put(
@@ -375,8 +376,13 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
     public void export(
             final String domain,
             final int threshold,
-            final OutputStream os)
-            throws SAXException, TransformerConfigurationException {
+            final OutputStream os,
+            final String... elements) throws SAXException, TransformerConfigurationException {
+
+        BidiMap<String, EntityType<?>> entities = new DualHashBidiMap<>();
+        entityManagerFactory.getMetamodel().getEntities().forEach(entity -> Optional.ofNullable(
+                entity.getBindableJavaType().getAnnotation(Table.class)).
+                ifPresent(table -> entities.put(table.name(), entity)));
 
         TransformerHandler handler = start(os);
 
@@ -392,27 +398,26 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
         }
 
         Connection conn = DataSourceUtils.getConnection(dataSource);
-        try (ResultSet rs = conn.getMetaData().
-                getTables(null, StringUtils.isBlank(schema) ? null : schema, null, new String[] { "TABLE" })) {
-
+        try {
             Set<String> tableNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-
-            while (rs.next()) {
-                String tableName = rs.getString("TABLE_NAME");
-                LOG.debug("Found table {}", tableName);
-                if (isTableAllowed(tableName)) {
-                    tableNames.add(tableName);
+            if (ArrayUtils.isEmpty(elements)) {
+                try (ResultSet rs = conn.getMetaData().getTables(null, schema, null, new String[] { "TABLE" })) {
+                    while (rs.next()) {
+                        String tableName = rs.getString("TABLE_NAME");
+                        LOG.debug("Found table {}", tableName);
+                        if (isTableAllowed(tableName)) {
+                            tableNames.add(tableName);
+                        }
+                    }
+                } catch (SQLException e) {
+                    LOG.error("While getting the list of tables", e);
                 }
+            } else {
+                tableNames.addAll(Stream.of(elements).toList());
             }
-
             LOG.debug("Tables to be exported {}", tableNames);
 
-            BidiMap<String, EntityType<?>> entities = new DualHashBidiMap<>();
-            entityManagerFactory.getMetamodel().getEntities().forEach(entity -> Optional.ofNullable(
-                    entity.getBindableJavaType().getAnnotation(Table.class)).
-                    ifPresent(table -> entities.put(table.name(), entity)));
-
-            // then sort tables based on foreign keys and dump
+            // then sort tables based on foreign keys and export
             for (String tableName : sortByForeignKeys(conn, schema, tableNames)) {
                 try {
                     exportTable(dataSource, tableName, threshold, entities, relationTables(entities), handler);
