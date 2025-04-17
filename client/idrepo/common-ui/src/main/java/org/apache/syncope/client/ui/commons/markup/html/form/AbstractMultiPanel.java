@@ -66,32 +66,65 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         view = new InnerView("view", name, model);
 
         if (CollectionUtils.isEmpty(model.getObject())) {
-            form.addOrReplace(getNoDataFragment(model, name));
+            form.addOrReplace(getNoDataFragment(name));
         } else {
             form.addOrReplace(getDataFragment());
         }
     }
 
-    // SYNCOPE-1476
     public AbstractMultiPanel<INNER> setFormAsMultipart(final boolean multipart) {
         form.setMultiPart(multipart);
         return this;
     }
 
-    private Fragment getNoDataFragment(final IModel<List<INNER>> model, final String label) {
+    private Fragment getNoDataFragment(final String label) {
         Fragment fragment = new Fragment("content", "noDataFragment", AbstractMultiPanel.this);
         fragment.add(new Label("field-label", new ResourceModel(label, label)));
-        fragment.add(getPlusFragment(model));
+        fragment.add(getFragmentPlus());
         return fragment;
     }
 
     private Fragment getDataFragment() {
-        Fragment contentFragment = new Fragment("content", "dataFragment", AbstractMultiPanel.this);
-        contentFragment.add(view.setOutputMarkupId(true));
-        return contentFragment;
+        Fragment fragment = new Fragment("content", "dataFragment", AbstractMultiPanel.this);
+        fragment.add(view.setOutputMarkupId(true));
+        return fragment;
     }
 
-    private Fragment getPlusFragment(final IModel<List<INNER>> model) {
+    private Fragment getFragmentMinus(final ListItem<INNER> item, final Panel panel, final String label) {
+        IndicatorAjaxSubmitLink minus = new IndicatorAjaxSubmitLink("drop") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected void onSubmit(final AjaxRequestTarget target) {
+                // drop the current component
+                view.getModel().getObject().remove(item.getModelObject());
+                clearInput(panel);
+
+                if (view.getModel().getObject().isEmpty()) {
+                    form.addOrReplace(getNoDataFragment(label));
+                }
+
+                target.add(container);
+            }
+
+            @Override
+            protected void onError(final AjaxRequestTarget target) {
+                onSubmit(target);
+            }
+        };
+
+        Fragment fragment = new Fragment("panelMinus", "fragmentMinus", AbstractMultiPanel.this);
+        fragment.addOrReplace(minus);
+        fragment.setRenderBodyOnly(true);
+
+        fragment.setOutputMarkupPlaceholderTag(true);
+        fragment.setVisible(container.isEnabled() && form.isEnabled());
+
+        return fragment;
+    }
+
+    private Fragment getFragmentPlus() {
         IndicatorAjaxSubmitLink plus = new IndicatorAjaxSubmitLink("add") {
 
             private static final long serialVersionUID = -7978723352517770644L;
@@ -99,9 +132,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
                 //Add current component
-                model.getObject().add(newModelObject());
+                view.getModel().getObject().add(newModelObject());
 
-                if (model.getObject().size() == 1) {
+                if (view.getModel().getObject().size() == 1) {
                     form.addOrReplace(getDataFragment());
                 }
 
@@ -120,6 +153,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         Fragment fragment = new Fragment("panelPlus", "fragmentPlus", AbstractMultiPanel.this);
         fragment.addOrReplace(plus);
         fragment.setRenderBodyOnly(true);
+
+        fragment.setOutputMarkupPlaceholderTag(true);
+        fragment.setVisible(container.isEnabled() && form.isEnabled());
 
         return fragment;
     }
@@ -158,36 +194,12 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
             item.add(panel.setRenderBodyOnly(true));
 
-            IndicatorAjaxSubmitLink minus = new IndicatorAjaxSubmitLink("drop") {
+            item.add(getFragmentMinus(item, panel, label));
 
-                private static final long serialVersionUID = -7978723352517770644L;
-
-                @Override
-                protected void onSubmit(final AjaxRequestTarget target) {
-                    //Drop current component
-                    model.getObject().remove(item.getModelObject());
-                    clearInput(panel);
-
-                    if (model.getObject().isEmpty()) {
-                        form.addOrReplace(getNoDataFragment(model, label));
-                    }
-
-                    target.add(container);
-                }
-
-                @Override
-                protected void onError(final AjaxRequestTarget target) {
-                    onSubmit(target);
-                }
-            };
-
-            item.add(minus);
-
-            Fragment fragment = item.getIndex() == model.getObject().size() - 1
-                    ? getPlusFragment(model)
+            Fragment plus = item.getIndex() == model.getObject().size() - 1
+                    ? getFragmentPlus()
                     : new Fragment("panelPlus", "emptyFragment", AbstractMultiPanel.this);
-
-            item.add(fragment.setRenderBodyOnly(true));
+            item.add(plus.setRenderBodyOnly(true));
         }
     }
 
