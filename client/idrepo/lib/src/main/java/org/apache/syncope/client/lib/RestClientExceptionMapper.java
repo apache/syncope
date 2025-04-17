@@ -21,6 +21,7 @@ package org.apache.syncope.client.lib;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.Provider;
@@ -76,7 +77,19 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
             ex = new WebServiceException(String.format("Remote exception with status code: %s",
                     Response.Status.fromStatusCode(statusCode).name()));
         }
-        LOG.error("Exception thrown", ex);
+
+        if (ex instanceof NotFoundException
+                || (ex instanceof SyncopeClientException sce && sce.getType() == ClientExceptionType.NotFound)) {
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Exception thrown", ex);
+            } else {
+                LOG.warn("{} thrown: {}", NotFoundException.class.getSimpleName(), ex.getMessage());
+            }
+        } else {
+            LOG.error("Exception thrown", ex);
+        }
+
         return ex;
     }
 

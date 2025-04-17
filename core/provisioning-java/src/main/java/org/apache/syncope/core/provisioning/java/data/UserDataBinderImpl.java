@@ -181,23 +181,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         return authUserTO;
     }
 
-    protected RuntimeException aggregateException(
-            final SyncopeClientCompositeException scce,
-            final RuntimeException e,
-            final ClientExceptionType clientExceptionType) {
-
-        SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
-        sce.getElements().add(e.getMessage());
-        scce.addException(sce);
-        return scce;
-    }
-
     protected void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
             setCipherAlgorithm(user);
             user.setPassword(password);
         } catch (IllegalArgumentException e) {
-            throw aggregateException(scce, e, ClientExceptionType.NotFound);
+            throw new NotFoundException(e.getMessage());
         }
     }
 
@@ -209,7 +198,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             setCipherAlgorithm(user);
             user.setSecurityAnswer(securityAnswer);
         } catch (IllegalArgumentException e) {
-            throw aggregateException(scce, e, ClientExceptionType.NotFound);
+            throw new NotFoundException(e.getMessage());
         }
     }
 

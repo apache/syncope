@@ -88,7 +88,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
     @Override
     public Response toResponse(final Exception ex) {
-        LOG.error("Exception thrown", ex);
+        if (ex instanceof NotFoundException) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Exception thrown", ex);
+            } else {
+                LOG.warn("{} thrown: {}", NotFoundException.class.getSimpleName(), ex.getMessage());
+            }
+        } else {
+            LOG.error("Exception thrown", ex);
+        }
 
         ResponseBuilder builder;
 
@@ -107,10 +115,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
                 || ((ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException)
                 && (ex.getCause() instanceof EntityExistsException || ex.getMessage().contains("already exists")))) {
 
-            builder = builder(ClientExceptionType.EntityExists,
-                    getPersistenceErrorMessage(
-                            ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException
-                                    ? ex.getCause() : ex));
+            builder = builder(ClientExceptionType.EntityExists, getPersistenceErrorMessage(
+                    ex instanceof PersistenceException || ex instanceof DataIntegrityViolationException
+                            ? ex.getCause() : ex));
         } else if (ex instanceof DataIntegrityViolationException || ex instanceof UncategorizedDataAccessException) {
             builder = builder(ClientExceptionType.DataIntegrityViolation, getPersistenceErrorMessage(ex));
         } else if (ex instanceof ConnectorException) {
@@ -256,17 +263,23 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
         if (ex instanceof WorkflowException) {
             return builder(ClientExceptionType.Workflow, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof PersistenceException) {
+        }
+        if (ex instanceof PersistenceException) {
             return builder(ClientExceptionType.GenericPersistence, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ibatisPersistenceException != null && ibatisPersistenceException.isAssignableFrom(ex.getClass())) {
+        }
+        if (ibatisPersistenceException != null && ibatisPersistenceException.isAssignableFrom(ex.getClass())) {
             return builder(ClientExceptionType.Workflow, "Currently unavailable. Please try later.");
-        } else if (ex instanceof UncategorizedDataAccessException) {
+        }
+        if (ex instanceof UncategorizedDataAccessException) {
             return builder(ClientExceptionType.DataIntegrityViolation, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof ConfigurationException) {
+        }
+        if (ex instanceof ConfigurationException) {
             return builder(ClientExceptionType.InvalidConnIdConf, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof ParsingValidationException) {
+        }
+        if (ex instanceof ParsingValidationException) {
             return builder(ClientExceptionType.InvalidValues, ExceptionUtils.getRootCauseMessage(ex));
-        } else if (ex instanceof MalformedPathException) {
+        }
+        if (ex instanceof MalformedPathException) {
             return builder(ClientExceptionType.InvalidPath, ExceptionUtils.getRootCauseMessage(ex));
         }
 
