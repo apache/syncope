@@ -29,7 +29,8 @@ import jakarta.mail.Store;
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.BeforeAll;
 
 public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase {
@@ -79,11 +80,11 @@ public abstract class AbstractNotificationTaskITCase extends AbstractTaskITCase 
             final String mailAddress,
             final int maxWaitSeconds) throws Exception {
 
-        AtomicReference<Boolean> read = new AtomicReference<>(false);
+        Mutable<Boolean> read = new MutableObject<>(false);
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                read.set(pop3(sender, subject, mailAddress));
-                return read.get();
+                read.setValue(pop3(sender, subject, mailAddress));
+                return read.getValue();
             } catch (Exception e) {
                 return false;
             }

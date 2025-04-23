@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -162,12 +162,12 @@ public class ConnectorFacadeProxy implements Connector {
             final ObjectClass objectClass,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Uid result = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.CREATE)) {
-            propagationAttempted.set(true);
+            propagationAttempted.setValue(true);
 
             Future<Uid> future = asyncFacade.create(connector, objectClass, attrs, options);
             try {
@@ -197,12 +197,12 @@ public class ConnectorFacadeProxy implements Connector {
             final Uid uid,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Uid result = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE)) {
-            propagationAttempted.set(true);
+            propagationAttempted.setValue(true);
 
             Future<Uid> future = asyncFacade.update(connector, objectClass, uid, attrs, options);
 
@@ -234,12 +234,12 @@ public class ConnectorFacadeProxy implements Connector {
             final Uid uid,
             final Set<AttributeDelta> modifications,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Set<AttributeDelta> result = null;
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.UPDATE_DELTA)) {
-            propagationAttempted.set(true);
+            propagationAttempted.setValue(true);
 
             Future<Set<AttributeDelta>> future =
                     asyncFacade.updateDelta(connector, objectClass, uid, modifications, options);
@@ -271,10 +271,10 @@ public class ConnectorFacadeProxy implements Connector {
             final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.DELETE)) {
-            propagationAttempted.set(true);
+            propagationAttempted.setValue(true);
 
             Future<Uid> future = asyncFacade.delete(connector, objectClass, uid, options);
 

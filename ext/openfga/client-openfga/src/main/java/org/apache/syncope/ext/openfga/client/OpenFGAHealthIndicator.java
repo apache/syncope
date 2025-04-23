@@ -19,7 +19,8 @@
 package org.apache.syncope.ext.openfga.client;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.ext.openfga.client.model.ListStoresResponse;
 import org.springframework.boot.actuate.health.Health;
@@ -45,7 +46,7 @@ public class OpenFGAHealthIndicator implements HealthIndicator {
         Health.Builder builder = new Health.Builder();
         builder.withDetail("baseUri", clientFactory.getBaseUri());
 
-        AtomicReference<Boolean> anyDown = new AtomicReference<>(Boolean.FALSE);
+        Mutable<Boolean> anyDown = new MutableObject<>(Boolean.FALSE);
 
         domainHolder.getDomains().keySet().forEach(domain -> {
             try {
@@ -57,15 +58,15 @@ public class OpenFGAHealthIndicator implements HealthIndicator {
                             "status", Status.UP.getCode()));
                 } else {
                     builder.withDetail(domain, Status.DOWN);
-                    anyDown.set(true);
+                    anyDown.setValue(true);
                 }
             } catch (Exception e) {
                 builder.withDetail(domain, Status.DOWN).withException(e);
-                anyDown.set(true);
+                anyDown.setValue(true);
             }
         });
 
-        builder.status(anyDown.get() ? Status.DOWN : Status.UP);
+        builder.status(anyDown.getValue() ? Status.DOWN : Status.UP);
 
         return builder.build();
     }

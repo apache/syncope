@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +41,15 @@ public class DomainsHealthIndicator implements HealthIndicator {
     public Health health() {
         Health.Builder builder = new Health.Builder();
 
-        AtomicReference<Boolean> anyDown = new AtomicReference<>(Boolean.FALSE);
+        Mutable<Boolean> anyDown = new MutableObject<>(false);
         domainHolder.getHealthInfo().forEach((domain, status) -> {
             builder.withDetail(domain, status ? Status.UP : Status.DOWN);
             if (!status) {
-                anyDown.set(true);
+                anyDown.setValue(true);
             }
         });
 
-        builder.status(anyDown.get() ? Status.DOWN : Status.UP);
+        builder.status(anyDown.getValue() ? Status.DOWN : Status.UP);
 
         return builder.build();
     }

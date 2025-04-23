@@ -19,7 +19,8 @@
 package org.apache.syncope.client.console.rest;
 
 import jakarta.ws.rs.core.Response;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.to.OIDCJWKSTO;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 
@@ -27,10 +28,10 @@ public class OIDCJWKSRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -1392090291817187902L;
 
-    public AtomicReference<OIDCJWKSTO> get() {
-        AtomicReference<OIDCJWKSTO> result = new AtomicReference<>();
+    public Mutable<OIDCJWKSTO> get() {
+        MutableObject<OIDCJWKSTO> result = new MutableObject<>();
         try {
-            result.set(getService(OIDCJWKSService.class).get());
+            result.setValue(getService(OIDCJWKSService.class).get());
         } catch (Exception e) {
             LOG.debug("While getting OIDC JKS", e);
         }

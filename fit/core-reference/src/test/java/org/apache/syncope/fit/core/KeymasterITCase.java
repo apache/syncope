@@ -37,8 +37,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -154,16 +155,16 @@ public class KeymasterITCase extends AbstractITCase {
             final Function<List<NetworkService>, Boolean> check,
             final int maxWaitSeconds) {
 
-        AtomicReference<List<NetworkService>> holder = new AtomicReference<>();
+        Mutable<List<NetworkService>> holder = new MutableObject<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                holder.set(serviceOps.list(type));
-                return !check.apply(holder.get());
+                holder.setValue(serviceOps.list(type));
+                return !check.apply(holder.getValue());
             } catch (Exception e) {
                 return false;
             }
         });
-        return holder.get();
+        return holder.getValue();
     }
 
     @Test

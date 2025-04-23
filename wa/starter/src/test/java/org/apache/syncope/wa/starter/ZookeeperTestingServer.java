@@ -24,10 +24,11 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.server.auth.DigestLoginModule;
@@ -39,16 +40,16 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
 
     @Override
     public void initialize(final ConfigurableApplicationContext ctx) {
-        AtomicReference<Integer> port = new AtomicReference<>();
-        AtomicReference<String> username = new AtomicReference<>();
-        AtomicReference<String> password = new AtomicReference<>();
+        Mutable<Integer> port = new MutableObject<>();
+        Mutable<String> username = new MutableObject<>();
+        Mutable<String> password = new MutableObject<>();
         try (InputStream propStream = getClass().getResourceAsStream("/test.properties")) {
             Properties props = new Properties();
             props.load(propStream);
 
-            port.set(Integer.valueOf(StringUtils.substringAfter(props.getProperty("keymaster.address"), ":")));
-            username.set(props.getProperty("keymaster.username"));
-            password.set(props.getProperty("keymaster.password"));
+            port.setValue(Integer.valueOf(StringUtils.substringAfter(props.getProperty("keymaster.address"), ":")));
+            username.setValue(props.getProperty("keymaster.username"));
+            password.setValue(props.getProperty("keymaster.password"));
         } catch (Exception e) {
             throw new IllegalStateException("Could not load /test.properties", e);
         }
@@ -59,7 +60,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
                 new AppConfigurationEntry(
                 DigestLoginModule.class.getName(),
                 AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                Map.of("user_" + username.get(), password.get()))
+                Map.of("user_" + username.getValue(), password.getValue()))
             };
 
             @Override
@@ -70,7 +71,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
 
         Map<String, Object> customProperties = new HashMap<>();
         customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
-        InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, customProperties);
+        InstanceSpec spec = new InstanceSpec(null, port.getValue(), -1, -1, true, 1, -1, -1, customProperties);
 
         try {
             new TestingServer(spec, true);

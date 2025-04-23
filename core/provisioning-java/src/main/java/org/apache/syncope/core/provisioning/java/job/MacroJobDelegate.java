@@ -32,13 +32,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.command.CommandArgs;
 import org.apache.syncope.common.lib.form.FormProperty;
@@ -155,7 +156,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 : List.of(value.split(";"));
 
                         if (!actions.map(a -> a.getDropdownValues(fpd.getName()).keySet()).
-                            orElseGet(Set::of).containsAll(values)) {
+                                orElseGet(Set::of).containsAll(values)) {
 
                             throw new JobExecutionException("Not allowed for " + fpd.getName() + ": " + values);
                         }
@@ -188,12 +189,12 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             final boolean dryRun)
             throws JobExecutionException {
 
-        Future<AtomicReference<Pair<String, Throwable>>> future = taskExecutor.submit(
+        Future<Mutable<Pair<String, Throwable>>> future = taskExecutor.submit(
                 new DelegatingSecurityContextCallable<>(() -> {
 
-                    AtomicReference<Pair<String, Throwable>> error = new AtomicReference<>();
+                    Mutable<Pair<String, Throwable>> error = new MutableObject<>();
 
-                    for (int i = 0; i < commands.size() && error.get() == null; i++) {
+                    for (int i = 0; i < commands.size() && error.getValue() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
 
                         try {
@@ -217,7 +218,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                 LOG.error("While running {} with args {}, continuing on error",
                                         command.getLeft().getClass().getName(), command.getRight(), t);
                             } else {
-                                error.set(Pair.of(AopUtils.getTargetClass(command.getLeft()).getName(), t));
+                                error.setValue(Pair.of(AopUtils.getTargetClass(command.getLeft()).getName(), t));
                             }
                         }
                         output.append("\n\n");
@@ -227,9 +228,10 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                 }));
 
         try {
-            AtomicReference<Pair<String, Throwable>> error = future.get();
-            if (error.get() != null) {
-                throw new JobExecutionException("While running " + error.get().getLeft(), error.get().getRight());
+            Mutable<Pair<String, Throwable>> error = future.get();
+            if (error.getValue() != null) {
+                throw new JobExecutionException("While running "
+                        + error.getValue().getLeft(), error.getValue().getRight());
             }
         } catch (ExecutionException | InterruptedException e) {
             throw new JobExecutionException("While waiting for macro commands completion", e);

@@ -52,9 +52,10 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
@@ -901,17 +902,17 @@ public abstract class AbstractITCase {
             final Class<T> requiredType,
             final Object... args) {
 
-        AtomicReference<T> object = new AtomicReference<>();
+        Mutable<T> object = new MutableObject<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                object.set(jdbcTemplate.queryForObject(sql, requiredType, args));
-                return object.get() != null;
+                object.setValue(jdbcTemplate.queryForObject(sql, requiredType, args));
+                return object.getValue() != null;
             } catch (Exception e) {
                 return false;
             }
         });
 
-        return object.get();
+        return object.getValue();
     }
 
     protected static <T> List<T> queryForList(
@@ -921,17 +922,17 @@ public abstract class AbstractITCase {
             final Class<T> requiredType,
             final Object... args) {
 
-        AtomicReference<List<T>> object = new AtomicReference<>();
+        Mutable<List<T>> object = new MutableObject<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                object.set(jdbcTemplate.queryForList(sql, requiredType, args));
-                return object.get() != null;
+                object.setValue(jdbcTemplate.queryForList(sql, requiredType, args));
+                return object.getValue() != null;
             } catch (Exception e) {
                 return false;
             }
         });
 
-        return object.get();
+        return object.getValue();
     }
 
     protected static OIDCRPClientAppTO buildOIDCRP() {

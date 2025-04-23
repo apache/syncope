@@ -19,8 +19,9 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -138,7 +139,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
         PlainSchema saved = plainSchemaDAO.save(schema);
 
-        AtomicReference<AnyTypeClass> atc = new AtomicReference<>();
+        Mutable<AnyTypeClass> atc = new MutableObject<>();
         if (schemaTO.getAnyTypeClass() != null
                 && (saved.getAnyTypeClass() == null
                 || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
@@ -148,7 +149,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                         anyTypeClass.add(saved);
                         saved.setAnyTypeClass(anyTypeClass);
 
-                        atc.set(anyTypeClass);
+                        atc.setValue(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid {}{}, ignoring...",
                             AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
@@ -156,11 +157,11 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             saved.getAnyTypeClass().getPlainSchemas().remove(saved);
             saved.setAnyTypeClass(null);
 
-            atc.set(saved.getAnyTypeClass());
+            atc.setValue(saved.getAnyTypeClass());
         }
 
         PlainSchema filled = plainSchemaDAO.save(saved);
-        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
+        Optional.ofNullable(atc.getValue()).ifPresent(anyTypeClassDAO::save);
         return filled;
     }
 
@@ -252,7 +253,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
         DerSchema saved = derSchemaDAO.save(schema);
 
-        AtomicReference<AnyTypeClass> atc = new AtomicReference<>();
+        Mutable<AnyTypeClass> atc = new MutableObject<>();
         if (schemaTO.getAnyTypeClass() != null
                 && (saved.getAnyTypeClass() == null
                 || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
@@ -262,7 +263,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                         anyTypeClass.add(saved);
                         saved.setAnyTypeClass(anyTypeClass);
 
-                        atc.set(anyTypeClass);
+                        atc.setValue(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid {}{}, ignoring...",
                             AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
@@ -270,11 +271,11 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             saved.getAnyTypeClass().getDerSchemas().remove(saved);
             saved.setAnyTypeClass(null);
 
-            atc.set(saved.getAnyTypeClass());
+            atc.setValue(saved.getAnyTypeClass());
         }
 
         DerSchema filled = derSchemaDAO.save(saved);
-        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
+        Optional.ofNullable(atc.getValue()).ifPresent(anyTypeClassDAO::save);
         return filled;
     }
 
@@ -332,7 +333,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
         VirSchema saved = virSchemaDAO.save(schema);
 
-        AtomicReference<AnyTypeClass> atc = new AtomicReference<>();
+        Mutable<AnyTypeClass> atc = new MutableObject<>();
         if (schemaTO.getAnyTypeClass() != null
                 && (saved.getAnyTypeClass() == null
                 || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
@@ -342,7 +343,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
                         anyTypeClass.add(saved);
                         saved.setAnyTypeClass(anyTypeClass);
 
-                        atc.set(anyTypeClass);
+                        atc.setValue(anyTypeClass);
                     },
                     () -> LOG.debug("Invalid {}{}, ignoring...",
                             AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
@@ -350,11 +351,11 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             saved.getAnyTypeClass().getVirSchemas().remove(saved);
             saved.setAnyTypeClass(null);
 
-            atc.set(saved.getAnyTypeClass());
+            atc.setValue(saved.getAnyTypeClass());
         }
 
         VirSchema filled = virSchemaDAO.save(saved);
-        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
+        Optional.ofNullable(atc.getValue()).ifPresent(anyTypeClassDAO::save);
         return filled;
     }
 

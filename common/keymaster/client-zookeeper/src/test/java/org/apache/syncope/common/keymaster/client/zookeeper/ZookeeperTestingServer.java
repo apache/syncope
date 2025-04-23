@@ -24,9 +24,10 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
 
@@ -36,14 +37,14 @@ public final class ZookeeperTestingServer {
 
     public static void start() throws Exception {
         if (ZK_SERVER == null) {
-            AtomicReference<String> username = new AtomicReference<>();
-            AtomicReference<String> password = new AtomicReference<>();
+            Mutable<String> username = new MutableObject<>();
+            Mutable<String> password = new MutableObject<>();
             try (InputStream propStream = ZookeeperServiceOpsTest.class.getResourceAsStream("/test.properties")) {
                 Properties props = new Properties();
                 props.load(propStream);
 
-                username.set(props.getProperty("keymaster.username"));
-                password.set(props.getProperty("keymaster.password"));
+                username.setValue(props.getProperty("keymaster.username"));
+                password.setValue(props.getProperty("keymaster.password"));
             } catch (Exception e) {
                 fail("Could not load /test.properties", e);
             }
@@ -55,7 +56,7 @@ public final class ZookeeperTestingServer {
                     "org.apache.zookeeper.server.auth.DigestLoginModule",
                     AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
                     Map.of(
-                    "user_" + username.get(), password.get()
+                    "user_" + username.getValue(), password.getValue()
                     ))
                 };
 

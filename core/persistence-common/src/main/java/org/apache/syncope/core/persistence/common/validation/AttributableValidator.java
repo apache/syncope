@@ -19,7 +19,8 @@
 package org.apache.syncope.core.persistence.common.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -112,20 +113,18 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
 
         context.disableDefaultConstraintViolation();
 
-        AtomicReference<Boolean> isValid = new AtomicReference<>(Boolean.TRUE);
-        entity.getPlainAttrs().forEach(attr -> {
-            PlainSchema schema = schemaDAO.findById(attr.getSchema()).orElse(null);
-            if (schema == null) {
-                isValid.getAndSet(false);
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidSchema, "Invalid schema " + attr.getSchema())).
-                        addPropertyNode(attr.getSchema()).addConstraintViolation();
-            } else {
-                isValid.getAndSet(isValid.get() && isValid(attr, schema, context));
-                attr.getValues().forEach(value -> isValid.getAndSet(isValid.get() && isValid(value, context)));
-            }
-        });
+        Mutable<Boolean> isValid = new MutableObject<>(true);
+        entity.getPlainAttrs().forEach(attr -> schemaDAO.findById(attr.getSchema()).ifPresentOrElse(
+                schema -> {
+                    isValid.setValue(isValid.getValue() && isValid(attr, schema, context));
+                    attr.getValues().forEach(value -> isValid.setValue(isValid.getValue() && isValid(value, context)));
+                }, () -> {
+                    isValid.setValue(false);
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidSchema, "Invalid schema " + attr.getSchema())).
+                            addPropertyNode(attr.getSchema()).addConstraintViolation();
+                }));
 
-        return isValid.get();
+        return isValid.getValue();
     }
 }

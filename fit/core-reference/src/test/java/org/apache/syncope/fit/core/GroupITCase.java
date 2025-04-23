@@ -39,8 +39,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
@@ -957,16 +958,16 @@ public class GroupITCase extends AbstractITCase {
             ExecTO exec = GROUP_SERVICE.provisionMembers(groupTO.getKey(), ProvisionAction.PROVISION);
             assertNotNull(exec.getRefKey());
 
-            AtomicReference<List<ExecTO>> execs = new AtomicReference<>();
+            Mutable<List<ExecTO>> execs = new MutableObject<>();
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
                 try {
-                    execs.set(TASK_SERVICE.read(TaskType.SCHEDULED, exec.getRefKey(), true).getExecutions());
-                    return !execs.get().isEmpty();
+                    execs.setValue(TASK_SERVICE.read(TaskType.SCHEDULED, exec.getRefKey(), true).getExecutions());
+                    return !execs.getValue().isEmpty();
                 } catch (Exception e) {
                     return false;
                 }
             });
-            assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().getFirst().getStatus());
+            assertEquals(TaskJob.Status.SUCCESS.name(), execs.getValue().getFirst().getStatus());
 
             // 6. verify that the user above is now fond on LDAP
             ConnObject userOnLdap =

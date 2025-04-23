@@ -245,8 +245,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
     @PreAuthorize("hasRole('" + IdRepoEntitlement.GROUP_DELETE + "')")
     @Override
     public ProvisioningResult<GroupTO> delete(final String key, final boolean nullPriorityAsync) {
-        GroupTO group = binder.getGroupTO(key);
-        Pair<GroupTO, List<LogicActions>> before = beforeDelete(group);
+        Pair<GroupTO, List<LogicActions>> before = beforeDelete(binder.getGroupTO(key));
 
         Set<String> authRealms = RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.GROUP_DELETE),
@@ -267,10 +266,15 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         List<PropagationStatus> statuses = provisioningManager.delete(
                 before.getLeft().getKey(), nullPriorityAsync, AuthContextUtils.getUsername(), REST_CONTEXT);
 
-        GroupTO groupTO = new GroupTO();
-        groupTO.setKey(before.getLeft().getKey());
+        GroupTO deletedTO;
+        if (groupDAO.existsById(before.getLeft().getKey())) {
+            deletedTO = binder.getGroupTO(before.getLeft().getKey());
+        } else {
+            deletedTO = new GroupTO();
+            deletedTO.setKey(before.getLeft().getKey());
+        }
 
-        return afterDelete(groupTO, statuses, before.getRight());
+        return afterDelete(deletedTO, statuses, before.getRight());
     }
 
     protected GroupTO updateChecks(final String key) {

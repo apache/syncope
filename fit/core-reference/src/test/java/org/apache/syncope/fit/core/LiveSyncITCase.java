@@ -34,7 +34,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -138,7 +139,7 @@ public class LiveSyncITCase extends AbstractITCase {
     }
 
     private static boolean found(final SyncDeltaType syncDeltaType, final String username) {
-        AtomicBoolean found = new AtomicBoolean(false);
+        Mutable<Boolean> found = new MutableObject<>(false);
         try (KafkaConsumer<String, String> consumer = createConsumer()) {
             consumer.poll(Duration.ofSeconds(10)).forEach(record -> {
                 if (ACCOUNT_TOPIC.equals(record.topic())) {
@@ -156,11 +157,11 @@ public class LiveSyncITCase extends AbstractITCase {
                         fail(e.getMessage(), e);
                     }
 
-                    found.set(syncDeltaType == sdt && username.equals(uid));
+                    found.setValue(syncDeltaType == sdt && username.equals(uid));
                 }
             });
         }
-        return found.get();
+        return found.getValue();
     }
 
     @Test

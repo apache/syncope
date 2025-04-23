@@ -29,7 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.ResourceDR;
@@ -81,22 +82,22 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             final int maxWaitSeconds,
             final boolean dryRun) {
 
-        AtomicReference<TaskTO> taskTO = new AtomicReference<>(taskService.read(type, taskKey, true));
-        int preSyncSize = taskTO.get().getExecutions().size();
+        Mutable<TaskTO> taskTO = new MutableObject<>(taskService.read(type, taskKey, true));
+        int preSyncSize = taskTO.getValue().getExecutions().size();
         ExecTO execution = taskService.execute(new ExecSpecs.Builder().key(taskKey).dryRun(dryRun).build());
         Optional.ofNullable(initialStatus).ifPresent(status -> assertEquals(status, execution.getStatus()));
         assertNotNull(execution.getExecutor());
 
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                taskTO.set(taskService.read(type, taskKey, true));
-                return preSyncSize < taskTO.get().getExecutions().size();
+                taskTO.setValue(taskService.read(type, taskKey, true));
+                return preSyncSize < taskTO.getValue().getExecutions().size();
             } catch (Exception e) {
                 return false;
             }
         });
 
-        return taskTO.get().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
+        return taskTO.getValue().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
     }
 
     public static ExecTO execSchedTask(
@@ -154,20 +155,20 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     }
 
     protected NotificationTaskTO findNotificationTask(final String notification, final int maxWaitSeconds) {
-        AtomicReference<NotificationTaskTO> notificationTask = new AtomicReference<>();
+        Mutable<NotificationTaskTO> notificationTask = new MutableObject<>();
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 PagedResult<NotificationTaskTO> tasks = TASK_SERVICE.search(
                         new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
                 if (!tasks.getResult().isEmpty()) {
-                    notificationTask.set(tasks.getResult().getFirst());
+                    notificationTask.setValue(tasks.getResult().getFirst());
                 }
             } catch (Exception e) {
                 // ignore
             }
-            return notificationTask.get() != null;
+            return notificationTask.getValue() != null;
         });
 
-        return notificationTask.get();
+        return notificationTask.getValue();
     }
 }

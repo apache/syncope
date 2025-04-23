@@ -27,13 +27,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.cache.Cache;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
@@ -329,7 +330,7 @@ public class DefaultMappingManager implements MappingManager {
                 any, provision, any.getPlainAttrs());
 
         Set<Attribute> attributes = new HashSet<>();
-        AtomicReference<String> connObjectKeyValue = new AtomicReference<>();
+        Mutable<String> connObjectKeyValue = new MutableObject<>();
 
         MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
@@ -345,25 +346,25 @@ public class DefaultMappingManager implements MappingManager {
                                 AccountGetter.DEFAULT,
                                 AccountGetter.DEFAULT,
                                 PlainAttrGetter.DEFAULT),
-                        attributes).ifPresent(connObjectKeyValue::set);
+                        attributes).ifPresent(connObjectKeyValue::setValue);
             } catch (Exception e) {
                 LOG.error("Expression '{}' processing failed", mapItem.getIntAttrName(), e);
             }
         });
 
-        MappingUtils.getConnObjectKeyItem(provision).ifPresent(connObjectKeyItem -> {
-            Attribute connObjectKeyAttr = AttributeUtil.find(connObjectKeyItem.getExtAttrName(), attributes);
+        MappingUtils.getConnObjectKeyItem(provision).ifPresent(item -> {
+            Attribute connObjectKeyAttr = AttributeUtil.find(item.getExtAttrName(), attributes);
             if (connObjectKeyAttr != null) {
                 attributes.remove(connObjectKeyAttr);
-                attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue.get()));
+                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.getValue()));
             }
 
-            Name name = evaluateNAME(any, provision, connObjectKeyValue.get());
+            Name name = evaluateNAME(any, provision, connObjectKeyValue.getValue());
             attributes.add(name);
 
-            Optional.ofNullable(connObjectKeyValue.get()).
+            Optional.ofNullable(connObjectKeyValue.getValue()).
                     filter(cokv -> connObjectKeyAttr == null && !cokv.equals(name.getNameValue())).
-                    ifPresent(cokv -> attributes.add(AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), cokv)));
+                    ifPresent(cokv -> attributes.add(AttributeBuilder.build(item.getExtAttrName(), cokv)));
         });
 
         Optional.ofNullable(enable).ifPresent(e -> attributes.add(AttributeBuilder.buildEnabled(e)));
@@ -373,7 +374,7 @@ public class DefaultMappingManager implements MappingManager {
                     ifPresent(attributes::remove);
         }
 
-        return Pair.of(connObjectKeyValue.get(), attributes);
+        return Pair.of(connObjectKeyValue.getValue(), attributes);
     }
 
     @Transactional(readOnly = true)
@@ -452,7 +453,7 @@ public class DefaultMappingManager implements MappingManager {
         LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, orgUnit);
 
         Set<Attribute> attributes = new HashSet<>();
-        AtomicReference<String> connObjectKeyValue = new AtomicReference<>();
+        Mutable<String> connObjectKeyValue = new MutableObject<>();
 
         MappingUtils.getPropagationItems(orgUnit.getItems().stream()).forEach(orgUnitItem -> {
             LOG.debug("Processing expression '{}'", orgUnitItem.getIntAttrName());
@@ -460,7 +461,7 @@ public class DefaultMappingManager implements MappingManager {
             String value = getIntValue(realm, orgUnitItem);
 
             if (orgUnitItem.isConnObjectKey()) {
-                connObjectKeyValue.set(value);
+                connObjectKeyValue.setValue(value);
             }
 
             Optional.ofNullable(AttributeUtil.find(orgUnitItem.getExtAttrName(), attributes)).ifPresentOrElse(
@@ -487,12 +488,12 @@ public class DefaultMappingManager implements MappingManager {
         orgUnit.getConnObjectKeyItem().ifPresent(item -> {
             Optional.ofNullable(AttributeUtil.find(item.getExtAttrName(), attributes)).ifPresent(attr -> {
                 attributes.remove(attr);
-                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.get()));
+                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.getValue()));
             });
-            attributes.add(evaluateNAME(realm, orgUnit, connObjectKeyValue.get()));
+            attributes.add(evaluateNAME(realm, orgUnit, connObjectKeyValue.getValue()));
         });
 
-        return Pair.of(connObjectKeyValue.get(), attributes);
+        return Pair.of(connObjectKeyValue.getValue(), attributes);
     }
 
     protected Optional<String> decodePassword(final Account account) {
@@ -991,7 +992,7 @@ public class DefaultMappingManager implements MappingManager {
             GroupableRelatableTO groupableTO;
             Group group;
             if (anyTO instanceof final GroupableRelatableTO groupableRelatableTO
-                && intAttrName.getMembershipOfGroup() != null) {
+                    && intAttrName.getMembershipOfGroup() != null) {
                 groupableTO = groupableRelatableTO;
                 group = groupDAO.findByName(intAttrName.getMembershipOfGroup()).orElse(null);
             } else {

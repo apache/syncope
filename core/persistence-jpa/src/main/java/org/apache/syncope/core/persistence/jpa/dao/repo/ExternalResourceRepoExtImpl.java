@@ -22,7 +22,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -150,14 +151,14 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
     @Override
     public void deleteMapping(final String schemaKey) {
         findAll().forEach(resource -> {
-            AtomicBoolean removed = new AtomicBoolean(false);
+            Mutable<Boolean> removed = new MutableObject<>(false);
 
-            resource.getProvisions().forEach(provision -> removed.set(
-                    removed.get()
+            resource.getProvisions().forEach(provision -> removed.setValue(
+                    removed.getValue()
                     || (provision.getMapping() != null
                     && provision.getMapping().getItems().removeIf(item -> schemaKey.equals(item.getIntAttrName())))));
 
-            if (removed.get()) {
+            if (removed.getValue()) {
                 entityManager.merge(resource);
             }
         });

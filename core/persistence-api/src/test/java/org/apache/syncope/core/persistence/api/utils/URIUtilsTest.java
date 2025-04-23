@@ -25,22 +25,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.Test;
 
 public class URIUtilsTest extends AbstractTest {
 
     @Test
     public void buildForConnId() throws URISyntaxException, MalformedURLException {
-        AtomicReference<String> location = new AtomicReference<>();
-        location.set("www.tirasa.net");
+        Mutable<String> location = new MutableObject<>();
+        location.setValue("www.tirasa.net");
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location.get()));
+                assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location.getValue()));
         assertEquals(exception.getClass(), IllegalArgumentException.class);
 
-        location.set("connid:test/location");
-        URI expectedURI = new URI(location.get().trim());
-        assertEquals(expectedURI, URIUtils.buildForConnId(location.get()));
+        location.setValue("connid:test/location");
+        URI expectedURI = new URI(location.getValue().trim());
+        assertEquals(expectedURI, URIUtils.buildForConnId(location.getValue()));
 
         assertDoesNotThrow(() -> URIUtils.buildForConnId("file:Z:\\syncope\\fit\\core-reference\\target/bundles/"));
         assertDoesNotThrow(() -> URIUtils.buildForConnId("file:/Z:\\syncope\\fit\\core-reference\\target/bundles/"));

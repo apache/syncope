@@ -31,9 +31,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.common.rest.api.beans.CSVPullSpec;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -149,7 +149,7 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             final ObjectClass objectClass,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         synchronized (schemaBuilder) {
             if (schemaBuilder.size() == 0) {
@@ -190,7 +190,7 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
         } catch (IOException e) {
             throw new ConnectorException("Could not write object " + row, e);
         }
-        propagationAttempted.set(Boolean.TRUE);
+        propagationAttempted.setValue(true);
         return null;
     }
 
@@ -200,7 +200,7 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             final Uid uid,
             final Set<Attribute> attrs,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         return null;
     }
@@ -211,7 +211,7 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             final Uid uid,
             final Set<AttributeDelta> modifications,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         return Set.of();
     }
@@ -221,7 +221,7 @@ public class CSVStreamConnector implements Connector, AutoCloseable {
             final ObjectClass objectClass,
             final Uid uid,
             final OperationOptions options,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         // nothing to do
     }
