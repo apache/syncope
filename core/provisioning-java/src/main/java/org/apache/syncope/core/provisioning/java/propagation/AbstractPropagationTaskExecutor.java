@@ -28,9 +28,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
@@ -218,7 +219,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected Uid doCreate(
             final PropagationTaskInfo taskInfo,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Set<Attribute> attrs = taskInfo.getPropagationData().getAttributes();
 
@@ -257,7 +258,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTaskInfo taskInfo,
             final Connector connector,
             final ConnectorObject beforeObj,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Set<Attribute> attrs = taskInfo.getPropagationData().getAttributes();
 
@@ -321,7 +322,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final PropagationTaskInfo taskInfo,
             final Set<AttributeDelta> modifications,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Uid uid = new Uid(taskInfo.getConnObjectKey());
 
@@ -346,7 +347,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final boolean fetchRemoteObj,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         PropagationData propagationData = taskInfo.getPropagationData();
 
@@ -370,7 +371,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             final boolean fetchRemoteObj,
             final ConnectorObject beforeObj,
             final Connector connector,
-            final AtomicReference<Boolean> propagationAttempted) {
+            final Mutable<Boolean> propagationAttempted) {
 
         Uid result;
 
@@ -547,7 +548,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         String failureReason = null;
 
         // Flag to state whether any propagation has been attempted
-        AtomicReference<Boolean> propagationAttempted = new AtomicReference<>(false);
+        Mutable<Boolean> propagationAttempted = new MutableObject<>(false);
 
         boolean fetchRemoteObj = isFetchRemoteObj(taskInfo);
 
@@ -592,7 +593,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            exec.setStatus(propagationAttempted.get()
+            exec.setStatus(propagationAttempted.getValue()
                     ? ExecStatus.SUCCESS.name()
                     : ExecStatus.NOT_ATTEMPTED.name());
 
@@ -604,7 +605,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             exec.setStatus(ExecStatus.FAILURE.name());
 
-            propagationAttempted.set(true);
+            propagationAttempted.setValue(true);
 
             LOG.error("Exception during provision on resource {}", taskInfo.getResource().getKey(), e);
 

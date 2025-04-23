@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.starter.actuate;
 
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -61,7 +62,7 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
     public Health health() {
         Health.Builder builder = new Health.Builder();
 
-        AtomicReference<Boolean> anyDown = new AtomicReference<>(Boolean.FALSE);
+        Mutable<Boolean> anyDown = new MutableObject<>(false);
 
         Stream.concat(Stream.of(SyncopeConstants.MASTER_DOMAIN), domainOps.list().stream().map(Domain::getKey)).
                 forEach(domain -> AuthContextUtils.runAsAdmin(domain, () -> {
@@ -83,12 +84,12 @@ public class ExternalResourcesHealthIndicator implements HealthIndicator {
 
                 builder.withDetail(domain + "#" + resource.getKey(), status);
                 if (status != Status.UP) {
-                    anyDown.set(true);
+                    anyDown.setValue(true);
                 }
             });
         }));
 
-        builder.status(anyDown.get() ? Status.DOWN : Status.UP);
+        builder.status(anyDown.getValue() ? Status.DOWN : Status.UP);
 
         return builder.build();
     }

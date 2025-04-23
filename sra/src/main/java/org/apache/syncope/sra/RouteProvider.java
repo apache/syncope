@@ -22,11 +22,12 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -273,15 +274,15 @@ public class RouteProvider {
                 break;
 
             case RETRY:
-                AtomicInteger retries = new AtomicInteger();
+                Mutable<Integer> retries = new MutableObject<>();
                 try {
-                    retries.set(Integer.valueOf(gwfilter.getArgs().trim()));
+                    retries.setValue(Integer.valueOf(gwfilter.getArgs().trim()));
                 } catch (NumberFormatException e) {
                     LOG.error("Unexpected argument value: {}", gwfilter.getArgs().trim(), e);
-                    retries.set(0);
+                    retries.setValue(0);
                 }
                 filter = ctx.getBean(RetryGatewayFilterFactory.class).
-                        apply(c -> c.setRetries(retries.get()));
+                        apply(c -> c.setRetries(retries.getValue()));
                 break;
 
             case SAVE_SESSION:
@@ -319,15 +320,15 @@ public class RouteProvider {
                 break;
 
             case STRIP_PREFIX:
-                AtomicInteger parts = new AtomicInteger();
+                Mutable<Integer> parts = new MutableObject<>();
                 try {
-                    parts.set(Integer.valueOf(gwfilter.getArgs().trim()));
+                    parts.setValue(Integer.valueOf(gwfilter.getArgs().trim()));
                 } catch (NumberFormatException e) {
                     LOG.error("Unexpected argument value: {}", gwfilter.getArgs().trim(), e);
-                    parts.set(0);
+                    parts.setValue(0);
                 }
                 filter = ctx.getBean(StripPrefixGatewayFilterFactory.class).
-                        apply(c -> c.setParts(parts.get()));
+                        apply(c -> c.setParts(parts.getValue()));
                 break;
 
             case REQUEST_HEADER_TO_REQUEST_URI:
@@ -337,7 +338,7 @@ public class RouteProvider {
 
             case SET_REQUEST_SIZE:
                 filter = ctx.getBean(RequestSizeGatewayFilterFactory.class).
-                        apply(c -> c.setMaxSize(DataSize.ofBytes(Long.valueOf(gwfilter.getArgs().trim()))));
+                        apply(c -> c.setMaxSize(DataSize.ofBytes(Long.parseLong(gwfilter.getArgs().trim()))));
                 break;
 
             case SET_REQUEST_HOST:
@@ -476,16 +477,16 @@ public class RouteProvider {
 
             case WEIGHT:
                 String[] weigthArgs = gwpredicate.getArgs().split(",");
-                AtomicInteger weight = new AtomicInteger();
+                Mutable<Integer> weight = new MutableObject<Integer>();
                 try {
-                    weight.set(Integer.valueOf(weigthArgs[1].trim()));
+                    weight.setValue(Integer.valueOf(weigthArgs[1].trim()));
                 } catch (NumberFormatException e) {
                     LOG.error("Unexpected argument value: {}", weigthArgs[1].trim(), e);
-                    weight.set(0);
+                    weight.setValue(0);
                 }
                 predicate = ctx.getBean(WeightRoutePredicateFactory.class).
                         applyAsync(c -> c.setGroup(weigthArgs[0].trim()).
-                        setWeight(weight.get()));
+                        setWeight(weight.getValue()));
                 break;
 
             case CUSTOM:

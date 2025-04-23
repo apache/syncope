@@ -19,8 +19,9 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
@@ -90,16 +91,16 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             }
         }
 
-        AtomicReference<String> username = new AtomicReference<>();
+        Mutable<String> username = new MutableObject<>();
         Boolean authenticated;
-        AtomicReference<String> delegationKey = new AtomicReference<>();
+        Mutable<String> delegationKey = new MutableObject<>();
 
         if (securityProperties.getAnonymousUser().equals(authentication.getName())) {
-            username.set(securityProperties.getAnonymousUser());
+            username.setValue(securityProperties.getAnonymousUser());
             credentialChecker.checkIsDefaultAnonymousKeyInUse();
             authenticated = authentication.getCredentials().toString().equals(securityProperties.getAnonymousKey());
         } else if (securityProperties.getAdminUser().equals(authentication.getName())) {
-            username.set(securityProperties.getAdminUser());
+            username.setValue(securityProperties.getAdminUser());
             if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
                 credentialChecker.checkIsDefaultAdminPasswordInUse();
                 authenticated = encryptorManager.getInstance().verify(
@@ -121,20 +122,21 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                     () -> dataAccessor.authenticate(domainKey, authentication));
             authenticated = authResult.getMiddle();
             if (authResult.getLeft() != null && authResult.getMiddle() != null) {
-                username.set(authResult.getLeft().getUsername());
+                username.setValue(authResult.getLeft().getUsername());
 
                 if (!authenticated) {
                     AuthContextUtils.runAsAdmin(domainKey, () -> provisioningManager.internalSuspend(
                             authResult.getLeft().getKey(), securityProperties.getAdminUser(), "Failed authentication"));
                 }
             }
-            delegationKey.set(authResult.getRight());
+            delegationKey.setValue(authResult.getRight());
         }
-        if (username.get() == null) {
-            username.set(authentication.getPrincipal().toString());
+        if (username.getValue() == null) {
+            username.setValue(authentication.getPrincipal().toString());
         }
 
-        return finalizeAuthentication(authenticated, domainKey, username.get(), delegationKey.get(), authentication);
+        return finalizeAuthentication(
+                authenticated, domainKey, username.getValue(), delegationKey.getValue(), authentication);
     }
 
     protected Authentication finalizeAuthentication(

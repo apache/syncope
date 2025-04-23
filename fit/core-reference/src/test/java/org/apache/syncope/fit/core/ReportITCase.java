@@ -33,7 +33,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -53,21 +54,22 @@ import org.springframework.http.MediaType;
 public class ReportITCase extends AbstractITCase {
 
     protected static String execReport(final String reportKey) {
-        AtomicReference<ReportTO> reportTO = new AtomicReference<>(REPORT_SERVICE.read(reportKey));
-        int preExecSize = reportTO.get().getExecutions().size();
+        Mutable<ReportTO> reportTO = new MutableObject<>(REPORT_SERVICE.read(reportKey));
+        int preExecSize = reportTO.getValue().getExecutions().size();
         ExecTO execution = REPORT_SERVICE.execute(new ExecSpecs.Builder().key(reportKey).build());
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                reportTO.set(REPORT_SERVICE.read(reportKey));
-                return preExecSize < reportTO.get().getExecutions().size();
+                reportTO.setValue(REPORT_SERVICE.read(reportKey));
+                return preExecSize < reportTO.getValue().getExecutions().size();
             } catch (Exception e) {
                 return false;
             }
         });
 
-        ExecTO exec = reportTO.get().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
+        ExecTO exec = reportTO.getValue().getExecutions().stream().
+                max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
         assertEquals(ReportJob.Status.SUCCESS.name(), exec.getStatus());
         return exec.getKey();
     }

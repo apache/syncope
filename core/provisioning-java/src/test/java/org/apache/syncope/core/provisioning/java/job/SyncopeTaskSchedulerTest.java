@@ -27,7 +27,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
@@ -42,13 +43,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class SyncopeTaskSchedulerTest extends AbstractTest {
 
-    private static final AtomicInteger VALUE = new AtomicInteger();
+    private static final Mutable<Integer> VALUE = new MutableObject<>(0);
 
     private static class TestJob extends Job {
 
         @Override
         protected void execute(final JobExecutionContext context) throws JobExecutionException {
-            VALUE.set(1);
+            VALUE.setValue(1);
         }
     }
 
@@ -76,6 +77,6 @@ public class SyncopeTaskSchedulerTest extends AbstractTest {
 
         assertTrue(scheduler.getNextTrigger(AuthContextUtils.getDomain(), job.getContext().getJobName()).isPresent());
 
-        await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> VALUE.get() == 1);
+        await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> VALUE.getValue() == 1);
     }
 }

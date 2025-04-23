@@ -49,10 +49,11 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -490,20 +491,20 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execSchedTask(TASK_SERVICE, TaskType.PULL, LDAP_PULL_TASK, MAX_WAIT_SECONDS, false);
 
         // 4. verify that LDAP group membership is pulled as Syncope membership
-        AtomicReference<Integer> numMembers = new AtomicReference<>();
+        Mutable<Integer> numMembers = new MutableObject<>();
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 PagedResult<UserTO> members = USER_SERVICE.search(
                         new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                                 fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
                                 build());
-                numMembers.set(members.getResult().size());
+                numMembers.setValue(members.getResult().size());
                 return !members.getResult().isEmpty();
             } catch (Exception e) {
                 return false;
             }
         });
-        assertEquals(1, numMembers.get());
+        assertEquals(1, numMembers.getValue());
 
         // SYNCOPE-1343, verify that the title attribute has been reset
         matchingUsers = USER_SERVICE.search(

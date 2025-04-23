@@ -21,10 +21,11 @@ package org.apache.syncope.core.provisioning.java.data;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -150,16 +151,16 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
             return JEXLItemTransformer.super.beforePropagation(item, any, schemaType, values);
         }
 
-        AtomicReference<AttrSchemaType> tType = new AtomicReference<>();
+        Mutable<AttrSchemaType> tType = new MutableObject<>();
         if (values.isEmpty()) {
             PlainAttrValue value = new PlainAttrValue();
-            tType.set(beforePropagation(any, schemaType, value));
+            tType.setValue(beforePropagation(any, schemaType, value));
             values.add(value);
         } else {
-            values.forEach(value -> tType.set(beforePropagation(any, schemaType, value)));
+            values.forEach(value -> tType.setValue(beforePropagation(any, schemaType, value)));
         }
 
-        return Pair.of(tType.get(), values);
+        return Pair.of(tType.getValue(), values);
     }
 
     @Override

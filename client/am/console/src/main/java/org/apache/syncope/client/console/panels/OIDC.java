@@ -21,7 +21,8 @@ package org.apache.syncope.client.console.panels;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
+import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -82,7 +83,7 @@ public class OIDC extends Panel {
         WebMarkupContainer container = new WebMarkupContainer("container");
         add(container.setOutputMarkupId(true));
 
-        AtomicReference<OIDCJWKSTO> oidcjwksto = oidcJWKSRestClient.get();
+        Mutable<OIDCJWKSTO> oidcjwksto = oidcJWKSRestClient.get();
 
         view = new AjaxLink<>("view") {
 
@@ -93,10 +94,10 @@ public class OIDC extends Panel {
                 String pretty;
                 try {
                     pretty = MAPPER.writerWithDefaultPrettyPrinter().
-                            writeValueAsString(MAPPER.readTree(oidcjwksto.get().getJson()));
+                            writeValueAsString(MAPPER.readTree(oidcjwksto.getValue().getJson()));
                 } catch (IOException e) {
                     LOG.error("Could not pretty-print", e);
-                    pretty = oidcjwksto.get().getJson();
+                    pretty = Optional.ofNullable(oidcjwksto.getValue()).map(OIDCJWKSTO::getJson).orElse(null);
                 }
 
                 viewModal.header(Model.of("JSON Web Key Sets"));
@@ -108,12 +109,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() == null) {
+                if (oidcjwksto.getValue() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        view.setEnabled(oidcjwksto.get() != null);
+        view.setEnabled(oidcjwksto.getValue() != null);
         container.add(view.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(view, ENABLE, AMEntitlement.OIDC_JWKS_READ);
 
@@ -124,7 +125,7 @@ public class OIDC extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    oidcjwksto.set(oidcJWKSRestClient.generate());
+                    oidcjwksto.setValue(oidcJWKSRestClient.generate());
                     generate.setEnabled(false);
                     view.setEnabled(true);
 
@@ -141,12 +142,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() != null) {
+                if (oidcjwksto.getValue() != null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        generate.setEnabled(oidcjwksto.get() == null);
+        generate.setEnabled(oidcjwksto.getValue() == null);
         container.add(generate.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(generate, ENABLE, AMEntitlement.OIDC_JWKS_GENERATE);
 
@@ -158,7 +159,7 @@ public class OIDC extends Panel {
             public void onClick(final AjaxRequestTarget target) {
                 try {
                     oidcJWKSRestClient.delete();
-                    oidcjwksto.set(null);
+                    oidcjwksto.setValue(null);
                     generate.setEnabled(true);
                     view.setEnabled(false);
 
@@ -175,12 +176,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.get() == null) {
+                if (oidcjwksto.getValue() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        delete.setEnabled(oidcjwksto.get() != null);
+        delete.setEnabled(oidcjwksto.getValue() != null);
         container.add(delete.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_JWKS_DELETE);
 

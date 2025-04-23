@@ -38,7 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.batch.BatchRequest;
@@ -146,7 +147,7 @@ public class BatchITCase extends AbstractITCase {
         assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.DOMAIN));
         assertNotNull(resItems.getFirst().getHeaders().get(RESTHeaders.RESOURCE_KEY));
         assertEquals(RESTHeaders.APPLICATION_YAML, resItems.getFirst().
-            getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
+                getHeaders().get(HttpHeaders.CONTENT_TYPE).getFirst());
         ProvisioningResult<UserTO> user = YAML_MAPPER.readValue(
                 resItems.get(0).getContent(), new TypeReference<>() {
         });
@@ -229,16 +230,16 @@ public class BatchITCase extends AbstractITCase {
                 header(HttpHeaders.AUTHORIZATION, "Bearer " + ADMIN_CLIENT.getJWT()).
                 type(RESTHeaders.multipartMixedWith(boundary.substring(2)));
 
-        AtomicReference<Response> holder = new AtomicReference<>();
+        Mutable<Response> holder = new MutableObject<>();
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
-                holder.set(client.get());
-                return holder.get().getStatus() != Response.Status.ACCEPTED.getStatusCode();
+                holder.setValue(client.get());
+                return holder.getValue().getStatus() != Response.Status.ACCEPTED.getStatusCode();
             } catch (Exception e) {
                 return false;
             }
         });
-        response = holder.get();
+        response = holder.getValue();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));

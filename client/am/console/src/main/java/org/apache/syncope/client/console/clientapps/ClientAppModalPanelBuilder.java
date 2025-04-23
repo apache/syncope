@@ -301,7 +301,7 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                     AjaxTextFieldPanel clientSecret = new AjaxTextFieldPanel(
                             "field", "clientSecret", new PropertyModel<>(clientAppTO, "clientSecret"), false);
                     clientSecret.setChoices(List.of(RandomStringUtils.secure().nextNumeric(15)));
-                    fields.add(clientSecret.setRequired(true));
+                    fields.add(clientSecret);
 
                     AjaxTextFieldPanel idTokenIssuer = new AjaxTextFieldPanel(
                             "field", "idTokenIssuer", new PropertyModel<>(clientAppTO, "idTokenIssuer"), false);
