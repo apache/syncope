@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -52,6 +53,8 @@ public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
             convertedDate = SyncopeConsoleSession.get().getDateFormat().format((OffsetDateTime) date.getObject());
         } else if (date.getObject() instanceof ZonedDateTime) {
             convertedDate = SyncopeConsoleSession.get().getDateFormat().format((ZonedDateTime) date.getObject());
+        } else if (date.getObject() instanceof LocalDateTime) {
+            convertedDate = SyncopeConsoleSession.get().getDateFormat().format((LocalDateTime) date.getObject());
         } else if (date.getObject() instanceof Date) {
             convertedDate = SyncopeConsoleSession.get().getDateFormat().format((Date) date.getObject());
         }
