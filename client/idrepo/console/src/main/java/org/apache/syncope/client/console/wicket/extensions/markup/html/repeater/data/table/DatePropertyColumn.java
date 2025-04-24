@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -48,12 +49,14 @@ public class DatePropertyColumn<T> extends PropertyColumn<T, String> {
         IModel<?> date = getDataModel(rowModel);
 
         String convertedDate = "";
-        if (date.getObject() instanceof final OffsetDateTime offsetDateTime) {
-            convertedDate = SyncopeConsoleSession.get().getDateFormat().format(offsetDateTime);
-        } else if (date.getObject() instanceof final ZonedDateTime zonedDateTime) {
-            convertedDate = SyncopeConsoleSession.get().getDateFormat().format(zonedDateTime);
-        } else if (date.getObject() instanceof final Date date1) {
-            convertedDate = SyncopeConsoleSession.get().getDateFormat().format(date1);
+        if (date.getObject() instanceof OffsetDateTime) {
+            convertedDate = SyncopeConsoleSession.get().getDateFormat().format((OffsetDateTime) date.getObject());
+        } else if (date.getObject() instanceof ZonedDateTime) {
+            convertedDate = SyncopeConsoleSession.get().getDateFormat().format((ZonedDateTime) date.getObject());
+        } else if (date.getObject() instanceof LocalDateTime) {
+            convertedDate = SyncopeConsoleSession.get().getDateFormat().format((LocalDateTime) date.getObject());
+        } else if (date.getObject() instanceof Date) {
+            convertedDate = SyncopeConsoleSession.get().getDateFormat().format((Date) date.getObject());
         }
         item.add(new Label(componentId, convertedDate));
     }
