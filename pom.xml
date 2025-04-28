@@ -1919,7 +1919,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.gmavenplus</groupId>
         <artifactId>gmavenplus-plugin</artifactId>
-        <version>4.1.1</version>
+        <version>4.2.0</version>
         <dependencies>
           <dependency>
             <groupId>org.apache.groovy</groupId>
