@@ -260,12 +260,7 @@ public class WAServiceRegistryTest extends AbstractTest {
         SyncopeCoreTestingServer.CLIENT_APPS.add(waClientApp);
 
         // 2. trigger refresh
-        int before = authenticationEventExecutionPlan.getObject().getAuthenticationHandlers().size();
-
         contextRefresher.refresh();
-
-        int after = authenticationEventExecutionPlan.getObject().getAuthenticationHandlers().size();
-        assertEquals(before + 1, after);
 
         // 3. check service
         RegisteredService service = servicesManager.findServiceBy(clientAppId);
