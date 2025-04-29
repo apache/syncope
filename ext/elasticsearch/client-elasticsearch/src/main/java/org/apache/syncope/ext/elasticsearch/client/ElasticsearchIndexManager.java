@@ -39,6 +39,7 @@ import co.elastic.clients.elasticsearch.indices.DeleteIndexResponse;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import co.elastic.clients.elasticsearch.indices.IndexSettings;
 import co.elastic.clients.elasticsearch.indices.IndexSettingsAnalysis;
+import co.elastic.clients.util.NamedValue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,7 @@ public class ElasticsearchIndexManager {
 
     public TypeMapping defaultAnyMapping() {
         return new TypeMapping.Builder().
-                dynamicTemplates(List.of(Map.of(
+                dynamicTemplates(List.of(new NamedValue<>(
                         "strings",
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
@@ -129,7 +130,7 @@ public class ElasticsearchIndexManager {
 
     public TypeMapping defaultRealmMapping() {
         return new TypeMapping.Builder().
-                dynamicTemplates(List.of(Map.of(
+                dynamicTemplates(List.of(new NamedValue<>(
                         "strings",
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
@@ -142,7 +143,7 @@ public class ElasticsearchIndexManager {
 
     public TypeMapping defaultAuditMapping() {
         return new TypeMapping.Builder().
-                dynamicTemplates(List.of(Map.of(
+                dynamicTemplates(List.of(new NamedValue<>(
                         "strings",
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").

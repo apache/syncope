@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.elasticsearch.dao;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ScriptLanguage;
 import co.elastic.clients.elasticsearch._types.ScriptSortType;
+import co.elastic.clients.elasticsearch._types.ScriptSource;
 import co.elastic.clients.elasticsearch._types.SearchType;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
@@ -54,7 +55,8 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
                     script(t -> t.lang(ScriptLanguage.Painless).
-                    source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()")).
+                    source(new ScriptSource.Builder().
+                            scriptString("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()").build())).
                     order(SortOrder.Asc)).
                     build());
 

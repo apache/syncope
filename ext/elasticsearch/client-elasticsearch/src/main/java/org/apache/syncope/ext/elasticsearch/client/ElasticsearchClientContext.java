@@ -19,11 +19,15 @@
 package org.apache.syncope.ext.elasticsearch.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import org.apache.http.HttpHost;
+import java.net.URISyntaxException;
+import java.util.Objects;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.identityconnectors.common.CollectionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -35,11 +39,20 @@ import org.springframework.context.annotation.Lazy;
 @Configuration(proxyBeanMethods = false)
 public class ElasticsearchClientContext {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(ElasticsearchClientContext.class);
+
     @ConditionalOnMissingBean
     @Bean
     public ElasticsearchClientFactoryBean elasticsearchClientFactoryBean(final ElasticsearchProperties props) {
-        return new ElasticsearchClientFactoryBean(
-                CollectionUtil.nullAsEmpty(props.getHosts()).stream().map(HttpHost::create).toList());
+        return new ElasticsearchClientFactoryBean(CollectionUtil.nullAsEmpty(props.getHosts()).stream().
+                map(host -> {
+                    try {
+                        return HttpHost.create(host);
+                    } catch (URISyntaxException e) {
+                        LOG.error("Invalid host: {}", host, e);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList());
     }
 
     @ConditionalOnMissingBean
