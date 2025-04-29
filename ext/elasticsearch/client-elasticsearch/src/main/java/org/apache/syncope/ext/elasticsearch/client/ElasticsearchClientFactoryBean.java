@@ -20,22 +20,18 @@ package org.apache.syncope.ext.elasticsearch.client;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
-import co.elastic.clients.transport.rest_client.RestClientTransport;
+import co.elastic.clients.transport.rest5_client.Rest5ClientTransport;
+import co.elastic.clients.transport.rest5_client.low_level.Rest5Client;
+import co.elastic.clients.transport.rest5_client.low_level.Rest5ClientBuilder;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.message.BasicHeader;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -56,7 +52,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
 
     private String apiKeySecret;
 
-    private RestClient restClient;
+    private Rest5Client restClient;
 
     private ElasticsearchClient client;
 
@@ -100,12 +96,12 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
     public ElasticsearchClient getObject() {
         synchronized (this) {
             if (client == null) {
-                RestClientBuilder builder = RestClient.builder(hosts.toArray(HttpHost[]::new));
+                Rest5ClientBuilder builder = Rest5Client.builder(hosts.toArray(HttpHost[]::new));
                 if (username != null && password != null) {
-                    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                    credentialsProvider.setCredentials(
-                            AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                    builder.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
+                    String encodedAuth = Base64.getEncoder().
+                            encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
+                    builder.setDefaultHeaders(
+                            new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + encodedAuth) });
                 } else if (serviceToken != null) {
                     builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken) });
@@ -117,7 +113,7 @@ public class ElasticsearchClientFactoryBean implements FactoryBean<Elasticsearch
                 }
 
                 restClient = builder.build();
-                client = new ElasticsearchClient(new RestClientTransport(
+                client = new ElasticsearchClient(new Rest5ClientTransport(
                         restClient,
                         new JacksonJsonpMapper(JsonMapper.builder().
                                 findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build())));
