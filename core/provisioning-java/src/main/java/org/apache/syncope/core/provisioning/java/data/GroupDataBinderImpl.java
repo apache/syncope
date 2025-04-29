@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -56,13 +55,11 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
@@ -82,7 +79,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
-public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupDataBinder {
+public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinder {
 
     protected final SearchCondVisitor searchCondVisitor;
 
@@ -500,23 +497,15 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         groupTO.setLastChangeDate(group.getLastChangeDate());
         groupTO.setLastChangeContext(group.getLastChangeContext());
 
-        if (group.getUserOwner() != null) {
-            groupTO.setUserOwner(group.getUserOwner().getKey());
-        }
-        if (group.getGroupOwner() != null) {
-            groupTO.setGroupOwner(group.getGroupOwner().getKey());
-        }
+        Optional.ofNullable(group.getUserOwner()).map(User::getKey).ifPresent(groupTO::setUserOwner);
+        Optional.ofNullable(group.getGroupOwner()).map(Group::getKey).ifPresent(groupTO::setGroupOwner);
 
-        Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(group);
-        Map<VirSchema, List<String>> virAttrValues = details
-                ? virAttrHandler.getValues(group)
-                : Collections.emptyMap();
         fillTO(groupTO,
                 group.getRealm().getFullPath(),
                 group.getAuxClasses(),
                 group.getPlainAttrs(),
-                derAttrValues,
-                virAttrValues,
+                derAttrHandler.getValues(group),
+                details ? virAttrHandler.getValues(group) : Map.of(),
                 group.getResources());
 
         // dynamic realms
@@ -530,20 +519,18 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         groupTO.setDynamicUserMembershipCount(groupDAO.countUDynMembers(group));
         groupTO.setDynamicAnyObjectMembershipCount(groupDAO.countADynMembers(group));
 
-        if (group.getUDynMembership() != null) {
-            groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
-        }
+        Optional.ofNullable(group.getUDynMembership()).
+                map(UDynGroupMembership::getFIQLCond).
+                ifPresent(groupTO::setUDynMembershipCond);
         group.getADynMemberships().
                 forEach(memb -> groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond()));
 
-        group.getTypeExtensions().
-                forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
+        group.getTypeExtensions().forEach(typeExt -> groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt)));
 
         if (details) {
             // relationships
-            groupTO.getRelationships().addAll(group.getRelationships().stream().map(relationship -> getRelationshipTO(
-                    relationship.getType().getKey(), RelationshipTO.End.LEFT, relationship.getRightEnd())).
-                    toList());
+            groupTO.getRelationships().addAll(group.getRelationships().stream().map(r -> getRelationshipTO(
+                    r.getType().getKey(), RelationshipTO.End.LEFT, r.getRightEnd())).toList());
         }
 
         return groupTO;

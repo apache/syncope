@@ -29,7 +29,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -109,7 +109,7 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
                 T value = null;
 
                 if (list != null && !list.isEmpty() && list.getFirst() != null
-                    && !list.getFirst().toString().isEmpty()) {
+                        && !list.getFirst().toString().isEmpty()) {
                     value = reference.equals(Integer.class)
                             ? reference.cast(NumberUtils.toInt(list.getFirst().toString()))
                             : reference.equals(Long.class)
@@ -197,7 +197,7 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
     }
 
     @Override
-    public FieldPanel<T> setNewModel(final Attributable attributable, final String schema) {
+    public FieldPanel<T> setNewModel(final AttributableTO attributable, final String schema) {
         field.setModel(new Model<>() {
 
             private static final long serialVersionUID = -4214654722524358000L;

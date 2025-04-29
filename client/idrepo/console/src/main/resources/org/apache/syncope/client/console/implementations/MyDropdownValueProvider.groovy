@@ -18,12 +18,12 @@
  */
 import groovy.transform.CompileStatic
 import java.util.List
-import org.apache.syncope.common.lib.to.AnyTO
+import org.apache.syncope.common.lib.to.AttributableTO
 import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider
 
 @CompileStatic
 class MyDropdownValueProvider implements DropdownValueProvider {
-  List<String> getChoices(AnyTO anyTO) {
+  List<String> getChoices(AttributableTO attributableTO) {
     return []
   }
 }

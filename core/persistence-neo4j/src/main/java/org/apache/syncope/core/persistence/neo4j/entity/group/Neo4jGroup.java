@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.neo4j.entity.group;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -160,24 +159,6 @@ public class Neo4jGroup
     public void setGroupOwner(final Group group) {
         checkType(group, Neo4jGroup.class);
         this.groupOwner = (Neo4jGroup) group;
-    }
-
-    @Override
-    public boolean add(final PlainAttr attr) {
-        return plainAttrs.put(attr.getSchema(), attr) != null;
-    }
-
-    @Override
-    public boolean remove(final PlainAttr attr) {
-        return plainAttrs.put(attr.getSchema(), null) != null;
-    }
-
-    @Override
-    public List<PlainAttr> getPlainAttrs() {
-        return plainAttrs.entrySet().stream().
-                filter(e -> e.getValue() != null).
-                sorted(Comparator.comparing(Map.Entry::getKey)).
-                map(Map.Entry::getValue).toList();
     }
 
     @Override

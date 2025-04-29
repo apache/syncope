@@ -19,8 +19,9 @@
 package org.apache.syncope.common.lib;
 
 import java.util.Set;
+import org.apache.syncope.common.lib.to.AttributableTO;
 
-public interface RealmMember extends Attributable {
+public interface RealmMember extends AttributableTO {
 
     String getRealm();
 

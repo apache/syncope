@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import jakarta.ws.rs.PathParam;
@@ -25,10 +26,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.syncope.common.lib.Attr;
 
-public class RealmTO implements NamedEntityTO, TemplatableTO {
+public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
 
     private static final long serialVersionUID = 516330662956254391L;
 
@@ -39,6 +44,8 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
     private String parent;
 
     private String fullPath;
+
+    private String anyTypeClass;
 
     private String accountPolicy;
 
@@ -51,6 +58,10 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
     private String attrReleasePolicy;
 
     private String ticketExpirationPolicy;
+
+    private final Set<Attr> plainAttrs = new TreeSet<>();
+
+    private final Set<Attr> derAttrs = new TreeSet<>();
 
     private final List<String> actions = new ArrayList<>();
 
@@ -93,6 +104,14 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
     @PathParam("fullPath")
     public void setFullPath(final String fullPath) {
         this.fullPath = fullPath;
+    }
+
+    public String getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    public void setAnyTypeClass(final String anyTypeClass) {
+        this.anyTypeClass = anyTypeClass;
     }
 
     public String getAccountPolicy() {
@@ -143,6 +162,45 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
         this.ticketExpirationPolicy = ticketExpirationPolicy;
     }
 
+    @JacksonXmlElementWrapper(localName = "plainAttrs")
+    @JacksonXmlProperty(localName = "plainAttr")
+    @Override
+    public Set<Attr> getPlainAttrs() {
+        return plainAttrs;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<Attr> getPlainAttr(final String schema) {
+        return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "derAttrs")
+    @JacksonXmlProperty(localName = "derAttr")
+    @Override
+    public Set<Attr> getDerAttrs() {
+        return derAttrs;
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<Attr> getDerAttr(final String schema) {
+        return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "virAttrs")
+    @JacksonXmlProperty(localName = "virAttr")
+    @Override
+    public Set<Attr> getVirAttrs() {
+        return Set.of();
+    }
+
+    @JsonIgnore
+    @Override
+    public Optional<Attr> getVirAttr(final String schema) {
+        return Optional.empty();
+    }
+
     @JacksonXmlElementWrapper(localName = "actions")
     @JacksonXmlProperty(localName = "action")
     public List<String> getActions() {
@@ -177,12 +235,15 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
                 append(name, other.name).
                 append(parent, other.parent).
                 append(fullPath, other.fullPath).
+                append(anyTypeClass, other.anyTypeClass).
                 append(accountPolicy, other.accountPolicy).
                 append(passwordPolicy, other.passwordPolicy).
                 append(authPolicy, other.authPolicy).
                 append(accessPolicy, other.accessPolicy).
                 append(attrReleasePolicy, other.attrReleasePolicy).
                 append(ticketExpirationPolicy, other.ticketExpirationPolicy).
+                append(plainAttrs, other.plainAttrs).
+                append(derAttrs, other.derAttrs).
                 append(actions, other.actions).
                 append(templates, other.templates).
                 append(resources, other.resources).
@@ -196,12 +257,15 @@ public class RealmTO implements NamedEntityTO, TemplatableTO {
                 append(name).
                 append(parent).
                 append(fullPath).
+                append(anyTypeClass).
                 append(accountPolicy).
                 append(passwordPolicy).
                 append(authPolicy).
                 append(accessPolicy).
                 append(attrReleasePolicy).
                 append(ticketExpirationPolicy).
+                append(plainAttrs).
+                append(derAttrs).
                 append(actions).
                 append(templates).
                 append(resources).

@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +56,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -73,7 +70,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
-public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements AnyObjectDataBinder {
+public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectDataBinder {
 
     public AnyObjectDataBinderImpl(
             final AnyTypeDAO anyTypeDAO,
@@ -136,15 +133,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         anyObjectTO.setLastChangeDate(anyObject.getLastChangeDate());
         anyObjectTO.setLastChangeContext(anyObject.getLastChangeContext());
 
-        Map<VirSchema, List<String>> virAttrValues = details
-                ? virAttrHandler.getValues(anyObject)
-                : Collections.emptyMap();
         fillTO(anyObjectTO,
                 anyObject.getRealm().getFullPath(),
                 anyObject.getAuxClasses(),
                 anyObject.getPlainAttrs(),
                 derAttrHandler.getValues(anyObject),
-                virAttrValues,
+                details ? virAttrHandler.getValues(anyObject) : Map.of(),
                 anyObjectDAO.findAllResources(anyObject));
 
         // dynamic realms
@@ -154,14 +148,14 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             // relationships
             anyObjectTO.getRelationships().addAll(
                     anyObjectDAO.findAllRelationships(anyObject).stream().
-                            map(relationship -> getRelationshipTO(
-                            relationship.getType().getKey(),
-                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
+                            map(r -> getRelationshipTO(
+                            r.getType().getKey(),
+                            r.getLeftEnd().getKey().equals(anyObject.getKey())
                             ? RelationshipTO.End.LEFT
                             : RelationshipTO.End.RIGHT,
-                            relationship.getLeftEnd().getKey().equals(anyObject.getKey())
-                            ? relationship.getRightEnd()
-                            : relationship.getLeftEnd())).
+                            r.getLeftEnd().getKey().equals(anyObject.getKey())
+                            ? r.getRightEnd()
+                            : r.getLeftEnd())).
                             toList());
 
             // memberships

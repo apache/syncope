@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AuthPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.TicketExpirationPolicy;
 
-public interface Realm extends Entity {
+public interface Realm extends Attributable {
 
     String getName();
 
@@ -38,6 +38,10 @@ public interface Realm extends Entity {
     void setParent(Realm parent);
 
     String getFullPath();
+
+    AnyTypeClass getAnyTypeClass();
+
+    void setAnyTypeClass(AnyTypeClass anyTypeClass);
 
     AccountPolicy getAccountPolicy();
 
@@ -74,8 +78,6 @@ public interface Realm extends Entity {
     List<? extends AnyTemplateRealm> getTemplates();
 
     boolean add(ExternalResource resource);
-
-    List<String> getResourceKeys();
 
     List<? extends ExternalResource> getResources();
 

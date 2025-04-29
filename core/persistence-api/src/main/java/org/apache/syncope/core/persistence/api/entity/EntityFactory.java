@@ -33,5 +33,7 @@ public interface EntityFactory {
 
     Class<? extends AnyObject> anyObjectClass();
 
+    Class<? extends Realm> realmClass();
+
     Class<? extends AnySearchDAO> anySearchDAOClass();
 }

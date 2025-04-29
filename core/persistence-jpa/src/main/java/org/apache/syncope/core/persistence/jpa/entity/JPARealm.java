@@ -22,6 +22,7 @@ import jakarta.persistence.Cacheable;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -29,6 +30,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
@@ -37,8 +39,10 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -57,9 +61,10 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPATicketExpiration
 @Entity
 @Table(name = JPARealm.TABLE, uniqueConstraints =
         @UniqueConstraint(columnNames = { "name", "parent_id" }))
+@EntityListeners({ JSONRealmListener.class })
 @Cacheable
 @RealmCheck
-public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
+public class JPARealm extends AbstractAttributable implements Realm {
 
     private static final long serialVersionUID = 5533247460239909964L;
 
@@ -73,6 +78,14 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @Column(nullable = false, unique = true)
     private String fullPath;
+
+    private String plainAttrs;
+
+    @Transient
+    private final List<PlainAttr> plainAttrsList = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAAnyTypeClass anyTypeClass;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -120,28 +133,13 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     }
 
     @Override
-    public Realm getParent() {
-        return parent;
-    }
-
-    @Override
-    public String getFullPath() {
-        return fullPath;
-    }
-
-    @Override
-    public AccountPolicy getAccountPolicy() {
-        return accountPolicy == null && getParent() != null ? getParent().getAccountPolicy() : accountPolicy;
-    }
-
-    @Override
-    public PasswordPolicy getPasswordPolicy() {
-        return passwordPolicy == null && getParent() != null ? getParent().getPasswordPolicy() : passwordPolicy;
-    }
-
-    @Override
     public void setName(final String name) {
         this.name = name;
+    }
+
+    @Override
+    public Realm getParent() {
+        return parent;
     }
 
     @Override
@@ -150,14 +148,77 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
         this.parent = (JPARealm) parent;
     }
 
+    @Override
+    public String getFullPath() {
+        return fullPath;
+    }
+
     public void setFullPath(final String fullPath) {
         this.fullPath = fullPath;
+    }
+
+    @Override
+    public List<PlainAttr> getPlainAttrsList() {
+        return plainAttrsList;
+    }
+
+    @Override
+    public String getPlainAttrsJSON() {
+        return plainAttrs;
+    }
+
+    @Override
+    public void setPlainAttrsJSON(final String plainAttrs) {
+        this.plainAttrs = plainAttrs;
+    }
+
+    @Override
+    public boolean add(final PlainAttr attr) {
+        return plainAttrsList.add(attr);
+    }
+
+    @Override
+    public boolean remove(final PlainAttr attr) {
+        return plainAttrsList.removeIf(a -> a.getSchema().equals(attr.getSchema()));
+    }
+
+    @Override
+    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
+        return plainAttrsList.stream().
+                filter(attr -> plainSchema.equals(attr.getSchema())).
+                findFirst();
+    }
+
+    @Override
+    public List<PlainAttr> getPlainAttrs() {
+        return plainAttrsList.stream().toList();
+    }
+
+    @Override
+    public AnyTypeClass getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    @Override
+    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, JPAAnyTypeClass.class);
+        this.anyTypeClass = (JPAAnyTypeClass) anyTypeClass;
+    }
+
+    @Override
+    public AccountPolicy getAccountPolicy() {
+        return accountPolicy == null && getParent() != null ? getParent().getAccountPolicy() : accountPolicy;
     }
 
     @Override
     public void setAccountPolicy(final AccountPolicy accountPolicy) {
         checkType(accountPolicy, JPAAccountPolicy.class);
         this.accountPolicy = (JPAAccountPolicy) accountPolicy;
+    }
+
+    @Override
+    public PasswordPolicy getPasswordPolicy() {
+        return passwordPolicy == null && getParent() != null ? getParent().getPasswordPolicy() : passwordPolicy;
     }
 
     @Override
@@ -186,6 +247,28 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     public void setAccessPolicy(final AccessPolicy accessPolicy) {
         checkType(accessPolicy, JPAAccessPolicy.class);
         this.accessPolicy = (JPAAccessPolicy) accessPolicy;
+    }
+
+    @Override
+    public AttrReleasePolicy getAttrReleasePolicy() {
+        return this.attrReleasePolicy;
+    }
+
+    @Override
+    public void setAttrReleasePolicy(final AttrReleasePolicy policy) {
+        checkType(policy, JPAAttrReleasePolicy.class);
+        this.attrReleasePolicy = (JPAAttrReleasePolicy) policy;
+    }
+
+    @Override
+    public TicketExpirationPolicy getTicketExpirationPolicy() {
+        return this.ticketExpirationPolicy;
+    }
+
+    @Override
+    public void setTicketExpirationPolicy(final TicketExpirationPolicy policy) {
+        checkType(policy, JPATicketExpirationPolicy.class);
+        this.ticketExpirationPolicy = (JPATicketExpirationPolicy) policy;
     }
 
     @Override
@@ -219,36 +302,9 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     }
 
     @Override
-    public void setAttrReleasePolicy(final AttrReleasePolicy policy) {
-        checkType(policy, JPAAttrReleasePolicy.class);
-        this.attrReleasePolicy = (JPAAttrReleasePolicy) policy;
-    }
-
-    @Override
-    public AttrReleasePolicy getAttrReleasePolicy() {
-        return this.attrReleasePolicy;
-    }
-
-    @Override
-    public TicketExpirationPolicy getTicketExpirationPolicy() {
-        return this.ticketExpirationPolicy;
-    }
-
-    @Override
-    public void setTicketExpirationPolicy(final TicketExpirationPolicy policy) {
-        checkType(policy, JPATicketExpirationPolicy.class);
-        this.ticketExpirationPolicy = (JPATicketExpirationPolicy) policy;
-    }
-
-    @Override
     public boolean add(final ExternalResource resource) {
         checkType(resource, JPAExternalResource.class);
         return resources.contains((JPAExternalResource) resource) || resources.add((JPAExternalResource) resource);
-    }
-
-    @Override
-    public List<String> getResourceKeys() {
-        return getResources().stream().map(ExternalResource::getKey).toList();
     }
 
     @Override

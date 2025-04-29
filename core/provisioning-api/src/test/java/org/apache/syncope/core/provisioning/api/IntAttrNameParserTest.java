@@ -32,7 +32,6 @@ import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,19 +47,19 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 public class IntAttrNameParserTest extends AbstractTest {
 
-    private static final Map<AnyTypeKind, List<String>> FIELDS = new HashMap<>();
+    private static final Map<AnyTypeKind, List<String>> ANY_FIELDS = Map.of(
+            AnyTypeKind.USER, List.of("key", "username"),
+            AnyTypeKind.GROUP, List.of("key", "name", "userOwner"),
+            AnyTypeKind.ANY_OBJECT, List.of("key", "name"));
 
-    static {
-        FIELDS.put(AnyTypeKind.USER, List.of("key", "username"));
-        FIELDS.put(AnyTypeKind.GROUP, List.of("key", "name", "userOwner"));
-        FIELDS.put(AnyTypeKind.ANY_OBJECT, List.of("key", "name"));
-    }
+    private static final List<String> REALM_FIELDS = List.of("key", "name");
 
     @Mock
     private PlainSchemaDAO plainSchemaDAO;
@@ -77,6 +76,9 @@ public class IntAttrNameParserTest extends AbstractTest {
     @Mock
     private AnyUtils anyUtils;
 
+    @Mock
+    private RealmUtils realmUtils;
+
     private IntAttrNameParser intAttrNameParser;
 
     @BeforeEach
@@ -87,7 +89,17 @@ public class IntAttrNameParserTest extends AbstractTest {
         });
         lenient().when(anyUtils.getField(anyString())).thenAnswer(ic -> {
             String fieldName = ic.getArgument(0);
-            if (FIELDS.get(anyUtils.anyTypeKind()).contains(fieldName)) {
+            if (ANY_FIELDS.get(anyUtils.anyTypeKind()).contains(fieldName)) {
+                Field field = mock(Field.class);
+                when(field.getName()).thenReturn(fieldName);
+                when(field.getType()).thenAnswer(ic2 -> String.class);
+                return Optional.of(field);
+            }
+            return Optional.empty();
+        });
+        lenient().when(realmUtils.getField(anyString())).thenAnswer(ic -> {
+            String fieldName = ic.getArgument(0);
+            if (REALM_FIELDS.contains(fieldName)) {
                 Field field = mock(Field.class);
                 when(field.getName()).thenReturn(fieldName);
                 when(field.getType()).thenAnswer(ic2 -> String.class);
@@ -98,7 +110,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         lenient().when(plainSchemaDAO.findById(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
-                case "email", "firstname", "location" -> {
+                case "email", "firstname", "location", "index" -> {
                     PlainSchema schema = mock(PlainSchema.class);
                     lenient().when(schema.getKey()).thenReturn(schemaName);
                     lenient().when(schema.getType()).thenReturn(AttrSchemaType.String);
@@ -138,7 +150,8 @@ public class IntAttrNameParserTest extends AbstractTest {
             }
         });
 
-        intAttrNameParser = new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory);
+        intAttrNameParser = new IntAttrNameParser(
+                plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory, realmUtils);
     }
 
     @Test
@@ -338,6 +351,58 @@ public class IntAttrNameParserTest extends AbstractTest {
     public void invalid() {
         try {
             intAttrNameParser.parse("memberships.cn", AnyTypeKind.USER);
+            fail("This should not happen");
+        } catch (ParseException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void realm() throws ParseException {
+        IntAttrName intAttrName = intAttrNameParser.parse("key");
+        assertNotNull(intAttrName);
+        assertNull(intAttrName.getAnyTypeKind());
+        assertNotNull(intAttrName.getField());
+        assertEquals("key", intAttrName.getField());
+        assertNull(intAttrName.getSchema());
+        assertNull(intAttrName.getSchemaType());
+        assertNull(intAttrName.getEnclosingGroup());
+        assertNull(intAttrName.getMembershipOfGroup());
+        assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getRelationshipAnyType());
+        assertNull(intAttrName.getRelationshipType());
+        assertNull(intAttrName.getRelatedUser());
+
+        intAttrName = intAttrNameParser.parse("name");
+        assertNotNull(intAttrName);
+        assertNull(intAttrName.getAnyTypeKind());
+        assertNotNull(intAttrName.getField());
+        assertEquals("name", intAttrName.getField());
+        assertNull(intAttrName.getSchema());
+        assertNull(intAttrName.getSchemaType());
+        assertNull(intAttrName.getEnclosingGroup());
+        assertNull(intAttrName.getMembershipOfGroup());
+        assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getRelationshipAnyType());
+        assertNull(intAttrName.getRelationshipType());
+        assertNull(intAttrName.getRelatedUser());
+
+        intAttrName = intAttrNameParser.parse("index");
+        assertNotNull(intAttrName);
+        assertNull(intAttrName.getAnyTypeKind());
+        assertNull(intAttrName.getField());
+        assertEquals("index", intAttrName.getSchema().getKey());
+        assertEquals(SchemaType.PLAIN, intAttrName.getSchemaType());
+        assertTrue(intAttrName.getSchema() instanceof PlainSchema);
+        assertNull(intAttrName.getEnclosingGroup());
+        assertNull(intAttrName.getMembershipOfGroup());
+        assertNull(intAttrName.getRelatedAnyObject());
+        assertNull(intAttrName.getRelationshipAnyType());
+        assertNull(intAttrName.getRelationshipType());
+        assertNull(intAttrName.getRelatedUser());
+
+        try {
+            intAttrNameParser.parse("groups[readers].cn");
             fail("This should not happen");
         } catch (ParseException e) {
             assertNotNull(e);

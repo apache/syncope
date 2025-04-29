@@ -28,10 +28,10 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -108,12 +108,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         return new PlainSchemasMemberships(
                                 panelId,
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new LoadableDetachableModel<>() { // SYNCOPE-1439
+                                new LoadableDetachableModel<>() {
 
                             private static final long serialVersionUID = 526768546610546553L;
 
                             @Override
-                            protected Attributable load() {
+                            protected AttributableTO load() {
                                 return membershipTO;
                             }
                         });
@@ -207,14 +207,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
     }
 
-    protected class PlainSchemasMemberships extends PlainSchemas<Attributable> {
+    protected class PlainSchemasMemberships extends PlainSchemas<AttributableTO> {
 
         private static final long serialVersionUID = 456754923340249215L;
 
         public PlainSchemasMemberships(
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
-                final IModel<Attributable> attributableTO) {
+                final IModel<AttributableTO> attributableTO) {
 
             super(id);
 

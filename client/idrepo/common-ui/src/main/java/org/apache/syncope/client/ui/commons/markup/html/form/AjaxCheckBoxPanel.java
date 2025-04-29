@@ -25,7 +25,7 @@ import java.util.function.Predicate;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -130,7 +130,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public FieldPanel<Boolean> setNewModel(final Attributable attributable, final String schema) {
+    public FieldPanel<Boolean> setNewModel(final AttributableTO attributable, final String schema) {
         field.setModel(new Model() {
 
             private static final long serialVersionUID = -4214654722524358000L;

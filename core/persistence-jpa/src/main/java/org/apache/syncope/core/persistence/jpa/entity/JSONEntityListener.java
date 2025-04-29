@@ -21,11 +21,11 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.List;
 import java.util.Optional;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
-public abstract class JSONEntityListener<A extends Any> {
+public abstract class JSONEntityListener<A extends Attributable> {
 
     protected static final TypeReference<List<PlainAttr>> TYPEREF = new TypeReference<List<PlainAttr>>() {
     };

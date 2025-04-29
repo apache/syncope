@@ -16,13 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.attrvalue;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.List;
-import org.apache.syncope.common.lib.to.AttributableTO;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-@FunctionalInterface
-public interface DropdownValueProvider {
+public class JSONRealmListener extends JSONEntityListener<Realm> {
 
-    List<String> getChoices(AttributableTO attributableTO);
+    @PostLoad
+    public void read(final JPARealm realm) {
+        super.json2list(realm, false);
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void save(final JPARealm realm) {
+        realm.list2json();
+    }
+
+    @PostPersist
+    @PostUpdate
+    public void readAfterSave(final JPARealm realm) {
+        super.json2list(realm, true);
+    }
 }

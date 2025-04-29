@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.common.lib.Attributable;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -29,7 +29,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AttrColumn<T extends Attributable> extends AbstractColumn<T, String> {
+public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 

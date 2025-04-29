@@ -234,7 +234,7 @@ public class GroupTest extends AbstractTest {
      * signature: required for avoiding creating of a new transaction - good for general use case but bad for the way
      * how this test class is architected.
      */
-    public List<Group> findDynGroups(final User user) {
+    private List<Group> findDynGroups(final User user) {
         Query query = entityManager.createNativeQuery(
                 "SELECT group_id FROM " + GroupRepoExt.UDYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
@@ -325,7 +325,7 @@ public class GroupTest extends AbstractTest {
      * signature: required for avoiding creating of a new transaction - good for general use case but bad for the way
      * how this test class is architected.
      */
-    public List<Group> findDynGroups(final AnyObject anyObject) {
+    private List<Group> findDynGroups(final AnyObject anyObject) {
         Query query = entityManager.createNativeQuery(
                 "SELECT group_id FROM " + GroupRepoExt.ADYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, anyObject.getKey());

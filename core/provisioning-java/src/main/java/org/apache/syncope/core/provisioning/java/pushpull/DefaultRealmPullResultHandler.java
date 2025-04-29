@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -244,7 +245,9 @@ public class DefaultRealmPullResultHandler
             Realm realm = realmDAO.save(binder.create(profile.getTask().getDestinationRealm(), realmTO));
 
             PropagationByResource<String> propByRes = new PropagationByResource<>();
-            propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
+            propByRes.addAll(
+                    ResourceOperation.CREATE,
+                    realm.getResources().stream().map(ExternalResource::getKey).toList());
             if (unmatchingRule == UnmatchingRule.ASSIGN) {
                 List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
                 taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
@@ -595,7 +598,9 @@ public class DefaultRealmPullResultHandler
                         }
 
                         PropagationByResource<String> propByRes = new PropagationByResource<>();
-                        propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
+                        propByRes.addAll(
+                                ResourceOperation.DELETE,
+                                realm.getResources().stream().map(ExternalResource::getKey).toList());
                         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
                         taskExecutor.execute(taskInfos, false, securityProperties.getAdminUser());
 
