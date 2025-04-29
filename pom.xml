@@ -464,7 +464,7 @@ under the License.
     <wicket.version>10.5.0</wicket.version>
     <wicketstuff.version>10.4.0</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
-    <wicket-bootstrap.version>7.0.9</wicket-bootstrap.version>
+    <wicket-bootstrap.version>7.0.10</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
     <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
 
