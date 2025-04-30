@@ -63,6 +63,8 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
 
     private final Set<Attr> derAttrs = new TreeSet<>();
 
+    private final Set<Attr> virAttrs = Set.of();
+
     private final List<String> actions = new ArrayList<>();
 
     private final Map<String, AnyTO> templates = new HashMap<>();
@@ -192,7 +194,7 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
     @JacksonXmlProperty(localName = "virAttr")
     @Override
     public Set<Attr> getVirAttrs() {
-        return Set.of();
+        return virAttrs;
     }
 
     @JsonIgnore

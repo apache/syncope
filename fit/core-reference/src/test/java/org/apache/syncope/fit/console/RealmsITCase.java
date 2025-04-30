@@ -253,19 +253,19 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertLabel(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:leftAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:5:value:leftAttribute:field-label", "ou");
 
         TESTER.assertModelValue(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:leftAttribute:textField", "even");
+                + "secondLevelContainer:second:remoteObject:propView:5:value:leftAttribute:textField", "even");
 
         TESTER.assertLabel(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:rightAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:5:value:rightAttribute:field-label", "ou");
 
         TESTER.assertModelValue(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:rightAttribute:textField", null);
+                + "secondLevelContainer:second:remoteObject:propView:5:value:rightAttribute:textField", null);
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");

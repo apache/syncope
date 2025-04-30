@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import jakarta.persistence.EntityManager;
 import java.io.InputStream;
+import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -179,7 +180,7 @@ public abstract class AbstractTest {
 
             OracleContainer masterDomain = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
-                    withReuse(true);
+                    withReuse(true).withStartupTimeout(Duration.ofMinutes(4));
             masterDomain.start();
             JDBC_URL_SUPPLIER = masterDomain::getJdbcUrl;
 
