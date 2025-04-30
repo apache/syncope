@@ -186,7 +186,7 @@ public abstract class AbstractTest {
 
             OracleContainer twoDomain = new OracleContainer("gvenzl/oracle-free:" + dockerOracleVersion).
                     withDatabaseName("syncope").withPassword("syncope").withUsername("syncope").
-                    withReuse(true);
+                    withReuse(true).withStartupTimeout(Duration.ofMinutes(4));
             twoDomain.start();
             JDBC2_URL_SUPPLIER = twoDomain::getJdbcUrl;
         }
