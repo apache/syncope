@@ -31,6 +31,8 @@ public interface PlainSchemaRepoExt {
 
     boolean hasAttrs(PlainSchema schema);
 
+    boolean existsPlainAttrUniqueValue(String realmKey, PlainSchema schema, PlainAttrValue attrValue);
+
     boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
 
     PlainSchema save(PlainSchema schema);

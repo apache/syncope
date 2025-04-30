@@ -819,13 +819,10 @@ public class DefaultMappingManager implements MappingManager {
             } else if (intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN -> {
-                        PlainAttr attr;
-                        if (membership == null) {
-                            attr = plainAttrGetter.apply(ref, intAttrName.getSchema().getKey());
-                        } else {
-                            attr = ((Groupable<?, ?, ?, ?>) ref).getPlainAttr(
-                                    intAttrName.getSchema().getKey(), membership).orElse(null);
-                        }
+                        PlainAttr attr = membership == null
+                                ? plainAttrGetter.apply(ref, intAttrName.getSchema().getKey())
+                                : ((Groupable<?, ?, ?, ?>) ref).getPlainAttr(
+                                        intAttrName.getSchema().getKey(), membership).orElse(null);
                         if (attr != null) {
                             if (attr.getUniqueValue() != null) {
                                 values.add(clonePlainAttrValue(attr.getUniqueValue()));
@@ -928,24 +925,22 @@ public class DefaultMappingManager implements MappingManager {
         } else if (intAttrName.getSchemaType() != null) {
             switch (intAttrName.getSchemaType()) {
                 case PLAIN -> {
-                    PlainAttr attr = realm.getPlainAttr(intAttrName.getSchema().getKey()).orElse(null);
-                    if (attr != null) {
+                    realm.getPlainAttr(intAttrName.getSchema().getKey()).ifPresent(attr -> {
                         if (attr.getUniqueValue() != null) {
                             values.add(clonePlainAttrValue(attr.getUniqueValue()));
                         } else if (attr.getValues() != null) {
                             attr.getValues().forEach(value -> values.add(clonePlainAttrValue(value)));
                         }
-                    }
+                    });
                 }
 
                 case DERIVED -> {
-                    DerSchema derSchema = (DerSchema) intAttrName.getSchema();
-                    String derValue = derAttrHandler.getValue(realm, derSchema);
-                    if (derValue != null) {
-                        PlainAttrValue attrValue = new PlainAttrValue();
-                        attrValue.setStringValue(derValue);
-                        values.add(attrValue);
-                    }
+                    Optional.ofNullable(derAttrHandler.getValue(realm, (DerSchema) intAttrName.getSchema())).
+                            ifPresent(derValue -> {
+                                PlainAttrValue attrValue = new PlainAttrValue();
+                                attrValue.setStringValue(derValue);
+                                values.add(attrValue);
+                            });
                 }
 
                 default -> {

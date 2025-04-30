@@ -28,6 +28,8 @@ public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
 
     boolean hasAttrs(PlainSchema schema);
 
+    boolean existsPlainAttrUniqueValue(String realmKey, PlainSchema schema, PlainAttrValue attrValue);
+
     boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
 
     List<PlainSchema> findByValidator(Implementation validator);
