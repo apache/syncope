@@ -49,36 +49,40 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
 
     @Override
     public boolean shouldGenerate() {
-        return true;
+        try {
+            SAML2SPEntityTO spEntity = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
+            return spEntity.getKeystore() == null;
+        } catch (Exception e) {
+            LOG.error("While attempting to read if keystore is available for SP Entity {}", saml2Client.getName(), e);
+            return true;
+        }
     }
 
     @Override
     protected void store(final KeyStore ks, final X509Certificate certificate, final PrivateKey privateKey)
             throws Exception {
 
+        String encodedKeystore;
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             char[] password = saml2Configuration.getKeystorePassword().toCharArray();
             ks.store(out, password);
             out.flush();
-            String encodedKeystore = Base64.getEncoder().encodeToString(out.toByteArray());
+            encodedKeystore = Base64.getEncoder().encodeToString(out.toByteArray());
             LOG.debug("Encoded keystore {}", encodedKeystore);
-
-            SAML2SPEntityTO entityTO;
-            try {
-                entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
-                entityTO.setKeystore(encodedKeystore);
-            } catch (Exception e) {
-                LOG.debug("SP Entity {} not found, creating new", saml2Client.getName(), e);
-
-                entityTO = new SAML2SPEntityTO.Builder().
-                        key(saml2Client.getName()).
-                        keystore(encodedKeystore).
-                        build();
-            }
-
-            LOG.debug("Storing SP Entity {}", entityTO);
-            waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
         }
+
+        SAML2SPEntityTO entityTO;
+        try {
+            entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
+            entityTO.setKeystore(encodedKeystore);
+        } catch (Exception e) {
+            LOG.debug("SP Entity {} keystore not found, creating new", saml2Client.getName(), e);
+
+            entityTO = new SAML2SPEntityTO.Builder().key(saml2Client.getName()).keystore(encodedKeystore).build();
+        }
+
+        LOG.debug("Storing SP Entity {}", entityTO);
+        waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
     }
 
     @Override
@@ -91,7 +95,7 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
         } catch (Exception e) {
             String message = "Unable to fetch SAML2 SP keystore for " + saml2Client.getName();
             LOG.error(message, e);
-            throw new Exception(message);
+            throw new Exception(message, e);
         }
     }
 }
