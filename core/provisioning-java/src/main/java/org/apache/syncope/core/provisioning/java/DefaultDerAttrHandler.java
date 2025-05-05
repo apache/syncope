@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,9 +26,11 @@ import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
@@ -39,13 +42,16 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     protected static final Logger LOG = LoggerFactory.getLogger(DerAttrHandler.class);
 
-    protected static Map<DerSchema, String> getValues(final Any any, final Set<DerSchema> schemas) {
+    protected static Map<DerSchema, String> getValues(
+            final Attributable attributable,
+            final Collection<? extends DerSchema> schemas) {
+
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
         schemas.forEach(schema -> {
             JexlContext jexlContext = new MapContext();
-            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-            JexlUtils.addFieldsToContext(any, jexlContext);
+            JexlUtils.addPlainAttrsToContext(attributable.getPlainAttrs(), jexlContext);
+            JexlUtils.addFieldsToContext(attributable, jexlContext);
 
             result.put(schema, JexlUtils.evaluateExpr(schema.getExpression(), jexlContext).toString());
         });
@@ -57,6 +63,16 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
 
     public DefaultDerAttrHandler(final AnyUtilsFactory anyUtilsFactory) {
         this.anyUtilsFactory = anyUtilsFactory;
+    }
+
+    @Override
+    public String getValue(final Realm realm, final DerSchema schema) {
+        if (realm.getAnyTypeClass() == null || !realm.getAnyTypeClass().getDerSchemas().contains(schema)) {
+            LOG.debug("{} not allowed for {}", schema, realm);
+            return null;
+        }
+
+        return getValues(realm, Set.of(schema)).get(schema);
     }
 
     @Override
@@ -79,6 +95,17 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
         }
 
         return getValues(any, Set.of(schema)).get(schema);
+    }
+
+    @Override
+    public Map<DerSchema, String> getValues(final Realm realm) {
+        if (realm.getAnyTypeClass() == null || !realm.getAnyTypeClass().getDerSchemas().isEmpty()) {
+            return Map.of();
+        }
+
+        return getValues(
+                realm,
+                realm.getAnyTypeClass().getDerSchemas());
     }
 
     @Override
@@ -112,5 +139,4 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
                 anyUtilsFactory.getInstance(any).dao().
                         findAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()));
     }
-
 }

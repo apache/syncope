@@ -79,7 +79,7 @@ public class AttrReleasePolicyModalPanel extends AbstractModalPanel<AttrReleaseP
 
         add(new AjaxGridFieldPanel<>(
                 "releaseAttrs", "releaseAttrs",
-                new PropertyModel<>(model.getObject().getConf(), "releaseAttrs")));
+                new PropertyModel<>(model.getObject().getConf(), "releaseAttrs"), false));
 
         AjaxTextFieldPanel allowedAttr = new AjaxTextFieldPanel("panel", "allowedAttrs", new Model<>());
         add(new MultiFieldPanel.Builder<String>(

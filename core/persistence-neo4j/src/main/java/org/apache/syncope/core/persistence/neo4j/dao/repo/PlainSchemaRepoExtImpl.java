@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.neo4j.dao.Neo4jAnySearchDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
+import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
@@ -90,9 +91,32 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
         return neo4jTemplate.count(
                 "MATCH (n) "
                 + "WHERE labels(n) IN [['" + Neo4jUser.NODE + "'],['" + Neo4jGroup.NODE + "'],"
-                + "['" + Neo4jAnyObject.NODE + "'], ['" + Neo4jLinkedAccount.NODE + "']] "
+                + "['" + Neo4jAnyObject.NODE + "'], ['" + Neo4jLinkedAccount.NODE + "'], ['" + Neo4jRealm.NODE + "']] "
                 + "AND n.`plainAttrs." + schema.getKey() + "` IS NOT NULL "
                 + "RETURN COUNT(n)") > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final String realmKey,
+            final PlainSchema schema,
+            final PlainAttrValue attrValue) {
+
+        String value = Optional.ofNullable(attrValue.getDateValue()).
+                map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
+                orElseGet(attrValue::getValueAsString);
+
+        return neo4jTemplate.count(
+                "MATCH (n:" + Neo4jRealm.NODE + ") "
+                + "WITH n.id AS id, "
+                + "apoc.convert.getJsonProperty(n, 'plainAttrs." + schema.getKey() + "', '$.uniqueValue') "
+                + "AS " + schema.getKey() + " "
+                + "WHERE (EXISTS { MATCH (n) "
+                + "WHERE " + schema.getKey() + "." + Neo4jAnySearchDAO.key(schema.getType())
+                + " = $value } "
+                + "AND EXISTS { MATCH (n) WHERE NOT (n.id = $realmKey) }) "
+                + "RETURN COUNT(id)",
+                Map.of("value", value, "realmKey", realmKey)) > 0;
     }
 
     @Override
@@ -119,7 +143,7 @@ public class PlainSchemaRepoExtImpl extends AbstractSchemaRepoExt implements Pla
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-            orElseGet(attrValue::getValueAsString);
+                orElseGet(attrValue::getValueAsString);
 
         return neo4jTemplate.count(
                 "MATCH (n:" + label + ") "

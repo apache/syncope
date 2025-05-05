@@ -23,6 +23,7 @@ import java.net.URI;
 import java.util.List;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -73,5 +74,10 @@ public class SchemaServiceImpl extends AbstractService implements SchemaService 
     @Override
     public Attr getDropdownValues(final String key, final AnyTO anyTO) {
         return logic.getDropdownValues(key, anyTO);
+    }
+
+    @Override
+    public Attr getDropdownValues(final String key, final RealmTO realmTO) {
+        return logic.getDropdownValues(key, realmTO);
     }
 }

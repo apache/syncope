@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
@@ -178,7 +179,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         Realm realm = realmDAO.save(binder.create(parent, realmTO));
         PropagationByResource<String> propByRes = new PropagationByResource<>();
-        propByRes.addAll(ResourceOperation.CREATE, realm.getResourceKeys());
+        propByRes.addAll(
+                ResourceOperation.CREATE,
+                realm.getResources().stream().map(ExternalResource::getKey).toList());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter =
                 taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());
@@ -249,7 +252,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
-        propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
+        propByRes.addAll(
+                ResourceOperation.DELETE,
+                realm.getResources().stream().map(ExternalResource::getKey).toList());
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter =
                 taskExecutor.execute(taskInfos, false, AuthContextUtils.getUsername());

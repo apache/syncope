@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.ClientAppUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.common.attrvalue.DefaultPlainAttrValidationManager;
 import org.apache.syncope.core.persistence.common.content.KeymasterConfParamLoader;
 import org.apache.syncope.core.persistence.common.entity.DefaultAnyUtils;
@@ -136,6 +137,12 @@ public class CommonPersistenceContext {
             final AnyUtils anyObjectAnyUtils) {
 
         return new AnyUtilsFactory(userAnyUtils, groupAnyUtils, anyObjectAnyUtils);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public RealmUtils realmUtils(final @Lazy EntityFactory entityFactory) {
+        return new RealmUtils(entityFactory);
     }
 
     @ConditionalOnMissingBean

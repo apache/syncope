@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
@@ -36,7 +37,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 abstract class AbstractPlainSchemaRepoExt extends AbstractSchemaRepoExt implements PlainSchemaRepoExt {
 
     protected static final List<String> TABLES = List.of(
-            JPAUser.TABLE, JPAGroup.TABLE, JPAAnyObject.TABLE, JPALinkedAccount.TABLE);
+            JPAUser.TABLE, JPAGroup.TABLE, JPAAnyObject.TABLE, JPALinkedAccount.TABLE, JPARealm.TABLE);
 
     protected final AnyUtilsFactory anyUtilsFactory;
 

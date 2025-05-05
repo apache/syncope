@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -168,11 +169,14 @@ public class DefaultRealmPushResultHandler
     }
 
     private void deprovision(final Realm realm, final ConnectorObject beforeObj, final ProvisioningReport result) {
-        List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
+        List<String> noPropResources = new ArrayList<>(
+                realm.getResources().stream().map(ExternalResource::getKey).toList());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
-        propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
+        propByRes.addAll(
+                ResourceOperation.DELETE,
+                realm.getResources().stream().map(ExternalResource::getKey).toList());
 
         List<PropagationTaskInfo> taskInfos = propagationManager.createTasks(realm, propByRes, noPropResources);
         if (!taskInfos.isEmpty()) {
@@ -184,7 +188,8 @@ public class DefaultRealmPushResultHandler
     }
 
     private void provision(final Realm realm, final ProvisioningReport result) {
-        List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
+        List<String> noPropResources = new ArrayList<>(
+                realm.getResources().stream().map(ExternalResource::getKey).toList());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
@@ -261,7 +266,8 @@ public class DefaultRealmPushResultHandler
         // Try to read remote object BEFORE any actual operation
         OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
         Optional<Item> connObjectKey = orgUnit.getConnObjectKeyItem();
-        Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
+        Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(
+                realm, profile.getTask().getResource());
 
         ConnectorObject beforeObj = null;
         if (connObjectKey.isPresent() && connObjecKeyValue.isPresent()) {

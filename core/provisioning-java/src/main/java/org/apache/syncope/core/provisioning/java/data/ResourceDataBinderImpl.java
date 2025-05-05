@@ -222,20 +222,13 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 }
 
                 if (provisionTO.getVirSchemas().isEmpty()) {
-                    for (VirSchema s : virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey())) {
-                        virSchemaDAO.delete(s);
-                    }
+                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).
+                            forEach(virSchemaDAO::delete);
                 } else {
-                    for (String schemaName : provisionTO.getVirSchemas()) {
-                        VirSchema schema = virSchemaDAO.findById(schemaName).orElse(null);
-                        if (schema == null) {
-                            LOG.debug("Invalid {} specified: {}, ignoring...",
-                                    VirSchema.class.getSimpleName(), schemaName);
-                        } else {
-                            schema.setResource(resource);
-                            schema.setAnyType(anyType);
-                        }
-                    }
+                    provisionTO.getVirSchemas().forEach(schemaName -> virSchemaDAO.findById(schemaName).ifPresentOrElse(
+                            schema -> schema.setResource(resource),
+                            () -> LOG.debug("Invalid {} specified: {}, ignoring...",
+                                    VirSchema.class.getSimpleName(), schemaName)));
                 }
             }
         });

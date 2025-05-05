@@ -28,6 +28,7 @@ import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.wicket.AttributeModifier;
@@ -165,7 +166,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         } else if (modelObject instanceof EntityTO entityTO) {
             key = entityTO.getKey();
         } else if (modelObject instanceof final AnyWrapper<?> anyWrapper) {
-            key = anyWrapper.getInnerObject().getKey();
+            key = anyWrapper.getInnerObject() instanceof AnyTO anyTO ? anyTO.getKey() : null;
         } else if (modelObject instanceof Attr attr) {
             key = attr.getSchema();
         } else if (modelObject instanceof ConfParam confParam) {

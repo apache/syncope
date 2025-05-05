@@ -100,7 +100,8 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                 AjaxGridFieldPanel<Locale, String> labels = new AjaxGridFieldPanel<>(
                         "labels",
                         "labels",
-                        new PropertyModel<>(fpd, "labels"));
+                        new PropertyModel<>(fpd, "labels"),
+                        false);
                 item.add(labels.hideLabel());
 
                 AjaxCheckBoxPanel readable = new AjaxCheckBoxPanel(
@@ -176,7 +177,8 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                 AjaxGridFieldPanel<String, String> enumValues = new AjaxGridFieldPanel<>(
                         "enumValues",
                         "enumValues",
-                        new PropertyModel<>(fpd, "enumValues"));
+                        new PropertyModel<>(fpd, "enumValues"),
+                        false);
                 enumValues.setVisible(fpd.getType() == FormPropertyType.Enum);
                 item.add(enumValues.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 

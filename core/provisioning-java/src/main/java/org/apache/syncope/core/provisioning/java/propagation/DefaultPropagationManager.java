@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -49,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -564,7 +566,7 @@ public class DefaultPropagationManager implements PropagationManager {
                             mappingItems,
                             Pair.of(account.getConnObjectKeyValue(),
                                     mappingManager.prepareAttrsFromLinkedAccount(
-                                            user, account, password, 
+                                            user, account, password,
                                             changePwdRes.contains(account.getResource().getKey()),
                                             provision)));
                     tasks.add(accountTask);
@@ -609,7 +611,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 LOG.warn("Requesting propagation for {} but no ConnObjectLink provided for {}",
                         realm.getFullPath(), resource);
             } else {
-                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, orgUnit);
+                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(realm, resource);
 
                 PropagationTaskInfo task = new PropagationTaskInfo(
                         resource,
@@ -631,8 +633,7 @@ public class DefaultPropagationManager implements PropagationManager {
         return tasks;
     }
 
-    @Transactional(readOnly = true,
-                   propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
     public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(
             final AnyTypeKind kind,
@@ -647,64 +648,68 @@ public class DefaultPropagationManager implements PropagationManager {
         Any any = anyUtilsFactory.getInstance(kind).dao().authFind(key);
 
         anyUtilsFactory.getInstance(kind).dao().findAllResourceKeys(key).stream().
+                filter(Predicate.not(excludedResources::contains)).
                 map(resourceDAO::findById).
                 flatMap(Optional::stream).
-                filter(resource -> !excludedResources.contains(resource.getKey())
-                && resource.getProvisionByAnyType(any.getType().getKey()).isPresent()
-                && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
-                forEach(resource -> {
+                filter(resource -> Optional.ofNullable(resource.getPropagationPolicy()).
+                map(PropagationPolicy::isUpdateDelta).orElse(false)).
+                forEach(resource -> resource.getProvisionByAnyType(any.getType().getKey()).
+                ifPresent(provision -> {
                     Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromAny(
                             any,
                             password,
                             changePwdRes.contains(resource.getKey()),
                             enable,
                             resource,
-                            resource.getProvisionByAnyType(any.getType().getKey()).get());
+                            provision);
                     attrs.put(
                             Pair.of(resource.getKey(), preparedAttrs.getLeft()),
                             preparedAttrs.getRight());
-                });
+                }));
 
         if (any instanceof User user) {
             user.getLinkedAccounts().stream().
                     filter(account -> !excludedResources.contains(account.getResource().getKey())
-                    && account.getResource().getProvisionByAnyType(any.getType().getKey()).isPresent()
-                    && account.getResource().getPropagationPolicy() != null
-                    && account.getResource().getPropagationPolicy().isUpdateDelta()).
-                    forEach(account -> {
-                        Set<Attribute> preparedAttrs = mappingManager.prepareAttrsFromLinkedAccount(user,
+                    && account.getResource().getProvisionByAnyType(user.getType().getKey()).isPresent()
+                    && Optional.ofNullable(account.getResource().getPropagationPolicy()).
+                            map(PropagationPolicy::isUpdateDelta).orElse(false)).
+                    forEach(account -> account.getResource().getProvisionByAnyType(user.getType().getKey()).
+                    ifPresent(provision -> {
+                        Set<Attribute> preparedAttrs = mappingManager.prepareAttrsFromLinkedAccount(
+                                user,
                                 account,
                                 password,
                                 true,
-                                account.getResource().getProvisionByAnyType(any.getType().getKey()).get());
+                                provision);
                         attrs.put(
                                 Pair.of(account.getResource().getKey(), account.getConnObjectKeyValue()),
                                 preparedAttrs);
-                    });
+                    }));
         }
 
         LOG.debug("Prepared attrs for {} {}: {}", kind, key, attrs);
         return attrs;
     }
 
-    @Transactional(readOnly = true,
-                   propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
     @Override
     public Map<Pair<String, String>, Set<Attribute>> prepareAttrs(final Realm realm) {
         Map<Pair<String, String>, Set<Attribute>> attrs = new HashMap<>();
 
         realm.getResources().stream().
                 filter(resource -> resource.getOrgUnit() != null
-                && resource.getPropagationPolicy() != null && resource.getPropagationPolicy().isUpdateDelta()).
+                && Optional.ofNullable(resource.getPropagationPolicy()).
+                        map(PropagationPolicy::isUpdateDelta).orElse(false)).
                 forEach(resource -> {
                     Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrsFromRealm(
                             realm,
-                            resource.getOrgUnit());
+                            resource);
                     attrs.put(
                             Pair.of(resource.getKey(), preparedAttrs.getLeft()),
                             preparedAttrs.getRight());
                 });
 
+        LOG.debug("Prepared attrs for Realm {}: {}", realm.getKey(), attrs);
         return attrs;
     }
 

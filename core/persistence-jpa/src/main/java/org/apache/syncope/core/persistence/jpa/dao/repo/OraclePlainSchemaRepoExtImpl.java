@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.dao.OracleJPAAnySearchDAO;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
 
@@ -55,6 +56,24 @@ public class OraclePlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
                         replace("%JSON_TABLE%", OracleJPAAnySearchDAO.from(schema))).
                         collect(Collectors.joining(" UNION "))
                 + ")");
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final String realmKey,
+            final PlainSchema schema,
+            final PlainAttrValue attrValue) {
+
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(id) FROM "
+                + JPARealm.TABLE + ","
+                + OracleJPAAnySearchDAO.from(plainSchemaDAO.findById(schema.getKey()).
+                        orElseThrow(() -> new NotFoundException("PlainSchema " + schema.getKey())))
+                + " WHERE " + schema.getKey() + ".uniqueValue=?1 AND id <> ?2");
+        query.setParameter(1, attrValue.getValue());
+        query.setParameter(2, realmKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }

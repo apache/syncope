@@ -20,17 +20,13 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.Map;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.common.validation.AnyCheck;
-import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @AnyCheck
-public abstract class AbstractAny extends AbstractGeneratedKeyNode implements Any {
+public abstract class AbstractAny extends AbstractAttributable implements Any {
 
     private static final long serialVersionUID = -2666540708092702810L;
 
@@ -152,33 +148,5 @@ public abstract class AbstractAny extends AbstractGeneratedKeyNode implements An
     @Override
     public void setStatus(final String status) {
         this.status = status;
-    }
-
-    protected abstract Map<String, PlainAttr> plainAttrs();
-
-    @Override
-    public Optional<PlainAttr> getPlainAttr(final String plainSchema) {
-        return Optional.ofNullable(plainAttrs().get(plainSchema));
-    }
-
-    @SuppressWarnings("unchecked")
-    protected void doComplete(final Map<String, PlainAttr> plainAttrs) {
-        for (var itor = plainAttrs.entrySet().iterator(); itor.hasNext();) {
-            var entry = itor.next();
-            Optional.ofNullable(entry.getValue()).ifPresent(attr -> {
-                attr.setSchema(entry.getKey());
-                if (attr.getSchema() == null) {
-                    itor.remove();
-                } else {
-                    attr.getValues().forEach(value -> value.setAttr(attr));
-                    Optional.ofNullable(attr.getUniqueValue()).ifPresent(value -> value.setAttr(attr));
-                }
-            });
-        }
-    }
-
-    @PostLoad
-    public void completePlainAttrs() {
-        doComplete(plainAttrs());
     }
 }

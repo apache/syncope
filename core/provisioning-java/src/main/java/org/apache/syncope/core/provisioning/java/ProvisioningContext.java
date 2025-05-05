@@ -66,6 +66,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.AuditEventProcessor;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -482,11 +483,12 @@ public class ProvisioningContext {
     @Bean
     public IntAttrNameParser intAttrNameParser(
             final AnyUtilsFactory anyUtilsFactory,
+            final RealmUtils realmUtils,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO) {
 
-        return new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory);
+        return new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory, realmUtils);
     }
 
     @ConditionalOnMissingBean
@@ -967,20 +969,32 @@ public class ProvisioningContext {
     @ConditionalOnMissingBean
     @Bean
     public RealmDataBinder realmDataBinder(
-            final EntityFactory entityFactory,
             final AnyTypeDAO anyTypeDAO,
+            final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final RealmDAO realmDAO,
             final PolicyDAO policyDAO,
-            final ExternalResourceDAO resourceDAO) {
+            final ExternalResourceDAO resourceDAO,
+            final PlainSchemaDAO plainSchemaDAO,
+            final EntityFactory entityFactory,
+            final DerAttrHandler derAttrHandler,
+            final PlainAttrValidationManager validator,
+            final MappingManager mappingManager,
+            final IntAttrNameParser intAttrNameParser) {
 
         return new RealmDataBinderImpl(
                 anyTypeDAO,
+                anyTypeClassDAO,
                 implementationDAO,
                 realmDAO,
                 policyDAO,
                 resourceDAO,
-                entityFactory);
+                plainSchemaDAO,
+                entityFactory,
+                derAttrHandler,
+                validator,
+                mappingManager,
+                intAttrNameParser);
     }
 
     @ConditionalOnMissingBean

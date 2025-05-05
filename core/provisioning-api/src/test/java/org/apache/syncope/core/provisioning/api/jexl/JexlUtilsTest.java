@@ -138,7 +138,7 @@ public class JexlUtilsTest extends AbstractTest {
         Map<DerSchema, String> derAttrs = new HashMap<>();
         derAttrs.put(derSchema, expression);
 
-        when(derAttrHandler.getValues(any())).thenReturn(derAttrs);
+        when(derAttrHandler.getValues(any(Any.class))).thenReturn(derAttrs);
         JexlUtils.addDerAttrsToContext(any, derAttrHandler, context);
         verify(context).set(derAttrs.get(derSchema), expression);
     }
@@ -156,7 +156,7 @@ public class JexlUtilsTest extends AbstractTest {
         derAttrs.put(derSchema, expression);
 
         when(any.getPlainAttrs()).thenReturn(new ArrayList<>());
-        when(derAttrHandler.getValues(any())).thenReturn(derAttrs);
+        when(derAttrHandler.getValues(any(Any.class))).thenReturn(derAttrs);
 
         assertTrue(JexlUtils.evaluateMandatoryCondition("true", any, derAttrHandler));
         assertFalse(JexlUtils.evaluateMandatoryCondition("false", any, derAttrHandler));

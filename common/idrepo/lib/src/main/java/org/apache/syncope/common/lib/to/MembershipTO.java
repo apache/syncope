@@ -31,10 +31,9 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.BaseBean;
 
-public class MembershipTO implements BaseBean, Attributable {
+public class MembershipTO implements BaseBean, AttributableTO {
 
     private static final long serialVersionUID = 5992828670273935861L;
 

@@ -93,7 +93,7 @@ import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
-public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDataBinder {
+public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder {
 
     protected final RoleDAO roleDAO;
 
@@ -774,9 +774,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     userDAO.findDynRoles(user.getKey()).stream().map(Role::getKey).toList());
 
             // relationships
-            userTO.getRelationships().addAll(user.getRelationships().stream().map(relationship -> getRelationshipTO(
-                    relationship.getType().getKey(), RelationshipTO.End.LEFT, relationship.getRightEnd())).
-                    toList());
+            userTO.getRelationships().addAll(user.getRelationships().stream().map(r -> getRelationshipTO(
+                    r.getType().getKey(), RelationshipTO.End.LEFT, r.getRightEnd())).toList());
 
             // memberships
             userTO.getMemberships().addAll(user.getMemberships().stream().
@@ -792,8 +791,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // linked accounts
             userTO.getLinkedAccounts().addAll(user.getLinkedAccounts().stream().
-                    map(account -> getLinkedAccountTO(account, returnPasswordValue)).
-                    toList());
+                    map(account -> getLinkedAccountTO(account, returnPasswordValue)).toList());
 
             // delegations
             userTO.getDelegatingDelegations().addAll(

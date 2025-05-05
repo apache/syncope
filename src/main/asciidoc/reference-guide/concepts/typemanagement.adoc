@@ -31,7 +31,7 @@ It is possible to define i18n labels for each schema, with purpose of improving 
 
 ===== Plain
 
-Values for attributes with such schema types are provided during user, group or any object create / update.
+Values for attributes with such schema types are provided during realm, user, group or any object create / update.
 
 When defining a plain schema, the following information must be provided:
 
@@ -110,8 +110,8 @@ When defining a virtual schema, the following information must be provided:
 
 Any type classes are aggregations of plain, derived and virtual schemas, provided with unique identifiers.
 
-Classes can be assigned to <<anytype, any types>> and are also available as auxiliary (hence to be specified on a
-given user / group / any object instance) and for <<type-extensions,type extensions>>.
+Classes can be assigned to <<anytype, any types>>, <<realms, realms>> and are also available as auxiliary (hence to be
+specified on a given user / group / any object instance) and for <<type-extensions,type extensions>>.
 
 ==== AnyType
 

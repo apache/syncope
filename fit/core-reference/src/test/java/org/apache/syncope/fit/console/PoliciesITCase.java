@@ -742,8 +742,8 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         TESTER.assertRenderedPage(Realms.class);
 
         // edit root realm
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         // set new account policy

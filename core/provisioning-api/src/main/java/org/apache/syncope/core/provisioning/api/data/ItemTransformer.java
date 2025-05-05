@@ -25,6 +25,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
 /**
  * Transforms values to be propagated to (or pulling from) external resources right before they leave (or enter)
@@ -33,6 +34,24 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
  * These transformations are not applied to virtual attribute values.
  */
 public interface ItemTransformer {
+
+    /**
+     * Invoked while preparing attribute values to be sent out to external resource during propagation.
+     *
+     * @param item mapping item
+     * @param realm realm
+     * @param schemaType schema type
+     * @param values original values
+     * @return transformed values
+     */
+    default Pair<AttrSchemaType, List<PlainAttrValue>> beforePropagation(
+            Item item,
+            Realm realm,
+            AttrSchemaType schemaType,
+            List<PlainAttrValue> values) {
+
+        return Pair.of(schemaType, values);
+    }
 
     /**
      * Invoked while preparing attribute values to be sent out to external resource during propagation.

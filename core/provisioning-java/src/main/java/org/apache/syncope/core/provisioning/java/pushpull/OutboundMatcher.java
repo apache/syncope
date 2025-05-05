@@ -229,8 +229,7 @@ public class OutboundMatcher {
                             resource,
                             provision,
                             effectiveMATG,
-                            ArrayUtils.isEmpty(linkingItems)
-                            ? Optional.empty() : Optional.of(List.of(linkingItems))).
+                            ArrayUtils.isEmpty(linkingItems) ? Optional.empty() : Optional.of(List.of(linkingItems))).
                             ifPresent(result::add);
                 }
             }
@@ -297,10 +296,9 @@ public class OutboundMatcher {
 
         Stream<Item> items = Stream.concat(
                 provision.getMapping().getItems().stream(),
-                linkingItems.isPresent()
-                ? linkingItems.get().stream()
-                : virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).stream().
-                        map(VirSchema::asLinkingMappingItem));
+                linkingItems.map(Collection::stream).
+                        orElseGet(() -> virSchemaDAO.findByResourceAndAnyType(
+                        resource.getKey(), provision.getAnyType()).stream().map(VirSchema::asLinkingMappingItem)));
 
         ConnectorObject obj = null;
         try {

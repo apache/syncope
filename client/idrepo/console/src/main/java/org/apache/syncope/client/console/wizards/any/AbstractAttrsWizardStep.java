@@ -52,7 +52,9 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -83,9 +85,9 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
 
     protected final Comparator<Attr> attrComparator = new AttrComparator();
 
-    protected final AnyTO anyTO;
+    protected final AttributableTO attributable;
 
-    protected AnyTO previousObject;
+    protected AttributableTO previousObject;
 
     protected final List<String> whichAttrs;
 
@@ -100,7 +102,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
     protected final AjaxWizard.Mode mode;
 
     public AbstractAttrsWizardStep(
-            final AnyTO anyTO,
+            final AttributableTO attributable,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichAttrs) {
@@ -112,14 +114,18 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
         this.setOutputMarkupId(true);
 
         this.mode = mode;
-        this.anyTO = anyTO;
+        this.attributable = attributable;
         this.whichAttrs = whichAttrs;
     }
 
     protected List<Attr> loadAttrs() {
         List<String> classes = new ArrayList<>(anyTypeClasses);
-        classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
-                map(AnyTypeClassTO::getKey).toList());
+        if (attributable instanceof AnyTO anyTO) {
+            classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
+                    map(AnyTypeClassTO::getKey).toList());
+        } else if (attributable instanceof RealmTO realmTO && realmTO.getAnyTypeClass() != null) {
+            classes.add(realmTO.getAnyTypeClass());
+        }
         setSchemas(classes);
         setAttrs();
         return getAttrsFromTO();
@@ -268,7 +274,11 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                 break;
 
             case Dropdown:
-                List<String> dropdownValues = schemaRestClient.getDropdownValues(plainSchema.getKey(), anyTO);
+                List<String> dropdownValues = attributable instanceof AnyTO anyTO
+                        ? schemaRestClient.getDropdownValues(plainSchema.getKey(), anyTO)
+                        : attributable instanceof RealmTO realmTO
+                                ? schemaRestClient.getDropdownValues(plainSchema.getKey(), realmTO)
+                                : List.of();
                 if (plainSchema.isMultivalue()) {
                     panel = new AjaxPalettePanel.Builder<String>().
                             setName(plainSchema.getLabel(SyncopeConsoleSession.get().getLocale())).

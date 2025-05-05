@@ -49,8 +49,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void create() {
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:0:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:0:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
@@ -79,8 +79,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         assertTrue(TESTER.getLastResponseAsString().contains(">testRealm</a>"));
 
         TESTER.getRequest().addParameter("confirm", "true");
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:3:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:3:action:action");
 
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
@@ -95,8 +95,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void update() {
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
@@ -123,8 +123,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         assertTrue(TESTER.getLastResponseAsString().contains(">/</a>"));
         assertTrue(TESTER.getLastResponseAsString().contains(">odd</a>"));
 
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:2:action:action");
         TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
         FormTester formTester = TESTER.newFormTester(
@@ -144,8 +144,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         assertTrue(TESTER.getLastResponseAsString().contains(">/</a>"));
         assertTrue(TESTER.getLastResponseAsString().contains(">odd</a>"));
 
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:2:action:action");
         TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
         formTester = TESTER.newFormTester(
@@ -174,8 +174,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 + ":realmsFragment:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
         TESTER.assertModelValue(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
@@ -227,8 +227,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
                 + "0:action:action", Constants.ON_CLICK);
 
-        TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
+                + "actionsPanel:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
         TESTER.assertModelValue(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
@@ -253,19 +253,19 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertLabel(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:leftAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:5:value:leftAttribute:field-label", "ou");
 
         TESTER.assertModelValue(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:leftAttribute:textField", "even");
+                + "secondLevelContainer:second:remoteObject:propView:5:value:leftAttribute:textField", "even");
 
         TESTER.assertLabel(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:rightAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:5:value:rightAttribute:field-label", "ou");
 
         TESTER.assertModelValue(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:4:value:rightAttribute:textField", null);
+                + "secondLevelContainer:second:remoteObject:propView:5:value:rightAttribute:textField", null);
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");

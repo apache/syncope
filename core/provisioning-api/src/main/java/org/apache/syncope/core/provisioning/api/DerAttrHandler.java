@@ -23,8 +23,18 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface DerAttrHandler {
+
+    /**
+     * Calculates derived attribute value associated to the given realm, for the given derived schema.
+     *
+     * @param realm realm
+     * @param schema derived schema
+     * @return derived attribute value
+     */
+    String getValue(Realm realm, DerSchema schema);
 
     /**
      * Calculates derived attribute value associated to the given any, for the given derived schema.
@@ -34,6 +44,14 @@ public interface DerAttrHandler {
      * @return derived attribute value
      */
     String getValue(Any any, DerSchema schema);
+
+    /**
+     * Calculates derived attributes values associated to the given realm.
+     *
+     * @param realm realm
+     * @return derived attribute values
+     */
+    Map<DerSchema, String> getValues(Realm realm);
 
     /**
      * Calculates derived attributes values associated to the given any.

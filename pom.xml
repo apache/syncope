@@ -462,7 +462,7 @@ under the License.
     <chartjs.version>4.4.3</chartjs.version>
 
     <wicket.version>10.5.0</wicket.version>
-    <wicketstuff.version>10.4.0</wicketstuff.version>
+    <wicketstuff.version>10.5.0</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.10</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
@@ -514,7 +514,7 @@ under the License.
     <docker.mysql.version>9.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
-    <docker.neo4j.version>5.26.4</docker.neo4j.version>
+    <docker.neo4j.version>5.26</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
     <jdbc.mysql.version>9.2.0</jdbc.mysql.version>

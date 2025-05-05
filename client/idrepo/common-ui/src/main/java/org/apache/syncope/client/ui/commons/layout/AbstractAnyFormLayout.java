@@ -45,5 +45,4 @@ public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A
     public List<String> getWhichVirAttrs() {
         return whichVirAttrs;
     }
-
 }
