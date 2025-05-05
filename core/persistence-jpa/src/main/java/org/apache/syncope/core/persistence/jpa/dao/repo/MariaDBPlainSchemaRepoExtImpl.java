@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.dao.SearchSupport;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 public class MariaDBPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
@@ -51,6 +52,25 @@ public class MariaDBPlainSchemaRepoExtImpl extends AbstractPlainSchemaRepoExt {
                         map(t -> HAS_ATTRS_QUERY.replace("%TABLE%", t).replace("%SCHEMA%", schema.getKey())).
                         collect(Collectors.joining(" UNION "))
                 + ") AS count");
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
+    public boolean existsPlainAttrUniqueValue(
+            final String realmKey,
+            final PlainSchema schema,
+            final PlainAttrValue attrValue) {
+
+        PlainAttr attr = new PlainAttr();
+        attr.setSchema(schema.getKey());
+        attr.setUniqueValue(attrValue);
+
+        Query query = entityManager.createNativeQuery(
+                "SELECT COUNT(id) FROM " + JPARealm.TABLE
+                + " WHERE JSON_CONTAINS(plainAttrs, '" + POJOHelper.serialize(List.of(attr)).replace("'", "''") + "')"
+                + " AND id <> ?1");
+        query.setParameter(1, realmKey);
 
         return ((Number) query.getSingleResult()).intValue() > 0;
     }

@@ -16,12 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib;
+package org.apache.syncope.common.lib.to;
 
 import java.util.Optional;
 import java.util.Set;
+import org.apache.syncope.common.lib.Attr;
 
-public interface Attributable {
+public interface AttributableTO {
 
     Set<Attr> getPlainAttrs();
 

@@ -18,16 +18,23 @@
  */
 package org.apache.syncope.core.persistence.api.utils;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 
-public final class RealmUtils {
+public class RealmUtils {
 
     public static String getGroupOwnerRealm(final String realmPath, final String groupKey) {
         return realmPath + '@' + groupKey;
@@ -113,7 +120,32 @@ public final class RealmUtils {
         return effective;
     }
 
-    private RealmUtils() {
-        // empty constructor for static utility class 
+    protected static void initFieldNames(final Class<?> entityClass, final Map<String, Field> fields) {
+        List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
+        classes.add(entityClass);
+        classes.forEach(clazz -> {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (!Modifier.isStatic(field.getModifiers())
+                        && !field.getName().startsWith("pc")
+                        && !Collection.class.isAssignableFrom(field.getType())
+                        && !Map.class.isAssignableFrom(field.getType())) {
+
+                    fields.put(field.getName(), field);
+                    if ("id".equals(field.getName())) {
+                        fields.put("key", field);
+                    }
+                }
+            }
+        });
+    }
+
+    protected final Map<String, Field> fields = new HashMap<>();
+
+    public RealmUtils(final EntityFactory entityFactory) {
+        initFieldNames(entityFactory.realmClass(), fields);
+    }
+
+    public Optional<Field> getField(final String name) {
+        return Optional.ofNullable(fields.get(name));
     }
 }

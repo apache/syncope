@@ -19,10 +19,10 @@
 package org.apache.syncope.core.persistence.api.attrvalue;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttributableTO;
 
 @FunctionalInterface
 public interface DropdownValueProvider {
 
-    List<String> getChoices(AnyTO anyTO);
+    List<String> getChoices(AttributableTO attributableTO);
 }

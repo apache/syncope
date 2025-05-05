@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -115,5 +116,9 @@ public class SchemaRestClient extends BaseRestClient {
 
     public List<String> getDropdownValues(final String key, final AnyTO anyTO) {
         return getService(SchemaService.class).getDropdownValues(key, anyTO).getValues();
+    }
+
+    public List<String> getDropdownValues(final String key, final RealmTO realmTO) {
+        return getService(SchemaService.class).getDropdownValues(key, realmTO).getValues();
     }
 }

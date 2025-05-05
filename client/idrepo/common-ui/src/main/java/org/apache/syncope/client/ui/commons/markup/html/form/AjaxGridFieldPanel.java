@@ -43,7 +43,12 @@ public class AjaxGridFieldPanel<K, V> extends Panel {
 
     protected final IModel<Map<K, V>> model;
 
-    public AjaxGridFieldPanel(final String id, final String name, final IModel<Map<K, V>> model) {
+    public AjaxGridFieldPanel(
+            final String id,
+            final String name,
+            final IModel<Map<K, V>> model,
+            final boolean readonly) {
+
         super(id, model);
 
         add(new Label(AbstractFieldPanel.LABEL, new ResourceModel(name, name)));
@@ -53,14 +58,10 @@ public class AjaxGridFieldPanel<K, V> extends Panel {
                 getColumns(),
                 new EditableListDataProvider<>(model.getObject().entrySet().stream().
                         map(e -> MutablePair.of(e.getKey(), e.getValue())).collect(Collectors.toList()), ""),
-                10) {
+                10,
+                readonly) {
 
             private static final long serialVersionUID = -1315456128897492459L;
-
-            @Override
-            protected boolean displayHeader() {
-                return false;
-            }
 
             @Override
             protected void onAdd(final AjaxRequestTarget target, final Pair<K, V> newRow) {

@@ -266,7 +266,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     }
                 } else if (Map.class.equals(field.getType())) {
                     panel = new AjaxGridFieldPanel(
-                            "value", field.getName(), new PropertyModel<>(bean, field.getName())).hideLabel();
+                            "value", field.getName(), new PropertyModel<>(bean, field.getName()), false).hideLabel();
                     Optional.ofNullable(field.getAnnotation(io.swagger.v3.oas.annotations.media.Schema.class)).
                             ifPresent(annot -> setDescription(item, annot.description()));
                 } else {

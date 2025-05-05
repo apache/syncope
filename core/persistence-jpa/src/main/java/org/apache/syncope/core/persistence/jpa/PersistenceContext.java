@@ -792,10 +792,11 @@ public class PersistenceContext {
     public RealmDAO realmDAO(
             final @Lazy RoleDAO roleDAO,
             final RealmSearchDAO realmSearchDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final ApplicationEventPublisher publisher,
             final EntityManager entityManager) {
 
-        return new JPARealmDAO(roleDAO, realmSearchDAO, publisher, entityManager);
+        return new JPARealmDAO(roleDAO, realmSearchDAO, plainSchemaDAO, publisher, entityManager);
     }
 
     @ConditionalOnMissingBean

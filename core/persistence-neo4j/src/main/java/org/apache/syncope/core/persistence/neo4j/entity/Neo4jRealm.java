@@ -21,15 +21,19 @@ package org.apache.syncope.core.persistence.neo4j.entity;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.policy.AccessPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -45,19 +49,22 @@ import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAuthPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jPasswordPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jTicketExpirationPolicy;
 import org.springframework.data.annotation.Transient;
+import org.springframework.data.neo4j.core.schema.CompositeProperty;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.PostLoad;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 @Node(Neo4jRealm.NODE)
 @RealmCheck
-public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
+public class Neo4jRealm extends AbstractAttributable implements Realm {
 
     private static final long serialVersionUID = 1807304075247552949L;
 
     public static final String NODE = "Realm";
 
     public static final String PARENT_REL = "PARENT";
+
+    public static final String REALM_ANYTYPECLASS_REL = "REALM_ANYTYPECLASS";
 
     public static final String REALM_PASSWORD_POLICY_REL = "REALM_PASSWORD_POLICY";
 
@@ -83,6 +90,12 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
 
     @NotNull
     private String fullPath;
+
+    @CompositeProperty(converterRef = "plainAttrsConverter")
+    protected Map<String, PlainAttr> plainAttrs = new HashMap<>();
+
+    @Relationship(type = REALM_ANYTYPECLASS_REL, direction = Relationship.Direction.OUTGOING)
+    private Neo4jAnyTypeClass anyTypeClass;
 
     @Relationship(type = REALM_PASSWORD_POLICY_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jPasswordPolicy passwordPolicy;
@@ -116,28 +129,13 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     private List<Neo4jExternalResource> resources = new ArrayList<>();
 
     @Override
+    protected Map<String, PlainAttr> plainAttrs() {
+        return plainAttrs;
+    }
+
+    @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public Realm getParent() {
-        return parent;
-    }
-
-    @Override
-    public String getFullPath() {
-        return fullPath;
-    }
-
-    @Override
-    public AccountPolicy getAccountPolicy() {
-        return accountPolicy == null && getParent() != null ? getParent().getAccountPolicy() : accountPolicy;
-    }
-
-    @Override
-    public PasswordPolicy getPasswordPolicy() {
-        return passwordPolicy == null && getParent() != null ? getParent().getPasswordPolicy() : passwordPolicy;
     }
 
     @Override
@@ -146,9 +144,19 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     }
 
     @Override
+    public Realm getParent() {
+        return parent;
+    }
+
+    @Override
     public void setParent(final Realm parent) {
         checkType(parent, Neo4jRealm.class);
         this.parent = (Neo4jRealm) parent;
+    }
+
+    @Override
+    public String getFullPath() {
+        return fullPath;
     }
 
     public void setFullPath(final String fullPath) {
@@ -156,9 +164,30 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     }
 
     @Override
+    public AnyTypeClass getAnyTypeClass() {
+        return anyTypeClass;
+    }
+
+    @Override
+    public void setAnyTypeClass(final AnyTypeClass anyTypeClass) {
+        checkType(anyTypeClass, Neo4jAnyTypeClass.class);
+        this.anyTypeClass = (Neo4jAnyTypeClass) anyTypeClass;
+    }
+
+    @Override
+    public AccountPolicy getAccountPolicy() {
+        return accountPolicy == null && getParent() != null ? getParent().getAccountPolicy() : accountPolicy;
+    }
+
+    @Override
     public void setAccountPolicy(final AccountPolicy accountPolicy) {
         checkType(accountPolicy, Neo4jAccountPolicy.class);
         this.accountPolicy = (Neo4jAccountPolicy) accountPolicy;
+    }
+
+    @Override
+    public PasswordPolicy getPasswordPolicy() {
+        return passwordPolicy == null && getParent() != null ? getParent().getPasswordPolicy() : passwordPolicy;
     }
 
     @Override
@@ -190,21 +219,14 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     }
 
     @Override
-    public boolean add(final Implementation action) {
-        checkType(action, Neo4jImplementation.class);
-        checkImplementationType(action, IdRepoImplementationType.LOGIC_ACTIONS);
-        return sortedActions.contains((Neo4jImplementation) action) || sortedActions.add((Neo4jImplementation) action);
+    public AttrReleasePolicy getAttrReleasePolicy() {
+        return this.attrReleasePolicy;
     }
 
     @Override
     public void setAttrReleasePolicy(final AttrReleasePolicy policy) {
         checkType(policy, Neo4jAttrReleasePolicy.class);
         this.attrReleasePolicy = (Neo4jAttrReleasePolicy) policy;
-    }
-
-    @Override
-    public AttrReleasePolicy getAttrReleasePolicy() {
-        return this.attrReleasePolicy;
     }
 
     @Override
@@ -216,6 +238,13 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     public void setTicketExpirationPolicy(final TicketExpirationPolicy policy) {
         checkType(policy, Neo4jTicketExpirationPolicy.class);
         this.ticketExpirationPolicy = (Neo4jTicketExpirationPolicy) policy;
+    }
+
+    @Override
+    public boolean add(final Implementation action) {
+        checkType(action, Neo4jImplementation.class);
+        checkImplementationType(action, IdRepoImplementationType.LOGIC_ACTIONS);
+        return sortedActions.contains((Neo4jImplementation) action) || sortedActions.add((Neo4jImplementation) action);
     }
 
     @Override
@@ -245,11 +274,6 @@ public class Neo4jRealm extends AbstractGeneratedKeyNode implements Realm {
     public boolean add(final ExternalResource resource) {
         checkType(resource, Neo4jExternalResource.class);
         return resources.contains((Neo4jExternalResource) resource) || resources.add((Neo4jExternalResource) resource);
-    }
-
-    @Override
-    public List<String> getResourceKeys() {
-        return getResources().stream().map(ExternalResource::getKey).toList();
     }
 
     @Override

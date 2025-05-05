@@ -28,10 +28,9 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -53,7 +52,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    public <T extends AnyTO> PlainAttrs(
+    public <T extends AttributableTO> PlainAttrs(
             final AnyWrapper<T> modelObject,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
@@ -108,12 +107,12 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         return new PlainSchemasMemberships(
                                 panelId,
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new LoadableDetachableModel<>() { // SYNCOPE-1439
+                                new LoadableDetachableModel<>() {
 
                             private static final long serialVersionUID = 526768546610546553L;
 
                             @Override
-                            protected Attributable load() {
+                            protected AttributableTO load() {
                                 return membershipTO;
                             }
                         });
@@ -135,7 +134,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected List<Attr> getAttrsFromTO() {
-        return anyTO.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
+        return attributable.getPlainAttrs().stream().sorted(attrComparator).collect(Collectors.toList());
     }
 
     @Override
@@ -145,7 +144,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
+        Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(attributable.getPlainAttrs());
 
         List<Attr> plainAttrs = schemas.values().stream().map(schema -> {
             Attr attr = new Attr();
@@ -158,13 +157,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             return attr;
         }).toList();
 
-        anyTO.getPlainAttrs().clear();
-        anyTO.getPlainAttrs().addAll(plainAttrs);
+        attributable.getPlainAttrs().clear();
+        attributable.getPlainAttrs().addAll(plainAttrs);
     }
 
     @Override
     protected void setAttrs(final MembershipTO membershipTO) {
-        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(anyTO).getMembership(membershipTO.getGroupKey()).
+        Map<String, Attr> attrMap = GroupableRelatableTO.class.cast(attributable).
+                getMembership(membershipTO.getGroupKey()).
                 map(gr -> EntityTOUtils.buildAttrMap(gr.getPlainAttrs())).
                 orElseGet(HashMap::new);
 
@@ -207,14 +207,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         }
     }
 
-    protected class PlainSchemasMemberships extends PlainSchemas<Attributable> {
+    protected class PlainSchemasMemberships extends PlainSchemas<AttributableTO> {
 
         private static final long serialVersionUID = 456754923340249215L;
 
         public PlainSchemasMemberships(
                 final String id,
                 final Map<String, PlainSchemaTO> schemas,
-                final IModel<Attributable> attributableTO) {
+                final IModel<AttributableTO> attributableTO) {
 
             super(id);
 

@@ -27,6 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.DuplicateException;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -62,6 +65,8 @@ public class JPARealmDAO implements RealmDAO {
 
     protected final RealmSearchDAO realmSearchDAO;
 
+    protected final PlainSchemaDAO plainSchemaDAO;
+
     protected final ApplicationEventPublisher publisher;
 
     protected final EntityManager entityManager;
@@ -69,11 +74,13 @@ public class JPARealmDAO implements RealmDAO {
     public JPARealmDAO(
             final RoleDAO roleDAO,
             final RealmSearchDAO realmSearchDAO,
+            final PlainSchemaDAO plainSchemaDAO,
             final ApplicationEventPublisher publisher,
             final EntityManager entityManager) {
 
         this.roleDAO = roleDAO;
         this.realmSearchDAO = realmSearchDAO;
+        this.plainSchemaDAO = plainSchemaDAO;
         this.publisher = publisher;
         this.entityManager = entityManager;
     }
@@ -203,6 +210,24 @@ public class JPARealmDAO implements RealmDAO {
 
     @Override
     public <S extends Realm> S save(final S realm) {
+        // check UNIQUE constraints
+        new ArrayList<>(((JPARealm) realm).getPlainAttrsList()).stream().
+                filter(attr -> attr.getUniqueValue() != null).
+                forEach(attr -> {
+                    if (plainSchemaDAO.existsPlainAttrUniqueValue(
+                            realm.getKey(),
+                            plainSchemaDAO.findById(attr.getSchema()).
+                                    orElseThrow(() -> new NotFoundException("PlainSchema " + attr.getSchema())),
+                            attr.getUniqueValue())) {
+
+                        throw new DuplicateException("Duplicate value found for "
+                                + attr.getSchema() + "=" + attr.getUniqueValue().getValueAsString());
+                    } else {
+                        LOG.debug("No duplicate value found for {}={}",
+                                attr.getSchema(), attr.getUniqueValue().getValueAsString());
+                    }
+                });
+
         String fullPathBefore = realm.getFullPath();
         String fullPathAfter = realm.getParent() == null
                 ? SyncopeConstants.ROOT_REALM
@@ -212,6 +237,9 @@ public class JPARealmDAO implements RealmDAO {
         }
 
         S merged = entityManager.merge(realm);
+
+        // ensure that entity listeners are invoked at this point
+        entityManager.flush();
 
         if (!fullPathAfter.equals(fullPathBefore)) {
             realmSearchDAO.findChildren(realm).forEach(this::save);

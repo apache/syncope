@@ -19,9 +19,14 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wizards.BaseAjaxWizardBuilder;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.client.console.wizards.any.DerAttrs;
+import org.apache.syncope.client.console.wizards.any.PlainAttrs;
+import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -32,44 +37,93 @@ public class RealmWizardBuilder extends BaseAjaxWizardBuilder<RealmTO> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
+    protected static final class RealmWrapper extends AnyWrapper<RealmTO> {
+
+        private static final long serialVersionUID = 4347624290770782509L;
+
+        public RealmWrapper(final RealmTO attributable) {
+            super(attributable);
+        }
+    }
+
     protected final RealmRestClient realmRestClient;
 
-    protected String parentPath;
+    protected RealmTO parent;
 
     public RealmWizardBuilder(final RealmRestClient realmRestClient, final PageReference pageRef) {
         super(new RealmTO(), pageRef);
         this.realmRestClient = realmRestClient;
     }
 
+    public void setParent(final RealmTO parent) {
+        this.parent = parent;
+    }
+
     @Override
     protected Serializable onApplyInternal(final RealmTO modelObject) {
-        ProvisioningResult<RealmTO> result;
-        if (modelObject.getKey() == null) {
-            result = realmRestClient.create(this.parentPath, modelObject);
-        } else {
-            result = realmRestClient.update(modelObject);
-        }
-        return result;
+        return parent == null
+                ? realmRestClient.update(modelObject)
+                : realmRestClient.create(parent.getFullPath(), modelObject);
     }
 
     @Override
     protected WizardModel buildModelSteps(final RealmTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new Realm(modelObject));
+        Optional.ofNullable(parent).map(RealmTO::getAnyTypeClass).ifPresent(modelObject::setAnyTypeClass);
+
+        RealmDetails details = new RealmDetails("details", modelObject);
+        details.add(new AttributeAppender("style", "overflow-x:hidden;"));
+
+        wizardModel.add(new Realm(details));
+
+        RealmWrapper wrapper = new RealmWrapper(modelObject);
+
+        List<String> anyTypeClasses = new ArrayList<>();
+        Optional.ofNullable((modelObject.getAnyTypeClass())).ifPresent(anyTypeClasses::add);
+
+        wizardModel.add(new PlainAttrs(wrapper, mode, anyTypeClasses, List.of()) {
+
+            private static final long serialVersionUID = 8167894751609598306L;
+
+            @Override
+            public PageReference getPageReference() {
+                return pageRef;
+            }
+
+            @Override
+            public boolean evaluate() {
+                anyTypeClasses.clear();
+                details.getAnyTypeClassValue().ifPresent(anyTypeClasses::add);
+                super.evaluate();
+                return true;
+            }
+        });
+
+        wizardModel.add(new DerAttrs(wrapper, anyTypeClasses, List.of()) {
+
+            private static final long serialVersionUID = 4298394879912549771L;
+
+            @Override
+            public PageReference getPageReference() {
+                return pageRef;
+            }
+
+            @Override
+            public boolean evaluate() {
+                anyTypeClasses.clear();
+                details.getAnyTypeClassValue().ifPresent(anyTypeClasses::add);
+                return super.evaluate();
+            }
+        });
+
         return wizardModel;
     }
 
-    public static class Realm extends WizardStep {
+    protected static class Realm extends WizardStep {
 
         private static final long serialVersionUID = -2123790676338327104L;
 
-        public Realm(final RealmTO modelObject) {
-            RealmDetails realmDetail = new RealmDetails("details", modelObject);
-            realmDetail.add(new AttributeAppender("style", "overflow-x:hidden;"));
-            add(realmDetail);
+        protected Realm(final RealmDetails details) {
+            add(details);
         }
-    }
-
-    public void setParentPath(final String parentPath) {
-        this.parentPath = parentPath;
     }
 }

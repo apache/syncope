@@ -86,15 +86,16 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
 
             VirAttrCacheKey cacheKey = VirAttrCacheKey.of(any.getType().getKey(), any.getKey(), schema.getKey());
 
-            Attribute attr = connObj.getAttributeByName(schema.getExtAttrName());
-            if (attr == null) {
-                virAttrCache.remove(cacheKey);
-                LOG.debug("Evicted from cache: {}", cacheKey);
-            } else {
-                VirAttrCacheValue cacheValue = VirAttrCacheValue.of(attr.getValue());
-                virAttrCache.put(cacheKey, cacheValue);
-                LOG.debug("Set in cache: {}={}", cacheKey, cacheValue);
-            }
+            Optional.ofNullable(connObj.getAttributeByName(schema.getExtAttrName())).ifPresentOrElse(
+                    attr -> {
+                        VirAttrCacheValue cacheValue = VirAttrCacheValue.of(attr.getValue());
+                        virAttrCache.put(cacheKey, cacheValue);
+                        LOG.debug("Set in cache: {}={}", cacheKey, cacheValue);
+                    },
+                    () -> {
+                        virAttrCache.remove(cacheKey);
+                        LOG.debug("Evicted from cache: {}", cacheKey);
+                    });
         });
     }
 
@@ -113,14 +114,9 @@ public class DefaultVirAttrHandler implements VirAttrHandler {
                 LOG.debug("Found in cache: {}={}", cacheKey, cacheValue);
                 result.put(schema, cacheValue.values());
             } else if (schema.getAnyType().equals(any.getType())) {
-                schema.getResource().getProvisionByAnyType(schema.getAnyType().getKey()).ifPresent(provision -> {
-                    Set<VirSchema> schemasToRead = toRead.get(Pair.of(schema.getResource(), provision));
-                    if (schemasToRead == null) {
-                        schemasToRead = new HashSet<>();
-                        toRead.put(Pair.of(schema.getResource(), provision), schemasToRead);
-                    }
-                    schemasToRead.add(schema);
-                });
+                schema.getResource().getProvisionByAnyType(any.getType().getKey()).
+                        ifPresent(provision -> toRead.computeIfAbsent(
+                        Pair.of(schema.getResource(), provision), k -> new HashSet<>()).add(schema));
             }
         });
 

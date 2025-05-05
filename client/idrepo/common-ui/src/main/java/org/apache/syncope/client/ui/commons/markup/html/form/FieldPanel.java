@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.Attr;
-import org.apache.syncope.common.lib.Attributable;
+import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -132,7 +132,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public FieldPanel<T> setNewModel(final Attributable attributable, final String schema) {
+    public FieldPanel<T> setNewModel(final AttributableTO attributable, final String schema) {
         field.setModel(new Model() {
 
             private static final long serialVersionUID = -4214654722524358000L;

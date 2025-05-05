@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -264,23 +265,27 @@ public final class JexlUtils {
     }
 
     public static void addDerAttrsToContext(
-            final Any any,
+            final Attributable attributable,
             final DerAttrHandler derAttrHandler,
             final JexlContext jexlContext) {
 
-        Map<DerSchema, String> derAttrs = derAttrHandler.getValues(any);
+        Map<DerSchema, String> derAttrs = attributable instanceof Realm realm
+                ? derAttrHandler.getValues(realm)
+                : attributable instanceof Any any
+                        ? derAttrHandler.getValues(any)
+                        : Map.of();
 
         derAttrs.forEach((schema, value) -> jexlContext.set(schema.getKey(), value));
     }
 
     public static boolean evaluateMandatoryCondition(
             final String mandatoryCondition,
-            final Any any,
+            final Attributable attributable,
             final DerAttrHandler derAttrHandler) {
 
         JexlContext jexlContext = new MapContext();
-        addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-        addDerAttrsToContext(any, derAttrHandler, jexlContext);
+        addPlainAttrsToContext(attributable.getPlainAttrs(), jexlContext);
+        addDerAttrsToContext(attributable, derAttrHandler, jexlContext);
 
         return Boolean.parseBoolean(evaluateExpr(mandatoryCondition, jexlContext).toString());
     }

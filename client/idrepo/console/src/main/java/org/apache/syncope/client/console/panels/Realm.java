@@ -148,9 +148,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     protected Panel customResultBody(final String panelId, final RealmTO item, final Serializable result) {
-        if (!(result instanceof final ProvisioningResult provisioningResult)) {
+        if (!(result instanceof ProvisioningResult<?> provisioningResult)) {
             throw new IllegalStateException("Unsupported result type");
         }
 
@@ -273,58 +272,53 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         @Override
         public Panel getPanel(final String panelId) {
             ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
-            if (securityCheck(Set.of(
-                    IdRepoEntitlement.REALM_CREATE,
-                    IdRepoEntitlement.REALM_UPDATE,
-                    IdRepoEntitlement.REALM_DELETE))) {
 
-                if (securityCheck(Set.of(IdRepoEntitlement.REALM_CREATE))) {
-                    actionPanel.add(new ActionLink<>(realmTO) {
+            if (securityCheck(Set.of(IdRepoEntitlement.REALM_CREATE))) {
+                actionPanel.add(new ActionLink<>(realmTO) {
 
-                        private static final long serialVersionUID = 2802988981431379827L;
+                    private static final long serialVersionUID = 2802988981431379827L;
 
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                            onClickCreate(target);
-                        }
-                    }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
-                }
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickCreate(target);
+                    }
+                }, ActionLink.ActionType.CREATE, IdRepoEntitlement.REALM_CREATE).hideLabel();
+            }
 
-                if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
-                    actionPanel.add(new ActionLink<>(realmTO) {
+            if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
+                actionPanel.add(new ActionLink<>(realmTO) {
 
-                        private static final long serialVersionUID = 2802988981431379828L;
+                    private static final long serialVersionUID = 2802988981431379828L;
 
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                            onClickEdit(target, realmTO);
-                        }
-                    }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
-                }
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickEdit(target, realmTO);
+                    }
+                }, ActionLink.ActionType.EDIT, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+            }
 
-                if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
-                    actionPanel.add(new ActionLink<>(realmTO) {
+            if (securityCheck(Set.of(IdRepoEntitlement.REALM_UPDATE))) {
+                actionPanel.add(new ActionLink<>(realmTO) {
 
-                        private static final long serialVersionUID = 2802988981431379827L;
+                    private static final long serialVersionUID = 2802988981431379827L;
 
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                            onClickTemplate(target);
-                        }
-                    }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
-                }
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickTemplate(target);
+                    }
+                }, ActionLink.ActionType.TEMPLATE, IdRepoEntitlement.REALM_UPDATE).hideLabel();
+            }
 
-                if (securityCheck(Set.of(IdRepoEntitlement.REALM_DELETE))) {
-                    actionPanel.add(new ActionLink<>(realmTO) {
+            if (securityCheck(Set.of(IdRepoEntitlement.REALM_DELETE))) {
+                actionPanel.add(new ActionLink<>(realmTO) {
 
-                        private static final long serialVersionUID = 2802988981431379829L;
+                    private static final long serialVersionUID = 2802988981431379829L;
 
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
-                            onClickDelete(target, realmTO);
-                        }
-                    }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REALM_DELETE, true).hideLabel();
-                }
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickDelete(target, realmTO);
+                    }
+                }, ActionLink.ActionType.DELETE, IdRepoEntitlement.REALM_DELETE, true).hideLabel();
             }
 
             RealmDetails panel = new RealmDetails(panelId, realmTO, actionPanel, false);

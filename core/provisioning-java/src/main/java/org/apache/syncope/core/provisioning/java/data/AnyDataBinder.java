@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -46,8 +45,6 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider;
-import org.apache.syncope.core.persistence.api.attrvalue.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -73,6 +70,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AccountGetter;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -86,18 +84,13 @@ import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-abstract class AbstractAnyDataBinder {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
+abstract class AnyDataBinder extends AttributableDataBinder {
 
     protected static void fillTO(
             final AnyTO anyTO,
@@ -134,7 +127,9 @@ abstract class AbstractAnyDataBinder {
                 otherEnd.getKey(),
                 otherEnd instanceof User user
                         ? user.getUsername()
-                        : ((AnyObject) otherEnd).getName()).
+                        : otherEnd instanceof Group group
+                                ? group.getName()
+                                : ((AnyObject) otherEnd).getName()).
                 build();
     }
 
@@ -171,8 +166,6 @@ abstract class AbstractAnyDataBinder {
 
     protected final GroupDAO groupDAO;
 
-    protected final PlainSchemaDAO plainSchemaDAO;
-
     protected final ExternalResourceDAO resourceDAO;
 
     protected final RelationshipTypeDAO relationshipTypeDAO;
@@ -181,21 +174,11 @@ abstract class AbstractAnyDataBinder {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
-    protected final DerAttrHandler derAttrHandler;
-
     protected final VirAttrHandler virAttrHandler;
-
-    protected final MappingManager mappingManager;
-
-    protected final IntAttrNameParser intAttrNameParser;
 
     protected final OutboundMatcher outboundMatcher;
 
-    protected final PlainAttrValidationManager validator;
-
-    protected final Map<String, DropdownValueProvider> dropdownValueProviders = new ConcurrentHashMap<>();
-
-    protected AbstractAnyDataBinder(
+    protected AnyDataBinder(
             final AnyTypeDAO anyTypeDAO,
             final RealmSearchDAO realmSearchDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
@@ -214,29 +197,25 @@ abstract class AbstractAnyDataBinder {
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator) {
 
+        super(plainSchemaDAO, validator, derAttrHandler, mappingManager, intAttrNameParser);
         this.anyTypeDAO = anyTypeDAO;
         this.realmSearchDAO = realmSearchDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-        this.plainSchemaDAO = plainSchemaDAO;
         this.resourceDAO = resourceDAO;
         this.relationshipTypeDAO = relationshipTypeDAO;
         this.entityFactory = entityFactory;
         this.anyUtilsFactory = anyUtilsFactory;
-        this.derAttrHandler = derAttrHandler;
         this.virAttrHandler = virAttrHandler;
-        this.mappingManager = mappingManager;
-        this.intAttrNameParser = intAttrNameParser;
         this.outboundMatcher = outboundMatcher;
-        this.validator = validator;
     }
 
     protected void setRealm(final Any any, final AnyUR anyUR) {
         if (anyUR.getRealm() != null && StringUtils.isNotBlank(anyUR.getRealm().getValue())) {
             realmSearchDAO.findByFullPath(anyUR.getRealm().getValue()).ifPresentOrElse(
-                any::setRealm,
+                    any::setRealm,
                     () -> LOG.debug("Invalid realm specified: {}, ignoring", anyUR.getRealm().getValue()));
         }
     }
@@ -277,97 +256,17 @@ abstract class AbstractAnyDataBinder {
         return onResources;
     }
 
-    protected Optional<PlainSchema> getPlainSchema(final String schemaName) {
-        PlainSchema schema = null;
-        if (StringUtils.isNotBlank(schemaName)) {
-            schema = plainSchemaDAO.findById(schemaName).orElse(null);
-
-            // safely ignore invalid schemas from Attr
-            if (schema == null) {
-                LOG.debug("Ignoring invalid schema {}", schemaName);
-            } else if (schema.isReadonly()) {
-                schema = null;
-                LOG.debug("Ignoring readonly schema {}", schemaName);
-            }
-        }
-
-        return Optional.ofNullable(schema);
-    }
-
-    protected void fillAttr(
-            final AnyTO anyTO,
-            final List<String> values,
-            final PlainSchema schema,
-            final PlainAttr attr,
-            final SyncopeClientException invalidValues) {
-
-        // if schema is multivalue, all values are considered for addition;
-        // otherwise only the fist one - if provided - is considered
-        List<String> valuesProvided = schema.isMultivalue()
-                ? values
-                : (values.isEmpty() || values.getFirst() == null
-                ? List.of()
-                : List.of(values.getFirst()));
-
-        valuesProvided.forEach(value -> {
-            if (StringUtils.isBlank(value)) {
-                LOG.debug("Null value for {}, ignoring", schema.getKey());
-            } else {
-                try {
-                    switch (schema.getType()) {
-                        case Enum -> {
-                            if (!schema.getEnumValues().containsKey(value)) {
-                                throw new InvalidPlainAttrValueException(
-                                        '\'' + value + "' is not one of: " + schema.getEnumValues().keySet());
-                            }
-                        }
-
-                        case Dropdown -> {
-                            List<String> dropdownValues = List.of();
-                            try {
-                                DropdownValueProvider provider = ImplementationManager.build(
-                                        schema.getDropdownValueProvider(),
-                                        () -> dropdownValueProviders.get(
-                                                schema.getDropdownValueProvider().getKey()),
-                                        instance -> dropdownValueProviders.put(
-                                                schema.getDropdownValueProvider().getKey(), instance));
-                                dropdownValues = provider.getChoices(anyTO);
-                            } catch (Exception e) {
-                                LOG.error("While getting dropdown values for {}", schema.getKey(), e);
-                            }
-
-                            if (!dropdownValues.contains(value)) {
-                                throw new InvalidPlainAttrValueException(
-                                        '\'' + value + "' is not one of: " + dropdownValues);
-                            }
-                        }
-
-                        default -> {
-                        }
-                    }
-
-                    attr.add(validator, value);
-                } catch (InvalidPlainAttrValueException e) {
-                    LOG.warn("Invalid value for attribute {}: {}",
-                            schema.getKey(), StringUtils.abbreviate(value, 20), e);
-
-                    invalidValues.getElements().add(schema.getKey() + ": " + value + " - " + e.getMessage());
-                }
-            }
-        });
-    }
-
     protected List<String> evaluateMandatoryCondition(
             final ExternalResource resource, final Provision provision, final Any any) {
 
         List<String> missingAttrNames = new ArrayList<>();
 
-        MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(mapItem -> {
+        MappingUtils.getPropagationItems(provision.getMapping().getItems().stream()).forEach(item -> {
             IntAttrName intAttrName = null;
             try {
-                intAttrName = intAttrNameParser.parse(mapItem.getIntAttrName(), any.getType().getKind());
+                intAttrName = intAttrNameParser.parse(item.getIntAttrName(), any.getType().getKind());
             } catch (ParseException e) {
-                LOG.error("Invalid intAttrName '{}', ignoring", mapItem.getIntAttrName(), e);
+                LOG.error("Invalid intAttrName '{}', ignoring", item.getIntAttrName(), e);
             }
             if (intAttrName != null && intAttrName.getSchema() != null) {
                 AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
@@ -377,16 +276,16 @@ abstract class AbstractAnyDataBinder {
                 Pair<AttrSchemaType, List<PlainAttrValue>> intValues = mappingManager.getIntValues(
                         resource,
                         provision,
-                        mapItem,
+                        item,
                         intAttrName,
                         schemaType,
                         any,
                         AccountGetter.DEFAULT,
                         PlainAttrGetter.DEFAULT);
                 if (intValues.getRight().isEmpty()
-                        && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any, derAttrHandler)) {
+                        && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any, derAttrHandler)) {
 
-                    missingAttrNames.add(mapItem.getIntAttrName());
+                    missingAttrNames.add(item.getIntAttrName());
                 }
             }
         });
@@ -394,7 +293,7 @@ abstract class AbstractAnyDataBinder {
         return missingAttrNames;
     }
 
-    private SyncopeClientException checkMandatoryOnResources(
+    protected SyncopeClientException checkMandatoryOnResources(
             final Any any, final Collection<? extends ExternalResource> resources) {
 
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
@@ -413,23 +312,7 @@ abstract class AbstractAnyDataBinder {
         return reqValMissing;
     }
 
-    private void checkMandatory(
-            final PlainSchema schema,
-            final PlainAttr attr,
-            final Any any,
-            final SyncopeClientException reqValMissing) {
-
-        if (attr == null
-                && !schema.isReadonly()
-                && JexlUtils.evaluateMandatoryCondition(schema.getMandatoryCondition(), any, derAttrHandler)) {
-
-            LOG.error("Mandatory schema {} not provided with values", schema.getKey());
-
-            reqValMissing.getElements().add(schema.getKey());
-        }
-    }
-
-    private SyncopeClientException checkMandatory(final Any any, final AnyUtils anyUtils) {
+    protected SyncopeClientException checkMandatory(final Any any, final AnyUtils anyUtils) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         // Check if there is some mandatory schema defined for which no value has been provided
@@ -466,7 +349,7 @@ abstract class AbstractAnyDataBinder {
                     if (attr.getUniqueValue() != null
                             && !patch.getAttr().getValues().isEmpty()
                             && !patch.getAttr().getValues().getFirst().equals(
-                                attr.getUniqueValue().getValueAsString())) {
+                                    attr.getUniqueValue().getValueAsString())) {
 
                         attr.setUniqueValue(null);
                     }
@@ -566,13 +449,13 @@ abstract class AbstractAnyDataBinder {
             scce.addException(invalidValues);
         }
 
-        SyncopeClientException requiredValuesMissing = checkMandatory(any, anyUtils);
-        if (!requiredValuesMissing.isEmpty()) {
-            scce.addException(requiredValuesMissing);
+        SyncopeClientException reqValMissing = checkMandatory(any, anyUtils);
+        if (!reqValMissing.isEmpty()) {
+            scce.addException(reqValMissing);
         }
-        requiredValuesMissing = checkMandatoryOnResources(any, resources);
-        if (!requiredValuesMissing.isEmpty()) {
-            scce.addException(requiredValuesMissing);
+        reqValMissing = checkMandatoryOnResources(any, resources);
+        if (!reqValMissing.isEmpty()) {
+            scce.addException(reqValMissing);
         }
     }
 
@@ -602,7 +485,6 @@ abstract class AbstractAnyDataBinder {
         return propByRes;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void fill(
             final AnyTO anyTO,
             final Any any,

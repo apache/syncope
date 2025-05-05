@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.Item;
-import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -52,17 +51,17 @@ public interface MappingManager {
      * Get connObjectKey internal value.
      *
      * @param realm realm
-     * @param orgUnit orgUnit information
+     * @param resource resource information
      * @return connObjectKey internal value
      */
-    Optional<String> getConnObjectKeyValue(Realm realm, OrgUnit orgUnit);
+    Optional<String> getConnObjectKeyValue(Realm realm, ExternalResource resource);
 
     /**
      * Get attribute values for the given {@link Item} and any object.
      *
      * @param resource resource information
      * @param provision provision information
-     * @param mapItem mapping item
+     * @param item mapping item
      * @param intAttrName int attr name
      * @param schemaType schema type
      * @param any any object
@@ -73,12 +72,29 @@ public interface MappingManager {
     Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
             ExternalResource resource,
             Provision provision,
-            Item mapItem,
+            Item item,
             IntAttrName intAttrName,
             AttrSchemaType schemaType,
             Any any,
             AccountGetter usernameAccountGetter,
             PlainAttrGetter plainAttrGetter);
+
+    /**
+     * Get attribute values for the given {@link Item} and realm.
+     *
+     * @param resource resource information
+     * @param item mapping item
+     * @param intAttrName int attr name
+     * @param schemaType schema type
+     * @param realm realm
+     * @return attribute values and their type
+     */
+    Pair<AttrSchemaType, List<PlainAttrValue>> getIntValues(
+            ExternalResource resource,
+            Item item,
+            IntAttrName intAttrName,
+            AttrSchemaType schemaType,
+            Realm realm);
 
     /**
      * Prepare attribute for sending to a connector instance.
@@ -102,6 +118,16 @@ public interface MappingManager {
             AccountGetter usernameAccountGetter,
             AccountGetter passwordAccountGetter,
             PlainAttrGetter plainAttrGetter);
+
+    /**
+     * Prepare attribute for sending to a connector instance.
+     *
+     * @param resource resource information
+     * @param item mapping item
+     * @param realm given realm
+     * @return connObjectLink (if it is the case) + prepared attribute
+     */
+    Pair<String, Attribute> prepareAttr(ExternalResource resource, Item item, Realm realm);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -139,31 +165,31 @@ public interface MappingManager {
      * Prepare attributes for sending to a connector instance.
      *
      * @param realm Realm
-     * @param orgUnit provision information
+     * @param resource resource information
      * @return connObjectLink + prepared attributes
      */
-    Pair<String, Set<Attribute>> prepareAttrsFromRealm(Realm realm, OrgUnit orgUnit);
+    Pair<String, Set<Attribute>> prepareAttrsFromRealm(Realm realm, ExternalResource resource);
 
     /**
      * Set attribute values, according to the given {@link Item}, to any object from attribute received from
      * connector.
      *
      * @param <T> any object
-     * @param mapItem mapping item
+     * @param item mapping item
      * @param attr attribute received from connector
      * @param anyTO any object
      */
-    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO);
+    <T extends AnyTO> void setIntValues(Item item, Attribute attr, T anyTO);
 
     /**
      * Set attribute values, according to the given {@link Item}, to realm from attribute received from
      * connector.
      *
-     * @param orgUnitItem mapping item
+     * @param item mapping item
      * @param attr attribute received from connector
      * @param realmTO realm
      */
-    void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
+    void setIntValues(Item item, Attribute attr, RealmTO realmTO);
 
     /**
      * Checks if there is a mapping item in the given {@link Provision} for {@code mustChangePassword}.

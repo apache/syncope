@@ -26,12 +26,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccessPolicyTO;
@@ -336,10 +338,16 @@ public class RealmITCase extends AbstractITCase {
         // 1. create realm and add the LDAP resource
         RealmTO realm = new RealmTO();
         realm.setName("test");
+        realm.setAnyTypeClass("other");
+        realm.getPlainAttrs().add(new Attr.Builder("ctype").value("number1").build());
         realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+
         RealmTO childRealm = new RealmTO();
         childRealm.setName("child");
+        childRealm.setAnyTypeClass("other");
+        childRealm.getPlainAttrs().add(new Attr.Builder("ctype").value("number2").build());
         childRealm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+
         RealmTO descendantRealm = new RealmTO();
         descendantRealm.setName("test");
         descendantRealm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
@@ -369,16 +377,27 @@ public class RealmITCase extends AbstractITCase {
         assertEquals(ExecStatus.SUCCESS, resultDescendant.getPropagationStatuses().getFirst().getStatus());
 
         // 3. check on LDAP
-        assertNotNull(getLdapRemoteObject("ou=test,o=isp"));
-        assertNotNull(getLdapRemoteObject("ou=child,ou=test,o=isp"));
-        assertNotNull(getLdapRemoteObject("ou=test,ou=child,ou=test,o=isp"));
+        SearchResultEntry testOnLDAP = getLdapRemoteObject("ou=test,o=isp");
+        assertNotNull(testOnLDAP);
+        assertEquals("/test", testOnLDAP.getAttribute("l").getValue());
+        assertEquals("number1", testOnLDAP.getAttribute("description").getValue());
+
+        SearchResultEntry childOnLDAP = getLdapRemoteObject("ou=child,ou=test,o=isp");
+        assertNotNull(childOnLDAP);
+        assertEquals("/test/child", childOnLDAP.getAttribute("l").getValue());
+        assertEquals("number2", childOnLDAP.getAttribute("description").getValue());
+
+        testOnLDAP = getLdapRemoteObject("ou=test,ou=child,ou=test,o=isp");
+        assertNotNull(testOnLDAP);
+        assertEquals("/test/child/test", testOnLDAP.getAttribute("l").getValue());
+        assertNull(testOnLDAP.getAttribute("description"));
 
         // 4. remove realms
         REALM_SERVICE.delete("/test/child/test");
         REALM_SERVICE.delete("/test/child");
         REALM_SERVICE.delete("/test");
 
-        // 5. check on LDAP: both realms should be deleted
+        // 5. check on LDAP: all ou are now deleted
         assertNull(getLdapRemoteObject("ou=test,ou=child,ou=test,o=isp"));
         assertNull(getLdapRemoteObject("ou=child,ou=test,o=isp"));
         assertNull(getLdapRemoteObject("ou=test,o=isp"));

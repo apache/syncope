@@ -16,21 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostPersist;
+import jakarta.persistence.PostUpdate;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface PlainSchemaDAO extends SchemaDAO<PlainSchema> {
+public class JSONRealmListener extends JSONEntityListener<Realm> {
 
-    boolean hasAttrs(PlainSchema schema);
+    @PostLoad
+    public void read(final JPARealm realm) {
+        super.json2list(realm, false);
+    }
 
-    boolean existsPlainAttrUniqueValue(String realmKey, PlainSchema schema, PlainAttrValue attrValue);
+    @PrePersist
+    @PreUpdate
+    public void save(final JPARealm realm) {
+        realm.list2json();
+    }
 
-    boolean existsPlainAttrUniqueValue(AnyUtils anyUtils, String anyKey, PlainSchema schema, PlainAttrValue attrValue);
-
-    List<PlainSchema> findByValidator(Implementation validator);
+    @PostPersist
+    @PostUpdate
+    public void readAfterSave(final JPARealm realm) {
+        super.json2list(realm, true);
+    }
 }

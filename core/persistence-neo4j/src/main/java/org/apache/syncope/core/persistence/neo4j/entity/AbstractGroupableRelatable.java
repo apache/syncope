@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.neo4j.entity;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -58,20 +56,10 @@ public abstract class AbstractGroupableRelatable<
                 flatMap(m -> m.getPlainAttr(plainSchema));
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public List<PlainAttr> getPlainAttrs() {
-        return plainAttrs().entrySet().stream().
-                filter(e -> e.getValue() != null).
-                sorted(Comparator.comparing(Map.Entry::getKey)).
-                map(Map.Entry::getValue).toList();
-    }
-
     @Override
     public Collection<PlainAttr> getPlainAttrs(final String plainSchema) {
         return Stream.concat(getPlainAttr(plainSchema).map(Stream::of).orElseGet(Stream::empty),
-                memberships().stream().map(m -> m.getPlainAttr(plainSchema)).
-                        flatMap(Optional::stream)).
+                memberships().stream().map(m -> m.getPlainAttr(plainSchema)).flatMap(Optional::stream)).
                 toList();
     }
 

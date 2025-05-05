@@ -140,7 +140,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         // enum
         enumValues = new AjaxGridFieldPanel<>(
-                "enumValues", "enumValues", new PropertyModel<>(schemaTO, "enumValues"));
+                "enumValues", "enumValues", new PropertyModel<>(schemaTO, "enumValues"), false);
 
         enumParams = new WebMarkupContainer("enumParams");
         enumParams.setOutputMarkupPlaceholderTag(true);

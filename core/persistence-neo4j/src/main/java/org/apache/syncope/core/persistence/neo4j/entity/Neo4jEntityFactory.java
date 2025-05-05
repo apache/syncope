@@ -329,6 +329,11 @@ public class Neo4jEntityFactory implements EntityFactory {
     }
 
     @Override
+    public Class<? extends Realm> realmClass() {
+        return Neo4jRealm.class;
+    }
+
+    @Override
     public Class<? extends AnySearchDAO> anySearchDAOClass() {
         return null;
     }

@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
+import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "squid:S4784", "squid:S3776" })
@@ -62,16 +63,20 @@ public class IntAttrNameParser {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
+    protected final RealmUtils realmUtils;
+
     public IntAttrNameParser(
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
             final VirSchemaDAO virSchemaDAO,
-            final AnyUtilsFactory anyUtilsFactory) {
+            final AnyUtilsFactory anyUtilsFactory,
+            final RealmUtils realmUtils) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
         this.virSchemaDAO = virSchemaDAO;
         this.anyUtilsFactory = anyUtilsFactory;
+        this.realmUtils = realmUtils;
     }
 
     protected Pair<Schema, SchemaType> find(final String key) {
@@ -82,15 +87,12 @@ public class IntAttrNameParser {
                 schema = virSchemaDAO.findById(key).orElse(null);
                 if (schema == null) {
                     return null;
-                } else {
-                    return Pair.of(schema, SchemaType.VIRTUAL);
                 }
-            } else {
-                return Pair.of(schema, SchemaType.DERIVED);
+                return Pair.of(schema, SchemaType.VIRTUAL);
             }
-        } else {
-            return Pair.of(schema, SchemaType.PLAIN);
+            return Pair.of(schema, SchemaType.DERIVED);
         }
+        return Pair.of(schema, SchemaType.PLAIN);
     }
 
     protected void setFieldOrSchemaName(
@@ -110,12 +112,11 @@ public class IntAttrNameParser {
     public IntAttrName parse(final String intAttrName, final AnyTypeKind provisionAnyTypeKind) throws ParseException {
         IntAttrName result = new IntAttrName();
 
-        Matcher matcher;
         if (intAttrName.indexOf('.') == -1) {
             result.setAnyTypeKind(provisionAnyTypeKind);
             setFieldOrSchemaName(intAttrName, result.getAnyTypeKind(), result);
         } else {
-            matcher = ENCLOSING_GROUP_PATTERN.matcher(intAttrName);
+            Matcher matcher = ENCLOSING_GROUP_PATTERN.matcher(intAttrName);
             if (matcher.matches()) {
                 result.setAnyTypeKind(AnyTypeKind.GROUP);
                 result.setEnclosingGroup(matcher.group(1));
@@ -152,6 +153,28 @@ public class IntAttrNameParser {
                     }
                 }
             }
+        }
+
+        return result;
+    }
+
+    protected void setFieldOrSchemaName(final String fieldOrSchemaName, final IntAttrName result) {
+        realmUtils.getField(fieldOrSchemaName).ifPresentOrElse(
+                field -> result.setField(fieldOrSchemaName),
+                () -> Optional.ofNullable(find(fieldOrSchemaName)).ifPresent(schemaInfo -> {
+                    result.setSchemaType(schemaInfo.getRight());
+                    result.setSchema(schemaInfo.getLeft());
+                }));
+    }
+
+    @Transactional(readOnly = true)
+    public IntAttrName parse(final String intAttrName) throws ParseException {
+        IntAttrName result = new IntAttrName();
+
+        if (intAttrName.indexOf('.') == -1) {
+            setFieldOrSchemaName(intAttrName, result);
+        } else {
+            throw new ParseException("Unparsable expression: " + intAttrName, 0);
         }
 
         return result;

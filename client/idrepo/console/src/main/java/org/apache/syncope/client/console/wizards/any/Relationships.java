@@ -93,7 +93,7 @@ public class Relationships extends WizardStep implements ICondition {
 
     protected final PageReference pageRef;
 
-    public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
+    public Relationships(final AnyWrapper<? extends AnyTO> modelObject, final PageReference pageRef) {
         super();
         add(new Label("title", new ResourceModel("any.relationships")));
 

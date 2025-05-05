@@ -326,4 +326,9 @@ abstract class AbstractEntityFactory implements EntityFactory {
     public Class<? extends AnyObject> anyObjectClass() {
         return JPAAnyObject.class;
     }
+
+    @Override
+    public Class<? extends Realm> realmClass() {
+        return JPARealm.class;
+    }
 }

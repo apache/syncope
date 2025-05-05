@@ -19,18 +19,21 @@
 package org.apache.syncope.core.persistence.neo4j.outer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.ImplementationEngine;
-import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -43,13 +46,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class RealmTest extends AbstractTest {
 
     @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
+
+    @Autowired
     private RealmDAO realmDAO;
 
     @Autowired
     private RealmSearchDAO realmSearchDAO;
-
-    @Autowired
-    private ExternalResourceDAO resourceDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -60,8 +63,36 @@ public class RealmTest extends AbstractTest {
     @Autowired
     private ImplementationDAO implementationDAO;
 
+    @Autowired
+    private PlainAttrValidationManager validator;
+
     @Test
-    public void test() {
+    public void plainAttrs() {
+        Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
+        assertNull(realm.getAnyTypeClass());
+        assertTrue(realm.getPlainAttrs().isEmpty());
+
+        realm.setAnyTypeClass(anyTypeClassDAO.findById("other").orElseThrow());
+        realm = realmDAO.save(realm);
+
+        realm = realmDAO.findById(realm.getKey()).orElseThrow();
+        assertEquals(anyTypeClassDAO.findById("other").orElseThrow(), realm.getAnyTypeClass());
+
+        PlainAttr aLong = new PlainAttr();
+        aLong.setSchema("aLong");
+        aLong.add(validator, "9");
+        realm.add(aLong);
+
+        realm = realmDAO.save(realm);
+
+        realm = realmDAO.findById(realm.getKey()).orElseThrow();
+        assertEquals(anyTypeClassDAO.findById("other").orElseThrow(), realm.getAnyTypeClass());
+        assertEquals(1, realm.getPlainAttrs().size());
+        assertEquals(9, realm.getPlainAttr("aLong").orElseThrow().getValues().get(0).getLongValue());
+    }
+
+    @Test
+    public void delete() {
         Realm realm = realmSearchDAO.findByFullPath("/odd").orElseThrow();
 
         // need to remove this group in order to remove the realm, which is otherwise empty
