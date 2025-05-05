@@ -37,7 +37,6 @@ import org.wicketstuff.egrid.column.EditableActionsColumn;
 import org.wicketstuff.egrid.column.panel.ActionsPanel;
 import org.wicketstuff.egrid.component.EditableDataTable;
 import org.wicketstuff.egrid.provider.IEditableDataProvider;
-import org.wicketstuff.egrid.toolbar.HeadersToolbar;
 import org.wicketstuff.egrid.toolbar.NavigationToolbar;
 
 public class AjaxGrid<K, V, S> extends Panel {
@@ -64,22 +63,22 @@ public class AjaxGrid<K, V, S> extends Panel {
             final String id,
             final List<? extends IColumn<Pair<K, V>, S>> columns,
             final IEditableDataProvider<Pair<K, V>, S> dataProvider,
-            final long rowsPerPage) {
+            final long rowsPerPage,
+            final boolean readonly) {
 
         super(id);
 
         List<IColumn<Pair<K, V>, S>> newCols = new ArrayList<>();
         newCols.addAll(columns);
-        newCols.add(new AjaxGridActionsColumn<>(new Model<>("Actions")));
+        if (!readonly) {
+            newCols.add(new AjaxGridActionsColumn<>(new Model<>("Actions")));
+        }
 
         dataTable = new EditableDataTable<>("dataTable", newCols, dataProvider, rowsPerPage);
         dataTable.setOutputMarkupId(true);
 
         dataTable.addTopToolbar(new NavigationToolbar(dataTable));
-        if (displayHeader()) {
-            dataTable.addTopToolbar(new HeadersToolbar<>(dataTable, dataProvider));
-        }
-        if (displayAdd()) {
+        if (!readonly) {
             dataTable.addBottomToolbar(newAddBottomToolbar(dataTable, dataProvider));
         }
 
@@ -128,14 +127,6 @@ public class AjaxGrid<K, V, S> extends Panel {
     }
 
     protected boolean allowDelete(final Item<Pair<K, V>> rowItem) {
-        return true;
-    }
-
-    protected boolean displayHeader() {
-        return true;
-    }
-
-    protected boolean displayAdd() {
         return true;
     }
 

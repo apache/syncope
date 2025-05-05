@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -67,29 +68,34 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
 
     @SuppressWarnings("unchecked")
     private List<MembershipTO> loadMemberships() {
-        membershipSchemas.clear();
+        if (attributable instanceof AnyTO anyTO) {
+            membershipSchemas.clear();
 
-        List<MembershipTO> membs = new ArrayList<>();
-        try {
-            ((List<MembershipTO>) PropertyResolver.getPropertyField("memberships", anyTO).get(anyTO)).forEach(memb -> {
-                setSchemas(memb.getGroupKey(),
-                        anyTypeClassRestClient.list(getMembershipAuxClasses(memb, anyTO.getType())).
-                                stream().map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
-                setAttrs(memb);
+            List<MembershipTO> membs = new ArrayList<>();
+            try {
+                ((Iterable<MembershipTO>) PropertyResolver.getPropertyField("memberships", anyTO).get(anyTO)).
+                        forEach(memb -> {
+                            setSchemas(memb.getGroupKey(),
+                                    anyTypeClassRestClient.list(getMembershipAuxClasses(memb, anyTO.getType())).
+                                            stream().map(AnyTypeClassTO::getKey).collect(Collectors.toList()));
+                            setAttrs(memb);
 
-                if (this instanceof PlainAttrs && !memb.getPlainAttrs().isEmpty()) {
-                    membs.add(memb);
-                } else if (this instanceof DerAttrs && !memb.getDerAttrs().isEmpty()) {
-                    membs.add(memb);
-                } else if (this instanceof VirAttrs && !memb.getVirAttrs().isEmpty()) {
-                    membs.add(memb);
-                }
-            });
-        } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
-            // ignore
+                            if (this instanceof PlainAttrs && !memb.getPlainAttrs().isEmpty()) {
+                                membs.add(memb);
+                            } else if (this instanceof DerAttrs && !memb.getDerAttrs().isEmpty()) {
+                                membs.add(memb);
+                            } else if (this instanceof VirAttrs && !memb.getVirAttrs().isEmpty()) {
+                                membs.add(memb);
+                            }
+                        });
+            } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
+                // ignore
+            }
+
+            return membs;
         }
 
-        return membs;
+        return List.of();
     }
 
     private void setSchemas(final String membership, final List<String> anyTypeClasses) {
@@ -109,7 +115,7 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
             GroupTO groupTO = groupRestClient.read(membershipTO.getGroupKey());
             return groupTO.getTypeExtension(anyType).
                     map(TypeExtensionTO::getAuxClasses).
-                orElseGet(List::of);
+                    orElseGet(List::of);
         } catch (Exception e) {
             return List.of();
         }

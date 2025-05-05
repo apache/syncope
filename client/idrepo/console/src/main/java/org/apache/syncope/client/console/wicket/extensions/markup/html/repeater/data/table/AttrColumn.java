@@ -52,19 +52,17 @@ public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, Stri
         List<String> values = new ArrayList<>();
 
         switch (schemaType) {
-            case PLAIN:
+            case PLAIN ->
                 rowModel.getObject().getPlainAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
-                break;
 
-            case DERIVED:
+            case DERIVED ->
                 rowModel.getObject().getDerAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
-                break;
 
-            case VIRTUAL:
+            case VIRTUAL ->
                 rowModel.getObject().getVirAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
-                break;
 
-            default:
+            default -> {
+            }
         }
 
         if (values.isEmpty()) {

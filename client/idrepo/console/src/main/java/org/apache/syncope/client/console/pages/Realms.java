@@ -220,7 +220,7 @@ public class Realms extends BasePage {
 
         @Override
         protected void onClickCreate(final AjaxRequestTarget target) {
-            this.wizardBuilder.setParentPath(realmChoicePanel.getCurrentRealm().getFullPath());
+            this.wizardBuilder.setParent(realmChoicePanel.getCurrentRealm());
             send(this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<RealmTO>(new RealmTO(), target) {
 
                 @Override
@@ -232,7 +232,6 @@ public class Realms extends BasePage {
 
         @Override
         protected void onClickEdit(final AjaxRequestTarget target, final RealmTO realmTO) {
-            this.wizardBuilder.setParentPath(realmTO.getFullPath());
             send(this, Broadcast.EXACT, new AjaxWizard.EditItemActionEvent<RealmTO>(realmTO, target) {
 
                 @Override
