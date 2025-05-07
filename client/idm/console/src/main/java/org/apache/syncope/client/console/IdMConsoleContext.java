@@ -29,11 +29,9 @@ import org.apache.syncope.client.console.commons.IdMExternalResourceProvider;
 import org.apache.syncope.client.console.commons.IdMImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.IdMPolicyTabProvider;
 import org.apache.syncope.client.console.commons.IdMStatusProvider;
-import org.apache.syncope.client.console.commons.IdMVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
-import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.IdMClassPathScanImplementationContributor;
@@ -86,11 +84,6 @@ public class IdMConsoleContext {
     @Bean
     public StatusProvider statusProvider(final ReconStatusUtils reconStatusUtils) {
         return new IdMStatusProvider(reconStatusUtils);
-    }
-
-    @Bean
-    public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
-        return new IdMVirSchemaDetailsPanelProvider();
     }
 
     @Bean

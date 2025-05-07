@@ -22,8 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
-import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -38,7 +36,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.Connector;
@@ -150,16 +147,13 @@ public class SinglePullJobDelegate extends PullJobDelegate implements SyncopeSin
             Set<String> matg = new HashSet<>(moreAttrsToGet);
             profile.getActions().forEach(a -> matg.addAll(a.moreAttrsToGet(profile, provision)));
 
-            Stream<Item> mapItems = Stream.concat(
-                    MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.findByResourceAndAnyType(task.getResource().getKey(), anyType.getKey()).stream().
-                            map(VirSchema::asLinkingMappingItem));
-
             connector.filteredReconciliation(
                     new ObjectClass(provision.getObjectClass()),
                     reconFilterBuilder,
                     dispatcher,
-                    MappingUtils.buildOperationOptions(mapItems, matg.toArray(String[]::new)));
+                    MappingUtils.buildOperationOptions(
+                            MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
+                            matg.toArray(String[]::new)));
 
             try {
                 setGroupOwners();

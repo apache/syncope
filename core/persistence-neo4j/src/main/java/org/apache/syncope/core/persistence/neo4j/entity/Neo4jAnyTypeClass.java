@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
@@ -38,16 +37,11 @@ public class Neo4jAnyTypeClass extends AbstractProvidedKeyNode implements AnyTyp
 
     public static final String ANY_TYPE_CLASS_DER_REL = "ANY_TYPE_CLASS_DER";
 
-    public static final String ANY_TYPE_CLASS_VIR_REL = "ANY_TYPE_CLASS_VIR";
-
     @Relationship(type = ANY_TYPE_CLASS_PLAIN_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jPlainSchema> plainSchemas = new ArrayList<>();
 
     @Relationship(type = ANY_TYPE_CLASS_DER_REL, direction = Relationship.Direction.INCOMING)
     private List<Neo4jDerSchema> derSchemas = new ArrayList<>();
-
-    @Relationship(type = ANY_TYPE_CLASS_VIR_REL, direction = Relationship.Direction.INCOMING)
-    private List<Neo4jVirSchema> virSchemas = new ArrayList<>();
 
     @Override
     public boolean add(final PlainSchema schema) {
@@ -69,16 +63,5 @@ public class Neo4jAnyTypeClass extends AbstractProvidedKeyNode implements AnyTyp
     @Override
     public List<? extends DerSchema> getDerSchemas() {
         return derSchemas;
-    }
-
-    @Override
-    public boolean add(final VirSchema schema) {
-        checkType(schema, Neo4jVirSchema.class);
-        return this.virSchemas.add((Neo4jVirSchema) schema);
-    }
-
-    @Override
-    public List<? extends VirSchema> getVirSchemas() {
-        return virSchemas;
     }
 }

@@ -32,17 +32,11 @@ public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A
 
     private final List<String> whichDerAttrs = new ArrayList<>();
 
-    private final List<String> whichVirAttrs = new ArrayList<>();
-
     public List<String> getWhichPlainAttrs() {
         return whichPlainAttrs;
     }
 
     public List<String> getWhichDerAttrs() {
         return whichDerAttrs;
-    }
-
-    public List<String> getWhichVirAttrs() {
-        return whichVirAttrs;
     }
 }

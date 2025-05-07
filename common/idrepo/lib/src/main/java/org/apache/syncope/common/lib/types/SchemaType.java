@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib.types;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 
 public enum SchemaType {
 
@@ -32,11 +31,7 @@ public enum SchemaType {
     /**
      * Derived schema calculated based on other attributes.
      */
-    DERIVED(DerSchemaTO.class),
-    /**
-     * Virtual schema for attributes fetched from remote resources only.
-     */
-    VIRTUAL(VirSchemaTO.class);
+    DERIVED(DerSchemaTO.class);
 
     private final Class<? extends SchemaTO> toClass;
 
@@ -55,8 +50,6 @@ public enum SchemaType {
             schemaType = SchemaType.PLAIN;
         } else if (DerSchemaTO.class.equals(toClass)) {
             schemaType = SchemaType.DERIVED;
-        } else if (VirSchemaTO.class.equals(toClass)) {
-            schemaType = SchemaType.VIRTUAL;
         } else {
             throw new IllegalArgumentException("Unexpected class: " + toClass.getName());
         }

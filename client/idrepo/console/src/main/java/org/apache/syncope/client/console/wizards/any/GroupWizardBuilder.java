@@ -101,7 +101,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             result = groupRestClient.create(req);
         } else {
             GroupTO original = getOriginalItem().getInnerObject();
-            fixPlainAndVirAttrs(updated, original);
+            fixPlainAttrs(updated, original);
 
             // SYNCOPE-1170
             boolean othersNotEqualsOrBlanks =

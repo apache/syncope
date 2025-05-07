@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.upgrade;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
@@ -98,20 +99,36 @@ public class GenerateUpgradeSQL {
         return result.toString();
     }
 
-    private String resources() {
+    private String resources() throws JsonProcessingException {
         StringBuilder result = new StringBuilder();
 
         result.append("ALTER TABLE ExternalResource DROP COLUMN overridecapabilities;\n");
 
+        List<Map<String, Object>> resources = jdbcTemplate.queryForList(
+                "SELECT id, provisions FROM ExternalResource WHERE provisions IS NOT NULL");
+        for (Map<String, Object> resource : resources) {
+            JsonNode provisions = MAPPER.readTree(resource.get("provisions").toString());
+            for (JsonNode provision : provisions) {
+                if (provision.has("virSchemas")) {
+                    ((ObjectNode) provision).remove("virSchemas");
+                }
+                if (provision.has("mapping") && provision.get("mapping").has("linkingItems")) {
+                    ((ObjectNode) provision.get("mapping")).remove("linkingItems");
+                }
+            }
+
+            result.append(String.format(
+                    "UPDATE ExternalResource SET provisions='%s' WHERE id='%s';\n",
+                    MAPPER.writeValueAsString(provisions).replace("'", "&#39;"),
+                    resource.get("id").toString()));
+        }
+
         List<Map<String, Object>> accountPolicyResources = jdbcTemplate.queryForList(
                 "SELECT accountpolicy_id, resource_id FROM AccountPolicy_ExternalResource");
-
-        accountPolicyResources.forEach(acp -> {
-            result.append(String.format(
-                    "UPDATE ExternalResource SET accountPolicy_id='%s' WHERE id='%s';\n",
-                    acp.get("accountpolicy_id").toString(),
-                    acp.get("resource_id").toString()));
-        });
+        accountPolicyResources.forEach(acp -> result.append(String.format(
+                "UPDATE ExternalResource SET accountPolicy_id='%s' WHERE id='%s';\n",
+                acp.get("accountpolicy_id").toString(),
+                acp.get("resource_id").toString())));
 
         result.append("DROP TABLE AccountPolicy_ExternalResource;\n");
 

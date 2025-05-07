@@ -211,7 +211,6 @@ public class SCIMDataBinder {
         Map<String, Attr> attrs = new HashMap<>();
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getDerAttrs()));
-        attrs.putAll(EntityTOUtils.buildAttrMap(userTO.getVirAttrs()));
         attrs.put("username", new Attr.Builder("username").value(userTO.getUsername()).build());
 
         if (conf.getUserConf() != null) {
@@ -358,7 +357,7 @@ public class SCIMDataBinder {
             if (output(attributes, excludedAttributes, "x509Certificates")) {
                 conf.getUserConf().getX509Certificates().stream().filter(attrs::containsKey).
                         forEach(cert -> user.getX509Certificates().add(
-                            new Value(attrs.get(cert).getValues().getFirst())));
+                        new Value(attrs.get(cert).getValues().getFirst())));
             }
         }
 
@@ -420,10 +419,6 @@ public class SCIMDataBinder {
                                     conf.getEnterpriseUserConf().getManager().getDisplayName()).orElse(null);
                             if (displayName == null) {
                                 displayName = userManager.getDerAttr(
-                                        conf.getEnterpriseUserConf().getManager().getDisplayName()).orElse(null);
-                            }
-                            if (displayName == null) {
-                                displayName = userManager.getVirAttr(
                                         conf.getEnterpriseUserConf().getManager().getDisplayName()).orElse(null);
                             }
                             if (displayName != null) {
@@ -825,7 +820,8 @@ public class SCIMDataBinder {
         }
 
         switch (op.getPath().getAttribute()) {
-            case "externalId" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getExternalId(), op);
+            case "externalId" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getExternalId(), op);
 
             case "userName" -> {
                 if (op.getOp() != PatchOp.remove && !CollectionUtils.isEmpty(op.getValue())) {
@@ -851,8 +847,8 @@ public class SCIMDataBinder {
 
                     statusR = new StatusR.Builder(before.getKey(),
                             (boolean) op.getValue().getFirst()
-                                ? StatusRType.REACTIVATE
-                                : StatusRType.SUSPEND).resources(resources).build();
+                            ? StatusRType.REACTIVATE
+                            : StatusRType.SUSPEND).resources(resources).build();
                 }
             }
 
@@ -879,22 +875,29 @@ public class SCIMDataBinder {
                 }
             }
 
-            case "displayName" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getDisplayName(), op);
+            case "displayName" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getDisplayName(), op);
 
-            case "nickName" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getNickName(), op);
+            case "nickName" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getNickName(), op);
 
-            case "profileUrl" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getProfileUrl(), op);
+            case "profileUrl" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getProfileUrl(), op);
 
-            case "title" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getTitle(), op);
+            case "title" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getTitle(), op);
 
-            case "userType" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getUserType(), op);
+            case "userType" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getUserType(), op);
 
             case "preferredLanguage" ->
-                    setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPreferredLanguage(), op);
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getPreferredLanguage(), op);
 
-            case "locale" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getLocale(), op);
+            case "locale" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getLocale(), op);
 
-            case "timezone" -> setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getTimezone(), op);
+            case "timezone" ->
+                setAttribute(userUR.getPlainAttrs(), conf.getUserConf().getTimezone(), op);
 
             case "emails" -> {
                 if (!CollectionUtils.isEmpty(op.getValue()) && op.getValue().getFirst() instanceof SCIMUser) {
@@ -934,48 +937,54 @@ public class SCIMDataBinder {
 
             case "addresses" -> {
                 if (!CollectionUtils.isEmpty(op.getValue())
-                    && op.getValue().getFirst() instanceof final SCIMUser after) {
+                        && op.getValue().getFirst() instanceof final SCIMUser after) {
                     after.getAddresses().stream().filter(address -> address.getType() != null).forEach(
                             address -> conf.getUserConf().getAddresses().stream()
                                     .filter(object -> address.getType().equals(object.getType().name())).findFirst()
                                     .ifPresent(addressConf -> setAttribute(userUR.getPlainAttrs(), addressConf, op)));
                 } else if (op.getPath().getFilter() != null) {
                     conf.getUserConf().getAddresses().stream().filter(addressConf -> BooleanUtils.toBoolean(
-                                    JexlUtils.evaluateExpr(filter2JexlExpression(op.getPath().getFilter()),
-                                            new MapContext(Map.of("type", addressConf.getType().name()))).toString()))
+                            JexlUtils.evaluateExpr(filter2JexlExpression(op.getPath().getFilter()),
+                                    new MapContext(Map.of("type", addressConf.getType().name()))).toString()))
                             .findFirst()
                             .ifPresent(addressConf -> setAttribute(userUR.getPlainAttrs(), addressConf, op));
                 }
             }
 
-            case "employeeNumber" -> setAttribute(userUR.getPlainAttrs(),
-                    Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getEmployeeNumber)
-                            .orElse(null), op);
+            case "employeeNumber" ->
+                setAttribute(userUR.getPlainAttrs(),
+                        Optional.ofNullable(conf.getEnterpriseUserConf()).
+                                map(SCIMEnterpriseUserConf::getEmployeeNumber).orElse(null), op);
 
-            case "costCenter" -> setAttribute(userUR.getPlainAttrs(),
-                    Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getCostCenter)
-                            .orElse(null), op);
+            case "costCenter" ->
+                setAttribute(userUR.getPlainAttrs(),
+                        Optional.ofNullable(conf.getEnterpriseUserConf()).
+                                map(SCIMEnterpriseUserConf::getCostCenter).orElse(null), op);
 
-            case "organization" -> setAttribute(userUR.getPlainAttrs(),
-                    Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getOrganization)
-                            .orElse(null), op);
+            case "organization" ->
+                setAttribute(userUR.getPlainAttrs(),
+                        Optional.ofNullable(conf.getEnterpriseUserConf()).
+                                map(SCIMEnterpriseUserConf::getOrganization).orElse(null), op);
 
-            case "division" -> setAttribute(userUR.getPlainAttrs(),
-                    Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getDivision)
-                            .orElse(null), op);
+            case "division" ->
+                setAttribute(userUR.getPlainAttrs(),
+                        Optional.ofNullable(conf.getEnterpriseUserConf()).
+                                map(SCIMEnterpriseUserConf::getDivision).orElse(null), op);
 
-            case "department" -> setAttribute(userUR.getPlainAttrs(),
-                    Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getDepartment)
-                            .orElse(null), op);
+            case "department" ->
+                setAttribute(userUR.getPlainAttrs(),
+                        Optional.ofNullable(conf.getEnterpriseUserConf()).
+                                map(SCIMEnterpriseUserConf::getDepartment).orElse(null), op);
 
-            case "manager" -> setAttribute(userUR.getPlainAttrs(),
-                    Optional.ofNullable(conf.getEnterpriseUserConf()).map(SCIMEnterpriseUserConf::getManager)
-                            .map(SCIMManagerConf::getKey).orElse(null), op);
+            case "manager" ->
+                setAttribute(userUR.getPlainAttrs(),
+                        Optional.ofNullable(conf.getEnterpriseUserConf()).
+                                map(SCIMEnterpriseUserConf::getManager).map(SCIMManagerConf::getKey).orElse(null), op);
 
             default -> {
-                Optional.ofNullable(conf.getExtensionUserConf())
-                        .flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute())))
-                        .ifPresent(schema -> setAttribute(userUR.getPlainAttrs(), schema, op));
+                Optional.ofNullable(conf.getExtensionUserConf()).
+                        flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute()))).
+                        ifPresent(schema -> setAttribute(userUR.getPlainAttrs(), schema, op));
             }
         }
 
@@ -1003,7 +1012,6 @@ public class SCIMDataBinder {
         Map<String, Attr> attrs = new HashMap<>();
         attrs.putAll(EntityTOUtils.buildAttrMap(groupTO.getPlainAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(groupTO.getDerAttrs()));
-        attrs.putAll(EntityTOUtils.buildAttrMap(groupTO.getVirAttrs()));
 
         if (output(attributes, excludedAttributes, "externalId")
                 && conf.getGroupConf() != null

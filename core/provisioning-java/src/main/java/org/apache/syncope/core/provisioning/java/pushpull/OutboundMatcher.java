@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,22 +26,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PushCorrelationRuleEntity;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
@@ -68,10 +63,6 @@ public class OutboundMatcher {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
-    protected final VirAttrHandler virAttrHandler;
-
     protected final Map<String, PropagationActions> perContextActions = new ConcurrentHashMap<>();
 
     protected final Map<String, PushCorrelationRule> perContextPushCorrelationRules = new ConcurrentHashMap<>();
@@ -79,15 +70,11 @@ public class OutboundMatcher {
     public OutboundMatcher(
             final MappingManager mappingManager,
             final UserDAO userDAO,
-            final AnyUtilsFactory anyUtilsFactory,
-            final VirSchemaDAO virSchemaDAO,
-            final VirAttrHandler virAttrHandler) {
+            final AnyUtilsFactory anyUtilsFactory) {
 
         this.mappingManager = mappingManager;
         this.userDAO = userDAO;
         this.anyUtilsFactory = anyUtilsFactory;
-        this.virSchemaDAO = virSchemaDAO;
-        this.virAttrHandler = virAttrHandler;
     }
 
     protected Optional<PushCorrelationRule> rule(final ExternalResource resource, final Provision provision) {
@@ -149,8 +136,7 @@ public class OutboundMatcher {
                         rule.get().getFilter(any, taskInfo.getResource(), provision),
                         taskInfo.getResource(),
                         provision,
-                        Optional.of(moreAttrsToGet.toArray(String[]::new)),
-                        Optional.empty()));
+                        Optional.of(moreAttrsToGet.toArray(String[]::new))));
             } else {
                 MappingUtils.getConnObjectKeyItem(provision).flatMap(connObjectKeyItem -> matchByConnObjectKeyValue(
                         connector,
@@ -158,15 +144,10 @@ public class OutboundMatcher {
                         connObjectKeyValue,
                         taskInfo.getResource(),
                         provision,
-                        Optional.of(moreAttrsToGet.toArray(String[]::new)),
-                        Optional.empty())).ifPresent(result::add);
+                        Optional.of(moreAttrsToGet.toArray(String[]::new)))).ifPresent(result::add);
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
-        }
-
-        if (any != null && result.size() == 1) {
-            virAttrHandler.setValues(any, result.getFirst());
         }
 
         return result;
@@ -195,8 +176,7 @@ public class OutboundMatcher {
             final Any any,
             final ExternalResource resource,
             final Provision provision,
-            final Optional<String[]> moreAttrsToGet,
-            final Item... linkingItems) {
+            final Optional<String[]> moreAttrsToGet) {
 
         Stream<String> matgFromPropagationActions = getPropagationActions(resource).stream().
                 flatMap(a -> a.moreAttrsToGet(Optional.empty(), provision).stream());
@@ -214,9 +194,7 @@ public class OutboundMatcher {
                         rule.get().getFilter(any, resource, provision),
                         resource,
                         provision,
-                        effectiveMATG,
-                        ArrayUtils.isEmpty(linkingItems)
-                        ? Optional.empty() : Optional.of(List.of(linkingItems))));
+                        effectiveMATG));
             } else {
                 Optional<Item> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
                 Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, resource, provision);
@@ -228,17 +206,12 @@ public class OutboundMatcher {
                             connObjectKeyValue.get(),
                             resource,
                             provision,
-                            effectiveMATG,
-                            ArrayUtils.isEmpty(linkingItems) ? Optional.empty() : Optional.of(List.of(linkingItems))).
+                            effectiveMATG).
                             ifPresent(result::add);
                 }
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", any, provision.getObjectClass(), e);
-        }
-
-        if (any != null && result.size() == 1) {
-            virAttrHandler.setValues(any, result.getFirst());
         }
 
         return result;
@@ -249,15 +222,7 @@ public class OutboundMatcher {
             final Filter filter,
             final ExternalResource resource,
             final Provision provision,
-            final Optional<String[]> moreAttrsToGet,
-            final Optional<Collection<Item>> linkingItems) {
-
-        Stream<Item> items = Stream.concat(
-                provision.getMapping().getItems().stream(),
-                linkingItems.isPresent()
-                ? linkingItems.get().stream()
-                : virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).stream().
-                        map(VirSchema::asLinkingMappingItem));
+            final Optional<String[]> moreAttrsToGet) {
 
         List<ConnectorObject> objs = new ArrayList<>();
         try {
@@ -273,7 +238,8 @@ public class OutboundMatcher {
                     objs.add(connectorObject);
                     return true;
                 }
-            }, MappingUtils.buildOperationOptions(items, moreAttrsToGet.orElse(null)));
+            }, MappingUtils.buildOperationOptions(
+                    provision.getMapping().getItems().stream(), moreAttrsToGet.orElse(null)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -291,14 +257,7 @@ public class OutboundMatcher {
             final String connObjectKeyValue,
             final ExternalResource resource,
             final Provision provision,
-            final Optional<String[]> moreAttrsToGet,
-            final Optional<Collection<Item>> linkingItems) {
-
-        Stream<Item> items = Stream.concat(
-                provision.getMapping().getItems().stream(),
-                linkingItems.map(Collection::stream).
-                        orElseGet(() -> virSchemaDAO.findByResourceAndAnyType(
-                        resource.getKey(), provision.getAnyType()).stream().map(VirSchema::asLinkingMappingItem)));
+            final Optional<String[]> moreAttrsToGet) {
 
         ConnectorObject obj = null;
         try {
@@ -306,7 +265,8 @@ public class OutboundMatcher {
                     new ObjectClass(provision.getObjectClass()),
                     AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                     provision.isIgnoreCaseMatch(),
-                    MappingUtils.buildOperationOptions(items, moreAttrsToGet.orElse(null)));
+                    MappingUtils.buildOperationOptions(
+                            provision.getMapping().getItems().stream(), moreAttrsToGet.orElse(null)));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

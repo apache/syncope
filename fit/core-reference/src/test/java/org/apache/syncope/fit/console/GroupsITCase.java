@@ -209,10 +209,6 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
         formTester.submit("buttons:finish");
 
         assertSuccessMessage();

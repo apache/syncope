@@ -58,7 +58,6 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.policy.PolicyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
@@ -418,12 +417,11 @@ public class IdRepoLogicContext {
     public SchemaLogic schemaLogic(
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final SchemaDataBinder binder) {
 
-        return new SchemaLogic(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeClassDAO, implementationDAO, binder);
+        return new SchemaLogic(plainSchemaDAO, derSchemaDAO, anyTypeClassDAO, implementationDAO, binder);
     }
 
     @ConditionalOnMissingBean

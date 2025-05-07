@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -65,7 +64,6 @@ import org.apache.syncope.core.persistence.api.search.SearchCondVisitor;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -86,8 +84,6 @@ public class DefaultNotificationManager implements NotificationManager {
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final NotificationDAO notificationDAO;
 
     protected final AnyObjectDAO anyObjectDAO;
@@ -103,8 +99,6 @@ public class DefaultNotificationManager implements NotificationManager {
     protected final TaskDAO taskDAO;
 
     protected final DerAttrHandler derAttrHandler;
-
-    protected final VirAttrHandler virAttrHandler;
 
     protected final UserDataBinder userDataBinder;
 
@@ -124,7 +118,6 @@ public class DefaultNotificationManager implements NotificationManager {
 
     public DefaultNotificationManager(
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final NotificationDAO notificationDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -133,7 +126,6 @@ public class DefaultNotificationManager implements NotificationManager {
             final AnyMatchDAO anyMatchDAO,
             final TaskDAO taskDAO,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final UserDataBinder userDataBinder,
             final GroupDataBinder groupDataBinder,
             final AnyObjectDataBinder anyObjectDataBinder,
@@ -143,7 +135,6 @@ public class DefaultNotificationManager implements NotificationManager {
             final SearchCondVisitor searchCondVisitor) {
 
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.notificationDAO = notificationDAO;
         this.anyObjectDAO = anyObjectDAO;
         this.userDAO = userDAO;
@@ -152,7 +143,6 @@ public class DefaultNotificationManager implements NotificationManager {
         this.anyMatchDAO = anyMatchDAO;
         this.taskDAO = taskDAO;
         this.derAttrHandler = derAttrHandler;
-        this.virAttrHandler = virAttrHandler;
         this.userDataBinder = userDataBinder;
         this.groupDataBinder = groupDataBinder;
         this.anyObjectDataBinder = anyObjectDataBinder;
@@ -184,8 +174,6 @@ public class DefaultNotificationManager implements NotificationManager {
         jexlVars.put("syncopeConf", confParamOps.list(SyncopeConstants.MASTER_DOMAIN));
         jexlVars.put("events", notification.getEvents());
 
-        Optional.ofNullable(any).ifPresent(virAttrHandler::getValues);
-
         List<User> recipients = new ArrayList<>();
 
         Optional.ofNullable(notification.getRecipientsFIQL()).
@@ -198,18 +186,14 @@ public class DefaultNotificationManager implements NotificationManager {
 
         Set<String> recipientEmails = new HashSet<>();
         List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
-        recipients.forEach(recipient -> {
-            virAttrHandler.getValues(recipient);
-
-            Optional.ofNullable(getRecipientEmail(notification.getRecipientAttrName(), recipient)).
-                    ifPresentOrElse(
-                            email -> {
-                                recipientEmails.add(email);
-                                recipientTOs.add(userDataBinder.getUserTO(recipient, true));
-                            },
-                            () -> LOG.warn("{} cannot be notified: {} not found",
-                                    recipient, notification.getRecipientAttrName()));
-        });
+        recipients.forEach(recipient -> Optional.ofNullable(
+                getRecipientEmail(notification.getRecipientAttrName(), recipient)).ifPresentOrElse(
+                email -> {
+                    recipientEmails.add(email);
+                    recipientTOs.add(userDataBinder.getUserTO(recipient, true));
+                },
+                () -> LOG.warn("{} cannot be notified: {} not found",
+                        recipient, notification.getRecipientAttrName())));
         jexlVars.put("recipients", recipientTOs);
 
         Optional.ofNullable(notification.getStaticRecipients()).ifPresent(recipientEmails::addAll);
@@ -416,17 +400,6 @@ public class DefaultNotificationManager implements NotificationManager {
                             map(derSchema -> membership == null
                             ? derAttrHandler.getValue(user, derSchema)
                             : derAttrHandler.getValue(user, membership, derSchema)).
-                            orElse(null);
-                }
-
-                case VIRTUAL -> {
-                    email = virSchemaDAO.findById(recipientAttrName).
-                            map(virSchema -> {
-                                List<String> virAttrValues = membership == null
-                                        ? virAttrHandler.getValues(user, virSchema)
-                                        : virAttrHandler.getValues(user, membership, virSchema);
-                                return virAttrValues.isEmpty() ? null : virAttrValues.getFirst();
-                            }).
                             orElse(null);
                 }
 

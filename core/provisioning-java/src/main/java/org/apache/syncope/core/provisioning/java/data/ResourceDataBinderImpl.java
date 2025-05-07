@@ -44,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -53,7 +52,6 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -78,8 +76,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     protected final PolicyDAO policyDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final AnyTypeClassDAO anyTypeClassDAO;
 
     protected final ImplementationDAO implementationDAO;
@@ -96,7 +92,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             final AnyTypeDAO anyTypeDAO,
             final ConnInstanceDAO connInstanceDAO,
             final PolicyDAO policyDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final PlainSchemaDAO plainSchemaDAO,
@@ -107,7 +102,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         this.anyTypeDAO = anyTypeDAO;
         this.connInstanceDAO = connInstanceDAO;
         this.policyDAO = policyDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.implementationDAO = implementationDAO;
         this.plainSchemaDAO = plainSchemaDAO;
@@ -146,12 +140,12 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 LOG.debug("Invalid {} specified {}, ignoring...",
                         AnyType.class.getSimpleName(), provisionTO.getAnyType());
             } else {
-                Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElse(null);
-                if (provision == null) {
-                    provision = new Provision();
-                    provision.setAnyType(anyType.getKey());
-                    resource.getProvisions().add(provision);
-                }
+                Provision provision = resource.getProvisionByAnyType(anyType.getKey()).orElseGet(() -> {
+                    Provision p = new Provision();
+                    p.setAnyType(anyType.getKey());
+                    resource.getProvisions().add(p);
+                    return p;
+                });
 
                 if (provisionTO.getObjectClass() == null) {
                     SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidProvision);
@@ -209,8 +203,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                 map(PlainSchema::getKey).toList());
                         allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
                                 map(DerSchema::getKey).toList());
-                        allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
-                                map(VirSchema::getKey).toList());
                     });
 
                     populateMapping(
@@ -220,16 +212,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             anyType.getKind(),
                             allowedSchemas);
                 }
-
-                if (provisionTO.getVirSchemas().isEmpty()) {
-                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).
-                            forEach(virSchemaDAO::delete);
-                } else {
-                    provisionTO.getVirSchemas().forEach(schemaName -> virSchemaDAO.findById(schemaName).ifPresentOrElse(
-                            schema -> schema.setResource(resource),
-                            () -> LOG.debug("Invalid {} specified: {}, ignoring...",
-                                    VirSchema.class.getSimpleName(), schemaName)));
-                }
             }
         });
 
@@ -237,9 +219,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         for (Iterator<Provision> itor = resource.getProvisions().iterator(); itor.hasNext();) {
             Provision provision = itor.next();
             if (resourceTO.getProvision(provision.getAnyType()).isEmpty()) {
-                virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).
-                        forEach(virSchemaDAO::delete);
-
                 itor.remove();
             }
         }
@@ -433,10 +412,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                 allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchema().getKey());
                                 break;
 
-                            case VIRTUAL:
-                                allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchema().getKey());
-                                break;
-
                             default:
                         }
                     }
@@ -471,10 +446,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                                 removeIf(implementation -> !itemTO.getTransformers().contains(implementation));
 
                         if (item.isConnObjectKey()) {
-                            if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                                invalidMapping.getElements().
-                                        add("Virtual attributes cannot be set as ConnObjectKey");
-                            }
                             if ("password".equals(intAttrName.getField())) {
                                 invalidMapping.getElements().add(
                                         "Password attributes cannot be set as ConnObjectKey");
@@ -504,18 +475,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                             invalidMapping.getElements().add(
                                     "Only " + MappingPurpose.PROPAGATION.name() + " allowed for derived");
-                        }
-                        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
-                                invalidMapping.getElements().add(
-                                        "Only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual");
-                            }
-
-                            VirSchema schema = virSchemaDAO.findById(item.getIntAttrName()).orElse(null);
-                            if (schema != null && schema.getResource().equals(resource)) {
-                                invalidMapping.getElements().add(
-                                        "No need to map virtual schema on linking resource");
-                            }
                         }
                         if (intAttrName.getRelatedUser() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
@@ -602,12 +561,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
             resourceTO.getProvisions().add(provisionTO);
         });
-        resourceTO.getProvisions().
-                forEach(provision -> virSchemaDAO.findByResourceAndAnyType(resource.getKey(), provision.getAnyType()).
-                forEach(virSchema -> {
-                    provision.getVirSchemas().add(virSchema.getKey());
-                    provision.getMapping().getLinkingItems().add(virSchema.asLinkingMappingItem());
-                }));
 
         if (resource.getOrgUnit() != null) {
             OrgUnit orgUnit = resource.getOrgUnit();

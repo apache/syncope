@@ -44,7 +44,6 @@ import org.apache.syncope.client.console.commons.ExternalResourceProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
-import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.lib.AuthenticationHandler;
@@ -150,7 +149,6 @@ public abstract class AbstractTest {
                 final AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider,
                 final AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps,
                 final StatusProvider statusProvider,
-                final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
                 final ImplementationInfoProvider implementationInfoProvider,
                 final AccessPolicyConfProvider accessPolicyConfProvider,
                 final List<PolicyTabProvider> policyTabProviders,
@@ -159,8 +157,8 @@ public abstract class AbstractTest {
 
             super(props, lookup, serviceOps, resourceProvider, anyDirectoryPanelAdditionalActionsProvider,
                     anyDirectoryPanelAdditionalActionLinksProvider, anyWizardBuilderAdditionalSteps, statusProvider,
-                    virSchemaDetailsPanelProvider, implementationInfoProvider, accessPolicyConfProvider,
-                    policyTabProviders, userFormFinalizers, resources);
+                    implementationInfoProvider, accessPolicyConfProvider, policyTabProviders, userFormFinalizers,
+                    resources);
         }
 
         public interface SyncopeServiceClient extends SyncopeService, Client {
@@ -250,8 +248,6 @@ public abstract class AbstractTest {
                         NumbersInfo.ConfItem.NOTIFICATION.name(), false);
                 numbersInfo.getConfCompleteness().put(
                         NumbersInfo.ConfItem.PULL_TASK.name(), false);
-                numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.VIR_SCHEMA.name(), false);
                 numbersInfo.getConfCompleteness().put(
                         NumbersInfo.ConfItem.ANY_TYPE.name(), false);
                 numbersInfo.getConfCompleteness().put(

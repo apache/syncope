@@ -67,7 +67,6 @@ public final class EntityTOUtils {
         anyCR.setRealm(anyTO.getRealm());
         anyCR.getAuxClasses().addAll(anyTO.getAuxClasses());
         anyCR.getPlainAttrs().addAll(anyTO.getPlainAttrs());
-        anyCR.getVirAttrs().addAll(anyTO.getVirAttrs());
         anyCR.getResources().addAll(anyTO.getResources());
 
         if (anyCR instanceof final UserCR userCR && anyTO instanceof final UserTO userTO) {
@@ -101,7 +100,6 @@ public final class EntityTOUtils {
         anyTO.setRealm(anyCR.getRealm());
         anyTO.getAuxClasses().addAll(anyCR.getAuxClasses());
         anyTO.getPlainAttrs().addAll(anyCR.getPlainAttrs());
-        anyTO.getVirAttrs().addAll(anyCR.getVirAttrs());
         anyTO.getResources().addAll(anyCR.getResources());
 
         if (anyTO instanceof final UserTO userTO && anyCR instanceof final UserCR userCR) {

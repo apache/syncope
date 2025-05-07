@@ -27,7 +27,6 @@ import org.apache.syncope.client.enduser.panels.any.Details;
 import org.apache.syncope.client.enduser.panels.any.Groups;
 import org.apache.syncope.client.enduser.panels.any.PlainAttrs;
 import org.apache.syncope.client.enduser.panels.any.Resources;
-import org.apache.syncope.client.enduser.panels.any.VirAttrs;
 import org.apache.syncope.client.enduser.panels.captcha.CaptchaPanel;
 import org.apache.syncope.client.ui.commons.panels.CardPanel;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
@@ -109,16 +108,7 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
         form.add(new CardPanel.Builder<DerAttrs>()
                 .setName("attributes.derived")
                 .setComponent(derAttrs)
-                .isVisible(formLayoutInfo.isVirAttrs() && derAttrs.isPanelVisible()).build("derAttrsPanelCard"));
-
-        VirAttrs virAttrs = new VirAttrs(EnduserConstants.CONTENT_PANEL,
-                modelObject, anyTypeClasses, formLayoutInfo.getWhichVirAttrs());
-        virAttrs.setOutputMarkupId(true);
-
-        form.add(new CardPanel.Builder<VirAttrs>()
-                .setName("attributes.virtual")
-                .setComponent(virAttrs)
-                .isVisible(formLayoutInfo.isVirAttrs() && virAttrs.isPanelVisible()).build("virAttrsPanelCard"));
+                .isVisible(formLayoutInfo.isDerAttrs() && derAttrs.isPanelVisible()).build("derAttrsPanelCard"));
 
         Resources resources = new Resources(EnduserConstants.CONTENT_PANEL, modelObject);
         resources.setOutputMarkupId(true);
@@ -138,47 +128,28 @@ public abstract class AnyFormPanel extends AbstractAnyFormPanel<UserWrapper> {
                 .isVisible(SyncopeWebApplication.get().isCaptchaEnabled()).build("captchaPanelCard"));
     }
 
-    protected void fixPlainAndVirAttrs(final AnyTO updated, final AnyTO original) {
-        // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
-        // form layout, which might have not included some plain or virtual attributes
+    protected void fixPlainAttrs(final AnyTO updated, final AnyTO original) {
+        // re-add to the updated object any missing plain attribute (compared to original): this to cope with
+        // form layout, which might have not included some plain attributes
         for (Attr plainAttr : original.getPlainAttrs()) {
             if (updated.getPlainAttr(plainAttr.getSchema()).isEmpty()) {
                 updated.getPlainAttrs().add(plainAttr);
             }
         }
-        for (Attr virAttr : original.getVirAttrs()) {
-            if (updated.getVirAttr(virAttr.getSchema()).isEmpty()) {
-                updated.getVirAttrs().add(virAttr);
-            }
+
+        if (updated instanceof GroupableRelatableTO updatedTO && original instanceof GroupableRelatableTO originalTO) {
+            originalTO.getMemberships().forEach(oMemb -> updatedTO.getMembership(oMemb.getGroupKey()).
+                    ifPresent(uMemb -> oMemb.getPlainAttrs().stream().
+                    filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
+                    forEach(attr -> uMemb.getPlainAttrs().add(attr))));
         }
 
-        if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class
-                    .cast(original).getMemberships().forEach(oMemb -> {
-                GroupableRelatableTO.class
-                        .cast(updated).getMembership(oMemb.getGroupKey()).ifPresent(uMemb -> {
-                    oMemb.getPlainAttrs()
-                            .stream().
-                            filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isEmpty()).
-                            forEach(attr -> uMemb.getPlainAttrs().add(attr));
-                    oMemb.getVirAttrs()
-                            .stream().
-                            filter(attr -> uMemb.getVirAttr(attr.getSchema()).isEmpty()).
-                            forEach(attr -> uMemb.getVirAttrs().add(attr));
-                }
-                );
-            });
-        }
-
-        // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in
+        // remove from the updated object any plain attribute without values, thus triggering for removal in
         // the generated patch
         updated.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
-        updated.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
-        if (updated instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class.cast(updated).getMemberships().forEach(memb -> {
-                memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
-                memb.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
-            });
+        if (updated instanceof GroupableRelatableTO updatedTO) {
+            updatedTO.getMemberships().
+                    forEach(memb -> memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty()));
         }
     }
 }

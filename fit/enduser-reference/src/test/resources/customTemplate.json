@@ -68,9 +68,6 @@
               "derivedSchemas": {
                 "url": "/derivedSchemas"
               },
-              "virtualSchemas": {
-                "url": "/virtualSchemas"
-              },
               "resources": {
                 "url": "/resources"
               },

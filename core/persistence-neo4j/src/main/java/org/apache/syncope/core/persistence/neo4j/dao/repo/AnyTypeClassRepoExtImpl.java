@@ -26,12 +26,10 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.neo4j.dao.AbstractDAO;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
@@ -40,7 +38,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jExternalResource;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
@@ -54,8 +51,6 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
     protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final DerSchemaDAO derSchemaDAO;
-
-    protected final VirSchemaDAO virSchemaDAO;
 
     protected final GroupDAO groupDAO;
 
@@ -73,7 +68,6 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
             final AnyTypeDAO anyTypeDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final GroupDAO groupDAO,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
@@ -88,7 +82,6 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
         this.anyTypeDAO = anyTypeDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.groupDAO = groupDAO;
         this.resourceDAO = resourceDAO;
         this.nodeValidator = nodeValidator;
@@ -121,13 +114,6 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
                     schema.getKey(),
                     anyTypeClass.getKey(),
                     Neo4jAnyTypeClass.ANY_TYPE_CLASS_DER_REL));
-            before.getVirSchemas().stream().filter(schema -> !anyTypeClass.getVirSchemas().contains(schema)).
-                    forEach(schema -> deleteRelationship(
-                    Neo4jVirSchema.NODE,
-                    Neo4jAnyTypeClass.NODE,
-                    schema.getKey(),
-                    anyTypeClass.getKey(),
-                    Neo4jAnyTypeClass.ANY_TYPE_CLASS_VIR_REL));
         });
 
         AnyTypeClass merged = neo4jTemplate.save(nodeValidator.validate(anyTypeClass));
@@ -139,10 +125,6 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
         for (DerSchema schema : merged.getDerSchemas()) {
             schema.setAnyTypeClass(merged);
             derSchemaDAO.save(schema);
-        }
-        for (VirSchema schema : merged.getVirSchemas()) {
-            schema.setAnyTypeClass(merged);
-            virSchemaDAO.save(schema);
         }
 
         for (AnyType anyType : anyTypeDAO.findByClassesContaining(merged)) {
@@ -169,10 +151,6 @@ public class AnyTypeClassRepoExtImpl extends AbstractDAO implements AnyTypeClass
         for (DerSchema schema : derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
             derSchemaDAO.save(schema);
-        }
-        for (VirSchema schema : virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
-            schema.setAnyTypeClass(null);
-            virSchemaDAO.save(schema);
         }
 
         for (AnyType anyType : anyTypeDAO.findByClassesContaining(anyTypeClass)) {

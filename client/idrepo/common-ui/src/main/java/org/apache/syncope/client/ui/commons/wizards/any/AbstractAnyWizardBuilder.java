@@ -31,37 +31,26 @@ public abstract class AbstractAnyWizardBuilder<A extends AnyTO> extends AjaxWiza
         super(defaultItem, pageRef);
     }
 
-    protected void fixPlainAndVirAttrs(final AnyTO updated, final AnyTO original) {
-        // re-add to the updated object any missing plain or virtual attribute (compared to original): this to cope with
-        // form layout, which might have not included some plain or virtual attributes
+    protected void fixPlainAttrs(final AnyTO updated, final AnyTO original) {
+        // re-add to the updated object any missing plain attribute (compared to original): this to cope with
+        // form layout, which might have not included some plain attributes
         original.getPlainAttrs().stream().
                 filter(attr -> updated.getPlainAttr(attr.getSchema()).isPresent()).
                 forEach(attr -> updated.getPlainAttrs().add(attr));
-        original.getVirAttrs().stream().
-                filter(attr -> updated.getVirAttr(attr.getSchema()).isPresent()).
-                forEach(attr -> updated.getVirAttrs().add(attr));
-        if (updated instanceof GroupableRelatableTO && original instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class.cast(original).getMemberships()
-                    .forEach(oMemb -> GroupableRelatableTO.class.cast(updated).getMembership(oMemb.getGroupKey())
-                    .ifPresent(uMemb -> {
-                        oMemb.getPlainAttrs().stream().
-                                filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isPresent()).
-                                forEach(attr -> uMemb.getPlainAttrs().add(attr));
-                        oMemb.getVirAttrs().stream().
-                                filter(attr -> uMemb.getVirAttr(attr.getSchema()).isPresent()).
-                                forEach(attr -> uMemb.getVirAttrs().add(attr));
-                    }));
+        if (updated instanceof GroupableRelatableTO updatedTO && original instanceof GroupableRelatableTO originalTO) {
+            originalTO.getMemberships().
+                    forEach(oMemb -> updatedTO.getMembership(oMemb.getGroupKey()).
+                    ifPresent(uMemb -> oMemb.getPlainAttrs().stream().
+                    filter(attr -> uMemb.getPlainAttr(attr.getSchema()).isPresent()).
+                    forEach(attr -> uMemb.getPlainAttrs().add(attr))));
         }
 
-        // remove from the updated object any plain or virtual attribute without values, thus triggering for removal in
+        // remove from the updated object any plain attribute without values, thus triggering for removal in
         // the generated patch
         updated.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
-        updated.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
-        if (updated instanceof GroupableRelatableTO) {
-            GroupableRelatableTO.class.cast(updated).getMemberships().forEach(memb -> {
-                memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty());
-                memb.getVirAttrs().removeIf(attr -> attr.getValues().isEmpty());
-            });
+        if (updated instanceof GroupableRelatableTO updatedTO) {
+            updatedTO.getMemberships().
+                    forEach(memb -> memb.getPlainAttrs().removeIf(attr -> attr.getValues().isEmpty()));
         }
     }
 }

@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.BaseBean;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
@@ -102,24 +101,6 @@ public abstract class AnyUR implements BaseBean {
         }
 
         @SuppressWarnings("unchecked")
-        public B virAttr(final Attr virAttr) {
-            getInstance().getVirAttrs().add(virAttr);
-            return (B) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public B virAttrs(final Collection<Attr> virAttrs) {
-            getInstance().getVirAttrs().addAll(virAttrs);
-            return (B) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public B virAttrs(final Attr... virAttrs) {
-            getInstance().getVirAttrs().addAll(List.of(virAttrs));
-            return (B) this;
-        }
-
-        @SuppressWarnings("unchecked")
         public B resource(final StringPatchItem resource) {
             getInstance().getResources().add(resource);
             return (B) this;
@@ -153,8 +134,6 @@ public abstract class AnyUR implements BaseBean {
     private final Set<StringPatchItem> auxClasses = new HashSet<>();
 
     private final Set<AttrPatch> plainAttrs = new HashSet<>();
-
-    private final Set<Attr> virAttrs = new HashSet<>();
 
     private final Set<StringPatchItem> resources = new HashSet<>();
 
@@ -195,12 +174,6 @@ public abstract class AnyUR implements BaseBean {
         return plainAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "virAttrs")
-    @JacksonXmlProperty(localName = "virAttr")
-    public Set<Attr> getVirAttrs() {
-        return virAttrs;
-    }
-
     @JacksonXmlElementWrapper(localName = "resources")
     @JacksonXmlProperty(localName = "resource")
     public Set<StringPatchItem> getResources() {
@@ -214,7 +187,7 @@ public abstract class AnyUR implements BaseBean {
     public boolean isEmpty() {
         return realm == null
                 && auxClasses.isEmpty()
-                && plainAttrs.isEmpty() && virAttrs.isEmpty()
+                && plainAttrs.isEmpty()
                 && resources.isEmpty();
     }
 
@@ -226,7 +199,6 @@ public abstract class AnyUR implements BaseBean {
                 append(realm).
                 append(auxClasses).
                 append(plainAttrs).
-                append(virAttrs).
                 append(resources).
                 build();
     }
@@ -249,7 +221,6 @@ public abstract class AnyUR implements BaseBean {
                 append(realm, other.realm).
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
-                append(virAttrs, other.virAttrs).
                 append(resources, other.resources).
                 build();
     }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
-import javax.cache.Cache;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -45,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Remediation;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -59,12 +57,9 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
-import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
-import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
@@ -103,12 +98,6 @@ public abstract class AbstractPullResultHandler
 
     @Autowired
     protected RemediationDAO remediationDAO;
-
-    @Autowired
-    protected VirSchemaDAO virSchemaDAO;
-
-    @Autowired
-    protected Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -770,23 +759,6 @@ public abstract class AbstractPullResultHandler
                         // do nothing
                     }
                 } else {
-                    // update VirAttrCache
-                    virSchemaDAO.findByResourceAndAnyType(
-                            profile.getTask().getResource().getKey(),
-                            matches.getFirst().getAny().getType().getKey()).
-                            forEach(vs -> {
-                                Attribute attr = delta.getObject().getAttributeByName(vs.getExtAttrName());
-                                matches.forEach(match -> {
-                                    VirAttrCacheKey cacheKey = VirAttrCacheKey.of(
-                                            provision.getAnyType(), match.getAny().getKey(), vs.getKey());
-                                    if (attr == null) {
-                                        virAttrCache.remove(cacheKey);
-                                    } else {
-                                        virAttrCache.put(cacheKey, VirAttrCacheValue.of(attr.getValue()));
-                                    }
-                                });
-                            });
-
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             result = update(delta, matches, provision);
@@ -818,7 +790,7 @@ public abstract class AbstractPullResultHandler
             case DELETE:
                 // Skip DELETE in case of InboundCorrelationRule.NO_MATCH
                 result = matches.getFirst().getAny() == null
-                    ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
+                        ? OpEvent.Outcome.SUCCESS : delete(delta, matches, provision);
                 break;
 
             default:

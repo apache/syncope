@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -52,20 +51,16 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     protected final AnyObjectDAO anyObjectDAO;
 
-    protected final VirAttrHandler virtAttrHandler;
-
     public DefaultAnyObjectProvisioningManager(
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final AnyObjectDAO anyObjectDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final AnyObjectDAO anyObjectDAO) {
 
         this.awfAdapter = awfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.anyObjectDAO = anyObjectDAO;
-        this.virtAttrHandler = virtAttrHandler;
     }
 
     @Override
@@ -94,7 +89,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 created.getResult(),
                 null,
                 created.getPropByRes(),
-                anyObjectCR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, creator);
 
@@ -129,7 +123,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                         null,
                         updated.getPropByRes(),
                         null,
-                        anyObjectUR.getVirAttrs(),
                         excludedResources),
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
@@ -201,7 +194,6 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 List.of(),
                 null,
                 propByRes,
-                null,
                 null,
                 null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);

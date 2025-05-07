@@ -63,9 +63,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
             List.of(Constants.KEY_FIELD_NAME,
                     "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly"),
             SchemaType.DERIVED,
-            List.of(Constants.KEY_FIELD_NAME, "expression"),
-            SchemaType.VIRTUAL,
-            List.of(Constants.KEY_FIELD_NAME, "resource", "anyType", "extAttrName", "readonly"));
+            List.of(Constants.KEY_FIELD_NAME, "expression"));
 
     protected final SchemaType schemaType;
 

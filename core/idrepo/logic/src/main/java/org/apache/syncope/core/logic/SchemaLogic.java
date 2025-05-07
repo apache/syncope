@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.to.AttributableTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -45,12 +44,10 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -61,8 +58,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     protected final PlainSchemaDAO plainSchemaDAO;
 
     protected final DerSchemaDAO derSchemaDAO;
-
-    protected final VirSchemaDAO virSchemaDAO;
 
     protected final AnyTypeClassDAO anyTypeClassDAO;
 
@@ -75,14 +70,12 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     public SchemaLogic(
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final SchemaDataBinder binder) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.implementationDAO = implementationDAO;
         this.binder = binder;
@@ -93,10 +86,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
         Optional<S> result = Optional.empty();
 
         switch (schemaType) {
-            case VIRTUAL:
-                result = (Optional<S>) virSchemaDAO.findById(name);
-                break;
-
             case DERIVED:
                 result = (Optional<S>) derSchemaDAO.findById(name);
                 break;
@@ -126,10 +115,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
         T created;
         switch (schemaType) {
-            case VIRTUAL:
-                created = (T) binder.getVirSchemaTO(binder.create((VirSchemaTO) schemaTO).getKey());
-                break;
-
             case DERIVED:
                 created = (T) binder.getDerSchemaTO(binder.create((DerSchemaTO) schemaTO).getKey());
                 break;
@@ -147,10 +132,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                 orElseThrow(() -> new NotFoundException(schemaType + ": " + schemaKey));
 
         switch (schemaType) {
-            case VIRTUAL:
-                virSchemaDAO.deleteById(schemaKey);
-                break;
-
             case DERIVED:
                 derSchemaDAO.deleteById(schemaKey);
                 break;
@@ -178,16 +159,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
 
         List<T> result;
         switch (schemaType) {
-            case VIRTUAL:
-                List<? extends VirSchema> virSchemas = classes.isEmpty()
-                        ? keyword == null
-                                ? virSchemaDAO.findAll()
-                                : virSchemaDAO.findByIdLike(keyword)
-                        : virSchemaDAO.findByAnyTypeClasses(classes);
-                result = virSchemas.stream().map(schema -> (T) binder.getVirSchemaTO(schema.getKey())).
-                        toList();
-                break;
-
             case DERIVED:
                 List<? extends DerSchema> derSchemas = classes.isEmpty()
                         ? keyword == null
@@ -217,10 +188,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
     public <T extends SchemaTO> T read(final SchemaType schemaType, final String schemaKey) {
         T read;
         switch (schemaType) {
-            case VIRTUAL:
-                read = (T) binder.getVirSchemaTO(schemaKey);
-                break;
-
             case DERIVED:
                 read = (T) binder.getDerSchemaTO(schemaKey);
                 break;
@@ -239,9 +206,6 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                 orElseThrow(() -> new NotFoundException(schemaType + ": " + schemaTO.getKey()));
 
         switch (schemaType) {
-            case VIRTUAL ->
-                binder.update((VirSchemaTO) schemaTO, (VirSchema) schema);
-
             case DERIVED ->
                 binder.update((DerSchemaTO) schemaTO, (DerSchema) schema);
 
@@ -297,12 +261,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<SchemaTO> {
                 Optional<? extends Schema> schema = plainSchemaDAO.findById(key);
                 if (schema.isEmpty()) {
                     schema = derSchemaDAO.findById(key);
-                    if (schema.isEmpty()) {
-                        schema = virSchemaDAO.findById(key);
-                        if (schema.isPresent()) {
-                            result = binder.getVirSchemaTO(key);
-                        }
-                    } else {
+                    if (schema.isPresent()) {
                         result = binder.getDerSchemaTO(key);
                     }
                 } else {

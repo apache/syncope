@@ -33,7 +33,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key" })
-@Schema(subTypes = { PlainSchemaTO.class, DerSchemaTO.class, VirSchemaTO.class }, discriminatorProperty = "_class")
+@Schema(subTypes = { PlainSchemaTO.class, DerSchemaTO.class }, discriminatorProperty = "_class")
 public abstract class SchemaTO implements EntityTO {
 
     private static final long serialVersionUID = 4088388951694301759L;

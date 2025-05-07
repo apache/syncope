@@ -103,10 +103,6 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemaNames(SchemaType.DERIVED);
     }
 
-    public List<String> getVirSchemaNames() {
-        return getSchemaNames(SchemaType.VIRTUAL);
-    }
-
     public <T extends SchemaTO> T read(final SchemaType schemaType, final String key) {
         return getService(SchemaService.class).read(schemaType, key);
     }

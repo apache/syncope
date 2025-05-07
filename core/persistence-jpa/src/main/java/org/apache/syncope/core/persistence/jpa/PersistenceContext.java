@@ -75,7 +75,6 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
@@ -183,9 +182,6 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.SecurityQuestionRepoExtI
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.UserRepoExtImpl;
-import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepo;
-import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepoExt;
-import org.apache.syncope.core.persistence.jpa.dao.repo.VirSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.jpa.entity.task.JPATaskUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.spring.CommonEntityManagerFactoryConf;
@@ -436,7 +432,6 @@ public class PersistenceContext {
             final AnyTypeDAO anyTypeDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final @Lazy GroupDAO groupDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityManager entityManager) {
@@ -445,7 +440,6 @@ public class PersistenceContext {
                 anyTypeDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 groupDAO,
                 resourceDAO,
                 entityManager);
@@ -863,7 +857,6 @@ public class PersistenceContext {
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final VirSchemaDAO virSchemaDAO,
             final RealmDAO realmDAO,
             final EntityManager entityManager) {
 
@@ -872,7 +865,6 @@ public class PersistenceContext {
                 anyObjectDAO,
                 userDAO,
                 groupDAO,
-                virSchemaDAO,
                 realmDAO,
                 entityManager);
     }
@@ -1023,24 +1015,6 @@ public class PersistenceContext {
             final UserRepoExt userRepoExt) {
 
         return jpaRepositoryFactory.getRepository(UserRepo.class, userRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public VirSchemaRepoExt virSchemaRepoExt(
-            final @Lazy ExternalResourceDAO resourceDAO,
-            final EntityManager entityManager) {
-
-        return new VirSchemaRepoExtImpl(resourceDAO, entityManager);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public VirSchemaDAO virSchemaDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final VirSchemaRepoExt virSchemaRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(VirSchemaRepo.class, virSchemaRepoExt);
     }
 
     @ConditionalOnMissingBean

@@ -46,7 +46,6 @@ public class AnyTypeClassTest extends AbstractTest {
 
         assertFalse(minimalGroup.getPlainSchemas().isEmpty());
         assertFalse(minimalGroup.getDerSchemas().isEmpty());
-        assertFalse(minimalGroup.getVirSchemas().isEmpty());
     }
 
     @Test
@@ -65,7 +64,6 @@ public class AnyTypeClassTest extends AbstractTest {
         assertNotNull(newClass);
         assertFalse(newClass.getPlainSchemas().isEmpty());
         assertTrue(newClass.getDerSchemas().isEmpty());
-        assertTrue(newClass.getVirSchemas().isEmpty());
     }
 
     @Test

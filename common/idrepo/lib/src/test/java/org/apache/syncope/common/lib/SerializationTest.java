@@ -55,8 +55,8 @@ public abstract class SerializationTest {
         objectMapper().writeValue(writer, original);
 
         List<ReportTO> actual = objectMapper().readValue(writer.toString(),
-            new TypeReference<>() {
-            });
+                new TypeReference<>() {
+        });
         assertEquals(original, actual);
     }
 
@@ -125,9 +125,8 @@ public abstract class SerializationTest {
         StringWriter writer = new StringWriter();
         objectMapper().writeValue(writer, original);
 
-        PagedResult<GroupTO> actual = objectMapper().readValue(writer.toString(),
-            new TypeReference<>() {
-            });
+        PagedResult<GroupTO> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
+        });
         assertEquals(original, actual);
     }
 
@@ -136,7 +135,6 @@ public abstract class SerializationTest {
         GroupTO group = new GroupTO();
         group.setName(UUID.randomUUID().toString());
         group.setRealm(SyncopeConstants.ROOT_REALM);
-        group.getVirAttrs().add(new Attr.Builder("rvirtualdata").value("rvirtualvalue").build());
         group.getADynMembershipConds().put("USER", "username==a*");
 
         ProvisioningResult<GroupTO> original = new ProvisioningResult<>();
@@ -150,9 +148,8 @@ public abstract class SerializationTest {
         StringWriter writer = new StringWriter();
         objectMapper().writeValue(writer, original);
 
-        ProvisioningResult<GroupTO> actual = objectMapper().readValue(writer.toString(),
-            new TypeReference<>() {
-            });
+        ProvisioningResult<GroupTO> actual = objectMapper().readValue(writer.toString(), new TypeReference<>() {
+        });
         assertEquals(original, actual);
     }
 }

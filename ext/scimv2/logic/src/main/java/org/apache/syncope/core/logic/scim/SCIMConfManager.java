@@ -89,10 +89,10 @@ public class SCIMConfManager {
 
         if (conf.getExtensionUserConf() != null) {
             conf.getExtensionUserConf().getAttributes().forEach(scimItem -> {
+                SyncopeClientException invalidMapping =
+                        SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                 try {
                     PlainSchemaTO schema = schemaLogic.read(SchemaType.PLAIN, scimItem.getExtAttrName());
-                    SyncopeClientException invalidMapping =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMapping);
                     if (!scimItem.getMandatoryCondition().equals(schema.getMandatoryCondition())) {
                         invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
                                 + "' should " + (Boolean.parseBoolean(schema.getMandatoryCondition()) ? "" : "not")
@@ -114,14 +114,8 @@ public class SCIMConfManager {
                         throw invalidMapping;
                     }
                 } catch (NotFoundException e) {
-                    PlainSchemaTO schema = schemaLogic.read(SchemaType.VIRTUAL, scimItem.getExtAttrName());
-                    if (scimItem.isMutability() != schema.isReadonly()) {
-                        SyncopeClientException invalidMapping =
-                                SyncopeClientException.build(ClientExceptionType.InvalidMapping);
-                        invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
-                                + "' should " + (schema.isReadonly() ? "" : "not") + " be readonly");
-                        throw invalidMapping;
-                    }
+                    invalidMapping.getElements().add('\'' + scimItem.getIntAttrName() + "' is not found");
+                    throw invalidMapping;
                 }
             });
         }

@@ -80,10 +80,6 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
                 result = any.getDerAttrs();
                 break;
 
-            case VIRTUAL:
-                result = any.getVirAttrs();
-                break;
-
             case PLAIN:
             default:
                 result = any.getPlainAttrs();
@@ -99,10 +95,6 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
         switch (schemaType) {
             case DERIVED:
                 result = any.getDerAttr(schema);
-                break;
-
-            case VIRTUAL:
-                result = any.getVirAttr(schema);
                 break;
 
             case PLAIN:
@@ -165,10 +157,6 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
         UR updateReq = newUpdateReq(key);
 
         switch (schemaType) {
-            case VIRTUAL:
-                updateReq.getVirAttrs().add(attrTO);
-                break;
-
             case PLAIN:
                 updateReq.getPlainAttrs().add(new AttrPatch.Builder(attrTO).operation(operation).build());
                 break;

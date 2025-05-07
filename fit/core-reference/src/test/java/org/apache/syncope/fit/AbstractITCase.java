@@ -248,8 +248,6 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_DBPULL = "resource-db-pull";
 
-    protected static final String RESOURCE_NAME_DBVIRATTR = "resource-db-virattr";
-
     protected static final String RESOURCE_NAME_NOPROPAGATION = "ws-target-resource-nopropagation";
 
     protected static final String RESOURCE_NAME_NOPROPAGATION2 = "ws-target-resource-nopropagation2";

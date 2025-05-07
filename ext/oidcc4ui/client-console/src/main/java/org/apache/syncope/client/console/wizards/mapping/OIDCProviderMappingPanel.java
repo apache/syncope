@@ -103,7 +103,6 @@ public class OIDCProviderMappingPanel extends AbstractMappingPanel {
                 forEach(anyTypeClassTO -> {
                     choices.addAll(anyTypeClassTO.getPlainSchemas());
                     choices.addAll(anyTypeClassTO.getDerSchemas());
-                    choices.addAll(anyTypeClassTO.getVirSchemas());
                 });
 
         Collections.sort(choices);

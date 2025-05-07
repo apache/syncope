@@ -29,8 +29,4 @@ public interface AnyTypeClass extends ProvidedKeyEntity {
     boolean add(DerSchema schema);
 
     List<? extends DerSchema> getDerSchemas();
-
-    boolean add(VirSchema schema);
-
-    List<? extends VirSchema> getVirSchemas();
 }

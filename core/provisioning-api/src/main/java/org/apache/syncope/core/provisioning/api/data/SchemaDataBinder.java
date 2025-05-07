@@ -20,10 +20,8 @@ package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface SchemaDataBinder {
 
@@ -31,17 +29,11 @@ public interface SchemaDataBinder {
 
     DerSchema create(DerSchemaTO schemaTO);
 
-    VirSchema create(VirSchemaTO schemaTO);
-
     PlainSchema update(PlainSchemaTO schemaTO, PlainSchema schema);
 
     DerSchema update(DerSchemaTO schemaTO, DerSchema derSchema);
 
-    VirSchema update(VirSchemaTO schemaTO, VirSchema virSchema);
-
     PlainSchemaTO getPlainSchemaTO(String key);
 
     DerSchemaTO getDerSchemaTO(String key);
-
-    VirSchemaTO getVirSchemaTO(String key);
 }

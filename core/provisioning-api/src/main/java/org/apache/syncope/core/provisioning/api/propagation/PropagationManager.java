@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
@@ -61,7 +60,6 @@ public interface PropagationManager {
      * @param key any key
      * @param enable whether any should be enabled or not
      * @param propByRes operation to be performed per resource
-     * @param vAttrs virtual attributes to be set
      * @param excludedResources external resources performing not to be considered for propagation
      * @return list of propagation tasks
      */
@@ -70,7 +68,6 @@ public interface PropagationManager {
             String key,
             Boolean enable,
             PropagationByResource<String> propByRes,
-            Collection<Attr> vAttrs,
             Collection<String> excludedResources);
 
     /**
@@ -81,7 +78,6 @@ public interface PropagationManager {
      * @param enable whether user must be enabled or not
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
-     * @param vAttrs virtual attributes to be set
      * @param excludedResources external resources not to be considered for propagation
      * @return list of propagation tasks
      */
@@ -91,7 +87,6 @@ public interface PropagationManager {
             Boolean enable,
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            Collection<Attr> vAttrs,
             Collection<String> excludedResources);
 
     /**
@@ -104,7 +99,6 @@ public interface PropagationManager {
      * @param enable whether any should be enabled or not, may be null to leave unchanged
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed for linked accounts
-     * @param vAttrs virtual attributes to be set
      * @param excludedResources external resource keys not to be considered for propagation
      * @return list of propagation tasks
      */
@@ -116,7 +110,6 @@ public interface PropagationManager {
             Boolean enable,
             PropagationByResource<String> propByRes,
             PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            Collection<Attr> vAttrs,
             Collection<String> excludedResources);
 
     /**
@@ -186,7 +179,7 @@ public interface PropagationManager {
      * @param kind any type kind
      * @param key any key
      * @param password to be set (for users)
-     * @param changePwdRes the resources in which the password must be included in the propagation attributes (for 
+     * @param changePwdRes the resources in which the password must be included in the propagation attributes (for
      * users)
      * @param enable whether any should be enabled or not, may be null to leave unchanged
      * @param excludedResources external resource keys not to be considered for propagation

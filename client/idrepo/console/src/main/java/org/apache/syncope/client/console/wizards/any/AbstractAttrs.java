@@ -84,8 +84,6 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends AbstractAttrsWiz
                                 membs.add(memb);
                             } else if (this instanceof DerAttrs && !memb.getDerAttrs().isEmpty()) {
                                 membs.add(memb);
-                            } else if (this instanceof VirAttrs && !memb.getVirAttrs().isEmpty()) {
-                                membs.add(memb);
                             }
                         });
             } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {

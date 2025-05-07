@@ -58,9 +58,6 @@ public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, Stri
             case DERIVED ->
                 rowModel.getObject().getDerAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
 
-            case VIRTUAL ->
-                rowModel.getObject().getVirAttr(name).ifPresent(attr -> values.addAll(attr.getValues()));
-
             default -> {
             }
         }

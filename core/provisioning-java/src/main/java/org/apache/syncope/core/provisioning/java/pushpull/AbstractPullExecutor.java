@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationMana
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
@@ -63,9 +62,6 @@ abstract class AbstractPullExecutor<T extends ProvisioningTask<T>>
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
     protected InboundMatcher inboundMatcher;

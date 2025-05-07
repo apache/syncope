@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -57,22 +56,18 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     protected final GroupDAO groupDAO;
 
-    protected final VirAttrHandler virtAttrHandler;
-
     public DefaultGroupProvisioningManager(
             final GroupWorkflowAdapter gwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final GroupDataBinder groupDataBinder,
-            final GroupDAO groupDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final GroupDAO groupDAO) {
 
         this.gwfAdapter = gwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.groupDataBinder = groupDataBinder;
         this.groupDAO = groupDAO;
-        this.virtAttrHandler = virtAttrHandler;
     }
 
     @Override
@@ -86,7 +81,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getResult(),
                 null,
                 created.getPropByRes(),
-                groupCR.getVirAttrs(),
                 Set.of());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
 
@@ -114,7 +108,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getResult(),
                 null,
                 created.getPropByRes(),
-                groupCR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, creator);
 
@@ -149,7 +142,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                         null,
                         updated.getPropByRes(),
                         null,
-                        groupUR.getVirAttrs(),
                         excludedResources),
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync, updater);
@@ -236,7 +228,6 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 List.of(),
                 null,
                 propByRes,
-                null,
                 null,
                 null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, executor);

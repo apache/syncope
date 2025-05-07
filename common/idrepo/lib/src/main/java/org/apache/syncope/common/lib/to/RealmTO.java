@@ -63,8 +63,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
 
     private final Set<Attr> derAttrs = new TreeSet<>();
 
-    private final Set<Attr> virAttrs = Set.of();
-
     private final List<String> actions = new ArrayList<>();
 
     private final Map<String, AnyTO> templates = new HashMap<>();
@@ -188,19 +186,6 @@ public class RealmTO implements NamedEntityTO, TemplatableTO, AttributableTO {
     @Override
     public Optional<Attr> getDerAttr(final String schema) {
         return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "virAttrs")
-    @JacksonXmlProperty(localName = "virAttr")
-    @Override
-    public Set<Attr> getVirAttrs() {
-        return virAttrs;
-    }
-
-    @JsonIgnore
-    @Override
-    public Optional<Attr> getVirAttr(final String schema) {
-        return Optional.empty();
     }
 
     @JacksonXmlElementWrapper(localName = "actions")

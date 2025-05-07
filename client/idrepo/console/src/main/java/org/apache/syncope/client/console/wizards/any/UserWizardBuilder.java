@@ -80,7 +80,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
             result = userRestClient.create(req);
         } else {
-            fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
+            fixPlainAttrs(inner, getOriginalItem().getInnerObject());
             UserUR userUR = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             if (StringUtils.isNotBlank(inner.getPassword())) {

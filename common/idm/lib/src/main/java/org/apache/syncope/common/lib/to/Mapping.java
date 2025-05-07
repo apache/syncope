@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -31,20 +27,12 @@ public class Mapping extends ItemContainer {
 
     private String connObjectLink;
 
-    private final List<Item> linkingItems = new ArrayList<>();
-
     public String getConnObjectLink() {
         return connObjectLink;
     }
 
     public void setConnObjectLink(final String connObjectLink) {
         this.connObjectLink = connObjectLink;
-    }
-
-    @JacksonXmlElementWrapper(localName = "linkingItems")
-    @JacksonXmlProperty(localName = "linkingItem")
-    public List<Item> getLinkingItems() {
-        return linkingItems;
     }
 
     @Override
@@ -62,7 +50,6 @@ public class Mapping extends ItemContainer {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(connObjectLink, other.connObjectLink).
-                append(linkingItems, other.linkingItems).
                 build();
     }
 
@@ -71,7 +58,6 @@ public class Mapping extends ItemContainer {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(connObjectLink).
-                append(linkingItems).
                 build();
     }
 }
