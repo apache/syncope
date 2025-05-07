@@ -80,18 +80,18 @@ public class ResourceLogicTest extends AbstractTest {
     }
 
     private static ResourceTO buildResourceTO(final String resourceKey) {
-        ResourceTO resourceTO = new ResourceTO();
+        ResourceTO resource = new ResourceTO();
 
-        resourceTO.setKey(resourceKey);
-        resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
+        resource.setKey(resourceKey);
+        resource.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
 
-        Provision provisionTO = new Provision();
-        provisionTO.setAnyType(AnyTypeKind.USER.name());
-        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
-        resourceTO.getProvisions().add(provisionTO);
+        Provision provision = new Provision();
+        provision.setAnyType(AnyTypeKind.USER.name());
+        provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resource.getProvisions().add(provision);
 
         Mapping mapping = new Mapping();
-        provisionTO.setMapping(mapping);
+        provision.setMapping(mapping);
 
         Item item = new Item();
         item.setExtAttrName("userId");
@@ -112,7 +112,7 @@ public class ResourceLogicTest extends AbstractTest {
         item.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(item);
 
-        return resourceTO;
+        return resource;
     }
 
     @Autowired
@@ -129,12 +129,12 @@ public class ResourceLogicTest extends AbstractTest {
         ResourceTO ws1 = logic.read("ws-target-resource-1");
         assertNotNull(ws1);
 
-        Mapping ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).get().getMapping();
+        Mapping ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping();
         // change purpose from NONE to BOTH
         ws1NewUMapping.getItems().stream().
                 filter(itemTO -> "firstname".equals(itemTO.getIntAttrName())).
                 forEach(itemTO -> itemTO.setPurpose(MappingPurpose.BOTH));
-        ws1.getProvision(AnyTypeKind.USER.name()).get().setMapping(ws1NewUMapping);
+        ws1.getProvision(AnyTypeKind.USER.name()).orElseThrow().setMapping(ws1NewUMapping);
 
         ws1 = logic.update(ws1);
         assertNotNull(ws1);
@@ -204,17 +204,19 @@ public class ResourceLogicTest extends AbstractTest {
             return connector;
         });
 
-        ResourceTO resourceTO = logic.create(buildResourceTO("lss"));
-        assertNotNull(resourceTO);
-        assertNull(resourceTO.getProvision(AnyTypeKind.USER.name()).get().getSyncToken());
-
-        ResourceLogic resourceLogic = new ResourceLogic(
-                resourceDAO, anyTypeDAO, null, null, null, null, null, null, null, connectorManager, null);
-
-        resourceLogic.setLatestSyncToken(resourceTO.getKey(), AnyTypeKind.USER.name());
+        logic.create(buildResourceTO("lss"));
         entityManager.flush();
 
-        resourceTO = logic.read(resourceTO.getKey());
-        assertNotNull(resourceTO.getProvision(AnyTypeKind.USER.name()).get().getSyncToken());
+        ResourceTO resource = logic.read("lss");
+        assertNull(resource.getProvision(AnyTypeKind.USER.name()).orElseThrow().getSyncToken());
+
+        ResourceLogic resourceLogic = new ResourceLogic(
+                resourceDAO, anyTypeDAO, null, null, null, null, null, connectorManager, null);
+
+        resourceLogic.setLatestSyncToken(resource.getKey(), AnyTypeKind.USER.name());
+        entityManager.flush();
+
+        resource = logic.read(resource.getKey());
+        assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).orElseThrow().getSyncToken());
     }
 }

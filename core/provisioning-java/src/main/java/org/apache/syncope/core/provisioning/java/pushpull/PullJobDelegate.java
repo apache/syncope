@@ -21,8 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
-import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
@@ -31,7 +29,6 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext;
@@ -191,13 +188,9 @@ public class PullJobDelegate
             try {
                 Set<String> moreAttrsToGet = new HashSet<>();
                 profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
-                Stream<Item> mapItems = Stream.concat(
-                        MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
-                        virSchemaDAO.findByResourceAndAnyType(
-                                task.getResource().getKey(), anyType.getKey()).stream().
-                                map(VirSchema::asLinkingMappingItem));
                 OperationOptions options = MappingUtils.buildOperationOptions(
-                        mapItems, moreAttrsToGet.toArray(String[]::new));
+                        MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
+                        moreAttrsToGet.toArray(String[]::new));
 
                 switch (task.getPullMode()) {
                     case INCREMENTAL:

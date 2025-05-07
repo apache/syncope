@@ -34,8 +34,6 @@ public class AnyTypeClassTO implements EntityTO {
 
     private final List<String> derSchemas = new ArrayList<>();
 
-    private final List<String> virSchemas = new ArrayList<>();
-
     private final List<String> inUseByTypes = new ArrayList<>();
 
     @Override
@@ -59,12 +57,6 @@ public class AnyTypeClassTO implements EntityTO {
     @JacksonXmlProperty(localName = "derSchema")
     public List<String> getDerSchemas() {
         return derSchemas;
-    }
-
-    @JacksonXmlElementWrapper(localName = "virSchemas")
-    @JacksonXmlProperty(localName = "virSchema")
-    public List<String> getVirSchemas() {
-        return virSchemas;
     }
 
     @JacksonXmlElementWrapper(localName = "inUseByTypes")

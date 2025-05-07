@@ -70,7 +70,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
         remediation.setPullTask((PullTask) taskDAO.findById(
-                TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1").orElseThrow());
+                TaskType.PULL, "81d88f73-d474-4450-9031-605daa4e313f").orElseThrow());
 
         // missing payload
         try {
@@ -92,7 +92,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
         remediation.setPullTask((PullTask) taskDAO.findById(
-                TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1").orElseThrow());
+                TaskType.PULL, "81d88f73-d474-4450-9031-605daa4e313f").orElseThrow());
         remediation.setPayload(UUID.randomUUID().toString());
 
         // wrong payload for operation
@@ -115,7 +115,7 @@ public class RemediationTest extends AbstractTest {
         remediation.setInstant(OffsetDateTime.now());
         remediation.setRemoteName("remote");
         remediation.setPullTask((PullTask) taskDAO.findById(
-                TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1").orElseThrow());
+                TaskType.PULL, "81d88f73-d474-4450-9031-605daa4e313f").orElseThrow());
         remediation.setPayload(UUID.randomUUID().toString());
         remediation.setOperation(ResourceOperation.DELETE);
 

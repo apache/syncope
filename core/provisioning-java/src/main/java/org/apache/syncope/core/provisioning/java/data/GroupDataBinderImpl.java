@@ -73,7 +73,6 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,7 +95,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -115,7 +113,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
-                virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
@@ -505,7 +502,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                 group.getAuxClasses(),
                 group.getPlainAttrs(),
                 derAttrHandler.getValues(group),
-                details ? virAttrHandler.getValues(group) : Map.of(),
                 group.getResources());
 
         // dynamic realms

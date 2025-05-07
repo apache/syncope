@@ -27,7 +27,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -59,8 +58,6 @@ public class IntAttrNameParser {
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final AnyUtilsFactory anyUtilsFactory;
 
     protected final RealmUtils realmUtils;
@@ -68,13 +65,11 @@ public class IntAttrNameParser {
     public IntAttrNameParser(
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyUtilsFactory anyUtilsFactory,
             final RealmUtils realmUtils) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.anyUtilsFactory = anyUtilsFactory;
         this.realmUtils = realmUtils;
     }
@@ -84,11 +79,7 @@ public class IntAttrNameParser {
         if (schema == null) {
             schema = derSchemaDAO.findById(key).orElse(null);
             if (schema == null) {
-                schema = virSchemaDAO.findById(key).orElse(null);
-                if (schema == null) {
-                    return null;
-                }
-                return Pair.of(schema, SchemaType.VIRTUAL);
+                return null;
             }
             return Pair.of(schema, SchemaType.DERIVED);
         }

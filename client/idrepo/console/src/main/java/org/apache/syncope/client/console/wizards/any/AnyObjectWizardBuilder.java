@@ -82,7 +82,7 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
 
             result = anyObjectRestClient.create(req);
         } else {
-            fixPlainAndVirAttrs(inner, getOriginalItem().getInnerObject());
+            fixPlainAttrs(inner, getOriginalItem().getInnerObject());
             AnyObjectUR req = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
             // update just if it is changed

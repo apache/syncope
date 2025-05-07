@@ -24,9 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -41,7 +39,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.LiveSyncTask;
@@ -223,13 +220,9 @@ public class LiveSyncJobDelegate
 
             Set<String> moreAttrsToGet = new HashSet<>();
             profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
-            Stream<Item> mapItems = Stream.concat(
-                    MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.findByResourceAndAnyType(
-                            task.getResource().getKey(), anyType.getKey()).stream().
-                            map(VirSchema::asLinkingMappingItem));
             OperationOptions options = MappingUtils.buildOperationOptions(
-                    mapItems, moreAttrsToGet.toArray(String[]::new));
+                    MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
+                    moreAttrsToGet.toArray(String[]::new));
 
             infos.add(new LiveSyncInfo(
                     provision,

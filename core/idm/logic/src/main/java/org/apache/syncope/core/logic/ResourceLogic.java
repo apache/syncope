@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -41,18 +40,15 @@ import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
@@ -78,10 +74,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     protected final ConnInstanceDAO connInstanceDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
-    protected final VirAttrHandler virAttrHandler;
-
     protected final ResourceDataBinder binder;
 
     protected final ConnInstanceDataBinder connInstanceDataBinder;
@@ -98,8 +90,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             final ExternalResourceDAO resourceDAO,
             final AnyTypeDAO anyTypeDAO,
             final ConnInstanceDAO connInstanceDAO,
-            final VirSchemaDAO virSchemaDAO,
-            final VirAttrHandler virAttrHandler,
             final ResourceDataBinder binder,
             final ConnInstanceDataBinder connInstanceDataBinder,
             final OutboundMatcher outboundMatcher,
@@ -110,8 +100,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         this.resourceDAO = resourceDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.connInstanceDAO = connInstanceDAO;
-        this.virSchemaDAO = virSchemaDAO;
-        this.virAttrHandler = virAttrHandler;
         this.binder = binder;
         this.connInstanceDataBinder = connInstanceDataBinder;
         this.outboundMatcher = outboundMatcher;
@@ -344,8 +332,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         if (connObjs.size() > 1) {
             LOG.warn("Expected single match, found {}", connObjs);
-        } else {
-            virAttrHandler.setValues(any, connObjs.getFirst());
         }
 
         return ConnObjectUtils.getConnObjectTO(
@@ -373,7 +359,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connObjectKeyValue,
                 triple.getMiddle(),
                 triple.getRight(),
-                Optional.empty(),
                 Optional.empty()).
                 map(connectorObject -> ConnObjectUtils.getConnObjectTO(
                 outboundMatcher.getFIQL(connectorObject, triple.getMiddle(), triple.getRight()),
@@ -416,11 +401,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             resource = triple.getMiddle();
             objectClass = new ObjectClass(provision.getObjectClass());
 
-            Stream<Item> mapItems = Stream.concat(
-                    provision.getMapping().getItems().stream(),
-                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), triple.getLeft().getKey()).
-                            stream().map(VirSchema::asLinkingMappingItem));
-            options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
+            options = MappingUtils.buildOperationOptions(
+                    provision.getMapping().getItems().stream(), moreAttrsToGet.toArray(String[]::new));
         }
 
         List<ConnObject> connObjects = new ArrayList<>();

@@ -64,7 +64,6 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,7 +84,6 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -103,7 +101,6 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
-                virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
@@ -138,7 +135,6 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                 anyObject.getAuxClasses(),
                 anyObject.getPlainAttrs(),
                 derAttrHandler.getValues(anyObject),
-                details ? virAttrHandler.getValues(anyObject) : Map.of(),
                 anyObjectDAO.findAllResources(anyObject));
 
         // dynamic realms
@@ -163,7 +159,6 @@ public class AnyObjectDataBinderImpl extends AnyDataBinder implements AnyObjectD
                     anyObject.getMemberships().stream().map(membership -> getMembershipTO(
                     anyObject.getPlainAttrs(membership),
                     derAttrHandler.getValues(anyObject, membership),
-                    virAttrHandler.getValues(anyObject, membership),
                     membership)).toList());
 
             // dynamic memberships

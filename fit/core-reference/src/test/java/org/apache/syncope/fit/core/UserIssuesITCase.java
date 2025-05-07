@@ -309,7 +309,6 @@ public class UserIssuesITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("syncope108@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
         userCR.getMemberships().add(new MembershipTO.Builder("0626100b-a4ba-4e00-9971-86fad52a6216").build());
@@ -385,7 +384,6 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE185() {
         // 1. create user with LDAP resource, successfully propagated
         UserCR userCR = UserITCase.getSample("syncope185@syncope.apache.org");
-        userCR.getVirAttrs().clear();
         userCR.getResources().add(RESOURCE_NAME_LDAP);
 
         ProvisioningResult<UserTO> result = createUser(userCR);
@@ -425,36 +423,6 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "password.cipher.algorithm", originalCA);
         }
-    }
-
-    @Test
-    public void issueSYNCOPE267() {
-        // ----------------------------------
-        // create user and check virtual attribute value propagation
-        // ----------------------------------
-        UserCR userCR = UserITCase.getUniqueSample("syncope267@apache.org");
-        userCR.getVirAttrs().add(attr("virtualdata", "virtualvalue"));
-        userCR.getResources().clear();
-        userCR.getResources().add(RESOURCE_NAME_DBVIRATTR);
-
-        ProvisioningResult<UserTO> result = createUser(userCR);
-        assertNotNull(result);
-        assertFalse(result.getPropagationStatuses().isEmpty());
-        assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().getFirst().getResource());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
-        UserTO userTO = result.getEntity();
-
-        ConnObject connObjectTO =
-                RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
-        assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttr("USERNAME").orElseThrow().getValues().getFirst());
-        // ----------------------------------
-
-        userTO = USER_SERVICE.read(userTO.getKey());
-
-        assertNotNull(userTO);
-        assertEquals(1, userTO.getVirAttrs().size());
-        assertEquals("virtualvalue", userTO.getVirAttrs().iterator().next().getValues().getFirst());
     }
 
     @Test
@@ -1148,7 +1116,6 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR = UserITCase.getUniqueSample("syncope391@syncope.apache.org");
         userCR.setPassword("passwordTESTNULL1");
         userCR.setStorePassword(false);
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1168,7 +1135,6 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. create user and propagate password on resource-csv and on Syncope local storage
         userCR = UserITCase.getUniqueSample("syncope391@syncope.apache.org");
         userCR.setPassword("passwordTESTNULL1");
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1199,7 +1165,6 @@ public class UserIssuesITCase extends AbstractITCase {
             userCR = UserITCase.getUniqueSample("syncope391@syncope.apache.org");
             userCR.setPassword(null);
             userCR.setStorePassword(false);
-            userCR.getVirAttrs().clear();
             userCR.getAuxClasses().add("csv");
             userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1220,7 +1185,6 @@ public class UserIssuesITCase extends AbstractITCase {
         UserCR userCR = UserITCase.getUniqueSample("syncope647@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
         userCR.getAuxClasses().add("generic membership");
@@ -1381,10 +1345,7 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE881() {
         // 1. create group and assign LDAP
-        GroupCR groupCR = GroupITCase.getSample("syncope881G");
-        groupCR.getVirAttrs().add(attr("rvirtualdata", "rvirtualvalue"));
-
-        GroupTO group = createGroup(groupCR).getEntity();
+        GroupTO group = createGroup(GroupITCase.getSample("syncope881G")).getEntity();
         assertNotNull(group);
         assertNotNull(RESOURCE_SERVICE.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), group.getKey()));
 
@@ -1451,7 +1412,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         UserUR userUR = new UserUR();
         userUR.setKey(userTO.getKey());
-        // resource-ldap has password mapped, resource-db-virattr does not
+        // resource-ldap has password mapped
         userUR.setPassword(new PasswordPatch.Builder().
                 onSyncope(true).
                 resource(RESOURCE_NAME_LDAP).
@@ -1459,16 +1420,12 @@ public class UserIssuesITCase extends AbstractITCase {
 
         userUR.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
-        userUR.getResources().add(new StringPatchItem.Builder().
-                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_DBVIRATTR).build());
 
         ProvisioningResult<UserTO> result = updateUser(userUR);
         assertNotNull(result);
-        assertEquals(2, result.getPropagationStatuses().size());
-        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
-        assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(1).getResource());
-        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().getFirst().getResource());
+        assertEquals(ExecStatus.SUCCESS, result.getPropagationStatuses().getFirst().getStatus());
     }
 
     @Test

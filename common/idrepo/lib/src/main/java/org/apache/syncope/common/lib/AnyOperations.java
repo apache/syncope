@@ -136,11 +136,7 @@ public final class AnyOperations {
             }
         });
 
-        // 4. virtual attributes
-        result.getVirAttrs().clear();
-        result.getVirAttrs().addAll(updated.getVirAttrs());
-
-        // 5. resources
+        // 4. resources
         result.getResources().clear();
 
         if (!incremental) {
@@ -215,14 +211,10 @@ public final class AnyOperations {
             final MembershipTO updated,
             final MembershipUR result) {
 
-        // 1. plain attributes
+        // plain attributes
         result.getPlainAttrs().addAll(updated.getPlainAttrs().stream().
                 filter(attr -> !isEmpty(attr)).
                 collect(Collectors.toSet()));
-
-        // 2. virtual attributes
-        result.getVirAttrs().clear();
-        result.getVirAttrs().addAll(updated.getVirAttrs());
     }
 
     /**
@@ -320,10 +312,10 @@ public final class AnyOperations {
         Map<Pair<String, String>, LinkedAccountTO> originalAccounts =
                 EntityTOUtils.buildLinkedAccountMap(original.getLinkedAccounts());
 
-        updatedAccounts.forEach((key, value) ->
-            result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
-                operation(PatchOperation.ADD_REPLACE).
-                linkedAccountTO(value).build()));
+        updatedAccounts.forEach((key, value)
+                -> result.getLinkedAccounts().add(new LinkedAccountUR.Builder().
+                        operation(PatchOperation.ADD_REPLACE).
+                        linkedAccountTO(value).build()));
 
         if (!incremental) {
             originalAccounts.keySet().stream().filter(account -> !updatedAccounts.containsKey(account)).
@@ -378,7 +370,7 @@ public final class AnyOperations {
         } else if (updated instanceof GroupTO updatedGroupTO && original instanceof GroupTO originalGroupTO) {
             return (P) diff(updatedGroupTO, originalGroupTO, incremental);
         } else if (updated instanceof AnyObjectTO updatedAnyObjectTO
-            && original instanceof AnyObjectTO originalObjectTO) {
+                && original instanceof AnyObjectTO originalObjectTO) {
             return (P) diff(updatedAnyObjectTO, originalObjectTO, incremental);
         }
 
@@ -431,11 +423,7 @@ public final class AnyOperations {
         result.getPlainAttrs().clear();
         result.getPlainAttrs().addAll(patch(EntityTOUtils.buildAttrMap(to.getPlainAttrs()), req.getPlainAttrs()));
 
-        // 3. virtual attributes
-        result.getVirAttrs().clear();
-        result.getVirAttrs().addAll(req.getVirAttrs());
-
-        // 4. resources
+        // 3. resources
         for (StringPatchItem resourcePatch : req.getResources()) {
             switch (resourcePatch.getOperation()) {
                 case ADD_REPLACE:
@@ -518,8 +506,6 @@ public final class AnyOperations {
                     MembershipTO newMembershipTO = new MembershipTO.Builder(membPatch.getGroup()).
                             // 3. plain attributes
                             plainAttrs(membPatch.getPlainAttrs()).
-                            // 4. virtual attributes
-                            virAttrs(membPatch.getVirAttrs()).
                             build();
 
                     result.getMemberships().add(newMembershipTO);
@@ -569,8 +555,6 @@ public final class AnyOperations {
                     MembershipTO newMembershipTO = new MembershipTO.Builder(membPatch.getGroup()).
                             // 3. plain attributes
                             plainAttrs(membPatch.getPlainAttrs()).
-                            // 4. virtual attributes
-                            virAttrs(membPatch.getVirAttrs()).
                             build();
 
                     result.getMemberships().add(newMembershipTO);

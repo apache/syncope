@@ -64,7 +64,7 @@ public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements A
      * User attribute values not permitted.
      */
     @Schema(anyTypeKind = AnyTypeKind.USER,
-            type = { SchemaType.PLAIN, SchemaType.DERIVED, SchemaType.VIRTUAL })
+            type = { SchemaType.PLAIN, SchemaType.DERIVED })
     private final List<String> schemasNotPermitted = new ArrayList<>();
 
     /**

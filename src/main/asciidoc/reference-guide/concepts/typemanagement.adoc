@@ -24,8 +24,7 @@ model.
 
 ==== Schema
 
-A schema instance describes the values that attributes with that schema will hold; it can be defined plain, derived or
-virtual.
+A schema instance describes the values that attributes with that schema will hold; it can be defined plain or derived.
 
 It is possible to define i18n labels for each schema, with purpose of improving presentation with Admin and End-user UIs.
 
@@ -84,31 +83,9 @@ For the sample above, it would be
 With derived attributes, values are not stored into the <<persistence,internal storage>> but calculated on request, by
 evaluating the related JEXL expression
 
-===== Virtual
-
-Virtual attributes are somehow linked from Identity Stores rather than stored internally.
-
-The typical use case is when attribute values can change in the Identity Store without notice, and it is required to
-always have access to the most recent values that are available.
-
-It can also be said that virtual schemas are for attributes whose ownership is not that of Syncope but of an Identity Store;
-the external resources for such Identity Stores are said to be the _linking resources_.
-
-[TIP]
-As best practice, only attributes for which Apache Syncope retains ownership should be modeled as plain attributes;
-attributes for which Apache Syncope does not retain ownership should be modeled
-as virtual instead.
-
-When defining a virtual schema, the following information must be provided:
-
-* External resource - linking resource
-* External attribute - attribute to be linked on the external resource
-* Any Type - reference <<anytype,any type>> on the external resource
-* Read-only flag - whether the external attribute value(s) for this schema can only be read, or whether they can be written to as well
-
 ==== AnyTypeClass
 
-Any type classes are aggregations of plain, derived and virtual schemas, provided with unique identifiers.
+Any type classes are aggregations of plain and derived schemas, provided with unique identifiers.
 
 Classes can be assigned to <<anytype, any types>>, <<realms, realms>> and are also available as auxiliary (hence to be
 specified on a given user / group / any object instance) and for <<type-extensions,type extensions>>.
@@ -127,7 +104,6 @@ Assuming that the following schemas are available:
 
 . plain: `firstname`, `surname`, `email`
 . derived: `fullname`
-. virtual: `enrollment`
 
 and that the following Any Type classes are defined:
 
@@ -199,14 +175,6 @@ increase readability):
       "schema": "fullname",
       "values": [
         "Gioacchino Rossini"
-      ]
-    }
-  ],
-  "virAttrs": [
-    {
-      "schema": "enrollment",
-      "values": [
-        "154322"
       ]
     }
   ]

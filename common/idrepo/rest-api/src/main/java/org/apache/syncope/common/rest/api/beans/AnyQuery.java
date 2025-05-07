@@ -99,8 +99,7 @@ public class AnyQuery extends AbstractQuery {
     }
 
     @Parameter(name = JAXRSService.PARAM_DETAILS, description = "whether detailed information is to be included, "
-            + "if applicable, about virtual attributes, (dynamic) roles, relationships, "
-            + "(dynamic) memberships or linked accounts", schema =
+            + "if applicable, about (dynamic) roles, relationships, (dynamic) memberships or linked accounts", schema =
             @Schema(implementation = Boolean.class))
     public Boolean getDetails() {
         return Optional.ofNullable(details).orElse(Boolean.TRUE);

@@ -42,7 +42,6 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -110,7 +109,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final AnyMatchDAO anyMatchDAO,
             final UserDAO userDAO,
@@ -128,7 +126,6 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 dynRealmDAO,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.GROUP),
@@ -247,7 +244,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return findById(key).map(Any::getResources).
-            orElseGet(List::of).
+                orElseGet(List::of).
                 stream().map(ExternalResource::getKey).toList();
     }
 

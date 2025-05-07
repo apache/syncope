@@ -33,8 +33,6 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
 
     private final Map<String, CustomizationOption> whichDerAttrs = new HashMap<>();
 
-    private final Map<String, CustomizationOption> whichVirAttrs = new HashMap<>();
-
     private boolean passwordManagement = true;
 
     private boolean detailsManagement = true;
@@ -51,10 +49,6 @@ public class UserFormLayoutInfo extends AbstractAnyFormBaseLayout<UserTO, UserFo
 
     public Map<String, CustomizationOption> getWhichDerAttrs() {
         return whichDerAttrs;
-    }
-
-    public Map<String, CustomizationOption> getWhichVirAttrs() {
-        return whichVirAttrs;
     }
 
     @Override

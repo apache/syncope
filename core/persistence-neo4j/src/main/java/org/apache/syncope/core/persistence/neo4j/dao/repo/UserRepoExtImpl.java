@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.FIQLQueryDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Attributable;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -98,7 +97,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -117,7 +115,6 @@ public class UserRepoExtImpl extends AbstractAnyRepoExt<User, Neo4jUser> impleme
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 dynRealmDAO,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.USER),

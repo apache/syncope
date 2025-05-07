@@ -45,8 +45,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     protected final List<String> availableDerSchemas;
 
-    protected final List<String> availableVirSchemas;
-
     protected final AnyTypeClassRestClient anyTypeClassRestClient;
 
     public AnyTypeClassDetailsPanel(
@@ -61,7 +59,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
         availablePlainSchemas = schemaRestClient.getSchemaNames(SchemaType.PLAIN);
         availableDerSchemas = schemaRestClient.getSchemaNames(SchemaType.DERIVED);
-        availableVirSchemas = schemaRestClient.getSchemaNames(SchemaType.VIRTUAL);
 
         this.anyTypeClassRestClient = anyTypeClassRestClient;
 
@@ -103,16 +100,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
         derSchema.hideLabel();
         derSchema.setOutputMarkupId(true);
         container.add(derSchema);
-
-        AjaxPalettePanel<String> virSchema = new AjaxPalettePanel.Builder<String>().
-                setAllowOrder(true).
-                setAllowMoveAll(true).
-                build("virSchemas",
-                        new PropertyModel<>(this.anyTypeClassTO, "virSchemas"),
-                        new ListModel<>(availableVirSchemas));
-        virSchema.hideLabel();
-        virSchema.setOutputMarkupId(true);
-        container.add(virSchema);
     }
 
     protected void buildAvailableSchemas(final String key) {
@@ -121,7 +108,6 @@ public class AnyTypeClassDetailsPanel extends Panel {
                 forEach(item -> {
                     availablePlainSchemas.removeAll(item.getPlainSchemas());
                     availableDerSchemas.removeAll(item.getDerSchemas());
-                    availableVirSchemas.removeAll(item.getVirSchemas());
                 });
 
         availablePlainSchemas.removeAll(LAYOUT_PARAMETERS);

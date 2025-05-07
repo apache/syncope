@@ -72,7 +72,6 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -116,16 +115,10 @@ public class GroupITCase extends AbstractITCase {
     @Test
     public void create() {
         GroupCR groupCR = getSample("lastGroup");
-        groupCR.getVirAttrs().add(attr("rvirtualdata", "rvirtualvalue"));
         groupCR.setGroupOwner("f779c0d4-633b-4be5-8f57-32eb478a3ca5");
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
         assertNotNull(groupTO);
-
-        assertNotNull(groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues());
-        assertFalse(groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().isEmpty());
-        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").orElseThrow().getValues().getFirst());
-
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         ConnObject connObjectTO =
@@ -1041,10 +1034,6 @@ public class GroupITCase extends AbstractITCase {
             ResourceTO newLDAP = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
             newLDAP.setKey("new-ldap");
             newLDAP.setPropagationPriority(0);
-
-            for (Provision provision : newLDAP.getProvisions()) {
-                provision.getVirSchemas().clear();
-            }
 
             Mapping mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping();
 

@@ -88,8 +88,6 @@ public abstract class AnyTO implements EntityTO, RealmMember {
 
     private final Set<Attr> derAttrs = new TreeSet<>();
 
-    private final Set<Attr> virAttrs = new TreeSet<>();
-
     private final Set<String> resources = new TreeSet<>();
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -231,19 +229,6 @@ public abstract class AnyTO implements EntityTO, RealmMember {
         return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "virAttrs")
-    @JacksonXmlProperty(localName = "virAttr")
-    @Override
-    public Set<Attr> getVirAttrs() {
-        return virAttrs;
-    }
-
-    @JsonIgnore
-    @Override
-    public Optional<Attr> getVirAttr(final String schema) {
-        return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
-    }
-
     @Override
     public Set<String> getResources() {
         return resources;
@@ -266,7 +251,6 @@ public abstract class AnyTO implements EntityTO, RealmMember {
                 append(auxClasses).
                 append(plainAttrs).
                 append(derAttrs).
-                append(virAttrs).
                 append(resources).
                 build();
     }
@@ -298,7 +282,6 @@ public abstract class AnyTO implements EntityTO, RealmMember {
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
                 append(derAttrs, other.derAttrs).
-                append(virAttrs, other.virAttrs).
                 append(resources, other.resources).
                 build();
     }

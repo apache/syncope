@@ -115,8 +115,6 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
                 memberships.add(membership);
             } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
                 memberships.add(membership);
-            } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
-                memberships.add(membership);
             }
         }
 

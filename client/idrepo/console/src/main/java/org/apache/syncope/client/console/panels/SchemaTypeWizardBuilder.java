@@ -28,7 +28,6 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -38,7 +37,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -119,11 +117,6 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
             switch (schemaType) {
                 case DERIVED:
                     detailsPanel = new DerSchemaDetails("details", (DerSchemaTO) modelObject);
-                    break;
-
-                case VIRTUAL:
-                    detailsPanel = SyncopeWebApplication.get().getVirSchemaDetailsPanelProvider().
-                            get("details", (VirSchemaTO) modelObject);
                     break;
 
                 case PLAIN:

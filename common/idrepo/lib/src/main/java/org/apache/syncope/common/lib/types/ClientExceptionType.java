@@ -55,7 +55,6 @@ public enum ClientExceptionType {
     InvalidPropagationTaskExecReport(Response.Status.BAD_REQUEST),
     InvalidPlainSchema(Response.Status.BAD_REQUEST),
     InvalidDerSchema(Response.Status.BAD_REQUEST),
-    InvalidVirSchema(Response.Status.BAD_REQUEST),
     InvalidMapping(Response.Status.BAD_REQUEST),
     InvalidMembership(Response.Status.BAD_REQUEST),
     InvalidRealm(Response.Status.BAD_REQUEST),

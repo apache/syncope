@@ -65,21 +65,6 @@ public class MembershipTO implements BaseBean, AttributableTO {
             return this;
         }
 
-        public Builder virAttr(final Attr virAttr) {
-            instance.getVirAttrs().add(virAttr);
-            return this;
-        }
-
-        public Builder virAttrs(final Collection<Attr> virAttrs) {
-            instance.getVirAttrs().addAll(virAttrs);
-            return this;
-        }
-
-        public Builder virAttrs(final Attr... virAttrs) {
-            instance.getVirAttrs().addAll(List.of(virAttrs));
-            return this;
-        }
-
         public MembershipTO build() {
             return instance;
         }
@@ -92,8 +77,6 @@ public class MembershipTO implements BaseBean, AttributableTO {
     private final Set<Attr> plainAttrs = new TreeSet<>();
 
     private final Set<Attr> derAttrs = new TreeSet<>();
-
-    private final Set<Attr> virAttrs = new TreeSet<>();
 
     public String getGroupKey() {
         return groupKey;
@@ -137,19 +120,6 @@ public class MembershipTO implements BaseBean, AttributableTO {
         return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
-    @JacksonXmlElementWrapper(localName = "virAttrs")
-    @JacksonXmlProperty(localName = "virAttr")
-    @Override
-    public Set<Attr> getVirAttrs() {
-        return virAttrs;
-    }
-
-    @JsonIgnore
-    @Override
-    public Optional<Attr> getVirAttr(final String schema) {
-        return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -157,7 +127,6 @@ public class MembershipTO implements BaseBean, AttributableTO {
                 append(groupName).
                 append(plainAttrs).
                 append(derAttrs).
-                append(virAttrs).
                 build();
     }
 
@@ -178,7 +147,6 @@ public class MembershipTO implements BaseBean, AttributableTO {
                 append(groupName, other.groupName).
                 append(plainAttrs, other.plainAttrs).
                 append(derAttrs, other.derAttrs).
-                append(virAttrs, other.virAttrs).
                 build();
     }
 

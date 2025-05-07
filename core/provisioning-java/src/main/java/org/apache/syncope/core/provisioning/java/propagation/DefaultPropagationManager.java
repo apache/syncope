@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
@@ -43,13 +42,11 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PropagationPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
@@ -85,8 +82,6 @@ public class DefaultPropagationManager implements PropagationManager {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropagationManager.class);
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final ExternalResourceDAO resourceDAO;
 
     protected final EntityFactory entityFactory;
@@ -100,7 +95,6 @@ public class DefaultPropagationManager implements PropagationManager {
     protected final AnyUtilsFactory anyUtilsFactory;
 
     public DefaultPropagationManager(
-            final VirSchemaDAO virSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityFactory entityFactory,
             final ConnObjectUtils connObjectUtils,
@@ -108,7 +102,6 @@ public class DefaultPropagationManager implements PropagationManager {
             final DerAttrHandler derAttrHandler,
             final AnyUtilsFactory anyUtilsFactory) {
 
-        this.virSchemaDAO = virSchemaDAO;
         this.resourceDAO = resourceDAO;
         this.entityFactory = entityFactory;
         this.connObjectUtils = connObjectUtils;
@@ -123,7 +116,6 @@ public class DefaultPropagationManager implements PropagationManager {
             final String key,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
-            final Collection<Attr> vAttrs,
             final Collection<String> excludedResources) {
 
         return getCreateTasks(
@@ -132,7 +124,6 @@ public class DefaultPropagationManager implements PropagationManager {
                 enable,
                 propByRes,
                 null,
-                vAttrs,
                 excludedResources);
     }
 
@@ -143,7 +134,6 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<Attr> vAttrs,
             final Collection<String> excludedResources) {
 
         return getCreateTasks(
@@ -152,7 +142,6 @@ public class DefaultPropagationManager implements PropagationManager {
                 enable,
                 propByRes,
                 propByLinkedAccount,
-                vAttrs,
                 excludedResources);
     }
 
@@ -162,7 +151,6 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<Attr> vAttrs,
             final Collection<String> excludedResources) {
 
         if ((propByRes == null || propByRes.isEmpty())
@@ -189,7 +177,7 @@ public class DefaultPropagationManager implements PropagationManager {
         if (propByLinkedAccount != null) {
             propByLinkedAccount.asMap().forEach((resource, resourceOperation) -> changePwdRes.add(resource.getKey()));
         }
-        return createTasks(any, password, changePwdRes, enable, propByRes, propByLinkedAccount, vAttrs);
+        return createTasks(any, password, changePwdRes, enable, propByRes, propByLinkedAccount);
     }
 
     @Override
@@ -201,7 +189,6 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<Attr> vAttrs,
             final Collection<String> excludedResources) {
 
         return getUpdateTasks(
@@ -212,7 +199,6 @@ public class DefaultPropagationManager implements PropagationManager {
                 enable,
                 propByRes,
                 propByLinkedAccount,
-                vAttrs,
                 excludedResources);
     }
 
@@ -231,7 +217,6 @@ public class DefaultPropagationManager implements PropagationManager {
                 wfResult.getResult().getRight(),
                 wfResult.getPropByRes(),
                 wfResult.getPropByLinkedAccount(),
-                wfResult.getResult().getLeft().getVirAttrs(),
                 excludedResources);
     }
 
@@ -304,7 +289,6 @@ public class DefaultPropagationManager implements PropagationManager {
             final Boolean enable,
             final PropagationByResource<String> propByRes,
             final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<Attr> vAttrs,
             final Collection<String> excludedResources) {
 
         if (excludedResources != null) {
@@ -328,8 +312,7 @@ public class DefaultPropagationManager implements PropagationManager {
                 changePwdRes,
                 enable,
                 Optional.ofNullable(propByRes).orElseGet(PropagationByResource::new),
-                propByLinkedAccount,
-                vAttrs);
+                propByLinkedAccount);
         tasks.forEach(task -> task.setUpdateRequest(anyUR));
         return tasks;
     }
@@ -376,7 +359,7 @@ public class DefaultPropagationManager implements PropagationManager {
             }
         }
 
-        return createTasks(any, null, List.of(), false, localPropByRes, propByLinkedAccount, null);
+        return createTasks(any, null, List.of(), false, localPropByRes, propByLinkedAccount);
     }
 
     @Override
@@ -433,7 +416,6 @@ public class DefaultPropagationManager implements PropagationManager {
      * @param enable whether user must be enabled or not
      * @param propByRes operation to be performed per resource
      * @param propByLinkedAccount operation to be performed on linked accounts
-     * @param vAttrs virtual attributes to be set
      * @return list of propagation tasks created
      */
     protected List<PropagationTaskInfo> createTasks(
@@ -442,49 +424,13 @@ public class DefaultPropagationManager implements PropagationManager {
             final List<String> changePwdRes,
             final Boolean enable,
             final PropagationByResource<String> propByRes,
-            final PropagationByResource<Pair<String, String>> propByLinkedAccount,
-            final Collection<Attr> vAttrs) {
+            final PropagationByResource<Pair<String, String>> propByLinkedAccount) {
 
         LOG.debug("Provisioning {}:\n{}", any, propByRes);
 
         // Avoid duplicates - see javadoc
         propByRes.purge();
         LOG.debug("After purge {}:\n{}", any, propByRes);
-
-        // Virtual attributes
-        Set<String> virtualResources = new HashSet<>();
-        virtualResources.addAll(propByRes.get(ResourceOperation.CREATE));
-        virtualResources.addAll(propByRes.get(ResourceOperation.UPDATE));
-        virtualResources.addAll(anyUtilsFactory.getInstance(any).dao().findAllResourceKeys(any.getKey()));
-
-        Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
-        if (vAttrs != null) {
-            vAttrs.forEach(vAttr -> {
-                VirSchema schema = virSchemaDAO.findById(vAttr.getSchema()).orElse(null);
-                if (schema == null) {
-                    LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
-                } else if (schema.isReadonly()) {
-                    LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
-                } else if (anyUtilsFactory.getInstance(any).dao().
-                        findAllowedSchemas(any, VirSchema.class).contains(schema)
-                        && virtualResources.contains(schema.getResource().getKey())) {
-
-                    Set<Attribute> values = vAttrMap.get(schema.getResource().getKey());
-                    if (values == null) {
-                        values = new HashSet<>();
-                        vAttrMap.put(schema.getResource().getKey(), values);
-                    }
-                    values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
-
-                    if (!propByRes.contains(ResourceOperation.CREATE, schema.getResource().getKey())) {
-                        propByRes.add(ResourceOperation.UPDATE, schema.getResource().getKey());
-                    }
-                } else {
-                    LOG.warn("{} not owned by or {} not allowed for {}", schema.getResource(), schema, any);
-                }
-            });
-        }
-        LOG.debug("With virtual attributes {}:\n{}\n{}", any, propByRes, vAttrMap);
 
         List<PropagationTaskInfo> tasks = new ArrayList<>();
 
@@ -508,9 +454,6 @@ public class DefaultPropagationManager implements PropagationManager {
                 Pair<String, Set<Attribute>> preparedAttrs =
                         mappingManager.prepareAttrsFromAny(any, password, changePwdRes.contains(resourceKey),
                                 enable, resource, provision);
-                if (vAttrMap.containsKey(resourceKey)) {
-                    preparedAttrs.getRight().addAll(vAttrMap.get(resourceKey));
-                }
 
                 PropagationTaskInfo task = newTask(
                         derAttrHandler,

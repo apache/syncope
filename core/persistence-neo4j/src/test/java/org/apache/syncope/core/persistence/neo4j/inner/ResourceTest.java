@@ -238,38 +238,6 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
-    public void saveVirtualMapping() {
-        ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
-        resource.setKey("ws-target-resource-virtual-mapping");
-        resource.setPropagationPriority(2);
-
-        Provision provision = new Provision();
-        provision.setAnyType(AnyTypeKind.USER.name());
-        provision.setObjectClass(ObjectClass.ACCOUNT_NAME);
-        resource.getProvisions().add(provision);
-
-        Mapping mapping = new Mapping();
-        provision.setMapping(mapping);
-
-        Item connObjectKey = new Item();
-        connObjectKey.setExtAttrName("username");
-        connObjectKey.setIntAttrName("fullname");
-        connObjectKey.setPurpose(MappingPurpose.BOTH);
-        mapping.setConnObjectKeyItem(connObjectKey);
-
-        Item virtualMapItem = new Item();
-        virtualMapItem.setIntAttrName("virtualReadOnly");
-        virtualMapItem.setExtAttrName("TEST");
-        virtualMapItem.setPurpose(MappingPurpose.PROPAGATION);
-        mapping.add(virtualMapItem);
-
-        ConnInstance connector = resourceDAO.findById("ws-target-resource-1").orElseThrow().getConnector();
-        resource.setConnector(connector);
-
-        resourceDAO.save(resource);
-    }
-
-    @Test
     public void saveWithGroupMappingType() {
         ExternalResource resource = entityFactory.newEntity(ExternalResource.class);
         resource.setKey("ws-target-resource-basic-save-invalid");

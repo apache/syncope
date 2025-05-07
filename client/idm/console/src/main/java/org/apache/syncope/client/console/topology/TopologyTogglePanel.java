@@ -45,7 +45,6 @@ import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.IdMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -636,12 +635,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     ResourceTO resource = resourceRestClient.read(node.getKey());
                     resource.setKey("Copy of " + node.getKey());
 
-                    for (Provision provision : resource.getProvisions()) {
-                        if (provision.getMapping() != null) {
-                            provision.getMapping().getLinkingItems().clear();
-                        }
-                        provision.getVirSchemas().clear();
-                    }
                     target.add(modal.setContent(new ResourceWizardBuilder(
                             resource, resourceRestClient, connectorRestClient, pageRef).
                             build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));

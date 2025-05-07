@@ -41,12 +41,10 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,9 +64,6 @@ public class IntAttrNameParserTest extends AbstractTest {
 
     @Mock
     private DerSchemaDAO derSchemaDAO;
-
-    @Mock
-    private VirSchemaDAO virSchemaDAO;
 
     @Mock
     private AnyUtilsFactory anyUtilsFactory;
@@ -135,23 +130,8 @@ public class IntAttrNameParserTest extends AbstractTest {
                 }
             }
         });
-        lenient().when(virSchemaDAO.findById(anyString())).thenAnswer(ic -> {
-            String schemaName = ic.getArgument(0);
-            switch (schemaName) {
-                case "rvirtualdata" -> {
-                    VirSchema schema = mock(VirSchema.class);
-                    lenient().when(schema.getKey()).thenReturn(ic.getArgument(0));
-                    return Optional.of(schema);
-                }
 
-                default -> {
-                    return Optional.empty();
-                }
-            }
-        });
-
-        intAttrNameParser = new IntAttrNameParser(
-                plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory, realmUtils);
+        intAttrNameParser = new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, anyUtilsFactory, realmUtils);
     }
 
     @Test
@@ -241,20 +221,6 @@ public class IntAttrNameParserTest extends AbstractTest {
         assertEquals("cn", intAttrName.getSchema().getKey());
         assertEquals(SchemaType.DERIVED, intAttrName.getSchemaType());
         assertTrue(intAttrName.getSchema() instanceof DerSchema);
-        assertNull(intAttrName.getEnclosingGroup());
-        assertNull(intAttrName.getMembershipOfGroup());
-        assertNull(intAttrName.getRelatedAnyObject());
-        assertNull(intAttrName.getRelationshipAnyType());
-        assertNull(intAttrName.getRelationshipType());
-        assertNull(intAttrName.getRelatedUser());
-
-        intAttrName = intAttrNameParser.parse("rvirtualdata", AnyTypeKind.ANY_OBJECT);
-        assertNotNull(intAttrName);
-        assertEquals(AnyTypeKind.ANY_OBJECT, intAttrName.getAnyTypeKind());
-        assertNull(intAttrName.getField());
-        assertEquals("rvirtualdata", intAttrName.getSchema().getKey());
-        assertEquals(SchemaType.VIRTUAL, intAttrName.getSchemaType());
-        assertTrue(intAttrName.getSchema() instanceof VirSchema);
         assertNull(intAttrName.getEnclosingGroup());
         assertNull(intAttrName.getMembershipOfGroup());
         assertNull(intAttrName.getRelatedAnyObject());

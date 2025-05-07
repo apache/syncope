@@ -68,7 +68,6 @@ import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -79,7 +78,6 @@ import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
@@ -98,7 +96,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final Collection<? extends AnyTypeClass> auxClasses,
             final Collection<PlainAttr> plainAttrs,
             final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
             final Collection<? extends ExternalResource> resources) {
 
         anyTO.setRealm(realmFullPath);
@@ -110,9 +107,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         derAttrs.forEach((schema, value) -> anyTO.getDerAttrs().
                 add(new Attr.Builder(schema.getKey()).value(value).build()));
-
-        virAttrs.forEach((schema, values) -> anyTO.getVirAttrs().
-                add(new Attr.Builder(schema.getKey()).values(values).build()));
 
         anyTO.getResources().addAll(resources.stream().map(ExternalResource::getKey).collect(Collectors.toSet()));
     }
@@ -136,7 +130,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
     protected static MembershipTO getMembershipTO(
             final Collection<PlainAttr> plainAttrs,
             final Map<DerSchema, String> derAttrs,
-            final Map<VirSchema, List<String>> virAttrs,
             final Membership<? extends Any> membership) {
 
         MembershipTO membershipTO = new MembershipTO.Builder(membership.getRightEnd().getKey()).
@@ -147,9 +140,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
         derAttrs.forEach((schema, value) -> membershipTO.getDerAttrs().
                 add(new Attr.Builder(schema.getKey()).value(value).build()));
-
-        virAttrs.forEach((schema, values) -> membershipTO.getVirAttrs().
-                add(new Attr.Builder(schema.getKey()).values(values).build()));
 
         return membershipTO;
     }
@@ -174,8 +164,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
 
     protected final AnyUtilsFactory anyUtilsFactory;
 
-    protected final VirAttrHandler virAttrHandler;
-
     protected final OutboundMatcher outboundMatcher;
 
     protected AnyDataBinder(
@@ -191,7 +179,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -208,7 +195,6 @@ abstract class AnyDataBinder extends AttributableDataBinder {
         this.relationshipTypeDAO = relationshipTypeDAO;
         this.entityFactory = entityFactory;
         this.anyUtilsFactory = anyUtilsFactory;
-        this.virAttrHandler = virAttrHandler;
         this.outboundMatcher = outboundMatcher;
     }
 

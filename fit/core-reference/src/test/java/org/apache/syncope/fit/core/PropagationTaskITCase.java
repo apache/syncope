@@ -658,7 +658,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
             assertNotNull(provision);
             provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
-            provision.getVirSchemas().clear();
 
             // Date -> long (JEXL expression) -> string
             Item loginDateForJexlAsLong = new Item();
@@ -737,7 +736,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             Attribute carLicense = AttributeUtil.find("carLicense", propagationAttrs);
             assertNotNull(carLicense);
             assertEquals(DateTimeFormatter.ISO_LOCAL_DATE.format(loginDate.plusDays(1)),
-                carLicense.getValue().getFirst());
+                    carLicense.getValue().getFirst());
         } finally {
             try {
                 RESOURCE_SERVICE.delete(ldap.getKey());
@@ -767,13 +766,11 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             Provision provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
-            provisionGroup.getVirSchemas().clear();
 
             Provision provisionUser =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElse(null));
             assertNotNull(provisionUser);
             provisionUser.getMapping().getItems().removeIf(item -> "mail".equals(item.getExtAttrName()));
-            provisionUser.getVirSchemas().clear();
 
             Item ldapGroups = new Item();
             ldapGroups.setPurpose(MappingPurpose.PROPAGATION);
@@ -857,7 +854,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             // 1. clone the LDAP resource and add the relationships mapping
             Provision provision = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow());
             assertNotNull(provision);
-            provision.getVirSchemas().clear();
 
             Item relationships = new Item();
             relationships.setPurpose(MappingPurpose.PROPAGATION);
@@ -917,7 +913,6 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             Provision provisionGroup =
                     SerializationUtils.clone(ldap.getProvision(AnyTypeKind.GROUP.name()).orElse(null));
             assertNotNull(provisionGroup);
-            provisionGroup.getVirSchemas().clear();
             provisionGroup.getMapping().getItems().clear();
 
             Item item = new Item();

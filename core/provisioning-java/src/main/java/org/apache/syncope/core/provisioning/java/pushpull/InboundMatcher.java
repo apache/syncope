@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
@@ -40,7 +39,6 @@ import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -52,12 +50,10 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.rules.InboundCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.InboundMatch;
@@ -99,11 +95,7 @@ public class InboundMatcher {
 
     protected final RealmSearchDAO realmSearchDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final ImplementationDAO implementationDAO;
-
-    protected final VirAttrHandler virAttrHandler;
 
     protected final IntAttrNameParser intAttrNameParser;
 
@@ -118,9 +110,7 @@ public class InboundMatcher {
             final AnySearchDAO anySearchDAO,
             final RealmDAO realmDAO,
             final RealmSearchDAO realmSearchDAO,
-            final VirSchemaDAO virSchemaDAO,
             final ImplementationDAO implementationDAO,
-            final VirAttrHandler virAttrHandler,
             final IntAttrNameParser intAttrNameParser,
             final AnyUtilsFactory anyUtilsFactory) {
 
@@ -130,9 +120,7 @@ public class InboundMatcher {
         this.anySearchDAO = anySearchDAO;
         this.realmDAO = realmDAO;
         this.realmSearchDAO = realmSearchDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.implementationDAO = implementationDAO;
-        this.virAttrHandler = virAttrHandler;
         this.intAttrNameParser = intAttrNameParser;
         this.anyUtilsFactory = anyUtilsFactory;
     }
@@ -162,11 +150,6 @@ public class InboundMatcher {
         }
 
         // then, attempt to lookup the provided connObjectLinkValue onto the connector
-        Stream<Item> mapItems = Stream.concat(
-                provision.getMapping().getItems().stream(),
-                virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
-                        map(VirSchema::asLinkingMappingItem));
-
         List<ConnectorObject> found = new ArrayList<>();
 
         try {
@@ -187,7 +170,7 @@ public class InboundMatcher {
                 public boolean handle(final ConnectorObject connectorObject) {
                     return found.add(connectorObject);
                 }
-            }, MappingUtils.buildOperationOptions(mapItems));
+            }, MappingUtils.buildOperationOptions(provision.getMapping().getItems().stream()));
         } catch (Throwable t) {
             LOG.warn("While searching for {} ...", connObjectLinkValue, t);
         }
@@ -222,7 +205,6 @@ public class InboundMatcher {
                     }
 
                     result = matches.stream().filter(match -> match.getAny() != null).findFirst();
-                    result.ifPresent(inboundMatch -> virAttrHandler.setValues(inboundMatch.getAny(), connObj));
                 }
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());
@@ -437,10 +419,6 @@ public class InboundMatcher {
             }
         } catch (RuntimeException e) {
             LOG.error("Could not match {} with any existing {}", syncDelta, provision.getAnyType(), e);
-        }
-
-        if (result.size() == 1 && result.getFirst().getMatchTarget() == MatchType.ANY) {
-            virAttrHandler.setValues(result.getFirst().getAny(), syncDelta.getObject());
         }
 
         return result;

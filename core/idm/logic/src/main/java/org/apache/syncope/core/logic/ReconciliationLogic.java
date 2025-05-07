@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.Attr;
@@ -63,7 +61,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -71,13 +68,11 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ConstantReconFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.KeyValueReconFilterBuilder;
@@ -127,11 +122,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final AnySearchDAO anySearchDAO;
-
-    protected final VirAttrHandler virAttrHandler;
 
     protected final MappingManager mappingManager;
 
@@ -148,9 +139,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final RealmSearchDAO realmSearchDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnySearchDAO anySearchDAO,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final InboundMatcher inboundMatcher,
             final OutboundMatcher outboundMatcher,
@@ -162,9 +151,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         this.realmSearchDAO = realmSearchDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.anySearchDAO = anySearchDAO;
-        this.virAttrHandler = virAttrHandler;
         this.mappingManager = mappingManager;
         this.inboundMatcher = inboundMatcher;
         this.outboundMatcher = outboundMatcher;
@@ -292,8 +279,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
 
             if (connObjs.size() > 1) {
                 LOG.warn("Expected single match, found {}", connObjs);
-            } else {
-                virAttrHandler.setValues(any, connObjs.getFirst());
             }
         }
 
@@ -307,11 +292,9 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             final Filter filter,
             final Set<String> moreAttrsToGet) {
 
-        Stream<Item> mapItems = Stream.concat(
+        OperationOptions options = MappingUtils.buildOperationOptions(
                 provision.getMapping().getItems().stream(),
-                virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
-                        map(VirSchema::asLinkingMappingItem));
-        OperationOptions options = MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new));
+                moreAttrsToGet.toArray(String[]::new));
 
         SyncDeltaBuilder syncDeltaBuilder = new SyncDeltaBuilder().
                 setToken(new SyncToken("")).
@@ -378,12 +361,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
             status.setOnResource(ConnObjectUtils.getConnObjectTO(
                     outboundMatcher.getFIQL(syncDeltaBuilder.getObject(), triple.getMiddle(), triple.getRight()),
                     syncDeltaBuilder.getObject().getAttributes()));
-
-            if (status.getMatchType() == MatchType.ANY && StringUtils.isNotBlank(status.getAnyKey())) {
-                virAttrHandler.setValues(
-                        getAny(triple.getRight(), triple.getLeft().getKind(), status.getAnyKey()),
-                        syncDeltaBuilder.getObject());
-            }
         }
 
         return status;
@@ -661,13 +638,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
                 columns.add(item);
             } else {
                 LOG.warn("Ignoring invalid derived schema {}", item);
-            }
-        });
-        spec.getDerAttrs().forEach(item -> {
-            if (virSchemaDAO.existsById(item)) {
-                columns.add(item);
-            } else {
-                LOG.warn("Ignoring invalid virtual schema {}", item);
             }
         });
 

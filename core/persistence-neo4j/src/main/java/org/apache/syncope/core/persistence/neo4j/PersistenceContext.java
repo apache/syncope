@@ -77,7 +77,6 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.ConfParamDAO;
 import org.apache.syncope.core.persistence.api.dao.keymaster.DomainDAO;
@@ -192,9 +191,6 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.SecurityQuestionRepoEx
 import org.apache.syncope.core.persistence.neo4j.dao.repo.UserRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.UserRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.UserRepoExtImpl;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.VirSchemaRepo;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.VirSchemaRepoExt;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.VirSchemaRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.WAConfigRepo;
 import org.apache.syncope.core.persistence.neo4j.entity.EntityCacheKey;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyType;
@@ -206,7 +202,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.task.Neo4jTaskUtilsFactory;
@@ -315,8 +310,7 @@ public class PersistenceContext {
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache,
             final Cache<EntityCacheKey, Neo4jRole> roleCache,
-            final Cache<EntityCacheKey, Neo4jUser> userCache,
-            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache) {
 
         return new CacheCleaningTransactionExecutionListener(
                 anyTypeCache,
@@ -329,8 +323,7 @@ public class PersistenceContext {
                 plainSchemaCache,
                 realmCache,
                 roleCache,
-                userCache,
-                virSchemaCache);
+                userCache);
     }
 
     @Bean(Neo4jRepositoryConfigurationExtension.DEFAULT_TRANSACTION_MANAGER_BEAN_NAME)
@@ -498,7 +491,6 @@ public class PersistenceContext {
             final @Lazy AnyTypeClassDAO anyTypeClassDAO,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
-            final @Lazy VirSchemaDAO virSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final @Lazy UserDAO userDAO,
             final @Lazy GroupDAO groupDAO,
@@ -514,7 +506,6 @@ public class PersistenceContext {
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 dynRealmDAO,
                 userDAO,
                 groupDAO,
@@ -569,7 +560,6 @@ public class PersistenceContext {
             final AnyTypeDAO anyTypeDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final @Lazy GroupDAO groupDAO,
             final ExternalResourceDAO resourceDAO,
             final Neo4jTemplate neo4jTemplate,
@@ -583,7 +573,6 @@ public class PersistenceContext {
                 anyTypeDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 groupDAO,
                 resourceDAO,
                 neo4jTemplate,
@@ -865,8 +854,7 @@ public class PersistenceContext {
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache,
             final Cache<EntityCacheKey, Neo4jRole> roleCache,
-            final Cache<EntityCacheKey, Neo4jUser> userCache,
-            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache) {
 
         return new Neo4jEntityCacheDAO(
                 anyTypeCache,
@@ -879,8 +867,7 @@ public class PersistenceContext {
                 plainSchemaCache,
                 realmCache,
                 roleCache,
-                userCache,
-                virSchemaCache);
+                userCache);
     }
 
     @ConditionalOnMissingBean
@@ -921,7 +908,6 @@ public class PersistenceContext {
             final @Lazy AnyTypeClassDAO anyTypeClassDAO,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
-            final @Lazy VirSchemaDAO virSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final AnyMatchDAO anyMatchDAO,
             final @Lazy UserDAO userDAO,
@@ -941,7 +927,6 @@ public class PersistenceContext {
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 dynRealmDAO,
                 anyMatchDAO,
                 userDAO,
@@ -1253,7 +1238,6 @@ public class PersistenceContext {
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final VirSchemaDAO virSchemaDAO,
             final RealmDAO realmDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -1265,7 +1249,6 @@ public class PersistenceContext {
                 anyObjectDAO,
                 userDAO,
                 groupDAO,
-                virSchemaDAO,
                 realmDAO,
                 neo4jTemplate,
                 neo4jClient,
@@ -1435,7 +1418,6 @@ public class PersistenceContext {
             final @Lazy AnyTypeClassDAO anyTypeClassDAO,
             final @Lazy PlainSchemaDAO plainSchemaDAO,
             final @Lazy DerSchemaDAO derSchemaDAO,
-            final @Lazy VirSchemaDAO virSchemaDAO,
             final @Lazy DynRealmDAO dynRealmDAO,
             final RoleDAO roleDAO,
             final AccessTokenDAO accessTokenDAO,
@@ -1454,7 +1436,6 @@ public class PersistenceContext {
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 dynRealmDAO,
                 roleDAO,
                 accessTokenDAO,
@@ -1476,43 +1457,6 @@ public class PersistenceContext {
             final UserRepoExt userRepoExt) {
 
         return neo4jRepositoryFactory.getRepository(UserRepo.class, userRepoExt);
-    }
-
-    @ConditionalOnMissingBean(name = VirSchemaRepoExt.CACHE)
-    @Bean(name = VirSchemaRepoExt.CACHE)
-    public Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache(final CacheManager cacheManager) {
-        return cacheManager.createCache(VirSchemaRepoExt.CACHE,
-                new MutableConfiguration<EntityCacheKey, Neo4jVirSchema>().
-                        setTypes(EntityCacheKey.class, Neo4jVirSchema.class).
-                        setStoreByValue(false).
-                        setReadThrough(true).
-                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.ETERNAL)));
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public VirSchemaRepoExt virSchemaRepoExt(
-            final @Lazy ExternalResourceDAO resourceDAO,
-            final Neo4jTemplate neo4jTemplate,
-            final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator,
-            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
-
-        return new VirSchemaRepoExtImpl(
-                resourceDAO,
-                neo4jTemplate,
-                neo4jClient,
-                nodeValidator,
-                virSchemaCache);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public VirSchemaDAO virSchemaDAO(
-            final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
-            final VirSchemaRepoExt virSchemaRepoExt) {
-
-        return neo4jRepositoryFactory.getRepository(VirSchemaRepo.class, virSchemaRepoExt);
     }
 
     @ConditionalOnMissingBean

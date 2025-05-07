@@ -23,13 +23,11 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +40,6 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final AnyTypeDAO anyTypeDAO;
 
     protected final EntityFactory entityFactory;
@@ -51,13 +47,11 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
     public AnyTypeClassDataBinderImpl(
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyTypeDAO anyTypeDAO,
             final EntityFactory entityFactory) {
 
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.entityFactory = entityFactory;
     }
@@ -108,23 +102,6 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 derSchemaDAO.save(schema);
             }
         });
-
-        virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass)).forEach(schema -> {
-            schema.setAnyTypeClass(null);
-            virSchemaDAO.save(schema);
-        });
-
-        anyTypeClass.getVirSchemas().clear();
-        anyTypeClassTO.getVirSchemas().forEach(key -> {
-            VirSchema schema = virSchemaDAO.findById(key).orElse(null);
-            if (schema == null || schema.getAnyTypeClass() != null) {
-                LOG.debug("Invalid or already in use: {} {}, ignoring...", VirSchema.class.getSimpleName(), key);
-            } else {
-                anyTypeClass.add(schema);
-                schema.setAnyTypeClass(anyTypeClass);
-                virSchemaDAO.save(schema);
-            }
-        });
     }
 
     @Override
@@ -141,8 +118,6 @@ public class AnyTypeClassDataBinderImpl implements AnyTypeClassDataBinder {
                 anyTypeClass.getPlainSchemas().stream().map(PlainSchema::getKey).toList());
         anyTypeClassTO.getDerSchemas().addAll(
                 anyTypeClass.getDerSchemas().stream().map(DerSchema::getKey).toList());
-        anyTypeClassTO.getVirSchemas().addAll(
-                anyTypeClass.getVirSchemas().stream().map(VirSchema::getKey).toList());
 
         return anyTypeClassTO;
     }

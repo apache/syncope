@@ -39,7 +39,6 @@ import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
@@ -86,7 +85,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
@@ -101,7 +99,6 @@ public class AnyObjectRepoExtImpl extends AbstractAnyRepoExt<AnyObject, Neo4jAny
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 dynRealmDAO,
                 anyFinder,
                 anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT),

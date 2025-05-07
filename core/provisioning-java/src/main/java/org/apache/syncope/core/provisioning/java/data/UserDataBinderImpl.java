@@ -85,7 +85,6 @@ import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -120,7 +119,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -144,7 +142,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
-                virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
@@ -759,7 +756,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                 user.getAuxClasses(),
                 user.getPlainAttrs(),
                 derAttrHandler.getValues(user),
-                details ? virAttrHandler.getValues(user) : Map.of(),
                 userDAO.findAllResources(user));
 
         // dynamic realms
@@ -781,7 +777,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
             userTO.getMemberships().addAll(user.getMemberships().stream().
                     map(membership -> getMembershipTO(user.getPlainAttrs(membership),
                     derAttrHandler.getValues(user, membership),
-                    virAttrHandler.getValues(user, membership),
                     membership)).toList());
 
             // dynamic memberships

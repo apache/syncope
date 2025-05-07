@@ -359,8 +359,6 @@ public class ResourceDirectoryPanel extends
                     ResourceTO resource = restClient.read(key);
                     resource.setKey("Copy of " + resource.getKey());
                     // reset some resource objects keys
-                    resource.getProvisions().stream().filter(p -> p.getMapping() != null).
-                            forEach(p -> p.getVirSchemas().clear());
                     target.add(modal.setContent(new ResourceWizardBuilder(
                             resource, restClient, connectorRestClient, pageRef).
                             build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));

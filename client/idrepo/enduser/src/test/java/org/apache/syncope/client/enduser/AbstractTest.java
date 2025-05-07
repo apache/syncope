@@ -216,8 +216,6 @@ public abstract class AbstractTest {
                 numbersInfo.getConfCompleteness().put(
                         NumbersInfo.ConfItem.PULL_TASK.name(), false);
                 numbersInfo.getConfCompleteness().put(
-                        NumbersInfo.ConfItem.VIR_SCHEMA.name(), false);
-                numbersInfo.getConfCompleteness().put(
                         NumbersInfo.ConfItem.ANY_TYPE.name(), false);
                 numbersInfo.getConfCompleteness().put(
                         NumbersInfo.ConfItem.SECURITY_QUESTION.name(), false);

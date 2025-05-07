@@ -97,24 +97,6 @@ public abstract class AnyCR implements BaseBean, RealmMember {
         }
 
         @SuppressWarnings("unchecked")
-        public B virAttr(final Attr virAttr) {
-            getInstance().getVirAttrs().add(virAttr);
-            return (B) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public B virAttrs(final Collection<Attr> virAttrs) {
-            getInstance().getVirAttrs().addAll(virAttrs);
-            return (B) this;
-        }
-
-        @SuppressWarnings("unchecked")
-        public B virAttrs(final Attr... virAttrs) {
-            getInstance().getVirAttrs().addAll(List.of(virAttrs));
-            return (B) this;
-        }
-
-        @SuppressWarnings("unchecked")
         public B resource(final String resource) {
             getInstance().getResources().add(resource);
             return (B) this;
@@ -146,8 +128,6 @@ public abstract class AnyCR implements BaseBean, RealmMember {
     private final Set<String> auxClasses = new HashSet<>();
 
     private final Set<Attr> plainAttrs = new HashSet<>();
-
-    private final Set<Attr> virAttrs = new HashSet<>();
 
     private final Set<String> resources = new HashSet<>();
 
@@ -199,19 +179,6 @@ public abstract class AnyCR implements BaseBean, RealmMember {
         return Set.of();
     }
 
-    @JsonIgnore
-    @Override
-    public Optional<Attr> getVirAttr(final String schema) {
-        return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "virAttrs")
-    @JacksonXmlProperty(localName = "virAttr")
-    @Override
-    public Set<Attr> getVirAttrs() {
-        return virAttrs;
-    }
-
     @JacksonXmlElementWrapper(localName = "resources")
     @JacksonXmlProperty(localName = "resource")
     @Override
@@ -226,7 +193,6 @@ public abstract class AnyCR implements BaseBean, RealmMember {
                 append(realm).
                 append(auxClasses).
                 append(plainAttrs).
-                append(virAttrs).
                 append(resources).
                 build();
     }
@@ -248,7 +214,6 @@ public abstract class AnyCR implements BaseBean, RealmMember {
                 append(realm, other.realm).
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
-                append(virAttrs, other.virAttrs).
                 append(resources, other.resources).
                 build();
     }

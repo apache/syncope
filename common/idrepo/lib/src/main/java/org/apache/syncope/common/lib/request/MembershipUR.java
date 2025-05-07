@@ -58,28 +58,11 @@ public class MembershipUR extends AbstractPatch {
             getInstance().getPlainAttrs().addAll(plainAttrs);
             return this;
         }
-
-        public Builder virAttr(final Attr virAttr) {
-            getInstance().getVirAttrs().add(virAttr);
-            return this;
-        }
-
-        public Builder virAttrs(final Attr... virAttrs) {
-            getInstance().getVirAttrs().addAll(List.of(virAttrs));
-            return this;
-        }
-
-        public Builder virAttrs(final Collection<Attr> virAttrs) {
-            getInstance().getVirAttrs().addAll(virAttrs);
-            return this;
-        }
     }
 
     private String group;
 
     private final Set<Attr> plainAttrs = new HashSet<>();
-
-    private final Set<Attr> virAttrs = new HashSet<>();
 
     public String getGroup() {
         return group;
@@ -95,19 +78,12 @@ public class MembershipUR extends AbstractPatch {
         return plainAttrs;
     }
 
-    @JacksonXmlElementWrapper(localName = "virAttrs")
-    @JacksonXmlProperty(localName = "virAttr")
-    public Set<Attr> getVirAttrs() {
-        return virAttrs;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(group).
                 append(plainAttrs).
-                append(virAttrs).
                 build();
     }
 
@@ -127,7 +103,6 @@ public class MembershipUR extends AbstractPatch {
                 appendSuper(super.equals(obj)).
                 append(group, other.group).
                 append(plainAttrs, other.plainAttrs).
-                append(virAttrs, other.virAttrs).
                 build();
     }
 }

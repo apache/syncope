@@ -36,7 +36,6 @@ import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.commons.StatusProvider;
-import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.Dashboard;
@@ -98,8 +97,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     protected final StatusProvider statusProvider;
 
-    protected final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider;
-
     protected final ImplementationInfoProvider implementationInfoProvider;
 
     protected final AccessPolicyConfProvider accessPolicyConfProvider;
@@ -119,7 +116,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
             final AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider,
             final AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps,
             final StatusProvider statusProvider,
-            final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
             final AccessPolicyConfProvider accessPolicyConfProvider,
             final List<PolicyTabProvider> policyTabProviders,
@@ -134,7 +130,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         this.anyDirectoryPanelAdditionalActionLinksProvider = anyDirectoryPanelAdditionalActionLinksProvider;
         this.anyWizardBuilderAdditionalSteps = anyWizardBuilderAdditionalSteps;
         this.statusProvider = statusProvider;
-        this.virSchemaDetailsPanelProvider = virSchemaDetailsPanelProvider;
         this.implementationInfoProvider = implementationInfoProvider;
         this.accessPolicyConfProvider = accessPolicyConfProvider;
         this.policyTabProviders = policyTabProviders;
@@ -340,10 +335,6 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public StatusProvider getStatusProvider() {
         return statusProvider;
-    }
-
-    public VirSchemaDetailsPanelProvider getVirSchemaDetailsPanelProvider() {
-        return virSchemaDetailsPanelProvider;
     }
 
     public ImplementationInfoProvider getImplementationInfoProvider() {

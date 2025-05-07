@@ -28,7 +28,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
@@ -59,8 +58,6 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
 
     protected final Cache<EntityCacheKey, Neo4jUser> userCache;
 
-    protected final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache;
-
     public CacheCleaningTransactionExecutionListener(
             final Cache<EntityCacheKey, Neo4jAnyType> anyTypeCache,
             final Cache<EntityCacheKey, Neo4jAnyObject> anyObjectCache,
@@ -72,8 +69,7 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache,
             final Cache<EntityCacheKey, Neo4jRole> roleCache,
-            final Cache<EntityCacheKey, Neo4jUser> userCache,
-            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache) {
 
         this.anyTypeCache = anyTypeCache;
         this.anyObjectCache = anyObjectCache;
@@ -86,7 +82,6 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
         this.realmCache = realmCache;
         this.roleCache = roleCache;
         this.userCache = userCache;
-        this.virSchemaCache = virSchemaCache;
     }
 
     @Override
@@ -105,7 +100,6 @@ public class CacheCleaningTransactionExecutionListener implements TransactionExe
         } else if (transaction.getTransactionName().contains("Schema")) {
             derSchemaCache.removeAll();
             plainSchemaCache.removeAll();
-            virSchemaCache.removeAll();
         } else if (transaction.getTransactionName().contains("Resource")) {
             externalResourceCache.removeAll();
         } else if (transaction.getTransactionName().contains("Group")) {

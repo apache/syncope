@@ -57,7 +57,6 @@ under the License.
   <entry key="Schema_id">CREATE CONSTRAINT Schema_id FOR (n:Schema) REQUIRE n.id IS UNIQUE</entry>
   <entry key="PlainSchema_id">CREATE INDEX PlainSchema_id FOR (n:PlainSchema) ON (n.id)</entry>
   <entry key="DerSchema_id">CREATE INDEX DerSchema_id FOR (n:DerSchema) ON (n.id)</entry>
-  <entry key="VirSchema_id">CREATE INDEX VirSchema_id FOR (n:VirSchema) ON (n.id)</entry>
 
   <entry key="SRARoute_name">CREATE CONSTRAINT SRARoute_name FOR (n:SRARoute) REQUIRE n.name IS UNIQUE</entry>
 
