@@ -30,8 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 /**
  * Transforms values to be propagated to (or pulling from) external resources right before they leave (or enter)
  * the Syncope internal storage.
- *
- * These transformations are not applied to virtual attribute values.
  */
 public interface ItemTransformer {
 

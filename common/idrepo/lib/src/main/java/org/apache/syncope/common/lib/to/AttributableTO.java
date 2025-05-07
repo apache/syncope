@@ -31,8 +31,4 @@ public interface AttributableTO {
     Set<Attr> getDerAttrs();
 
     Optional<Attr> getDerAttr(String schema);
-
-    Set<Attr> getVirAttrs();
-
-    Optional<Attr> getVirAttr(String schema);
 }

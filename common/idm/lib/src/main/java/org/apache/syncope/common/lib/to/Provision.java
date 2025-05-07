@@ -44,8 +44,6 @@ public class Provision implements Serializable {
 
     private Mapping mapping;
 
-    private final List<String> virSchemas = new ArrayList<>();
-
     public String getAnyType() {
         return anyType;
     }
@@ -100,12 +98,6 @@ public class Provision implements Serializable {
         this.mapping = mapping;
     }
 
-    @JacksonXmlElementWrapper(localName = "virSchemas")
-    @JacksonXmlProperty(localName = "virSchema")
-    public List<String> getVirSchemas() {
-        return virSchemas;
-    }
-
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -126,7 +118,6 @@ public class Provision implements Serializable {
                 append(syncToken, other.syncToken).
                 append(uidOnCreate, other.uidOnCreate).
                 append(mapping, other.mapping).
-                append(virSchemas, other.virSchemas).
                 build();
     }
 
@@ -140,7 +131,6 @@ public class Provision implements Serializable {
                 append(ignoreCaseMatch).
                 append(uidOnCreate).
                 append(mapping).
-                append(virSchemas).
                 build();
     }
 }

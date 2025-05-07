@@ -69,16 +69,6 @@ public class CSVPushSpec extends AbstractCSVSpec {
             return this;
         }
 
-        public Builder virAttr(final String virAttr) {
-            getInstance().getVirAttrs().add(virAttr);
-            return this;
-        }
-
-        public Builder virAttrs(final Collection<String> virAttrs) {
-            getInstance().getVirAttrs().addAll(virAttrs);
-            return this;
-        }
-
         public Builder ignorePaging(final boolean ignorePaging) {
             getInstance().setIgnorePaging(ignorePaging);
             return this;
@@ -95,8 +85,6 @@ public class CSVPushSpec extends AbstractCSVSpec {
     private List<String> plainAttrs = new ArrayList<>();
 
     private List<String> derAttrs = new ArrayList<>();
-
-    private List<String> virAttrs = new ArrayList<>();
 
     private Boolean ignorePaging;
 
@@ -127,15 +115,6 @@ public class CSVPushSpec extends AbstractCSVSpec {
     @QueryParam("derAttrs")
     public void setDerAttrs(final List<String> derAttrs) {
         this.derAttrs = derAttrs;
-    }
-
-    public List<String> getVirAttrs() {
-        return virAttrs;
-    }
-
-    @QueryParam("virAttrs")
-    public void setVirAttrs(final List<String> virAttrs) {
-        this.virAttrs = virAttrs;
     }
 
     public Boolean getIgnorePaging() {

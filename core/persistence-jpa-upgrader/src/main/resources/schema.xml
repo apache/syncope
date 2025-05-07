@@ -96,10 +96,10 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="anyType_filter" type="clob" size="-1"/>
-            <column name="ANYTYPE_ID" type="varchar" size="255"/>
             <column name="NOTIFICATION_ID" type="varchar" size="36"/>
-            <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <column name="ANYTYPE_ID" type="varchar" size="255"/>
             <fk to-table="Notification" column="NOTIFICATION_ID"/>
+            <fk to-table="AnyType" column="ANYTYPE_ID"/>
             <index name="I_NYABOUT_ANYTYPE" column="ANYTYPE_ID"/>
             <index name="I_NYABOUT_NOTIFICATION" column="NOTIFICATION_ID"/>
             <unique name="U_NYABOUT_NOTIFICATION_ID">
@@ -280,6 +280,7 @@ under the License.
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="clientAppId" type="bigint" not-null="true"/>
             <column name="description" type="varchar" size="255"/>
+            <column name="evaluationOrder" type="integer"/>
             <column name="informationUrl" type="varchar" size="255"/>
             <column name="logo" type="varchar" size="255"/>
             <column name="logoutType" type="varchar" size="20"/>
@@ -547,6 +548,7 @@ under the License.
             <column name="syncStatus" type="bit"/>
             <column name="unmatchingRule" type="varchar" size="20"/>
             <column name="remediation" type="bit"/>
+            <column name="delaySecondsAcrossInvocations" type="integer"/>
             <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
             <column name="RESOURCE_ID" type="varchar" size="255"/>
             <column name="DESTINATIONREALM_ID" type="varchar" size="36"/>
@@ -704,6 +706,7 @@ under the License.
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="clientAppId" type="bigint" not-null="true"/>
             <column name="description" type="varchar" size="255"/>
+            <column name="evaluationOrder" type="integer"/>
             <column name="informationUrl" type="varchar" size="255"/>
             <column name="logo" type="varchar" size="255"/>
             <column name="logoutType" type="varchar" size="20"/>
@@ -712,10 +715,16 @@ under the License.
             <column name="properties" type="clob" size="-1"/>
             <column name="theme" type="varchar" size="255"/>
             <column name="usernameAttributeProviderConf" type="clob" size="-1"/>
+            <column name="applicationType" type="varchar" size="20"/>
             <column name="bypassApprovalPrompt" type="bit"/>
             <column name="clientId" type="varchar" not-null="true" size="255"/>
             <column name="clientSecret" type="varchar" size="255"/>
+            <column name="encryptIdToken" type="bit"/>
             <column name="generateRefreshToken" type="bit"/>
+            <column name="idTokenEncryptionAlg" type="varchar" size="20"/>
+            <column name="idTokenEncryptionEncoding" type="varchar" size="20"/>
+            <column name="idTokenIssuer" type="varchar" size="255"/>
+            <column name="idTokenSigningAlg" type="varchar" size="20"/>
             <column name="jwks" type="clob" size="-1"/>
             <column name="jwksUri" type="varchar" size="255"/>
             <column name="jwtAccessToken" type="bit"/>
@@ -727,6 +736,9 @@ under the License.
             <column name="supportedGrantTypes" type="clob" size="-1"/>
             <column name="supportedResponseTypes" type="clob" size="-1"/>
             <column name="tokenEndpointAuthenticationMethod" type="varchar" size="20"/>
+            <column name="userInfoEncryptedResponseAlg" type="varchar" size="20"/>
+            <column name="userInfoEncryptedResponseEncoding" type="varchar" size="20"/>
+            <column name="userInfoSigningAlg" type="varchar" size="20"/>
             <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
             <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
             <column name="AUTHPOLICY_ID" type="varchar" size="36"/>
@@ -960,8 +972,10 @@ under the License.
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="fullPath" type="varchar" not-null="true" size="255"/>
             <column name="name" type="varchar" size="255"/>
+            <column name="plainAttrs" type="varchar" size="255"/>
             <column name="ACCESSPOLICY_ID" type="varchar" size="36"/>
             <column name="ACCOUNTPOLICY_ID" type="varchar" size="36"/>
+            <column name="ANYTYPECLASS_ID" type="varchar" size="255"/>
             <column name="ATTRRELEASEPOLICY_ID" type="varchar" size="36"/>
             <column name="AUTHPOLICY_ID" type="varchar" size="36"/>
             <column name="PARENT_ID" type="varchar" size="36"/>
@@ -969,6 +983,7 @@ under the License.
             <column name="TICKETEXPIRATIONPOLICY_ID" type="varchar" size="36"/>
             <fk to-table="AccessPolicy" column="ACCESSPOLICY_ID"/>
             <fk to-table="AccountPolicy" column="ACCOUNTPOLICY_ID"/>
+            <fk to-table="AnyTypeClass" column="ANYTYPECLASS_ID"/>
             <fk to-table="AttrReleasePolicy" column="ATTRRELEASEPOLICY_ID"/>
             <fk to-table="AuthPolicy" column="AUTHPOLICY_ID"/>
             <fk to-table="Realm" column="PARENT_ID"/>
@@ -976,6 +991,7 @@ under the License.
             <fk to-table="TicketExpirationPolicy" column="TICKETEXPIRATIONPOLICY_ID"/>
             <index name="I_REALM_ACCESSPOLICY" column="ACCESSPOLICY_ID"/>
             <index name="I_REALM_ACCOUNTPOLICY" column="ACCOUNTPOLICY_ID"/>
+            <index name="I_REALM_ANYTYPECLASS" column="ANYTYPECLASS_ID"/>
             <index name="I_REALM_ATTRRELEASEPOLICY" column="ATTRRELEASEPOLICY_ID"/>
             <index name="I_REALM_AUTHPOLICY" column="AUTHPOLICY_ID"/>
             <index name="I_REALM_PARENT" column="PARENT_ID"/>
@@ -1077,6 +1093,7 @@ under the License.
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="clientAppId" type="bigint" not-null="true"/>
             <column name="description" type="varchar" size="255"/>
+            <column name="evaluationOrder" type="integer"/>
             <column name="informationUrl" type="varchar" size="255"/>
             <column name="logo" type="varchar" size="255"/>
             <column name="logoutType" type="varchar" size="20"/>
@@ -1168,9 +1185,9 @@ under the License.
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="SchedTask" column="TASK_ID"/>
             <fk to-table="PullTask" column="TASK_ID"/>
-            <fk to-table="PushTask" column="TASK_ID"/>
             <fk to-table="MacroTask" column="TASK_ID"/>
             <fk to-table="LiveSyncTask" column="TASK_ID"/>
+            <fk to-table="PushTask" column="TASK_ID"/>
             <index name="I_SCHDKXC_TASK" column="TASK_ID"/>
         </table>
         <table name="SecurityQuestion">
@@ -1407,22 +1424,6 @@ under the License.
                 <on column="user_id"/>
                 <on column="anyObject_id"/>
             </unique>
-        </table>
-        <table name="VirSchema">
-            <pk column="id"/>
-            <column name="id" type="varchar" not-null="true" size="255"/>
-            <column name="extAttrName" type="varchar" size="255"/>
-            <column name="readonly" type="bit"/>
-            <column name="ANYTYPECLASS_ID" type="varchar" size="255"/>
-            <column name="ANYTYPE_ID" type="varchar" size="255"/>
-            <column name="RESOURCE_ID" type="varchar" size="255"/>
-            <fk to-table="SyncopeSchema" column="id"/>
-            <fk to-table="AnyTypeClass" column="ANYTYPECLASS_ID"/>
-            <fk to-table="AnyType" column="ANYTYPE_ID"/>
-            <fk to-table="ExternalResource" column="RESOURCE_ID"/>
-            <index name="I_VIRSCHM_ANYTYPE" column="ANYTYPE_ID"/>
-            <index name="I_VIRSCHM_ANYTYPECLASS" column="ANYTYPECLASS_ID"/>
-            <index name="I_VIRSCHM_RESOURCE" column="RESOURCE_ID"/>
         </table>
         <table name="WAConfigEntry">
             <pk column="id"/>

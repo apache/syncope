@@ -51,11 +51,6 @@ public class TemplateUtils {
                     && !JexlUtils.isExpressionValid(attrTO.getValues().getFirst())).
                     forEachOrdered(attrTO -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().getFirst()));
 
-            value.getVirAttrs().stream().
-                    filter(attrTO -> !attrTO.getValues().isEmpty()
-                    && !JexlUtils.isExpressionValid(attrTO.getValues().getFirst())).
-                    forEachOrdered((attrTO) -> sce.getElements().add("Invalid JEXL: " + attrTO.getValues().getFirst()));
-
             switch (value) {
                 case UserTO template -> {
                     if (StringUtils.isNotBlank(template.getUsername())
@@ -107,7 +102,6 @@ public class TemplateUtils {
         JexlUtils.addFieldsToContext(realmMember, jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
-        JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
         if (template.getRealm() != null) {
             String evaluated = JexlUtils.evaluateExpr(template.getRealm(), jexlContext).toString();
@@ -134,20 +128,6 @@ public class TemplateUtils {
         for (Attr templateDerAttr : template.getDerAttrs()) {
             if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
                 realmMember.getDerAttrs().add(templateDerAttr);
-            }
-        }
-
-        currentAttrMap = EntityTOUtils.buildAttrMap(realmMember.getVirAttrs());
-        for (Attr templateVirAttr : template.getVirAttrs()) {
-            if (!templateVirAttr.getValues().isEmpty()
-                    && (!currentAttrMap.containsKey(templateVirAttr.getSchema())
-                    || currentAttrMap.get(templateVirAttr.getSchema()).getValues().isEmpty())) {
-
-                Attr evaluated = evaluateAttr(templateVirAttr, jexlContext);
-                if (!evaluated.getValues().isEmpty()) {
-                    realmMember.getVirAttrs().add(evaluated);
-                    jexlContext.set(evaluated.getSchema(), evaluated.getValues().getFirst());
-                }
             }
         }
 
@@ -186,7 +166,6 @@ public class TemplateUtils {
         JexlUtils.addFieldsToContext(realmMember, jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getPlainAttrs(), jexlContext);
         JexlUtils.addAttrsToContext(realmMember.getDerAttrs(), jexlContext);
-        JexlUtils.addAttrsToContext(realmMember.getVirAttrs(), jexlContext);
 
         switch (template) {
             case AnyObjectTO anyObjectTO -> {
@@ -238,13 +217,13 @@ public class TemplateUtils {
                 fillMemberships((GroupableRelatableTO) realmMember, ((GroupableRelatableTO) template));
 
                 userTO.getRoles().
-                    forEach(role -> {
-                        if (realmMember instanceof UserTO urm) {
-                            urm.getRoles().add(role);
-                        } else if (realmMember instanceof UserCR urm) {
-                            urm.getRoles().add(role);
-                        }
-                });
+                        forEach(role -> {
+                            if (realmMember instanceof UserTO urm) {
+                                urm.getRoles().add(role);
+                            } else if (realmMember instanceof UserCR urm) {
+                                urm.getRoles().add(role);
+                            }
+                        });
 
                 userTO.getLinkedAccounts().forEach(account -> {
                     if (realmMember instanceof UserTO urm && urm.getLinkedAccounts().stream().

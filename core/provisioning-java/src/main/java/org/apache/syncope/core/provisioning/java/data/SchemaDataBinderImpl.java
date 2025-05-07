@@ -26,7 +26,6 @@ import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -35,16 +34,12 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.slf4j.Logger;
@@ -60,8 +55,6 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final ExternalResourceDAO resourceDAO;
 
     protected final AnyTypeDAO anyTypeDAO;
@@ -76,7 +69,6 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO,
@@ -86,7 +78,6 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.resourceDAO = resourceDAO;
         this.anyTypeDAO = anyTypeDAO;
         this.implementationDAO = implementationDAO;
@@ -299,89 +290,6 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         schemaTO.setExpression(schema.getExpression());
         schemaTO.getLabels().putAll(schema.getLabels());
         schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
-        return schemaTO;
-    }
-
-    // --------------- VIRTUAL -----------------
-    protected VirSchema fill(final VirSchema schema, final VirSchemaTO schemaTO) {
-        schema.setKey(schemaTO.getKey());
-        schema.setExtAttrName(schemaTO.getExtAttrName());
-        schema.setReadonly(schemaTO.isReadonly());
-
-        schema.getLabels().clear();
-        schema.getLabels().putAll(schemaTO.getLabels());
-
-        ExternalResource resource = resourceDAO.findById(schemaTO.getResource()).orElseThrow(() -> {
-            SyncopeClientException sce = SyncopeClientException.build(
-                    ClientExceptionType.InvalidSchemaDefinition);
-            sce.getElements().add("Resource " + schemaTO.getResource() + " not found");
-            return sce;
-        });
-        AnyType anyType = anyTypeDAO.findById(schemaTO.getAnyType()).orElseThrow(() -> {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
-            sce.getElements().add("AnyType " + schemaTO.getAnyType() + " not found");
-            return sce;
-        });
-        resource.getProvisionByAnyType(anyType.getKey()).orElseThrow(() -> {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSchemaDefinition);
-            sce.getElements().add("Provision for AnyType" + schemaTO.getAnyType()
-                    + " not found in " + schemaTO.getResource());
-            return sce;
-        });
-        schema.setResource(resource);
-        schema.setAnyType(anyType);
-
-        VirSchema saved = virSchemaDAO.save(schema);
-
-        Mutable<AnyTypeClass> atc = new MutableObject<>();
-        if (schemaTO.getAnyTypeClass() != null
-                && (saved.getAnyTypeClass() == null
-                || !schemaTO.getAnyTypeClass().equals(saved.getAnyTypeClass().getKey()))) {
-
-            anyTypeClassDAO.findById(schemaTO.getAnyTypeClass()).ifPresentOrElse(
-                    anyTypeClass -> {
-                        anyTypeClass.add(saved);
-                        saved.setAnyTypeClass(anyTypeClass);
-
-                        atc.setValue(anyTypeClass);
-                    },
-                    () -> LOG.debug("Invalid {}{}, ignoring...",
-                            AnyTypeClass.class.getSimpleName(), schemaTO.getAnyTypeClass()));
-        } else if (schemaTO.getAnyTypeClass() == null && saved.getAnyTypeClass() != null) {
-            saved.getAnyTypeClass().getVirSchemas().remove(saved);
-            saved.setAnyTypeClass(null);
-
-            atc.setValue(saved.getAnyTypeClass());
-        }
-
-        VirSchema filled = virSchemaDAO.save(saved);
-        Optional.ofNullable(atc.getValue()).ifPresent(anyTypeClassDAO::save);
-        return filled;
-    }
-
-    @Override
-    public VirSchema create(final VirSchemaTO schemaTO) {
-        return fill(entityFactory.newEntity(VirSchema.class), schemaTO);
-    }
-
-    @Override
-    public VirSchema update(final VirSchemaTO schemaTO, final VirSchema schema) {
-        return fill(schema, schemaTO);
-    }
-
-    @Override
-    public VirSchemaTO getVirSchemaTO(final String key) {
-        VirSchema schema = virSchemaDAO.findById(key).
-                orElseThrow(() -> new NotFoundException("VirSchema " + key));
-
-        VirSchemaTO schemaTO = new VirSchemaTO();
-        schemaTO.setKey(schema.getKey());
-        schemaTO.setExtAttrName(schema.getExtAttrName());
-        schemaTO.setReadonly(schema.isReadonly());
-        schemaTO.getLabels().putAll(schema.getLabels());
-        schemaTO.setAnyTypeClass(schema.getAnyTypeClass() == null ? null : schema.getAnyTypeClass().getKey());
-        schemaTO.setResource(schema.getResource().getKey());
-        schemaTO.setAnyType(schema.getAnyType().getKey());
         return schemaTO;
     }
 }

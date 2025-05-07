@@ -850,7 +850,6 @@ public class UserITCase extends AbstractITCase {
     public void updateMultivalueAttribute() {
         UserCR userCR = getUniqueSample("multivalue@syncope.apache.org");
         userCR.getResources().clear();
-        userCR.getVirAttrs().clear();
 
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO);
@@ -911,7 +910,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("checkGroupAttrPropagation@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
 
         userCR.getAuxClasses().add("csv");
 
@@ -1099,7 +1097,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("unlink@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1124,7 +1121,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("link@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
         UserTO actual = createUser(userCR).getEntity();
@@ -1160,7 +1156,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("unassign@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1190,7 +1185,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("assign@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
         UserTO actual = createUser(userCR).getEntity();
@@ -1220,7 +1214,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("deprovision@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
         userCR.getResources().add(RESOURCE_NAME_CSV);
 
@@ -1250,7 +1243,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("provision@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
         UserTO actual = createUser(userCR).getEntity();
@@ -1280,7 +1272,6 @@ public class UserITCase extends AbstractITCase {
         UserCR userCR = getUniqueSample("provision@syncope.apache.org");
         userCR.getResources().clear();
         userCR.getMemberships().clear();
-        userCR.getVirAttrs().clear();
         userCR.getAuxClasses().add("csv");
 
         UserTO actual = createUser(userCR).getEntity();

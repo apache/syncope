@@ -20,11 +20,6 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import javax.cache.Cache;
-import javax.cache.CacheManager;
-import javax.cache.configuration.MutableConfiguration;
-import javax.cache.expiry.CreatedExpiryPolicy;
-import javax.cache.expiry.Duration;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -60,7 +55,6 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskExecDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -77,7 +71,6 @@ import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
@@ -116,8 +109,6 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationJobDele
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
-import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.data.AccessTokenDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyObjectDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.AnyTypeClassDataBinderImpl;
@@ -180,7 +171,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -344,9 +334,7 @@ public class ProvisioningContext {
             final AnySearchDAO anySearchDAO,
             final RealmDAO realmDAO,
             final RealmSearchDAO realmSearchDAO,
-            final VirSchemaDAO virSchemaDAO,
             final ImplementationDAO implementationDAO,
-            final VirAttrHandler virAttrHandler,
             final IntAttrNameParser intAttrNameParser) {
 
         return new InboundMatcher(
@@ -356,9 +344,7 @@ public class ProvisioningContext {
                 anySearchDAO,
                 realmDAO,
                 realmSearchDAO,
-                virSchemaDAO,
                 implementationDAO,
-                virAttrHandler,
                 intAttrNameParser,
                 anyUtilsFactory);
     }
@@ -368,28 +354,15 @@ public class ProvisioningContext {
     public OutboundMatcher outboundMatcher(
             final AnyUtilsFactory anyUtilsFactory,
             final MappingManager mappingManager,
-            final UserDAO userDAO,
-            final VirSchemaDAO virSchemaDAO,
-            final VirAttrHandler virAttrHandler) {
+            final UserDAO userDAO) {
 
-        return new OutboundMatcher(mappingManager, userDAO, anyUtilsFactory, virSchemaDAO, virAttrHandler);
+        return new OutboundMatcher(mappingManager, userDAO, anyUtilsFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
     public DerAttrHandler derAttrHandler(final AnyUtilsFactory anyUtilsFactory) {
         return new DefaultDerAttrHandler(anyUtilsFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public VirAttrHandler virAttrHandler(
-            final AnyUtilsFactory anyUtilsFactory,
-            final ConnectorManager connectorManager,
-            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
-            @Lazy final OutboundMatcher outboundMatcher) {
-
-        return new DefaultVirAttrHandler(connectorManager, virAttrCache, outboundMatcher, anyUtilsFactory);
     }
 
     @ConditionalOnMissingBean
@@ -403,8 +376,6 @@ public class ProvisioningContext {
             final RealmSearchDAO realmSearchDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
-            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
             final IntAttrNameParser intAttrNameParser,
             final EncryptorManager encryptorManager) {
 
@@ -417,8 +388,6 @@ public class ProvisioningContext {
                 realmSearchDAO,
                 implementationDAO,
                 derAttrHandler,
-                virAttrHandler,
-                virAttrCache,
                 intAttrNameParser,
                 encryptorManager);
     }
@@ -457,14 +426,12 @@ public class ProvisioningContext {
     public PropagationManager propagationManager(
             final EntityFactory entityFactory,
             final AnyUtilsFactory anyUtilsFactory,
-            final VirSchemaDAO virSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnObjectUtils connObjectUtils,
             final MappingManager mappingManager,
             final DerAttrHandler derAttrHandler) {
 
         return new DefaultPropagationManager(
-                virSchemaDAO,
                 resourceDAO,
                 entityFactory,
                 connObjectUtils,
@@ -485,10 +452,9 @@ public class ProvisioningContext {
             final AnyUtilsFactory anyUtilsFactory,
             final RealmUtils realmUtils,
             final PlainSchemaDAO plainSchemaDAO,
-            final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO) {
+            final DerSchemaDAO derSchemaDAO) {
 
-        return new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyUtilsFactory, realmUtils);
+        return new IntAttrNameParser(plainSchemaDAO, derSchemaDAO, anyUtilsFactory, realmUtils);
     }
 
     @ConditionalOnMissingBean
@@ -533,15 +499,13 @@ public class ProvisioningContext {
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final UserDAO userDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final UserDAO userDAO) {
 
         return new DefaultUserProvisioningManager(
                 uwfAdapter,
                 propagationManager,
                 taskExecutor,
-                userDAO,
-                virtAttrHandler);
+                userDAO);
     }
 
     @ConditionalOnMissingBean
@@ -551,16 +515,14 @@ public class ProvisioningContext {
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
             final GroupDataBinder groupDataBinder,
-            final GroupDAO groupDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final GroupDAO groupDAO) {
 
         return new DefaultGroupProvisioningManager(
                 gwfAdapter,
                 propagationManager,
                 taskExecutor,
                 groupDataBinder,
-                groupDAO,
-                virtAttrHandler);
+                groupDAO);
     }
 
     @ConditionalOnMissingBean
@@ -569,26 +531,13 @@ public class ProvisioningContext {
             final AnyObjectWorkflowAdapter awfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final AnyObjectDAO anyObjectDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final AnyObjectDAO anyObjectDAO) {
 
         return new DefaultAnyObjectProvisioningManager(
                 awfAdapter,
                 propagationManager,
                 taskExecutor,
-                anyObjectDAO,
-                virtAttrHandler);
-    }
-
-    @ConditionalOnMissingBean(name = VirAttrHandler.CACHE)
-    @Bean(name = VirAttrHandler.CACHE)
-    public Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache(final CacheManager cacheManager) {
-        return cacheManager.createCache(VirAttrHandler.CACHE,
-                new MutableConfiguration<VirAttrCacheKey, VirAttrCacheValue>().
-                        setTypes(VirAttrCacheKey.class, VirAttrCacheValue.class).
-                        setStoreByValue(false).
-                        setReadThrough(true).
-                        setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(Duration.FIVE_MINUTES)));
+                anyObjectDAO);
     }
 
     @ConditionalOnMissingBean
@@ -597,7 +546,6 @@ public class ProvisioningContext {
             final EntityFactory entityFactory,
             final SearchCondVisitor searchCondVisitor,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final NotificationDAO notificationDAO,
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
@@ -610,12 +558,10 @@ public class ProvisioningContext {
             final AnyObjectDataBinder anyObjectDataBinder,
             final ConfParamOps confParamOps,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final IntAttrNameParser intAttrNameParser) {
 
         return new DefaultNotificationManager(
                 derSchemaDAO,
-                virSchemaDAO,
                 notificationDAO,
                 anyObjectDAO,
                 userDAO,
@@ -624,7 +570,6 @@ public class ProvisioningContext {
                 anyMatchDAO,
                 taskDAO,
                 derAttrHandler,
-                virAttrHandler,
                 userDataBinder,
                 groupDataBinder,
                 anyObjectDataBinder,
@@ -748,7 +693,6 @@ public class ProvisioningContext {
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -767,7 +711,6 @@ public class ProvisioningContext {
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
-                virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
@@ -780,10 +723,9 @@ public class ProvisioningContext {
             final EntityFactory entityFactory,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyTypeDAO anyTypeDAO) {
 
-        return new AnyTypeClassDataBinderImpl(plainSchemaDAO, derSchemaDAO, virSchemaDAO, anyTypeDAO, entityFactory);
+        return new AnyTypeClassDataBinderImpl(plainSchemaDAO, derSchemaDAO, anyTypeDAO, entityFactory);
     }
 
     @ConditionalOnMissingBean
@@ -897,7 +839,6 @@ public class ProvisioningContext {
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -916,7 +857,6 @@ public class ProvisioningContext {
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
-                virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,
@@ -1029,7 +969,6 @@ public class ProvisioningContext {
             final AnyTypeDAO anyTypeDAO,
             final ConnInstanceDAO connInstanceDAO,
             final PolicyDAO policyDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnyTypeClassDAO anyTypeClassDAO,
             final ImplementationDAO implementationDAO,
             final PlainSchemaDAO plainSchemaDAO,
@@ -1040,7 +979,6 @@ public class ProvisioningContext {
                 anyTypeDAO,
                 connInstanceDAO,
                 policyDAO,
-                virSchemaDAO,
                 anyTypeClassDAO,
                 implementationDAO,
                 plainSchemaDAO,
@@ -1092,7 +1030,6 @@ public class ProvisioningContext {
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final ExternalResourceDAO resourceDAO,
             final AnyTypeDAO anyTypeDAO,
             final ImplementationDAO implementationDAO) {
@@ -1101,7 +1038,6 @@ public class ProvisioningContext {
                 anyTypeClassDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 resourceDAO,
                 anyTypeDAO,
                 implementationDAO,
@@ -1154,7 +1090,6 @@ public class ProvisioningContext {
             final ExternalResourceDAO resourceDAO,
             final RelationshipTypeDAO relationshipTypeDAO,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
             final MappingManager mappingManager,
             final IntAttrNameParser intAttrNameParser,
             final OutboundMatcher outboundMatcher,
@@ -1178,7 +1113,6 @@ public class ProvisioningContext {
                 entityFactory,
                 anyUtilsFactory,
                 derAttrHandler,
-                virAttrHandler,
                 mappingManager,
                 intAttrNameParser,
                 outboundMatcher,

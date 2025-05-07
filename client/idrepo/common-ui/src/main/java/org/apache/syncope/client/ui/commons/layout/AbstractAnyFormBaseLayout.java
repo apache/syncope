@@ -36,8 +36,6 @@ public abstract class AbstractAnyFormBaseLayout<A extends AnyTO, F extends AnyFo
 
     private boolean derAttrs = true;
 
-    private boolean virAttrs = true;
-
     private boolean resources = true;
 
     protected abstract Class<? extends F> getDefaultFormClass();
@@ -80,14 +78,6 @@ public abstract class AbstractAnyFormBaseLayout<A extends AnyTO, F extends AnyFo
 
     public void setDerAttrs(final boolean derAttrs) {
         this.derAttrs = derAttrs;
-    }
-
-    public boolean isVirAttrs() {
-        return virAttrs;
-    }
-
-    public void setVirAttrs(final boolean virAttrs) {
-        this.virAttrs = virAttrs;
     }
 
     public boolean isResources() {

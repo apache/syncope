@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -144,7 +143,6 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
             final PolicyDAO policyDAO,
             final NotificationDAO notificationDAO,
             final TaskDAO taskDAO,
-            final VirSchemaDAO virSchemaDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final PersistenceInfoDAO persistenceInfoDAO,
             final ConfParamOps confParamOps,
@@ -162,7 +160,6 @@ public class SyncopeCoreApplication extends SpringBootServletInitializer {
                 policyDAO,
                 notificationDAO,
                 taskDAO,
-                virSchemaDAO,
                 securityQuestionDAO,
                 persistenceInfoDAO,
                 confParamOps,

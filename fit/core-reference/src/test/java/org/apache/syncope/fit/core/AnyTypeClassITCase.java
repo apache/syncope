@@ -47,7 +47,6 @@ public class AnyTypeClassITCase extends AbstractITCase {
 
         assertFalse(minimalGroup.getPlainSchemas().isEmpty());
         assertFalse(minimalGroup.getDerSchemas().isEmpty());
-        assertFalse(minimalGroup.getVirSchemas().isEmpty());
     }
 
     @Test
@@ -81,7 +80,6 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertNotNull(newClass);
         assertFalse(newClass.getPlainSchemas().isEmpty());
         assertTrue(newClass.getDerSchemas().isEmpty());
-        assertTrue(newClass.getVirSchemas().isEmpty());
 
         newClass.getDerSchemas().add(derSchema.getKey());
         ANY_TYPE_CLASS_SERVICE.update(newClass);
@@ -90,7 +88,6 @@ public class AnyTypeClassITCase extends AbstractITCase {
         assertNotNull(newClass);
         assertFalse(newClass.getPlainSchemas().isEmpty());
         assertFalse(newClass.getDerSchemas().isEmpty());
-        assertTrue(newClass.getVirSchemas().isEmpty());
 
         assertEquals(newClass.getKey(), SCHEMA_SERVICE.read(SchemaType.PLAIN, plainSchema.getKey()).getAnyTypeClass());
         assertEquals(newClass.getKey(), SCHEMA_SERVICE.read(SchemaType.DERIVED, derSchema.getKey()).getAnyTypeClass());

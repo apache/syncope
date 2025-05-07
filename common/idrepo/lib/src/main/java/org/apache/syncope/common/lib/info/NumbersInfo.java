@@ -35,7 +35,6 @@ public class NumbersInfo implements BaseBean {
         PASSWORD_POLICY(10),
         NOTIFICATION(8),
         PULL_TASK(10),
-        VIR_SCHEMA(10),
         ANY_TYPE(5),
         SECURITY_QUESTION(12),
         ROLE(15);

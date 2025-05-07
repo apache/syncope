@@ -33,7 +33,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementationRelationship;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccessPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAccountPolicy;
 import org.apache.syncope.core.persistence.neo4j.entity.policy.Neo4jAttrReleasePolicy;
@@ -84,9 +83,6 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
             }
             case Neo4jDerSchema.NODE -> {
                 return Neo4jDerSchema.NODE + ":" + Neo4jSchema.NODE;
-            }
-            case Neo4jVirSchema.NODE -> {
-                return Neo4jVirSchema.NODE + ":" + Neo4jSchema.NODE;
             }
 
             case Neo4jAccessPolicy.NODE -> {
@@ -181,8 +177,8 @@ public class ContentLoaderHandler extends AbstractContentLoaderHandler {
                 props.put("id", originalValue);
             } else {
                 String name = nodeDesc.getGraphProperties().stream().
-                    map(GraphPropertyDescription::getPropertyName).
-                    filter(propertyName -> propertyName.equalsIgnoreCase(originalName)).
+                        map(GraphPropertyDescription::getPropertyName).
+                        filter(propertyName -> propertyName.equalsIgnoreCase(originalName)).
                         findFirst().orElseGet(() -> originalName.startsWith("plainAttrs.") ? originalName : null);
                 if (name == null) {
                     LOG.error("Property {} not matching for {}", originalName, nodeDesc.getPrimaryLabel());

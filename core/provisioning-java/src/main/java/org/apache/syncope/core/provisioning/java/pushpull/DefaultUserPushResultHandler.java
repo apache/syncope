@@ -93,7 +93,6 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 enabled,
                 propByRes,
                 propByLinkedAccount,
-                before.getVirAttrs(),
                 noPropResources),
                 false,
                 profile.getExecutor());
@@ -131,7 +130,6 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 enable,
                 propByRes,
                 propByLinkedAccount,
-                null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
             taskInfos.getFirst().setBeforeObj(Optional.of(beforeObj));
@@ -230,7 +228,6 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 account.getConnObjectKeyValue(),
                 profile.getTask().getResource(),
                 provision,
-                Optional.empty(),
                 Optional.empty()));
         LOG.debug("Match found for linked account {} as {}: {}", account, provision.getObjectClass(), connObj);
 
@@ -371,7 +368,6 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 enable,
                 new PropagationByResource<>(),
                 propByLinkedAccount,
-                null,
                 null);
         if (!taskInfos.isEmpty()) {
             taskInfos.getFirst().setBeforeObj(Optional.empty());

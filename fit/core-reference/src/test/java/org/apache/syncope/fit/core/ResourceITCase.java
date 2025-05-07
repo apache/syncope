@@ -95,7 +95,7 @@ public class ResourceITCase extends AbstractITCase {
     @Test
     public void getPropagationActionsClasses() {
         Set<String> actions = ANONYMOUS_CLIENT.platform().
-                getJavaImplInfo(IdMImplementationType.PROPAGATION_ACTIONS).get().getClasses();
+                getJavaImplInfo(IdMImplementationType.PROPAGATION_ACTIONS).orElseThrow().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -210,18 +210,18 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping());
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems());
-        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping());
-        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping().getItems());
         assertEquals(
                 MappingPurpose.PULL,
-                actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().
-                        getConnObjectKeyItem().get().getPurpose());
+                actual.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping().
+                        getConnObjectKeyItem().orElseThrow().getPurpose());
         assertEquals(
                 MappingPurpose.PROPAGATION,
-                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().
-                        getConnObjectKeyItem().get().getPurpose());
+                actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().
+                        getConnObjectKeyItem().orElseThrow().getPurpose());
     }
 
     @Test
@@ -376,7 +376,7 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(actual);
 
         // check for existence
-        Collection<Item> mapItems = actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems();
+        Collection<Item> mapItems = actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().getItems();
         assertNotNull(mapItems);
         assertEquals(4, mapItems.size());
     }
@@ -404,7 +404,7 @@ public class ResourceITCase extends AbstractITCase {
         try {
             // create a new resource
             resource = createResource(resource);
-            assertNull(resource.getProvision(PRINTER).get().getSyncToken());
+            assertNull(resource.getProvision(PRINTER).orElseThrow().getSyncToken());
 
             // create some object on the new resource
             anyObject = createAnyObject(anyObjectCR).getEntity();
@@ -413,13 +413,13 @@ public class ResourceITCase extends AbstractITCase {
             RESOURCE_SERVICE.setLatestSyncToken(resource.getKey(), PRINTER);
 
             resource = RESOURCE_SERVICE.read(resource.getKey());
-            assertNotNull(resource.getProvision(PRINTER).get().getSyncToken());
+            assertNotNull(resource.getProvision(PRINTER).orElseThrow().getSyncToken());
 
             // remove sync token
             RESOURCE_SERVICE.removeSyncToken(resource.getKey(), PRINTER);
 
             resource = RESOURCE_SERVICE.read(resource.getKey());
-            assertNull(resource.getProvision(PRINTER).get().getSyncToken());
+            assertNull(resource.getProvision(PRINTER).orElseThrow().getSyncToken());
         } finally {
             if (anyObject != null) {
                 ANY_OBJECT_SERVICE.delete(anyObject.getKey());
@@ -496,13 +496,11 @@ public class ResourceITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBVIRATTR);
+        ResourceTO resource = RESOURCE_SERVICE.read(RESOURCE_NAME_DBPULL);
         assertNotNull(resource);
 
-        Optional<Provision> provision = resource.getProvision(AnyTypeKind.USER.name());
-        assertTrue(provision.isPresent());
-        assertFalse(provision.get().getMapping().getItems().isEmpty());
-        assertFalse(provision.get().getMapping().getLinkingItems().isEmpty());
+        Provision provision = resource.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+        assertFalse(provision.getMapping().getItems().isEmpty());
     }
 
     @Test
@@ -565,14 +563,14 @@ public class ResourceITCase extends AbstractITCase {
 
         ResourceTO resource = RESOURCE_SERVICE.read(name);
         assertNotNull(resource);
-        assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).get().getMapping());
+        assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping());
 
-        resource.getProvision(AnyTypeKind.USER.name()).get().setMapping(null);
+        resource.getProvision(AnyTypeKind.USER.name()).orElseThrow().setMapping(null);
         RESOURCE_SERVICE.update(resource);
 
         resource = RESOURCE_SERVICE.read(name);
         assertNotNull(resource);
-        assertNull(resource.getProvision(AnyTypeKind.USER.name()).get().getMapping());
+        assertNull(resource.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping());
     }
 
     @Test
@@ -606,7 +604,7 @@ public class ResourceITCase extends AbstractITCase {
 
         resourceTO = createResource(resourceTO);
         assertNotNull(resourceTO);
-        assertEquals(2, resourceTO.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().size());
+        assertEquals(2, resourceTO.getProvision(AnyTypeKind.GROUP.name()).orElseThrow().getMapping().getItems().size());
     }
 
     @Test
@@ -655,13 +653,13 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping());
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().getItems());
         assertEquals(
                 MappingPurpose.PROPAGATION,
-                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().
-                        getConnObjectKeyItem().get().getPurpose());
-        actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems().stream().
+                actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().
+                        getConnObjectKeyItem().orElseThrow().getPurpose());
+        actual.getProvision(AnyTypeKind.USER.name()).orElseThrow().getMapping().getItems().stream().
                 filter(itemTO -> ("gender".equals(itemTO.getIntAttrName()))).
                 forEach(itemTO -> assertEquals(MappingPurpose.NONE, itemTO.getPurpose()));
     }

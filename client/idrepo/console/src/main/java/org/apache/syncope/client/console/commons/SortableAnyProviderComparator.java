@@ -91,10 +91,6 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
                     case DERIVED:
                         attr = this.anyTO.getDerAttr(schema).orElse(null);
                         break;
-
-                    case VIRTUAL:
-                        attr = this.anyTO.getVirAttr(schema).orElse(null);
-                        break;
                 }
             }
 

@@ -41,7 +41,7 @@ For each of the identities above, Apache Syncope is capable of maintaining:
  ** `values` is a (possibly singleton) collection of data (e.g. `[Doe]` but also 
 `[\john.doe@syncope.apache.org, \jdoe@gmail.com]`)
  ; the type of values that can be assigned to each attribute is defined via the <<schema,schema>> matching the `key`
-value (e.g. _plain_, _derived_ and _virtual_);
+value (e.g. _plain_ and _derived_);
 . associations with <<external-resources,external resources>>, for <<provisioning,provisioning>>.
 
 [IMPORTANT]

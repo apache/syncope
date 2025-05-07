@@ -52,7 +52,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
@@ -130,8 +129,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
 
     protected final TaskDAO taskDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final SecurityQuestionDAO securityQuestionDAO;
 
     protected final NotificationDAO notificationDAO;
@@ -155,7 +152,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
             final PolicyDAO policyDAO,
             final NotificationDAO notificationDAO,
             final TaskDAO taskDAO,
-            final VirSchemaDAO virSchemaDAO,
             final SecurityQuestionDAO securityQuestionDAO,
             final PersistenceInfoDAO persistenceInfoDAO,
             final ConfParamOps confParamOps,
@@ -172,7 +168,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
         this.policyDAO = policyDAO;
         this.notificationDAO = notificationDAO;
         this.taskDAO = taskDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.securityQuestionDAO = securityQuestionDAO;
         this.persistenceInfoDAO = persistenceInfoDAO;
         this.confParamOps = confParamOps;
@@ -284,8 +279,6 @@ public class DefaultSyncopeCoreInfoContributor implements SyncopeCoreInfoContrib
                     NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.PULL_TASK.name(), !taskDAO.findAll(TaskType.PULL).isEmpty());
-            numbersInfo.getConfCompleteness().put(
-                    NumbersInfo.ConfItem.VIR_SCHEMA.name(), !virSchemaDAO.findAll().isEmpty());
             numbersInfo.getConfCompleteness().put(
                     NumbersInfo.ConfItem.ANY_TYPE.name(), !anyObjectNumbers.isEmpty());
             numbersInfo.getConfCompleteness().put(

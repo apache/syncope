@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -70,8 +69,6 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
 
     protected final GroupDAO groupDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final RealmDAO realmDAO;
 
     protected final NodeValidator nodeValidator;
@@ -83,7 +80,6 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
             final AnyObjectDAO anyObjectDAO,
             final UserDAO userDAO,
             final GroupDAO groupDAO,
-            final VirSchemaDAO virSchemaDAO,
             final RealmDAO realmDAO,
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
@@ -95,7 +91,6 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
         this.anyObjectDAO = anyObjectDAO;
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.realmDAO = realmDAO;
         this.nodeValidator = nodeValidator;
         this.cache = cache;
@@ -315,8 +310,6 @@ public class ExternalResourceRepoExtImpl extends AbstractDAO implements External
                 forEach(user -> user.getResources().remove(resource));
         groupDAO.findByResourcesContaining(resource).
                 forEach(group -> group.getResources().remove(resource));
-
-        virSchemaDAO.findByResource(resource).forEach(virSchemaDAO::delete);
 
         if (resource.getConnector() != null
                 && resource.getConnector().getResources() != null

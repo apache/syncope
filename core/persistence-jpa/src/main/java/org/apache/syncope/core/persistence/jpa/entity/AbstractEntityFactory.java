@@ -47,7 +47,6 @@ import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.SRARoute;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.am.AttrRepo;
 import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
@@ -215,8 +214,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAPlainSchema();
         } else if (reference.equals(DerSchema.class)) {
             result = (E) new JPADerSchema();
-        } else if (reference.equals(VirSchema.class)) {
-            result = (E) new JPAVirSchema();
         } else if (reference.equals(Report.class)) {
             result = (E) new JPAReport();
         } else if (reference.equals(ReportExec.class)) {

@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jImplementation;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRealm;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jRole;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAnyObject;
 import org.apache.syncope.core.persistence.neo4j.entity.group.Neo4jGroup;
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUser;
@@ -54,8 +53,7 @@ public class Neo4jEntityCacheDAO implements EntityCacheDAO {
             final Cache<EntityCacheKey, Neo4jPlainSchema> plainSchemaCache,
             final Cache<EntityCacheKey, Neo4jRealm> realmCache,
             final Cache<EntityCacheKey, Neo4jRole> roleCache,
-            final Cache<EntityCacheKey, Neo4jUser> userCache,
-            final Cache<EntityCacheKey, Neo4jVirSchema> virSchemaCache) {
+            final Cache<EntityCacheKey, Neo4jUser> userCache) {
 
         caches = new HashMap<>();
         caches.put(Neo4jAnyTypeClass.class, anyTypeCache);
@@ -69,7 +67,6 @@ public class Neo4jEntityCacheDAO implements EntityCacheDAO {
         caches.put(Neo4jRealm.class, realmCache);
         caches.put(Neo4jRole.class, roleCache);
         caches.put(Neo4jUser.class, userCache);
-        caches.put(Neo4jVirSchema.class, virSchemaCache);
     }
 
     @Override

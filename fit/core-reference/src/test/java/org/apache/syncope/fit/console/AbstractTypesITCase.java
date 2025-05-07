@@ -29,9 +29,6 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
     protected static final String PLAIN_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
             + "accordionPanel:tabs:0:body:content:container:content:searchContainer:resultTable";
 
-    protected static final String VIRTUAL_DATATABLE_PATH = "body:content:tabbedPanel:panel:"
-            + "accordionPanel:tabs:2:body:content:container:content:searchContainer:resultTable";
-
     protected static final String DATATABLE_PATH =
             "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable";
 
@@ -73,15 +70,6 @@ public abstract class AbstractTypesITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
         TESTER.assertComponent(PLAIN_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
-                AjaxFallbackDataTable.class);
-    }
-
-    protected void browsingToVirtualSchemas() {
-        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types", false);
-        TESTER.assertRenderedPage(Types.class);
-
-        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:3:link");
-        TESTER.assertComponent(VIRTUAL_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable",
                 AjaxFallbackDataTable.class);
     }
 

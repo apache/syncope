@@ -184,7 +184,7 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     List<SearchClause> clauses = Optional.ofNullable(fiql).
                             map(f -> SearchUtils.getSearchClauses(f.replaceAll(
                             SearchUtils.getTypeConditionPattern(scondAnnot.type()).pattern(), ""))).
-                        orElseGet(ArrayList::new);
+                            orElseGet(ArrayList::new);
 
                     AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                     switch (scondAnnot.type()) {
@@ -221,22 +221,16 @@ public class BeanPanel<T extends Serializable> extends Panel {
 
                         for (SchemaType type : schema.type()) {
                             switch (type) {
-                                case PLAIN:
+                                case PLAIN ->
                                     choices.addAll(
                                             schemaRestClient.getSchemas(SchemaType.PLAIN, schema.anyTypeKind()));
-                                    break;
 
-                                case DERIVED:
+                                case DERIVED ->
                                     choices.addAll(
                                             schemaRestClient.getSchemas(SchemaType.DERIVED, schema.anyTypeKind()));
-                                    break;
 
-                                case VIRTUAL:
-                                    choices.addAll(
-                                            schemaRestClient.getSchemas(SchemaType.VIRTUAL, schema.anyTypeKind()));
-                                    break;
-
-                                default:
+                                default -> {
+                                }
                             }
                         }
 

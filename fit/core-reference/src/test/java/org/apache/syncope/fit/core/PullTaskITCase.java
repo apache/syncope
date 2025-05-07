@@ -452,10 +452,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // SYNCOPE-898
         assertEquals("/odd", matchingUsers.getResult().getFirst().getRealm());
 
-        // Check for SYNCOPE-436
-        assertEquals("pullFromLDAP",
-                matchingUsers.getResult().getFirst().getVirAttr("virtualReadOnly").
-                        orElseThrow().getValues().getFirst());
         // Check for SYNCOPE-270
         assertNotNull(matchingUsers.getResult().getFirst().getPlainAttr("obscure"));
         // Check for SYNCOPE-123
@@ -814,7 +810,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
-        provision.getVirSchemas().clear();
 
         ldap.getProvisions().clear();
         ldap.getProvisions().add(provision);
@@ -900,7 +895,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow();
         provision.getMapping().getItems().removeIf(item -> "userId".equals(item.getIntAttrName()));
         provision.getMapping().getItems().removeIf(item -> "email".equals(item.getIntAttrName()));
-        provision.getVirSchemas().clear();
 
         ldap.getProvisions().clear();
         ldap.getProvisions().add(provision);
@@ -1226,55 +1220,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         } finally {
             removeTestUsers();
         }
-    }
-
-    @Test
-    public void issueSYNCOPE307() {
-        assumeFalse(IS_EXT_SEARCH_ENABLED);
-
-        UserCR userCR = UserITCase.getUniqueSample("s307@apache.org");
-        userCR.setUsername("test0");
-        userCR.getPlainAttrs().removeIf(attr -> "firstname".equals(attr.getSchema()));
-        userCR.getPlainAttrs().add(attr("firstname", "nome0"));
-        userCR.getAuxClasses().add("csv");
-
-        userCR.getResources().clear();
-        userCR.getResources().add(RESOURCE_NAME_WS2);
-
-        UserTO userTO = createUser(userCR).getEntity();
-        assertNotNull(userTO);
-
-        userTO = USER_SERVICE.read(userTO.getKey());
-        assertTrue(userTO.getVirAttrs().isEmpty());
-
-        // Update pull task
-        PullTaskTO task = TASK_SERVICE.read(TaskType.PULL, "38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1", true);
-        assertNotNull(task);
-
-        UserTO template = new UserTO();
-        template.setPassword("'password123'");
-        template.getResources().add(RESOURCE_NAME_DBVIRATTR);
-        template.getVirAttrs().add(attr("virtualdata", "'virtualvalue'"));
-
-        task.getTemplates().put(AnyTypeKind.USER.name(), template);
-
-        TASK_SERVICE.update(TaskType.PULL, task);
-
-        // exec task: one user from CSV will match the user created above and template will be applied
-        ExecTO exec = execSchedTask(TASK_SERVICE, TaskType.PULL, task.getKey(), MAX_WAIT_SECONDS, false);
-
-        // check that template was successfully applied
-        // 1. propagation to db
-        assertEquals(ExecStatus.SUCCESS.name(), exec.getStatus());
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = queryForObject(jdbcTemplate,
-                MAX_WAIT_SECONDS, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
-        assertEquals("virtualvalue", value);
-
-        // 2. virtual attribute
-        userTO = USER_SERVICE.read(userTO.getKey());
-        assertEquals("virtualvalue", userTO.getVirAttr("virtualdata").orElseThrow().getValues().getFirst());
     }
 
     @Test

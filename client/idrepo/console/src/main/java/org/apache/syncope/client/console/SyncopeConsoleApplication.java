@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.commons.ExternalResourceProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
-import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.wizards.any.UserFormFinalizer;
 import org.apache.syncope.client.ui.commons.actuate.SyncopeCoreHealthIndicator;
@@ -75,7 +74,6 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
             final AnyDirectoryPanelAdditionalActionLinksProvider anyDirectoryPanelAdditionalActionLinksProvider,
             final AnyWizardBuilderAdditionalSteps anyWizardBuilderAdditionalSteps,
             final StatusProvider statusProvider,
-            final VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider,
             final ImplementationInfoProvider implementationInfoProvider,
             final AccessPolicyConfProvider accessPolicyConfProvider,
             final List<PolicyTabProvider> policyTabProviders,
@@ -90,7 +88,6 @@ public class SyncopeConsoleApplication extends SpringBootServletInitializer {
                 anyDirectoryPanelAdditionalActionsProvider,
                 anyDirectoryPanelAdditionalActionLinksProvider,
                 anyWizardBuilderAdditionalSteps, statusProvider,
-                virSchemaDetailsPanelProvider,
                 implementationInfoProvider,
                 accessPolicyConfProvider,
                 policyTabProviders,

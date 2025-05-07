@@ -92,9 +92,7 @@ public class CompletenessWidget extends BaseWidget {
         types.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, IdRepoEntitlement.ANYTYPECLASS_LIST);
         actions.add(types);
-        types.setVisible(
-                !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
-                || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
+        types.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
         securityquestions = BookmarkablePageLinkBuilder.build("securityquestions", Security.class);
         securityquestions.setOutputMarkupPlaceholderTag(true);
@@ -158,9 +156,7 @@ public class CompletenessWidget extends BaseWidget {
 
             notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
-            types.setVisible(
-                    !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
-                    || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
+            types.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
             securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
 

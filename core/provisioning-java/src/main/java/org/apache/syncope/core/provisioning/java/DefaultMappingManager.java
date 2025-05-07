@@ -24,11 +24,9 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.cache.Cache;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.BooleanUtils;
@@ -73,7 +71,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.Account;
@@ -86,11 +83,8 @@ import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PlainAttrGetter;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
-import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheKey;
-import org.apache.syncope.core.provisioning.java.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.FrameworkUtil;
@@ -192,10 +186,6 @@ public class DefaultMappingManager implements MappingManager {
 
     protected final DerAttrHandler derAttrHandler;
 
-    protected final VirAttrHandler virAttrHandler;
-
-    protected final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache;
-
     protected final IntAttrNameParser intAttrNameParser;
 
     protected final EncryptorManager encryptorManager;
@@ -209,8 +199,6 @@ public class DefaultMappingManager implements MappingManager {
             final RealmSearchDAO realmSearchDAO,
             final ImplementationDAO implementationDAO,
             final DerAttrHandler derAttrHandler,
-            final VirAttrHandler virAttrHandler,
-            final Cache<VirAttrCacheKey, VirAttrCacheValue> virAttrCache,
             final IntAttrNameParser intAttrNameParser,
             final EncryptorManager encryptorManager) {
 
@@ -222,8 +210,6 @@ public class DefaultMappingManager implements MappingManager {
         this.realmSearchDAO = realmSearchDAO;
         this.implementationDAO = implementationDAO;
         this.derAttrHandler = derAttrHandler;
-        this.virAttrHandler = virAttrHandler;
-        this.virAttrCache = virAttrCache;
         this.intAttrNameParser = intAttrNameParser;
         this.encryptorManager = encryptorManager;
     }
@@ -523,9 +509,6 @@ public class DefaultMappingManager implements MappingManager {
         AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
                 ? intAttrName.getSchema().getType()
                 : AttrSchemaType.String;
-        boolean readOnlyVirSchema = intAttrName.getSchema() instanceof VirSchema
-                ? intAttrName.getSchema().isReadonly()
-                : false;
 
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues = getIntValues(
                 resource, provision, item, intAttrName, schemaType, any, usernameAccountGetter, plainAttrGetter);
@@ -542,39 +525,35 @@ public class DefaultMappingManager implements MappingManager {
                   * Values {}""",
                 item, intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
 
-        Pair<String, Attribute> result;
-        if (readOnlyVirSchema) {
-            result = null;
-        } else {
-            List<Object> objValues = new ArrayList<>();
+        List<Object> objValues = new ArrayList<>();
 
-            for (PlainAttrValue value : values) {
-                if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
-                    objValues.add(value.getValue());
+        for (PlainAttrValue value : values) {
+            if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
+                objValues.add(value.getValue());
+            } else {
+                PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
+                        ? schema
+                        : null;
+                if (plainSchema == null || plainSchema.getType() != schemaType) {
+                    objValues.add(value.getValueAsString(schemaType));
                 } else {
-                    PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
-                            ? schema
-                            : null;
-                    if (plainSchema == null || plainSchema.getType() != schemaType) {
-                        objValues.add(value.getValueAsString(schemaType));
-                    } else {
-                        objValues.add(value.getValueAsString(plainSchema));
-                    }
+                    objValues.add(value.getValueAsString(plainSchema));
                 }
             }
+        }
 
-            if (item.isConnObjectKey()) {
-                result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
-            } else if (item.isPassword() && any instanceof User) {
-                result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
-                        map(passwordAttrValue -> Pair.of(
-                        (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
-                        orElse(null);
-            } else {
-                result = Pair.of(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(item.getExtAttrName())
-                        : AttributeBuilder.build(item.getExtAttrName(), objValues));
-            }
+        Pair<String, Attribute> result;
+        if (item.isConnObjectKey()) {
+            result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
+        } else if (item.isPassword() && any instanceof User) {
+            result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
+                    map(passwordAttrValue -> Pair.of(
+                    (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
+                    orElse(null);
+        } else {
+            result = Pair.of(null, objValues.isEmpty()
+                    ? AttributeBuilder.build(item.getExtAttrName())
+                    : AttributeBuilder.build(item.getExtAttrName(), objValues));
         }
 
         return result;
@@ -597,9 +576,6 @@ public class DefaultMappingManager implements MappingManager {
         AttrSchemaType schemaType = intAttrName.getSchema() instanceof PlainSchema
                 ? intAttrName.getSchema().getType()
                 : AttrSchemaType.String;
-        boolean readOnlyVirSchema = intAttrName.getSchema() instanceof VirSchema
-                ? intAttrName.getSchema().isReadonly()
-                : false;
 
         Pair<AttrSchemaType, List<PlainAttrValue>> intValues = getIntValues(
                 resource, item, intAttrName, schemaType, realm);
@@ -616,34 +592,30 @@ public class DefaultMappingManager implements MappingManager {
                   * Values {}""",
                 item, intAttrName.getSchema(), schemaType.getType().getName(), schemaType, values);
 
-        Pair<String, Attribute> result;
-        if (readOnlyVirSchema) {
-            result = null;
-        } else {
-            List<Object> objValues = new ArrayList<>();
+        List<Object> objValues = new ArrayList<>();
 
-            for (PlainAttrValue value : values) {
-                if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
-                    objValues.add(value.getValue());
+        for (PlainAttrValue value : values) {
+            if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
+                objValues.add(value.getValue());
+            } else {
+                PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
+                        ? schema
+                        : null;
+                if (plainSchema == null || plainSchema.getType() != schemaType) {
+                    objValues.add(value.getValueAsString(schemaType));
                 } else {
-                    PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
-                            ? schema
-                            : null;
-                    if (plainSchema == null || plainSchema.getType() != schemaType) {
-                        objValues.add(value.getValueAsString(schemaType));
-                    } else {
-                        objValues.add(value.getValueAsString(plainSchema));
-                    }
+                    objValues.add(value.getValueAsString(plainSchema));
                 }
             }
+        }
 
-            if (item.isConnObjectKey()) {
-                result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
-            } else {
-                result = Pair.of(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(item.getExtAttrName())
-                        : AttributeBuilder.build(item.getExtAttrName(), objValues));
-            }
+        Pair<String, Attribute> result;
+        if (item.isConnObjectKey()) {
+            result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
+        } else {
+            result = Pair.of(null, objValues.isEmpty()
+                    ? AttributeBuilder.build(item.getExtAttrName())
+                    : AttributeBuilder.build(item.getExtAttrName(), objValues));
         }
 
         return result;
@@ -842,26 +814,6 @@ public class DefaultMappingManager implements MappingManager {
                             attrValue.setStringValue(derValue);
                             values.add(attrValue);
                         }
-                    }
-
-                    case VIRTUAL -> {
-                        // virtual attributes don't get transformed
-                        transform = false;
-
-                        VirAttrCacheKey cacheKey = VirAttrCacheKey.of(
-                                ref.getType().getKey(), ref.getKey(), intAttrName.getSchema().getKey());
-                        virAttrCache.remove(cacheKey);
-                        LOG.debug("Evicted from cache: {}", cacheKey);
-
-                        VirSchema virSchema = (VirSchema) intAttrName.getSchema();
-                        List<String> virValues = membership == null
-                                ? virAttrHandler.getValues(ref, virSchema)
-                                : virAttrHandler.getValues(ref, membership, virSchema);
-                        virValues.forEach(virValue -> {
-                            PlainAttrValue attrValue = new PlainAttrValue();
-                            attrValue.setStringValue(virValue);
-                            values.add(attrValue);
-                        });
                     }
 
                     default -> {
@@ -1183,27 +1135,6 @@ public class DefaultMappingManager implements MappingManager {
                             return newMemb;
                         });
                         membership.getDerAttrs().add(attrTO);
-                    }
-                }
-
-                case VIRTUAL -> {
-                    Attr attrTO = new Attr();
-                    attrTO.setSchema(intAttrName.getSchema().getKey());
-                    // virtual attributes don't get transformed, iterate over original attr.getValue()
-                    if (attr.getValue() != null && !attr.getValue().isEmpty()) {
-                        attr.getValue().stream().
-                                filter(Objects::nonNull).
-                                forEachOrdered(value -> attrTO.getValues().add(value.toString()));
-                    }
-                    if (groupableTO == null || group == null) {
-                        anyTO.getVirAttrs().add(attrTO);
-                    } else {
-                        MembershipTO membership = groupableTO.getMembership(group.getKey()).orElseGet(() -> {
-                            MembershipTO newMemb = new MembershipTO.Builder(group.getKey()).build();
-                            groupableTO.getMemberships().add(newMemb);
-                            return newMemb;
-                        });
-                        membership.getVirAttrs().add(attrTO);
                     }
                 }
 

@@ -152,10 +152,6 @@ public class UsersITCase extends AbstractConsoleITCase {
         assertNotNull(formTester);
         formTester.submit("buttons:next");
 
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
-        assertNotNull(formTester);
-        formTester.submit("buttons:next");
-
         // Add first RELATIONSHIP
         addRelationship("Canon MF 8030cn");
         component = TESTER.getComponentFromLastRenderedPage(TAB_PANEL + "outerObjectsRepeater:0:outer"

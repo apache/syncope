@@ -135,7 +135,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             final Boolean enable,
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
-        
+
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
                 map(ExternalResource::getKey).toList();
 
@@ -153,7 +153,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 any instanceof User ? List.of(profile.getTask().getResource().getKey()) : List.of(),
                 enable,
                 propByRes,
-                null,
                 null,
                 noPropResources);
         if (!taskInfos.isEmpty()) {
@@ -202,7 +201,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 any.getKey(),
                 enable,
                 propByRes,
-                before.getVirAttrs(),
                 noPropResources);
         if (!taskInfos.isEmpty()) {
             taskInfos.getFirst().setBeforeObj(Optional.empty());

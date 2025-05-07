@@ -165,22 +165,19 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             });
 
             switch (provision.getAnyType()) {
-                case "USER":
+                case "USER" ->
                     choices.addAll(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
-                    break;
 
-                case "GROUP":
+                case "GROUP" ->
                     choices.addAll(ClassPathScanImplementationLookup.GROUP_FIELD_NAMES);
-                    break;
 
-                default:
+                default ->
                     choices.addAll(ClassPathScanImplementationLookup.ANY_OBJECT_FIELD_NAMES);
             }
 
             anyTypeClassTOs.forEach(anyTypeClassTO -> {
                 choices.addAll(anyTypeClassTO.getPlainSchemas());
                 choices.addAll(anyTypeClassTO.getDerSchemas());
-                choices.addAll(anyTypeClassTO.getVirSchemas());
             });
         }
 

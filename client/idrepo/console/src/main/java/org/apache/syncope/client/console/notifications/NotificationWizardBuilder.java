@@ -51,7 +51,6 @@ import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -415,8 +414,6 @@ public class NotificationWizardBuilder extends BaseAjaxWizardBuilder<Notificatio
                 stream().map(PlainSchemaTO::getKey).toList());
         result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, null, anyTypeClasses).
                 stream().map(DerSchemaTO::getKey).toList());
-        result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, null, anyTypeClasses).
-                stream().map(VirSchemaTO::getKey).toList());
 
         Collections.sort(result);
         return result;

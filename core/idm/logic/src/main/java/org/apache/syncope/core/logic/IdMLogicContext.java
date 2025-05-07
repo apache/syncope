@@ -28,12 +28,10 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RemediationDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.RemediationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
@@ -83,9 +81,7 @@ public class IdMLogicContext {
             final RealmSearchDAO realmSearchDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final AnySearchDAO anySearchDAO,
-            final VirAttrHandler virAttrHandler,
             final ConnectorManager connectorManager,
             final InboundMatcher inboundMatcher,
             final OutboundMatcher outboundMatcher,
@@ -98,9 +94,7 @@ public class IdMLogicContext {
                 realmSearchDAO,
                 plainSchemaDAO,
                 derSchemaDAO,
-                virSchemaDAO,
                 anySearchDAO,
-                virAttrHandler,
                 mappingManager,
                 inboundMatcher,
                 outboundMatcher,
@@ -127,8 +121,6 @@ public class IdMLogicContext {
             final AnyTypeDAO anyTypeDAO,
             final ExternalResourceDAO resourceDAO,
             final ConnInstanceDAO connInstanceDAO,
-            final VirSchemaDAO virSchemaDAO,
-            final VirAttrHandler virAttrHandler,
             final ConnInstanceDataBinder connInstanceDataBinder,
             final ConnectorManager connectorManager,
             final OutboundMatcher outboundMatcher,
@@ -138,8 +130,6 @@ public class IdMLogicContext {
                 resourceDAO,
                 anyTypeDAO,
                 connInstanceDAO,
-                virSchemaDAO,
-                virAttrHandler,
                 resourceDataBinder,
                 connInstanceDataBinder,
                 outboundMatcher,

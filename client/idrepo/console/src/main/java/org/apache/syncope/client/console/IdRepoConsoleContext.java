@@ -33,13 +33,11 @@ import org.apache.syncope.client.console.commons.IdRepoImplementationInfoProvide
 import org.apache.syncope.client.console.commons.IdRepoPolicyTabProvider;
 import org.apache.syncope.client.console.commons.IdRepoRealmPolicyProvider;
 import org.apache.syncope.client.console.commons.IdRepoStatusProvider;
-import org.apache.syncope.client.console.commons.IdRepoVirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.commons.ImplementationInfoProvider;
 import org.apache.syncope.client.console.commons.PolicyTabProvider;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.commons.RealmPolicyProvider;
 import org.apache.syncope.client.console.commons.StatusProvider;
-import org.apache.syncope.client.console.commons.VirSchemaDetailsPanelProvider;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationContributor;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.rest.AccessTokenRestClient;
@@ -128,12 +126,6 @@ public class IdRepoConsoleContext {
     @Bean
     public StatusProvider statusProvider() {
         return new IdRepoStatusProvider();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public VirSchemaDetailsPanelProvider virSchemaDetailsPanelProvider() {
-        return new IdRepoVirSchemaDetailsPanelProvider();
     }
 
     @ConditionalOnMissingBean

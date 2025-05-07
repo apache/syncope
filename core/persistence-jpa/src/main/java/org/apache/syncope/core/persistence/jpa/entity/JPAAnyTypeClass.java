@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 @Entity
 @Table(name = JPAAnyTypeClass.TABLE)
@@ -44,9 +43,6 @@ public class JPAAnyTypeClass extends AbstractProvidedKeyEntity implements AnyTyp
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
     private List<JPADerSchema> derSchemas = new ArrayList<>();
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "anyTypeClass")
-    private List<JPAVirSchema> virSchemas = new ArrayList<>();
 
     @Override
     public boolean add(final PlainSchema schema) {
@@ -68,16 +64,5 @@ public class JPAAnyTypeClass extends AbstractProvidedKeyEntity implements AnyTyp
     @Override
     public List<? extends DerSchema> getDerSchemas() {
         return derSchemas;
-    }
-
-    @Override
-    public boolean add(final VirSchema schema) {
-        checkType(schema, JPAVirSchema.class);
-        return this.virSchemas.add((JPAVirSchema) schema);
-    }
-
-    @Override
-    public List<? extends VirSchema> getVirSchemas() {
-        return virSchemas;
     }
 }

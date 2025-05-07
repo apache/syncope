@@ -701,7 +701,6 @@ public class UserSelfITCase extends AbstractITCase {
 
         UserCR userCR = UserITCase.getUniqueSample("issueSYNCOPE15@syncope.apache.org");
         userCR.getResources().clear();
-        userCR.getVirAttrs().clear();
         userCR.getMemberships().clear();
 
         // Users with group 0cbcabd2-4410-4b6b-8f05-a052b451d18f are defined in workflow as subject to approval

@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SP4UIIdPDAO;
@@ -134,10 +133,6 @@ public class SAML2SP4UIIdPDataBinderImpl implements SAML2SP4UIIdPDataBinder {
                     });
 
                     if (item.isConnObjectKey()) {
-                        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                            invalidMapping.getElements().
-                                    add("Virtual attributes cannot be set as ConnObjectKey");
-                        }
                         if ("password".equals(intAttrName.getField())) {
                             invalidMapping.getElements().add(
                                     "Password attributes cannot be set as ConnObjectKey");

@@ -41,7 +41,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
-import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -65,20 +64,16 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     protected final UserDAO userDAO;
 
-    protected final VirAttrHandler virtAttrHandler;
-
     public DefaultUserProvisioningManager(
             final UserWorkflowAdapter uwfAdapter,
             final PropagationManager propagationManager,
             final PropagationTaskExecutor taskExecutor,
-            final UserDAO userDAO,
-            final VirAttrHandler virtAttrHandler) {
+            final UserDAO userDAO) {
 
         this.uwfAdapter = uwfAdapter;
         this.propagationManager = propagationManager;
         this.taskExecutor = taskExecutor;
         this.userDAO = userDAO;
-        this.virtAttrHandler = virtAttrHandler;
     }
 
     @Override
@@ -108,7 +103,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 created.getResult().getRight(),
                 created.getPropByRes(),
                 created.getPropByLinkedAccount(),
-                userCR.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, creator);
 
@@ -188,8 +182,8 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 propagationManager.getUserUpdateTasks(
                         updated,
                         updated.getResult().getLeft().getPassword() != null
-                                ? updated.getResult().getLeft().getPassword().getResources()
-                                : List.of(),
+                        ? updated.getResult().getLeft().getPassword().getResources()
+                        : List.of(),
                         excludedResources),
                 beforeAttrs);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);
@@ -295,7 +289,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 List.of(),
                 statusR.getType() != StatusRType.SUSPEND,
                 propByRes,
-                null,
                 null,
                 null);
         PropagationReporter propagationReporter = taskExecutor.execute(taskInfos, nullPriorityAsync, updater);

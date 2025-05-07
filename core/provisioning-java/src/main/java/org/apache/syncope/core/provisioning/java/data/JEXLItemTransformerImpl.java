@@ -178,7 +178,6 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
                 if (entityTO instanceof AnyTO anyTO) {
                     JexlUtils.addAttrsToContext(anyTO.getPlainAttrs(), jexlContext);
                     JexlUtils.addAttrsToContext(anyTO.getDerAttrs(), jexlContext);
-                    JexlUtils.addAttrsToContext(anyTO.getVirAttrs(), jexlContext);
                 }
 
                 newValues.add(JexlUtils.evaluateExpr(pullJEXL, jexlContext));

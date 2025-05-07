@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.Mapping;
 import org.apache.syncope.common.lib.to.Provision;
@@ -40,7 +39,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundCorrelationRuleEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.InboundPolicy;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -118,8 +116,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
         mapping.setConnObjectKeyItem(connObjectKeyItem);
 
         columns.stream().
-                filter(column -> anyUtils.getField(column).isPresent()
-                || plainSchemaDAO.existsById(column) || virSchemaDAO.existsById(column)).
+                filter(column -> anyUtils.getField(column).isPresent() || plainSchemaDAO.existsById(column)).
                 map(column -> {
                     Item item = new Item();
                     item.setExtAttrName(column);
@@ -223,15 +220,12 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
             Set<String> moreAttrsToGet = new HashSet<>();
             profile.getActions().forEach(a -> moreAttrsToGet.addAll(a.moreAttrsToGet(profile, provision)));
 
-            Stream<Item> mapItems = Stream.concat(
-                    MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
-                    virSchemaDAO.findByResourceAndAnyType(resource.getKey(), anyType.getKey()).stream().
-                            map(VirSchema::asLinkingMappingItem));
-
             connector.fullReconciliation(
                     new ObjectClass(provision.getObjectClass()),
                     dispatcher,
-                    MappingUtils.buildOperationOptions(mapItems, moreAttrsToGet.toArray(String[]::new)));
+                    MappingUtils.buildOperationOptions(
+                            MappingUtils.getInboundItems(provision.getMapping().getItems().stream()),
+                            moreAttrsToGet.toArray(String[]::new)));
 
             try {
                 setGroupOwners();

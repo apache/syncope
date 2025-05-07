@@ -25,12 +25,10 @@ import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 
@@ -42,8 +40,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final GroupDAO groupDAO;
 
     protected final ExternalResourceDAO resourceDAO;
@@ -54,7 +50,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             final AnyTypeDAO anyTypeDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final GroupDAO groupDAO,
             final ExternalResourceDAO resourceDAO,
             final EntityManager entityManager) {
@@ -62,7 +57,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
         this.anyTypeDAO = anyTypeDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.groupDAO = groupDAO;
         this.resourceDAO = resourceDAO;
         this.entityManager = entityManager;
@@ -76,9 +70,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             schema.setAnyTypeClass(merge);
         }
         for (DerSchema schema : merge.getDerSchemas()) {
-            schema.setAnyTypeClass(merge);
-        }
-        for (VirSchema schema : merge.getVirSchemas()) {
             schema.setAnyTypeClass(merge);
         }
 
@@ -96,9 +87,6 @@ public class AnyTypeClassRepoExtImpl implements AnyTypeClassRepoExt {
             schema.setAnyTypeClass(null);
         }
         for (DerSchema schema : derSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
-            schema.setAnyTypeClass(null);
-        }
-        for (VirSchema schema : virSchemaDAO.findByAnyTypeClasses(List.of(anyTypeClass))) {
             schema.setAnyTypeClass(null);
         }
 

@@ -32,7 +32,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.Neo4jAnyTypeClass;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jDerSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jPlainSchema;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jSchema;
-import org.apache.syncope.core.persistence.neo4j.entity.Neo4jVirSchema;
 import org.apache.syncope.core.persistence.neo4j.spring.NodeValidator;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -82,9 +81,6 @@ public abstract class AbstractSchemaRepoExt extends AbstractDAO {
         } else if (domainType.equals(Neo4jDerSchema.class)) {
             label = Neo4jDerSchema.NODE;
             relationship = Neo4jAnyTypeClass.ANY_TYPE_CLASS_DER_REL;
-        } else if (domainType.equals(Neo4jVirSchema.class)) {
-            label = Neo4jVirSchema.NODE;
-            relationship = Neo4jAnyTypeClass.ANY_TYPE_CLASS_VIR_REL;
         }
 
         List<String> clauses = new ArrayList<>();

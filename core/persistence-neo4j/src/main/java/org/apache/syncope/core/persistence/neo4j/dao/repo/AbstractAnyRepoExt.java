@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -47,7 +46,6 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -97,8 +95,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
 
     protected final DerSchemaDAO derSchemaDAO;
 
-    protected final VirSchemaDAO virSchemaDAO;
-
     protected final DynRealmDAO dynRealmDAO;
 
     protected final AnyFinder anyFinder;
@@ -110,7 +106,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
             final AnyTypeClassDAO anyTypeClassDAO,
             final PlainSchemaDAO plainSchemaDAO,
             final DerSchemaDAO derSchemaDAO,
-            final VirSchemaDAO virSchemaDAO,
             final DynRealmDAO dynRealmDAO,
             final AnyFinder anyFinder,
             final AnyUtils anyUtils,
@@ -122,7 +117,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
         this.anyTypeClassDAO = anyTypeClassDAO;
         this.plainSchemaDAO = plainSchemaDAO;
         this.derSchemaDAO = derSchemaDAO;
-        this.virSchemaDAO = virSchemaDAO;
         this.dynRealmDAO = dynRealmDAO;
         this.anyFinder = anyFinder;
         this.anyUtils = anyUtils;
@@ -204,11 +198,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
                         map(schema -> derSchemaDAO.findById(schema.getKey())).
                         flatMap(Optional::stream).
                         forEach(schema -> result.getForSelf().add((S) schema));
-            } else if (reference.equals(VirSchema.class)) {
-                atc.getVirSchemas().stream().
-                        map(schema -> virSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.getForSelf().add((S) schema));
             }
         });
 
@@ -256,11 +245,6 @@ public abstract class AbstractAnyRepoExt<A extends Any, N extends AbstractAny>
             } else if (reference.equals(DerSchema.class)) {
                 atc.getDerSchemas().stream().
                         map(schema -> derSchemaDAO.findById(schema.getKey())).
-                        flatMap(Optional::stream).
-                        forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
-            } else if (reference.equals(VirSchema.class)) {
-                atc.getVirSchemas().stream().
-                        map(schema -> virSchemaDAO.findById(schema.getKey())).
                         flatMap(Optional::stream).
                         forEach(schema -> result.getForMemberships().get(entry.getKey()).add((S) schema));
             }

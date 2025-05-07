@@ -43,7 +43,6 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -163,8 +162,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
                 result.getForSelf().addAll((Collection<? extends S>) typeClass.getPlainSchemas());
             } else if (reference.equals(DerSchema.class)) {
                 result.getForSelf().addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            } else if (reference.equals(VirSchema.class)) {
-                result.getForSelf().addAll((Collection<? extends S>) typeClass.getVirSchemas());
             }
         });
 
@@ -191,9 +188,6 @@ public abstract class AbstractAnyRepoExt<A extends Any> implements AnyRepoExt<A>
             } else if (reference.equals(DerSchema.class)) {
                 result.getForMemberships().get(entry.getKey()).
                         addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            } else if (reference.equals(VirSchema.class)) {
-                result.getForMemberships().get(entry.getKey()).
-                        addAll((Collection<? extends S>) typeClass.getVirSchemas());
             }
         }));
 
