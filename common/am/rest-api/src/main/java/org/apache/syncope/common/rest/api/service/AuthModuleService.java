@@ -65,6 +65,17 @@ public interface AuthModuleService extends JAXRSService {
     AuthModuleTO read(@NotNull @PathParam("key") String key);
 
     /**
+     * Returns the authentication module matching the provided client name.
+     *
+     * @param clientName client name of requested authentication module
+     * @return authentication module with matching client name
+     */
+    @GET
+    @Path("byClientName/{clientName}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    AuthModuleTO readByClientName(@NotNull @PathParam("clientName") String clientName);
+
+    /**
      * Returns a list of authentication modules.
      *
      * @return list of authentication modules

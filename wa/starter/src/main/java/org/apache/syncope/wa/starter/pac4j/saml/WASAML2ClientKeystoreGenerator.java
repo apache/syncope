@@ -25,8 +25,9 @@ import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Base64;
-import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
+import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.keystore.BaseSAML2KeystoreGenerator;
@@ -47,11 +48,18 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
         this.saml2Client = saml2Client;
     }
 
+    protected AuthModuleTO authModule() {
+        return waRestClient.getService(AuthModuleService.class).readByClientName(saml2Client.getName());
+    }
+
+    protected SAML2IdPAuthModuleConf conf() {
+        return (SAML2IdPAuthModuleConf) authModule().getConf();
+    }
+
     @Override
     public boolean shouldGenerate() {
         try {
-            SAML2SPEntityTO spEntity = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
-            return spEntity.getKeystore() == null;
+            return conf().getKeystore() == null;
         } catch (Exception e) {
             LOG.error("While attempting to read if keystore is available for SP Entity {}", saml2Client.getName(), e);
             return true;
@@ -71,27 +79,20 @@ public class WASAML2ClientKeystoreGenerator extends BaseSAML2KeystoreGenerator {
             LOG.debug("Encoded keystore {}", encodedKeystore);
         }
 
-        SAML2SPEntityTO entityTO;
-        try {
-            entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
-            entityTO.setKeystore(encodedKeystore);
-        } catch (Exception e) {
-            LOG.debug("SP Entity {} keystore not found, creating new", saml2Client.getName(), e);
+        AuthModuleTO authModule = authModule();
+        ((SAML2IdPAuthModuleConf) authModule.getConf()).setKeystore(encodedKeystore);
 
-            entityTO = new SAML2SPEntityTO.Builder().key(saml2Client.getName()).keystore(encodedKeystore).build();
-        }
-
-        LOG.debug("Storing SP Entity {}", entityTO);
-        waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
+        LOG.debug("Storing SP AuthModule {}", authModule);
+        waRestClient.getService(AuthModuleService.class).update(authModule);
     }
 
     @Override
     public InputStream retrieve() throws Exception {
         try {
-            SAML2SPEntityTO spEntity = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
+            SAML2IdPAuthModuleConf conf = conf();
 
-            LOG.debug("Retrieved keystore {}", spEntity.getKeystore());
-            return new ByteArrayInputStream(Base64.getDecoder().decode(spEntity.getKeystore()));
+            LOG.debug("Retrieved keystore {}", conf.getKeystore());
+            return new ByteArrayInputStream(Base64.getDecoder().decode(conf.getKeystore()));
         } catch (Exception e) {
             String message = "Unable to fetch SAML2 SP keystore for " + saml2Client.getName();
             LOG.error(message, e);

@@ -20,8 +20,9 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
+import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractMetadataResolver;
@@ -55,24 +56,20 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
     @Override
     public MetadataResolver buildMetadataResolver() throws Exception {
-        String encodedMetadata = Base64.getEncoder().encodeToString(
+        String metadata = Base64.getEncoder().encodeToString(
                 getMetadata(buildEntityDescriptor()).getBytes(StandardCharsets.UTF_8));
 
-        SAML2SPEntityTO entityTO;
         try {
-            entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
-            entityTO.setMetadata(encodedMetadata);
+            AuthModuleTO authModule = waRestClient.getService(AuthModuleService.class).
+                    readByClientName(saml2Client.getName());
+
+            ((SAML2IdPAuthModuleConf) authModule.getConf()).setServiceProviderMetadata(metadata);
+
+            LOG.debug("Storing SP AuthModule {}", authModule);
+            waRestClient.getService(AuthModuleService.class).update(authModule);
         } catch (Exception e) {
-            LOG.debug("SP Entity {} not found, creating new", saml2Client.getName(), e);
-
-            entityTO = new SAML2SPEntityTO.Builder().
-                    key(saml2Client.getName()).
-                    metadata(encodedMetadata).
-                    build();
+            LOG.error("While storing SP {} metadata", saml2Client.getName(), e);
         }
-
-        LOG.debug("Storing SP Entity {}", entityTO);
-        waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
 
         return super.buildMetadataResolver();
     }

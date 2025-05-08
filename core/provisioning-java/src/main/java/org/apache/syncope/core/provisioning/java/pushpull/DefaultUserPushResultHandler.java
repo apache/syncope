@@ -226,7 +226,6 @@ public class DefaultUserPushResultHandler extends AbstractPushResultHandler impl
                 profile.getConnector(),
                 connObjectKeyItem,
                 account.getConnObjectKeyValue(),
-                profile.getTask().getResource(),
                 provision,
                 Optional.empty()));
         LOG.debug("Match found for linked account {} as {}: {}", account, provision.getObjectClass(), connObj);

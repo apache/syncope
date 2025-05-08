@@ -20,7 +20,9 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
@@ -66,6 +68,17 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
     public AuthModuleTO read(final String key) {
         AuthModule authModule = authModuleDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("AuthModule " + key));
+
+        return binder.getAuthModuleTO(authModule);
+    }
+
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_READ + "')")
+    @Transactional(readOnly = true)
+    public AuthModuleTO readByClientName(final String clientName) {
+        AuthModule authModule = authModuleDAO.findAll().stream().
+                filter(m -> m.getConf() instanceof Pac4jAuthModuleConf conf
+                && Objects.equals(clientName, conf.getClientName())).findFirst().
+                orElseThrow(() -> new NotFoundException("AuthModule with client name " + clientName));
 
         return binder.getAuthModuleTO(authModule);
     }

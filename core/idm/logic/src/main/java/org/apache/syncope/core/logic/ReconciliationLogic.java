@@ -286,7 +286,6 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected SyncDeltaBuilder syncDeltaBuilder(
-            final AnyType anyType,
             final ExternalResource resource,
             final Provision provision,
             final Filter filter,
@@ -328,7 +327,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
         SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
-                triple.getLeft(), triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
+                triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
 
         ReconStatus status = new ReconStatus();
         if (syncDeltaBuilder.getObject() != null) {
@@ -414,7 +413,7 @@ public class ReconciliationLogic extends AbstractTransactionalLogic<EntityTO> {
         Triple<AnyType, ExternalResource, Provision> triple = getProvision(anyTypeKey, resourceKey);
 
         SyncDeltaBuilder syncDeltaBuilder = syncDeltaBuilder(
-                triple.getLeft(), triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
+                triple.getMiddle(), triple.getRight(), filter, moreAttrsToGet);
 
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Reconciliation);
         List<ProvisioningReport> results = new ArrayList<>();

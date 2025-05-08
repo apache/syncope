@@ -20,8 +20,8 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import java.util.Base64;
 import net.shibboleth.shared.resolver.ResolverException;
-import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
+import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.impl.AbstractReloadingMetadataResolver;
 import org.pac4j.saml.client.SAML2Client;
@@ -49,8 +49,10 @@ public class WASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
     @Override
     protected byte[] fetchMetadata() throws ResolverException {
         try {
-            SAML2SPEntityTO metadataTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
-            return Base64.getDecoder().decode(metadataTO.getMetadata());
+            SAML2IdPAuthModuleConf conf = (SAML2IdPAuthModuleConf) waRestClient.getService(AuthModuleService.class).
+                    readByClientName(saml2Client.getName()).getConf();
+
+            return Base64.getDecoder().decode(conf.getServiceProviderMetadata());
         } catch (Exception e) {
             String message = "Unable to fetch SP metadata for " + saml2Client.getName();
             LOG.error(message, e);

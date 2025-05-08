@@ -16,17 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.am;
+package org.apache.syncope.common.lib.types;
 
-import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
+public enum TriStateBoolean {
 
-public interface SAML2SPEntity extends ProvidedKeyEntity {
+    TRUE,
+    FALSE,
+    UNDEFINED;
 
-    byte[] getKeystore();
-
-    void setKeystore(byte[] keystore);
-
-    byte[] getMetadata();
-
-    void setMetadata(byte[] metadata);
 }

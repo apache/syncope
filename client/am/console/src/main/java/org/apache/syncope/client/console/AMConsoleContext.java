@@ -33,7 +33,6 @@ import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
-import org.apache.syncope.client.console.rest.SAML2SPEntityRestClient;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
 import org.apache.syncope.client.console.rest.SRAStatisticsRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
@@ -98,12 +97,6 @@ public class AMConsoleContext {
     @Bean
     public SAML2IdPEntityRestClient saml2IdPEntityRestClient() {
         return new SAML2IdPEntityRestClient();
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SAML2SPEntityRestClient saml2SPEntityRestClient() {
-        return new SAML2SPEntityRestClient();
     }
 
     @ConditionalOnMissingBean

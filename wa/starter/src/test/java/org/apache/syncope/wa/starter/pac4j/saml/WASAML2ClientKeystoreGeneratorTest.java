@@ -19,44 +19,15 @@
 package org.apache.syncope.wa.starter.pac4j.saml;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
-import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.junit.jupiter.api.Test;
-import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.metadata.keystore.SAML2KeystoreGenerator;
-import org.springframework.core.io.ClassPathResource;
 
 public class WASAML2ClientKeystoreGeneratorTest extends BaseWASAML2ClientTest {
 
-    private static WARestClient getWaRestClient() throws Exception {
-        SAML2SPEntityTO keystoreTO = new SAML2SPEntityTO.Builder()
-                .key("CAS")
-                .keystore(getKeystoreAsString())
-                .metadata(IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(),
-                        StandardCharsets.UTF_8))
-                .build();
-        SAML2SPEntityService service = mock(SAML2SPEntityService.class);
-        when(service.get(anyString())).thenReturn(keystoreTO);
-        doNothing().when(service).set(any(SAML2SPEntityTO.class));
-
-        WARestClient waRestClient = mock(WARestClient.class);
-        when(waRestClient.getService(SAML2SPEntityService.class)).thenReturn(service);
-        return waRestClient;
-    }
-
     @Test
     public void generate() throws Exception {
-        SAML2Client client = getSAML2Client();
-        SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(getWaRestClient(), client);
+        SAML2KeystoreGenerator generator = new WASAML2ClientKeystoreGenerator(getWARestClient(), getSAML2Client());
         assertDoesNotThrow(generator::generate);
     }
 }

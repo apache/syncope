@@ -25,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.mapping.AuthModuleMappingPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -36,6 +38,7 @@ import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.auth.LDAPDependantAuthModuleConf;
+import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AuthModuleState;
 import org.apache.wicket.PageReference;
@@ -92,6 +95,7 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         wizardModel.add(new Profile(modelObject, authModuleConfs, authModuleConfClass));
         wizardModel.add(new Configuration(modelObject));
         wizardModel.add(new AuthModuleConfLDAP(modelObject, authModuleConfClass));
+        wizardModel.add(new AuthModuleConfSAML(modelObject, authModuleConfClass));
         wizardModel.add(new Mapping(modelObject));
         return wizardModel;
     }
@@ -170,8 +174,44 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
         private static final long serialVersionUID = -785981096328637758L;
 
         Configuration(final AuthModuleTO authModule) {
-            add(new BeanPanel<>("bean", new PropertyModel<>(authModule, "conf"), pageRef, "ldap").
-                    setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", new PropertyModel<>(authModule, "conf"), pageRef,
+                    "ldap", "keystore", "serviceProviderMetadata").setRenderBodyOnly(true));
+        }
+    }
+
+    protected class AuthModuleConfSAML extends WizardStep implements WizardModel.ICondition {
+
+        private static final long serialVersionUID = 8139350816753061469L;
+
+        private final Model<Class<? extends AuthModuleConf>> authModuleConfClass;
+
+        AuthModuleConfSAML(
+                final AuthModuleTO authModule,
+                final Model<Class<? extends AuthModuleConf>> authModuleConfClass) {
+
+            this.authModuleConfClass = authModuleConfClass;
+
+            add(new BinaryFieldPanel(
+                    "keystore",
+                    "",
+                    new PropertyModel<>(authModule, "conf.keystore"),
+                    "application/x-java-keystore",
+                    authModule.getKey()) {
+
+                private static final long serialVersionUID = -3268213909514986831L;
+
+                @Override
+                protected PageReference getPageReference() {
+                    return pageRef;
+                }
+            });
+            add(new XMLEditorPanel(null,
+                    new PropertyModel<>(authModule, "conf.serviceProviderMetadata"), false, pageRef));
+        }
+
+        @Override
+        public boolean evaluate() {
+            return SAML2IdPAuthModuleConf.class.isAssignableFrom(authModuleConfClass.getObject());
         }
     }
 

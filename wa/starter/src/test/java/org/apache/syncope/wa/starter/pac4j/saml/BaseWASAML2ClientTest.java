@@ -18,10 +18,17 @@
  */
 package org.apache.syncope.wa.starter.pac4j.saml;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -30,6 +37,11 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Date;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
+import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
@@ -99,6 +111,7 @@ public abstract class BaseWASAML2ClientTest {
         cfg.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata", ".xml")));
 
         SAML2Client client = new SAML2Client(cfg);
+        client.setName("CAS");
         client.setCallbackUrl("https://syncope.apache.org");
         return client;
     }
@@ -122,5 +135,24 @@ public abstract class BaseWASAML2ClientTest {
             fos.flush();
             return Base64.getEncoder().encodeToString(fos.toByteArray());
         }
+    }
+
+    protected static WARestClient getWARestClient() throws Exception {
+        SAML2IdPAuthModuleConf conf = new SAML2IdPAuthModuleConf();
+        conf.setKeystore(getKeystoreAsString());
+        conf.setServiceProviderMetadata(Base64.getEncoder().encodeToString(
+                IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8).
+                        getBytes(StandardCharsets.UTF_8)));
+
+        AuthModuleTO authModule = new AuthModuleTO();
+        authModule.setConf(conf);
+
+        AuthModuleService service = mock(AuthModuleService.class);
+        when(service.readByClientName(anyString())).thenReturn(authModule);
+        doNothing().when(service).update(any(AuthModuleTO.class));
+
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.getService(AuthModuleService.class)).thenReturn(service);
+        return waRestClient;
     }
 }

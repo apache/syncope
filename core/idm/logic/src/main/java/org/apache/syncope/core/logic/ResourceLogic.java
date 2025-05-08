@@ -357,7 +357,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 connectorManager.getConnector(triple.getMiddle()),
                 connObjectKeyItem,
                 connObjectKeyValue,
-                triple.getMiddle(),
                 triple.getRight(),
                 Optional.empty()).
                 map(connectorObject -> ConnObjectUtils.getConnObjectTO(

@@ -33,6 +33,7 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
 import org.apache.syncope.common.lib.to.AttrRepoTO;
 import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
@@ -72,7 +73,14 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public AuthModuleTO read(final String key) {
             return AUTH_MODULES.stream().filter(m -> Objects.equals(key, m.getKey())).
-                    findFirst().orElseThrow(() -> new NotFoundException("Auth Module with key " + key));
+                    findFirst().orElseThrow(() -> new NotFoundException("AuthModule with key " + key));
+        }
+
+        @Override
+        public AuthModuleTO readByClientName(final String clientName) {
+            return AUTH_MODULES.stream().filter(m -> m.getConf() instanceof Pac4jAuthModuleConf conf
+                    && Objects.equals(clientName, conf.getClientName())).findFirst().
+                    orElseThrow(() -> new NotFoundException("AuthModule with client name " + clientName));
         }
 
         @Override

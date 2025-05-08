@@ -24,7 +24,6 @@ import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -39,7 +38,6 @@ import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.apache.syncope.core.logic.ClientAppLogic;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
 import org.apache.syncope.core.logic.SAML2IdPEntityLogic;
-import org.apache.syncope.core.logic.SAML2SPEntityLogic;
 import org.apache.syncope.core.logic.SRARouteLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
@@ -54,7 +52,6 @@ import org.apache.syncope.core.rest.cxf.service.AuthProfileServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.OIDCJWKSServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SAML2IdPEntityServiceImpl;
-import org.apache.syncope.core.rest.cxf.service.SAML2SPEntityServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SRARouteServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthAccountServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthTokenServiceImpl;
@@ -126,12 +123,6 @@ public class AMRESTCXFContext {
     @Bean
     public SAML2IdPEntityService saml2IdPEntityService(final SAML2IdPEntityLogic saml2IdPEntityLogic) {
         return new SAML2IdPEntityServiceImpl(saml2IdPEntityLogic);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SAML2SPEntityService saml2SPEntityService(final SAML2SPEntityLogic saml2SPEntityLogic) {
-        return new SAML2SPEntityServiceImpl(saml2SPEntityLogic);
     }
 
     @ConditionalOnMissingBean

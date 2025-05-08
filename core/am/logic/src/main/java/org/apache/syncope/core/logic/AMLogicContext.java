@@ -35,7 +35,6 @@ import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
-import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 import org.apache.syncope.core.persistence.api.dao.WAConfigDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -46,7 +45,6 @@ import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ClientAppDataBinder;
 import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
-import org.apache.syncope.core.provisioning.api.data.SAML2SPEntityDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
 import org.apache.syncope.core.provisioning.api.data.WAConfigDataBinder;
 import org.apache.syncope.core.provisioning.api.data.wa.WAClientAppDataBinder;
@@ -128,15 +126,6 @@ public class AMLogicContext {
             final SAML2IdPEntityDAO saml2IdPEntityDAO) {
 
         return new SAML2IdPEntityLogic(binder, saml2IdPEntityDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SAML2SPEntityLogic saml2SPEntityLogic(
-            final SAML2SPEntityDataBinder binder,
-            final SAML2SPEntityDAO saml2SPEntityDAO) {
-
-        return new SAML2SPEntityLogic(binder, saml2SPEntityDAO);
     }
 
     @ConditionalOnMissingBean

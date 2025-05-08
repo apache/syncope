@@ -1140,12 +1140,6 @@ under the License.
             <unique name="U_SML2TPP_NAME" column="name"/>
             <unique name="U_SML2TPP_ENTITYID" column="entityId"/>
         </table>
-        <table name="SAML2SPEntity">
-            <pk column="id"/>
-            <column name="id" type="varchar" not-null="true" size="255"/>
-            <column name="keystore" type="blob" size="-1"/>
-            <column name="metadata" type="blob" size="-1"/>
-        </table>
         <table name="SRARoute">
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>

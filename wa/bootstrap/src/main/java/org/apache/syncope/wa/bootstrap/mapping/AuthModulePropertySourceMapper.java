@@ -288,8 +288,6 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setBlockedSignatureSigningAlgorithms(conf.getBlockedSignatureSigningAlgorithms());
         props.setDestinationBinding(conf.getDestinationBinding().getUri());
         props.getMetadata().setIdentityProviderMetadataPath(conf.getIdentityProviderMetadataPath());
-        props.getMetadata().getServiceProvider().getFileSystem().setLocation(conf.getServiceProviderMetadataPath());
-        props.setKeystorePath(conf.getKeystorePath());
         props.setWantsAssertionsSigned(conf.isWantsAssertionsSigned());
         props.setWantsResponsesSigned(conf.isResponsesSigned());
         props.setKeystorePassword(conf.getKeystorePassword());
@@ -302,9 +300,9 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setSignatureCanonicalizationAlgorithm(conf.getSignatureCanonicalizationAlgorithm());
         props.setSignatureReferenceDigestMethods(conf.getSignatureReferenceDigestMethods());
         props.setPrincipalIdAttribute(conf.getUserIdAttribute());
-        props.setNameIdPolicyAllowCreate(StringUtils.isBlank(conf.getNameIdPolicyAllowCreate())
-                ? TriStateBoolean.UNDEFINED
-                : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
+        props.setNameIdPolicyAllowCreate(Optional.ofNullable(conf.getNameIdPolicyAllowCreate()).
+                map(v -> TriStateBoolean.valueOf(v.name())).
+                orElse(TriStateBoolean.UNDEFINED));
 
         return prefix("cas.authn.pac4j.saml[].", WAConfUtils.asMap(props));
     }
