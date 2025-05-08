@@ -1792,7 +1792,7 @@ under the License.
         <plugin>
           <groupId>us.hebi.sass</groupId>
           <artifactId>sass-cli-maven-plugin</artifactId>
-          <version>1.0.3</version>
+          <version>1.0.4</version>
           <configuration>
             <sassVersion>1.62.0</sassVersion>
             <skip>${sass.skip}</skip>
