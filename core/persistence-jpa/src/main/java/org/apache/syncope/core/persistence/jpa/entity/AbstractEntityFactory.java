@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -102,7 +101,6 @@ import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCJWKS;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAOIDCRPClientApp;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2IdPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPClientApp;
-import org.apache.syncope.core.persistence.jpa.entity.am.JPASAML2SPEntity;
 import org.apache.syncope.core.persistence.jpa.entity.am.JPAWAConfigEntry;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
@@ -282,8 +280,6 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPASAML2SPClientApp();
         } else if (reference.equals(SAML2IdPEntity.class)) {
             result = (E) new JPASAML2IdPEntity();
-        } else if (reference.equals(SAML2SPEntity.class)) {
-            result = (E) new JPASAML2SPEntity();
         } else if (reference.equals(AuthProfile.class)) {
             result = (E) new JPAAuthProfile();
         } else if (reference.equals(OIDCJWKS.class)) {

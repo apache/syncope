@@ -21,14 +21,17 @@ package org.apache.syncope.client.console.wizards;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.TextEditorPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 
-public class SAML2IdPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2IdPEntityTO> {
+public class SAML2IdPEntityWizardBuilder extends BaseAjaxWizardBuilder<SAML2IdPEntityTO> {
 
     private static final long serialVersionUID = -8013493490328546125L;
 
@@ -100,14 +103,35 @@ public class SAML2IdPEntityWizardBuilder extends SAML2EntityWizardBuilder<SAML2I
         return wizardModel;
     }
 
-    protected class TextPem extends Pem {
+    protected class Metadata extends WizardStep {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -3043839139187792810L;
+
+        Metadata(final SAML2IdPEntityTO entity, final PageReference pageRef) {
+            add(new XMLEditorPanel(null, new PropertyModel<>(entity, "metadata"), false, pageRef));
+        }
+
+        @Override
+        public String getTitle() {
+            return "Metadata";
+        }
+    }
+
+    protected class TextPem extends WizardStep {
+
+        private static final long serialVersionUID = -3713108738476604821L;
+
+        protected final String property;
 
         public TextPem(final SAML2IdPEntityTO entity, final String property, final PageReference pageRef) {
-            super(property);
+            this.property = property;
 
             add(new TextEditorPanel(null, new PropertyModel<>(entity, property), false, pageRef));
+        }
+
+        @Override
+        public String getTitle() {
+            return StringUtils.capitalize(property);
         }
     }
 }

@@ -72,7 +72,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public AuthModuleTO read(final String key) {
             return AUTH_MODULES.stream().filter(m -> Objects.equals(key, m.getKey())).
-                    findFirst().orElseThrow(() -> new NotFoundException("Auth Module with key " + key));
+                    findFirst().orElseThrow(() -> new NotFoundException("AuthModule with key " + key));
         }
 
         @Override

@@ -85,6 +85,10 @@
     "name": "application/java-byte-code"
   },
   {
+    "name": "application/x-java-keystore",
+    "extension": "jks"
+  },
+  {
     "name": "application/javascript"
   },
   {

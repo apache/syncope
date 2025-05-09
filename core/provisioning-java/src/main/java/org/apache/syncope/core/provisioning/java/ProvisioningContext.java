@@ -96,7 +96,6 @@ import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPEntityDataBinder;
-import org.apache.syncope.core.provisioning.api.data.SAML2SPEntityDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SRARouteDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
@@ -134,7 +133,6 @@ import org.apache.syncope.core.provisioning.java.data.ReportDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ResourceDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.RoleDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.SAML2IdPEntityDataBinderImpl;
-import org.apache.syncope.core.provisioning.java.data.SAML2SPEntityDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.SRARouteDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.SchemaDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.SecurityQuestionDataBinderImpl;
@@ -1008,12 +1006,6 @@ public class ProvisioningContext {
     @Bean
     public SAML2IdPEntityDataBinder saml2IdPEntityDataBinder(final EntityFactory entityFactory) {
         return new SAML2IdPEntityDataBinderImpl(entityFactory);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SAML2SPEntityDataBinder saml2SPEntityDataBinder(final EntityFactory entityFactory) {
-        return new SAML2SPEntityDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean

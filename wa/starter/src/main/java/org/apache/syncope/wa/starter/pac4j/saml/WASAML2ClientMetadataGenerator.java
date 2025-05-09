@@ -20,8 +20,8 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.apache.syncope.common.lib.to.SAML2SPEntityTO;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractMetadataResolver;
@@ -57,22 +57,14 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
     public MetadataResolver buildMetadataResolver() throws Exception {
         String encodedMetadata = Base64.getEncoder().encodeToString(
                 getMetadata(buildEntityDescriptor()).getBytes(StandardCharsets.UTF_8));
+        LOG.debug("Encoded SP metadata {}", encodedMetadata);
 
-        SAML2SPEntityTO entityTO;
         try {
-            entityTO = waRestClient.getService(SAML2SPEntityService.class).get(saml2Client.getName());
-            entityTO.setMetadata(encodedMetadata);
+            waRestClient.getService(WASAML2SPService.class).setSAML2SPMetadata(
+                    saml2Client.getName(), IOUtils.toInputStream(encodedMetadata, StandardCharsets.UTF_8));
         } catch (Exception e) {
-            LOG.debug("SP Entity {} not found, creating new", saml2Client.getName(), e);
-
-            entityTO = new SAML2SPEntityTO.Builder().
-                    key(saml2Client.getName()).
-                    metadata(encodedMetadata).
-                    build();
+            LOG.error("While storing SP {} metadata", saml2Client.getName(), e);
         }
-
-        LOG.debug("Storing SP Entity {}", entityTO);
-        waRestClient.getService(SAML2SPEntityService.class).set(entityTO);
 
         return super.buildMetadataResolver();
     }

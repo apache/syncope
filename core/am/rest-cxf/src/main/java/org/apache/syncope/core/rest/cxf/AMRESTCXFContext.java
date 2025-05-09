@@ -24,7 +24,6 @@ import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
-import org.apache.syncope.common.rest.api.service.SAML2SPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
@@ -32,6 +31,7 @@ import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.core.logic.AttrRepoLogic;
 import org.apache.syncope.core.logic.AuthModuleLogic;
@@ -39,7 +39,6 @@ import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.apache.syncope.core.logic.ClientAppLogic;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
 import org.apache.syncope.core.logic.SAML2IdPEntityLogic;
-import org.apache.syncope.core.logic.SAML2SPEntityLogic;
 import org.apache.syncope.core.logic.SRARouteLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthTokenLogic;
@@ -54,7 +53,6 @@ import org.apache.syncope.core.rest.cxf.service.AuthProfileServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.OIDCJWKSServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SAML2IdPEntityServiceImpl;
-import org.apache.syncope.core.rest.cxf.service.SAML2SPEntityServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SRARouteServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthAccountServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthTokenServiceImpl;
@@ -62,6 +60,7 @@ import org.apache.syncope.core.rest.cxf.service.wa.ImpersonationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.MfaTrustStorageServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAConfigServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.wa.WASAML2SPServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WebAuthnRegistrationServiceImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -130,12 +129,6 @@ public class AMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public SAML2SPEntityService saml2SPEntityService(final SAML2SPEntityLogic saml2SPEntityLogic) {
-        return new SAML2SPEntityServiceImpl(saml2SPEntityLogic);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public SRARouteService sraRouteService(final SRARouteLogic sraRouteLogic) {
         return new SRARouteServiceImpl(sraRouteLogic);
     }
@@ -150,6 +143,12 @@ public class AMRESTCXFContext {
     @Bean
     public WAClientAppService waClientAppService(final WAClientAppLogic waClientAppLogic) {
         return new WAClientAppServiceImpl(waClientAppLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public WASAML2SPService waSAML2SPService(final AuthModuleLogic authModuleLogic) {
+        return new WASAML2SPServiceImpl(authModuleLogic);
     }
 
     @ConditionalOnMissingBean

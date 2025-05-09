@@ -216,7 +216,11 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     }
 
     protected Response buildResponse() {
-        return Response.ok(new ByteArrayInputStream(Base64.getMimeDecoder().decode(getModelObject()))).
+        byte[] content = Optional.ofNullable(getModelObject()).
+                map(modelObject -> Base64.getMimeDecoder().decode(modelObject)).
+                orElseGet(() -> new byte[0]);
+
+        return Response.ok(new ByteArrayInputStream(content)).
                 type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).
                 header(HttpHeaders.LOCATION, StringUtils.EMPTY).
                 build();

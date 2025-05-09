@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -414,9 +415,11 @@ public class AuthModuleITCase extends AbstractITCase {
         newsaml2IdpAuthModuleTO = createAuthModule(newsaml2IdpAuthModuleTO);
         assertNotNull(newsaml2IdpAuthModuleTO);
 
-        AuthModuleConf conf = saml2IdpAuthModuleTO.getConf();
+        SAML2IdPAuthModuleConf conf = (SAML2IdPAuthModuleConf) saml2IdpAuthModuleTO.getConf();
         assertNotNull(conf);
-        SAML2IdPAuthModuleConf.class.cast(conf).setServiceProviderEntityId("newEntityId");
+        conf.setClientName("clientName");
+        conf.setServiceProviderEntityId("newEntityId");
+        conf.setServiceProviderMetadata(Base64.getEncoder().encodeToString("testMetadata".getBytes()));
         newsaml2IdpAuthModuleTO.setConf(conf);
 
         // update new auth module
@@ -424,8 +427,10 @@ public class AuthModuleITCase extends AbstractITCase {
         newsaml2IdpAuthModuleTO = AUTH_MODULE_SERVICE.read(newsaml2IdpAuthModuleTO.getKey());
         assertNotNull(newsaml2IdpAuthModuleTO);
 
-        conf = newsaml2IdpAuthModuleTO.getConf();
-        assertEquals("newEntityId", SAML2IdPAuthModuleConf.class.cast(conf).getServiceProviderEntityId());
+        conf = (SAML2IdPAuthModuleConf) newsaml2IdpAuthModuleTO.getConf();
+        assertEquals("clientName", conf.getClientName());
+        assertEquals("newEntityId", conf.getServiceProviderEntityId());
+        assertEquals("testMetadata", new String(Base64.getDecoder().decode(conf.getServiceProviderMetadata())));
     }
 
     @Test

@@ -36,8 +36,6 @@ public final class AMConstants {
 
     public static final String PREF_SAML2_IDP_ENTITY_PAGINATOR_ROWS = "saml2idpentity.properties.paginator.rows";
 
-    public static final String PREF_SAML2_SP_ENTITY_PAGINATOR_ROWS = "saml2spentity.properties.paginator.rows";
-
     public static final String PREF_AUTHPROFILE_PAGINATOR_ROWS = "authprofile.paginator.rows";
 
     public static final String PREF_AUTHPROFILE_IMPERSONATED_PAGINATOR_ROWS = "authprofile.impersonated.paginator.rows";

@@ -56,7 +56,6 @@ import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
-import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -103,7 +102,6 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCJWKS;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCRPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2IdPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPClientApp;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jWAConfigEntry;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroupMembership;
 import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jAMembership;
@@ -283,8 +281,6 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jSAML2SPClientApp();
         } else if (reference.equals(SAML2IdPEntity.class)) {
             result = (E) new Neo4jSAML2IdPEntity();
-        } else if (reference.equals(SAML2SPEntity.class)) {
-            result = (E) new Neo4jSAML2SPEntity();
         } else if (reference.equals(AuthProfile.class)) {
             result = (E) new Neo4jAuthProfile();
         } else if (reference.equals(OIDCJWKS.class)) {

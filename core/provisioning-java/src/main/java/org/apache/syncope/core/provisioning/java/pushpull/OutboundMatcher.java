@@ -134,7 +134,6 @@ public class OutboundMatcher {
                 result.addAll(matchByCorrelationRule(
                         connector,
                         rule.get().getFilter(any, taskInfo.getResource(), provision),
-                        taskInfo.getResource(),
                         provision,
                         Optional.of(moreAttrsToGet.toArray(String[]::new))));
             } else {
@@ -142,7 +141,6 @@ public class OutboundMatcher {
                         connector,
                         connObjectKeyItem,
                         connObjectKeyValue,
-                        taskInfo.getResource(),
                         provision,
                         Optional.of(moreAttrsToGet.toArray(String[]::new)))).ifPresent(result::add);
             }
@@ -192,7 +190,6 @@ public class OutboundMatcher {
                 result.addAll(matchByCorrelationRule(
                         connector,
                         rule.get().getFilter(any, resource, provision),
-                        resource,
                         provision,
                         effectiveMATG));
             } else {
@@ -204,7 +201,6 @@ public class OutboundMatcher {
                             connector,
                             connObjectKeyItem.get(),
                             connObjectKeyValue.get(),
-                            resource,
                             provision,
                             effectiveMATG).
                             ifPresent(result::add);
@@ -220,7 +216,6 @@ public class OutboundMatcher {
     protected List<ConnectorObject> matchByCorrelationRule(
             final Connector connector,
             final Filter filter,
-            final ExternalResource resource,
             final Provision provision,
             final Optional<String[]> moreAttrsToGet) {
 
@@ -255,7 +250,6 @@ public class OutboundMatcher {
             final Connector connector,
             final Item connObjectKeyItem,
             final String connObjectKeyValue,
-            final ExternalResource resource,
             final Provision provision,
             final Optional<String[]> moreAttrsToGet) {
 
