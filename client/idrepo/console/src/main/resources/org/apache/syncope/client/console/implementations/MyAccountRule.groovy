@@ -17,7 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.dao.AccountRule
+import org.apache.syncope.core.provisioning.api.rules.AccountRule
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
 import org.apache.syncope.core.persistence.api.entity.user.User
 
