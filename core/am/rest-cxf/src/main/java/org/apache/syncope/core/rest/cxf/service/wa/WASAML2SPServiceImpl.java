@@ -42,7 +42,7 @@ public class WASAML2SPServiceImpl extends AbstractService implements WASAML2SPSe
     }
 
     @Override
-    public void setSAML2SPKeystore(final String clientName, InputStream keystore) {
+    public void setSAML2SPKeystore(final String clientName, final InputStream keystore) {
         logic.setSAML2SPKeystore(clientName, keystore);
     }
 
