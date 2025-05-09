@@ -59,11 +59,6 @@ public class AuthModuleServiceImpl extends AbstractService implements AuthModule
     }
 
     @Override
-    public AuthModuleTO readByClientName(final String clientName) {
-        return logic.readByClientName(clientName);
-    }
-
-    @Override
     public void update(final AuthModuleTO authModuleTO) {
         logic.update(authModuleTO);
     }

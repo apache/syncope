@@ -31,6 +31,7 @@ import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.MfaTrustStorageService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.common.rest.api.service.wa.WebAuthnRegistrationService;
 import org.apache.syncope.core.logic.AttrRepoLogic;
 import org.apache.syncope.core.logic.AuthModuleLogic;
@@ -59,6 +60,7 @@ import org.apache.syncope.core.rest.cxf.service.wa.ImpersonationServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.MfaTrustStorageServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WAConfigServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.wa.WASAML2SPServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.WebAuthnRegistrationServiceImpl;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -141,6 +143,12 @@ public class AMRESTCXFContext {
     @Bean
     public WAClientAppService waClientAppService(final WAClientAppLogic waClientAppLogic) {
         return new WAClientAppServiceImpl(waClientAppLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public WASAML2SPService waSAML2SPService(final AuthModuleLogic authModuleLogic) {
+        return new WASAML2SPServiceImpl(authModuleLogic);
     }
 
     @ConditionalOnMissingBean

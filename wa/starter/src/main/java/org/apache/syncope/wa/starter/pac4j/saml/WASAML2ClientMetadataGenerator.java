@@ -20,9 +20,8 @@ package org.apache.syncope.wa.starter.pac4j.saml;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
-import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.opensaml.saml.metadata.resolver.MetadataResolver;
 import org.opensaml.saml.metadata.resolver.impl.AbstractMetadataResolver;
@@ -56,17 +55,13 @@ public class WASAML2ClientMetadataGenerator extends BaseSAML2MetadataGenerator {
 
     @Override
     public MetadataResolver buildMetadataResolver() throws Exception {
-        String metadata = Base64.getEncoder().encodeToString(
+        String encodedMetadata = Base64.getEncoder().encodeToString(
                 getMetadata(buildEntityDescriptor()).getBytes(StandardCharsets.UTF_8));
+        LOG.debug("Encoded SP metadata {}", encodedMetadata);
 
         try {
-            AuthModuleTO authModule = waRestClient.getService(AuthModuleService.class).
-                    readByClientName(saml2Client.getName());
-
-            ((SAML2IdPAuthModuleConf) authModule.getConf()).setServiceProviderMetadata(metadata);
-
-            LOG.debug("Storing SP AuthModule {}", authModule);
-            waRestClient.getService(AuthModuleService.class).update(authModule);
+            waRestClient.getService(WASAML2SPService.class).setSAML2SPMetadata(
+                    saml2Client.getName(), IOUtils.toInputStream(encodedMetadata, StandardCharsets.UTF_8));
         } catch (Exception e) {
             LOG.error("While storing SP {} metadata", saml2Client.getName(), e);
         }

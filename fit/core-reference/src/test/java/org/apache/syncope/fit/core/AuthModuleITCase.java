@@ -424,7 +424,7 @@ public class AuthModuleITCase extends AbstractITCase {
 
         // update new auth module
         AUTH_MODULE_SERVICE.update(newsaml2IdpAuthModuleTO);
-        newsaml2IdpAuthModuleTO = AUTH_MODULE_SERVICE.readByClientName("clientName");
+        newsaml2IdpAuthModuleTO = AUTH_MODULE_SERVICE.read(newsaml2IdpAuthModuleTO.getKey());
         assertNotNull(newsaml2IdpAuthModuleTO);
 
         conf = (SAML2IdPAuthModuleConf) newsaml2IdpAuthModuleTO.getConf();

@@ -18,13 +18,19 @@
  */
 package org.apache.syncope.core.logic;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.auth.Pac4jAuthModuleConf;
+import org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuthModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -72,17 +78,6 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
         return binder.getAuthModuleTO(authModule);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_READ + "')")
-    @Transactional(readOnly = true)
-    public AuthModuleTO readByClientName(final String clientName) {
-        AuthModule authModule = authModuleDAO.findAll().stream().
-                filter(m -> m.getConf() instanceof Pac4jAuthModuleConf conf
-                && Objects.equals(clientName, conf.getClientName())).findFirst().
-                orElseThrow(() -> new NotFoundException("AuthModule with client name " + clientName));
-
-        return binder.getAuthModuleTO(authModule);
-    }
-
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_MODULE_DELETE + "')")
     public AuthModuleTO delete(final String key) {
         AuthModule authModule = authModuleDAO.findById(key).
@@ -92,6 +87,60 @@ public class AuthModuleLogic extends AbstractTransactionalLogic<AuthModuleTO> {
         authModuleDAO.delete(authModule);
 
         return deleted;
+    }
+
+    protected AuthModule readByClientName(final String clientName) {
+        return authModuleDAO.findAll().stream().
+                filter(m -> m.getConf() instanceof Pac4jAuthModuleConf conf
+                && (Objects.equals(clientName, conf.getClientName())
+                || Objects.equals(clientName, m.getKey()))).findFirst().
+                orElseThrow(() -> new NotFoundException("AuthModule with client name " + clientName));
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @Transactional(readOnly = true)
+    public SAML2IdPAuthModuleConf readSAML2SPConf(final String clientName) {
+        AuthModule authModule = readByClientName(clientName);
+
+        return (SAML2IdPAuthModuleConf) authModule.getConf();
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void setSAML2SPKeystore(final String clientName, final InputStream keystore) {
+        AuthModule authModule = readByClientName(clientName);
+        SAML2IdPAuthModuleConf conf = (SAML2IdPAuthModuleConf) authModule.getConf();
+
+        try {
+            conf.setKeystore(new String(keystore.readAllBytes(), StandardCharsets.UTF_8));
+            authModule.setConf(conf);
+
+            authModuleDAO.save(authModule);
+        } catch (IOException e) {
+            LOG.error("While reading the provided keystore", e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void setSAML2SPMetadata(final String clientName, final InputStream metadata) {
+        AuthModule authModule = readByClientName(clientName);
+        SAML2IdPAuthModuleConf conf = (SAML2IdPAuthModuleConf) authModule.getConf();
+
+        try {
+            conf.setServiceProviderMetadata(new String(metadata.readAllBytes(), StandardCharsets.UTF_8));
+            authModule.setConf(conf);
+
+            authModuleDAO.save(authModule);
+        } catch (IOException e) {
+            LOG.error("While reading the provided metadata", e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
     }
 
     @Override
