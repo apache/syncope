@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.rest.api.service.AuditService;
@@ -48,7 +49,7 @@ public class WAEventRepositoryTest extends AbstractTest {
 
     @Test
     public void saveInternal() {
-        CasEvent event = new CasEvent(1L, "Auth", "principalId", "creationTime", Map.of("timestamp", "1"));
+        CasEvent event = new CasEvent(1L, "Auth", "principalId", Instant.now(), Map.of("timestamp", "1"));
         WAEventRepository eventRepository =
                 new WAEventRepository(CasEventRepositoryFilter.noOp(), getWaRestClient());
         eventRepository.saveInternal(event);

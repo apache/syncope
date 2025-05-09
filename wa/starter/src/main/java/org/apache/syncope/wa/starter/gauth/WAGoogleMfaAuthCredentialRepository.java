@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.wa.starter.gauth;
 
-import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.authentication.OneTimeTokenAccount;
+import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.BaseGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.gauth.credential.GoogleAuthenticatorAccount;
 import org.apereo.cas.util.crypto.CipherExecutor;
@@ -42,7 +42,7 @@ public class WAGoogleMfaAuthCredentialRepository extends BaseGoogleAuthenticator
     protected final WARestClient waRestClient;
 
     public WAGoogleMfaAuthCredentialRepository(
-            final WARestClient waRestClient, final IGoogleAuthenticator googleAuthenticator) {
+            final WARestClient waRestClient, final CasGoogleAuthenticator googleAuthenticator) {
 
         super(CipherExecutor.noOpOfStringToString(), CipherExecutor.noOpOfNumberToNumber(), googleAuthenticator);
         this.waRestClient = waRestClient;

@@ -19,7 +19,6 @@
 package org.apache.syncope.wa.starter.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
-import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -71,6 +70,7 @@ import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
+import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
@@ -210,7 +210,7 @@ public class WAContext {
 
         return new RegisteredServiceMapper(
                 Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
-                    orElseGet(DelegatedClientAuthenticationHandler.class::getSimpleName),
+                        orElseGet(DelegatedClientAuthenticationHandler.class::getSimpleName),
                 authenticationEventExecutionPlan,
                 multifactorAuthenticationProviders,
                 authMappers,
@@ -310,7 +310,8 @@ public class WAContext {
             final CipherExecutor<String, String> googleAuthenticatorAccountCipherExecutor,
             @Qualifier("googleAuthenticatorScratchCodesCipherExecutor")
             final CipherExecutor<Number, Number> googleAuthenticatorScratchCodesCipherExecutor,
-            final IGoogleAuthenticator googleAuthenticatorInstance,
+            @Qualifier(CasGoogleAuthenticator.BEAN_NAME)
+            final CasGoogleAuthenticator googleAuthenticatorInstance,
             final WARestClient waRestClient) {
 
         /*
