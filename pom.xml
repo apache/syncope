@@ -431,7 +431,7 @@ under the License.
 
     <elasticsearch.version>9.0.1</elasticsearch.version>
     <opensearch.version>3.0.0</opensearch.version>
-    <opensearch-java.version>2.23.0</opensearch-java.version>
+    <opensearch-java.version>3.0.0-SNAPSHOT</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
@@ -1427,6 +1427,18 @@ under the License.
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <!-- TMP -->
+    <repository>
+      <id>opensearch.snapshots</id>
+      <name>OpenSearch Snapshot Repository</name>
+      <url>https://aws.oss.sonatype.org/content/repositories/snapshots/</url>
+      <releases>
+        <enabled>false</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>repository.spring.milestone</id>
       <name>Spring Milestone Repository</name>
@@ -1438,6 +1450,7 @@ under the License.
         <enabled>false</enabled>
       </snapshots>
     </repository>
+    <!-- /TMP -->
     <!-- Excluding useless transitive repositories -->
     <repository>
       <id>couchbase</id>
@@ -1462,6 +1475,7 @@ under the License.
         <enabled>true</enabled>
       </snapshots>
     </pluginRepository>
+    <!-- TMP -->
     <pluginRepository>
       <id>repository.spring.milestone</id>
       <name>Spring Milestone Repository</name>
@@ -1473,6 +1487,7 @@ under the License.
         <enabled>false</enabled>
       </snapshots>
     </pluginRepository>
+    <!-- /TMP -->
   </pluginRepositories>
 
   <build>

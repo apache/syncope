@@ -65,15 +65,15 @@ public class OpenSearchIndexManager {
 
     protected final OpenSearchUtils openSearchUtils;
 
-    protected final String numberOfShards;
+    protected final Integer numberOfShards;
 
-    protected final String numberOfReplicas;
+    protected final Integer numberOfReplicas;
 
     public OpenSearchIndexManager(
             final OpenSearchClient client,
             final OpenSearchUtils ppenSearchUtils,
-            final String numberOfShards,
-            final String numberOfReplicas) {
+            final Integer numberOfShards,
+            final Integer numberOfReplicas) {
 
         this.client = client;
         this.openSearchUtils = ppenSearchUtils;
