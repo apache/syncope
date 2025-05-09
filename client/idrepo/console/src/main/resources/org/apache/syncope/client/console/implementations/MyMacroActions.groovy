@@ -19,7 +19,7 @@
 import groovy.transform.CompileStatic
 import java.util.Map
 import java.util.Optional
-import javax.validation.ValidationException
+import jakarta.validation.ValidationException
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.common.lib.form.SyncopeForm
 import org.apache.syncope.core.provisioning.api.macro.Command

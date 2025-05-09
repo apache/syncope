@@ -30,12 +30,12 @@ import org.identityconnectors.framework.common.objects.ConnectorObject
 class MyPropagationActions implements PropagationActions {
   
   @Override
-  Set<String> moreAttrsToGet(Optional<PropagationTask> task, OrgUnit orgUnit) {
+  Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, OrgUnit orgUnit) {
     return Set.of();
   }
 
   @Override
-  Set<String> moreAttrsToGet(Optional<PropagationTask> task, Provision provision) {
+  Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, Provision provision){
     return Set.of();
   }
 

@@ -17,7 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
-import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValueValidator
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.persistence.api.entity.PlainSchema
 
@@ -25,10 +25,6 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema
 class MyAttrValueValidator implements PlainAttrValueValidator {
   
   @Override
-  void setSchema(PlainSchema schema) {
-  }
-
-  @Override
-  void validate(String value, PlainAttrValue attrValue) {      
+  void validate(PlainSchema schema, String value, PlainAttrValue attrValue) {
   }
 }
