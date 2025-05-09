@@ -78,7 +78,7 @@ under the License.
               description="Duo Mfa auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.DuoMfaAuthModuleConf","integrationKey":"DIOXVRZD2UMZ8XXMNFQ5","secretKey":"Q2IU2i8BFNd6VYflZT8Evl6lF7oPlj3PM15BmRU7", "apiHost":"theapi.duosecurity.com"}'/>
   <AuthModule id="DefaultOIDCAuthModule" authModuleState="ACTIVE"
               description="OIDC auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.OIDCAuthModuleConf","discoveryUri":"https://localhost:9443/syncope-wa/oidc/.well-known/openid-configuration", "clientId":"client-id", "clientSecret": "client-secret" }'/>
-  <AuthModule id="DefaultSAML2IdPAuthModule" authModuleState="ACTIVE"
+  <AuthModule id="DefaultSAML2IdPAuthModule" authModuleState="ACTIVE" authModuleOrder="0"
               description="SAML2 IdP auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.SAML2IdPAuthModuleConf","keystorePassword":"p@$$word","privateKeyPassword":"p@$$word","identityProviderMetadataPath":"https://localhost:9443/syncope-wa/idp/metadata", "serviceProviderEntityId":"syncope:apache:org"}'/>
   <AuthModule id="DefaultJaasAuthModule" authModuleState="ACTIVE"
               description="Jaas auth module" jsonConf='{"_class":"org.apache.syncope.common.lib.auth.JaasAuthModuleConf","realm":"SYNCOPE","kerberosRealmSystemProperty":"sample-value", "loginConfigType": "JavaLoginConfig", "loginConfigurationFile": "file:/etc/jaas/login.conf"}'/>

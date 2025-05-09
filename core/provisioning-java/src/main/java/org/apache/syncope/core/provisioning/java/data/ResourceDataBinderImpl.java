@@ -206,7 +206,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     });
 
                     populateMapping(
-                            resource,
                             provisionTO.getMapping(),
                             mapping,
                             anyType.getKind(),
@@ -363,7 +362,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     }
 
     protected void populateMapping(
-            final ExternalResource resource,
             final Mapping mappingTO,
             final Mapping mapping,
             final AnyTypeKind anyTypeKind,

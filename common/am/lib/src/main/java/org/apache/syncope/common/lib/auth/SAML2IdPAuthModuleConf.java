@@ -23,33 +23,27 @@ import java.util.List;
 import java.util.Map;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
+import org.apache.syncope.common.lib.types.TriStateBoolean;
 
 public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthModuleConf {
 
     private static final long serialVersionUID = -471527731042579422L;
 
     /**
-     * The attribute value that should be used
-     * for the authenticated username, upon a successful authentication
+     * The attribute value that should be used for the authenticated username, upon a successful authentication
      * attempt.
      */
     protected String userIdAttribute;
 
     /**
-     * The destination binding to use
-     * when creating authentication requests.
+     * The destination binding to use when creating authentication requests.
      */
     protected SAML2BindingType destinationBinding = SAML2BindingType.REDIRECT;
 
     /**
-     * The Service Provider metadata path.
+     * Base64-encoded keystore content..
      */
-    protected String serviceProviderMetadataPath;
-
-    /**
-     * The path to the keystore.
-     */
-    protected String keystorePath;
+    protected String keystore;
 
     /**
      * The password to use when generating the SP keystore.
@@ -59,7 +53,12 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     /**
      * The password to use when generating the private key for the SP keystore.
      */
-    protected String protectedKeyPassword;
+    protected String privateKeyPassword;
+
+    /**
+     * Base64-encoded SP metadata content.
+     */
+    protected String serviceProviderMetadata;
 
     /**
      * The metadata location of the identity provider that is to handle authentications.
@@ -67,11 +66,10 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     protected String identityProviderMetadataPath;
 
     /**
-     * Flag to indicate whether the allow-create flags
-     * for nameid policies should be set to true, false or ignored/defined.
-     * Accepted values are true, false or undefined.
+     * Flag to indicate whether the allow-create flags for nameid policies should be set to true, false or
+     * ignored/undefined.
      */
-    protected String nameIdPolicyAllowCreate = "undefined";
+    protected TriStateBoolean nameIdPolicyAllowCreate = TriStateBoolean.TRUE;
 
     /**
      * Once you have an authenticated session on the identity provider, usually it won't prompt you again to enter your
@@ -149,8 +147,7 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     protected int assertionConsumerServiceIndex = -1;
 
     /**
-     * Whether name qualifiers should be produced
-     * in the final saml response.
+     * Whether name qualifiers should be produced in the final saml response.
      */
     protected boolean useNameQualifier = true;
 
@@ -191,8 +188,7 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
 
     /**
      * Provider name set for the saml authentication request.
-     * Sets the human-readable name of the requester for use by
-     * the presenter's user agent or the identity provider.
+     * Sets the human-readable name of the requester for use by the presenter's user agent or the identity provider.
      */
     protected String providerName;
 
@@ -212,22 +208,6 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
         this.destinationBinding = destinationBinding;
     }
 
-    public String getServiceProviderMetadataPath() {
-        return serviceProviderMetadataPath;
-    }
-
-    public void setServiceProviderMetadataPath(final String serviceProviderMetadataPath) {
-        this.serviceProviderMetadataPath = serviceProviderMetadataPath;
-    }
-
-    public String getKeystorePath() {
-        return keystorePath;
-    }
-
-    public void setKeystorePath(final String keystorePath) {
-        this.keystorePath = keystorePath;
-    }
-
     public String getKeystorePassword() {
         return keystorePassword;
     }
@@ -237,11 +217,27 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
     }
 
     public String getPrivateKeyPassword() {
-        return protectedKeyPassword;
+        return privateKeyPassword;
     }
 
-    public void setPrivateKeyPassword(final String protectedKeyPassword) {
-        this.protectedKeyPassword = protectedKeyPassword;
+    public void setPrivateKeyPassword(final String privateKeyPassword) {
+        this.privateKeyPassword = privateKeyPassword;
+    }
+
+    public String getKeystore() {
+        return keystore;
+    }
+
+    public void setKeystore(final String keystore) {
+        this.keystore = keystore;
+    }
+
+    public String getServiceProviderMetadata() {
+        return serviceProviderMetadata;
+    }
+
+    public void setServiceProviderMetadata(final String serviceProviderMetadata) {
+        this.serviceProviderMetadata = serviceProviderMetadata;
     }
 
     public String getIdentityProviderMetadataPath() {
@@ -292,11 +288,11 @@ public class SAML2IdPAuthModuleConf extends Pac4jAuthModuleConf implements AuthM
         this.passive = passive;
     }
 
-    public String getNameIdPolicyAllowCreate() {
+    public TriStateBoolean getNameIdPolicyAllowCreate() {
         return nameIdPolicyAllowCreate;
     }
 
-    public void setNameIdPolicyAllowCreate(final String nameIdPolicyAllowCreate) {
+    public void setNameIdPolicyAllowCreate(final TriStateBoolean nameIdPolicyAllowCreate) {
         this.nameIdPolicyAllowCreate = nameIdPolicyAllowCreate;
     }
 

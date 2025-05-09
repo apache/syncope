@@ -39,12 +39,13 @@ import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.panels.OIDC;
-import org.apache.syncope.client.console.panels.SAML2;
+import org.apache.syncope.client.console.panels.SAML2IdPEntityDirectoryPanel;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
 import org.apache.syncope.client.console.panels.WAPushModalPanel;
 import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
+import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -81,6 +82,9 @@ public class WA extends BasePage {
 
     @SpringBean
     protected AttrRepoRestClient attrRepoRestClient;
+
+    @SpringBean
+    protected SAML2IdPEntityRestClient saml2IdPEntityRestClient;
 
     @SpringBean
     protected ServiceOps serviceOps;
@@ -127,7 +131,7 @@ public class WA extends BasePage {
 
         if (!instances.isEmpty()) {
             String actuatorEndpoint = StringUtils.appendIfMissing(
-                instances.getFirst().getAddress(), "/") + "actuator/env";
+                    instances.getFirst().getAddress(), "/") + "actuator/env";
             try {
                 Response response = WebClientBuilder.build(actuatorEndpoint,
                         SyncopeWebApplication.get().getAnonymousUser(),
@@ -204,7 +208,8 @@ public class WA extends BasePage {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new SAML2(panelId, waPrefix, getPageReference());
+                return new SAML2IdPEntityDirectoryPanel(
+                        panelId, saml2IdPEntityRestClient, waPrefix, getPageReference());
             }
         });
 

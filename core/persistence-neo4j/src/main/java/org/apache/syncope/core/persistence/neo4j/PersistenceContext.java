@@ -71,7 +71,6 @@ import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPClientAppDAO;
-import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.dao.SRARouteDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -183,7 +182,6 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.SAML2IdPEntityRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.SAML2SPClientAppRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.SAML2SPClientAppRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.SAML2SPClientAppRepoExtImpl;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.SAML2SPEntityRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.SRARouteRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.SecurityQuestionRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.SecurityQuestionRepoExt;
@@ -1333,12 +1331,6 @@ public class PersistenceContext {
             final SAML2SPClientAppRepoExt saml2SPClientAppRepoExt) {
 
         return neo4jRepositoryFactory.getRepository(SAML2SPClientAppRepo.class, saml2SPClientAppRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
-    public SAML2SPEntityDAO saml2SPEntityDAO(final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory) {
-        return neo4jRepositoryFactory.getRepository(SAML2SPEntityRepo.class);
     }
 
     @ConditionalOnMissingBean

@@ -18,10 +18,20 @@
  */
 package org.apache.syncope.wa.starter.pac4j.saml;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import jakarta.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -30,6 +40,9 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Base64;
 import java.util.Date;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.rest.api.service.wa.WASAML2SPService;
+import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
@@ -99,6 +112,7 @@ public abstract class BaseWASAML2ClientTest {
         cfg.setServiceProviderMetadataResource(new FileSystemResource(File.createTempFile("sp-metadata", ".xml")));
 
         SAML2Client client = new SAML2Client(cfg);
+        client.setName("CAS");
         client.setCallbackUrl("https://syncope.apache.org");
         return client;
     }
@@ -122,5 +136,23 @@ public abstract class BaseWASAML2ClientTest {
             fos.flush();
             return Base64.getEncoder().encodeToString(fos.toByteArray());
         }
+    }
+
+    protected static String getSPMetadata() throws IOException {
+        return Base64.getEncoder().encodeToString(
+                IOUtils.toString(new ClassPathResource("sp-metadata.xml").getInputStream(), StandardCharsets.UTF_8).
+                        getBytes(StandardCharsets.UTF_8));
+    }
+
+    protected static WARestClient getWARestClient() throws Exception {
+        WASAML2SPService service = mock(WASAML2SPService.class);
+        when(service.getSAML2SPKeystore(anyString())).thenReturn(Response.ok(getKeystoreAsString()).build());
+        when(service.getSAML2SPMetadata(anyString())).thenReturn(Response.ok(getSPMetadata()).build());
+        doNothing().when(service).setSAML2SPKeystore(anyString(), any(InputStream.class));
+        doNothing().when(service).setSAML2SPMetadata(anyString(), any(InputStream.class));
+
+        WARestClient waRestClient = mock(WARestClient.class);
+        when(waRestClient.getService(WASAML2SPService.class)).thenReturn(service);
+        return waRestClient;
     }
 }
