@@ -53,8 +53,8 @@ public class ConnectorObjectIdentificationDeserializer
                     attributes.add(Uid.NAME.equals(name) 
                             ? new Uid(values.isEmpty() || values.getFirst() == null 
                             ? null : values.getFirst().toString())
-                            : Name.NAME.equals(name) 
-                                    ? new Name(values.isEmpty() || values.getFirst() == null 
+                            : Name.NAME.equals(name)
+                                    ? new Name(values.isEmpty() || values.getFirst() == null
                                     ? null : values.getFirst().toString())
                                     : AttributeBuilder.build(name, values));
                 } catch (IOException e) {
