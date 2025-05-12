@@ -28,6 +28,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeDelta;
+import org.identityconnectors.framework.common.objects.ConnectorObjectIdentification;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,11 +48,14 @@ public final class POJOHelper {
         pojoModule.addSerializer(Attribute.class, new AttributeSerializer());
         pojoModule.addSerializer(AttributeDelta.class, new AttributeDeltaSerializer());
         pojoModule.addSerializer(SyncToken.class, new SyncTokenSerializer());
+        pojoModule.addSerializer(ConnectorObjectIdentification.class, new ConnectorObjectIdentificationSerializer());
         pojoModule.addSerializer(PropagationTaskInfo.class, new PropagationTaskInfoSerializer());
         pojoModule.addDeserializer(GuardedString.class, new GuardedStringDeserializer());
         pojoModule.addDeserializer(Attribute.class, new AttributeDeserializer());
         pojoModule.addDeserializer(AttributeDelta.class, new AttributeDeltaDeserializer());
         pojoModule.addDeserializer(SyncToken.class, new SyncTokenDeserializer());
+        pojoModule.addDeserializer(ConnectorObjectIdentification.class,
+                new ConnectorObjectIdentificationDeserializer());
 
         MAPPER = JsonMapper.builder().
                 addModule(pojoModule).
