@@ -51,10 +51,10 @@ public class WASAML2MetadataResolver extends AbstractReloadingMetadataResolver {
             String encodedMetadata = waRestClient.getService(WASAML2SPService.class).
                     getSAML2SPMetadata(saml2Client.getName()).readEntity(String.class);
 
-            LOG.debug("Retrieved keystore {}", encodedMetadata);
+            LOG.debug("Retrieved metadata {}", encodedMetadata);
             return Base64.getDecoder().decode(encodedMetadata);
         } catch (Exception e) {
-            String message = "Unable to fetch SP metadata for " + saml2Client.getName();
+            String message = "Unable to fetch SP metadata for SP entity " + saml2Client.getName();
             LOG.error(message, e);
             throw new ResolverException(message);
         }
