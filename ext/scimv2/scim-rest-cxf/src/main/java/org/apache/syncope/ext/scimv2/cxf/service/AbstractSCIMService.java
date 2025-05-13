@@ -151,7 +151,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                 build();
     }
 
-    protected abstract SCIMResource getResource(final String key);
+    protected abstract SCIMResource getResource(String key);
 
     protected ResponseBuilder checkETag(final Resource resource, final String key) {
         OffsetDateTime lastChange = anyDAO(resource).findLastChange(key);
