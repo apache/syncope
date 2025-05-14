@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -152,9 +151,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             Attr attr = new Attr();
             attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                if (schema.getType() != AttrSchemaType.Dropdown && !schema.isMultivalue()) {
-                    attr.getValues().add(StringUtils.EMPTY);
-                }
+                attr.getValues().add("");
             } else {
                 attr = attrMap.get(schema.getKey());
             }
@@ -175,9 +172,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             Attr attr = new Attr();
             attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                if (schema.getType() != AttrSchemaType.Dropdown && !schema.isMultivalue()) {
-                    attr.getValues().add(StringUtils.EMPTY);
-                }
+                attr.getValues().add(StringUtils.EMPTY);
             } else {
                 attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
