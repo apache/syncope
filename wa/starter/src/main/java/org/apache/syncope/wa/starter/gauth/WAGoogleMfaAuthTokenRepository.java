@@ -40,13 +40,10 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository<G
         this.expireTokensInSeconds = expireTokensInSeconds;
     }
 
-    protected GoogleMfaAuthTokenService service() {
-        return waRestClient.getService(GoogleMfaAuthTokenService.class);
-    }
-
     @Override
     protected void cleanInternal() {
-        service().delete(LocalDateTime.now().minusSeconds(expireTokensInSeconds));
+        waRestClient.getService(GoogleMfaAuthTokenService.class).
+                delete(LocalDateTime.now().minusSeconds(expireTokensInSeconds));
     }
 
     @Override
@@ -55,13 +52,13 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository<G
                 token(token.getToken()).
                 issueDate(token.getIssuedDateTime()).
                 build();
-        service().store(token.getUserId(), tokenTO);
+        waRestClient.getService(GoogleMfaAuthTokenService.class).store(token.getUserId(), tokenTO);
     }
 
     @Override
     public GoogleAuthenticatorToken get(final String username, final Integer otp) {
         try {
-            GoogleMfaAuthToken tokenTO = service().read(username, otp);
+            GoogleMfaAuthToken tokenTO = waRestClient.getService(GoogleMfaAuthTokenService.class).read(username, otp);
             GoogleAuthenticatorToken token = new GoogleAuthenticatorToken(tokenTO.getOtp(), username);
             token.setIssuedDateTime(tokenTO.getIssueDate());
             return token;
@@ -73,31 +70,31 @@ public class WAGoogleMfaAuthTokenRepository extends BaseOneTimeTokenRepository<G
 
     @Override
     public void remove(final String username, final Integer otp) {
-        service().delete(username, otp);
+        waRestClient.getService(GoogleMfaAuthTokenService.class).delete(username, otp);
     }
 
     @Override
     public void remove(final String username) {
-        service().delete(username);
+        waRestClient.getService(GoogleMfaAuthTokenService.class).delete(username);
     }
 
     @Override
     public void remove(final Integer otp) {
-        service().delete(otp);
+        waRestClient.getService(GoogleMfaAuthTokenService.class).delete(otp);
     }
 
     @Override
     public void removeAll() {
-        service().delete((LocalDateTime) null);
+        waRestClient.getService(GoogleMfaAuthTokenService.class).delete((LocalDateTime) null);
     }
 
     @Override
     public long count(final String username) {
-        return service().read(username).getTotalCount();
+        return waRestClient.getService(GoogleMfaAuthTokenService.class).read(username).getTotalCount();
     }
 
     @Override
     public long count() {
-        return service().list().getTotalCount();
+        return waRestClient.getService(GoogleMfaAuthTokenService.class).list().getTotalCount();
     }
 }

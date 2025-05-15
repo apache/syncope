@@ -51,16 +51,16 @@ public class GoogleMfaAuthAccountServiceImpl extends AbstractService implements 
     }
 
     @Override
-    public void create(final String owner, final GoogleMfaAuthAccount acct) {
-        logic.create(owner, acct);
+    public void create(final GoogleMfaAuthAccount acct) {
+        logic.create(acct);
     }
 
     @Override
-    public void update(final String owner, final GoogleMfaAuthAccount acct) {
-        logic.update(owner, acct);
+    public void update(final GoogleMfaAuthAccount acct) {
+        logic.update(acct);
     }
 
-    private PagedResult<GoogleMfaAuthAccount> build(final List<GoogleMfaAuthAccount> read) {
+    protected PagedResult<GoogleMfaAuthAccount> build(final List<GoogleMfaAuthAccount> read) {
         PagedResult<GoogleMfaAuthAccount> result = new PagedResult<>();
         result.setPage(1);
         result.setSize(read.size());
