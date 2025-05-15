@@ -18,6 +18,8 @@
 FROM eclipse-temurin:21-jdk-alpine
 LABEL org.opencontainers.image.authors="dev@syncope.apache.org"
 
+RUN apk update && apk add bash
+
 RUN set -x
 
 RUN mkdir /opt/syncope
