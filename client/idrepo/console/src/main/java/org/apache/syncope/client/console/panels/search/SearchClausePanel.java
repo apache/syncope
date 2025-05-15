@@ -44,6 +44,7 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBeha
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
@@ -947,10 +948,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT
                         : FastDateFormat.getInstance(plainSchema.getConversionPattern());
 
-                result = new AjaxDateTimeFieldPanel(
-                        "value",
-                        "value",
-                        new PropertyModel<>(searchClause, "value") {
+                PropertyModel<Date> dateModel = new PropertyModel<>(searchClause, "value") {
 
                     private static final long serialVersionUID = -3743432456095828573L;
 
@@ -970,7 +968,23 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     public void setObject(final Date object) {
                         Optional.ofNullable(object).ifPresent(date -> searchClause.setValue(formatter.format(date)));
                     }
-                }, DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT);
+                };
+
+                if (plainSchema.getConversionPattern() == null
+                        || StringUtils.containsIgnoreCase(plainSchema.getConversionPattern(), "H")) {
+
+                    result = new AjaxDateTimeFieldPanel(
+                            "value",
+                            "value",
+                            dateModel,
+                            formatter);
+                } else {
+                    result = new AjaxDateFieldPanel(
+                            "value",
+                            "value",
+                            dateModel,
+                            formatter);
+                }
                 break;
 
             case Enum:

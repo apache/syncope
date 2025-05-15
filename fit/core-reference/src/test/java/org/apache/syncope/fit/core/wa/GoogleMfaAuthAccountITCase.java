@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -36,9 +36,10 @@ import org.junit.jupiter.api.Test;
 
 public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
-    private static GoogleMfaAuthAccount createGoogleMfaAuthAccount() {
+    private static GoogleMfaAuthAccount createGoogleMfaAuthAccount(final String username) {
         return new GoogleMfaAuthAccount.Builder()
-                .registrationDate(OffsetDateTime.now())
+                .username(username)
+                .registrationDate(ZonedDateTime.now())
                 .scratchCodes(List.of(1, 2, 3, 4, 5))
                 .secretKey(SecureRandomUtils.generateRandomUUID().toString())
                 .validationCode(123456)
@@ -53,15 +54,15 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        assertDoesNotThrow(() -> GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(UUID.randomUUID().toString(), acct));
+        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount(UUID.randomUUID().toString());
+        assertDoesNotThrow(() -> GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(acct));
     }
 
     @Test
     public void count() {
         String owner = UUID.randomUUID().toString();
-        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(owner, acct);
+        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount(owner);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(acct);
         PagedResult<GoogleMfaAuthAccount> list = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.list();
         assertFalse(list.getResult().isEmpty());
         assertEquals(1, list.getTotalCount());
@@ -74,8 +75,8 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
     @Test
     public void delete() {
         String owner = UUID.randomUUID().toString();
-        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(owner, acct);
+        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount(owner);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(acct);
         GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.delete(owner);
         assertThrows(SyncopeClientException.class, () -> GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner));
     }
@@ -83,12 +84,12 @@ public class GoogleMfaAuthAccountITCase extends AbstractITCase {
     @Test
     public void update() {
         String owner = UUID.randomUUID().toString();
-        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount();
-        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(owner, acct);
+        GoogleMfaAuthAccount acct = createGoogleMfaAuthAccount(owner);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.create(acct);
         acct = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(acct.getId());
         acct.setSecretKey("NewSecret");
         acct.setScratchCodes(List.of(9, 8, 7, 6, 5));
-        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.update(owner, acct);
+        GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.update(acct);
         assertEquals(1, GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.list().getTotalCount());
         acct = GOOGLE_MFA_AUTH_ACCOUNT_SERVICE.read(owner).getResult().getFirst();
         assertEquals(acct.getSecretKey(), acct.getSecretKey());
