@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.wa;
 
-import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -34,13 +34,18 @@ public class GoogleMfaAuthAccount implements BaseBean {
 
         private final GoogleMfaAuthAccount instance = new GoogleMfaAuthAccount();
 
-        public GoogleMfaAuthAccount.Builder registrationDate(final OffsetDateTime date) {
-            instance.setRegistrationDate(date);
+        public GoogleMfaAuthAccount.Builder id(final Long id) {
+            instance.setId(id);
             return this;
         }
 
-        public GoogleMfaAuthAccount.Builder scratchCodes(final List<Integer> codes) {
-            instance.setScratchCodes(codes);
+        public GoogleMfaAuthAccount.Builder name(final String name) {
+            instance.setName(name);
+            return this;
+        }
+
+        public GoogleMfaAuthAccount.Builder username(final String username) {
+            instance.setUsername(username);
             return this;
         }
 
@@ -54,13 +59,18 @@ public class GoogleMfaAuthAccount implements BaseBean {
             return this;
         }
 
-        public GoogleMfaAuthAccount.Builder id(final Long id) {
-            instance.setId(id);
+        public GoogleMfaAuthAccount.Builder scratchCodes(final List<Integer> codes) {
+            instance.setScratchCodes(codes);
             return this;
         }
 
-        public GoogleMfaAuthAccount.Builder name(final String name) {
-            instance.setName(name);
+        public GoogleMfaAuthAccount.Builder registrationDate(final ZonedDateTime date) {
+            instance.setRegistrationDate(date);
+            return this;
+        }
+
+        public GoogleMfaAuthAccount.Builder source(final String source) {
+            instance.setSource(source);
             return this;
         }
 
@@ -69,17 +79,29 @@ public class GoogleMfaAuthAccount implements BaseBean {
         }
     }
 
-    private String secretKey;
+    private long id;
 
     private String name;
 
-    private int validationCode;
+    private String username;
 
-    private long id;
+    private String secretKey;
+
+    private int validationCode;
 
     private List<Integer> scratchCodes = new ArrayList<>(0);
 
-    private OffsetDateTime registrationDate;
+    private ZonedDateTime registrationDate;
+
+    private String source;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(final long id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -89,12 +111,12 @@ public class GoogleMfaAuthAccount implements BaseBean {
         this.name = name;
     }
 
-    public long getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
-    public void setId(final long id) {
-        this.id = id;
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     public String getSecretKey() {
@@ -121,24 +143,34 @@ public class GoogleMfaAuthAccount implements BaseBean {
         this.scratchCodes = scratchCodes;
     }
 
-    public OffsetDateTime getRegistrationDate() {
+    public ZonedDateTime getRegistrationDate() {
         return registrationDate;
     }
 
-    public void setRegistrationDate(final OffsetDateTime registrationDate) {
+    public void setRegistrationDate(final ZonedDateTime registrationDate) {
         this.registrationDate = registrationDate;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(final String source) {
+        this.source = source;
     }
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .append(secretKey)
-                .append(name)
-                .append(id)
-                .append(scratchCodes)
-                .append(validationCode)
-                .append(registrationDate)
-                .toHashCode();
+        return new HashCodeBuilder().
+                append(id).
+                append(name).
+                append(username).
+                append(secretKey).
+                append(validationCode).
+                append(scratchCodes).
+                append(registrationDate).
+                append(source).
+                build();
     }
 
     @Override
@@ -153,25 +185,29 @@ public class GoogleMfaAuthAccount implements BaseBean {
             return false;
         }
         GoogleMfaAuthAccount other = (GoogleMfaAuthAccount) obj;
-        return new EqualsBuilder()
-                .append(this.secretKey, other.secretKey)
-                .append(this.name, other.name)
-                .append(this.id, other.id)
-                .append(this.scratchCodes, other.scratchCodes)
-                .append(this.registrationDate, other.registrationDate)
-                .append(this.validationCode, other.validationCode)
-                .isEquals();
+        return new EqualsBuilder().
+                append(id, other.id).
+                append(name, other.name).
+                append(username, other.username).
+                append(secretKey, other.secretKey).
+                append(validationCode, other.validationCode).
+                append(scratchCodes, other.scratchCodes).
+                append(registrationDate, other.registrationDate).
+                append(source, other.source).
+                build();
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("name", name)
-                .append("secretKey", secretKey)
-                .append("id", id)
-                .append("scratchCodes", scratchCodes)
-                .append("registrationDate", registrationDate)
-                .append("validationCode", validationCode)
-                .toString();
+        return new ToStringBuilder(this).
+                append(id).
+                append(name).
+                append(username).
+                append(secretKey).
+                append(validationCode).
+                append(scratchCodes).
+                append(registrationDate).
+                append(source).
+                build();
     }
 }
