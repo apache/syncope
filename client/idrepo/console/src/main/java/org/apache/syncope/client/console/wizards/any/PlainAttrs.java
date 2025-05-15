@@ -151,7 +151,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             Attr attr = new Attr();
             attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                if (schema.getType() != AttrSchemaType.Dropdown && !schema.isMultivalue()) {
+                if (schema.getType() != AttrSchemaType.Dropdown || !schema.isMultivalue()) {
                     attr.getValues().add(StringUtils.EMPTY);
                 }
             } else {
@@ -175,7 +175,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             Attr attr = new Attr();
             attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                if (schema.getType() != AttrSchemaType.Dropdown && !schema.isMultivalue()) {
+                if (schema.getType() != AttrSchemaType.Dropdown || !schema.isMultivalue()) {
                     attr.getValues().add(StringUtils.EMPTY);
                 }
             } else {

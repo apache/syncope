@@ -20,11 +20,11 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -40,25 +40,17 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
-    public <T extends SchemaTO> List<T> getSchemas(
-            final SchemaType schemaType, final AnyTypeKind kind) {
-
-        AnyTypeService client = getService(AnyTypeService.class);
-
+    public <T extends SchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
         List<String> classes = new ArrayList<>();
 
         switch (kind) {
-            case USER:
-            case GROUP:
-                AnyTypeTO type = client.read(kind.name());
-                if (type != null) {
-                    classes.addAll(type.getClasses());
-                }
-                break;
+            case USER, GROUP ->
+                Optional.ofNullable(getService(AnyTypeService.class).read(kind.name())).
+                        ifPresent(anyType -> classes.addAll(anyType.getClasses()));
 
-            default:
-                getService(AnyTypeService.class).list().stream().filter(
-                        anyType -> anyType.getKind() != AnyTypeKind.USER && anyType.getKind() != AnyTypeKind.GROUP).
+            default ->
+                getService(AnyTypeService.class).list().stream().
+                        filter(anyType -> anyType.getKind() == AnyTypeKind.ANY_OBJECT).
                         forEach(anyType -> classes.addAll(anyType.getClasses()));
         }
 
