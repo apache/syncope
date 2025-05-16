@@ -29,7 +29,7 @@ import org.apache.wicket.model.Model;
 
 public abstract class AuthProfileWizardBuilder<T extends BaseBean> extends BaseAjaxWizardBuilder<T> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -723891643398238220L;
 
     protected final StepModel<T> model;
 
@@ -46,7 +46,7 @@ public abstract class AuthProfileWizardBuilder<T extends BaseBean> extends BaseA
 
     protected static class StepModel<T extends BaseBean> extends Model<T> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -3300650579312254364L;
 
         private T initialModelObject;
 

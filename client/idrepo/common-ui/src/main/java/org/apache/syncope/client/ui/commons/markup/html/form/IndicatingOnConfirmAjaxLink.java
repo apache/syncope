@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form;
+package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;

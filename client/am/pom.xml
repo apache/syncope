@@ -40,5 +40,6 @@ under the License.
   <modules>
     <module>lib</module>
     <module>console</module>
+    <module>enduser</module>
   </modules>
 </project>
