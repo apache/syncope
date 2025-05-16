@@ -41,35 +41,34 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 @SecurityRequirements({
     @SecurityRequirement(name = "BasicAuthentication"),
     @SecurityRequirement(name = "Bearer") })
-@Path("wa/gauth")
+@Path("wa/gauth/tokens")
 public interface GoogleMfaAuthTokenService extends JAXRSService {
 
     @DELETE
-    @Path("tokens")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@QueryParam("expirationDate") LocalDateTime expirationDate);
 
     @DELETE
-    @Path("tokens/{owner}/{otp}")
+    @Path("{owner}/{otp}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("otp") int otp);
 
     @DELETE
-    @Path("tokens/{owner}")
+    @Path("{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("owner") String owner);
 
     @DELETE
-    @Path("tokens/otp/{otp}")
+    @Path("otp/{otp}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void delete(@NotNull @PathParam("otp") int otp);
 
     @PUT
-    @Path("tokens/{owner}")
+    @Path("{owner}")
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void store(@NotNull @PathParam("owner") String owner, @NotNull GoogleMfaAuthToken token);
@@ -77,18 +76,17 @@ public interface GoogleMfaAuthTokenService extends JAXRSService {
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/{owner}/{otp}")
+    @Path("{owner}/{otp}")
     GoogleMfaAuthToken read(@NotNull @PathParam("owner") String owner, @NotNull @PathParam("otp") int otp);
 
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens/{owner}")
+    @Path("{owner}")
     PagedResult<GoogleMfaAuthToken> read(@NotNull @PathParam("owner") String owner);
 
     @GET
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
-    @Path("tokens")
     PagedResult<GoogleMfaAuthToken> list();
 }

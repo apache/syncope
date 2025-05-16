@@ -75,8 +75,6 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
         enableUtilityButton();
         setFooterVisibility(false);
 
-        addNewItemPanelBuilder(new AuthProfileItemWizardBuilder(pageRef), true);
-
         disableCheckBoxes();
         initResultTable();
     }

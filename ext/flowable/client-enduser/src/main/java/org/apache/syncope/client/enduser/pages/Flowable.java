@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
@@ -38,7 +39,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -64,27 +64,22 @@ public class Flowable extends BaseExtPage {
     @SpringBean
     protected BpmnProcessRestClient bpmnProcessRestClient;
 
-    protected final Model<String> bpmnProcessModel = new Model<>();
-
-    protected final WebMarkupContainer container;
-
-    protected final DataView<UserRequest> urDataView;
-
     public Flowable(final PageParameters parameters) {
         super(parameters, USER_REQUESTS);
 
-        container = new WebMarkupContainer("content");
-        container.setOutputMarkupId(true);
+        WebMarkupContainer container = new WebMarkupContainer("content");
+        contentWrapper.add(container.setOutputMarkupId(true));
 
         // list of accordions containing request form (if any) and delete button
-        urDataView = new DataView<>("userRequests", new URDataProvider(ROWS_PER_PAGE, "bpmnProcess")) {
+        DataView<UserRequest> urDataView = new DataView<>(
+                "userRequests", new URDataProvider(ROWS_PER_PAGE, "bpmnProcess")) {
 
             private static final long serialVersionUID = -5002600396458362774L;
 
             @Override
             protected void populateItem(final Item<UserRequest> item) {
-                final UserRequest userRequest = item.getModelObject();
-                item.add(new Accordion("userRequestDetails", Collections.<ITab>singletonList(new AbstractTab(
+                UserRequest userRequest = item.getModelObject();
+                item.add(new Accordion("userRequestDetails", List.of(new AbstractTab(
                         new StringResourceModel("user.requests.accordion", container, Model.of(userRequest))) {
 
                     private static final long serialVersionUID = 1037272333056449378L;
@@ -97,12 +92,12 @@ public class Flowable extends BaseExtPage {
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
         };
-
         urDataView.setItemsPerPage(ROWS_PER_PAGE);
         urDataView.setOutputMarkupId(true);
         container.add(urDataView);
         container.add(new AjaxPagingNavigator("navigator", urDataView));
 
+        Model<String> bpmnProcessModel = new Model<>();
         AjaxLink<Void> startButton = new AjaxLink<>("start") {
 
             private static final long serialVersionUID = 3669569969172391336L;
@@ -134,20 +129,14 @@ public class Flowable extends BaseExtPage {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (StringUtils.isNotBlank(bpmnProcessModel.getObject())) {
-                    startButton.setEnabled(true);
-                } else {
-                    startButton.setEnabled(false);
-                }
+                startButton.setEnabled(StringUtils.isNotBlank(bpmnProcessModel.getObject()));
                 target.add(container);
             }
         });
-        bpmnProcesses.setChoices(bpmnProcessRestClient.getDefinitions().stream()
-                .filter(definition -> !definition.isUserWorkflow())
-                .map(BpmnProcess::getKey).collect(Collectors.toList()));
+        bpmnProcesses.setChoices(bpmnProcessRestClient.getDefinitions().stream().
+                filter(Predicate.not(BpmnProcess::isUserWorkflow)).
+                map(BpmnProcess::getKey).collect(Collectors.toList()));
         container.add(bpmnProcesses);
-
-        contentWrapper.add(container);
     }
 
     protected class URDataProvider implements IDataProvider<UserRequest> {

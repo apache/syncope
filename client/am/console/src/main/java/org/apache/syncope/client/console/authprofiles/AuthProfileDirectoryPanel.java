@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.authprofiles;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -39,7 +38,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
@@ -51,15 +49,12 @@ import org.apache.syncope.common.lib.wa.U2FDevice;
 import org.apache.syncope.common.lib.wa.WebAuthnDeviceCredential;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -91,9 +86,6 @@ public class AuthProfileDirectoryPanel
             authProfileModal.show(false);
         });
         addOuterObject(authProfileModal);
-
-        addNewItemPanelBuilder(new CreateAuthProfileWizardBuilder(pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.AUTH_PROFILE_CREATE);
 
         disableCheckBoxes();
         initResultTable();
@@ -524,41 +516,6 @@ public class AuthProfileDirectoryPanel
         @Override
         public IModel<AuthProfileTO> model(final AuthProfileTO object) {
             return new CompoundPropertyModel<>(object);
-        }
-    }
-
-    private class CreateAuthProfileWizardBuilder extends AuthProfileWizardBuilder<AuthProfileTO> {
-
-        private static final long serialVersionUID = -2478221092672979490L;
-
-        private class NewAuthProfileStep extends AuthProfileWizardBuilder<AuthProfileTO>.Step {
-
-            private static final long serialVersionUID = 6290450377240300418L;
-
-            NewAuthProfileStep(final AuthProfileTO modelObject) {
-                super(modelObject);
-
-                AjaxTextFieldPanel owner = new AjaxTextFieldPanel(
-                        "bean", "owner", new PropertyModel<>(modelObject, "owner"));
-                owner.addRequiredLabel();
-                addOrReplace(owner);
-            }
-        }
-
-        CreateAuthProfileWizardBuilder(final PageReference pageRef) {
-            super(new AuthProfileTO(), new StepModel<>(), pageRef);
-        }
-
-        @Override
-        protected WizardModel buildModelSteps(final AuthProfileTO modelObject, final WizardModel wizardModel) {
-            wizardModel.add(new NewAuthProfileStep(modelObject));
-            return wizardModel;
-        }
-
-        @Override
-        protected Serializable onApplyInternal(final AuthProfileTO modelObject) {
-            restClient.create(modelObject);
-            return modelObject;
         }
     }
 }

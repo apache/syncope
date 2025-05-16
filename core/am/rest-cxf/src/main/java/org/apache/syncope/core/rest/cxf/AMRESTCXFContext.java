@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.cxf;
 
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
@@ -52,6 +53,7 @@ import org.apache.syncope.core.logic.wa.WAConfigLogic;
 import org.apache.syncope.core.logic.wa.WebAuthnRegistrationLogic;
 import org.apache.syncope.core.rest.cxf.service.AttrRepoServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthModuleServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.AuthProfileSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthProfileServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.OIDCJWKSServiceImpl;
@@ -89,6 +91,12 @@ public class AMRESTCXFContext {
     @Bean
     public AuthProfileService authProfileService(final AuthProfileLogic authProfileLogic) {
         return new AuthProfileServiceImpl(authProfileLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AuthProfileSelfService authProfileSelfService(final AuthProfileLogic authProfileLogic) {
+        return new AuthProfileSelfServiceImpl(authProfileLogic);
     }
 
     @ConditionalOnMissingBean

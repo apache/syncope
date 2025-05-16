@@ -20,7 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.Dashboard;
-import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
+import org.apache.syncope.client.ui.commons.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;

@@ -39,8 +39,9 @@ public class AuthProfileServiceImpl extends AbstractService implements AuthProfi
     }
 
     @Override
-    public void delete(final String key) {
-        logic.delete(key);
+    public PagedResult<AuthProfileTO> list(final int page, final int size) {
+        Pair<Integer, List<AuthProfileTO>> result = logic.list(page, size);
+        return buildPagedResult(result.getRight(), page, size, result.getLeft());
     }
 
     @Override
@@ -63,8 +64,7 @@ public class AuthProfileServiceImpl extends AbstractService implements AuthProfi
     }
 
     @Override
-    public PagedResult<AuthProfileTO> list(final int page, final int size) {
-        Pair<Integer, List<AuthProfileTO>> result = logic.list(page, size);
-        return buildPagedResult(result.getRight(), page, size, result.getLeft());
+    public void delete(final String key) {
+        logic.delete(key);
     }
 }

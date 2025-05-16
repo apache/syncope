@@ -55,7 +55,7 @@ public class ImpersonationAccount implements BaseBean {
     public int hashCode() {
         return new HashCodeBuilder()
                 .append(impersonated)
-                .toHashCode();
+                .build();
     }
 
     @Override
@@ -71,14 +71,14 @@ public class ImpersonationAccount implements BaseBean {
         }
         ImpersonationAccount other = (ImpersonationAccount) obj;
         return new EqualsBuilder()
-                .append(this.impersonated, other.impersonated)
-                .isEquals();
+                .append(impersonated, other.impersonated)
+                .build();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .append("impersonated", impersonated)
-                .toString();
+                .build();
     }
 }
