@@ -97,7 +97,7 @@ public class MfaTrustedDevice implements BaseBean {
                 .append(recordDate)
                 .append(recordKey)
                 .append(expirationDate)
-                .toHashCode();
+                .build();
     }
 
     @Override
@@ -113,13 +113,13 @@ public class MfaTrustedDevice implements BaseBean {
         }
         MfaTrustedDevice other = (MfaTrustedDevice) obj;
         return new EqualsBuilder()
-                .append(this.id, other.id)
-                .append(this.name, other.name)
-                .append(this.deviceFingerprint, other.deviceFingerprint)
-                .append(this.recordDate, other.recordDate)
-                .append(this.recordKey, other.recordKey)
-                .append(this.expirationDate, other.expirationDate)
-                .isEquals();
+                .append(id, other.id)
+                .append(name, other.name)
+                .append(deviceFingerprint, other.deviceFingerprint)
+                .append(recordDate, other.recordDate)
+                .append(recordKey, other.recordKey)
+                .append(expirationDate, other.expirationDate)
+                .build();
     }
 
     @Override
@@ -131,6 +131,6 @@ public class MfaTrustedDevice implements BaseBean {
                 .append("recordDate", recordDate)
                 .append("recordKey", recordKey)
                 .append("expirationDate", expirationDate)
-                .toString();
+                .build();
     }
 }
