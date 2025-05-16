@@ -16,33 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.rest;
+package org.apache.syncope.core.rest.cxf.service;
 
-import java.util.List;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.common.rest.api.service.AuthProfileService;
+import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
+import org.apache.syncope.core.logic.AuthProfileLogic;
 
-public class AuthProfileRestClient extends BaseRestClient {
+public class AuthProfileSelfServiceImpl extends AbstractService implements AuthProfileSelfService {
 
-    private static final long serialVersionUID = -7379778542101161274L;
+    protected final AuthProfileLogic logic;
 
-    public long count() {
-        return getService(AuthProfileService.class).list(1, 1).getTotalCount();
+    public AuthProfileSelfServiceImpl(final AuthProfileLogic logic) {
+        this.logic = logic;
     }
 
-    public List<AuthProfileTO> list(final int page, final int size) {
-        return getService(AuthProfileService.class).list(page, size).getResult();
+    @Override
+    public AuthProfileTO read() {
+        return logic.selfRead();
     }
 
-    public AuthProfileTO read(final String key) {
-        return getService(AuthProfileService.class).read(key);
+    @Override
+    public void update(final AuthProfileTO authProfileTO) {
+        logic.selfUpdate(authProfileTO);
     }
 
-    public void update(final AuthProfileTO authProfile) {
-        getService(AuthProfileService.class).update(authProfile);
-    }
-
-    public void delete(final String key) {
-        getService(AuthProfileService.class).delete(key);
+    @Override
+    public void delete() {
+        logic.selfDelete();
     }
 }

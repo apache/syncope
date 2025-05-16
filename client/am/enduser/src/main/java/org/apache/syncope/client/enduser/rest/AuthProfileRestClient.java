@@ -16,33 +16,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.rest;
+package org.apache.syncope.client.enduser.rest;
 
-import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
-import org.apache.syncope.common.rest.api.service.AuthProfileService;
+import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
 
 public class AuthProfileRestClient extends BaseRestClient {
 
-    private static final long serialVersionUID = -7379778542101161274L;
+    private static final long serialVersionUID = 4139153766778113329L;
 
-    public long count() {
-        return getService(AuthProfileService.class).list(1, 1).getTotalCount();
-    }
-
-    public List<AuthProfileTO> list(final int page, final int size) {
-        return getService(AuthProfileService.class).list(page, size).getResult();
-    }
-
-    public AuthProfileTO read(final String key) {
-        return getService(AuthProfileService.class).read(key);
+    public Optional<AuthProfileTO> read() {
+        try {
+            return Optional.of(getService(AuthProfileSelfService.class).read());
+        } catch (Exception e) {
+            LOG.debug("While attempting to read the auth profile", e);
+            return Optional.empty();
+        }
     }
 
     public void update(final AuthProfileTO authProfile) {
-        getService(AuthProfileService.class).update(authProfile);
+        getService(AuthProfileSelfService.class).update(authProfile);
     }
 
-    public void delete(final String key) {
-        getService(AuthProfileService.class).delete(key);
+    public void delete() {
+        getService(AuthProfileSelfService.class).delete();
     }
 }

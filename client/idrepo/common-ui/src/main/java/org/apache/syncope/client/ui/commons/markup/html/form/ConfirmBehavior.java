@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.wicket.markup.html.form;
+package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
 import java.util.ArrayList;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.wicket.Component;
+import org.apache.wicket.Session;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -63,7 +63,7 @@ public class ConfirmBehavior extends Behavior {
                         + "        className: 'btn-danger'"
                         + "    }"
                         + "},"
-                        + "locale: '" + SyncopeConsoleSession.get().getLocale().getLanguage() + "',"
+                        + "locale: '" + Session.get().getLocale().getLanguage() + "',"
                         + "callback: function(result) {"
                         + "    if (result == true) {"
                         + "      proceed = true;"
