@@ -41,8 +41,8 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>org.apache.syncope.client.idrepo</groupId>
-      <artifactId>syncope-client-idrepo-enduser</artifactId>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-enduser</artifactId>
       <version>${project.version}</version>
     </dependency>
 
