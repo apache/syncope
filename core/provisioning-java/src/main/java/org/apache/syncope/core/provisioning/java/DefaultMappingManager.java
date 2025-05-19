@@ -528,7 +528,17 @@ public class DefaultMappingManager implements MappingManager {
         List<Object> objValues = new ArrayList<>();
 
         for (PlainAttrValue value : values) {
-            if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
+            if (intAttrName.getSchema() instanceof PlainSchema schema && schemaType == AttrSchemaType.Encrypted) {
+                String decoded = null;
+                try {
+                    decoded = encryptorManager.getInstance(schema.getSecretKey()).
+                            decode(value.getStringValue(), schema.getCipherAlgorithm());
+                } catch (Exception e) {
+                    LOG.warn("Could not decode value for {} with algorithm",
+                            intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
+                }
+                objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
+            } else if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                 objValues.add(value.getValue());
             } else {
                 PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
@@ -545,15 +555,23 @@ public class DefaultMappingManager implements MappingManager {
         Pair<String, Attribute> result;
         if (item.isConnObjectKey()) {
             result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
-        } else if (item.isPassword() && any instanceof User) {
-            result = getPasswordAttrValue(passwordAccountGetter.apply((User) any), password).
+        } else if (item.isPassword() && any instanceof User user) {
+            result = getPasswordAttrValue(passwordAccountGetter.apply(user), password).
                     map(passwordAttrValue -> Pair.of(
                     (String) null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()))).
                     orElse(null);
+        } else if (objValues.isEmpty()) {
+            result = Pair.of(
+                    null,
+                    AttributeBuilder.build(item.getExtAttrName()));
+        } else if (OperationalAttributes.PASSWORD_NAME.equals(item.getExtAttrName())) {
+            result = Pair.of(
+                    null,
+                    AttributeBuilder.buildPassword(objValues.getFirst().toString().toCharArray()));
         } else {
-            result = Pair.of(null, objValues.isEmpty()
-                    ? AttributeBuilder.build(item.getExtAttrName())
-                    : AttributeBuilder.build(item.getExtAttrName(), objValues));
+            result = Pair.of(
+                    null,
+                    AttributeBuilder.build(item.getExtAttrName(), objValues));
         }
 
         return result;
@@ -595,7 +613,17 @@ public class DefaultMappingManager implements MappingManager {
         List<Object> objValues = new ArrayList<>();
 
         for (PlainAttrValue value : values) {
-            if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
+            if (intAttrName.getSchema() instanceof PlainSchema schema && schemaType == AttrSchemaType.Encrypted) {
+                String decoded = null;
+                try {
+                    decoded = encryptorManager.getInstance(schema.getSecretKey()).
+                            decode(value.getStringValue(), schema.getCipherAlgorithm());
+                } catch (Exception e) {
+                    LOG.warn("Could not decode value for {} with algorithm",
+                            intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
+                }
+                objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
+            } else if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
                 objValues.add(value.getValue());
             } else {
                 PlainSchema plainSchema = intAttrName.getSchema() instanceof final PlainSchema schema
@@ -612,10 +640,18 @@ public class DefaultMappingManager implements MappingManager {
         Pair<String, Attribute> result;
         if (item.isConnObjectKey()) {
             result = Pair.of(objValues.isEmpty() ? null : objValues.getFirst().toString(), null);
+        } else if (objValues.isEmpty()) {
+            result = Pair.of(
+                    null,
+                    AttributeBuilder.build(item.getExtAttrName()));
+        } else if (OperationalAttributes.PASSWORD_NAME.equals(item.getExtAttrName())) {
+            result = Pair.of(
+                    null,
+                    AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
         } else {
-            result = Pair.of(null, objValues.isEmpty()
-                    ? AttributeBuilder.build(item.getExtAttrName())
-                    : AttributeBuilder.build(item.getExtAttrName(), objValues));
+            result = Pair.of(
+                    null,
+                    AttributeBuilder.build(item.getExtAttrName(), objValues));
         }
 
         return result;

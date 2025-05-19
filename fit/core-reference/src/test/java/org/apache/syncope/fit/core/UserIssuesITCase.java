@@ -38,7 +38,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -681,7 +680,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 1. create group with LDAP resource
         GroupCR groupCR = new GroupCR();
         groupCR.setName("SYNCOPE357-" + getUUIDString());
-        groupCR.setRealm("/");
+        groupCR.setRealm(SyncopeConstants.ROOT_REALM);
         groupCR.getResources().add(RESOURCE_NAME_LDAP);
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
@@ -704,13 +703,11 @@ public class UserIssuesITCase extends AbstractITCase {
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObj);
         Attr registeredAddress = connObj.getAttr("registeredAddress").orElseThrow();
-        assertNotNull(registeredAddress);
         assertEquals(userTO.getPlainAttr("obscure").orElseThrow().getValues(), registeredAddress.getValues());
-        Optional<Attr> jpegPhoto = connObj.getAttr("jpegPhoto");
-        assertTrue(jpegPhoto.isPresent());
+        Attr jpegPhoto = connObj.getAttr("jpegPhoto").orElseThrow();
         assertEquals(
                 userTO.getPlainAttr("photo").orElseThrow().getValues().getFirst(),
-                jpegPhoto.orElseThrow().getValues().getFirst());
+                jpegPhoto.getValues().getFirst());
 
         // 4. remove group
         GROUP_SERVICE.delete(groupTO.getKey());
