@@ -418,7 +418,7 @@ under the License.
     <spring-boot.version>3.5.0-RC1</spring-boot.version>
     <spring-cloud-gateway.version>4.3.0-RC1</spring-cloud-gateway.version>
 
-    <openjpa.version>4.1.0</openjpa.version>
+    <openjpa.version>4.1.1</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
