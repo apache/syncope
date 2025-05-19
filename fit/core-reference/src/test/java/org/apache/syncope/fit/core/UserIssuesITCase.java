@@ -34,7 +34,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -716,7 +715,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 1. create group with LDAP resource
         GroupCR groupCR = new GroupCR();
         groupCR.setName("SYNCOPE357-" + getUUIDString());
-        groupCR.setRealm("/");
+        groupCR.setRealm(SyncopeConstants.ROOT_REALM);
         groupCR.getResources().add(RESOURCE_NAME_LDAP);
 
         GroupTO groupTO = createGroup(groupCR).getEntity();
@@ -738,12 +737,10 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObject connObj = RESOURCE_SERVICE.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObj);
-        Attr registeredAddress = connObj.getAttr("registeredAddress").get();
-        assertNotNull(registeredAddress);
-        assertEquals(userTO.getPlainAttr("obscure").get().getValues(), registeredAddress.getValues());
-        Optional<Attr> jpegPhoto = connObj.getAttr("jpegPhoto");
-        assertTrue(jpegPhoto.isPresent());
-        assertEquals(userTO.getPlainAttr("photo").get().getValues().get(0), jpegPhoto.get().getValues().get(0));
+        Attr registeredAddress = connObj.getAttr("registeredAddress").orElseThrow();
+        assertEquals(userTO.getPlainAttr("obscure").orElseThrow().getValues(), registeredAddress.getValues());
+        Attr jpegPhoto = connObj.getAttr("jpegPhoto").orElseThrow();
+        assertEquals(userTO.getPlainAttr("photo").orElseThrow().getValues().get(0), jpegPhoto.getValues().get(0));
 
         // 4. remove group
         GROUP_SERVICE.delete(groupTO.getKey());

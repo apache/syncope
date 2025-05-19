@@ -576,16 +576,30 @@ public class DefaultMappingManager implements MappingManager {
             List<Object> objValues = new ArrayList<>();
 
             for (PlainAttrValue value : values) {
-                if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
-                    objValues.add(value.getValue());
+                if (intAttrName.getSchema() instanceof PlainSchema && schemaType == AttrSchemaType.Encrypted) {
+                    PlainSchema schema = (PlainSchema) intAttrName.getSchema();
+
+                    String decoded = null;
+                    try {
+                        decoded = Encryptor.getInstance(schema.getSecretKey()).
+                                decode(value.getStringValue(), schema.getCipherAlgorithm());
+                    } catch (Exception e) {
+                        LOG.warn("Could not decode value for {} with algorithm",
+                                intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
+                    }
+                    objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
                 } else {
-                    PlainSchema plainSchema = intAttrName.getSchema() instanceof PlainSchema
-                            ? (PlainSchema) intAttrName.getSchema()
-                            : null;
-                    if (plainSchema == null || plainSchema.getType() != schemaType) {
-                        objValues.add(value.getValueAsString(schemaType));
+                    if (FrameworkUtil.isSupportedAttributeType(schemaType.getType())) {
+                        objValues.add(value.getValue());
                     } else {
-                        objValues.add(value.getValueAsString(plainSchema));
+                        PlainSchema schema = intAttrName.getSchema() instanceof PlainSchema
+                                ? (PlainSchema) intAttrName.getSchema()
+                                : null;
+                        if (schema == null || schema.getType() != schemaType) {
+                            objValues.add(value.getValueAsString(schemaType));
+                        } else {
+                            objValues.add(value.getValueAsString(schema));
+                        }
                     }
                 }
             }
@@ -600,9 +614,19 @@ public class DefaultMappingManager implements MappingManager {
                     result = Pair.of(null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
             } else {
-                result = Pair.of(null, objValues.isEmpty()
-                        ? AttributeBuilder.build(item.getExtAttrName())
-                        : AttributeBuilder.build(item.getExtAttrName(), objValues));
+                if (objValues.isEmpty()) {
+                    result = Pair.of(
+                            null,
+                            AttributeBuilder.build(item.getExtAttrName()));
+                } else if (OperationalAttributes.PASSWORD_NAME.equals(item.getExtAttrName())) {
+                    result = Pair.of(
+                            null,
+                            AttributeBuilder.buildPassword(objValues.iterator().next().toString().toCharArray()));
+                } else {
+                    result = Pair.of(
+                            null,
+                            AttributeBuilder.build(item.getExtAttrName(), objValues));
+                }
             }
         }
 
@@ -764,23 +788,23 @@ public class DefaultMappingManager implements MappingManager {
 
                     default:
                         try {
-                        Object fieldValue = FieldUtils.readField(ref, intAttrName.getField(), true);
-                        if (fieldValue instanceof TemporalAccessor) {
-                            // needed because ConnId does not natively supports the Date type
-                            attrValue.setStringValue(FormatUtils.format((TemporalAccessor) fieldValue));
-                        } else if (Boolean.TYPE.isInstance(fieldValue)) {
-                            attrValue.setBooleanValue((Boolean) fieldValue);
-                        } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
-                            attrValue.setDoubleValue((Double) fieldValue);
-                        } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
-                            attrValue.setLongValue((Long) fieldValue);
-                        } else {
-                            attrValue.setStringValue(fieldValue.toString());
+                            Object fieldValue = FieldUtils.readField(ref, intAttrName.getField(), true);
+                            if (fieldValue instanceof TemporalAccessor) {
+                                // needed because ConnId does not natively supports the Date type
+                                attrValue.setStringValue(FormatUtils.format((TemporalAccessor) fieldValue));
+                            } else if (Boolean.TYPE.isInstance(fieldValue)) {
+                                attrValue.setBooleanValue((Boolean) fieldValue);
+                            } else if (Double.TYPE.isInstance(fieldValue) || Float.TYPE.isInstance(fieldValue)) {
+                                attrValue.setDoubleValue((Double) fieldValue);
+                            } else if (Long.TYPE.isInstance(fieldValue) || Integer.TYPE.isInstance(fieldValue)) {
+                                attrValue.setLongValue((Long) fieldValue);
+                            } else {
+                                attrValue.setStringValue(fieldValue.toString());
+                            }
+                            values.add(attrValue);
+                        } catch (Exception e) {
+                            LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), ref, e);
                         }
-                        values.add(attrValue);
-                    } catch (Exception e) {
-                        LOG.error("Could not read value of '{}' from {}", intAttrName.getField(), ref, e);
-                    }
                 }
             } else if (intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
