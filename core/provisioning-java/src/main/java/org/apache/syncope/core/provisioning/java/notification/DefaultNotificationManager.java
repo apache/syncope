@@ -282,30 +282,22 @@ public class DefaultNotificationManager implements NotificationManager {
             any = userDAO.findById(userTO.getKey());
         } else if (output instanceof UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
-        } else if (output instanceof final Pair pair
-                && pair.getRight() instanceof final UserTO userTO) {
-
+        } else if (output instanceof final Pair<?, ?> pair && pair.getRight() instanceof final UserTO userTO) {
             any = userDAO.findById(userTO.getKey());
-        } else if (output instanceof final ProvisioningResult provisioningResult1
-                && provisioningResult1.getEntity() instanceof UserTO) {
-
-            any = userDAO.findById(provisioningResult1.getEntity().getKey());
+        } else if (output instanceof final ProvisioningResult<?> result && result.getEntity() instanceof UserTO) {
+            any = userDAO.findById(result.getEntity().getKey());
         } else if (before instanceof AnyObjectTO anyObjectTO) {
             any = anyObjectDAO.findById(anyObjectTO.getKey());
         } else if (output instanceof AnyObjectTO anyObjectTO) {
             any = anyObjectDAO.findById(anyObjectTO.getKey());
-        } else if (output instanceof final ProvisioningResult result
-                && result.getEntity() instanceof AnyObjectTO) {
-
+        } else if (output instanceof final ProvisioningResult<?> result && result.getEntity() instanceof AnyObjectTO) {
             any = anyObjectDAO.findById(result.getEntity().getKey());
         } else if (before instanceof GroupTO groupTO) {
             any = groupDAO.findById(groupTO.getKey());
         } else if (output instanceof GroupTO groupTO) {
             any = groupDAO.findById(groupTO.getKey());
-        } else if (output instanceof final ProvisioningResult provisioningResult
-                && provisioningResult.getEntity() instanceof GroupTO) {
-
-            any = groupDAO.findById(provisioningResult.getEntity().getKey());
+        } else if (output instanceof final ProvisioningResult<?> result && result.getEntity() instanceof GroupTO) {
+            any = groupDAO.findById(result.getEntity().getKey());
         }
 
         AnyType anyType = any.map(Any::getType).orElse(null);

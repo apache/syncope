@@ -49,7 +49,7 @@ import org.apache.syncope.core.provisioning.java.job.notification.NotificationJo
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
 import org.junit.jupiter.api.Test;
 
-public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
+public class NotificationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void notifyByMail() throws Exception {

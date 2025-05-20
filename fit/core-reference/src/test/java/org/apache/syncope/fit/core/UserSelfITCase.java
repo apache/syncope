@@ -304,7 +304,7 @@ public class UserSelfITCase extends AbstractITCase {
     }
 
     @Test
-    public void passwordReset() {
+    public void passwordReset() throws Exception {
         // 0. ensure that password request DOES require security question
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
 
@@ -344,6 +344,12 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 4. get token (normally sent via e-mail, now reading as admin)
+        verifyMail(
+                "admin@syncope.apache.org",
+                "Password Reset request",
+                user.getPlainAttr("email").orElseThrow().getValues().getFirst(),
+                MAX_WAIT_SECONDS);
+
         String token = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
                 () -> USER_SERVICE.read(read.getKey()).getToken(),
                 StringUtils::isNotBlank);
@@ -357,6 +363,12 @@ public class UserSelfITCase extends AbstractITCase {
             assertTrue(e.getMessage().contains("WRONG TOKEN"));
         }
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
+
+        verifyMail(
+                "admin@syncope.apache.org",
+                "Password Reset successful",
+                user.getPlainAttr("email").orElseThrow().getValues().getFirst(),
+                MAX_WAIT_SECONDS);
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");

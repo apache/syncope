@@ -37,6 +37,11 @@ import com.unboundid.ldap.sdk.SearchRequest;
 import com.unboundid.ldap.sdk.SearchResult;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldap.sdk.SearchScope;
+import jakarta.mail.Flags;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.Session;
+import jakarta.mail.Store;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
@@ -393,6 +398,10 @@ public abstract class AbstractITCase {
 
     protected static ImpersonationService IMPERSONATION_SERVICE;
 
+    private static final String POP3_HOST = "localhost";
+
+    private static int POP3_PORT;
+
     protected static boolean IS_FLOWABLE_ENABLED = false;
 
     protected static boolean IS_ELASTICSEARCH_ENABLED = false;
@@ -522,6 +531,19 @@ public abstract class AbstractITCase {
             initExtSearch(masterIS, masterTS, "org.apache.syncope.core.provisioning.java.job.OpenSearchReindex");
             initExtSearch(twoIS, twoTS, "org.apache.syncope.core.provisioning.java.job.OpenSearchReindex");
         }
+    }
+
+    @BeforeAll
+    public static void conf() {
+        Properties props = new Properties();
+        try (InputStream propStream = AbstractITCase.class.getResourceAsStream("/test.properties")) {
+            props.load(propStream);
+        } catch (Exception e) {
+            LOG.error("Could not load /test.properties", e);
+        }
+
+        POP3_PORT = Integer.parseInt(props.getProperty("testmail.pop3port"));
+        assertNotNull(POP3_PORT);
     }
 
     @BeforeAll
@@ -1080,6 +1102,45 @@ public abstract class AbstractITCase {
     protected static Optional<RealmTO> getRealm(final String fullPath) {
         return REALM_SERVICE.search(new RealmQuery.Builder().base(fullPath).build()).getResult().stream().
                 filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
+    }
+
+    private static boolean pop3(final String sender, final String subject, final String mailAddress) throws Exception {
+        boolean found = false;
+        try (Store store = Session.getDefaultInstance(System.getProperties()).getStore("pop3")) {
+            store.connect(POP3_HOST, POP3_PORT, mailAddress, mailAddress);
+
+            Folder inbox = store.getFolder("INBOX");
+            assertNotNull(inbox);
+            inbox.open(Folder.READ_WRITE);
+
+            Message[] messages = inbox.getMessages();
+            for (Message message : messages) {
+                if (sender.equals(message.getFrom()[0].toString()) && subject.equals(message.getSubject())) {
+                    found = true;
+                    message.setFlag(Flags.Flag.DELETED, true);
+                }
+            }
+
+            inbox.close(true);
+        }
+        return found;
+    }
+
+    protected static void verifyMail(
+            final String sender,
+            final String subject,
+            final String mailAddress,
+            final int maxWaitSeconds) throws Exception {
+
+        Mutable<Boolean> read = new MutableObject<>(false);
+        await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                read.setValue(pop3(sender, subject, mailAddress));
+                return read.getValue();
+            } catch (Exception e) {
+                return false;
+            }
+        });
     }
 
     @Autowired
