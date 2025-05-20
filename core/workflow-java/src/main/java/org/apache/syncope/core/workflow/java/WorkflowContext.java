@@ -28,6 +28,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.rules.RuleProvider;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
@@ -53,7 +54,8 @@ public class WorkflowContext {
             final RuleProvider ruleProvider,
             final ConfParamOps confParamOps,
             final ApplicationEventPublisher publisher,
-            final EncryptorManager encryptorManager) {
+            final EncryptorManager encryptorManager,
+            final NotificationManager notificationManager) {
 
         return new DefaultUserWorkflowAdapter(
                 userDataBinder,
@@ -65,7 +67,8 @@ public class WorkflowContext {
                 ruleProvider,
                 confParamOps,
                 publisher,
-                encryptorManager);
+                encryptorManager,
+                notificationManager);
     }
 
     @ConditionalOnMissingBean

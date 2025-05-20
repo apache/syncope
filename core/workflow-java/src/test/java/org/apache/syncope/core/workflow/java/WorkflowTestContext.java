@@ -42,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.SecurityContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -94,14 +95,12 @@ public class WorkflowTestContext {
 
     @Bean
     public GroupDataBinder groupDataBinder() {
-        GroupDataBinder dataBinder = mock(GroupDataBinder.class);
-        return dataBinder;
+        return mock(GroupDataBinder.class);
     }
 
     @Bean
     public AnyObjectDataBinder anyObjectDataBinder() {
-        AnyObjectDataBinder dataBinder = mock(AnyObjectDataBinder.class);
-        return dataBinder;
+        return mock(AnyObjectDataBinder.class);
     }
 
     @Bean
@@ -117,5 +116,10 @@ public class WorkflowTestContext {
     @Bean
     public DomainOps domainOps(final DomainRegistry<JPADomain> domainRegistry) {
         return new DummyDomainOps(domainRegistry);
+    }
+
+    @Bean
+    public NotificationManager notificationManager() {
+        return mock(NotificationManager.class);
     }
 }
