@@ -417,8 +417,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
     protected void doRequestPasswordReset(final User user, final String updater, final String context) {
         Map<String, Object> variables = new HashMap<>(3);
         variables.put(FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
-        variables.put(FlowableRuntimeUtils.TASK, "requestPasswordReset");
-        variables.put(FlowableRuntimeUtils.EVENT, "requestPasswordReset");
+        variables.put(FlowableRuntimeUtils.TASK, REQUEST_PASSWORD_RESET);
+        variables.put(FlowableRuntimeUtils.EVENT, REQUEST_PASSWORD_RESET);
 
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
@@ -443,8 +443,8 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         variables.put(FlowableRuntimeUtils.TOKEN, token);
         variables.put(FlowableRuntimeUtils.PASSWORD, password);
         variables.put(FlowableRuntimeUtils.USER_TO, dataBinder.getUserTO(user, true));
-        variables.put(FlowableRuntimeUtils.TASK, "confirmPasswordReset");
-        variables.put(FlowableRuntimeUtils.EVENT, "confirmPasswordReset");
+        variables.put(FlowableRuntimeUtils.TASK, CONFIRM_PASSWORD_RESET);
+        variables.put(FlowableRuntimeUtils.EVENT, CONFIRM_PASSWORD_RESET);
 
         String procInstID = FlowableRuntimeUtils.getWFProcInstID(engine, user.getKey());
 
