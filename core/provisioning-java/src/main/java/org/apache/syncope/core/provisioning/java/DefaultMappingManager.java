@@ -534,7 +534,7 @@ public class DefaultMappingManager implements MappingManager {
                     decoded = encryptorManager.getInstance(schema.getSecretKey()).
                             decode(value.getStringValue(), schema.getCipherAlgorithm());
                 } catch (Exception e) {
-                    LOG.warn("Could not decode value for {} with algorithm",
+                    LOG.warn("Could not decode value for {} with algorithm {}",
                             intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
                 }
                 objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
@@ -619,7 +619,7 @@ public class DefaultMappingManager implements MappingManager {
                     decoded = encryptorManager.getInstance(schema.getSecretKey()).
                             decode(value.getStringValue(), schema.getCipherAlgorithm());
                 } catch (Exception e) {
-                    LOG.warn("Could not decode value for {} with algorithm",
+                    LOG.warn("Could not decode value for {} with algorithm {}",
                             intAttrName.getSchema(), schema.getCipherAlgorithm(), e);
                 }
                 objValues.add(Optional.ofNullable(decoded).orElse(value.getStringValue()));
