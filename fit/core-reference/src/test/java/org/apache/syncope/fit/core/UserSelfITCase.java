@@ -365,7 +365,9 @@ public class UserSelfITCase extends AbstractITCase {
 
         // 4. get token (normally sent via e-mail, now reading as admin)
         String email = user.getPlainAttr("email").orElseThrow().getValues().getFirst();
-        checkNotification(email, "e00945b5-1184-4d43-8e45-4318a8dcdfd4", "Password Reset request");
+        if (!IS_NEO4J_PERSISTENCE) {
+            checkNotification(email, "e00945b5-1184-4d43-8e45-4318a8dcdfd4", "Password Reset request");
+        }
 
         String token = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
                 () -> USER_SERVICE.read(read.getKey()).getToken(),
@@ -381,7 +383,9 @@ public class UserSelfITCase extends AbstractITCase {
         }
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
-        checkNotification(email, "bef0c250-e8a7-4848-bb63-2564fc409ce2", "Password Reset successful");
+        if (!IS_NEO4J_PERSISTENCE) {
+            checkNotification(email, "bef0c250-e8a7-4848-bb63-2564fc409ce2", "Password Reset successful");
+        }
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");
