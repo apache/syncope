@@ -23,6 +23,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
+import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
 import org.apache.syncope.core.provisioning.api.rules.RuleEnforcer;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.SecurityProperties;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -47,6 +49,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     protected final ConfParamOps confParamOps;
 
+    protected final NotificationManager notificationManager;
+
     public DefaultUserWorkflowAdapter(
             final UserDataBinder dataBinder,
             final UserDAO userDAO,
@@ -56,10 +60,12 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             final SecurityProperties securityProperties,
             final RuleEnforcer ruleEnforcer,
             final ConfParamOps confParamOps,
-            final ApplicationEventPublisher publisher) {
+            final ApplicationEventPublisher publisher,
+            final NotificationManager notificationManager) {
 
         super(dataBinder, userDAO, realmDAO, groupDAO, entityFactory, securityProperties, ruleEnforcer, publisher);
         this.confParamOps = confParamOps;
+        this.notificationManager = notificationManager;
     }
 
     @Override
@@ -176,6 +182,18 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.generateToken(
                 confParamOps.get(AuthContextUtils.getDomain(), "token.length", 256, Integer.class),
                 confParamOps.get(AuthContextUtils.getDomain(), "token.expireTime", 60, Integer.class));
+
+        notificationManager.createTasks(
+                updater,
+                AuditElements.EventCategoryType.CUSTOM,
+                null,
+                null,
+                REQUEST_PASSWORD_RESET,
+                AuditElements.Result.SUCCESS,
+                dataBinder.getUserTO(user, true),
+                null,
+                user.getToken());
+
         metadata(user, updater, context);
         User updated = userDAO.save(user);
 
@@ -192,6 +210,16 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         user.removeToken();
+
+        notificationManager.createTasks(
+                updater,
+                AuditElements.EventCategoryType.CUSTOM,
+                null,
+                null,
+                CONFIRM_PASSWORD_RESET,
+                AuditElements.Result.SUCCESS,
+                dataBinder.getUserTO(user, true),
+                null);
 
         UserUR userUR = new UserUR();
         userUR.setKey(user.getKey());

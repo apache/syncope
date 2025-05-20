@@ -28,6 +28,10 @@ import org.apache.syncope.core.provisioning.api.UserWorkflowResult;
  */
 public interface UserWorkflowAdapter extends WorkflowAdapter {
 
+    String REQUEST_PASSWORD_RESET = "requestPasswordReset";
+
+    String CONFIRM_PASSWORD_RESET = "confirmPasswordReset";
+
     /**
      * Create an user.
      *
