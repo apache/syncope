@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.request.StringReplacePatchItem;
 import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserRequestForm;
@@ -58,6 +59,9 @@ import org.apache.syncope.common.lib.to.WorkflowTask;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.ExecSpecs;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.beans.UserRequestQuery;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserRequestService;
@@ -69,6 +73,22 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class UserSelfITCase extends AbstractITCase {
+
+    private static void checkNotification(
+            final String email,
+            final String notification,
+            final String subject) throws Exception {
+
+        await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            PagedResult<NotificationTaskTO> tasks = TASK_SERVICE.search(new TaskQuery.Builder(TaskType.NOTIFICATION).
+                    notification(notification).build());
+            return tasks.getResult().stream().filter(t -> t.getRecipients().contains(email) && !t.isExecuted()).
+                    findFirst().map(t -> TASK_SERVICE.execute(
+                    new ExecSpecs.Builder().key(t.getKey()).build()).getStatus() != null).
+                    orElse(false);
+        });
+        verifyMail("admin@syncope.apache.org", subject, email, MAX_WAIT_SECONDS);
+    }
 
     @Test
     public void selfRegistrationAllowed() {
@@ -344,11 +364,8 @@ public class UserSelfITCase extends AbstractITCase {
         }
 
         // 4. get token (normally sent via e-mail, now reading as admin)
-        verifyMail(
-                "admin@syncope.apache.org",
-                "Password Reset request",
-                user.getPlainAttr("email").orElseThrow().getValues().getFirst(),
-                MAX_WAIT_SECONDS);
+        String email = user.getPlainAttr("email").orElseThrow().getValues().getFirst();
+        checkNotification(email, "e00945b5-1184-4d43-8e45-4318a8dcdfd4", "Password Reset request");
 
         String token = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(
                 () -> USER_SERVICE.read(read.getKey()).getToken(),
@@ -364,11 +381,7 @@ public class UserSelfITCase extends AbstractITCase {
         }
         ANONYMOUS_CLIENT.getService(UserSelfService.class).confirmPasswordReset(token, "newPassword123");
 
-        verifyMail(
-                "admin@syncope.apache.org",
-                "Password Reset successful",
-                user.getPlainAttr("email").orElseThrow().getValues().getFirst(),
-                MAX_WAIT_SECONDS);
+        checkNotification(email, "bef0c250-e8a7-4848-bb63-2564fc409ce2", "Password Reset successful");
 
         // 6. verify that password was reset and token removed
         authClient = CLIENT_FACTORY.create(user.getUsername(), "newPassword123");

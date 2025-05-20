@@ -109,7 +109,12 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             int preExecs = taskTO.getExecutions().size();
 
             // 4. verify notification could not be delivered
-            execTask(TASK_SERVICE, TaskType.NOTIFICATION, taskTO.getKey(), NotificationJob.Status.NOT_SENT.name(), 5,
+            execTask(
+                    TASK_SERVICE,
+                    TaskType.NOTIFICATION,
+                    taskTO.getKey(),
+                    NotificationJob.Status.NOT_SENT.name(),
+                    5,
                     false);
 
             taskTO = TASK_SERVICE.read(TaskType.NOTIFICATION, taskTO.getKey(), true);

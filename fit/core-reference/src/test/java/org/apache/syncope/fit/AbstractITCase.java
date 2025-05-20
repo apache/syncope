@@ -1113,8 +1113,7 @@ public abstract class AbstractITCase {
             assertNotNull(inbox);
             inbox.open(Folder.READ_WRITE);
 
-            Message[] messages = inbox.getMessages();
-            for (Message message : messages) {
+            for (Message message : inbox.getMessages()) {
                 if (sender.equals(message.getFrom()[0].toString()) && subject.equals(message.getSubject())) {
                     found = true;
                     message.setFlag(Flags.Flag.DELETED, true);
