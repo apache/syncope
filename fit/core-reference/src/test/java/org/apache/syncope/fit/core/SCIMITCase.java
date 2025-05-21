@@ -285,7 +285,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @Test
-    public void conf() {
+    public void scimConf() {
         SCIMConf conf = SCIM_CONF_SERVICE.get();
         assertNotNull(conf);
 

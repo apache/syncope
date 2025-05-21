@@ -49,7 +49,7 @@ import org.apache.syncope.core.provisioning.java.job.notification.NotificationJo
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
 import org.junit.jupiter.api.Test;
 
-public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
+public class NotificationTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void notifyByMail() throws Exception {
@@ -109,7 +109,12 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
             int preExecs = taskTO.getExecutions().size();
 
             // 4. verify notification could not be delivered
-            execTask(TASK_SERVICE, TaskType.NOTIFICATION, taskTO.getKey(), NotificationJob.Status.NOT_SENT.name(), 5,
+            execTask(
+                    TASK_SERVICE,
+                    TaskType.NOTIFICATION,
+                    taskTO.getKey(),
+                    NotificationJob.Status.NOT_SENT.name(),
+                    5,
                     false);
 
             taskTO = TASK_SERVICE.read(TaskType.NOTIFICATION, taskTO.getKey(), true);
