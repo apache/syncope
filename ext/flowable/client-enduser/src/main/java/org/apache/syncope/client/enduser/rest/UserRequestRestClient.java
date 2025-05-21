@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser.rest;
 import jakarta.ws.rs.core.GenericType;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
@@ -38,25 +37,23 @@ public class UserRequestRestClient extends BaseRestClient {
     private static final long serialVersionUID = -4785231164900813921L;
 
     public long countRequests() {
-        return getService(UserRequestService.class).
-                listRequests(new UserRequestQuery.Builder()
-                        .user(SyncopeEnduserSession.get().getSelfTO().getUsername())
-                        .page(1)
-                        .size(0)
-                        .build()).getTotalCount();
+        return getService(UserRequestService.class).listRequests(
+                new UserRequestQuery.Builder().
+                        user(SyncopeEnduserSession.get().getSelfTO().getUsername()).
+                        page(1).size(0).build()).
+                getTotalCount();
     }
 
     public List<UserRequest> listRequests(
             final int page,
             final int size,
-            final String username,
             final SortParam<String> sort) {
 
-        return getService(UserRequestService.class).listRequests(new UserRequestQuery.Builder().
-                user(StringUtils.isBlank(username)
-                        ? SyncopeEnduserSession.get().getSelfTO().getUsername()
-                        : username).
-                page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
+        return getService(UserRequestService.class).listRequests(
+                new UserRequestQuery.Builder().
+                        user(SyncopeEnduserSession.get().getSelfTO().getUsername()).
+                        page(page).size(size).orderBy(toOrderBy(sort)).build()).
+                getResult();
     }
 
     public void cancelRequest(final String executionId, final String reason) {
@@ -75,11 +72,9 @@ public class UserRequestRestClient extends BaseRestClient {
                 getResult();
     }
 
-    public Optional<UserRequestForm> getForm(final String username, final String taskId) {
-        return Optional.ofNullable(getService(UserRequestService.class).getForm(StringUtils.isBlank(username)
-                ? SyncopeEnduserSession.get().getSelfTO().getUsername()
-                : username,
-                taskId));
+    public Optional<UserRequestForm> getForm(final String taskId) {
+        return Optional.ofNullable(getService(UserRequestService.class).
+                getForm(SyncopeEnduserSession.get().getSelfTO().getUsername(), taskId));
     }
 
     public ProvisioningResult<UserTO> submitForm(final UserRequestForm form) {
@@ -88,12 +83,12 @@ public class UserRequestRestClient extends BaseRestClient {
         });
     }
 
-    public void startRequest(final String bpmnProcess, final String user) {
+    public void startRequest(final String bpmnProcess) {
         UserRequestService service = getService(UserRequestService.class);
         WebClient.getConfig(WebClient.client(service)).
                 getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.FALSE);
 
-        service.startRequest(bpmnProcess, user, null);
+        service.startRequest(bpmnProcess, null, null);
 
         WebClient.getConfig(WebClient.client(service)).
                 getRequestContext().put(AsyncHTTPConduit.USE_ASYNC, Boolean.TRUE);
