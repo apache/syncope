@@ -21,6 +21,7 @@ under the License.
   <wicket:panel>
     <div class="card-container-padding">
       <span wicket:id="fragContainer"/>
+
       <wicket:fragment wicket:id="formProperties">
         <form wicket:id="userRequestWrapForm" class="form-horizontal">
           <span wicket:id="userRequestFormPanel"></span>
@@ -29,10 +30,26 @@ under the License.
           </div>
         </form>
       </wicket:fragment>
-      <wicket:fragment wicket:id="formDetails">
-        <span><wicket:message key="executionId"/>: <label wicket:id="executionId"/></span>
-        <span><wicket:message key="startTime"/>: <label wicket:id="startTime"/></span>
+
+      <wicket:fragment wicket:id="requestDetails">
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th><wicket:message key="executionId"/></th>
+              <th><wicket:message key="activityId"/></th>
+              <th><wicket:message key="startTime"/></th>
+            </tr>                              
+          </thead>
+          <tbody>
+            <tr>
+              <td><span wicket:id="executionId"/></td>
+              <td><span wicket:id="activityId"/></td>
+              <td><span wicket:id="startTime"/></td>
+            </tr>
+          </tbody>
+        </table>        
       </wicket:fragment>
+
       <input wicket:id="delete" type="button" wicket:message="value:delete" class="btn btn-danger float-left">
     </div>
   </wicket:panel>

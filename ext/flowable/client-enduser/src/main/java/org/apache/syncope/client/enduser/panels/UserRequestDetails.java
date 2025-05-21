@@ -60,15 +60,14 @@ public class UserRequestDetails extends Panel {
         super(id);
 
         UserRequestForm formTO = userRequest.getHasForm()
-                ? userRequestRestClient.getForm(
-                        SyncopeEnduserSession.get().getSelfTO().getUsername(),
-                        userRequest.getTaskId()).orElse(null)
+                ? userRequestRestClient.getForm(userRequest.getTaskId()).orElse(null)
                 : null;
 
-        if (formTO == null || formTO.getProperties() == null || formTO.getProperties().isEmpty()) {
-            add(new Fragment("fragContainer", "formDetails", UserRequestDetails.this)
-                    .add(new Label("executionId", userRequest.getExecutionId()))
-                    .add(new Label("startTime", userRequest.getStartTime())));
+        if (formTO == null || formTO.getProperties().isEmpty()) {
+            add(new Fragment("fragContainer", "requestDetails", UserRequestDetails.this).
+                    add(new Label("executionId", userRequest.getExecutionId())).
+                    add(new Label("activityId", userRequest.getActivityId())).
+                    add(new Label("startTime", userRequest.getStartTime())));
         } else {
             Form<Void> form = new Form<>("userRequestWrapForm");
 
