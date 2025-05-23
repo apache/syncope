@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.common.content;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
@@ -76,8 +75,7 @@ public class KeymasterConfParamLoader implements ConfParamLoader {
                             getBean(domain + "KeymasterConfParamsJSON", InputStream.class)) {
 
                         JsonNode content = MAPPER.readTree(contentJSON);
-                        for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
-                            Map.Entry<String, JsonNode> param = itor.next();
+                        for (Map.Entry<String, JsonNode> param : content.properties()) {
                             Optional.ofNullable(MAPPER.treeToValue(param.getValue(), Object.class)).
                                     ifPresent(value -> confParamOps.set(domain, param.getKey(), value));
                         }

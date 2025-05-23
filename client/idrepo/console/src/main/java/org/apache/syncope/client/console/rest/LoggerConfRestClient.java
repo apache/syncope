@@ -25,7 +25,6 @@ import jakarta.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -79,9 +78,7 @@ public class LoggerConfRestClient implements RestClient, LoggerConfOp {
             if (response.getStatus() == Response.Status.OK.getStatusCode()) {
                 JsonNode node = MAPPER.readTree((InputStream) response.getEntity());
                 if (node.has("loggers")) {
-                    for (Iterator<Map.Entry<String, JsonNode>> itor = node.get("loggers").fields(); itor.hasNext();) {
-                        Map.Entry<String, JsonNode> entry = itor.next();
-
+                    for (Map.Entry<String, JsonNode> entry : node.get("loggers").properties()) {
                         LoggerConf loggerConf = new LoggerConf();
                         loggerConf.setKey(entry.getKey());
                         if (entry.getValue().has("effectiveLevel")) {

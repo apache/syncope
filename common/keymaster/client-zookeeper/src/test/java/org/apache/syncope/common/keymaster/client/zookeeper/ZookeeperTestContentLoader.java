@@ -20,8 +20,8 @@ package org.apache.syncope.common.keymaster.client.zookeeper;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,12 +36,9 @@ public class ZookeeperTestContentLoader implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         JsonNode content = MAPPER.readTree(getClass().getResourceAsStream("/testKeymasterConfParams.json"));
-        for (Iterator<Map.Entry<String, JsonNode>> itor = content.fields(); itor.hasNext();) {
-            Map.Entry<String, JsonNode> param = itor.next();
-            Object value = MAPPER.treeToValue(param.getValue(), Object.class);
-            if (value != null) {
-                confParamOps.set(ZookeeperConfParamOpsTest.DOMAIN, param.getKey(), value);
-            }
+        for (Map.Entry<String, JsonNode> param : content.properties()) {
+            Optional.ofNullable(MAPPER.treeToValue(param.getValue(), Object.class)).
+                    ifPresent(value -> confParamOps.set(ZookeeperConfParamOpsTest.DOMAIN, param.getKey(), value));
         }
     }
 }
