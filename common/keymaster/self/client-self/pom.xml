@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.common.keymaster</groupId>
     <artifactId>syncope-common-keymaster-self</artifactId>
-    <version>3.0.12</version>
+    <version>3.0.13-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Common Keymaster Client Self</name>
