@@ -20,8 +20,6 @@ on:
   push:
     branches:
       - 4_0_X
-    tags:
-      - syncope-4.0.*
 
 jobs:
   push2DockerHub:
