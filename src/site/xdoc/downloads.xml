@@ -90,8 +90,8 @@ under the License.
         </table>
       </subsection>
 
-      <subsection name="3.0.11 Maggiore">
-        <p>Release date: March 7th 2025</p>
+      <subsection name="3.0.12 Maggiore">
+        <p>Release date: May 23rd 2025</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore">Release notes</a>
         </p>
@@ -115,20 +115,20 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.11/syncope-3.0.11-source-release.zip">syncope-3.0.11-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.12/syncope-3.0.12-source-release.zip">syncope-3.0.12-source-release.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-3.0.11-source-release.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-3.0.11-source-release.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.12/syncope-3.0.12-source-release.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.12/syncope-3.0.12-source-release.zip.sha512">sha512</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.11/syncope-standalone-3.0.11-distribution.zip">syncope-standalone-3.0.11-distribution.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/3.0.12/syncope-standalone-3.0.12-distribution.zip">syncope-standalone-3.0.12-distribution.zip</a>
               </td>
               <td>
-                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-standalone-3.0.11-distribution.zip.asc">asc</a>
-                <a href="https://downloads.apache.org/syncope/3.0.11/syncope-standalone-3.0.11-distribution.zip.sha512">sha512</a>
+                <a href="https://downloads.apache.org/syncope/3.0.12/syncope-standalone-3.0.12-distribution.zip.asc">asc</a>
+                <a href="https://downloads.apache.org/syncope/3.0.12/syncope-standalone-3.0.12-distribution.zip.sha512">sha512</a>
               </td>
             </tr>
           </tbody>
