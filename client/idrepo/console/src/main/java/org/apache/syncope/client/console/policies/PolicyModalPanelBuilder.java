@@ -147,11 +147,11 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             switch (type) {
                 case ACCOUNT:
-                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                             "field",
                             "maxAuthenticationAttempts",
                             Integer.class,
-                            new PropertyModel<>(policyTO, "maxAuthenticationAttempts")));
+                            new PropertyModel<>(policyTO, "maxAuthenticationAttempts")).setRequired(true));
 
                     fields.add(new AjaxCheckBoxPanel(
                             "field",
@@ -161,11 +161,11 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                     break;
 
                 case PASSWORD:
-                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(1).build(
+                    fields.add(new AjaxNumberFieldPanel.Builder<Integer>().min(0).build(
                             "field",
                             "historyLength",
                             Integer.class,
-                            new PropertyModel<>(policyTO, "historyLength")));
+                            new PropertyModel<>(policyTO, "historyLength")).setRequired(true));
 
                     fields.add(new AjaxCheckBoxPanel(
                             "field",
@@ -191,7 +191,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
                             "field",
                             "maxAttempts",
                             Integer.class,
-                            new PropertyModel<>(policyTO, "maxAttempts")));
+                            new PropertyModel<>(policyTO, "maxAttempts")).setRequired(true));
                     AjaxDropDownChoicePanel<Serializable> backOffStrategy = new AjaxDropDownChoicePanel<>(
                             "field",
                             "backOffStrategy",
