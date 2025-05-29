@@ -416,7 +416,7 @@ under the License.
     <nimbus-jose-jwt.version>10.3</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.4.6</spring-boot.version>
-    <spring-cloud-gateway.version>4.2.1</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.2.3</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
 
@@ -516,7 +516,7 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.6</jdbc.postgresql.version>
     <jdbc.mysql.version>9.2.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.3</jdbc.mariadb.version>
     <jdbc.oracle.version>23.8.0.25.04</jdbc.oracle.version>
@@ -1425,7 +1425,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>${spring-cloud-gateway.version}</version>
+        <version>4.2.1</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -1800,7 +1800,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.1</version>
         </plugin>
 
         <plugin>
