@@ -416,7 +416,7 @@ under the License.
     <spring-framework.version>5.3.39</spring-framework.version>
     <spring-security.version>5.8.16</spring-security.version>
     <spring-boot.version>2.7.18</spring-boot.version>
-    <spring-cloud-gateway.version>3.1.9</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>3.1.10</spring-cloud-gateway.version>
 
     <openjpa.version>3.2.2</openjpa.version>
     <hikaricp.version>5.0.1</hikaricp.version>
@@ -507,7 +507,7 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.6</jdbc.postgresql.version>
     <jdbc.mysql.version>9.2.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.3</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
@@ -1434,7 +1434,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>3.1.8</version>
+        <version>${spring-cloud-gateway.version}</version>
         <scope>test</scope>
       </dependency>
 
@@ -1798,7 +1798,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.1</version>
         </plugin>
 
         <plugin>
