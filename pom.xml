@@ -422,16 +422,16 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-12</groovy.version>
+    <groovy.version>5.0.0-beta-1</groovy.version>
 
     <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.0.0</elasticsearch.version>
+    <elasticsearch.version>9.0.1</elasticsearch.version>
     <opensearch.version>2.19.2</opensearch.version>
-    <opensearch-java.version>2.23.0</opensearch-java.version>
+    <opensearch-java.version>2.24.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
@@ -661,7 +661,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
-        <version>7.1.0</version>
+        <version>7.1.1</version>
       </dependency>
 
       <dependency>
