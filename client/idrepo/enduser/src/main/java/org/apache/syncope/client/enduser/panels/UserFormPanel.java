@@ -111,8 +111,11 @@ public class UserFormPanel extends AnyFormPanel implements UserForm {
                 ProvisioningResult<UserTO> provisioningResult = updateReq.isEmpty()
                         ? new ProvisioningResult<>()
                         : userSelfRestClient.update(getOriginalItem().getInnerObject().getETagValue(), updateReq);
-                setResponsePage(new SelfResult(provisioningResult,
-                        ProvisioningUtils.managePageParams(UserFormPanel.this, "profile.change",
+                setResponsePage(new SelfResult(
+                        provisioningResult,
+                        ProvisioningUtils.managePageParams(
+                                UserFormPanel.this,
+                                "profile.change",
                                 !SyncopeWebApplication.get().isReportPropagationErrors()
                                 || provisioningResult.getPropagationStatuses().stream()
                                         .allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));

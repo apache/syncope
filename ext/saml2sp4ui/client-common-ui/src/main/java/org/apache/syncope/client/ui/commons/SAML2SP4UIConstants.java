@@ -24,6 +24,8 @@ public final class SAML2SP4UIConstants {
 
     public static final String PARAM_IDP = "idp";
 
+    public static final String PARAM_REAUTH = "reauth";
+
     public static final String SAML2SP4UI_JWT = "saml2sp4ui.jwt";
 
     public static final String SAML2SP4UI_SLO_SUPPORTED = "saml2sp4ui.sloSupported";

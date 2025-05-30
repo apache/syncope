@@ -69,10 +69,10 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
 
             @Override
             public SAML2SP4UIIdPTO getObject(
-                final String id, final IModel<? extends List<? extends SAML2SP4UIIdPTO>> choices) {
+                    final String id, final IModel<? extends List<? extends SAML2SP4UIIdPTO>> choices) {
 
                 return choices.getObject().stream().
-                    filter(idp -> idp.getEntityID().equals(id)).findFirst().orElse(null);
+                        filter(idp -> idp.getEntityID().equals(id)).findFirst().orElse(null);
             }
         });
         idps.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -84,9 +84,10 @@ public abstract class AbstractSAMLSSOLoginFormPanel extends BaseSSOLoginFormPane
                 if (model.getObject() != null) {
                     try {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
-                                UrlUtils.rewriteToContextRelative(SAML2SP4UIConstants.URL_CONTEXT + "/login?idp="
-                                        + URLEncoder.encode(
-                                                model.getObject().getEntityID(), StandardCharsets.UTF_8),
+                                UrlUtils.rewriteToContextRelative(SAML2SP4UIConstants.URL_CONTEXT + "/login?"
+                                        + SAML2SP4UIConstants.PARAM_IDP + "=" + URLEncoder.encode(
+                                                model.getObject().getEntityID(), StandardCharsets.UTF_8)
+                                        + "&" + SAML2SP4UIConstants.PARAM_REAUTH + "=" + reauth,
                                         RequestCycle.get())));
                     } catch (Exception e) {
                         LOG.error("Could not redirect to the selected IdP {}", model.getObject().getEntityID(), e);

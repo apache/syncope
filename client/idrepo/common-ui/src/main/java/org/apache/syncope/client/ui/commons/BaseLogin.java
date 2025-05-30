@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.client.ui.commons.panels.NotificationPanel;
 import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
@@ -45,7 +46,6 @@ import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
@@ -73,6 +73,10 @@ public abstract class BaseLogin extends WebPage {
 
     protected final TextField<String> passwordField;
 
+    protected final LocaleDropDown languageSelect;
+
+    protected final DomainDropDown domainSelect;
+
     protected String notificationMessage;
 
     protected String notificationLevel;
@@ -97,7 +101,7 @@ public abstract class BaseLogin extends WebPage {
         notificationPanel = new NotificationPanel(Constants.FEEDBACK);
         add(notificationPanel);
 
-        if (!parameters.get("notificationMessage").isNull()) {
+        if (!parameters.get(Constants.NOTIFICATION_MSG_PARAM).isNull()) {
             notificationMessage = parameters.get(Constants.NOTIFICATION_MSG_PARAM).toString();
             notificationLevel = parameters.get(Constants.NOTIFICATION_LEVEL_PARAM).isEmpty()
                     ? Notification.SUCCESS
@@ -123,7 +127,7 @@ public abstract class BaseLogin extends WebPage {
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
-        LocaleDropDown languageSelect = new LocaleDropDown("language");
+        languageSelect = new LocaleDropDown("language");
         languageSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -143,7 +147,7 @@ public abstract class BaseLogin extends WebPage {
         });
         form.add(languageSelect.setOutputMarkupId(true));
 
-        DomainDropDown domainSelect = new DomainDropDown("domain", domains);
+        domainSelect = new DomainDropDown("domain", domains);
         domainSelect.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -169,21 +173,19 @@ public abstract class BaseLogin extends WebPage {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target) {
-                authenticate(usernameField.getRawInput(), passwordField.getRawInput(), target);
+                authenticate(usernameField.getValue(), passwordField.getRawInput(), target);
             }
-
         };
         submitButton.setDefaultFormProcessing(false);
         form.add(submitButton);
         form.setDefaultButton(submitButton);
 
-        List<Panel> ssoLoginFormPanels = getSSOLoginFormPanels();
-        ListView<Panel> ssoLogins = new ListView<>("ssoLogins", ssoLoginFormPanels) {
+        ListView<BaseSSOLoginFormPanel> ssoLogins = new ListView<>("ssoLogins", getSSOLoginFormPanels()) {
 
             private static final long serialVersionUID = -9180479401817023838L;
 
             @Override
-            protected void populateItem(final ListItem<Panel> item) {
+            protected void populateItem(final ListItem<BaseSSOLoginFormPanel> item) {
                 item.add(item.getModelObject());
             }
         };
@@ -203,16 +205,19 @@ public abstract class BaseLogin extends WebPage {
     @Override
     public void renderHead(final IHeaderResponse response) {
         super.renderHead(response);
+
         if (StringUtils.isNotBlank(notificationMessage)) {
-            response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(notificationMessage,
+            response.render(OnLoadHeaderItem.forScript(StyledNotificationBehavior.jQueryShow(
+                    notificationMessage,
                     String.format("jQuery('#%s').data('kendoNotification')",
-                            notificationPanel.getNotificationMarkupId()), notificationLevel)));
+                            notificationPanel.getNotificationMarkupId()),
+                    notificationLevel)));
         }
     }
 
     protected abstract BaseSession getBaseSession();
 
-    protected abstract List<Panel> getSSOLoginFormPanels();
+    protected abstract List<BaseSSOLoginFormPanel> getSSOLoginFormPanels();
 
     protected abstract void sendError(String error);
 
