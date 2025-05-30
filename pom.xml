@@ -430,9 +430,9 @@ under the License.
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.17.4</elasticsearch.version>
+    <elasticsearch.version>8.17.6</elasticsearch.version>
     <opensearch.version>2.19.2</opensearch.version>
-    <opensearch-java.version>2.23.0</opensearch-java.version>
+    <opensearch-java.version>2.24.0</opensearch-java.version>
 
     <log4j2.version>2.22.0</log4j2.version>
     <disruptor.version>3.4.4</disruptor.version>
@@ -703,7 +703,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
-        <version>7.1.0</version>
+        <version>7.1.1</version>
       </dependency>
 
       <dependency>
