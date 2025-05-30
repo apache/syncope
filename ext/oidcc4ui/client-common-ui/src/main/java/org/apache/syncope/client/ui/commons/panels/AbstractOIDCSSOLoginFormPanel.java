@@ -68,10 +68,10 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
 
             @Override
             public OIDCC4UIProviderTO getObject(final String id,
-                                                final IModel<? extends List<? extends OIDCC4UIProviderTO>> choices) {
+                    final IModel<? extends List<? extends OIDCC4UIProviderTO>> choices) {
 
                 return choices.getObject().stream().
-                    filter(object -> object.getName().equals(id)).findFirst().orElse(null);
+                        filter(object -> object.getName().equals(id)).findFirst().orElse(null);
             }
         });
 
@@ -84,8 +84,10 @@ public abstract class AbstractOIDCSSOLoginFormPanel extends BaseSSOLoginFormPane
                 if (model.getObject() != null) {
                     try {
                         RequestCycle.get().scheduleRequestHandlerAfterCurrent(new RedirectRequestHandler(
-                                UrlUtils.rewriteToContextRelative(OIDCC4UIConstants.URL_CONTEXT + "/login?op="
-                                        + URLEncoder.encode(model.getObject().getName(), StandardCharsets.UTF_8),
+                                UrlUtils.rewriteToContextRelative(OIDCC4UIConstants.URL_CONTEXT + "/login?"
+                                        + OIDCC4UIConstants.PARAM_OP + "="
+                                        + URLEncoder.encode(model.getObject().getName(), StandardCharsets.UTF_8)
+                                        + "&" + OIDCC4UIConstants.PARAM_REAUTH + "=" + reauth,
                                         RequestCycle.get())));
                     } catch (Exception e) {
                         LOG.error("Could not redirect to the selected OP {}", model.getObject().getName(), e);

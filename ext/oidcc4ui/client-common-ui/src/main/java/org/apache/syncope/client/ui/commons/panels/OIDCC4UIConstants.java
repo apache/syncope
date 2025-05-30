@@ -24,6 +24,8 @@ public final class OIDCC4UIConstants {
 
     public static final String PARAM_OP = "op";
 
+    public static final String PARAM_REAUTH = "reauth";
+
     public static final String OIDCC4UI_JWT = "oidcc4ui.jwt";
 
     public static final String OIDCC4UI_SLO_SUPPORTED = "oidcc4ui.sloSupported";

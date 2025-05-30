@@ -55,6 +55,8 @@ public class OIDCClientLogin extends WebPage {
                 SyncopeEnduserSession.get().setAttribute(Constants.BEFORE_LOGOUT_PAGE, OIDCClientBeforeLogout.class);
             }
 
+            SyncopeEnduserSession.get().setLastReauth();
+
             // If login has been called because the user was not yet logged in, than continue to the
             // original destination, otherwise to the Home page
             continueToOriginalDestination();

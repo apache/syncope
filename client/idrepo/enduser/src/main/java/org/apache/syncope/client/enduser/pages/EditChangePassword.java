@@ -48,17 +48,18 @@ public class EditChangePassword extends AbstractChangePassword {
         try {
             UserTO userTO = getPwdLoggedUser();
             // update and set page paramters according to provisioning result
-            ProvisioningResult<UserTO> provisioningResult =
-                    userSelfRestClient.update(
-                            userTO.getETagValue(),
-                            new UserUR.Builder(userTO.getKey()).
-                                    password(new PasswordPatch.Builder().
-                                            value(passwordField.getModelObject()).onSyncope(true).
-                                            resources(userTO.getResources()).
-                                            build()).
-                                    build());
+            ProvisioningResult<UserTO> provisioningResult = userSelfRestClient.update(
+                    userTO.getETagValue(),
+                    new UserUR.Builder(userTO.getKey()).
+                            password(new PasswordPatch.Builder().
+                                    value(passwordField.getModelObject()).onSyncope(true).
+                                    resources(userTO.getResources()).
+                                    build()).
+                            build());
             setResponsePage(new SelfResult(provisioningResult,
-                    ProvisioningUtils.managePageParams(EditChangePassword.this, "pwd.change",
+                    ProvisioningUtils.managePageParams(
+                            EditChangePassword.this,
+                            "pwd.change",
                             !SyncopeWebApplication.get().isReportPropagationErrors()
                             || provisioningResult.getPropagationStatuses().stream().
                                     allMatch(ps -> ExecStatus.SUCCESS == ps.getStatus()))));

@@ -34,8 +34,8 @@ public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIServ
     }
 
     @Override
-    public OIDCRequest createLoginRequest(final String redirectURI, final String op) {
-        return logic.createLoginRequest(redirectURI, op);
+    public OIDCRequest createLoginRequest(final String redirectURI, final String op, final boolean reauth) {
+        return logic.createLoginRequest(redirectURI, op, reauth);
     }
 
     @Override

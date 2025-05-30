@@ -24,7 +24,13 @@ public abstract class BaseSSOLoginFormPanel extends Panel {
 
     private static final long serialVersionUID = -2371733568360773586L;
 
+    protected boolean reauth;
+
     public BaseSSOLoginFormPanel(final String id) {
         super(id);
+    }
+
+    public void setReauth(final boolean reauth) {
+        this.reauth = reauth;
     }
 }

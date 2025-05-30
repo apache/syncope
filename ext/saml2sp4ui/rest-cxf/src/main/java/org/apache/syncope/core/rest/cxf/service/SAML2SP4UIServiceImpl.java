@@ -49,12 +49,13 @@ public class SAML2SP4UIServiceImpl extends AbstractService implements SAML2SP4UI
 
     @Override
     public SAML2Request createLoginRequest(
-            final String spEntityID, final String urlContext, final String idpEntityID) {
+            final String spEntityID, final String urlContext, final String idpEntityID, final boolean reauth) {
 
         return logic.createLoginRequest(
                 StringUtils.appendIfMissing(spEntityID, "/"),
                 urlContext,
-                idpEntityID);
+                idpEntityID,
+                reauth);
     }
 
     @Override

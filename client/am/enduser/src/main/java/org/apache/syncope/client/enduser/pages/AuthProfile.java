@@ -19,11 +19,10 @@
 package org.apache.syncope.client.enduser.pages;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.enduser.rest.AuthProfileRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
-import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthAccount;
@@ -41,8 +40,8 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-@ExtPage(label = "Auth Profile", icon = "fa fa-passport", listEntitlement = "")
-public class AuthProfile extends BaseExtPage {
+@AMPage(label = "Auth Profile", icon = "fa fa-passport", listEntitlement = "")
+public class AuthProfile extends BaseReauthPage {
 
     private static final long serialVersionUID = -3147262161518280928L;
 
@@ -56,14 +55,14 @@ public class AuthProfile extends BaseExtPage {
     public AuthProfile(final PageParameters parameters) {
         super(parameters, AUTH_PROFILE);
 
-        Optional<AuthProfileTO> authProfile = restClient.read();
+        AuthProfileTO authProfile = restClient.read();
 
         WebMarkupContainer container = new WebMarkupContainer("content");
         contentWrapper.add(container.setOutputMarkupId(true));
 
         DataView<ImpersonationAccount> impersonationAccounts = new DataView<>(
                 "impersonationAccounts", new ListDataProvider<>(
-                        authProfile.map(AuthProfileTO::getImpersonationAccounts).orElseGet(() -> List.of()))) {
+                        authProfile == null ? List.of() : authProfile.getImpersonationAccounts())) {
 
             private static final long serialVersionUID = 6127875313385810666L;
 
@@ -77,11 +76,11 @@ public class AuthProfile extends BaseExtPage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        authProfile.ifPresent(p -> {
-                            p.getImpersonationAccounts().remove(item.getModelObject());
-                            restClient.update(p);
+                        if (authProfile != null) {
+                            authProfile.getImpersonationAccounts().remove(item.getModelObject());
+                            restClient.update(authProfile);
                             target.add(container);
-                        });
+                        }
                     }
                 });
             }
@@ -92,7 +91,7 @@ public class AuthProfile extends BaseExtPage {
 
         DataView<GoogleMfaAuthToken> googleMfaAuthTokens = new DataView<>(
                 "googleMfaAuthTokens", new ListDataProvider<>(
-                        authProfile.map(AuthProfileTO::getGoogleMfaAuthTokens).orElseGet(() -> List.of()))) {
+                        authProfile == null ? List.of() : authProfile.getGoogleMfaAuthTokens())) {
 
             private static final long serialVersionUID = 6127875313385810666L;
 
@@ -107,11 +106,11 @@ public class AuthProfile extends BaseExtPage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        authProfile.ifPresent(p -> {
-                            p.getGoogleMfaAuthTokens().remove(item.getModelObject());
-                            restClient.update(p);
+                        if (authProfile != null) {
+                            authProfile.getGoogleMfaAuthTokens().remove(item.getModelObject());
+                            restClient.update(authProfile);
                             target.add(container);
-                        });
+                        }
                     }
                 });
             }
@@ -122,7 +121,7 @@ public class AuthProfile extends BaseExtPage {
 
         DataView<GoogleMfaAuthAccount> googleMfaAuthAccounts = new DataView<>(
                 "googleMfaAuthAccounts", new ListDataProvider<>(
-                        authProfile.map(AuthProfileTO::getGoogleMfaAuthAccounts).orElseGet(() -> List.of()))) {
+                        authProfile == null ? List.of() : authProfile.getGoogleMfaAuthAccounts())) {
 
             private static final long serialVersionUID = 6127875313385810666L;
 
@@ -143,11 +142,11 @@ public class AuthProfile extends BaseExtPage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        authProfile.ifPresent(p -> {
-                            p.getGoogleMfaAuthAccounts().remove(item.getModelObject());
-                            restClient.update(p);
+                        if (authProfile != null) {
+                            authProfile.getGoogleMfaAuthAccounts().remove(item.getModelObject());
+                            restClient.update(authProfile);
                             target.add(container);
-                        });
+                        }
                     }
                 });
             }
@@ -158,7 +157,7 @@ public class AuthProfile extends BaseExtPage {
 
         DataView<MfaTrustedDevice> mfaTrustedDevices = new DataView<>(
                 "mfaTrustedDevices", new ListDataProvider<>(
-                        authProfile.map(AuthProfileTO::getMfaTrustedDevices).orElseGet(() -> List.of()))) {
+                        authProfile == null ? List.of() : authProfile.getMfaTrustedDevices())) {
 
             private static final long serialVersionUID = 6127875313385810666L;
 
@@ -176,11 +175,11 @@ public class AuthProfile extends BaseExtPage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        authProfile.ifPresent(p -> {
-                            p.getMfaTrustedDevices().remove(item.getModelObject());
-                            restClient.update(p);
+                        if (authProfile != null) {
+                            authProfile.getMfaTrustedDevices().remove(item.getModelObject());
+                            restClient.update(authProfile);
                             target.add(container);
-                        });
+                        }
                     }
                 });
             }
@@ -191,7 +190,7 @@ public class AuthProfile extends BaseExtPage {
 
         DataView<WebAuthnDeviceCredential> webAuthnDeviceCredentials = new DataView<>(
                 "webAuthnDeviceCredentials", new ListDataProvider<>(
-                        authProfile.map(AuthProfileTO::getWebAuthnDeviceCredentials).orElseGet(() -> List.of()))) {
+                        authProfile == null ? List.of() : authProfile.getWebAuthnDeviceCredentials())) {
 
             private static final long serialVersionUID = 6127875313385810666L;
 
@@ -205,11 +204,11 @@ public class AuthProfile extends BaseExtPage {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-                        authProfile.ifPresent(p -> {
-                            p.getWebAuthnDeviceCredentials().remove(item.getModelObject());
-                            restClient.update(p);
+                        if (authProfile != null) {
+                            authProfile.getWebAuthnDeviceCredentials().remove(item.getModelObject());
+                            restClient.update(authProfile);
                             target.add(container);
-                        });
+                        }
                     }
                 });
             }
