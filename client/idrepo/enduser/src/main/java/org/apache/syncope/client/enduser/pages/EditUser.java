@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class EditUser extends BasePage {
+public class EditUser extends BaseReauthPage {
 
     private static final long serialVersionUID = -1100228004207271270L;
 

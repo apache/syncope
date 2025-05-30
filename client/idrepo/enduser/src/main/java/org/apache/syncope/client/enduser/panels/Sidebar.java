@@ -31,7 +31,9 @@ import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.EditChangePassword;
 import org.apache.syncope.client.enduser.pages.EditSecurityQuestion;
 import org.apache.syncope.client.enduser.pages.EditUser;
+import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.IdMPage;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -58,11 +60,7 @@ public class Sidebar extends Panel {
 
     protected WebMarkupContainer profileLIContainer;
 
-    public Sidebar(
-            final String id,
-            final PageReference pageRef,
-            final List<Class<? extends BasePage>> extPageClasses) {
-
+    public Sidebar(final String id, final PageReference pageRef) {
         super(id);
 
         buildBaseSidebar();
@@ -123,6 +121,79 @@ public class Sidebar extends Panel {
             }
         }
 
+        List<Class<? extends BasePage>> idmPageClasses = SyncopeWebApplication.get().getLookup().getIdMPageClasses();
+        ListView<Class<? extends BasePage>> idmPages = new ListView<>("idmPages", idmPageClasses) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
+                WebMarkupContainer containingLI = new WebMarkupContainer("idmPageLI");
+                item.add(containingLI);
+
+                IdMPage ann = item.getModelObject().getAnnotation(IdMPage.class);
+
+                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("idmPage", item.getModelObject());
+
+                link.add(new Label("idmPageLabel", ann.label()));
+
+                if (item.getModelObject().equals(pageRef.getPage().getClass())) {
+                    link.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
+                }
+                containingLI.add(link);
+
+                Label idmPageIcon = new Label("idmPageIcon");
+                idmPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
+                link.add(idmPageIcon);
+            }
+        };
+        add(idmPages.setRenderBodyOnly(true).setOutputMarkupId(true));
+
+        List<Class<? extends BasePage>> amPageClasses = SyncopeWebApplication.get().getLookup().getAMPageClasses();
+        ListView<Class<? extends BasePage>> amPages = new ListView<>("amPages", amPageClasses) {
+
+            private static final long serialVersionUID = 4949588177564901031L;
+
+            @Override
+            protected void populateItem(final ListItem<Class<? extends BasePage>> item) {
+                WebMarkupContainer containingLI = new WebMarkupContainer("amPageLI");
+                item.add(containingLI);
+
+                AMPage ann = item.getModelObject().getAnnotation(AMPage.class);
+
+                BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("amPage", item.getModelObject());
+
+                link.add(new Label("amPageLabel", ann.label()));
+
+                if (item.getModelObject().equals(pageRef.getPage().getClass())) {
+                    link.add(new Behavior() {
+
+                        private static final long serialVersionUID = 1469628524240283489L;
+
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.append("class", "active", " ");
+                        }
+                    });
+                }
+                containingLI.add(link);
+
+                Label amPageIcon = new Label("amPageIcon");
+                amPageIcon.add(new AttributeModifier("class", "nav-icon " + ann.icon()));
+                link.add(amPageIcon);
+            }
+        };
+        add(amPages.setRenderBodyOnly(true).setOutputMarkupId(true));
+
+        List<Class<? extends BasePage>> extPageClasses = SyncopeWebApplication.get().getLookup().getExtPageClasses();
         ListView<Class<? extends BasePage>> extPages = new ListView<>("extPages", extPageClasses.stream().
                 filter(epc -> SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
                 isExtensionEnabled(StringUtils.remove(epc.getAnnotation(ExtPage.class).label(), StringUtils.SPACE))).
@@ -165,7 +236,6 @@ public class Sidebar extends Panel {
                 link.add(extPageIcon);
             }
         };
-
         add(extPages.setRenderBodyOnly(true).setOutputMarkupId(true));
     }
 
@@ -188,12 +258,11 @@ public class Sidebar extends Panel {
 
         WebMarkupContainer liContainer = new WebMarkupContainer(getLIContainerId("edituser"));
         profileULContainer.add(liContainer);
-
         liContainer.add(BookmarkablePageLinkBuilder.build("edituser", EditUser.class)).
                 setVisible(layout.isEditUserEnabled());
+
         liContainer = new WebMarkupContainer(getLIContainerId("editchangepassword"));
         profileULContainer.add(liContainer);
-
         liContainer.add(BookmarkablePageLinkBuilder.build("editchangepassword", EditChangePassword.class)).
                 setVisible(layout.isPasswordManagementEnabled());
 

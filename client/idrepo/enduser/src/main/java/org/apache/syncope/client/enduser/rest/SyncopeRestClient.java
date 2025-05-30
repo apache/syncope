@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.rest;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 
 public class SyncopeRestClient extends BaseRestClient {
@@ -27,13 +26,11 @@ public class SyncopeRestClient extends BaseRestClient {
     private static final long serialVersionUID = -2211371717449597247L;
 
     public List<String> searchUserTypeExtensions(final String groupName) {
-        List<String> types = List.of();
         try {
-            TypeExtensionTO typeExtensionTO = getService(SyncopeService.class).readUserTypeExtension(groupName);
-            types = typeExtensionTO == null ? types : typeExtensionTO.getAuxClasses();
+            return getService(SyncopeService.class).readUserTypeExtension(groupName).getAuxClasses();
         } catch (Exception e) {
-            LOG.error("While reading all any type classes for group [{}]", groupName, e);
+            LOG.debug("While reading any type classes for type extension of group {}", groupName, e);
+            return List.of();
         }
-        return types;
     }
 }

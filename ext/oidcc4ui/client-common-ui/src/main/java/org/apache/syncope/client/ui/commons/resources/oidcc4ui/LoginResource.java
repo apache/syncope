@@ -40,15 +40,18 @@ public class LoginResource extends AbstractResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        String op = attributes.getRequest().getQueryParameters().
-                getParameterValue(OIDCC4UIConstants.PARAM_OP).toString();
-
         HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
         String redirectURI = StringUtils.substringBefore(
                 request.getRequestURL().toString(), "/login") + "/code-consumer";
 
+        String op = attributes.getRequest().getQueryParameters().
+                getParameterValue(OIDCC4UIConstants.PARAM_OP).toString();
+
+        boolean reauth = attributes.getRequest().getQueryParameters().
+                getParameterValue(OIDCC4UIConstants.PARAM_REAUTH).toBoolean(false);
+
         OIDCC4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(OIDCC4UIService.class);
-        OIDCRequest loginRequest = service.createLoginRequest(redirectURI, op);
+        OIDCRequest loginRequest = service.createLoginRequest(redirectURI, op, reauth);
 
         Session.get().setAttribute(OIDCConstants.OP, op);
 

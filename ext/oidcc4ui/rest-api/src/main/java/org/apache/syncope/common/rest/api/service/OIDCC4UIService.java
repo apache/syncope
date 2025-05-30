@@ -21,6 +21,7 @@ package org.apache.syncope.common.rest.api.service;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -46,6 +47,7 @@ public interface OIDCC4UIService extends JAXRSService {
      *
      * @param redirectURI redirect URI
      * @param op OpenID Connect Provider
+     * @param reauth whether max_age=0 and prompt=login shall be set on the request
      * @return OpenID Connect authentication request
      */
     @POST
@@ -53,7 +55,8 @@ public interface OIDCC4UIService extends JAXRSService {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     OIDCRequest createLoginRequest(
             @QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI,
-            @QueryParam(OIDCConstants.OP) String op);
+            @QueryParam(OIDCConstants.OP) String op,
+            @DefaultValue("false") @QueryParam("reauth") boolean reauth);
 
     /**
      * Uses the provided authorization code to go through the OpenID Connect tokens process and finally creates JWT for

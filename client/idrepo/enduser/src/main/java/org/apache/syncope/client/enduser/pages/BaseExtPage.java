@@ -24,10 +24,6 @@ public abstract class BaseExtPage extends BasePage {
 
     private static final long serialVersionUID = 4627828052717627159L;
 
-    public BaseExtPage() {
-        super();
-    }
-
     public BaseExtPage(final PageParameters parameters, final String name) {
         super(parameters, name);
     }

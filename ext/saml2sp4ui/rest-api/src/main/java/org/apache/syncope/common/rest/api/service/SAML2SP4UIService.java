@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -60,9 +61,10 @@ public interface SAML2SP4UIService extends JAXRSService {
     /**
      * Generates SAML 2.0 authentication request for the IdP matching the provided entity ID.
      *
-     * @param spEntityID SAML 2.0 SP entity ID.
+     * @param spEntityID SAML 2.0 SP entity ID
      * @param urlContext SAML 2.0 SP agent URL context
-     * @param idpEntityID SAML 2.0 IdP entity ID.
+     * @param idpEntityID SAML 2.0 IdP entity ID
+     * @param reauth whether ForceAuthn shall be set on the request
      * @return SAML 2.0 authentication request
      */
     @POST
@@ -71,7 +73,8 @@ public interface SAML2SP4UIService extends JAXRSService {
     SAML2Request createLoginRequest(
             @QueryParam("spEntityID") String spEntityID,
             @QueryParam("urlContext") String urlContext,
-            @QueryParam("idpEntityID") String idpEntityID);
+            @QueryParam("idpEntityID") String idpEntityID,
+            @DefaultValue("false") @QueryParam("reauth") boolean reauth);
 
     /**
      * Validates the received SAML 2.0 authentication response and creates JWT for the matching user, if found.

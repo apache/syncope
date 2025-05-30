@@ -28,6 +28,7 @@ import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.enduser.pages.BasePage;
@@ -300,6 +301,10 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
 
     public boolean isCaptchaEnabled() {
         return props.isCaptcha();
+    }
+
+    public Optional<Long> getReauthExpirationMinutesTimeout() {
+        return Optional.ofNullable(props.getReauthExpirationMinutesTimeout());
     }
 
     public boolean isReportPropagationErrors() {

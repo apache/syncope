@@ -20,6 +20,8 @@ package org.apache.syncope.client.enduser;
 
 import java.security.AccessControlException;
 import java.text.DateFormat;
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -102,10 +104,28 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     protected UserTO selfTO;
 
+    protected OffsetDateTime lastReauth;
+
     public SyncopeEnduserSession(final Request request) {
         super(request);
 
         clientFactory = SyncopeWebApplication.get().newClientFactory();
+    }
+
+    public boolean isReauthExpired() {
+        return SyncopeWebApplication.get().getReauthExpirationMinutesTimeout().
+                map(timeout -> Optional.ofNullable(lastReauth).
+                map(r -> ChronoUnit.MINUTES.between(r, OffsetDateTime.now()) > timeout).
+                orElse(true)).
+                orElse(false);
+    }
+
+    public void setLastReauth() {
+        this.lastReauth = OffsetDateTime.now();
+    }
+
+    public void clearLastReauth() {
+        this.lastReauth = null;
     }
 
     protected String message(final SyncopeClientException sce) {
@@ -180,7 +200,7 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
 
     @Override
     public String getJWT() {
-        return client == null ? null : client.getJWT();
+        return Optional.ofNullable(client).map(SyncopeClient::getJWT).orElse(null);
     }
 
     @Override
@@ -247,11 +267,11 @@ public class SyncopeEnduserSession extends AuthenticatedWebSession implements Ba
     }
 
     protected boolean isAuthenticated() {
-        return client != null && client.getJWT() != null;
+        return getJWT() != null;
     }
 
     protected boolean isMustChangePassword() {
-        return selfTO != null && selfTO.isMustChangePassword();
+        return Optional.ofNullable(selfTO).map(UserTO::isMustChangePassword).orElse(false);
     }
 
     public void cleanup() {

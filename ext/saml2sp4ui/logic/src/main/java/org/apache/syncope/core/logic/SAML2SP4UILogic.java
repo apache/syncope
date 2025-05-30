@@ -65,7 +65,6 @@ import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.opensaml.saml.saml2.core.NameID;
-import org.opensaml.saml.saml2.core.RequestedAuthnContext;
 import org.opensaml.saml.saml2.core.StatusCode;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -270,7 +269,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
     public SAML2Request createLoginRequest(
             final String spEntityID,
             final String urlContext,
-            final String idpEntityID) {
+            final String idpEntityID,
+            final boolean reauth) {
 
         // 0. look for IdP
         SAML2SP4UIIdP idp = Optional.ofNullable(idpDAO.findByEntityID(idpEntityID)).
@@ -279,26 +279,24 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
         // 1. look for configured client
         SAML2Client saml2Client = getSAML2Client(saml2ClientCacheLogin, idp, spEntityID, urlContext);
 
-        getRequestedAuthnContextProvider(idp).ifPresent(requestedAuthnContextProvider -> {
-            RequestedAuthnContext requestedAuthnContext = requestedAuthnContextProvider.get();
-            saml2Client.setRedirectionActionBuilder(new SAML2RedirectionActionBuilder(saml2Client) {
+        saml2Client.setRedirectionActionBuilder(new SAML2RedirectionActionBuilder(saml2Client) {
 
-                @Override
-                public Optional<RedirectionAction> getRedirectionAction(
-                        final WebContext wc, final SessionStore sessionStore) {
+            @Override
+            public Optional<RedirectionAction> getRedirectionAction(
+                    final WebContext wc, final SessionStore sessionStore) {
+                this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
 
-                    this.saml2ObjectBuilder = new SAML2AuthnRequestBuilder() {
-
-                        @Override
-                        public AuthnRequest build(final SAML2MessageContext context) {
-                            AuthnRequest authnRequest = super.build(context);
-                            authnRequest.setRequestedAuthnContext(requestedAuthnContext);
-                            return authnRequest;
-                        }
-                    };
-                    return super.getRedirectionAction(wc, sessionStore);
-                }
-            });
+                    @Override
+                    public AuthnRequest build(final SAML2MessageContext context) {
+                        AuthnRequest authnRequest = super.build(context);
+                        authnRequest.setForceAuthn(reauth);
+                        getRequestedAuthnContextProvider(idp).
+                                ifPresent(provider -> authnRequest.setRequestedAuthnContext(provider.get()));
+                        return authnRequest;
+                    }
+                };
+                return super.getRedirectionAction(wc, sessionStore);
+            }
         });
 
         // 2. create AuthnRequest
@@ -380,7 +378,7 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
 
         List<String> matchingUsers = Optional.ofNullable(keyValue).
                 map(k -> userManager.findMatchingUser(k, idp.getKey())).
-                orElse(List.of());
+                orElseGet(List::of);
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         String username;

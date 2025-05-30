@@ -47,10 +47,6 @@ public class UserProfileWidget extends BaseWidget {
     }
 
     protected void addBaseFields(final WebMarkupContainer userProfile) {
-        Label username = new Label("username", userTO.getUsername());
-        username.setOutputMarkupId(true);
-        userProfile.add(username);
-
         Label changePwdDate = new Label("changePwdDate", userTO.getChangePwdDate());
         changePwdDate.setOutputMarkupId(true);
         userProfile.add(changePwdDate);
