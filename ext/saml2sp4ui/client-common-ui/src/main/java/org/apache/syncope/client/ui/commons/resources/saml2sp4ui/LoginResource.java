@@ -35,8 +35,10 @@ public class LoginResource extends AbstractSAML2SP4UIResource {
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         String idp = attributes.getRequest().getQueryParameters().
                 getParameterValue(SAML2SP4UIConstants.PARAM_IDP).toString();
+        boolean reauth = attributes.getRequest().getQueryParameters().
+                getParameterValue(SAML2SP4UIConstants.PARAM_REAUTH).toBoolean(false);
 
         SAML2SP4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(SAML2SP4UIService.class);
-        return send(service.createLoginRequest(spEntityID(attributes), SAML2SP4UIConstants.URL_CONTEXT, idp));
+        return send(service.createLoginRequest(spEntityID(attributes), SAML2SP4UIConstants.URL_CONTEXT, idp, reauth));
     }
 }

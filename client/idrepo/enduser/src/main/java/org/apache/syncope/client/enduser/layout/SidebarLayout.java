@@ -65,5 +65,4 @@ public class SidebarLayout implements Serializable {
     public boolean isExtensionEnabled(final String key) {
         return extensionsEnabled.getOrDefault(key, true);
     }
-
 }

@@ -21,18 +21,12 @@ package org.apache.syncope.client.enduser.commons;
 public final class EnduserConstants {
 
     public static final String STATUS = "status";
-    
-    public static final String SUCCESS = "success";
-    
-    public static final String FAILING_RESOURCES = "failing_resources";
 
     public static final String LANDING_PAGE = "landingPage";
 
     public static final String CONTENT_PANEL = "contentPanel";
 
-    public static final String SELF_ALLOWED = "selfRegistration.allowed";
-
-    public static final String PAGE_TITLE = "pageTitle";
+    public static final String REAUTH = "reauth";
 
     private EnduserConstants() {
         // private constructor for static utility class

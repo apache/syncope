@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.rest;
 
-import java.util.Optional;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
 
@@ -26,12 +25,12 @@ public class AuthProfileRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 4139153766778113329L;
 
-    public Optional<AuthProfileTO> read() {
+    public AuthProfileTO read() {
         try {
-            return Optional.of(getService(AuthProfileSelfService.class).read());
+            return getService(AuthProfileSelfService.class).read();
         } catch (Exception e) {
             LOG.debug("While attempting to read the auth profile", e);
-            return Optional.empty();
+            return null;
         }
     }
 

@@ -19,11 +19,8 @@
 package org.apache.syncope.client.enduser.pages;
 
 import java.io.Serializable;
-import java.util.List;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
-import org.apache.syncope.client.enduser.commons.EnduserConstants;
-import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.panels.Sidebar;
 import org.apache.syncope.client.enduser.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.ui.commons.BaseSession;
@@ -47,16 +44,12 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
-import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class BasePage extends BaseWebPage {
+public abstract class BasePage extends BaseWebPage {
 
     private static final long serialVersionUID = 1571997737305598502L;
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
-
-    @SpringBean
-    private ClassPathScanImplementationLookup lookup;
 
     protected final Sidebar sidebar;
 
@@ -65,10 +58,6 @@ public class BasePage extends BaseWebPage {
     protected final WebMarkupContainer navbar;
 
     protected final AjaxLink<Void> collapse;
-
-    public BasePage() {
-        this(null, null);
-    }
 
     public BasePage(final PageParameters parameters, final String name) {
         super(parameters);
@@ -80,17 +69,12 @@ public class BasePage extends BaseWebPage {
 
         // sidebar
         Class<? extends Sidebar> clazz = SyncopeWebApplication.get().getSidebar();
-
         try {
-            sidebar = clazz.getConstructor(
-                    String.class,
-                    PageReference.class,
-                    List.class).
-                    newInstance("sidebar", getPageReference(), lookup.getExtPageClasses());
+            sidebar = clazz.getConstructor(String.class, PageReference.class).
+                    newInstance("sidebar", getPageReference());
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not instantiate " + clazz.getName(), e);
         }
-
         sidebar.setOutputMarkupPlaceholderTag(true);
         body.add(sidebar);
 
@@ -157,7 +141,7 @@ public class BasePage extends BaseWebPage {
     }
 
     protected void addPageTitle(final String title) {
-        contentWrapper.addOrReplace(new Label(EnduserConstants.PAGE_TITLE, new ResourceModel(title, title)));
+        contentWrapper.addOrReplace(new Label("pageTitle", new ResourceModel(title, title)));
     }
 
     protected void disableSidebarAndNavbar() {

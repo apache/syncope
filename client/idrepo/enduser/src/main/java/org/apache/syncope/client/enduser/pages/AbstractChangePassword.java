@@ -29,13 +29,13 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public abstract class AbstractChangePassword extends BasePage {
+abstract class AbstractChangePassword extends BaseReauthPage {
 
     private static final long serialVersionUID = 5889157642852559004L;
 
     private static final String CHANGE_PASSWORD = "page.changePassword";
 
-    public AbstractChangePassword(final PageParameters parameters) {
+    protected AbstractChangePassword(final PageParameters parameters) {
         super(parameters, CHANGE_PASSWORD);
 
         WebMarkupContainer content = new WebMarkupContainer("content");

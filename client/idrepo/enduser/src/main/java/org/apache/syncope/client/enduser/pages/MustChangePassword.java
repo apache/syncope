@@ -44,6 +44,11 @@ public class MustChangePassword extends AbstractChangePassword {
     }
 
     @Override
+    protected boolean isReauthExpired() {
+        return false;
+    }
+
+    @Override
     protected void doPwdSubmit(final AjaxRequestTarget target, final AjaxPasswordFieldPanel passwordField) {
         try {
             userSelfRestClient.mustChangePassword(passwordField.getModelObject());

@@ -52,7 +52,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class EditSecurityQuestion extends BasePage {
+public class EditSecurityQuestion extends BaseReauthPage {
 
     private static final long serialVersionUID = -537205681762708502L;
 
