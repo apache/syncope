@@ -416,13 +416,13 @@ under the License.
     <nimbus-jose-jwt.version>10.3</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.5.0</spring-boot.version>
-    <spring-cloud-gateway.version>4.3.0-RC1</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.3.0</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-12</groovy.version>
+    <groovy.version>5.0.0-beta-1</groovy.version>
 
     <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
@@ -659,7 +659,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
-        <version>7.1.0</version>
+        <version>7.1.1</version>
       </dependency>
 
       <dependency>
@@ -873,6 +873,17 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-gateway</artifactId>
+        <version>${spring-cloud-gateway.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-bootstrap</artifactId>
         <version>${spring-cloud-gateway.version}</version>
         <exclusions>
           <exclusion>
@@ -1427,19 +1438,6 @@ under the License.
         <enabled>false</enabled>
       </snapshots>
     </repository>
-    <!-- TMP -->
-    <repository>
-      <id>repository.spring.milestone</id>
-      <name>Spring Milestone Repository</name>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <!-- /TMP -->
     <!-- Excluding useless transitive repositories -->
     <repository>
       <id>couchbase</id>
@@ -1464,19 +1462,6 @@ under the License.
         <enabled>true</enabled>
       </snapshots>
     </pluginRepository>
-    <!-- TMP -->
-    <pluginRepository>
-      <id>repository.spring.milestone</id>
-      <name>Spring Milestone Repository</name>
-      <url>https://repo.spring.io/milestone</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <!-- /TMP -->
   </pluginRepositories>
 
   <build>
