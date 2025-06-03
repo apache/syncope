@@ -431,7 +431,7 @@ under the License.
 
     <elasticsearch.version>9.0.1</elasticsearch.version>
     <opensearch.version>2.19.2</opensearch.version>
-    <opensearch-java.version>2.24.0</opensearch-java.version>
+    <opensearch-java.version>2.25.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
