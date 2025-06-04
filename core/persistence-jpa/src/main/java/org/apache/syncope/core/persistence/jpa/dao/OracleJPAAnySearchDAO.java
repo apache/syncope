@@ -93,8 +93,8 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
     }
 
     @Override
-    protected String anyId(final SearchSupport svs) {
-        return defaultSV(svs).alias() + ".id";
+    protected String anyId(final SearchSupport.SearchView sv) {
+        return sv.alias() + ".id";
     }
 
     @Override
@@ -140,7 +140,7 @@ public class OracleJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         String value = Optional.ofNullable(attrValue.getDateValue()).
                 map(DateTimeFormatter.ISO_OFFSET_DATE_TIME::format).
-            orElseGet(cond::getExpression);
+                orElseGet(cond::getExpression);
 
         boolean lower = (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum)
                 && (cond.getType() == AttrCond.Type.IEQ || cond.getType() == AttrCond.Type.ILIKE);
