@@ -161,8 +161,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return svs.field();
     }
 
+    protected String anyId(final SearchSupport.SearchView sv) {
+        return sv.alias + ".any_id";
+    }
+
     protected String anyId(final SearchSupport svs) {
-        return defaultSV(svs).alias + ".any_id";
+        return anyId(defaultSV(svs));
     }
 
     protected Optional<AnySearchNode> getQueryForCustomConds(
@@ -896,7 +900,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 join.append(" LEFT JOIN ").
                         append(sv.name).append(" ").append(sv.alias).
                         append(" ON ").
-                        append(joins.get(0).alias).append(".any_id=").append(sv.alias).append(".any_id");
+                        append(anyId(joins.get(0))).append("=").append(anyId(sv));
             }
             fromString = join.toString();
         }

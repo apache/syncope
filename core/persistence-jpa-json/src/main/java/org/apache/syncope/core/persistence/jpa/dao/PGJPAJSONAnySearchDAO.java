@@ -88,8 +88,8 @@ public class PGJPAJSONAnySearchDAO extends JPAAnySearchDAO {
     }
 
     @Override
-    protected String anyId(final SearchSupport svs) {
-        return defaultSV(svs).alias + ".id";
+    protected String anyId(final SearchSupport.SearchView sv) {
+        return sv.alias + ".id";
     }
 
     @Override
