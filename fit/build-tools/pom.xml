@@ -303,7 +303,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>tomcat10x</containerId>
+                <containerId>tomcat11x</containerId>
                 <zipUrlInstaller>
                   <url>https://repo1.maven.org/maven2/org/apache/tomcat/tomcat/${tomcat.version}/tomcat-${tomcat.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
