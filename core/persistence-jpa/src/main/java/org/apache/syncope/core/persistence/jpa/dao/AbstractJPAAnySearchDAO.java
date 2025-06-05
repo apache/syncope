@@ -858,7 +858,7 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
                 join.append(" LEFT JOIN ").
                         append(sv.name()).append(" ").append(sv.alias()).
                         append(" ON ").
-                        append(anyId(joins.get(0))).append('=').append(anyId(sv));
+                        append(anyId(joins.getFirst())).append('=').append(anyId(sv));
             }
             fromString = join.toString();
         }

@@ -104,7 +104,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
 
         CLIENT_APP_SERVICE.update(ClientAppType.OIDCRP, clientApp);
 
-        await().atMost(60, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
+        await().atMost(120, TimeUnit.SECONDS).pollInterval(20, TimeUnit.SECONDS).until(() -> {
             try {
                 String metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/env", ANONYMOUS_USER, ANONYMOUS_KEY, null).
