@@ -89,7 +89,7 @@ public class OpenFGAClientFactory {
             if (models.isEmpty()) {
                 client.setAuthorizationModelId(client.writeAuthorizationModel(request).getAuthorizationModelId());
             } else {
-                client.setAuthorizationModelId(models.get(0).getId());
+                client.setAuthorizationModelId(models.getFirst().getId());
             }
         }
     }
