@@ -100,7 +100,7 @@ public class OpenFGAClient {
     }
 
     public AuthorizationModel readLatestAuthorizationModel() throws ApiException {
-        return readAuthorizationModels().getAuthorizationModels().get(0);
+        return readAuthorizationModels().getAuthorizationModels().getFirst();
     }
 
     public ReadResponse read(final ReadRequest request) throws ApiException {
