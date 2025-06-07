@@ -172,7 +172,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
             }
         }
 
-        return new Query.Builder().bool(QueryBuilders.bool().must(
+        return new Query.Builder().bool(QueryBuilders.bool().filter(
                 prefix,
                 new Query.Builder().regexp(QueryBuilders.regexp().
                         field("name").value(output.toString()).build()).
@@ -238,7 +238,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                         field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(prefix) ? "/" : prefix + "/").
                         build()).build()).build()).build();
 
-        Query query = new Query.Builder().bool(QueryBuilders.bool().must(
+        Query query = new Query.Builder().bool(QueryBuilders.bool().filter(
                 buildDescendantsQuery(Set.of(base), (String) null), prefixQuery).build()).
                 build();
 

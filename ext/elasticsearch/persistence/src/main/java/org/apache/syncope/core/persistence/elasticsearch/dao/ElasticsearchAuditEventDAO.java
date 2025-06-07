@@ -124,7 +124,7 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
                     build());
         }
 
-        return new Query.Builder().bool(QueryBuilders.bool().must(queries).build()).build();
+        return new Query.Builder().bool(QueryBuilders.bool().filter(queries).build()).build();
     }
 
     @Override
