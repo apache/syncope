@@ -184,10 +184,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             if (!recursive) {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
-                                must(new Query.Builder().term(QueryBuilders.term().
+                                filter(new Query.Builder().term(QueryBuilders.term().
                                         field("realm").value(base.getKey()).build()).
                                         build()).
-                                must(query).build()).
+                                filter(query).build()).
                         build();
             }
         } else {
@@ -198,8 +198,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             if (filter.getLeft().isPresent()) {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
-                                must(filter.getLeft().get()).
-                                must(query).build()).
+                                filter(filter.getLeft().get()).
+                                filter(query).build()).
                         build();
             }
         }
@@ -381,20 +381,20 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 List<Query> andCompound = new ArrayList<>();
 
                 Query andLeft = getQuery(cond.getLeft(), kind);
-                if (andLeft._kind() == Query.Kind.Bool && !((BoolQuery) andLeft._get()).must().isEmpty()) {
-                    andCompound.addAll(((BoolQuery) andLeft._get()).must());
+                if (andLeft._kind() == Query.Kind.Bool && !((BoolQuery) andLeft._get()).filter().isEmpty()) {
+                    andCompound.addAll(((BoolQuery) andLeft._get()).filter());
                 } else {
                     andCompound.add(andLeft);
                 }
 
                 Query andRight = getQuery(cond.getRight(), kind);
-                if (andRight._kind() == Query.Kind.Bool && !((BoolQuery) andRight._get()).must().isEmpty()) {
-                    andCompound.addAll(((BoolQuery) andRight._get()).must());
+                if (andRight._kind() == Query.Kind.Bool && !((BoolQuery) andRight._get()).filter().isEmpty()) {
+                    andCompound.addAll(((BoolQuery) andRight._get()).filter());
                 } else {
                     andCompound.add(andRight);
                 }
 
-                query = new Query.Builder().bool(QueryBuilders.bool().must(andCompound).build()).build();
+                query = new Query.Builder().bool(QueryBuilders.bool().filter(andCompound).build()).build();
                 break;
 
             case OR:
