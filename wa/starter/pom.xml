@@ -203,7 +203,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-themes</artifactId>
+      <artifactId>cas-server-support-themes-bootstrap</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
