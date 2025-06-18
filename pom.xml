@@ -452,7 +452,7 @@ under the License.
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
-    <bootbox.version>6.0.0</bootbox.version>
+    <bootbox.version>6.0.4</bootbox.version>
     <bootstrap5-toggle.version>5.1.1</bootstrap5-toggle.version>
     <font-awesome.version>6.7.2</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
