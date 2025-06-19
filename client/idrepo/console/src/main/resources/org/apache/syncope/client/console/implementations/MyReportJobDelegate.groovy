@@ -30,8 +30,7 @@ class MyReportJobDelegate implements ReportJobDelegate {
   }
   
   @Override
-  void execute(String reportKey, boolean dryRun, JobExecutionContext context)
-    throws JobExecutionException {
+  void execute(String reportKey, JobExecutionContext context) throws JobExecutionException {
    
   }
 }

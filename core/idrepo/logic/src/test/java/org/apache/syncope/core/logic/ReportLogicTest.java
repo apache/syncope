@@ -55,9 +55,7 @@ public class ReportLogicTest extends AbstractTest {
 
         @Override
         protected String doExecute(
-                final boolean dryRun,
                 final OutputStream os,
-                final String executor,
                 final JobExecutionContext context) throws JobExecutionException {
 
             try {
@@ -114,10 +112,11 @@ public class ReportLogicTest extends AbstractTest {
 
         JobExecutionContext ctx = mock(JobExecutionContext.class);
         when(ctx.getExecutor()).thenReturn("test");
+        when(ctx.isDryRun()).thenReturn(false);
 
         ReportJobDelegate delegate =
                 ApplicationContextProvider.getBeanFactory().createBean(TestReportJobDelegate.class);
-        delegate.execute(report.getKey(), false, ctx);
+        delegate.execute(report.getKey(), ctx);
 
         report = logic.read(report.getKey());
         assertFalse(report.getExecutions().isEmpty());

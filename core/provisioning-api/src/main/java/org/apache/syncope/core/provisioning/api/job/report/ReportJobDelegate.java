@@ -37,12 +37,10 @@ public interface ReportJobDelegate {
      * Executes a Job to run the given Report.
      *
      * @param reportKey Report key to run
-     * @param dryRun indicates if execution shall be simulated with no actual changes
      * @param context execution context, can be used to pass parameters to the job
      * @throws JobExecutionException if anything goes wrong
      */
     void execute(
             String reportKey,
-            boolean dryRun,
             JobExecutionContext context) throws JobExecutionException;
 }

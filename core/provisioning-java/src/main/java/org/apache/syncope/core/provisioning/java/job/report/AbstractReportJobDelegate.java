@@ -100,7 +100,6 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
     @Override
     public void execute(
             final String reportKey,
-            final boolean dryRun,
             final JobExecutionContext context) throws JobExecutionException {
 
         report = reportDAO.findById(reportKey).
@@ -133,7 +132,7 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
 
         setStatus("Starting");
         try {
-            execution.setMessage(doExecute(dryRun, zos, executor, context));
+            execution.setMessage(doExecute(zos, context));
             execution.setStatus(ReportJob.Status.SUCCESS.name());
 
             result = OpEvent.Outcome.SUCCESS;
@@ -184,14 +183,11 @@ public abstract class AbstractReportJobDelegate implements ReportJobDelegate {
     /**
      * The actual execution, delegated to child classes.
      *
-     * @param dryRun whether to actually touch the data
      * @param os where to stream report execution's data
-     * @param executor the user executing this report
      * @param context job execution context, can be used to pass parameters to the job
      * @return the report execution status to be set
      * @throws JobExecutionException if anything goes wrong
      */
-    protected abstract String doExecute(
-            boolean dryRun, OutputStream os, String executor, JobExecutionContext context)
+    protected abstract String doExecute(OutputStream os, JobExecutionContext context)
             throws JobExecutionException;
 }
