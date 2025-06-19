@@ -81,10 +81,7 @@ public class ReportJob extends Job {
                                 instance -> perContextReportJobDelegates.put(impl.getKey(), instance)).
                                 orElseThrow(() -> new IllegalArgumentException(
                                 "Could not instantiate " + impl.getBody()));
-                        delegate.execute(
-                                reportKey,
-                                context.isDryRun(),
-                                context);
+                        delegate.execute(reportKey, context);
                     }
                 } catch (Exception e) {
                     LOG.error("While executing report {}", reportKey, e);
