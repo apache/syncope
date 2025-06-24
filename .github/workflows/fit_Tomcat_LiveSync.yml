@@ -18,12 +18,10 @@ name: "FIT Tomcat LiveSync"
 
 on:
   push:
-    branches: ['master', 'pr-*']
+    branches: [master]
   pull_request:
     # The branches below must be a subset of the branches above
     branches: [master]
-  schedule:
-    - cron: '0 13 * * 4'
 
 jobs:
   fit_Tomcat_LiveSync:
@@ -41,12 +39,6 @@ jobs:
       uses: stCarolas/setup-maven@v5
       with:
         maven-version: 3.9.6
-    - uses: actions/cache@v4
-      with:
-        path: ~/.m2/repository
-        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          ${{ runner.os }}-maven-
     - name: Build
       run: mvn -U -T 1C -P 'skipTests,all'
     - name: 'Tomcat / PostgreSQL / Debezium'
