@@ -31,7 +31,9 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.ext.opensearch.client.OpenSearchUtils;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.opensearch.client.opensearch._types.BuiltinScriptLanguage;
 import org.opensearch.client.opensearch._types.FieldValue;
+import org.opensearch.client.opensearch._types.ScriptLanguage;
 import org.opensearch.client.opensearch._types.ScriptSortType;
 import org.opensearch.client.opensearch._types.SearchType;
 import org.opensearch.client.opensearch._types.SortOptions;
@@ -53,7 +55,8 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
     protected static final List<SortOptions> REALM_SORT_OPTIONS = List.of(
             new SortOptions.Builder().
                     script(s -> s.type(ScriptSortType.Number).
-                    script(t -> t.inline(i -> i.lang("painless").
+                    script(t -> t.inline(i -> i.lang(ScriptLanguage.builder().
+                    builtin(BuiltinScriptLanguage.Painless).build()).
                     source("doc['fullPath'].value.chars().filter(ch -> ch == '/').count()"))).
                     order(SortOrder.Asc)).
                     build());

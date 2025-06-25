@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.ext.opensearch.client;
 
-import org.apache.http.HttpHost;
+import java.net.URISyntaxException;
+import java.util.Objects;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.identityconnectors.common.CollectionUtil;
 import org.opensearch.client.opensearch.OpenSearchClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.HealthContributor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -35,12 +39,20 @@ import org.springframework.context.annotation.Lazy;
 @Configuration(proxyBeanMethods = false)
 public class OpenSearchClientContext {
 
+    protected static final Logger LOG = LoggerFactory.getLogger(OpenSearchClientContext.class);
+
     @ConditionalOnMissingBean
     @Bean
     public OpenSearchClientFactoryBean openSearchClientFactoryBean(final OpenSearchProperties props) {
-        return new OpenSearchClientFactoryBean(
-                CollectionUtil.nullAsEmpty(props.getHosts()).stream().
-                        map(HttpHost::create).toList());
+        return new OpenSearchClientFactoryBean(CollectionUtil.nullAsEmpty(props.getHosts()).stream().
+                map(host -> {
+                    try {
+                        return HttpHost.create(host);
+                    } catch (URISyntaxException e) {
+                        LOG.error("Invalid host: {}", host, e);
+                        return null;
+                    }
+                }).filter(Objects::nonNull).toList());
     }
 
     @ConditionalOnMissingBean

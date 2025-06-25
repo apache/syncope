@@ -23,19 +23,14 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpHost;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.CredentialsProvider;
-import org.apache.http.impl.client.BasicCredentialsProvider;
-import org.apache.http.message.BasicHeader;
-import org.opensearch.client.RestClient;
-import org.opensearch.client.RestClientBuilder;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.opensearch.client.json.jackson.JacksonJsonpMapper;
 import org.opensearch.client.opensearch.OpenSearchClient;
-import org.opensearch.client.transport.rest_client.RestClientTransport;
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5Transport;
+import org.opensearch.client.transport.httpclient5.ApacheHttpClient5TransportBuilder;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -56,7 +51,7 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
 
     private String apiKeySecret;
 
-    private RestClient restClient;
+    private ApacheHttpClient5Transport transport;
 
     private OpenSearchClient client;
 
@@ -100,12 +95,15 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
     public OpenSearchClient getObject() {
         synchronized (this) {
             if (client == null) {
-                RestClientBuilder builder = RestClient.builder(hosts.toArray(HttpHost[]::new));
+                ApacheHttpClient5TransportBuilder builder = ApacheHttpClient5TransportBuilder.
+                        builder(hosts.toArray(HttpHost[]::new)).
+                        setMapper(new JacksonJsonpMapper(JsonMapper.builder().
+                                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build()));
                 if (username != null && password != null) {
-                    CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-                    credentialsProvider.setCredentials(
-                            AuthScope.ANY, new UsernamePasswordCredentials(username, password));
-                    builder.setHttpClientConfigCallback(b -> b.setDefaultCredentialsProvider(credentialsProvider));
+                    String encodedAuth = Base64.getEncoder().
+                            encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
+                    builder.setDefaultHeaders(
+                            new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + encodedAuth) });
                 } else if (serviceToken != null) {
                     builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken) });
@@ -116,11 +114,8 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "ApiKey " + apiKeyAuth) });
                 }
 
-                restClient = builder.build();
-                client = new OpenSearchClient(new RestClientTransport(
-                        restClient,
-                        new JacksonJsonpMapper(JsonMapper.builder().
-                                findAndAddModules().disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS).build())));
+                transport = builder.build();
+                client = new OpenSearchClient(transport);
             }
         }
         return client;
@@ -133,8 +128,8 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
 
     @Override
     public void destroy() throws Exception {
-        if (restClient != null) {
-            restClient.close();
+        if (transport != null) {
+            transport.close();
         }
     }
 }
