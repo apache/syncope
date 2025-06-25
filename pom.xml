@@ -429,8 +429,8 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.0.2</elasticsearch.version>
-    <opensearch.version>3.0.0</opensearch.version>
+    <elasticsearch.version>9.0.3</elasticsearch.version>
+    <opensearch.version>3.1.0</opensearch.version>
     <opensearch-java.version>3.1.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
