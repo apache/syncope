@@ -39,6 +39,8 @@ public class SyncopeAuthModuleConf implements AuthModuleConf {
      */
     private String credentialCriteria;
 
+    private int maxRetryAttempts = 1;
+
     public String getDomain() {
         return domain;
     }
@@ -54,6 +56,10 @@ public class SyncopeAuthModuleConf implements AuthModuleConf {
     public void setCredentialCriteria(final String credentialCriteria) {
         this.credentialCriteria = credentialCriteria;
     }
+
+    public int getMaxRetryAttempts() { return maxRetryAttempts; }
+
+    public void setMaxRetryAttempts(int maxRetryAttempts) { this.maxRetryAttempts = maxRetryAttempts; }
 
     @Override
     public Map<String, Object> map(final AuthModuleTO authModule, final Mapper mapper) {
