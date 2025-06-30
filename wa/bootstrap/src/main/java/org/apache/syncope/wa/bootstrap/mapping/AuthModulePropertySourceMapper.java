@@ -392,7 +392,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setAttributeMappings(authModuleTO.getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
         props.setCredentialCriteria(conf.getCredentialCriteria());
-        props.setMaxRetryAttempts(conf.getMaxRetryAttempts());
+        props.setMaxRetryAttempts(Math.max(conf.getMaxRetryAttempts(), 1));
 
         return prefix("cas.authn.syncope.", WAConfUtils.asMap(props));
     }

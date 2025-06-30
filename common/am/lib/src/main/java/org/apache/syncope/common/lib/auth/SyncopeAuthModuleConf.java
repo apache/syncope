@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib.auth;
 
-import jakarta.validation.constraints.Min;
 import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
@@ -40,7 +39,6 @@ public class SyncopeAuthModuleConf implements AuthModuleConf {
      */
     private String credentialCriteria;
 
-    @Min(1)
     private int maxRetryAttempts = 1;
 
     public String getDomain() {
