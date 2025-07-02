@@ -231,13 +231,13 @@ public class GenerateUpgradeSQL {
         return result.toString();
     }
 
-    private String imeplementations() {
+    private String implementations() {
         StringBuilder result = new StringBuilder();
 
         result.append("UPDATE Implementation ").
-                append("SET type='INBOUND_ACTIONS' WHERE type='PULL_ACTIONS'\n");
+                append("SET type='INBOUND_ACTIONS' WHERE type='PULL_ACTIONS';\n");
         result.append("UPDATE Implementation ").
-                append("SET type='INBOUND_CORRELATION_RULE' WHERE type='PULL_CORRELATION_RULE'\n\n");
+                append("SET type='INBOUND_CORRELATION_RULE' WHERE type='PULL_CORRELATION_RULE';\n\n");
 
         return result.toString();
     }
@@ -272,7 +272,7 @@ public class GenerateUpgradeSQL {
             out.append(plainSchemas());
             out.append(roles());
             out.append(relationshipTypes());
-            out.append(imeplementations());
+            out.append(implementations());
             out.append(audit());
 
             out.append(FINAL_SQL_STATEMENTS);
