@@ -427,7 +427,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupCR, GroupUR> {
         task = taskDAO.save(task);
 
         try {
-            jobManager.register(
+            jobManager.execute(
                     task,
                     OffsetDateTime.now().plusSeconds(1),
                     AuthContextUtils.getUsername(),

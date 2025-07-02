@@ -361,7 +361,6 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
         }
 
         SchedTask task = taskUtils.newTask();
-        task.setStartAt(taskTO.getStartAt());
         task.setCronExpression(taskTO.getCronExpression());
         task.setName(taskTO.getName());
         task.setDescription(taskTO.getDescription());
