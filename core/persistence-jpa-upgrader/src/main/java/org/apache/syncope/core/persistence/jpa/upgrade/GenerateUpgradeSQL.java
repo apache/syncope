@@ -171,12 +171,10 @@ public class GenerateUpgradeSQL {
         List<Map<String, Object>> dynMembershipConds = jdbcTemplate.queryForList(
                 "SELECT role_id AS id, fiql FROM DynRoleMembership");
 
-        dynMembershipConds.forEach(cond -> {
-            result.append(String.format(
-                    "UPDATE SyncopeRole SET dynMembershipCond='%s' WHERE id='%s';\n",
-                    cond.get("fiql").toString(),
-                    cond.get("id").toString()));
-        });
+        dynMembershipConds.forEach(cond -> result.append(String.format(
+                "UPDATE SyncopeRole SET dynMembershipCond='%s' WHERE id='%s';\n",
+                cond.get("fiql").toString(),
+                cond.get("id").toString())));
 
         result.append("DROP TABLE DynRoleMembership;\n");
 
@@ -233,6 +231,31 @@ public class GenerateUpgradeSQL {
         return result.toString();
     }
 
+    private String imeplementations() {
+        StringBuilder result = new StringBuilder();
+
+        result.append("UPDATE Implementation ").
+                append("SET type='INBOUND_ACTIONS' WHERE type='PULL_ACTIONS'\n");
+        result.append("UPDATE Implementation ").
+                append("SET type='INBOUND_CORRELATION_RULE' WHERE type='PULL_CORRELATION_RULE'\n\n");
+
+        return result.toString();
+    }
+
+    private String audit() {
+        StringBuilder result = new StringBuilder();
+
+        List<Map<String, Object>> auditConf = jdbcTemplate.queryForList(
+                "SELECT id from AuditConf");
+
+        auditConf.forEach(conf -> result.append(String.format(
+                "UPDATE SyncopeRole SET id='%s' WHERE id='%s';\n",
+                conf.get("id").toString().replace("syncope.audit.", ""),
+                conf.get("id").toString())));
+
+        return result.toString();
+    }
+
     public void run(final Writer out) throws IOException, SQLException {
         INIT_SQL_STATEMENTS.forEach(jdbcTemplate::execute);
 
@@ -249,6 +272,8 @@ public class GenerateUpgradeSQL {
             out.append(plainSchemas());
             out.append(roles());
             out.append(relationshipTypes());
+            out.append(imeplementations());
+            out.append(audit());
 
             out.append(FINAL_SQL_STATEMENTS);
         }

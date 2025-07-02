@@ -38,11 +38,15 @@ abstract class BaseReauthPage extends BasePage {
             notification.add(Constants.NOTIFICATION_MSG_PARAM, getString("reauth.message"));
             notification.add(Constants.NOTIFICATION_LEVEL_PARAM, Notification.WARNING);
 
-            throw new RestartResponseAtInterceptPageException(ReauthLogin.class, notification);
+            throw new RestartResponseAtInterceptPageException(getReauthLoginPage(), notification);
         } else {
             SyncopeEnduserSession.get().clearLastReauth();
             LOG.debug("Re-authentication cleared");
         }
+    }
+
+    protected Class<? extends ReauthLogin> getReauthLoginPage() {
+        return ReauthLogin.class;
     }
 
     protected boolean isReauthExpired() {

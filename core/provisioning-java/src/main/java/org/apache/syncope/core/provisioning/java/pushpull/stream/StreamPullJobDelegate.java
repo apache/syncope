@@ -197,6 +197,7 @@ public class StreamPullJobDelegate extends PullJobDelegate implements SyncopeStr
                 action.beforeAll(profile);
             }
 
+            ghandler = buildGroupHandler();
             dispatcher.addHandlerSupplier(provision.getObjectClass(), () -> {
                 SyncopePullResultHandler handler;
                 switch (anyType.getKind()) {

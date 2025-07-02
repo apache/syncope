@@ -27,7 +27,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -49,8 +48,6 @@ public class JPASchedTask extends AbstractTask<SchedTask> implements SchedTask {
 
     @OneToOne(optional = false)
     private JPAImplementation jobDelegate;
-
-    private OffsetDateTime startAt;
 
     private String cronExpression;
 
@@ -76,16 +73,6 @@ public class JPASchedTask extends AbstractTask<SchedTask> implements SchedTask {
         checkType(jobDelegate, JPAImplementation.class);
         checkImplementationType(jobDelegate, IdRepoImplementationType.TASKJOB_DELEGATE);
         this.jobDelegate = (JPAImplementation) jobDelegate;
-    }
-
-    @Override
-    public OffsetDateTime getStartAt() {
-        return startAt;
-    }
-
-    @Override
-    public void setStartAt(final OffsetDateTime startAt) {
-        this.startAt = startAt;
     }
 
     @Override
