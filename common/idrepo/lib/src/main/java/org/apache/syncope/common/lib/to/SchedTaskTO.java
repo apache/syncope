@@ -32,8 +32,6 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
 
     private static final long serialVersionUID = -5722284116974636425L;
 
-    private OffsetDateTime startAt;
-
     private String cronExpression;
 
     private String jobDelegate;
@@ -55,14 +53,6 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
     @Override
     public String getDiscriminator() {
         return getClass().getName();
-    }
-
-    public OffsetDateTime getStartAt() {
-        return startAt;
-    }
-
-    public void setStartAt(final OffsetDateTime startAt) {
-        this.startAt = startAt;
     }
 
     public String getCronExpression() {
@@ -130,7 +120,6 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
     public int hashCode() {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
-                append(startAt).
                 append(cronExpression).
                 append(jobDelegate).
                 append(name).
@@ -155,7 +144,6 @@ public class SchedTaskTO extends TaskTO implements NamedEntityTO {
         final SchedTaskTO other = (SchedTaskTO) obj;
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
-                append(startAt, other.startAt).
                 append(cronExpression, other.cronExpression).
                 append(jobDelegate, other.jobDelegate).
                 append(name, other.name).

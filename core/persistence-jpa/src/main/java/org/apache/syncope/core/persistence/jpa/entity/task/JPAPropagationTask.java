@@ -22,6 +22,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -88,7 +89,7 @@ public class JPAPropagationTask extends AbstractTask<PropagationTask> implements
     @ManyToOne
     private JPAExternalResource resource;
 
-    @OneToMany(targetEntity = JPAPropagationTaskExec.class,
+    @OneToMany(targetEntity = JPAPropagationTaskExec.class, fetch = FetchType.EAGER,
             cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<TaskExec<PropagationTask>> executions = new ArrayList<>();
 

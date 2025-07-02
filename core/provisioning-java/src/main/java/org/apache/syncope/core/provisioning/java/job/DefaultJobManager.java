@@ -123,9 +123,6 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             return;
         }
 
-        // 0. unregister job
-        unregisterJob(context.getJobName());
-
         // 1. prepare job
         Job job = ApplicationContextProvider.getBeanFactory().createBean(jobClass);
         job.setContext(context);
@@ -145,6 +142,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
     protected void register(
             final String domain,
             final SchedTask task,
+            final String cronExpression,
             final OffsetDateTime startAt,
             final String executor,
             final boolean dryRun,
@@ -179,24 +177,47 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         registerJob(
                 context,
                 TaskJob.class,
-                task.getCronExpression(),
+                cronExpression,
                 startAt);
     }
 
     @Override
-    public void register(
+    public void execute(
             final SchedTask task,
             final OffsetDateTime startAt,
             final String executor,
             final boolean dryRun,
             final Map<String, Object> jobData) {
 
-        register(AuthContextUtils.getDomain(), task, startAt, executor, dryRun, jobData);
+        register(
+                AuthContextUtils.getDomain(),
+                task,
+                null,
+                startAt,
+                executor,
+                dryRun,
+                jobData);
+    }
+
+    @Override
+    public void register(
+            final SchedTask task,
+            final String executor) {
+
+        register(
+                AuthContextUtils.getDomain(),
+                task,
+                task.getCronExpression(),
+                null,
+                executor,
+                false,
+                Map.of());
     }
 
     protected void register(
             final String domain,
             final Report report,
+            final String cronExpression,
             final OffsetDateTime startAt,
             final String executor,
             final boolean dryRun) {
@@ -212,22 +233,36 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
         registerJob(
                 context,
                 ReportJob.class,
-                report.getCronExpression(),
+                cronExpression,
                 startAt);
     }
 
     @Override
-    public void register(
+    public void execute(
             final Report report,
             final OffsetDateTime startAt,
             final String executor,
             final boolean dryRun) {
 
-        register(AuthContextUtils.getDomain(), report, startAt, executor, dryRun);
+        register(
+                AuthContextUtils.getDomain(),
+                report,
+                null,
+                startAt,
+                executor,
+                dryRun);
+    }
+
+    @Override
+    public void register(
+            final Report report,
+            final String executor) {
+
+        register(AuthContextUtils.getDomain(), report, report.getCronExpression(), null, executor, false);
     }
 
     protected void unregisterJob(final String jobName) {
-        scheduler.cancel(AuthContextUtils.getDomain(), jobName);
+        scheduler.stop(AuthContextUtils.getDomain(), jobName);
         scheduler.delete(AuthContextUtils.getDomain(), jobName);
     }
 
@@ -265,7 +300,14 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                         taskUtilsFactory.getInstance(task).getType(), task.getKey(), task.getName());
 
                 try {
-                    register(domain, task, task.getStartAt(), securityProperties.getAdminUser(), false, Map.of());
+                    register(
+                            domain,
+                            task,
+                            task.getCronExpression(),
+                            null,
+                            securityProperties.getAdminUser(),
+                            false,
+                            Map.of());
                 } catch (Exception e) {
                     LOG.error("While loading job instance for task {}", task.getKey(), e);
                     loadException = true;
@@ -282,7 +324,13 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                     LOG.debug("Loading job for Report {} {}", report.getKey(), report.getName());
 
                     try {
-                        register(domain, report, null, securityProperties.getAdminUser(), false);
+                        register(
+                                domain,
+                                report,
+                                report.getCronExpression(),
+                                null,
+                                securityProperties.getAdminUser(),
+                                false);
                     } catch (Exception e) {
                         LOG.error("While loading job instance for report {}", report.getName(), e);
                         loadException = true;

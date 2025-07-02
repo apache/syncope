@@ -103,7 +103,7 @@ public class OpenSearchClientFactoryBean implements FactoryBean<OpenSearchClient
                     String encodedAuth = Base64.getEncoder().
                             encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
                     builder.setDefaultHeaders(
-                            new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + encodedAuth) });
+                            new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Basic " + encodedAuth) });
                 } else if (serviceToken != null) {
                     builder.setDefaultHeaders(
                             new Header[] { new BasicHeader(HttpHeaders.AUTHORIZATION, "Bearer " + serviceToken) });

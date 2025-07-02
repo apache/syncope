@@ -153,7 +153,7 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
     protected List<SortOptions> sortBuilders(final Stream<Sort.Order> orderBy) {
         return orderBy.map(clause -> new SortOptions.Builder().field(
                 new FieldSort.Builder().
-                        field(clause.getProperty()).
+                        field("id".equals(clause.getProperty()) ? "key" : clause.getProperty()).
                         order(clause.getDirection() == Sort.Direction.ASC ? SortOrder.Asc : SortOrder.Desc).
                         build()).
                 build()).toList();

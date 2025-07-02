@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
@@ -188,7 +189,10 @@ public class ClassPathScanImplementationLookup implements Serializable {
                 } else if (BasePage.class.isAssignableFrom(clazz)) {
                     if (clazz.isAnnotationPresent(IdMPage.class)) {
                         if (!clazz.getName().endsWith("Topology")
-                                || (clazz.getName().equals(props.getPage().get("topology").getName()))) {
+                                || Optional.ofNullable(props.getPage().get("topology")).
+                                        map(topologyClazz -> clazz.getName().equals(topologyClazz.getName())).
+                                        orElse(false)) {
+
                             idmPages.add((Class<? extends BasePage>) clazz);
                         }
                     } else if (clazz.isAnnotationPresent(AMPage.class)) {

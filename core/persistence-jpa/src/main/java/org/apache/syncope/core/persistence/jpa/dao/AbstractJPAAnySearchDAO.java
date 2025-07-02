@@ -163,7 +163,6 @@ abstract class AbstractJPAAnySearchDAO extends AbstractAnySearchDAO {
 
     protected String anyId(final SearchSupport svs) {
         return anyId(defaultSV(svs));
-
     }
 
     protected Optional<AnySearchNode> getQueryForCustomConds(

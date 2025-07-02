@@ -60,40 +60,38 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
     protected Optional<JobTO> getJobTO(final String jobName, final boolean includeCustom) {
         JobTO jobTO = null;
 
-        if (scheduler.contains(AuthContextUtils.getDomain(), jobName)) {
-            Triple<JobType, String, String> reference = getReference(jobName);
-            if (reference != null) {
+        Triple<JobType, String, String> reference = getReference(jobName);
+        if (reference != null) {
+            jobTO = new JobTO();
+            jobTO.setType(reference.getLeft());
+            jobTO.setRefKey(reference.getMiddle());
+            jobTO.setRefDesc(reference.getRight());
+        } else if (includeCustom) {
+            Optional<Class<?>> jobClass = scheduler.getJobClass(AuthContextUtils.getDomain(), jobName).
+                    filter(jc -> !TaskJob.class.isAssignableFrom(jc)
+                    && !ReportJob.class.isAssignableFrom(jc)
+                    && !SystemLoadReporterJob.class.isAssignableFrom(jc)
+                    && !NotificationJob.class.isAssignableFrom(jc));
+            if (jobClass.isPresent()) {
                 jobTO = new JobTO();
-                jobTO.setType(reference.getLeft());
-                jobTO.setRefKey(reference.getMiddle());
-                jobTO.setRefDesc(reference.getRight());
-            } else if (includeCustom) {
-                Optional<Class<?>> jobClass = scheduler.getJobClass(AuthContextUtils.getDomain(), jobName).
-                        filter(jc -> !TaskJob.class.isAssignableFrom(jc)
-                        && !ReportJob.class.isAssignableFrom(jc)
-                        && !SystemLoadReporterJob.class.isAssignableFrom(jc)
-                        && !NotificationJob.class.isAssignableFrom(jc));
-                if (jobClass.isPresent()) {
-                    jobTO = new JobTO();
-                    jobTO.setType(JobType.CUSTOM);
-                    jobTO.setRefKey(jobName);
-                    jobTO.setRefDesc(jobClass.get().getName());
-                }
+                jobTO.setType(JobType.CUSTOM);
+                jobTO.setRefKey(jobName);
+                jobTO.setRefDesc(jobClass.get().getName());
+            }
+        }
+
+        if (jobTO != null) {
+            Optional<OffsetDateTime> nextTrigger = scheduler.getNextTrigger(AuthContextUtils.getDomain(), jobName);
+            if (nextTrigger.isPresent()) {
+                jobTO.setScheduled(true);
+                jobTO.setStart(nextTrigger.get());
+            } else {
+                jobTO.setScheduled(false);
             }
 
-            if (jobTO != null) {
-                Optional<OffsetDateTime> nextTrigger = scheduler.getNextTrigger(AuthContextUtils.getDomain(), jobName);
-                if (nextTrigger.isPresent()) {
-                    jobTO.setScheduled(true);
-                    jobTO.setStart(nextTrigger.get());
-                } else {
-                    jobTO.setScheduled(false);
-                }
+            jobTO.setRunning(jobManager.isRunning(jobName));
 
-                jobTO.setRunning(jobManager.isRunning(jobName));
-
-                jobTO.setStatus(jobStatusDAO.findById(jobName).map(JobStatus::getStatus).orElse("UNKNOWN"));
-            }
+            jobTO.setStatus(jobStatusDAO.findById(jobName).map(JobStatus::getStatus).orElse("UNKNOWN"));
         }
 
         return Optional.ofNullable(jobTO);
@@ -109,22 +107,18 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
     }
 
     protected void doActionJob(final String jobName, final JobAction action) {
-        if (scheduler.contains(AuthContextUtils.getDomain(), jobName)) {
-            switch (action) {
-                case START ->
-                    scheduler.start(AuthContextUtils.getDomain(), jobName);
+        switch (action) {
+            case START ->
+                scheduler.start(AuthContextUtils.getDomain(), jobName);
 
-                case STOP ->
-                    scheduler.cancel(AuthContextUtils.getDomain(), jobName);
+            case STOP ->
+                scheduler.stop(AuthContextUtils.getDomain(), jobName);
 
-                case DELETE ->
-                    scheduler.delete(AuthContextUtils.getDomain(), jobName);
+            case DELETE ->
+                scheduler.delete(AuthContextUtils.getDomain(), jobName);
 
-                default -> {
-                }
+            default -> {
             }
-        } else {
-            LOG.warn("Could not find job {}", jobName);
         }
     }
 }
