@@ -80,6 +80,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -265,6 +266,19 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                 neo4jClient.query(
                         "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
                         + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all(),
+                "n.id",
+                Neo4jUMembership.class,
+                null);
+    }
+
+    @Override
+    public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
+        return toList(
+                neo4jClient.query(
+                        "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
+                                + "RETURN n.id SKIP " + pageable.getPageSize() * pageable.getPageNumber()
+                                + " LIMIT " + pageable.getPageSize())
+                        .bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
                 Neo4jUMembership.class,
                 null);

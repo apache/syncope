@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.springframework.data.domain.Pageable;
 
 public interface GroupDAO extends AnyDAO<Group> {
 
@@ -59,6 +60,8 @@ public interface GroupDAO extends AnyDAO<Group> {
     List<AMembership> findAMemberships(Group group);
 
     List<UMembership> findUMemberships(Group group);
+
+    List<UMembership> findUMemberships(Group group, Pageable pageable);
 
     List<String> findAMembers(String groupKey);
 

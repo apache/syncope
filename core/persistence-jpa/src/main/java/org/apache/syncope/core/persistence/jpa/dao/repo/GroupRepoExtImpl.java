@@ -69,6 +69,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements GroupRepoExt {
@@ -209,6 +210,19 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                 "SELECT e FROM " + JPAAMembership.class.getSimpleName() + " e WHERE e.rightEnd=:group",
                 AMembership.class);
         query.setParameter("group", group);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
+        TypedQuery<UMembership> query = entityManager.createQuery(
+                "SELECT e FROM " + JPAUMembership.class.getSimpleName()
+                        + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
+                UMembership.class);
+        query.setParameter("group", group);
+        query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+        query.setMaxResults(pageable.getPageSize());
 
         return query.getResultList();
     }
