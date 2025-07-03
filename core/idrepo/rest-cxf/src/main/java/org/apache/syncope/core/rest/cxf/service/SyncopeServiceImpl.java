@@ -51,7 +51,7 @@ import org.apache.syncope.core.persistence.api.entity.Batch;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.rest.cxf.batch.BatchProcess;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -61,7 +61,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
 
     protected final SyncopeLogic logic;
 
-    protected final VirtualThreadPoolTaskExecutor batchExecutor;
+    protected final AsyncTaskExecutor batchExecutor;
 
     protected final Bus bus;
 
@@ -71,7 +71,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
 
     public SyncopeServiceImpl(
             final SyncopeLogic logic,
-            final VirtualThreadPoolTaskExecutor batchExecutor,
+            final AsyncTaskExecutor batchExecutor,
             final Bus bus,
             final BatchDAO batchDAO,
             final EntityFactory entityFactory) {
