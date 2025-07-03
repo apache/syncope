@@ -311,6 +311,10 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
                 ? TriStateBoolean.UNDEFINED
                 : TriStateBoolean.valueOf(conf.getNameIdPolicyAllowCreate().toUpperCase()));
 
+        props.setMappedAttributes(authModuleTO.getItems().stream().
+                map(item -> item.getIntAttrName() + "->" + item.getExtAttrName()).
+                collect(Collectors.toList()));
+
         return prefix("cas.authn.pac4j.saml[].", CasCoreConfigurationUtils.asMap(props));
     }
 
