@@ -385,6 +385,24 @@ public class SCIMITCase extends AbstractITCase {
 
         SCIMGroup additional = groups.getResources().get(0);
         assertEquals("additional", additional.getDisplayName());
+        assertTrue(additional.getMembers().isEmpty());
+
+        // eq to get members
+        response = webClient().path("Groups").query("filter", "displayName eq \"child\"").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        groups = response.readEntity(new GenericType<>() {
+        });
+        assertNotNull(groups);
+        assertEquals(1, groups.getTotalResults());
+
+        SCIMGroup child = groups.getResources().get(0);
+        assertEquals("child", child.getDisplayName());
+        assertEquals(1, child.getMembers().size());
+        assertTrue(child.getMembers().stream().anyMatch(member -> member.getDisplay().equals("verdi")));
 
         // eq via POST
         SCIMSearchRequest request = new SCIMSearchRequest("displayName eq \"additional\"", null, null, null, null);

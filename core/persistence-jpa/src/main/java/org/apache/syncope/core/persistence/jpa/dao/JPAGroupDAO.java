@@ -275,6 +275,19 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
+    public List<UMembership> findUMemberships(final Group group, final int page, final int itemsPerPage) {
+        TypedQuery<UMembership> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAUMembership.class.getSimpleName()
+                        + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
+                UMembership.class);
+        query.setParameter("group", group);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        return query.getResultList();
+    }
+
+    @Override
     public List<Group> findAll(final int page, final int itemsPerPage) {
         TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e ORDER BY e.id", Group.class);

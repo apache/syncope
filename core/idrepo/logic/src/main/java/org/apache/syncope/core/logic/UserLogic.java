@@ -69,6 +69,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
@@ -186,6 +187,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
                 collect(Collectors.toList());
 
         return Pair.of(count, result);
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
+    @Transactional(readOnly = true)
+    public List<UMembership> searchMemberships(
+            final String key,
+            final int page,
+            final int size) {
+        Group group = Optional.ofNullable(groupDAO.find(key))
+                .orElseThrow(() -> new NotFoundException("Group " + key));
+        return groupDAO.findUMemberships(group, page, size);
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")

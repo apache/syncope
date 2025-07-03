@@ -57,6 +57,7 @@ import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
@@ -1059,19 +1060,14 @@ public class SCIMDataBinder {
                     searchCond, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
 
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<UserTO> users = userLogic.search(
-                        searchCond,
+                List<UMembership> users = userLogic.searchMemberships(
+                        groupTO.getKey(),
                         page,
-                        AnyDAO.DEFAULT_PAGE_SIZE,
-                        List.of(),
-                        SyncopeConstants.ROOT_REALM,
-                        true,
-                        false).
-                        getRight();
-                users.forEach(userTO -> group.getMembers().add(new Member(
-                        userTO.getKey(),
-                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + userTO.getKey(),
-                        userTO.getUsername())));
+                        AnyDAO.DEFAULT_PAGE_SIZE);
+                users.forEach(uMembership -> group.getMembers().add(new Member(
+                        uMembership.getLeftEnd().getKey(),
+                        StringUtils.substringBefore(location, "/Groups") + "/Users/" + uMembership.getKey(),
+                        uMembership.getLeftEnd().getUsername())));
             }
         }
 
