@@ -55,6 +55,8 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -80,6 +82,7 @@ import org.apache.syncope.ext.scimv2.api.type.PatchOp;
 import org.apache.syncope.ext.scimv2.api.type.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 public class SCIMDataBinder {
@@ -124,14 +127,18 @@ public class SCIMDataBinder {
 
     protected final AuthDataAccessor authDataAccessor;
 
+    protected final GroupDAO groupDAO;
+
     public SCIMDataBinder(
             final SCIMConfManager confManager,
             final UserLogic userLogic,
-            final AuthDataAccessor authDataAccessor) {
+            final AuthDataAccessor authDataAccessor,
+            final GroupDAO groupDAO) {
 
         this.confManager = confManager;
         this.userLogic = userLogic;
         this.authDataAccessor = authDataAccessor;
+        this.groupDAO = groupDAO;
     }
 
     protected <E extends Enum<?>> void fill(
@@ -1020,6 +1027,7 @@ public class SCIMDataBinder {
         return Pair.of(userUR, statusR);
     }
 
+    @Transactional(readOnly = true)
     public SCIMGroup toSCIMGroup(
             final GroupTO groupTO,
             final String location,
@@ -1060,8 +1068,9 @@ public class SCIMDataBinder {
                     searchCond, 1, 1, List.of(), SyncopeConstants.ROOT_REALM, true, false).getLeft();
 
             for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                List<UMembership> users = userLogic.searchMemberships(
-                        groupTO.getKey(),
+                List<UMembership> users = groupDAO.findUMemberships(
+                        Optional.ofNullable(groupDAO.find(groupTO.getKey()))
+                                .orElseThrow(() -> new NotFoundException("Group " + groupTO.getKey())),
                         page,
                         AnyDAO.DEFAULT_PAGE_SIZE);
                 users.forEach(uMembership -> group.getMembers().add(new Member(
