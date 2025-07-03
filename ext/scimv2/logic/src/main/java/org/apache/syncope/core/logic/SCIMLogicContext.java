@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.logic.init.SCIMLoader;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -46,9 +47,10 @@ public class SCIMLogicContext {
     public SCIMDataBinder scimDataBinder(
             final SCIMConfManager confManager,
             final UserLogic userLogic,
-            final AuthDataAccessor authDataAccessor) {
+            final AuthDataAccessor authDataAccessor,
+            final GroupDAO groupDAO) {
 
-        return new SCIMDataBinder(confManager, userLogic, authDataAccessor);
+        return new SCIMDataBinder(confManager, userLogic, authDataAccessor,  groupDAO);
     }
 
     @ConditionalOnMissingBean
