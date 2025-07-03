@@ -195,7 +195,7 @@ public class ProvisioningContext {
      */
     @Bean
     @Primary
-    public VirtualThreadPoolTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties props) {
+    public AsyncTaskExecutor asyncConnectorFacadeExecutor(final ProvisioningProperties props) {
         VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
         executor.setPoolSize(props.getAsyncConnectorFacadeExecutor().getPoolSize());
         executor.setAwaitTerminationSeconds(props.getAsyncConnectorFacadeExecutor().getAwaitTerminationSeconds());
@@ -208,7 +208,7 @@ public class ProvisioningContext {
     @Bean
     public AsyncConfigurer asyncConfigurer(
             @Qualifier("asyncConnectorFacadeExecutor")
-            final VirtualThreadPoolTaskExecutor asyncConnectorFacadeExecutor) {
+            final AsyncTaskExecutor asyncConnectorFacadeExecutor) {
 
         return new AsyncConfigurer() {
 
@@ -226,7 +226,7 @@ public class ProvisioningContext {
      * @return executor thread pool task executor
      */
     @Bean
-    public VirtualThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor(final ProvisioningProperties props) {
+    public AsyncTaskExecutor propagationTaskExecutorAsyncExecutor(final ProvisioningProperties props) {
         VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
         executor.setPoolSize(props.getPropagationTaskExecutorAsyncExecutor().getPoolSize());
         executor.setWaitForTasksToCompleteOnShutdown(true);
@@ -459,7 +459,7 @@ public class ProvisioningContext {
     @Bean
     public PropagationTaskExecutor propagationTaskExecutor(
             @Qualifier("propagationTaskExecutorAsyncExecutor")
-            final VirtualThreadPoolTaskExecutor propagationTaskExecutorAsyncExecutor,
+            final AsyncTaskExecutor propagationTaskExecutorAsyncExecutor,
             final TaskUtilsFactory taskUtilsFactory,
             final AnyUtilsFactory anyUtilsFactory,
             final ConnectorManager connectorManager,

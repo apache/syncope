@@ -18,16 +18,18 @@
  */
 package org.apache.syncope.core.spring.task;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskDecorator;
-import org.springframework.core.task.support.ExecutorServiceAdapter;
 import org.springframework.scheduling.SchedulingTaskExecutor;
 import org.springframework.scheduling.concurrent.ExecutorConfigurationSupport;
 
@@ -38,6 +40,8 @@ public class VirtualThreadPoolTaskExecutor
     private static final long serialVersionUID = 4747270938984213408L;
 
     private int poolSize = -1;
+
+    private long taskTerminationTimeout;
 
     private TaskDecorator taskDecorator;
 
@@ -53,10 +57,24 @@ public class VirtualThreadPoolTaskExecutor
     }
 
     /**
-     * @return the maximum number of managed threads
+     * Specify a timeout (in milliseconds) for task termination when closing
+     * this executor. The default is 0, not waiting for task termination at all.
+     * <p>
+     * Note that a concrete >0 timeout specified here will lead to the
+     * wrapping of every submitted task into a task-tracking runnable which
+     * involves considerable overhead in case of a high number of tasks.
+     * However, for a modest level of submissions with longer-running
+     * tasks, this is feasible in order to arrive at a graceful shutdown.
+     * <p>
+     * Note that {@code SimpleAsyncTaskExecutor} does not participate in
+     * a coordinated lifecycle stop but rather just awaits task termination
+     * on {@link #close()}.
+     *
+     * @param taskTerminationTimeout the timeout in milliseconds
+     * @see SimpleAsyncTaskExecutor#close
      */
-    public int getPoolSize() {
-        return poolSize;
+    public void setTaskTerminationTimeout(final long taskTerminationTimeout) {
+        this.taskTerminationTimeout = taskTerminationTimeout;
     }
 
     /**
@@ -94,10 +112,46 @@ public class VirtualThreadPoolTaskExecutor
 
         executor = new SimpleAsyncTaskExecutor(getThreadNamePrefix());
         executor.setVirtualThreads(true);
+        executor.setDaemon(true);
         executor.setConcurrencyLimit(poolSize);
+        if (taskTerminationTimeout >= 0) {
+            executor.setTaskTerminationTimeout(taskTerminationTimeout);
+        }
         Optional.ofNullable(taskDecorator).ifPresent(executor::setTaskDecorator);
 
-        return new ExecutorServiceAdapter(executor);
+        return new AbstractExecutorService() {
+
+            @Override
+            public void execute(final Runnable task) {
+                executor.execute(task);
+            }
+
+            @Override
+            public void shutdown() {
+                executor.close();
+            }
+
+            @Override
+            public List<Runnable> shutdownNow() {
+                executor.close();
+                return List.of();
+            }
+
+            @Override
+            public boolean isShutdown() {
+                return !executor.isActive();
+            }
+
+            @Override
+            public boolean isTerminated() {
+                return !executor.isActive();
+            }
+
+            @Override
+            public boolean awaitTermination(final long timeout, final TimeUnit unit) throws InterruptedException {
+                return !executor.isActive();
+            }
+        };
     }
 
     @Override
@@ -117,6 +171,6 @@ public class VirtualThreadPoolTaskExecutor
 
     @Override
     public void shutdown() {
-        // manual shutdown is not supported
+        executor.close();
     }
 }

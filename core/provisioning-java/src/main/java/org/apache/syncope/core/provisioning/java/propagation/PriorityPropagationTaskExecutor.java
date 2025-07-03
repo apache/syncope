@@ -49,8 +49,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -63,7 +63,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {
 
-    protected final VirtualThreadPoolTaskExecutor taskExecutor;
+    protected final AsyncTaskExecutor taskExecutor;
 
     public PriorityPropagationTaskExecutor(
             final ConnectorManager connectorManager,
@@ -79,7 +79,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
-            final VirtualThreadPoolTaskExecutor taskExecutor) {
+            final AsyncTaskExecutor taskExecutor) {
 
         super(connectorManager,
                 connObjectUtils,
