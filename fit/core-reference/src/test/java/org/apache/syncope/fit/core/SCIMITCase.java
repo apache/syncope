@@ -405,7 +405,7 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(groups);
         assertEquals(1, groups.getTotalResults());
 
-        SCIMGroup child = groups.getResources().get(0);
+        SCIMGroup child = groups.getResources().getFirst();
         assertEquals("child", child.getDisplayName());
         usersList = USER_SERVICE.search(new AnyQuery.Builder()
                 .realm(SyncopeConstants.ROOT_REALM)
