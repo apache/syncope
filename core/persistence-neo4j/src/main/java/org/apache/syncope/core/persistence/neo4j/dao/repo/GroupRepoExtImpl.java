@@ -270,7 +270,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
         return toList(
                 neo4jClient.query(
                         "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
-                                + "RETURN n.id SKIP" + paged)
+                                + "RETURN n.id" + paged)
                         .bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
                 Neo4jUMembership.class,
