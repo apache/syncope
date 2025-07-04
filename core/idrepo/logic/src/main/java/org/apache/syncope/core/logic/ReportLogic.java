@@ -96,9 +96,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         try {
             jobManager.register(
                     report,
-                    null,
-                    AuthContextUtils.getUsername(),
-                    false);
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering job for report {}", report.getKey(), e);
 
@@ -120,9 +118,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         try {
             jobManager.register(
                     report,
-                    null,
-                    AuthContextUtils.getUsername(),
-                    false);
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering job for report {}", report.getKey(), e);
 
@@ -167,7 +163,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         }
 
         try {
-            jobManager.register(
+            jobManager.execute(
                     report,
                     Optional.ofNullable(specs.getStartAt()).orElseGet(OffsetDateTime::now),
                     AuthContextUtils.getUsername(),

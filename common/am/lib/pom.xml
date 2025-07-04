@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.common</groupId>
     <artifactId>syncope-common-am</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Common AM Lib</name>

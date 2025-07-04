@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
+import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.data.SCIMUser;
 import org.apache.syncope.ext.scimv2.api.service.SCIMUserService;
@@ -102,11 +103,8 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
 
         return updateResponse(
                 id,
-                binder.toSCIMUser(
-                        userLogic.read(id),
-                        uriInfo.getAbsolutePathBuilder().path(id).build().toASCIIString(),
-                        List.of(),
-                        List.of()));
+                null,
+                true);
     }
 
     @Override
@@ -144,7 +142,17 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
                         List.of(),
-                        List.of()));
+                        List.of()),
+                false);
+    }
+
+    @Override
+    protected SCIMResource getResource(final String key) {
+        return binder.toSCIMUser(
+                userLogic.read(key),
+                uriInfo.getAbsolutePathBuilder().path(key).build().toASCIIString(),
+                List.of(),
+                List.of());
     }
 
     @Override

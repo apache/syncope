@@ -16,27 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.markup.html.form;
+package org.apache.syncope.client.enduser.rest;
 
-import java.util.Optional;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
-import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.model.IModel;
+import org.apache.syncope.common.lib.to.AuthProfileTO;
+import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
 
-public class BpmnProcessesAjaxPanel extends AjaxTextFieldPanel {
+public class AuthProfileRestClient extends BaseRestClient {
 
-    private static final long serialVersionUID = 9082907182704884397L;
+    private static final long serialVersionUID = 4139153766778113329L;
 
-    public BpmnProcessesAjaxPanel(
-            final String id, final String name, final IModel<String> model) {
-
-        this(id, name, model, null);
+    public AuthProfileTO read() {
+        try {
+            return getService(AuthProfileSelfService.class).read();
+        } catch (Exception e) {
+            LOG.debug("While attempting to read the auth profile", e);
+            return null;
+        }
     }
 
-    public BpmnProcessesAjaxPanel(
-            final String id, final String name, final IModel<String> model, final Behavior behavior) {
+    public void update(final AuthProfileTO authProfile) {
+        getService(AuthProfileSelfService.class).update(authProfile);
+    }
 
-        super(id, name, model, false);
-        Optional.ofNullable(behavior).ifPresent(field::add);
+    public void delete() {
+        getService(AuthProfileSelfService.class).delete();
     }
 }

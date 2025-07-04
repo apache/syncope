@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -205,8 +207,33 @@ public class AuthModuleWizardBuilder extends BaseAjaxWizardBuilder<AuthModuleTO>
                     return pageRef;
                 }
             });
-            add(new XMLEditorPanel(null,
-                    new PropertyModel<>(authModule, "conf.serviceProviderMetadata"), false, pageRef));
+            add(new XMLEditorPanel(null, new IModel<String>() {
+
+                private static final long serialVersionUID = -6439061267623081672L;
+
+                @Override
+                public String getObject() {
+                    SAML2IdPAuthModuleConf conf = (SAML2IdPAuthModuleConf) authModule.getConf();
+                    if (StringUtils.isEmpty(conf.getServiceProviderMetadata())) {
+                        return null;
+                    }
+
+                    return new String(
+                            Base64.getDecoder().decode(conf.getServiceProviderMetadata()),
+                            StandardCharsets.UTF_8);
+                }
+
+                @Override
+                public void setObject(final String object) {
+                    SAML2IdPAuthModuleConf conf = (SAML2IdPAuthModuleConf) authModule.getConf();
+                    if (StringUtils.isEmpty(object)) {
+                        conf.setServiceProviderMetadata(null);
+                    } else {
+                        conf.setServiceProviderMetadata(Base64.getEncoder().
+                                encodeToString(object.getBytes(StandardCharsets.UTF_8)));
+                    }
+                }
+            }, false, pageRef));
         }
 
         @Override

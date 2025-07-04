@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-fit</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope FIT Core Reference</name>
@@ -109,8 +109,8 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.syncope.client.idrepo</groupId>
-      <artifactId>syncope-client-idrepo-enduser</artifactId>
+      <groupId>org.apache.syncope.client.am</groupId>
+      <artifactId>syncope-client-am-enduser</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -1323,8 +1323,8 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.apache.syncope.client.idrepo</groupId>
-          <artifactId>syncope-client-idrepo-enduser</artifactId>
+          <groupId>org.apache.syncope.client.am</groupId>
+          <artifactId>syncope-client-am-enduser</artifactId>
           <version>${project.version}</version>
           <exclusions>
             <exclusion>
@@ -1346,7 +1346,7 @@ under the License.
             <inherited>true</inherited>
             <configuration>
               <container>
-                <containerId>wildfly35x</containerId>
+                <containerId>wildfly36x</containerId>
                 <zipUrlInstaller>
                   <url>https://github.com/wildfly/wildfly/releases/download/${wildfly.version}/wildfly-${wildfly.version}.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>

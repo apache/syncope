@@ -303,6 +303,9 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setNameIdPolicyAllowCreate(Optional.ofNullable(conf.getNameIdPolicyAllowCreate()).
                 map(v -> TriStateBoolean.valueOf(v.name())).
                 orElse(TriStateBoolean.UNDEFINED));
+        props.setMappedAttributes(authModuleTO.getItems().stream().
+                map(item -> item.getIntAttrName() + "->" + item.getExtAttrName()).
+                toList());
 
         return prefix("cas.authn.pac4j.saml[].", WAConfUtils.asMap(props));
     }
@@ -392,6 +395,7 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         props.setAttributeMappings(authModuleTO.getItems().stream().
                 collect(Collectors.toMap(Item::getIntAttrName, Item::getExtAttrName)));
         props.setCredentialCriteria(conf.getCredentialCriteria());
+        props.setMaxRetryAttempts(Math.max(conf.getMaxRetryAttempts(), 1));
 
         return prefix("cas.authn.syncope.", WAConfUtils.asMap(props));
     }

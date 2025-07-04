@@ -57,9 +57,9 @@ import org.apache.syncope.core.provisioning.api.macro.Command;
 import org.apache.syncope.core.provisioning.api.macro.MacroActions;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.implementation.ImplementationManager;
-import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.security.concurrent.DelegatingSecurityContextCallable;
 import org.springframework.util.ReflectionUtils;
 
@@ -74,7 +74,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
     protected Validator validator;
 
     @Resource(name = "batchExecutor")
-    protected VirtualThreadPoolTaskExecutor taskExecutor;
+    protected AsyncTaskExecutor taskExecutor;
 
     protected final Map<String, MacroActions> perContextActions = new ConcurrentHashMap<>();
 

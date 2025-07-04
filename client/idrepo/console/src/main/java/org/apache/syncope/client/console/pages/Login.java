@@ -29,7 +29,6 @@ import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Login extends BaseLogin {
@@ -46,8 +45,8 @@ public class Login extends BaseLogin {
     }
 
     @Override
-    protected List<Panel> getSSOLoginFormPanels() {
-        List<Panel> ssoLoginFormPanels = new ArrayList<>();
+    protected List<BaseSSOLoginFormPanel> getSSOLoginFormPanels() {
+        List<BaseSSOLoginFormPanel> ssoLoginFormPanels = new ArrayList<>();
         SyncopeWebApplication.get().getLookup().getClasses(BaseSSOLoginFormPanel.class).forEach(ssoLoginFormPanel -> {
             try {
                 ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).newInstance(

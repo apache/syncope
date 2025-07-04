@@ -21,12 +21,16 @@ package org.apache.syncope.core.logic;
 import java.util.List;
 import org.apache.syncope.common.lib.to.AuthProfileTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.IdRepoEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AuthProfileDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.api.search.SyncopePage;
 import org.apache.syncope.core.provisioning.api.data.AuthProfileDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,9 +46,15 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         super(binder, authProfileDAO, entityFactory);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
-    public void delete(final String key) {
-        authProfileDAO.deleteById(key);
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
+    @Transactional(readOnly = true)
+    public Page<AuthProfileTO> list(final Pageable pageable) {
+        long count = authProfileDAO.count();
+
+        List<AuthProfileTO> result = authProfileDAO.findAll(pageable).
+                stream().map(binder::getAuthProfileTO).toList();
+
+        return new SyncopePage<>(result, pageable, count);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_READ + "') ")
@@ -53,6 +63,14 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         return authProfileDAO.findById(key).
                 map(binder::getAuthProfileTO).
                 orElseThrow(() -> new NotFoundException("AuthProfile " + key));
+    }
+
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
+    @Transactional(readOnly = true)
+    public AuthProfileTO selfRead() {
+        return authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
+                map(binder::getAuthProfileTO).
+                orElseThrow(() -> new NotFoundException("AuthProfile for " + AuthContextUtils.getUsername()));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_CREATE + "') ")
@@ -68,16 +86,25 @@ public class AuthProfileLogic extends AbstractAuthProfileLogic {
         authProfileDAO.save(authProfile);
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_LIST + "')")
-    @Transactional(readOnly = true)
-    public Page<AuthProfileTO> list(final Pageable pageable) {
-        long count = authProfileDAO.count();
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
+    public void selfUpdate(final AuthProfileTO authProfileTO) {
+        authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
+                filter(authProfile -> authProfile.getKey().equals(authProfileTO.getKey())
+                && authProfile.getOwner().equals(authProfileTO.getOwner())).
+                orElseThrow(() -> new DelegatedAdministrationException(AnyTypeKind.USER, authProfileTO.getOwner()));
 
-        List<AuthProfileTO> result = authProfileDAO.findAll(pageable).
-                stream().
-                map(binder::getAuthProfileTO).
-                toList();
+        update(authProfileTO);
+    }
 
-        return new SyncopePage<>(result, pageable, count);
+    @PreAuthorize("hasRole('" + AMEntitlement.AUTH_PROFILE_DELETE + "') ")
+    public void delete(final String key) {
+        authProfileDAO.deleteById(key);
+    }
+
+    @PreAuthorize("isAuthenticated() and not(hasRole('" + IdRepoEntitlement.ANONYMOUS + "'))")
+    public void selfDelete() {
+        authProfileDAO.deleteById(authProfileDAO.findByOwner(AuthContextUtils.getUsername()).
+                orElseThrow(() -> new DelegatedAdministrationException(
+                AnyTypeKind.USER, AuthContextUtils.getUsername())).getKey());
     }
 }

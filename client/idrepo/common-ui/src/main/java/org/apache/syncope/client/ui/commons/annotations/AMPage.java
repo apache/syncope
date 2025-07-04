@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.annotations;
+package org.apache.syncope.client.ui.commons.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

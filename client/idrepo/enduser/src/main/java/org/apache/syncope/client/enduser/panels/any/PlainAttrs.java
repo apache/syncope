@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.panels.any;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,20 +133,20 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     @Override
     protected void setAttrs() {
-        List<Attr> plainAttrs = new ArrayList<>();
-
         Map<String, Attr> attrMap = EntityTOUtils.buildAttrMap(userTO.getPlainAttrs());
 
-        plainAttrs.addAll(schemas.values().stream().map(schema -> {
-            Attr attrTO = new Attr();
-            attrTO.setSchema(schema.getKey());
+        List<Attr> plainAttrs = schemas.values().stream().map(schema -> {
+            Attr attr = new Attr();
+            attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                attrTO.getValues().add("");
+                if (schema.getType() != AttrSchemaType.Dropdown || !schema.isMultivalue()) {
+                    attr.getValues().add(StringUtils.EMPTY);
+                }
             } else {
-                attrTO = attrMap.get(schema.getKey());
+                attr = attrMap.get(schema.getKey());
             }
-            return attrTO;
-        }).toList());
+            return attr;
+        }).toList();
 
         userTO.getPlainAttrs().clear();
         userTO.getPlainAttrs().addAll(plainAttrs);
@@ -163,7 +162,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             Attr attr = new Attr();
             attr.setSchema(schema.getKey());
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                attr.getValues().add(StringUtils.EMPTY);
+                if (schema.getType() != AttrSchemaType.Dropdown || !schema.isMultivalue()) {
+                    attr.getValues().add(StringUtils.EMPTY);
+                }
             } else {
                 attr.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }

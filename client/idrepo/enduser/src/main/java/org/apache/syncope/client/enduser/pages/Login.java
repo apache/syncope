@@ -28,19 +28,19 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
 import org.apache.syncope.client.ui.commons.BaseLogin;
 import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Login extends BaseLogin {
 
     private static final long serialVersionUID = 5889157642852559004L;
 
-    private final BookmarkablePageLink<Void> selfPwdReset;
+    protected final BookmarkablePageLink<Void> selfPwdReset;
 
-    private final BookmarkablePageLink<Void> selfRegistration;
+    protected final BookmarkablePageLink<Void> selfRegistration;
 
     public Login(final PageParameters parameters) {
         super(parameters);
@@ -70,8 +70,8 @@ public class Login extends BaseLogin {
     }
 
     @Override
-    protected List<Panel> getSSOLoginFormPanels() {
-        List<Panel> ssoLoginFormPanels = new ArrayList<>();
+    protected List<BaseSSOLoginFormPanel> getSSOLoginFormPanels() {
+        List<BaseSSOLoginFormPanel> ssoLoginFormPanels = new ArrayList<>();
         SyncopeWebApplication.get().getLookup().getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
                 ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class, BaseSession.class).newInstance(
@@ -88,6 +88,18 @@ public class Login extends BaseLogin {
         SyncopeEnduserSession.get().error(error);
     }
 
+    protected void onAuthenticateSuccess(final AjaxRequestTarget target) {
+        // If login has been called because the user was not yet logged in, than continue to the
+        // original destination, otherwise to the Home page
+        continueToOriginalDestination();
+        setResponsePage(getApplication().getHomePage());
+    }
+
+    protected void onAuthenticateFailure(final AjaxRequestTarget target) {
+        SyncopeEnduserSession.get().error(getString("login-error"));
+        notificationPanel.refresh(target);
+    }
+
     @Override
     protected void authenticate(final String username, final String password, final AjaxRequestTarget target)
             throws NotAuthorizedException {
@@ -99,13 +111,9 @@ public class Login extends BaseLogin {
         }
 
         if (SyncopeEnduserSession.get().authenticate(username, password)) {
-            // If login has been called because the user was not yet logged in, than continue to the
-            // original destination, otherwise to the Home page
-            continueToOriginalDestination();
-            setResponsePage(getApplication().getHomePage());
+            onAuthenticateSuccess(target);
         } else {
-            SyncopeEnduserSession.get().error(getString("login-error"));
-            notificationPanel.refresh(target);
+            onAuthenticateFailure(target);
         }
     }
 }

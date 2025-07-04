@@ -23,11 +23,13 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ExecStatus;
-import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -43,12 +45,14 @@ import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskCallable;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.spring.task.VirtualThreadPoolTaskExecutor;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Sorts the tasks to be executed according to related
@@ -59,29 +63,7 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExecutor {
 
-    /**
-     * Creates new instances of {@link PropagationTaskCallable} for usage with
-     * {@link java.util.concurrent.CompletionService}.
-     *
-     * @param taskInfo to be executed
-     * @param reporter to report propagation execution status
-     * @param executor user that triggered the propagation execution
-     * @return new {@link PropagationTaskCallable} instance for usage with
-     * {@link java.util.concurrent.CompletionService}
-     */
-    protected PropagationTaskCallable newPropagationTaskCallable(
-            final PropagationTaskInfo taskInfo, final PropagationReporter reporter, final String executor) {
-
-        PropagationTaskCallable callable = ApplicationContextProvider.getBeanFactory().
-                createBean(DefaultPropagationTaskCallable.class);
-        callable.setTaskInfo(taskInfo);
-        callable.setReporter(reporter);
-        callable.setExecutor(executor);
-
-        return callable;
-    }
-
-    protected final VirtualThreadPoolTaskExecutor taskExecutor;
+    protected final AsyncTaskExecutor taskExecutor;
 
     public PriorityPropagationTaskExecutor(
             final ConnectorManager connectorManager,
@@ -97,7 +79,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final OutboundMatcher outboundMatcher,
             final PlainAttrValidationManager validator,
             final ApplicationEventPublisher publisher,
-            final VirtualThreadPoolTaskExecutor taskExecutor) {
+            final AsyncTaskExecutor taskExecutor) {
 
         super(connectorManager,
                 connObjectUtils,
@@ -113,6 +95,40 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 validator,
                 publisher);
         this.taskExecutor = taskExecutor;
+    }
+
+    /**
+     * Creates new instances of {@link Callable} for usage with{@link java.util.concurrent.CompletionService}.
+     *
+     * @param taskInfo to be executed
+     * @param reporter to report propagation execution status
+     * @param executor user that triggered the propagation execution
+     * @return new {@link Callable} instance for usage with {@link java.util.concurrent.CompletionService}
+     */
+    protected Callable<TaskExec<PropagationTask>> newPropagationTaskCallable(
+            final PropagationTaskInfo taskInfo, final PropagationReporter reporter, final String executor) {
+
+        String domain = AuthContextUtils.getDomain();
+        Set<String> authorities = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().
+                map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+
+        return () -> AuthContextUtils.callAs(domain, executor, authorities, () -> {
+            LOG.debug("Execution started for {}", taskInfo);
+
+            TaskExec<PropagationTask> execution = this.execute(taskInfo, reporter, executor);
+
+            LOG.debug("Execution completed for {} with results {}", taskInfo, execution);
+
+            return execution;
+        });
+    }
+
+    protected boolean failed(
+            final PropagationTaskInfo taskInfpo,
+            final TaskExec<PropagationTask> exec,
+            final ExecStatus execStatus) {
+
+        return execStatus == ExecStatus.FAILURE;
     }
 
     @Override
@@ -147,7 +163,7 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                     execStatus = ExecStatus.FAILURE;
                     errorMessage = e.getMessage();
                 }
-                if (execStatus == ExecStatus.FAILURE) {
+                if (failed(taskInfo, exec, execStatus)) {
                     throw new PropagationException(
                             taskInfo.getResource().getKey(),
                             Optional.ofNullable(exec).map(Exec::getMessage).orElse(errorMessage));

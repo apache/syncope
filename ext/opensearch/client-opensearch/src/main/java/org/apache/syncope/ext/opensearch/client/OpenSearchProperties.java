@@ -29,9 +29,9 @@ public class OpenSearchProperties {
 
     private int indexMaxResultWindow = 10000;
 
-    private String numberOfShards = "1";
+    private int numberOfShards = 1;
 
-    private String numberOfReplicas = "1";
+    private int numberOfReplicas = 1;
 
     public List<String> getHosts() {
         return hosts;
@@ -49,19 +49,19 @@ public class OpenSearchProperties {
         this.indexMaxResultWindow = indexMaxResultWindow;
     }
 
-    public String getNumberOfShards() {
+    public int getNumberOfShards() {
         return numberOfShards;
     }
 
-    public void setNumberOfShards(final String numberOfShards) {
+    public void setNumberOfShards(final int numberOfShards) {
         this.numberOfShards = numberOfShards;
     }
 
-    public String getNumberOfReplicas() {
+    public int getNumberOfReplicas() {
         return numberOfReplicas;
     }
 
-    public void setNumberOfReplicas(final String numberOfReplicas) {
+    public void setNumberOfReplicas(final int numberOfReplicas) {
         this.numberOfReplicas = numberOfReplicas;
     }
 }

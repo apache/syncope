@@ -16,17 +16,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.propagation;
+package org.apache.syncope.client.enduser;
 
-import java.util.concurrent.Callable;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
-import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.client.enduser.rest.AuthProfileRestClient;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-public interface PropagationTaskCallable extends Callable<TaskExec<PropagationTask>> {
+@Configuration(proxyBeanMethods = false)
+public class AMEnduserContext {
 
-    void setTaskInfo(PropagationTaskInfo taskInfo);
-
-    void setReporter(PropagationReporter reporter);
-
-    void setExecutor(String executor);
+    @ConditionalOnMissingBean
+    @Bean
+    public AuthProfileRestClient authProfileRestClient() {
+        return new AuthProfileRestClient();
+    }
 }

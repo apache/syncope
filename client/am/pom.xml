@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-client</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Client AM</name>
@@ -40,5 +40,6 @@ under the License.
   <modules>
     <module>lib</module>
     <module>console</module>
+    <module>enduser</module>
   </modules>
 </project>

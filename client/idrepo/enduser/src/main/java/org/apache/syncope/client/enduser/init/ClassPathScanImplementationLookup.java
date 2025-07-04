@@ -22,13 +22,16 @@ import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.enduser.pages.BasePage;
+import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
+import org.apache.syncope.client.ui.commons.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.slf4j.Logger;
@@ -48,6 +51,10 @@ public class ClassPathScanImplementationLookup implements Serializable {
 
     private List<Class<? extends BaseSSOLoginFormPanel>> ssoLoginFormPanels;
 
+    private List<Class<? extends BasePage>> idmPages;
+
+    private List<Class<? extends BasePage>> amPages;
+
     private List<Class<? extends BasePage>> extPages;
 
     private List<Class<? extends BinaryPreviewer>> previewers;
@@ -63,6 +70,8 @@ public class ClassPathScanImplementationLookup implements Serializable {
 
     @SuppressWarnings("unchecked")
     public void load() {
+        idmPages = new ArrayList<>();
+        amPages = new ArrayList<>();
         extPages = new ArrayList<>();
         ssoLoginFormPanels = new ArrayList<>();
         previewers = new ArrayList<>();
@@ -87,6 +96,12 @@ public class ClassPathScanImplementationLookup implements Serializable {
                         LOG.error("Could not find annotation {} in {}, ignoring",
                                 ExtPage.class.getName(), clazz.getName());
                     }
+                } else if (BasePage.class.isAssignableFrom(clazz)) {
+                    if (clazz.isAnnotationPresent(IdMPage.class)) {
+                        idmPages.add((Class<? extends BasePage>) clazz);
+                    } else if (clazz.isAnnotationPresent(AMPage.class)) {
+                        amPages.add((Class<? extends BasePage>) clazz);
+                    }
                 } else if (BaseSSOLoginFormPanel.class.isAssignableFrom(clazz)) {
                     ssoLoginFormPanels.add((Class<? extends BaseSSOLoginFormPanel>) clazz);
                 } else if (BinaryPreviewer.class.isAssignableFrom(clazz)) {
@@ -97,11 +112,27 @@ public class ClassPathScanImplementationLookup implements Serializable {
             }
         }
 
+        idmPages.sort(Comparator.comparing(o -> o.getAnnotation(IdMPage.class).priority()));
+        idmPages = Collections.unmodifiableList(idmPages);
+
+        amPages.sort(Comparator.comparing(o -> o.getAnnotation(AMPage.class).priority()));
+        amPages = Collections.unmodifiableList(amPages);
+
         ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
 
+        LOG.debug("IdM pages found: {}", idmPages);
+        LOG.debug("AM pages found: {}", amPages);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("SSO Login pages found: {}", ssoLoginFormPanels);
         LOG.debug("Binary previewers found: {}", previewers);
+    }
+
+    public List<Class<? extends BasePage>> getIdMPageClasses() {
+        return idmPages;
+    }
+
+    public List<Class<? extends BasePage>> getAMPageClasses() {
+        return amPages;
     }
 
     public List<Class<? extends BaseSSOLoginFormPanel>> getSSOLoginFormPanels() {

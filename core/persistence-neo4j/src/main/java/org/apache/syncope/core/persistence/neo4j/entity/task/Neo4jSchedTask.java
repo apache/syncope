@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.neo4j.entity.task;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
@@ -47,8 +46,6 @@ public class Neo4jSchedTask extends AbstractTask<SchedTask> implements SchedTask
     @Relationship(type = SCHED_TASK_JOB_DELEGATE_REL, direction = Relationship.Direction.OUTGOING)
     private Neo4jImplementation jobDelegate;
 
-    private OffsetDateTime startAt;
-
     private String cronExpression;
 
     @NotNull
@@ -72,16 +69,6 @@ public class Neo4jSchedTask extends AbstractTask<SchedTask> implements SchedTask
         checkType(jobDelegate, Neo4jImplementation.class);
         checkImplementationType(jobDelegate, IdRepoImplementationType.TASKJOB_DELEGATE);
         this.jobDelegate = (Neo4jImplementation) jobDelegate;
-    }
-
-    @Override
-    public OffsetDateTime getStartAt() {
-        return startAt;
-    }
-
-    @Override
-    public void setStartAt(final OffsetDateTime startAt) {
-        this.startAt = startAt;
     }
 
     @Override

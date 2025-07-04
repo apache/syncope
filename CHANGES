@@ -2,6 +2,40 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.0
+================================================================================
+
+** Bug
+    * [SYNCOPE-1868] - NPE when performing provision without changing password
+    * [SYNCOPE-1871] - Realm selection shows only one of allowed sub-trees
+    * [SYNCOPE-1873] - LocalDateTime fields not properly handled in BeanPanel
+    * [SYNCOPE-1875] - SAML delegated authentication: metadata keeps getting re-generated
+    * [SYNCOPE-1878] - Priority propagation failing with NOT_ATTEMPTED
+    * [SYNCOPE-1879] - Serialization error while auditing Pull data
+    * [SYNCOPE-1881] - WA: SP Metadata not fetched from Core
+    * [SYNCOPE-1882] - Multivalue dropdown attributes show additional empty selectable value
+    * [SYNCOPE-1883] - Google MFA authentication does not validate scratch codes
+    * [SYNCOPE-1884] - Errors with Encrypted plain values
+
+** New Feature
+    * [SYNCOPE-1617] - Debezium support
+    * [SYNCOPE-1861] - OpenLDAP Sync Replication support
+    * [SYNCOPE-1874] - Realm attributes
+
+** Improvement
+    * [SYNCOPE-1621] - Allow export for individual items in XML
+    * [SYNCOPE-1841] - Read-only multi value schema must not show new and delete button
+    * [SYNCOPE-1869] - Support evaluation order for client apps
+    * [SYNCOPE-1870] - Generic exception handling (RestServiceExceptionMapper)
+    * [SYNCOPE-1872] - Allow setting of force execution for MFA authentication
+    * [SYNCOPE-1880] - SCIM endpoints ignore the Prefer header
+    * [SYNCOPE-1885] - Self password reset does not trigger notification tasks without Flowable extension
+
+** Task
+    * [SYNCOPE-1866] - Implement AuthProfile management in Enduser
+    * [SYNCOPE-1876] - Remove Virtual Attributes
+    * [SYNCOPE-1877] - Include SAML SP keystore and metadata in AuthModule configuration
+
 Release Notes - Syncope - Version 4.0.0-M1
 ================================================================================
 

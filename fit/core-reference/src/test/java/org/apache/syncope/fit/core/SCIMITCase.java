@@ -63,6 +63,8 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
+import org.apache.syncope.common.rest.api.Preference;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
@@ -285,7 +287,7 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @Test
-    public void conf() {
+    public void scimConf() {
         SCIMConf conf = SCIM_CONF_SERVICE.get();
         assertNotNull(conf);
 
@@ -726,8 +728,11 @@ public class SCIMITCase extends AbstractITCase {
                         + "\"value\":\"Password123!\""
                         + "}]"
                         + "}";
-        response = webClient().path("Users").path(user.getId()).invoke(HttpMethod.PATCH, body);
-        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        response = webClient().path("Users").path(user.getId())
+                .header(RESTHeaders.PREFER, Preference.RETURN_NO_CONTENT)
+                .invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertFalse(response.hasEntity());
     }
 
     @Test
@@ -894,6 +899,25 @@ public class SCIMITCase extends AbstractITCase {
 
         group = response.readEntity(SCIMGroup.class);
         assertTrue(group.getMembers().isEmpty());
+
+        // 4. add member
+        body =
+                "{"
+                + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                + "\"Operations\":["
+                + "{"
+                + "\"op\":\"Add\","
+                + "\"path\":\"members\","
+                + "\"value\":[{"
+                + "\"value\":\"b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee\"}]"
+                + "}"
+                + "]"
+                + "}";
+        response = webClient().path("Groups").path(group.getId())
+                .header(RESTHeaders.PREFER, Preference.RETURN_NO_CONTENT)
+                .invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        assertFalse(response.hasEntity());
     }
 
     @Test

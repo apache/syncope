@@ -26,13 +26,13 @@ under the License.
 
   <groupId>org.apache.syncope</groupId>
   <artifactId>syncope</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <version>4.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <parent>
     <groupId>org.apache</groupId>
     <artifactId>apache</artifactId>
-    <version>34</version>
+    <version>35</version>
     <relativePath />
   </parent>
 
@@ -392,7 +392,7 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2025-03-07T13:42:57Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-05-23T08:39:56Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.6.0.1</connid.version>
@@ -411,27 +411,27 @@ under the License.
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
 
-    <cxf.version>4.1.1</cxf.version>
-    <bouncycastle.version>1.80</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.3</nimbus-jose-jwt.version>
+    <cxf.version>4.1.2</cxf.version>
+    <bouncycastle.version>1.81</bouncycastle.version>
+    <nimbus-jose-jwt.version>10.3.1</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.4.5</spring-boot.version>
-    <spring-cloud-gateway.version>4.2.1</spring-cloud-gateway.version>
+    <spring-boot.version>3.4.7</spring-boot.version>
+    <spring-cloud-gateway.version>4.2.3</spring-cloud-gateway.version>
 
-    <openjpa.version>4.1.0</openjpa.version>
+    <openjpa.version>4.1.1</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-alpha-12</groovy.version>
+    <groovy.version>5.0.0-beta-1</groovy.version>
 
     <flowable.version>7.1.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.0.0</elasticsearch.version>
-    <opensearch.version>2.19.2</opensearch.version>
-    <opensearch-java.version>2.23.0</opensearch-java.version>
+    <elasticsearch.version>9.0.3</elasticsearch.version>
+    <opensearch.version>3.1.0</opensearch.version>
+    <opensearch-java.version>3.1.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
 
@@ -443,16 +443,16 @@ under the License.
 
     <pac4j.version>6.1.1</pac4j.version>
 
-    <cas.version>7.2.2</cas.version>
+    <cas.version>7.2.5-SNAPSHOT</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <swagger-core.version>2.2.30</swagger-core.version>
-    <swagger-ui.version>5.21.0</swagger-ui.version>
+    <swagger-core.version>2.2.34</swagger-core.version>
+    <swagger-ui.version>5.25.3</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
 
-    <bootbox.version>6.0.0</bootbox.version>
+    <bootbox.version>6.0.4</bootbox.version>
     <bootstrap5-toggle.version>5.1.1</bootstrap5-toggle.version>
     <font-awesome.version>6.7.2</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -476,7 +476,7 @@ under the License.
     <testcontainers.version>1.21.0</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.1.0</zonky.embedded-postgres.version>
-    <zonky.embedded-postgres-binaries.version>17.4.0</zonky.embedded-postgres-binaries.version>
+    <zonky.embedded-postgres-binaries.version>17.5.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -505,9 +505,9 @@ under the License.
     <cargo.rmi.port>9805</cargo.rmi.port>
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
-    <tomcat.version>10.1.40</tomcat.version>
-    <wildfly.version>36.0.0.Final</wildfly.version>
-    <payara.version>6.2025.4</payara.version>
+    <tomcat.version>10.1.42</tomcat.version>
+    <wildfly.version>36.0.1.Final</wildfly.version>
+    <payara.version>6.2025.6</payara.version>
     <jakarta.faces.version>4.1.3</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
@@ -516,9 +516,9 @@ under the License.
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
-    <jdbc.postgresql.version>42.7.5</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
     <jdbc.mysql.version>9.2.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.5.3</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.4</jdbc.mariadb.version>
     <jdbc.oracle.version>23.8.0.25.04</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
@@ -661,7 +661,7 @@ under the License.
       <dependency>
         <groupId>com.fasterxml.woodstox</groupId>
         <artifactId>woodstox-core</artifactId>
-        <version>7.1.0</version>
+        <version>7.1.1</version>
       </dependency>
 
       <dependency>
@@ -909,7 +909,7 @@ under the License.
       <dependency>
         <groupId>org.apache.tika</groupId>
         <artifactId>tika-core</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
       </dependency>
 
       <dependency>
@@ -1318,7 +1318,7 @@ under the License.
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.20.1</version>
+        <version>1.21.1</version>
       </dependency>
 
       <dependency>
@@ -1425,7 +1425,7 @@ under the License.
       <dependency>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-contract-wiremock</artifactId>
-        <version>${spring-cloud-gateway.version}</version>
+        <version>4.2.1</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -1533,13 +1533,13 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.6.1</version>
         </plugin>
 
         <plugin>
           <groupId>io.github.git-commit-id</groupId>
           <artifactId>git-commit-id-maven-plugin</artifactId>
-          <version>9.0.1</version>
+          <version>9.0.2</version>
           <executions>
             <execution>
               <goals>
@@ -1681,7 +1681,7 @@ under the License.
         <plugin>
           <groupId>org.openapitools</groupId>
           <artifactId>openapi-generator-maven-plugin</artifactId>
-          <version>7.13.0</version>
+          <version>7.14.0</version>
         </plugin>
 
         <plugin>
@@ -1723,7 +1723,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven3-plugin</artifactId>
-          <version>1.10.19</version>
+          <version>1.10.20</version>
           <configuration>
             <container>
               <log>${project.build.directory}/log/cargo.log</log>
@@ -1800,7 +1800,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <version>3.5.0</version>
+          <version>3.5.1</version>
         </plugin>
 
         <plugin>
@@ -1837,7 +1837,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.0</version>
         <executions>
           <execution>
             <id>default-cli</id>

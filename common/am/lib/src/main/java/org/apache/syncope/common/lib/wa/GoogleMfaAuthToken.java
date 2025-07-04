@@ -69,10 +69,10 @@ public class GoogleMfaAuthToken implements BaseBean {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder()
-                .append(otp)
-                .append(issueDate)
-                .toHashCode();
+        return new HashCodeBuilder().
+                append(otp).
+                append(issueDate).
+                build();
     }
 
     @Override
@@ -87,17 +87,17 @@ public class GoogleMfaAuthToken implements BaseBean {
             return false;
         }
         GoogleMfaAuthToken other = (GoogleMfaAuthToken) obj;
-        return new EqualsBuilder()
-                .append(this.otp, other.otp)
-                .append(this.issueDate, other.issueDate)
-                .isEquals();
+        return new EqualsBuilder().
+                append(otp, other.otp).
+                append(issueDate, other.issueDate).
+                build();
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this)
-                .append("token", otp)
-                .append("issueDate", issueDate)
-                .toString();
+        return new ToStringBuilder(this).
+                append("token", otp).
+                append("issueDate", issueDate).
+                build();
     }
 }

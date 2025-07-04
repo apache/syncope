@@ -75,8 +75,6 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
         enableUtilityButton();
         setFooterVisibility(false);
 
-        addNewItemPanelBuilder(new AuthProfileItemWizardBuilder(pageRef), true);
-
         disableCheckBoxes();
         initResultTable();
     }
@@ -90,9 +88,8 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ExitEvent) {
-            AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
-            authProfileModal.close(target);
+        if (event.getPayload() instanceof ExitEvent exitEvent) {
+            authProfileModal.close(exitEvent.getTarget());
         } else if (event.getPayload() instanceof final AjaxWizard.EditItemActionEvent<?> payload) {
             payload.getTarget().ifPresent(actionTogglePanel::close);
         }
@@ -194,12 +191,12 @@ public abstract class AuthProfileItemDirectoryPanel<I extends BaseBean>
                 List<Serializable> values = (List<Serializable>) wrapper.getPropertyValue("scratchCodes");
                 if (values != null) {
                     List<Integer> converted = values.stream().map(value -> {
-                        if (value instanceof Integer) {
-                            return Integer.class.cast(value);
+                        if (value instanceof Integer integer) {
+                            return integer;
                         }
-                        if (value instanceof String) {
+                        if (value instanceof String string) {
                             try {
-                                return Integer.valueOf((String) value);
+                                return Integer.valueOf(string);
                             } catch (NumberFormatException e) {
                                 LOG.error("Could not convert to Integer: {}", value, e);
                             }

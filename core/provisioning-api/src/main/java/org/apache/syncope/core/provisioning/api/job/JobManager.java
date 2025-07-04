@@ -39,7 +39,7 @@ public interface JobManager {
 
     boolean isRunning(String jobName);
 
-    void register(
+    void execute(
             SchedTask task,
             OffsetDateTime startAt,
             String executor,
@@ -47,10 +47,18 @@ public interface JobManager {
             Map<String, Object> jobData);
 
     void register(
+            SchedTask task,
+            String executor);
+
+    void execute(
             Report report,
             OffsetDateTime startAt,
             String executor,
             boolean dryRun);
+
+    void register(
+            Report report,
+            String executor);
 
     void unregister(Task<?> task);
 

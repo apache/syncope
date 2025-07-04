@@ -136,6 +136,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.core.task.AsyncTaskExecutor;
 
 @PropertySource("classpath:errorMessages.properties")
 @EnableConfigurationProperties(RESTProperties.class)
@@ -145,7 +146,7 @@ public class IdRepoRESTCXFContext {
     private static final Logger LOG = LoggerFactory.getLogger(IdRepoRESTCXFContext.class);
 
     @Bean
-    public VirtualThreadPoolTaskExecutor batchExecutor(final RESTProperties props) {
+    public AsyncTaskExecutor batchExecutor(final RESTProperties props) {
         VirtualThreadPoolTaskExecutor executor = new VirtualThreadPoolTaskExecutor();
         executor.setPoolSize(props.getBatchExecutor().getPoolSize());
         executor.setAwaitTerminationSeconds(props.getBatchExecutor().getAwaitTerminationSeconds());
@@ -463,7 +464,7 @@ public class IdRepoRESTCXFContext {
             final Bus bus,
             final SyncopeLogic syncopeLogic,
             @Qualifier("batchExecutor")
-            final VirtualThreadPoolTaskExecutor batchExecutor,
+            final AsyncTaskExecutor batchExecutor,
             final BatchDAO batchDAO,
             final EntityFactory entityFactory) {
 

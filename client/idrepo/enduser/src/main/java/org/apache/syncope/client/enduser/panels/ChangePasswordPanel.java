@@ -33,6 +33,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.core.util.string.CssUtils;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
@@ -68,7 +69,7 @@ public abstract class ChangePasswordPanel extends Panel {
             private static final long serialVersionUID = 418292023846536149L;
 
             @Override
-            protected void appendDefaultButtonField() {
+            protected void addDefaultSubmitButtonHandler(final IHeaderResponse headerResponse) {
                 AppendingStringBuffer buffer = new AppendingStringBuffer();
 
                 String cssClass = getString(CssUtils.key(Form.class, "hidden-fields"));

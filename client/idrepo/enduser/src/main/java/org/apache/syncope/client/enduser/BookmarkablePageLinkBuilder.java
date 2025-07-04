@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser;
 
+import java.util.Optional;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
@@ -34,9 +35,7 @@ public final class BookmarkablePageLinkBuilder {
 
         @SuppressWarnings("unchecked")
         Class<T> pageClass = (Class<T>) SyncopeWebApplication.get().getPageClass(key);
-        return new BookmarkablePageLink<>(
-                id,
-                pageClass == null ? defaultPageClass : pageClass);
+        return new BookmarkablePageLink<>(id, Optional.ofNullable(pageClass).orElse(defaultPageClass));
     }
 
     private BookmarkablePageLinkBuilder() {

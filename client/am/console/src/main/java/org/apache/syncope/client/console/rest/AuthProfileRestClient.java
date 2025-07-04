@@ -38,10 +38,6 @@ public class AuthProfileRestClient extends BaseRestClient {
         return getService(AuthProfileService.class).read(key);
     }
 
-    public void create(final AuthProfileTO authProfile) {
-        getService(AuthProfileService.class).create(authProfile);
-    }
-
     public void update(final AuthProfileTO authProfile) {
         getService(AuthProfileService.class).update(authProfile);
     }

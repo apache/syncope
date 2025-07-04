@@ -36,6 +36,8 @@ public class EnduserProperties extends CommonUIProperties {
 
     private boolean captcha;
 
+    private Long reauthExpirationMinutesTimeout;
+
     private boolean reportPropagationErrors;
 
     private boolean reportPropagationErrorDetails;
@@ -64,6 +66,14 @@ public class EnduserProperties extends CommonUIProperties {
 
     public void setCaptcha(final boolean captcha) {
         this.captcha = captcha;
+    }
+
+    public Long getReauthExpirationMinutesTimeout() {
+        return reauthExpirationMinutesTimeout;
+    }
+
+    public void setReauthExpirationMinutesTimeout(final Long reauthExpirationMinutesTimeout) {
+        this.reauthExpirationMinutesTimeout = reauthExpirationMinutesTimeout;
     }
 
     public boolean isReportPropagationErrors() {

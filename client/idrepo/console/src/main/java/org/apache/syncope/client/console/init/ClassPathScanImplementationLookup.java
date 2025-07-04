@@ -30,19 +30,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.console.ConsoleProperties;
-import org.apache.syncope.client.console.annotations.AMPage;
-import org.apache.syncope.client.console.annotations.IdMPage;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.apache.syncope.client.console.widgets.ExtAlertWidget;
+import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
 import org.apache.syncope.client.ui.commons.annotations.ExtWidget;
+import org.apache.syncope.client.ui.commons.annotations.IdMPage;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.panels.BaseSSOLoginFormPanel;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
@@ -188,7 +189,10 @@ public class ClassPathScanImplementationLookup implements Serializable {
                 } else if (BasePage.class.isAssignableFrom(clazz)) {
                     if (clazz.isAnnotationPresent(IdMPage.class)) {
                         if (!clazz.getName().endsWith("Topology")
-                                || (clazz.getName().equals(props.getPage().get("topology").getName()))) {
+                                || Optional.ofNullable(props.getPage().get("topology")).
+                                        map(topologyClazz -> clazz.getName().equals(topologyClazz.getName())).
+                                        orElse(false)) {
+
                             idmPages.add((Class<? extends BasePage>) clazz);
                         }
                     } else if (clazz.isAnnotationPresent(AMPage.class)) {

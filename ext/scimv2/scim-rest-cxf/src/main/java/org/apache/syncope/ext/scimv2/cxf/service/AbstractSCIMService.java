@@ -31,6 +31,8 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.rest.api.Preference;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
@@ -129,11 +131,32 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                 build();
     }
 
-    protected Response updateResponse(final String key, final SCIMResource resource) {
+    protected Response updateResponse(final String key, final SCIMResource resource, final boolean patch) {
+        if (patch) {
+            Response.ResponseBuilder builder;
+            switch (getPreference()) {
+                case RETURN_NO_CONTENT:
+                    builder = Response.noContent();
+                    break;
+
+                case RETURN_CONTENT:
+                case NONE:
+                default:
+                    builder = Response.ok(uriInfo.getAbsolutePathBuilder().path(key).build()).entity(getResource(key));
+                    break;
+            }
+            if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
+                builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
+            }
+
+            return builder.build();
+        }
         return Response.ok(uriInfo.getAbsolutePathBuilder().path(key).build()).
                 entity(resource).
                 build();
     }
+
+    protected abstract SCIMResource getResource(String key);
 
     protected ResponseBuilder checkETag(final Resource resource, final String key) {
         OffsetDateTime lastChange = anyDAO(resource).findLastChange(key).
@@ -219,5 +242,15 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
         });
 
         return response;
+    }
+
+    /**
+     * Reads {@code Prefer} header from request and parses into a {@code Preference} instance.
+     *
+     * @return a {@code Preference} instance matching the passed {@code Prefer} header,
+     * or {@code Preference.NONE} if missing.
+     */
+    protected Preference getPreference() {
+        return Preference.fromString(messageContext.getHttpServletRequest().getHeader(RESTHeaders.PREFER));
     }
 }

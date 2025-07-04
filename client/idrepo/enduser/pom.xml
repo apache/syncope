@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.client</groupId>
     <artifactId>syncope-client-idrepo</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Client IdRepo Enduser</name>
@@ -291,6 +291,12 @@ under the License.
         <dependency>
           <groupId>org.apache.syncope.common.keymaster.self</groupId>
           <artifactId>syncope-common-keymaster-client-self</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+          <groupId>org.apache.syncope.client.am</groupId>
+          <artifactId>syncope-client-am-enduser</artifactId>
           <version>${project.version}</version>
         </dependency>
 

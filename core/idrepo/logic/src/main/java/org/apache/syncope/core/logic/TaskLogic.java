@@ -153,10 +153,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         try {
             jobManager.register(
                     task,
-                    task.getStartAt(),
-                    AuthContextUtils.getUsername(),
-                    false,
-                    Map.of());
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering job for task {}", task.getKey(), e);
 
@@ -190,10 +187,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         try {
             jobManager.register(
                     task,
-                    task.getStartAt(),
-                    AuthContextUtils.getUsername(),
-                    false,
-                    Map.of());
+                    AuthContextUtils.getUsername());
         } catch (Exception e) {
             LOG.error("While registering job for task {}", task.getKey(), e);
 
@@ -346,7 +340,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
                 }
 
                 try {
-                    jobManager.register(
+                    jobManager.execute(
                             (SchedTask) task,
                             Optional.ofNullable(startAt).orElseGet(OffsetDateTime::now),
                             executor,

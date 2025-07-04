@@ -54,6 +54,7 @@ import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.SCIMGroup;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOp;
+import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
 import org.apache.syncope.ext.scimv2.api.data.SCIMSearchRequest;
 import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.type.ErrorType;
@@ -167,11 +168,8 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
 
         return updateResponse(
                 id,
-                binder.toSCIMGroup(
-                        groupLogic.read(id),
-                        uriInfo.getAbsolutePathBuilder().path(id).build().toASCIIString(),
-                        List.of(),
-                        List.of()));
+                null,
+                true);
     }
 
     @Override
@@ -213,7 +211,17 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
                         result.getEntity(),
                         uriInfo.getAbsolutePathBuilder().path(result.getEntity().getKey()).build().toASCIIString(),
                         List.of(),
-                        List.of()));
+                        List.of()),
+                false);
+    }
+
+    @Override
+    protected SCIMResource getResource(final String key) {
+        return binder.toSCIMGroup(
+                groupLogic.read(key),
+                uriInfo.getAbsolutePathBuilder().path(key).build().toASCIIString(),
+                List.of(),
+                List.of());
     }
 
     @Override

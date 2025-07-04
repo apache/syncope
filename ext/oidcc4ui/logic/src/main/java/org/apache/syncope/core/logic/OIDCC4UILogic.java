@@ -52,10 +52,13 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.pac4j.core.context.CallContext;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.oidc.client.OidcClient;
+import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.pac4j.oidc.profile.OidcProfile;
+import org.pac4j.oidc.redirect.OidcRedirectionActionBuilder;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
@@ -105,13 +108,26 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public OIDCRequest createLoginRequest(final String redirectURI, final String opName) {
+    public OIDCRequest createLoginRequest(final String redirectURI, final String opName, final boolean reauth) {
         // 0. look for OP
         OIDCC4UIProvider op = opDAO.findByName(opName).
                 orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
 
         // 1. look for OidcClient
         OidcClient oidcClient = getOidcClient(oidcClientCacheLogin, op, redirectURI);
+
+        oidcClient.setRedirectionActionBuilder(new OidcRedirectionActionBuilder(oidcClient) {
+
+            @Override
+            protected Map<String, String> buildParams(final WebContext webContext) {
+                Map<String, String> params = super.buildParams(webContext);
+                if (reauth) {
+                    params.put(OidcConfiguration.PROMPT, "login");
+                    params.put(OidcConfiguration.MAX_AGE, "0");
+                }
+                return params;
+            }
+        });
 
         // 2. create OIDCRequest
         WithLocationAction action = oidcClient.getRedirectionAction(
@@ -180,7 +196,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
         List<String> matchingUsers = Optional.ofNullable(keyValue).
                 map(k -> userManager.findMatchingUser(k, op.getConnObjectKeyItem().get())).
-            orElseGet(List::of);
+                orElseGet(List::of);
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         // 3b. not found: create or selfreg if configured
