@@ -51,6 +51,7 @@ import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPALinkedAccount;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,7 +92,7 @@ public class UserTest extends AbstractTest {
     @Test
     public void delete() {
         List<UMembership> memberships = groupDAO.findUMemberships(
-                groupDAO.findByName("managingDirector").orElseThrow());
+                groupDAO.findByName("managingDirector").orElseThrow(), Pageable.unpaged());
         assertFalse(memberships.isEmpty());
 
         userDAO.deleteById("c9b2dec2-00a7-4855-97c0-d854842b4b24");
@@ -101,7 +102,8 @@ public class UserTest extends AbstractTest {
         assertTrue(userDAO.findByUsername("bellini").isEmpty());
         assertTrue(plainSchemaDAO.findById("loginDate").isPresent());
 
-        memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector").orElseThrow());
+        memberships = groupDAO.findUMemberships(
+                groupDAO.findByName("managingDirector").orElseThrow(), Pageable.unpaged());
         assertTrue(memberships.isEmpty());
     }
 

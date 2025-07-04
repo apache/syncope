@@ -27,6 +27,7 @@ import java.util.stream.Stream;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchOperation;
 import org.apache.syncope.ext.scimv2.api.data.SCIMPatchPath;
@@ -50,7 +51,8 @@ class SCIMDataBinderTest {
         when(scimConfManager.get()).thenReturn(new SCIMConf());
         UserLogic userLogic = mock(UserLogic.class);
         AuthDataAccessor authDataAccessor = mock(AuthDataAccessor.class);
-        dataBinder = new SCIMDataBinder(scimConfManager, userLogic, authDataAccessor);
+        GroupDAO  groupDAO = mock(GroupDAO.class);
+        dataBinder = new SCIMDataBinder(scimConfManager, userLogic, authDataAccessor,  groupDAO);
     }
 
     @ParameterizedTest

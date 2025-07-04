@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -146,7 +147,7 @@ public class OpenSearchUtils {
                 Optional.ofNullable(group.getGroupOwner()).ifPresent(go -> builder.put("groupOwner", go.getKey()));
 
                 Set<String> members = new HashSet<>();
-                members.addAll(groupDAO.findUMemberships(group).stream().
+                members.addAll(groupDAO.findUMemberships(group, Pageable.unpaged()).stream().
                         map(membership -> membership.getLeftEnd().getKey()).toList());
                 members.addAll(groupDAO.findUDynMembers(group));
                 members.addAll(groupDAO.findAMemberships(group).stream().

@@ -57,6 +57,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.anyobject.Neo4jADynGroup
 import org.apache.syncope.core.persistence.neo4j.entity.user.Neo4jUDynGroupMembership;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,7 +114,7 @@ public class GroupTest extends AbstractTest {
     @Test
     public void uMemberships() {
         List<UMembership> memberships = groupDAO.findUMemberships(
-                groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806").orElseThrow());
+                groupDAO.findById("37d15e4c-cdc1-460b-a591-8505c8133806").orElseThrow(), Pageable.unpaged());
         assertEquals(2, memberships.size());
         assertTrue(memberships.stream().anyMatch(m -> "3d5e91f6-305e-45f9-ad30-4897d3d43bd9".equals(m.getKey())));
         assertTrue(memberships.stream().anyMatch(m -> "d53f7657-2b22-4e10-a2cd-c3379a4d1a31".equals(m.getKey())));
