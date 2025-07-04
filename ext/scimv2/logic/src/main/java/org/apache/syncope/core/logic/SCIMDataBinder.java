@@ -1038,11 +1038,11 @@ public class SCIMDataBinder {
             long count = userLogic.search(
                     searchCond, PageRequest.of(0, 1), SyncopeConstants.ROOT_REALM, true, false).getTotalElements();
 
-            for (int page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (long page = 0; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                 List<UMembership> users = groupDAO.findUMemberships(
                         groupDAO.findById(groupTO.getKey())
                                 .orElseThrow(() -> new NotFoundException("Group " + groupTO.getKey())),
-                        PageRequest.of(page, AnyDAO.DEFAULT_PAGE_SIZE));
+                        PageRequest.of((int) page, AnyDAO.DEFAULT_PAGE_SIZE));
                 users.forEach(uMembership -> group.getMembers().add(new Member(
                         uMembership.getLeftEnd().getKey(),
                         StringUtils.substringBefore(location, "/Groups") + "/Users/" + uMembership.getKey(),
