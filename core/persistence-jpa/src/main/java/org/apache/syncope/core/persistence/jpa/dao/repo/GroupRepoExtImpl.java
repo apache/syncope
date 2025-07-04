@@ -221,18 +221,10 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                         + " e WHERE e.rightEnd=:group ORDER BY e.leftEnd",
                 UMembership.class);
         query.setParameter("group", group);
-        query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
-        query.setMaxResults(pageable.getPageSize());
-
-        return query.getResultList();
-    }
-
-    @Override
-    public List<UMembership> findUMemberships(final Group group) {
-        TypedQuery<UMembership> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAUMembership.class.getSimpleName() + " e WHERE e.rightEnd=:group",
-                UMembership.class);
-        query.setParameter("group", group);
+        if (pageable.isPaged()) {
+            query.setFirstResult(pageable.getPageSize() * pageable.getPageNumber());
+            query.setMaxResults(pageable.getPageSize());
+        }
 
         return query.getResultList();
     }
@@ -322,7 +314,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group> implements Group
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
-        findUMemberships(group).forEach(membership -> {
+        findUMemberships(group, Pageable.unpaged()).forEach(membership -> {
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);

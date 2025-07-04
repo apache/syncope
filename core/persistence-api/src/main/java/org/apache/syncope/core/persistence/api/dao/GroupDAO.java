@@ -59,8 +59,6 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<AMembership> findAMemberships(Group group);
 
-    List<UMembership> findUMemberships(Group group);
-
     List<UMembership> findUMemberships(Group group, Pageable pageable);
 
     List<String> findAMembers(String groupKey);

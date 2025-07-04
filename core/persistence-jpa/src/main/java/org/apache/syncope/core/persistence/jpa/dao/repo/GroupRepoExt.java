@@ -49,8 +49,6 @@ public interface GroupRepoExt extends AnyRepoExt<Group> {
 
     List<AMembership> findAMemberships(Group group);
 
-    List<UMembership> findUMemberships(Group group);
-
     List<UMembership> findUMemberships(Group group, Pageable pageable);
 
     Group saveAndRefreshDynMemberships(Group group);

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,6 +69,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class LDAPMembershipPullActionsTest extends AbstractTest {
@@ -142,7 +144,8 @@ public class LDAPMembershipPullActionsTest extends AbstractTest {
         ReflectionTestUtils.setField(ldapMembershipPullActions, "membershipsAfter", membershipsAfter);
 
         lenient().when(groupDAO.findById(anyString())).thenAnswer(ic -> Optional.of(mock(Group.class)));
-        lenient().when(groupDAO.findUMemberships(any(Group.class))).thenReturn(List.of(uMembership));
+        lenient().when(groupDAO.findUMemberships(any(Group.class), eq(Pageable.unpaged())))
+                .thenReturn(List.of(uMembership));
 
         ConnConfPropSchema connConfPropSchema = new ConnConfPropSchema();
         connConfPropSchema.setName("testSchemaName");

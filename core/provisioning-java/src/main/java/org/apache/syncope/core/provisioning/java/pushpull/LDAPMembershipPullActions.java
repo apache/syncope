@@ -52,6 +52,7 @@ import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -129,7 +130,7 @@ public class LDAPMembershipPullActions implements InboundActions {
         }
 
         groupDAO.findUMemberships(groupDAO.findById(entity.getKey()).
-                orElseThrow(() -> new NotFoundException("Group " + entity.getKey()))).
+                orElseThrow(() -> new NotFoundException("Group " + entity.getKey())), Pageable.unpaged()).
                 forEach(uMembership -> {
                     Set<String> memb = membershipsBefore.computeIfAbsent(
                             uMembership.getLeftEnd().getKey(),
