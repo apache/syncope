@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
@@ -63,6 +64,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.ext.scimv2.api.SCIMConstants;
 import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
@@ -385,6 +387,36 @@ public class SCIMITCase extends AbstractITCase {
 
         SCIMGroup additional = groups.getResources().getFirst();
         assertEquals("additional", additional.getDisplayName());
+        List<UserTO> usersList = USER_SERVICE.search(new AnyQuery.Builder()
+                .realm(SyncopeConstants.ROOT_REALM)
+                .page(0)
+                .size(15)
+                .fiql("$groups==additional")
+                .build()).getResult();
+        assertEquals(usersList.size(), additional.getMembers().size());
+
+        // eq to get members
+        response = webClient().path("Groups").query("filter", "displayName eq \"child\"").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals(
+                SCIMConstants.APPLICATION_SCIM_JSON,
+                StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+        groups = response.readEntity(new GenericType<>() {
+        });
+        assertNotNull(groups);
+        assertEquals(1, groups.getTotalResults());
+
+        SCIMGroup child = groups.getResources().getFirst();
+        assertEquals("child", child.getDisplayName());
+        usersList = USER_SERVICE.search(new AnyQuery.Builder()
+                .realm(SyncopeConstants.ROOT_REALM)
+                .page(0)
+                .size(15)
+                .fiql("$groups==child")
+                .build()).getResult();
+        assertEquals(usersList.size(), child.getMembers().size());
+        assertTrue(child.getMembers().stream().anyMatch(member -> member.getDisplay().equals("verdi")));
 
         // eq via POST
         SCIMSearchRequest request = new SCIMSearchRequest("displayName eq \"additional\"", null, null, null, null);

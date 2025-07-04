@@ -75,6 +75,7 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.java.pushpull.OutboundMatcher;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
@@ -580,7 +581,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
 
         Map<String, PropagationByResource<String>> result = new HashMap<>();
 
-        groupDAO.findUMemberships(group).
+        groupDAO.findUMemberships(group, Pageable.unpaged()).
                 forEach((membership) -> populateTransitiveResources(group, membership.getLeftEnd(), result));
 
         return result;

@@ -80,6 +80,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -260,11 +261,17 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
     }
 
     @Override
-    public List<UMembership> findUMemberships(final Group group) {
+    public List<UMembership> findUMemberships(final Group group, final Pageable pageable) {
+        String paged = "";
+        if (pageable.isPaged()) {
+            paged = " SKIP " + pageable.getPageSize() * pageable.getPageNumber()
+                    + " LIMIT " + pageable.getPageSize();
+        }
         return toList(
                 neo4jClient.query(
                         "MATCH (n:" + Neo4jUMembership.NODE + ")-[]-(g:" + Neo4jGroup.NODE + " {id: $id}) "
-                        + "RETURN n.id").bindAll(Map.of("id", group.getKey())).fetch().all(),
+                                + "RETURN n.id" + paged)
+                        .bindAll(Map.of("id", group.getKey())).fetch().all(),
                 "n.id",
                 Neo4jUMembership.class,
                 null);
@@ -406,7 +413,7 @@ public class GroupRepoExtImpl extends AbstractAnyRepoExt<Group, Neo4jGroup> impl
                     new EntityLifecycleEvent<>(this, SyncDeltaType.UPDATE, leftEnd, AuthContextUtils.getDomain()));
         });
 
-        findUMemberships(group).forEach(membership -> {
+        findUMemberships(group, Pageable.unpaged()).forEach(membership -> {
             User leftEnd = membership.getLeftEnd();
             leftEnd.remove(membership);
             membership.setRightEnd(null);

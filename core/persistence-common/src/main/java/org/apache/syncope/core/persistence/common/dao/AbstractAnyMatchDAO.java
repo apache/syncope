@@ -67,6 +67,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
@@ -274,7 +275,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
                         || groupDAO.findADynMembers(group).contains(cond.getMember());
             }
         } else {
-            found = groupDAO.findUMemberships(group).stream().
+            found = groupDAO.findUMemberships(group, Pageable.unpaged()).stream().
                     anyMatch(memb -> memb.getLeftEnd().getKey().equals(cond.getMember()))
                     || groupDAO.findUDynMembers(group).contains(cond.getMember());
         }

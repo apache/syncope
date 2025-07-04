@@ -27,6 +27,7 @@ import org.flowable.idm.engine.impl.UserQueryImpl;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntity;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 public class SyncopeUserQueryImpl extends UserQueryImpl {
@@ -56,7 +57,7 @@ public class SyncopeUserQueryImpl extends UserQueryImpl {
         } else if (groupId != null) {
             groupDAO.findByName(groupId).map(group -> {
                 List<User> r = new ArrayList<>();
-                groupDAO.findUMemberships(group).stream().map(m -> fromSyncopeUser(m.getLeftEnd())).
+                groupDAO.findUMemberships(group, Pageable.unpaged()).stream().map(m -> fromSyncopeUser(m.getLeftEnd())).
                         filter(user -> !r.contains(user)).
                         forEach(r::add);
                 return r;
