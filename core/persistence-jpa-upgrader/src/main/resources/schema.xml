@@ -442,7 +442,7 @@ under the License.
         </table>
         <table name="FormPropertyDef">
             <pk column="id"/>
-            <column name="id" type="varchar" not-null="true" size="36"/>
+            <column name="id" type="varchar" not-null="true" size="255"/>
             <column name="datePattern" type="varchar" size="255"/>
             <column name="dropdownFreeForm" type="bit"/>
             <column name="dropdownSingleSelection" type="bit"/>
