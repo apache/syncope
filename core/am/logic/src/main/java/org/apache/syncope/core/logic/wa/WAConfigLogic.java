@@ -25,7 +25,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -92,7 +92,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected void registeredServices(final HttpClient client, final String serviceAddress) {
-        String target = StringUtils.appendIfMissing(serviceAddress, "/") + "actuator/registeredServices";
+        String target = Strings.CS.appendIfMissing(serviceAddress, "/") + "actuator/registeredServices";
         client.sendAsync(
                 HttpRequest.newBuilder(URI.create(target)).
                         header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
@@ -104,7 +104,7 @@ public class WAConfigLogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     protected void refresh(final HttpClient client, final String serviceAddress) {
-        String target = StringUtils.appendIfMissing(serviceAddress, "/") + "actuator/refresh";
+        String target = Strings.CS.appendIfMissing(serviceAddress, "/") + "actuator/refresh";
         client.sendAsync(
                 HttpRequest.newBuilder(URI.create(target)).
                         header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(

@@ -922,13 +922,13 @@ public abstract class AbstractITCase {
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 object.setValue(jdbcTemplate.queryForObject(sql, requiredType, args));
-                return object.getValue() != null;
+                return object.get() != null;
             } catch (Exception e) {
                 return false;
             }
         });
 
-        return object.getValue();
+        return object.get();
     }
 
     protected static <T> List<T> queryForList(
@@ -942,13 +942,13 @@ public abstract class AbstractITCase {
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 object.setValue(jdbcTemplate.queryForList(sql, requiredType, args));
-                return object.getValue() != null;
+                return object.get() != null;
             } catch (Exception e) {
                 return false;
             }
         });
 
-        return object.getValue();
+        return object.get();
     }
 
     protected static OIDCRPClientAppTO buildOIDCRP() {
@@ -1135,7 +1135,7 @@ public abstract class AbstractITCase {
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 read.setValue(pop3(sender, subject, mailAddress));
-                return read.getValue();
+                return read.get();
             } catch (Exception e) {
                 return false;
             }

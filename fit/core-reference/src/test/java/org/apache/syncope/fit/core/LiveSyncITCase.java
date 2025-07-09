@@ -161,7 +161,7 @@ public class LiveSyncITCase extends AbstractITCase {
                 }
             });
         }
-        return found.getValue();
+        return found.get();
     }
 
     @Test

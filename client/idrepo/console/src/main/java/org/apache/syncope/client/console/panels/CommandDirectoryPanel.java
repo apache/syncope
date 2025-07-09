@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
 import org.apache.syncope.client.console.commons.KeywordSearchEvent;
@@ -147,10 +148,10 @@ public class CommandDirectoryPanel
 
             keyword = payload.getKeyword();
             if (StringUtils.isNotBlank(keyword)) {
-                if (!StringUtils.startsWith(keyword, "*")) {
+                if (!Strings.CS.startsWith(keyword, "*")) {
                     keyword = "*" + keyword;
                 }
-                if (!StringUtils.endsWith(keyword, "*")) {
+                if (!Strings.CS.endsWith(keyword, "*")) {
                     keyword += "*";
                 }
             }

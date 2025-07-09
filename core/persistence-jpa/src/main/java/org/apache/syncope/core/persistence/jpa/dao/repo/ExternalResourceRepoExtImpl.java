@@ -149,11 +149,11 @@ public class ExternalResourceRepoExtImpl implements ExternalResourceRepoExt {
             Mutable<Boolean> removed = new MutableObject<>(false);
 
             resource.getProvisions().forEach(provision -> removed.setValue(
-                    removed.getValue()
+                    removed.get()
                     || (provision.getMapping() != null
                     && provision.getMapping().getItems().removeIf(item -> schemaKey.equals(item.getIntAttrName())))));
 
-            if (removed.getValue()) {
+            if (removed.get()) {
                 entityManager.merge(resource);
             }
         });

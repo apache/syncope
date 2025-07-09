@@ -131,12 +131,12 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
             }
             delegationKey.setValue(authResult.getRight());
         }
-        if (username.getValue() == null) {
+        if (username.get() == null) {
             username.setValue(authentication.getPrincipal().toString());
         }
 
         return finalizeAuthentication(
-                authenticated, domainKey, username.getValue(), delegationKey.getValue(), authentication);
+                authenticated, domainKey, username.get(), delegationKey.get(), authentication);
     }
 
     protected Authentication finalizeAuthentication(

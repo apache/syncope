@@ -27,14 +27,14 @@ import java.util.Properties;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.Configuration;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.mutable.Mutable;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.curator.test.InstanceSpec;
 import org.apache.curator.test.TestingServer;
 import org.apache.zookeeper.server.auth.DigestLoginModule;
 import org.apache.zookeeper.server.auth.SASLAuthenticationProvider;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import wiremock.org.apache.commons.lang3.mutable.Mutable;
-import wiremock.org.apache.commons.lang3.mutable.MutableObject;
 
 public class ZookeeperTestingServer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
@@ -54,14 +54,14 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
             throw new IllegalStateException("Could not load /test.properties", e);
         }
 
-        if (AbstractTest.available(port.getValue())) {
+        if (AbstractTest.available(port.get())) {
             Configuration.setConfiguration(new Configuration() {
 
                 private final AppConfigurationEntry[] entries = {
                     new AppConfigurationEntry(
                     DigestLoginModule.class.getName(),
                     AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                    Map.of("user_" + username.getValue(), password.getValue()))
+                    Map.of("user_" + username.get(), password.get()))
                 };
 
                 @Override
@@ -72,7 +72,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
 
             Map<String, Object> customProperties = new HashMap<>();
             customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
-            InstanceSpec spec = new InstanceSpec(null, port.getValue(), -1, -1, true, 1, -1, -1, customProperties);
+            InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, customProperties);
 
             try {
                 new TestingServer(spec, true);

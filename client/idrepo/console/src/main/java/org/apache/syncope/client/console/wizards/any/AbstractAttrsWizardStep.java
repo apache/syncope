@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -218,7 +219,7 @@ public abstract class AbstractAttrsWizardStep<S extends SchemaTO> extends Wizard
                         ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.getPattern()
                         : plainSchema.getConversionPattern();
 
-                if (StringUtils.containsIgnoreCase(datePattern, "H")) {
+                if (Strings.CI.contains(datePattern, "H")) {
                     panel = new AjaxDateTimeFieldPanel(
                             "panel",
                             plainSchema.getLabel(SyncopeConsoleSession.get().getLocale()),

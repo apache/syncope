@@ -94,10 +94,10 @@ public class OIDC extends Panel {
                 String pretty;
                 try {
                     pretty = MAPPER.writerWithDefaultPrettyPrinter().
-                            writeValueAsString(MAPPER.readTree(oidcjwksto.getValue().getJson()));
+                            writeValueAsString(MAPPER.readTree(oidcjwksto.get().getJson()));
                 } catch (IOException e) {
                     LOG.error("Could not pretty-print", e);
-                    pretty = Optional.ofNullable(oidcjwksto.getValue()).map(OIDCJWKSTO::getJson).orElse(null);
+                    pretty = Optional.ofNullable(oidcjwksto.get()).map(OIDCJWKSTO::getJson).orElse(null);
                 }
 
                 viewModal.header(Model.of("JSON Web Key Sets"));
@@ -109,12 +109,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.getValue() == null) {
+                if (oidcjwksto.get() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        view.setEnabled(oidcjwksto.getValue() != null);
+        view.setEnabled(oidcjwksto.get() != null);
         container.add(view.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(view, ENABLE, AMEntitlement.OIDC_JWKS_READ);
 
@@ -142,12 +142,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.getValue() != null) {
+                if (oidcjwksto.get() != null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        generate.setEnabled(oidcjwksto.getValue() == null);
+        generate.setEnabled(oidcjwksto.get() == null);
         container.add(generate.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(generate, ENABLE, AMEntitlement.OIDC_JWKS_GENERATE);
 
@@ -176,12 +176,12 @@ public class OIDC extends Panel {
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
 
-                if (oidcjwksto.getValue() == null) {
+                if (oidcjwksto.get() == null) {
                     tag.put("class", "btn btn-app disabled");
                 }
             }
         };
-        delete.setEnabled(oidcjwksto.getValue() != null);
+        delete.setEnabled(oidcjwksto.get() != null);
         container.add(delete.setOutputMarkupId(true));
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, AMEntitlement.OIDC_JWKS_DELETE);
 

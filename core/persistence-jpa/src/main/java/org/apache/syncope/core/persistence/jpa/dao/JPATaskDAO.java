@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ExecStatus;
@@ -489,7 +489,7 @@ public class JPATaskDAO implements TaskDAO {
                 buildFindAllQuery(type, resource, notification, anyTypeKind, entityKey, false, parameters);
 
         String table = taskUtilsFactory.getInstance(type).getTaskStorage();
-        Query query = entityManager.createNativeQuery(StringUtils.replaceOnce(
+        Query query = entityManager.createNativeQuery(Strings.CS.replaceOnce(
                 queryString.toString(),
                 "SELECT " + table + ".*, null AS startDate, null AS endDate, null AS status",
                 "SELECT COUNT(" + table + ".id)"));

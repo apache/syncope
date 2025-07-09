@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.events.SelectedEventsPanel.EventSelectionChanged;
 import org.apache.syncope.client.console.events.SelectedEventsPanel.InspectSelectedEvent;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -88,7 +89,7 @@ public abstract class EventCategoryPanel extends Panel {
             final String category) {
 
         return categories.stream().
-                filter(c -> type == c.getType() && StringUtils.equals(category, c.getCategory())).
+                filter(c -> type == c.getType() && Strings.CS.equals(category, c.getCategory())).
                 map(EventCategory::getSubcategory).
                 distinct().
                 sorted().
@@ -412,8 +413,8 @@ public abstract class EventCategoryPanel extends Panel {
 
             EventCategory ec = itor.next();
             if (ec.getType() == eventCategory.getType()
-                    && StringUtils.equals(ec.getCategory(), eventCategory.getCategory())
-                    && StringUtils.equals(ec.getSubcategory(), eventCategory.getSubcategory())) {
+                    && Strings.CS.equals(ec.getCategory(), eventCategory.getCategory())
+                    && Strings.CS.equals(ec.getSubcategory(), eventCategory.getSubcategory())) {
 
                 eventCategory.getOps().addAll(ec.getOps());
             }

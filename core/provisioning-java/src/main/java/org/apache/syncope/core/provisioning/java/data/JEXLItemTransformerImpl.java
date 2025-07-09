@@ -160,7 +160,7 @@ public class JEXLItemTransformerImpl implements JEXLItemTransformer {
             values.forEach(value -> tType.setValue(beforePropagation(any, schemaType, value)));
         }
 
-        return Pair.of(tType.getValue(), values);
+        return Pair.of(tType.get(), values);
     }
 
     @Override

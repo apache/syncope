@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.cache.Cache;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
@@ -229,7 +229,7 @@ public class Neo4jRealmDAO extends AbstractDAO implements RealmDAO {
         String fullPathBefore = realm.getFullPath();
         String fullPathAfter = realm.getParent() == null
                 ? SyncopeConstants.ROOT_REALM
-                : StringUtils.appendIfMissing(realm.getParent().getFullPath(), "/") + realm.getName();
+                : Strings.CS.appendIfMissing(realm.getParent().getFullPath(), "/") + realm.getName();
         if (!fullPathAfter.equals(fullPathBefore)) {
             ((Neo4jRealm) realm).setFullPath(fullPathAfter);
         }

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
@@ -118,7 +119,7 @@ public class Roles extends WizardStep implements ICondition {
 
                         }
                         return allRoles.stream().
-                                filter(role -> StringUtils.containsIgnoreCase(role, filter)).
+                                filter(role -> Strings.CI.contains(role, filter)).
                                 collect(Collectors.toList());
                     }
                 }).

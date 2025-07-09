@@ -593,7 +593,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 default:
             }
 
-            exec.setStatus(propagationAttempted.getValue()
+            exec.setStatus(propagationAttempted.get()
                     ? ExecStatus.SUCCESS.name()
                     : ExecStatus.NOT_ATTEMPTED.name());
 

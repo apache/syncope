@@ -51,7 +51,7 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
@@ -106,9 +106,9 @@ public class WebSecurityContext {
         http.addFilterBefore(mustChangePasswordFilter, AuthorizationFilter.class);
 
         http.authorizeHttpRequests(customizer -> customizer.
-                requestMatchers(AntPathRequestMatcher.antMatcher("/actuator/**")).
+                requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/actuator/**")).
                 hasAuthority(IdRepoEntitlement.ANONYMOUS).
-                requestMatchers(AntPathRequestMatcher.antMatcher("/**")).permitAll());
+                requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/**")).permitAll());
         http.securityContext(AbstractHttpConfigurer::disable);
         http.sessionManagement(AbstractHttpConfigurer::disable);
         http.headers(AbstractHttpConfigurer::disable);

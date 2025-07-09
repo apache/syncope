@@ -61,6 +61,7 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.TransformerHandler;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.openjpa.lib.util.collections.BidiMap;
@@ -159,7 +160,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
             return null;
         }).filter(Objects::nonNull).findFirst().orElse(columnName);
 
-        if (StringUtils.endsWithIgnoreCase(name, "_ID")) {
+        if (Strings.CI.endsWith(name, "_ID")) {
             String left = StringUtils.substringBefore(name, "_");
             String prefix = attrs.get().filter(attr -> left.equalsIgnoreCase(attr.getName())).findFirst().
                     map(Attribute::getName).orElse(left);

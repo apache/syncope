@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -195,7 +195,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         return reportExec.getReport().getName()
                 + "."
-                + StringUtils.removeStart(reportExec.getReport().getFileExt(), ".");
+                + Strings.CS.removeStart(reportExec.getReport().getFileExt(), ".");
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.REPORT_READ + "')")

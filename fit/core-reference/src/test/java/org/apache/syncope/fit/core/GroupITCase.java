@@ -955,12 +955,12 @@ public class GroupITCase extends AbstractITCase {
             await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
                 try {
                     execs.setValue(TASK_SERVICE.read(TaskType.SCHEDULED, exec.getRefKey(), true).getExecutions());
-                    return !execs.getValue().isEmpty();
+                    return !execs.get().isEmpty();
                 } catch (Exception e) {
                     return false;
                 }
             });
-            assertEquals(TaskJob.Status.SUCCESS.name(), execs.getValue().getFirst().getStatus());
+            assertEquals(TaskJob.Status.SUCCESS.name(), execs.get().getFirst().getStatus());
 
             // 6. verify that the user above is now fond on LDAP
             ConnObject userOnLdap =

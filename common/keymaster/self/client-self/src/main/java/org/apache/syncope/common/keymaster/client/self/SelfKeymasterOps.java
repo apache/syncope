@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.cxf.jaxrs.client.Client;
 import org.apache.cxf.jaxrs.client.ClientConfiguration;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -81,7 +81,7 @@ abstract class SelfKeymasterOps {
     protected CompletionStageRxInvoker rx(final String path) {
         synchronized (clientFactory) {
             String original = clientFactory.getAddress();
-            clientFactory.setAddress(StringUtils.removeEnd(original, "/") + StringUtils.prependIfMissing(path, "/"));
+            clientFactory.setAddress(Strings.CS.removeEnd(original, "/") + Strings.CS.prependIfMissing(path, "/"));
 
             try {
                 WebClient client = clientFactory.createWebClient().

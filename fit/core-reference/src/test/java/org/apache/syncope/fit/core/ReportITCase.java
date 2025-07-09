@@ -55,20 +55,20 @@ public class ReportITCase extends AbstractITCase {
 
     protected static String execReport(final String reportKey) {
         Mutable<ReportTO> reportTO = new MutableObject<>(REPORT_SERVICE.read(reportKey));
-        int preExecSize = reportTO.getValue().getExecutions().size();
+        int preExecSize = reportTO.get().getExecutions().size();
         ExecTO execution = REPORT_SERVICE.execute(new ExecSpecs.Builder().key(reportKey).build());
         assertNotNull(execution.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 reportTO.setValue(REPORT_SERVICE.read(reportKey));
-                return preExecSize < reportTO.getValue().getExecutions().size();
+                return preExecSize < reportTO.get().getExecutions().size();
             } catch (Exception e) {
                 return false;
             }
         });
 
-        ExecTO exec = reportTO.getValue().getExecutions().stream().
+        ExecTO exec = reportTO.get().getExecutions().stream().
                 max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
         assertEquals(ReportJob.Status.SUCCESS.name(), exec.getStatus());
         return exec.getKey();

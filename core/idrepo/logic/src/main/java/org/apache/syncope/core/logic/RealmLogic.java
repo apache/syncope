@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -172,7 +173,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         securityChecks(AuthContextUtils.getAuthorizations().get(IdRepoEntitlement.REALM_CREATE), parent.getFullPath());
 
-        String fullPath = StringUtils.appendIfMissing(parent.getFullPath(), "/") + realmTO.getName();
+        String fullPath = Strings.CS.appendIfMissing(parent.getFullPath(), "/") + realmTO.getName();
         if (realmSearchDAO.findByFullPath(fullPath).isPresent()) {
             throw new DuplicateException(fullPath);
         }

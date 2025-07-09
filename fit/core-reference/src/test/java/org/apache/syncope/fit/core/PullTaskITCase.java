@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.mutable.Mutable;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.lang3.tuple.Triple;
@@ -500,7 +501,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 return false;
             }
         });
-        assertEquals(1, numMembers.getValue());
+        assertEquals(1, numMembers.get());
 
         // SYNCOPE-1343, verify that the title attribute has been reset
         matchingUsers = USER_SERVICE.search(
@@ -1544,7 +1545,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     REMEDIATION_SERVICE.list(new RemediationQuery.Builder().page(1).size(10).build());
             assertTrue(remediations.getResult().stream().filter(r -> r.getAnyURPayload() != null).anyMatch(
                     r -> pullFromLDAP4issue1656Key.equals(r.getAnyURPayload().getKey())));
-            assertTrue(remediations.getResult().stream().anyMatch(r -> StringUtils.contains(r.getError(),
+            assertTrue(remediations.getResult().stream().anyMatch(r -> Strings.CS.contains(r.getError(),
                     "\"pullFromLDAP_issue1656@\" is not a valid email address")));
         } finally {
             // remove test entities

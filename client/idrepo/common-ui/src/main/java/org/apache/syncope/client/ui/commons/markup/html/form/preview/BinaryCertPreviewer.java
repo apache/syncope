@@ -21,6 +21,7 @@ package org.apache.syncope.client.ui.commons.markup.html.form.preview;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Optional;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 import org.apache.commons.lang3.StringUtils;
@@ -57,9 +58,8 @@ public class BinaryCertPreviewer extends BinaryPreviewer {
 
             for (Rdn rdn : ldapName.getRdns()) {
                 if ("CN".equalsIgnoreCase(rdn.getType())) {
-                    commonNameBuilder.append(rdn.getValue() == null
-                            ? StringUtils.EMPTY
-                            : rdn.getValue().toString());
+                    commonNameBuilder.append(Optional.ofNullable(rdn.getValue()).
+                            map(Object::toString).orElse(StringUtils.EMPTY));
                 }
             }
             commonNameLabel.setDefaultModelObject(commonNameBuilder.toString());

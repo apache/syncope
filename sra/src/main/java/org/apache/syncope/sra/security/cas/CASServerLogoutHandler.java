@@ -19,7 +19,7 @@
 package org.apache.syncope.sra.security.cas;
 
 import java.net.URI;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.sra.SessionConfig;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.springframework.cache.CacheManager;
@@ -42,7 +42,7 @@ public class CASServerLogoutHandler implements ServerLogoutHandler {
 
     public CASServerLogoutHandler(final CacheManager cacheManager, final String casServerUrlPrefix) {
         this.cacheManager = cacheManager;
-        this.casServerLogoutUrl = StringUtils.appendIfMissing(casServerUrlPrefix, "/") + "logout";
+        this.casServerLogoutUrl = Strings.CS.appendIfMissing(casServerUrlPrefix, "/") + "logout";
     }
 
     @Override

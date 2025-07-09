@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.chartjs.Bar;
 import org.apache.syncope.client.console.chartjs.BarDataSet;
 import org.apache.syncope.client.console.chartjs.ChartJSPanel;
@@ -111,7 +112,7 @@ public class AnyByRealmWidget extends BaseWidget {
 
         for (int i = 0; i < realms.size() && i < MAX_REALMS; i++) {
             bar.getData().getLabels().add(
-                    StringUtils.prependIfMissing(StringUtils.substringAfterLast(realms.get(i), "/"), "/"));
+                    Strings.CS.prependIfMissing(StringUtils.substringAfterLast(realms.get(i), "/"), "/"));
 
             userValues.add(usersByRealm.get(realms.get(i)));
             groupValues.add(groupsByRealm.get(realms.get(i)));

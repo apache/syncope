@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.cxf.Bus;
 import org.apache.cxf.transport.DestinationFactoryManager;
 import org.apache.cxf.transport.http.DestinationRegistry;
@@ -88,7 +88,7 @@ public class SyncopeServiceImpl extends AbstractService implements SyncopeServic
             final String realm, final String term, final int page, final int size) {
 
         Page<GroupTO> result = logic.searchAssignableGroups(
-                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM),
+                Strings.CS.prependIfMissing(realm, SyncopeConstants.ROOT_REALM),
                 term,
                 PageRequest.of(page < 1 ? 0 : page - 1, size < 1 ? 1 : size, Sort.by(Sort.Direction.ASC, "name")));
         return buildPagedResult(result);

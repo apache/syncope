@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.ui.commons.MapChoiceRenderer;
@@ -119,7 +120,7 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                             }
                         };
 
-                        if (StringUtils.containsIgnoreCase(prop.getDatePattern(), "H")) {
+                        if (Strings.CI.contains(prop.getDatePattern(), "H")) {
                             field = new AjaxDateTimeFieldPanel("value", label, dateModel, formatter);
                         } else {
                             field = new AjaxDateFieldPanel("value", label, dateModel, formatter);

@@ -26,7 +26,7 @@ under the License.
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/search/searchcursor.js"></script>
     <script type="text/javascript">
       function updateTextArea(editor) {
-        document.getElementById("textEditorInfoDefForm").children["textEditorInfo"].value = editor.getValue();
+        document.getElementById("textEditorInfoDefForm").children["textEditorInfo"].value = editor.get();
       }
     </script>
     <style>

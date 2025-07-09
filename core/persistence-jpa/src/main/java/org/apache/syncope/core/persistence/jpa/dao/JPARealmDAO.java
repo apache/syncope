@@ -25,7 +25,7 @@ import jakarta.persistence.TypedQuery;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -231,7 +231,7 @@ public class JPARealmDAO implements RealmDAO {
         String fullPathBefore = realm.getFullPath();
         String fullPathAfter = realm.getParent() == null
                 ? SyncopeConstants.ROOT_REALM
-                : StringUtils.appendIfMissing(realm.getParent().getFullPath(), "/") + realm.getName();
+                : Strings.CS.appendIfMissing(realm.getParent().getFullPath(), "/") + realm.getName();
         if (!fullPathAfter.equals(fullPathBefore)) {
             ((JPARealm) realm).setFullPath(fullPathAfter);
         }

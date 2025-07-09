@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -150,7 +151,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession implements Ba
                     ? sce.asComposite().getExceptions().stream().map(this::message).collect(Collectors.joining("; "))
                     : message(sce);
         } else if (root instanceof NotAuthorizedException || root instanceof ForbiddenException) {
-            Error error = StringUtils.containsIgnoreCase(message, "expired")
+            Error error = Strings.CI.contains(message, "expired")
                     ? Error.SESSION_EXPIRED
                     : Error.AUTHORIZATION;
             message = getApplication().getResourceSettings().getLocalizer().

@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.StreamingOutput;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.saml2.SAML2LoginResponse;
 import org.apache.syncope.common.lib.saml2.SAML2Request;
 import org.apache.syncope.common.lib.saml2.SAML2Response;
@@ -40,7 +40,7 @@ public class SAML2SP4UIServiceImpl extends AbstractService implements SAML2SP4UI
 
     @Override
     public Response getMetadata(final String spEntityID, final String urlContext) {
-        StreamingOutput sout = (os) -> logic.getMetadata(StringUtils.appendIfMissing(spEntityID, "/"), urlContext, os);
+        StreamingOutput sout = (os) -> logic.getMetadata(Strings.CS.appendIfMissing(spEntityID, "/"), urlContext, os);
 
         return Response.ok(sout).
                 type(MediaType.APPLICATION_XML).
@@ -52,7 +52,7 @@ public class SAML2SP4UIServiceImpl extends AbstractService implements SAML2SP4UI
             final String spEntityID, final String urlContext, final String idpEntityID, final boolean reauth) {
 
         return logic.createLoginRequest(
-                StringUtils.appendIfMissing(spEntityID, "/"),
+                Strings.CS.appendIfMissing(spEntityID, "/"),
                 urlContext,
                 idpEntityID,
                 reauth);
@@ -67,7 +67,7 @@ public class SAML2SP4UIServiceImpl extends AbstractService implements SAML2SP4UI
     public SAML2Request createLogoutRequest(final String spEntityID, final String urlContext) {
         return logic.createLogoutRequest(
                 getAccessToken(),
-                StringUtils.appendIfMissing(spEntityID, "/"),
+                Strings.CS.appendIfMissing(spEntityID, "/"),
                 urlContext);
     }
 

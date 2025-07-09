@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -167,7 +168,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             protected Component getValueComponent(final String key, final ConnObject bean) {
-                if (StringUtils.equals(key, STATUS)) {
+                if (Strings.CS.equals(key, STATUS)) {
                     ReconStatus status;
                     try {
                         status = reconciliationRestClient.status(
@@ -231,7 +232,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
                 withChecks(ListViewPanel.CheckAvailability.NONE).
                 setReuseItem(false);
 
-        if (!StringUtils.equals(anyType, SyncopeConstants.REALM_ANYTYPE)) {
+        if (!Strings.CS.equals(anyType, SyncopeConstants.REALM_ANYTYPE)) {
             builder.addAction(new ActionLink<>() {
 
                 private static final long serialVersionUID = 6377238742125L;
@@ -339,7 +340,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
         clause.setProperty("");
 
         AnyTypeKind anyTypeKind =
-                StringUtils.equals(anyType, SyncopeConstants.REALM_ANYTYPE) || StringUtils.isEmpty(anyType)
+                Strings.CS.equals(anyType, SyncopeConstants.REALM_ANYTYPE) || StringUtils.isEmpty(anyType)
                 ? AnyTypeKind.ANY_OBJECT
                 : anyTypeRestClient.read(anyType).getKind();
 

@@ -159,12 +159,12 @@ public class KeymasterITCase extends AbstractITCase {
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 holder.setValue(serviceOps.list(type));
-                return !check.apply(holder.getValue());
+                return !check.apply(holder.get());
             } catch (Exception e) {
                 return false;
             }
         });
-        return holder.getValue();
+        return holder.get();
     }
 
     @Test

@@ -321,13 +321,13 @@ public class DefaultMappingManager implements MappingManager {
             Attribute connObjectKeyAttr = AttributeUtil.find(item.getExtAttrName(), attributes);
             if (connObjectKeyAttr != null) {
                 attributes.remove(connObjectKeyAttr);
-                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.getValue()));
+                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.get()));
             }
 
-            Name name = evaluateNAME(any, provision, connObjectKeyValue.getValue());
+            Name name = evaluateNAME(any, provision, connObjectKeyValue.get());
             attributes.add(name);
 
-            Optional.ofNullable(connObjectKeyValue.getValue()).
+            Optional.ofNullable(connObjectKeyValue.get()).
                     filter(cokv -> connObjectKeyAttr == null && !cokv.equals(name.getNameValue())).
                     ifPresent(cokv -> attributes.add(AttributeBuilder.build(item.getExtAttrName(), cokv)));
         });
@@ -339,7 +339,7 @@ public class DefaultMappingManager implements MappingManager {
                     ifPresent(attributes::remove);
         }
 
-        return Pair.of(connObjectKeyValue.getValue(), attributes);
+        return Pair.of(connObjectKeyValue.get(), attributes);
     }
 
     @Transactional(readOnly = true)
@@ -444,18 +444,18 @@ public class DefaultMappingManager implements MappingManager {
             Attribute connObjectKeyAttr = AttributeUtil.find(item.getExtAttrName(), attributes);
             if (connObjectKeyAttr != null) {
                 attributes.remove(connObjectKeyAttr);
-                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.getValue()));
+                attributes.add(AttributeBuilder.build(item.getExtAttrName(), connObjectKeyValue.get()));
             }
 
-            Name name = evaluateNAME(realm, resource.getOrgUnit(), connObjectKeyValue.getValue());
+            Name name = evaluateNAME(realm, resource.getOrgUnit(), connObjectKeyValue.get());
             attributes.add(name);
 
-            Optional.ofNullable(connObjectKeyValue.getValue()).
+            Optional.ofNullable(connObjectKeyValue.get()).
                     filter(cokv -> connObjectKeyAttr == null && !cokv.equals(name.getNameValue())).
                     ifPresent(cokv -> attributes.add(AttributeBuilder.build(item.getExtAttrName(), cokv)));
         });
 
-        return Pair.of(connObjectKeyValue.getValue(), attributes);
+        return Pair.of(connObjectKeyValue.get(), attributes);
     }
 
     protected Optional<String> decodePassword(final Account account) {

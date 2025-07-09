@@ -28,7 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
@@ -158,7 +158,7 @@ public class DefaultPasswordRule implements PasswordRule {
 
         // check words not permitted
         wordsNotPermitted.stream().
-                filter(word -> StringUtils.containsIgnoreCase(clear, word)).findFirst().
+                filter(word -> Strings.CI.contains(clear, word)).findFirst().
                 ifPresent(word -> {
                     throw new PasswordPolicyException("Used word(s) not permitted");
                 });

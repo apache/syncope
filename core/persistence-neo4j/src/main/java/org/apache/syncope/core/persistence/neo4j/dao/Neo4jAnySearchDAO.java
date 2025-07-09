@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.commons.text.TextStringBuilder;
@@ -715,10 +716,10 @@ public class Neo4jAnySearchDAO extends AbstractAnySearchDAO {
             final QueryInfo rightInfo) {
 
         query.append("WHERE EXISTS { ").
-                append(StringUtils.prependIfMissing(leftInfo.query().toString(), "MATCH (n) ")).
+                append(Strings.CS.prependIfMissing(leftInfo.query().toString(), "MATCH (n) ")).
                 append(" } ").
                 append(op).append(" EXISTS { ").
-                append(StringUtils.prependIfMissing(rightInfo.query().toString(), "MATCH (n) ")).
+                append(Strings.CS.prependIfMissing(rightInfo.query().toString(), "MATCH (n) ")).
                 append(" }");
     }
 

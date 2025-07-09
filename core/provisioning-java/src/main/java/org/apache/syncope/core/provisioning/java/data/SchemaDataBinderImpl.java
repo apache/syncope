@@ -152,7 +152,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         PlainSchema filled = plainSchemaDAO.save(saved);
-        Optional.ofNullable(atc.getValue()).ifPresent(anyTypeClassDAO::save);
+        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
         return filled;
     }
 
@@ -266,7 +266,7 @@ public class SchemaDataBinderImpl implements SchemaDataBinder {
         }
 
         DerSchema filled = derSchemaDAO.save(saved);
-        Optional.ofNullable(atc.getValue()).ifPresent(anyTypeClassDAO::save);
+        Optional.ofNullable(atc.get()).ifPresent(anyTypeClassDAO::save);
         return filled;
     }
 

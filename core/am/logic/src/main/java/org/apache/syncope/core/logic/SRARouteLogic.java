@@ -26,7 +26,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.cxf.transport.http.auth.DefaultBasicAuthSupplier;
 import org.apache.syncope.common.keymaster.client.api.KeymasterException;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
@@ -114,7 +114,7 @@ public class SRARouteLogic extends AbstractTransactionalLogic<SRARouteTO> {
         try {
             serviceOps.list(NetworkService.Type.SRA).forEach(sra -> client.sendAsync(
                     HttpRequest.newBuilder(URI.create(
-                            StringUtils.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
+                            Strings.CS.appendIfMissing(sra.getAddress(), "/") + "actuator/gateway/refresh")).
                             header(HttpHeaders.AUTHORIZATION, DefaultBasicAuthSupplier.getBasicAuthHeader(
                                     securityProperties.getAnonymousUser(), securityProperties.getAnonymousKey())).
                             POST(HttpRequest.BodyPublishers.noBody()).build(),
