@@ -37,11 +37,18 @@ public class GenerateUpgradeSQL {
 
     private static final JsonMapper MAPPER = JsonMapper.builder().findAndAddModules().build();
 
-    private static final List<String> INIT_SQL_STATEMENTS = List.of(
-            "ALTER TABLE PullPolicy RENAME TO InboundPolicy",
-            "ALTER TABLE PullCorrelationRuleEntity RENAME TO InboundCorrelationRuleEntity",
-            "ALTER TABLE ExternalResource RENAME COLUMN pullPolicy_id TO inboundPolicy_id",
-            "ALTER TABLE InboundCorrelationRuleEntity RENAME COLUMN pullPolicy_id TO inboundPolicy_id");
+    private static final String INIT_SQL_STATEMENTS =
+            """
+            INSERT INTO InboundPolicy SELECT * FROM PullPolicy;
+            UPDATE ExternalResource SET inboundPolicy_id=pullPolicy_id;
+            ALTER TABLE ExternalResource DROP COLUMN pullPolicy_id;
+
+            INSERT INTO InboundCorrelationRuleEntity(id, inboundPolicy_id, anyType_id, implementation_id) 
+            SELECT id, pullPolicy_id, anyType_id, implementation_id FROM PullCorrelationRuleEntity;
+
+            DROP TABLE PullCorrelationRuleEntity;
+            DROP TABLE PullPolicy;
+            """;
 
     private static final String FINAL_SQL_STATEMENTS =
             """
@@ -55,7 +62,7 @@ public class GenerateUpgradeSQL {
             DROP TABLE IF EXISTS qrtz_scheduler_state CASCADE;
             DROP TABLE IF EXISTS qrtz_simple_triggers CASCADE;
             DROP TABLE IF EXISTS qrtz_simprop_triggers CASCADE;
-            DROP TABLE IF EXISTS qrtz_triggers CASCADE;            
+            DROP TABLE IF EXISTS qrtz_triggers CASCADE;
             """;
 
     private final JDBCConfiguration jdbcConf;
@@ -165,7 +172,7 @@ public class GenerateUpgradeSQL {
         return result.toString();
     }
 
-    private String roles() {
+    private String roles() throws JsonProcessingException {
         StringBuilder result = new StringBuilder();
 
         List<Map<String, Object>> dynMembershipConds = jdbcTemplate.queryForList(
@@ -177,6 +184,28 @@ public class GenerateUpgradeSQL {
                 cond.get("id").toString())));
 
         result.append("DROP TABLE DynRoleMembership;\n");
+
+        List<Map<String, Object>> roles = jdbcTemplate.queryForList(
+                "SELECT id, anyLayout from SyncopeRole WHERE anyLayout IS NOT NULL");
+
+        for (Map<String, Object> role : roles) {
+            JsonNode anyLayout = MAPPER.readTree(role.get("anyLayout").toString());
+            for (JsonNode child : anyLayout) {
+                if (child.isObject()) {
+                    if (child.has("virAttrs")) {
+                        ((ObjectNode) child).remove("virAttrs");
+                    }
+                    if (child.has("whichVirAttrs")) {
+                        ((ObjectNode) child).remove("whichVirAttrs");
+                    }
+                }
+            }
+
+            result.append(String.format(
+                    "UPDATE SyncopeRole SET anyLayout='%s' WHERE id='%s';\n",
+                    MAPPER.writeValueAsString(anyLayout).replace("'", "&#39;"),
+                    role.get("id").toString()));
+        }
 
         return result.toString();
     }
@@ -237,7 +266,54 @@ public class GenerateUpgradeSQL {
         result.append("UPDATE Implementation ").
                 append("SET type='INBOUND_ACTIONS' WHERE type='PULL_ACTIONS';\n");
         result.append("UPDATE Implementation ").
-                append("SET type='INBOUND_CORRELATION_RULE' WHERE type='PULL_CORRELATION_RULE';\n\n");
+                append("SET type='INBOUND_CORRELATION_RULE' WHERE type='PULL_CORRELATION_RULE';\n");
+
+        List<Map<String, Object>> implementations = jdbcTemplate.queryForList(
+                "SELECT id, body from Implementation "
+                + "WHERE body LIKE 'org.apache.syncope.core.persistence.jpa.attrvalue.validation.%'");
+
+        implementations.forEach(implementation -> result.append(String.format(
+                "UPDATE Implementation SET body='%s' WHERE id='%s';\n",
+                implementation.get("body").toString().replace(
+                        "org.apache.syncope.core.persistence.jpa.attrvalue.validation.",
+                        "org.apache.syncope.core.persistence.common.attrvalue."),
+                implementation.get("id").toString())));
+
+        return result.toString();
+    }
+
+    private String anyTemplates() throws JsonProcessingException {
+        StringBuilder result = new StringBuilder();
+
+        List<Map<String, Object>> templates = jdbcTemplate.queryForList(
+                "SELECT id, template from AnyTemplateRealm");
+
+        for (Map<String, Object> template : templates) {
+            JsonNode t = MAPPER.readTree(template.get("template").toString());
+            if (t.has("virAttrs")) {
+                ((ObjectNode) t).remove("virAttrs");
+
+                result.append(String.format(
+                        "UPDATE AnyTemplateRealm SET template='%s' WHERE id='%s';\n",
+                        MAPPER.writeValueAsString(t).replace("'", "&#39;"),
+                        template.get("id").toString()));
+            }
+        }
+
+        templates = jdbcTemplate.queryForList(
+                "SELECT id, template from AnyTemplatePullTask");
+
+        for (Map<String, Object> template : templates) {
+            JsonNode t = MAPPER.readTree(template.get("template").toString());
+            if (t.has("virAttrs")) {
+                ((ObjectNode) t).remove("virAttrs");
+
+                result.append(String.format(
+                        "UPDATE AnyTemplatePullTask SET template='%s' WHERE id='%s';\n",
+                        MAPPER.writeValueAsString(t).replace("'", "&#39;"),
+                        template.get("id").toString()));
+            }
+        }
 
         return result.toString();
     }
@@ -257,8 +333,6 @@ public class GenerateUpgradeSQL {
     }
 
     public void run(final Writer out) throws IOException, SQLException {
-        INIT_SQL_STATEMENTS.forEach(jdbcTemplate::execute);
-
         WiserSchemaTool schemaTool = new WiserSchemaTool(jdbcConf, SchemaTool.ACTION_ADD);
         schemaTool.setSchemaGroup(jdbcConf.getSchemaFactoryInstance().readSchema());
         schemaTool.setWriter(out);
@@ -267,13 +341,16 @@ public class GenerateUpgradeSQL {
             // run OpenJPA's SchemaTool to get the update statements
             schemaTool.run();
 
-            out.append(connInstances());
-            out.append(resources());
-            out.append(plainSchemas());
-            out.append(roles());
-            out.append(relationshipTypes());
-            out.append(implementations());
-            out.append(audit());
+            out.append('\n').append(INIT_SQL_STATEMENTS).append('\n');
+
+            out.append(connInstances()).append('\n');
+            out.append(resources()).append('\n');
+            out.append(plainSchemas()).append('\n');
+            out.append(roles()).append('\n');
+            out.append(relationshipTypes()).append('\n');
+            out.append(implementations()).append('\n');
+            out.append(anyTemplates()).append('\n');
+            out.append(audit()).append('\n');
 
             out.append(FINAL_SQL_STATEMENTS);
         }

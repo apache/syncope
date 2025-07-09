@@ -50,6 +50,11 @@ public class WiserSchemaTool extends SchemaTool {
     }
 
     @Override
+    protected void add() throws SQLException {
+        add(getDBSchemaGroup(true), assertSchemaGroup());
+    }
+
+    @Override
     protected void buildSchema(
             final SchemaGroup db,
             final SchemaGroup repos,

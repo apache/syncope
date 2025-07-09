@@ -406,7 +406,7 @@ under the License.
     <connid.azure.version>3.0.0</connid.azure.version>
     <connid.scim.version>1.0.5</connid.scim.version>
     <connid.servicenow.version>1.0.3</connid.servicenow.version>
-    <connid.okta.version>3.0.7</connid.okta.version>
+    <connid.okta.version>3.0.8</connid.okta.version>
     <connid.cmd.version>0.5</connid.cmd.version>
     <connid.kafka.version>1.0.0</connid.kafka.version>
     <connid.ldup.version>0.1.0</connid.ldup.version>
