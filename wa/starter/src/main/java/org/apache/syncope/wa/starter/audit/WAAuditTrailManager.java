@@ -21,7 +21,7 @@ package org.apache.syncope.wa.starter.audit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.OffsetDateTime;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.rest.api.service.AuditService;
@@ -56,7 +56,7 @@ public class WAAuditTrailManager extends AbstractAuditTrailManager {
             auditEvent.setWho(audit.getPrincipal());
             auditEvent.setWhen(audit.getWhenActionWasPerformed().atOffset(OffsetDateTime.now().getOffset()));
             auditEvent.setOutput(output);
-            OpEvent.Outcome result = StringUtils.containsIgnoreCase(audit.getActionPerformed(), "fail")
+            OpEvent.Outcome result = Strings.CI.contains(audit.getActionPerformed(), "fail")
                     ? OpEvent.Outcome.FAILURE
                     : OpEvent.Outcome.SUCCESS;
 

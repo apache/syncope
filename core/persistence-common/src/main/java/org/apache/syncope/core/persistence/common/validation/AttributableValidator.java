@@ -116,8 +116,8 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
         Mutable<Boolean> isValid = new MutableObject<>(true);
         entity.getPlainAttrs().forEach(attr -> schemaDAO.findById(attr.getSchema()).ifPresentOrElse(
                 schema -> {
-                    isValid.setValue(isValid.getValue() && isValid(attr, schema, context));
-                    attr.getValues().forEach(value -> isValid.setValue(isValid.getValue() && isValid(value, context)));
+                    isValid.setValue(isValid.get() && isValid(attr, schema, context));
+                    attr.getValues().forEach(value -> isValid.setValue(isValid.get() && isValid(value, context)));
                 }, () -> {
                     isValid.setValue(false);
                     context.buildConstraintViolationWithTemplate(
@@ -125,6 +125,6 @@ public class AttributableValidator extends AbstractValidator<AttributableCheck, 
                             addPropertyNode(attr.getSchema()).addConstraintViolation();
                 }));
 
-        return isValid.getValue();
+        return isValid.get();
     }
 }

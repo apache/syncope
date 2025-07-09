@@ -282,7 +282,7 @@ public class RouteProvider {
                     retries.setValue(0);
                 }
                 filter = ctx.getBean(RetryGatewayFilterFactory.class).
-                        apply(c -> c.setRetries(retries.getValue()));
+                        apply(c -> c.setRetries(retries.get()));
                 break;
 
             case SAVE_SESSION:
@@ -328,7 +328,7 @@ public class RouteProvider {
                     parts.setValue(0);
                 }
                 filter = ctx.getBean(StripPrefixGatewayFilterFactory.class).
-                        apply(c -> c.setParts(parts.getValue()));
+                        apply(c -> c.setParts(parts.get()));
                 break;
 
             case REQUEST_HEADER_TO_REQUEST_URI:
@@ -486,7 +486,7 @@ public class RouteProvider {
                 }
                 predicate = ctx.getBean(WeightRoutePredicateFactory.class).
                         applyAsync(c -> c.setGroup(weigthArgs[0].trim()).
-                        setWeight(weight.getValue()));
+                        setWeight(weight.get()));
                 break;
 
             case CUSTOM:

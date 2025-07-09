@@ -194,7 +194,7 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                     Mutable<Pair<String, Throwable>> error = new MutableObject<>();
 
-                    for (int i = 0; i < commands.size() && error.getValue() == null; i++) {
+                    for (int i = 0; i < commands.size() && error.get() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
 
                         try {
@@ -229,9 +229,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
         try {
             Mutable<Pair<String, Throwable>> error = future.get();
-            if (error.getValue() != null) {
+            if (error.get() != null) {
                 throw new JobExecutionException("While running "
-                        + error.getValue().getLeft(), error.getValue().getRight());
+                        + error.get().getLeft(), error.get().getRight());
             }
         } catch (ExecutionException | InterruptedException e) {
             throw new JobExecutionException("While waiting for macro commands completion", e);

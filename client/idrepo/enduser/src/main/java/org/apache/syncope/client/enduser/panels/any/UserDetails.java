@@ -21,7 +21,7 @@ package org.apache.syncope.client.enduser.panels.any;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.password.strength.PasswordStrengthBehavior;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
@@ -54,7 +54,7 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         username = new AjaxTextFieldPanel("username", "username", new PropertyModel<>(userTO, "username"), false);
 
-        if (wrapper.getPreviousUserTO() != null && StringUtils.
+        if (wrapper.getPreviousUserTO() != null && Strings.CS.
                 compare(wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {
             username.showExternAction(new LabelInfo("externalAction", wrapper.getPreviousUserTO().getUsername()));
         }

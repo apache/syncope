@@ -153,13 +153,13 @@ public abstract class AbstractAttrs<S extends SchemaTO> extends Panel {
     protected void setSchemas(final Pair<String, String> membership, final List<String> anyTypeClasses) {
         final Map<String, S> mscs;
 
-        if (membershipSchemas.containsKey(membership.getKey())) {
-            mscs = membershipSchemas.get(membership.getKey());
+        if (membershipSchemas.containsKey(membership.getLeft())) {
+            mscs = membershipSchemas.get(membership.getLeft());
         } else {
             mscs = new LinkedHashMap<>();
-            membershipSchemas.put(membership.getKey(), mscs);
+            membershipSchemas.put(membership.getLeft(), mscs);
         }
-        setSchemas(anyTypeClasses, membership.getValue(), mscs);
+        setSchemas(anyTypeClasses, membership.getRight(), mscs);
     }
 
     protected void setSchemas(final List<String> anyTypeClasses) {

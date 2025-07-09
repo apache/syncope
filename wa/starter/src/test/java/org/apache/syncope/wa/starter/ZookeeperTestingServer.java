@@ -60,7 +60,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
                 new AppConfigurationEntry(
                 DigestLoginModule.class.getName(),
                 AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
-                Map.of("user_" + username.getValue(), password.getValue()))
+                Map.of("user_" + username.get(), password.get()))
             };
 
             @Override
@@ -71,7 +71,7 @@ public class ZookeeperTestingServer implements ApplicationContextInitializer<Con
 
         Map<String, Object> customProperties = new HashMap<>();
         customProperties.put("authProvider.1", SASLAuthenticationProvider.class.getName());
-        InstanceSpec spec = new InstanceSpec(null, port.getValue(), -1, -1, true, 1, -1, -1, customProperties);
+        InstanceSpec spec = new InstanceSpec(null, port.get(), -1, -1, true, 1, -1, -1, customProperties);
 
         try {
             new TestingServer(spec, true);

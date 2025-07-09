@@ -29,7 +29,7 @@ under the License.
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/edit/closebrackets.js"></script>
     <script type="text/javascript">
       function updateTextArea(editor) {
-        document.getElementById("xmlEditorInfoDefForm").children["xmlEditorInfo"].value = editor.getValue();
+        document.getElementById("xmlEditorInfoDefForm").children["xmlEditorInfo"].value = editor.get();
       }
     </script>
     <style>

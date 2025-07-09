@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.http.Consts;
@@ -288,7 +289,7 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         }
 
         // 3. verify that user is now authenticated
-        get = new HttpGet(baseURL + StringUtils.removeStart(location, "../"));
+        get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
         try (CloseableHttpResponse response = httpclient.execute(get, context)) {
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             assertTrue(EntityUtils.toString(response.getEntity()).contains(username));

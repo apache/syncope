@@ -56,7 +56,7 @@ public final class ZookeeperTestingServer {
                     "org.apache.zookeeper.server.auth.DigestLoginModule",
                     AppConfigurationEntry.LoginModuleControlFlag.REQUIRED,
                     Map.of(
-                    "user_" + username.getValue(), password.getValue()
+                    "user_" + username.get(), password.get()
                     ))
                 };
 

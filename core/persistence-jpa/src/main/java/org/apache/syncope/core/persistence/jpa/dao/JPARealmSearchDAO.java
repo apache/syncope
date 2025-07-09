@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -129,7 +130,7 @@ public class JPARealmSearchDAO implements RealmSearchDAO {
         List<Object> parameters = new ArrayList<>();
 
         StringBuilder queryString = buildDescendantsQuery(bases, keyword, parameters);
-        Query query = entityManager.createQuery(StringUtils.replaceOnce(
+        Query query = entityManager.createQuery(Strings.CS.replaceOnce(
                 queryString.toString(),
                 "SELECT e ",
                 "SELECT COUNT(e) "));

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -62,7 +62,7 @@ public class UserDetails extends Details<UserTO> {
                 Constants.USERNAME_FIELD_NAME, Constants.USERNAME_FIELD_NAME,
                 new PropertyModel<>(userTO, Constants.USERNAME_FIELD_NAME), false);
 
-        if (wrapper.getPreviousUserTO() != null && StringUtils.compare(
+        if (wrapper.getPreviousUserTO() != null && Strings.CS.compare(
                 wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {
 
             username.showExternAction(new LabelInfo("externalAction", wrapper.getPreviousUserTO().getUsername()));

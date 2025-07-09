@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
@@ -34,7 +34,7 @@ public class LinkRewriteGatewayFilterFactory extends ModifyResponseGatewayFilter
     @Override
     protected boolean skipCond(final ServerHttpResponseDecorator decorator) {
         return decorator.getHeaders().getContentType() == null
-                || !StringUtils.containsIgnoreCase(decorator.getHeaders().getContentType().toString(), "html");
+                || !Strings.CI.contains(decorator.getHeaders().getContentType().toString(), "html");
     }
 
     private Charset getCharset(final ServerHttpResponseDecorator decorator) {
@@ -63,9 +63,9 @@ public class LinkRewriteGatewayFilterFactory extends ModifyResponseGatewayFilter
 
         String[] keyValue = config.getData().split(",");
 
-        String oldBase = StringUtils.appendIfMissing(keyValue[0], "/");
-        String newBase = StringUtils.appendIfMissing(keyValue[1], "/");
-        String newBaseAsPrefix = StringUtils.removeEnd(keyValue[1], "/");
+        String oldBase = Strings.CS.appendIfMissing(keyValue[0], "/");
+        String newBase = Strings.CS.appendIfMissing(keyValue[1], "/");
+        String newBaseAsPrefix = Strings.CS.removeEnd(keyValue[1], "/");
 
         boolean rewriterRootAttrs = true;
         if (keyValue.length == 3) {

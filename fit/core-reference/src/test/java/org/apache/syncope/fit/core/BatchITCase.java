@@ -234,12 +234,12 @@ public class BatchITCase extends AbstractITCase {
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 holder.setValue(client.get());
-                return holder.getValue().getStatus() != Response.Status.ACCEPTED.getStatusCode();
+                return holder.get().getStatus() != Response.Status.ACCEPTED.getStatusCode();
             } catch (Exception e) {
                 return false;
             }
         });
-        response = holder.getValue();
+        response = holder.get();
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         assertTrue(response.getMediaType().toString().
                 startsWith(RESTHeaders.multipartMixedWith(boundary.substring(2))));

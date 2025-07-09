@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
@@ -145,7 +146,7 @@ public class ReconciliationServiceImpl extends AbstractSearchService implements 
 
     @Override
     public Response push(final AnyQuery query, final CSVPushSpec spec) {
-        String realm = StringUtils.prependIfMissing(query.getRealm(), SyncopeConstants.ROOT_REALM);
+        String realm = Strings.CS.prependIfMissing(query.getRealm(), SyncopeConstants.ROOT_REALM);
 
         SearchCond searchCond = StringUtils.isBlank(query.getFiql())
                 ? null

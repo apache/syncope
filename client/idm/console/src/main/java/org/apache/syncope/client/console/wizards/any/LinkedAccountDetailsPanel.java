@@ -173,16 +173,16 @@ public class LinkedAccountDetailsPanel extends WizardStep {
         ConnObjectTOQuery.Builder builder = new ConnObjectTOQuery.Builder().size(SEARCH_SIZE);
         if (StringUtils.isNotBlank(searchTerm)) {
             builder.fiql(SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder().
-                    is(resourceRemoteKey.getValue()).equalTo(searchTerm + "*").query()).build();
+                    is(resourceRemoteKey.get()).equalTo(searchTerm + "*").query()).build();
         }
         Pair<String, List<ConnObject>> items = resourceRestClient.searchConnObjects(
                 resource,
                 AnyTypeKind.USER.name(),
                 builder,
-                new SortParam<>(resourceRemoteKey.getValue(), true));
+                new SortParam<>(resourceRemoteKey.get(), true));
 
         connObjectKeyFieldValues = items.getRight().stream().
-                map(item -> item.getAttr(resourceRemoteKey.getValue()).
+                map(item -> item.getAttr(resourceRemoteKey.get()).
                 map(attr -> attr.getValues().getFirst()).orElse(null)).
                 filter(Objects::nonNull).
                 collect(Collectors.toList());

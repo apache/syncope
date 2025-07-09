@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Base64;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -61,7 +62,7 @@ public class SyncopeAnonymousClient extends SyncopeClient {
 
     public JsonNode info() throws IOException {
         WebClient webClient = WebClientBuilder.build(
-                StringUtils.removeEnd(restClientFactory.getAddress().replace("/rest", "/actuator/info"), "/")).
+                Strings.CS.removeEnd(restClientFactory.getAddress().replace("/rest", "/actuator/info"), "/")).
                 accept(MediaType.APPLICATION_JSON_TYPE).
                 header(RESTHeaders.DOMAIN, getDomain()).
                 header(HttpHeaders.AUTHORIZATION, "Basic " + Base64.getEncoder().encodeToString(

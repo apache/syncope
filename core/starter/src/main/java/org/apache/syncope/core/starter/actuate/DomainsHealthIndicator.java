@@ -49,7 +49,7 @@ public class DomainsHealthIndicator implements HealthIndicator {
             }
         });
 
-        builder.status(anyDown.getValue() ? Status.DOWN : Status.UP);
+        builder.status(anyDown.get() ? Status.DOWN : Status.UP);
 
         return builder.build();
     }

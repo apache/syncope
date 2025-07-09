@@ -19,7 +19,7 @@
 package org.apache.syncope.sra.security.cas;
 
 import java.net.URI;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.sra.security.PublicRouteMatcher;
 import org.apache.syncope.sra.security.web.server.DoNothingIfCommittedServerRedirectStrategy;
 import org.apache.syncope.sra.session.SessionUtils;
@@ -60,7 +60,7 @@ public class CASAuthenticationRequestWebFilter implements WebFilter {
                 CASUtils.ticketAvailable(protocol),
                 SessionUtils.authInSession());
         this.protocol = protocol;
-        casServerLoginUrl = StringUtils.appendIfMissing(casServerUrlPrefix, "/") + "login";
+        casServerLoginUrl = Strings.CS.appendIfMissing(casServerUrlPrefix, "/") + "login";
     }
 
     public void setAuthenticationRedirectStrategy(final ServerRedirectStrategy authenticationRedirectStrategy) {

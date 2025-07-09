@@ -29,6 +29,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
@@ -130,7 +131,7 @@ public class WA extends BasePage {
         body.add(content);
 
         if (!instances.isEmpty()) {
-            String actuatorEndpoint = StringUtils.appendIfMissing(
+            String actuatorEndpoint = Strings.CS.appendIfMissing(
                     instances.getFirst().getAddress(), "/") + "actuator/env";
             try {
                 Response response = WebClientBuilder.build(actuatorEndpoint,
@@ -146,7 +147,7 @@ public class WA extends BasePage {
                                 if (properties.has("cas.server.prefix")) {
                                     JsonNode prefix = properties.get("cas.server.prefix");
                                     if (prefix.has("value")) {
-                                        waPrefix = StringUtils.removeEnd(prefix.get("value").asText(), "/");
+                                        waPrefix = Strings.CS.removeEnd(prefix.get("value").asText(), "/");
                                     }
                                 }
                             }
@@ -158,7 +159,7 @@ public class WA extends BasePage {
             }
 
             if (StringUtils.isBlank(waPrefix)) {
-                waPrefix = StringUtils.removeEnd(instances.getFirst().getAddress(), "/");
+                waPrefix = Strings.CS.removeEnd(instances.getFirst().getAddress(), "/");
             }
         }
     }

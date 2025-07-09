@@ -22,7 +22,7 @@ import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.xml.ws.WebServiceException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
@@ -64,7 +64,7 @@ public class SyncopeEnduserRequestCycleListener implements IRequestCycleListener
             errorParameters.add("errorMessage", SyncopeEnduserSession.Error.AUTHORIZATION.fallback());
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, NotAuthorizedException.class) != null) {
-            if (StringUtils.containsIgnoreCase(instanceOf(e, NotAuthorizedException.class).getMessage(), "expired")) {
+            if (Strings.CI.contains(instanceOf(e, NotAuthorizedException.class).getMessage(), "expired")) {
                 errorParameters.add("errorMessage", SyncopeEnduserSession.Error.SESSION_EXPIRED.fallback());
             } else {
                 errorParameters.add("errorMessage", SyncopeEnduserSession.Error.AUTHORIZATION.fallback());

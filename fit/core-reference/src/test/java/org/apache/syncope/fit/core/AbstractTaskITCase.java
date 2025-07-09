@@ -83,7 +83,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             final boolean dryRun) {
 
         Mutable<TaskTO> taskTO = new MutableObject<>(taskService.read(type, taskKey, true));
-        int preSyncSize = taskTO.getValue().getExecutions().size();
+        int preSyncSize = taskTO.get().getExecutions().size();
         ExecTO execution = taskService.execute(new ExecSpecs.Builder().key(taskKey).dryRun(dryRun).build());
         Optional.ofNullable(initialStatus).ifPresent(status -> assertEquals(status, execution.getStatus()));
         assertNotNull(execution.getExecutor());
@@ -91,13 +91,13 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         await().atMost(maxWaitSeconds, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
                 taskTO.setValue(taskService.read(type, taskKey, true));
-                return preSyncSize < taskTO.getValue().getExecutions().size();
+                return preSyncSize < taskTO.get().getExecutions().size();
             } catch (Exception e) {
                 return false;
             }
         });
 
-        return taskTO.getValue().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
+        return taskTO.get().getExecutions().stream().max(Comparator.comparing(ExecTO::getStart)).orElseThrow();
     }
 
     public static ExecTO execSchedTask(
@@ -166,9 +166,9 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
             } catch (Exception e) {
                 // ignore
             }
-            return notificationTask.getValue() != null;
+            return notificationTask.get() != null;
         });
 
-        return notificationTask.getValue();
+        return notificationTask.get();
     }
 }

@@ -21,7 +21,7 @@ package org.apache.syncope.core.rest.cxf.service;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -52,7 +52,7 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
     @Override
     public Response create(final String parentPath, final RealmTO realmTO) {
         ProvisioningResult<RealmTO> created =
-                logic.create(StringUtils.prependIfMissing(parentPath, SyncopeConstants.ROOT_REALM), realmTO);
+                logic.create(Strings.CS.prependIfMissing(parentPath, SyncopeConstants.ROOT_REALM), realmTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(created.getEntity().getName()).build();
         Response.ResponseBuilder builder = Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, created.getEntity().getFullPath());
@@ -62,7 +62,7 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
 
     @Override
     public Response update(final RealmTO realmTO) {
-        realmTO.setFullPath(StringUtils.prependIfMissing(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM));
+        realmTO.setFullPath(Strings.CS.prependIfMissing(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM));
         ProvisioningResult<RealmTO> updated = logic.update(realmTO);
         return modificationResponse(updated);
     }
@@ -70,7 +70,7 @@ public class RealmServiceImpl extends AbstractService implements RealmService {
     @Override
     public Response delete(final String fullPath) {
         ProvisioningResult<RealmTO> deleted =
-                logic.delete(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
+                logic.delete(Strings.CS.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
         return modificationResponse(deleted);
     }
 }

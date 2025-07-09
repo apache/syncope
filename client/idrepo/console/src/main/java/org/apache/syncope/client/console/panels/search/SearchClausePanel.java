@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -971,7 +972,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 };
 
                 if (plainSchema.getConversionPattern() == null
-                        || StringUtils.containsIgnoreCase(plainSchema.getConversionPattern(), "H")) {
+                        || Strings.CI.contains(plainSchema.getConversionPattern(), "H")) {
 
                     result = new AjaxDateTimeFieldPanel(
                             "value",

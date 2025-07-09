@@ -31,7 +31,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Locale;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeConstants;
 
 /**
@@ -123,7 +123,7 @@ public final class FormatUtils {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(conversionPattern);
         try {
-            if (StringUtils.containsIgnoreCase(conversionPattern, "Z")) {
+            if (Strings.CI.contains(conversionPattern, "Z")) {
                 return OffsetDateTime.parse(source, dtf);
             } else {
                 return LocalDateTime.parse(source, dtf).atZone(DEFAULT_OFFSET).toOffsetDateTime();

@@ -50,7 +50,7 @@ public final class SRAStatisticsRestClient {
                     JAX_RS_PROVIDERS).accept(MediaType.APPLICATION_JSON_TYPE);
 
             if (!selected.isEmpty()) {
-                client.query("tag", selected.stream().map(s -> s.getKey() + ":" + s.getValue()).toArray());
+                client.query("tag", selected.stream().map(s -> s.getLeft() + ":" + s.getRight()).toArray());
             }
 
             Response response = client.get();

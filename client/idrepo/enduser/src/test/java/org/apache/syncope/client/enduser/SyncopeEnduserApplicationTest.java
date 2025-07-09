@@ -29,7 +29,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.enduser.pages.Dashboard;
 import org.apache.syncope.client.enduser.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -114,9 +114,9 @@ public class SyncopeEnduserApplicationTest extends AbstractTest {
         message = session.getFeedbackMessages().first();
         assertNotNull(message);
         assertTrue(message.isError());
-        assertTrue(StringUtils.contains((CharSequence) message.getMessage(),
+        assertTrue(Strings.CS.contains((CharSequence) message.getMessage(),
                 ClientExceptionType.InvalidExternalResource.name()));
-        assertTrue(StringUtils.contains((CharSequence) message.getMessage(), ClientExceptionType.InvalidUser.name()));
+        assertTrue(Strings.CS.contains((CharSequence) message.getMessage(), ClientExceptionType.InvalidUser.name()));
         session.getFeedbackMessages().clear();
     }
 }

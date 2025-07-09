@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.panels;
 import java.util.List;
 import java.util.stream.StreamSupport;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.enduser.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.SyncopeWebApplication;
@@ -202,7 +203,7 @@ public class Sidebar extends Panel {
         List<Class<? extends BasePage>> extPageClasses = SyncopeWebApplication.get().getLookup().getExtPageClasses();
         ListView<Class<? extends BasePage>> extPages = new ListView<>("extPages", extPageClasses.stream().
                 filter(epc -> SyncopeWebApplication.get().getCustomFormLayout().getSidebarLayout().
-                isExtensionEnabled(StringUtils.remove(epc.getAnnotation(ExtPage.class).label(), StringUtils.SPACE))).
+                isExtensionEnabled(Strings.CS.remove(epc.getAnnotation(ExtPage.class).label(), StringUtils.SPACE))).
                 toList()) {
 
             private static final long serialVersionUID = 4949588177564901031L;

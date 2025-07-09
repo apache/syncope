@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.DelegationRestClient;
@@ -195,7 +196,7 @@ public class DelegationWizardBuilder extends BaseAjaxWizardBuilder<DelegationTO>
 
                             }
                             return allRoles.stream().
-                                    filter(role -> StringUtils.containsIgnoreCase(role, filter)).
+                                    filter(role -> Strings.CI.contains(role, filter)).
                                     collect(Collectors.toList());
                         }
                     }).

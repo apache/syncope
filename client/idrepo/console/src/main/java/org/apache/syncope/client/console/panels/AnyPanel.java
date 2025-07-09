@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.commons.RealmsUtils;
 import org.apache.syncope.client.console.layout.AnyLayout;
 import org.apache.syncope.client.console.layout.AnyLayoutUtils;
@@ -216,7 +217,7 @@ public class AnyPanel extends Panel implements ModalPanel {
 
             String realm;
             String dynRealm;
-            if (StringUtils.startsWith(r.getFullPath(), SyncopeConstants.ROOT_REALM)) {
+            if (Strings.CS.startsWith(r.getFullPath(), SyncopeConstants.ROOT_REALM)) {
                 realm = RealmsUtils.getFullPath(r.getFullPath());
                 dynRealm = null;
             } else {

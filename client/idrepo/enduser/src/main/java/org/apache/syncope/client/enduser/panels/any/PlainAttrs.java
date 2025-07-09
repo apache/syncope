@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
@@ -198,7 +199,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         ? DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.getPattern()
                         : plainSchema.getConversionPattern();
 
-                if (StringUtils.containsIgnoreCase(datePattern, "H")) {
+                if (Strings.CI.contains(datePattern, "H")) {
                     panel = new AjaxDateTimeFieldPanel(
                             "panel",
                             plainSchema.getLabel(SyncopeEnduserSession.get().getLocale()),

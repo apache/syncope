@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.IdRepoConstants;
@@ -191,10 +192,10 @@ public class SchemaTypePanel extends TypesDirectoryPanel<SchemaTO, SchemaProvide
 
             keyword = payload.getKeyword();
             if (StringUtils.isNotBlank(keyword)) {
-                if (!StringUtils.startsWith(keyword, "*")) {
+                if (!Strings.CS.startsWith(keyword, "*")) {
                     keyword = "*" + keyword;
                 }
-                if (!StringUtils.endsWith(keyword, "*")) {
+                if (!Strings.CS.endsWith(keyword, "*")) {
                     keyword += "*";
                 }
             }

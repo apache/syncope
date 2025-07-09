@@ -36,12 +36,12 @@ public class URIUtilsTest extends AbstractTest {
         Mutable<String> location = new MutableObject<>();
         location.setValue("www.tirasa.net");
         IllegalArgumentException exception =
-                assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location.getValue()));
+                assertThrows(IllegalArgumentException.class, () -> URIUtils.buildForConnId(location.get()));
         assertEquals(exception.getClass(), IllegalArgumentException.class);
 
         location.setValue("connid:test/location");
-        URI expectedURI = new URI(location.getValue().trim());
-        assertEquals(expectedURI, URIUtils.buildForConnId(location.getValue()));
+        URI expectedURI = new URI(location.get().trim());
+        assertEquals(expectedURI, URIUtils.buildForConnId(location.get()));
 
         assertDoesNotThrow(() -> URIUtils.buildForConnId("file:Z:\\syncope\\fit\\core-reference\\target/bundles/"));
         assertDoesNotThrow(() -> URIUtils.buildForConnId("file:/Z:\\syncope\\fit\\core-reference\\target/bundles/"));

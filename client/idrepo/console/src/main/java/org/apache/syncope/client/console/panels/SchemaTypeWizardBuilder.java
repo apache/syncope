@@ -80,9 +80,8 @@ public class SchemaTypeWizardBuilder extends BaseAjaxWizardBuilder<SchemaTO> {
         modelObject.getLabels().clear();
         modelObject.getLabels().putAll(translations.getObject().stream().
                 filter(Objects::nonNull).
-                filter(translation -> translation.getKey() != null).
-                filter(translation -> translation.getValue() != null).
-                collect(Collectors.toMap(MutablePair::getKey, MutablePair::getValue)));
+                filter(translation -> translation.getLeft() != null && translation.getRight() != null).
+                collect(Collectors.toMap(MutablePair::getLeft, MutablePair::getRight)));
 
         if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
             schemaRestClient.create(schemaType, modelObject);

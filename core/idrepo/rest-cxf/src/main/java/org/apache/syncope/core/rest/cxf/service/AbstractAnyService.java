@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -113,7 +114,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, CR extends AnyCR, UR 
 
     @Override
     public PagedResult<TO> search(final AnyQuery anyQuery) {
-        String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
+        String realm = Strings.CS.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
         SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
                 ? null
                 : getSearchCond(anyQuery.getFiql(), realm);

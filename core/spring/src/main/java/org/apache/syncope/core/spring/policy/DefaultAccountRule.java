@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.core.persistence.api.entity.Entity;
@@ -64,7 +65,7 @@ public class DefaultAccountRule implements AccountRule {
 
         // check words not permitted
         wordsNotPermitted.stream().
-                filter(word -> StringUtils.containsIgnoreCase(username, word)).
+                filter(word -> Strings.CI.contains(username, word)).
                 forEach(item -> {
                     throw new AccountPolicyException("Used word(s) not permitted");
                 });

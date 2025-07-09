@@ -23,7 +23,7 @@ import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.xml.ws.WebServiceException;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
@@ -74,7 +74,7 @@ public abstract class SyncopeUIRequestCycleListener implements IRequestCycleList
             errorPage = getErrorPage(errorParameters);
         } else if (instanceOf(e, NotAuthorizedException.class).isPresent()) {
             NotAuthorizedException nae = instanceOf(e, NotAuthorizedException.class).get();
-            if (StringUtils.containsIgnoreCase(nae.getMessage(), "expired")) {
+            if (Strings.CI.contains(nae.getMessage(), "expired")) {
                 errorParameters.add("errorMessage", BaseSession.Error.SESSION_EXPIRED.message());
             } else {
                 errorParameters.add("errorMessage", BaseSession.Error.AUTHORIZATION.message());

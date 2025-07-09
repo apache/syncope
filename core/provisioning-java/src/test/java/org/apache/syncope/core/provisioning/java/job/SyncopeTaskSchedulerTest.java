@@ -75,6 +75,6 @@ public class SyncopeTaskSchedulerTest extends AbstractTest {
 
         assertTrue(scheduler.getNextTrigger(AuthContextUtils.getDomain(), job.getContext().getJobName()).isPresent());
 
-        await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> VALUE.getValue() == 1);
+        await().atMost(10, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> VALUE.get() == 1);
     }
 }

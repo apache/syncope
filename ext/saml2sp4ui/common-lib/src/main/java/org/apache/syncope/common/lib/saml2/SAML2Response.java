@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.common.lib.saml2;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 public class SAML2Response extends SAML2Message {
 
@@ -37,7 +37,7 @@ public class SAML2Response extends SAML2Message {
     }
 
     public void setSpEntityID(final String spEntityID) {
-        this.spEntityID = StringUtils.appendIfMissing(spEntityID, "/");
+        this.spEntityID = Strings.CS.appendIfMissing(spEntityID, "/");
     }
 
     public String getUrlContext() {

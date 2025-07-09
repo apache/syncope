@@ -32,7 +32,7 @@ under the License.
     <script type="text/javascript" src="webjars/codemirror/${codemirror.version}/addon/edit/closebrackets.js"></script>
     <script type="text/javascript">
       function updateTextArea(editor) {
-        document.getElementById("groovyClassForm").children["groovyClass"].value = editor.getValue();
+        document.getElementById("groovyClassForm").children["groovyClass"].value = editor.get();
       }
     </script>
     <style>
