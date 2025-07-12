@@ -126,7 +126,7 @@ public class GenerateUpgradeSQL {
 
             result.append(String.format(
                     "UPDATE ExternalResource SET provisions='%s' WHERE id='%s';\n",
-                    MAPPER.writeValueAsString(provisions).replace("'", "&#39;"),
+                    MAPPER.writeValueAsString(provisions).replace("'", "''"),
                     resource.get("id").toString()));
         }
 
@@ -203,7 +203,7 @@ public class GenerateUpgradeSQL {
 
             result.append(String.format(
                     "UPDATE SyncopeRole SET anyLayout='%s' WHERE id='%s';\n",
-                    MAPPER.writeValueAsString(anyLayout).replace("'", "&#39;"),
+                    MAPPER.writeValueAsString(anyLayout).replace("'", "''"),
                     role.get("id").toString()));
         }
 
@@ -295,7 +295,7 @@ public class GenerateUpgradeSQL {
 
                 result.append(String.format(
                         "UPDATE AnyTemplateRealm SET template='%s' WHERE id='%s';\n",
-                        MAPPER.writeValueAsString(t).replace("'", "&#39;"),
+                        MAPPER.writeValueAsString(t).replace("'", "''"),
                         template.get("id").toString()));
             }
         }
@@ -310,7 +310,7 @@ public class GenerateUpgradeSQL {
 
                 result.append(String.format(
                         "UPDATE AnyTemplatePullTask SET template='%s' WHERE id='%s';\n",
-                        MAPPER.writeValueAsString(t).replace("'", "&#39;"),
+                        MAPPER.writeValueAsString(t).replace("'", "''"),
                         template.get("id").toString()));
             }
         }
@@ -325,7 +325,7 @@ public class GenerateUpgradeSQL {
                 "SELECT id from AuditConf");
 
         auditConf.forEach(conf -> result.append(String.format(
-                "UPDATE SyncopeRole SET id='%s' WHERE id='%s';\n",
+                "UPDATE AuditConf SET id='%s' WHERE id='%s';\n",
                 conf.get("id").toString().replace("syncope.audit.", ""),
                 conf.get("id").toString())));
 
