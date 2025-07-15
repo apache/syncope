@@ -56,6 +56,8 @@ public class FormPropertyDefTO implements NamedEntityTO {
 
     private boolean dropdownFreeForm;
 
+    private String mimeType;
+
     @Override
     public String getKey() {
         return key;
@@ -153,6 +155,14 @@ public class FormPropertyDefTO implements NamedEntityTO {
         this.dropdownFreeForm = dropdownFreeForm;
     }
 
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -168,6 +178,7 @@ public class FormPropertyDefTO implements NamedEntityTO {
                 append(enumValues).
                 append(dropdownSingleSelection).
                 append(dropdownFreeForm).
+                append(mimeType).
                 build();
     }
 
@@ -196,6 +207,7 @@ public class FormPropertyDefTO implements NamedEntityTO {
                 append(enumValues, other.enumValues).
                 append(dropdownSingleSelection, other.dropdownSingleSelection).
                 append(dropdownFreeForm, other.dropdownFreeForm).
+                append(mimeType, other.mimeType).
                 build();
     }
 }

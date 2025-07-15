@@ -101,6 +101,8 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
     @NotNull
     private Boolean dropdownFreeForm = Boolean.FALSE;
 
+    private String mimeType;
+
     public void setIdx(final int idx) {
         this.idx = idx;
     }
@@ -182,7 +184,7 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
     }
 
     @Override
-    public void setStringRegExp(final Pattern stringRegEx) {
+    public void setStringRegEx(final Pattern stringRegEx) {
         this.stringRegEx = Optional.ofNullable(stringRegEx).map(Pattern::pattern).orElse(null);
     }
 
@@ -199,7 +201,7 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
     @Override
     public Map<String, String> getEnumValues() {
         return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).
-            orElseGet(Map::of);
+                orElseGet(Map::of);
     }
 
     @Override
@@ -225,6 +227,16 @@ public class JPAFormPropertyDef extends AbstractGeneratedKeyEntity implements Fo
     @Override
     public void setDropdownFreeForm(final boolean dropdownFreeForm) {
         this.dropdownFreeForm = dropdownFreeForm;
+    }
+
+    @Override
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    @Override
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
     }
 
     protected void json2map(final boolean clearFirst) {

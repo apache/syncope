@@ -30,7 +30,6 @@ import org.apache.syncope.client.console.SyncopeWebApplication;
 import org.apache.syncope.client.console.panels.OIDCProvidersDirectoryPanel;
 import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.OIDCProviderRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.mapping.ItemTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.mapping.OIDCProviderMappingPanel;
@@ -39,6 +38,7 @@ import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponent
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.OIDCScopeConstants;
 import org.apache.syncope.common.lib.to.ImplementationTO;

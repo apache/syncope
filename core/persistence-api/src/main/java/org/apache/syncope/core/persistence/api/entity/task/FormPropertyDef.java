@@ -57,7 +57,7 @@ public interface FormPropertyDef extends Entity {
 
     Pattern getStringRegEx();
 
-    void setStringRegExp(Pattern stringRegEx);
+    void setStringRegEx(Pattern stringRegEx);
 
     String getDatePattern();
 
@@ -74,4 +74,8 @@ public interface FormPropertyDef extends Entity {
     boolean isDropdownFreeForm();
 
     void setDropdownFreeForm(boolean dropdownFreeForm);
+
+    String getMimeType();
+
+    void setMimeType(String mimeType);
 }

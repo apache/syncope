@@ -77,6 +77,7 @@ import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
 import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.opensearch.client.opensearch.core.search.SourceConfig;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -278,6 +279,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(sortBuilders(kind, pageable.getSort().get())).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
         LOG.debug("Search JSON request: {}", request);
 

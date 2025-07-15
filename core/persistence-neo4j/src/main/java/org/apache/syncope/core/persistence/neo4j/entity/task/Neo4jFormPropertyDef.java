@@ -88,6 +88,8 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     @NotNull
     private Boolean dropdownFreeForm = Boolean.FALSE;
 
+    private String mimeType;
+
     @Override
     public Neo4jMacroTask getMacroTask() {
         return macroTask;
@@ -165,7 +167,7 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     }
 
     @Override
-    public void setStringRegExp(final Pattern stringRegEx) {
+    public void setStringRegEx(final Pattern stringRegEx) {
         this.stringRegEx = Optional.ofNullable(stringRegEx).map(Pattern::pattern).orElse(null);
     }
 
@@ -182,7 +184,7 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     @Override
     public Map<String, String> getEnumValues() {
         return Optional.ofNullable(enumValues).map(v -> POJOHelper.deserialize(v, ENUMVALUES_TYPEREF)).
-            orElseGet(Map::of);
+                orElseGet(Map::of);
     }
 
     @Override
@@ -208,6 +210,16 @@ public class Neo4jFormPropertyDef extends AbstractGeneratedKeyNode implements Fo
     @Override
     public void setDropdownFreeForm(final boolean dropdownFreeForm) {
         this.dropdownFreeForm = dropdownFreeForm;
+    }
+
+    @Override
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    @Override
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
     }
 
     protected void json2map(final boolean clearFirst) {

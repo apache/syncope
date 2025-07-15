@@ -22,6 +22,7 @@ import jakarta.validation.ValidationException;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.command.CommandArgs;
+import org.apache.syncope.common.lib.command.CommandArgs.Result;
 import org.apache.syncope.common.lib.form.SyncopeForm;
 
 /**
@@ -49,7 +50,7 @@ public interface MacroActions {
         // does nothing by default
     }
 
-    default void afterCommand(Command<CommandArgs> command, CommandArgs args, String output) {
+    default void afterCommand(Command<CommandArgs> command, CommandArgs args, Result result) {
         // does nothing by default
     }
 

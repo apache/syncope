@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.Attr;
+import org.apache.syncope.common.lib.command.CommandArgs.Result;
 import org.apache.syncope.common.lib.request.AnyObjectCR;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -51,7 +53,7 @@ public class TestCommand implements Command<TestCommandArgs> {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     @Override
-    public String run(final TestCommandArgs args) {
+    public Result run(final TestCommandArgs args) {
         // 1. create new Realm
         RealmTO realm = new RealmTO();
         realm.setName(args.getRealmName());
@@ -67,6 +69,8 @@ public class TestCommand implements Command<TestCommandArgs> {
                 false).getEntity();
         LOG.info("PRINTER created: {}", anyObject.getName());
 
-        return "Realm created: " + realm.getFullPath() + "; PRINTER created: " + anyObject.getName();
+        return new Result(
+                "Realm created: " + realm.getFullPath() + "; PRINTER created: " + anyObject.getName(),
+                Map.of("realm", realm.getKey(), "PRINTER", anyObject.getKey()));
     }
 }

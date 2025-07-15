@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.ui.commons.Constants;
+import org.apache.syncope.client.ui.commons.MIMETypesLoader;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
@@ -63,6 +64,9 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
 
     @SpringBean
     protected TaskRestClient taskRestClient;
+
+    @SpringBean
+    protected MIMETypesLoader mimeTypesLoader;
 
     protected final MacroTaskTO task;
 
@@ -182,6 +186,15 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                 enumValues.setVisible(fpd.getType() == FormPropertyType.Enum);
                 item.add(enumValues.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
 
+                AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel(
+                        "mimeType",
+                        "mimeType",
+                        new PropertyModel<>(fpd, "mimeType"),
+                        true);
+                mimeType.setChoices(mimeTypesLoader.getMimeTypes());
+                mimeType.setVisible(fpd.getType() == FormPropertyType.Binary);
+                item.add(mimeType.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
+
                 WebMarkupContainer dropdownConf = new WebMarkupContainer("dropdownConf");
                 dropdownConf.setVisible(fpd.getType() == FormPropertyType.Dropdown);
                 item.add(dropdownConf.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
@@ -211,6 +224,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                                 enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
                                 dropdownConf.setVisible(false);
+                                mimeType.setVisible(false);
                             }
 
                             case Date -> {
@@ -220,6 +234,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                                 enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
                                 dropdownConf.setVisible(false);
+                                mimeType.setVisible(false);
                             }
 
                             case Enum -> {
@@ -228,6 +243,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                                 datePattern.setVisible(false);
                                 enumValues.setVisible(true);
                                 dropdownConf.setVisible(false);
+                                mimeType.setVisible(false);
                             }
 
                             case Dropdown -> {
@@ -237,6 +253,17 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                                 enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
                                 dropdownConf.setVisible(true);
+                                mimeType.setVisible(false);
+                            }
+
+                            case Binary -> {
+                                stringRegEx.setVisible(false);
+                                fpd.setStringRegEx(null);
+                                datePattern.setVisible(false);
+                                enumValues.setVisible(false);
+                                fpd.getEnumValues().clear();
+                                dropdownConf.setVisible(false);
+                                mimeType.setVisible(true);
                             }
 
                             default -> {
@@ -246,6 +273,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                                 enumValues.setVisible(false);
                                 fpd.getEnumValues().clear();
                                 dropdownConf.setVisible(false);
+                                mimeType.setVisible(false);
                             }
                         }
 
@@ -253,6 +281,7 @@ public class FormPropertyDefsPanel extends AbstractModalPanel<MacroTaskTO> {
                         target.add(datePattern);
                         target.add(enumValues);
                         target.add(dropdownConf);
+                        target.add(mimeType);
                     }
                 });
 

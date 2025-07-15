@@ -23,7 +23,8 @@ import org.apache.syncope.core.provisioning.api.macro.Command
 @CompileStatic
 class MyCommand implements Command<CommandArgs> {
 
-  String run(CommandArgs args) {
-    return "SUCCESS"
+  @Override
+  CommandArgs.Result run(CommandArgs args) {
+    return new CommandArgs.Result("SUCCESS")    
   }
 }
