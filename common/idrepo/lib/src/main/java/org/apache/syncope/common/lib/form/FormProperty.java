@@ -55,6 +55,8 @@ public class FormProperty implements Serializable {
 
     private boolean dropdownFreeForm;
 
+    private String mimeType;
+
     private String value;
 
     public String getId() {
@@ -149,6 +151,14 @@ public class FormProperty implements Serializable {
         this.dropdownFreeForm = dropdownFreeForm;
     }
 
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(final String mimeType) {
+        this.mimeType = mimeType;
+    }
+
     public String getValue() {
         return value;
     }
@@ -172,6 +182,7 @@ public class FormProperty implements Serializable {
                 append(dropdownValues).
                 append(dropdownSingleSelection).
                 append(dropdownFreeForm).
+                append(mimeType).
                 append(value).
                 build();
     }
@@ -201,6 +212,7 @@ public class FormProperty implements Serializable {
                 append(dropdownValues, other.dropdownValues).
                 append(dropdownSingleSelection, other.dropdownSingleSelection).
                 append(dropdownFreeForm, other.dropdownFreeForm).
+                append(mimeType, other.mimeType).
                 append(value, other.value).
                 build();
     }

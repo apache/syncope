@@ -32,6 +32,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import co.elastic.clients.json.JsonData;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -280,6 +281,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(sortBuilders(kind, pageable.getSort().get())).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
         LOG.debug("Search JSON request: {}", request);
 

@@ -16,21 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.ui.commons.markup.html.form;
+package org.apache.syncope.client.ui.commons;
 
-import org.apache.wicket.model.IModel;
+import java.io.Serializable;
+import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 
-public abstract class BaseBinaryFieldPanel extends FieldPanel<String> {
+public interface ImplementationLookup extends Serializable {
 
-    private static final long serialVersionUID = -198988924922541273L;
+    void load();
 
-    public BaseBinaryFieldPanel(final String id, final IModel<String> model) {
-        super(id, model);
-    }
-
-    public BaseBinaryFieldPanel(final String id, final String name, final IModel<String> model) {
-        super(id, name, model);
-    }
-
-    protected abstract void sendError(Exception exception);
+    Class<? extends BinaryPreviewer> getPreviewerClass(String mimeType);
 }

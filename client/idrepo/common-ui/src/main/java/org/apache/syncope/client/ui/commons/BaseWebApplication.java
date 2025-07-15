@@ -16,13 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.macro;
+package org.apache.syncope.client.ui.commons;
 
-import org.apache.syncope.common.lib.command.CommandArgs;
-import org.apache.syncope.common.lib.command.CommandArgs.Result;
+public interface BaseWebApplication {
 
-@FunctionalInterface
-public interface Command<A extends CommandArgs> {
+    String getAdminUser();
 
-    Result run(A args);
+    String getAnonymousUser();
+
+    String getAnonymousKey();
+
+    long getMaxWaitTimeInSeconds();
+
+    int getMaxUploadFileSizeMB();
 }

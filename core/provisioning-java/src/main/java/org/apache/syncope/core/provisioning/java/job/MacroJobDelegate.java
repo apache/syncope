@@ -24,6 +24,7 @@ import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +166,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                     vars.put(fpd.getName(), value);
                 }
 
+                case Binary ->
+                    vars.put(fpd.getName(), Base64.getDecoder().decode(value));
+
                 default -> {
                 }
             }
@@ -194,6 +198,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
 
                     Mutable<Pair<String, Throwable>> error = new MutableObject<>();
 
+                    Mutable<CommandArgs.Result> prevCmdResult = new MutableObject<>(CommandArgs.Result.EMPTY);
+
                     for (int i = 0; i < commands.size() && error.get() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
 
@@ -203,13 +209,18 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                     append(args).append("\n");
 
                             if (!dryRun) {
-                                actions.ifPresent(a -> a.beforeCommand(command.getLeft(), command.getRight()));
+                                command.getRight().setPipe(prevCmdResult.get());
 
-                                String cmdOut = command.getLeft().run(command.getRight());
+                                actions.ifPresent(a -> a.beforeCommand(
+                                        command.getLeft(), command.getRight()));
 
-                                actions.ifPresent(a -> a.afterCommand(command.getLeft(), command.getRight(), cmdOut));
+                                CommandArgs.Result cmdResult = command.getLeft().run(command.getRight());
+                                prevCmdResult.setValue(cmdResult);
 
-                                output.append(cmdOut);
+                                actions.ifPresent(a -> a.afterCommand(
+                                        command.getLeft(), command.getRight(), cmdResult));
+
+                                output.append(cmdResult.message());
                             }
                         } catch (Throwable t) {
                             if (task.isContinueOnError()) {

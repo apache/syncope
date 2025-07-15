@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.markup.html.form;
+package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.BootstrapFileInputField;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.FileInputConfig;
@@ -29,18 +29,16 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.SyncopeWebApplication;
-import org.apache.syncope.client.enduser.commons.PreviewUtils;
+import org.apache.syncope.client.ui.commons.BaseSession;
+import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.HttpResourceStream;
-import org.apache.syncope.client.ui.commons.markup.html.form.BaseBinaryFieldPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldDownload;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.PreviewUtils;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.pages.BaseWebPage;
 import org.apache.syncope.client.ui.commons.rest.ResponseHolder;
 import org.apache.wicket.Component;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -55,10 +53,11 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 
-public class BinaryFieldPanel extends BaseBinaryFieldPanel {
+public class BinaryFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 6264462604183088931L;
 
@@ -103,9 +102,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
 
         previewer = previewUtils.getPreviewer(mimeType);
 
-        maxUploadSize = SyncopeWebApplication.get().getMaxUploadFileSizeMB() == null
-                ? null
-                : Bytes.megabytes(SyncopeWebApplication.get().getMaxUploadFileSizeMB());
+        maxUploadSize = Bytes.megabytes(BaseWebApplication.class.cast(WebApplication.get()).getMaxUploadFileSizeMB());
         uploadForm = new StatelessForm<>("uploadForm");
         uploadForm.setMultiPart(true);
         add(uploadForm);
@@ -144,7 +141,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
                 try {
                     fileDownload.initiate(target);
                 } catch (Exception e) {
-                    SyncopeEnduserSession.get().onException(e);
+                    BaseSession.class.cast(Session.get()).onException(e);
                 }
             }
         };
@@ -154,7 +151,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         FileInputConfig config = new FileInputConfig().
                 showUpload(false).showRemove(false).showPreview(false).
                 browseClass("btn btn-success").browseIcon("<i class=\"fas fa-folder-open\"></i> &nbsp;");
-        String language = SyncopeEnduserSession.get().getLocale().getLanguage();
+        String language = Session.get().getLocale().getLanguage();
         if (!Locale.ENGLISH.getLanguage().equals(language)) {
             config.withLocale(language);
         }
@@ -169,7 +166,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
                 if (uploaded != null) {
                     if (maxUploadSize != null && uploaded.getSize() > maxUploadSize.bytes()) {
                         // SYNCOPE-1213 manage directly max upload file size (if set in properties file)
-                        SyncopeEnduserSession.get().error(getString("tooLargeFile").
+                        Session.get().error(getString("tooLargeFile").
                                 replace("${maxUploadSizeB}", String.valueOf(maxUploadSize.bytes())).
                                 replace("${maxUploadSizeMB}", String.valueOf(maxUploadSize.bytes() / 1000000L)));
                         ((BaseWebPage) getPageReference().getPage()).getNotificationPanel().refresh(target);
@@ -218,7 +215,11 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
     }
 
     protected Response buildResponse() {
-        return Response.ok(new ByteArrayInputStream(Base64.getMimeDecoder().decode(getModelObject()))).
+        byte[] content = Optional.ofNullable(getModelObject()).
+                map(modelObject -> Base64.getMimeDecoder().decode(modelObject)).
+                orElseGet(() -> new byte[0]);
+
+        return Response.ok(new ByteArrayInputStream(content)).
                 type(StringUtils.isBlank(mimeType) ? MediaType.APPLICATION_OCTET_STREAM : mimeType).
                 header(HttpHeaders.LOCATION, StringUtils.EMPTY).
                 build();
@@ -231,7 +232,7 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         uploadForm.addOrReplace(container);
     }
 
-    protected void setVisibleFileButtons(final boolean visible) {
+    private void setVisibleFileButtons(final boolean visible) {
         resetLink.setVisible(visible);
         downloadLink.setVisible(visible);
     }
@@ -256,9 +257,8 @@ public class BinaryFieldPanel extends BaseBinaryFieldPanel {
         return this;
     }
 
-    @Override
     protected void sendError(final Exception exception) {
-        SyncopeEnduserSession.get().onException(exception);
+        BaseSession.class.cast(Session.get()).onException(exception);
     }
 
     @Override

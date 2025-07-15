@@ -16,12 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.commons;
+package org.apache.syncope.client.ui.commons;
 
 import java.io.Serializable;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.BinaryPreviewer;
 import org.apache.syncope.client.ui.commons.markup.html.form.preview.DefaultPreviewer;
 import org.slf4j.Logger;
@@ -34,9 +33,9 @@ public class PreviewUtils implements Serializable {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PreviewUtils.class);
 
-    protected final ClassPathScanImplementationLookup lookup;
+    protected final ImplementationLookup lookup;
 
-    public PreviewUtils(final ClassPathScanImplementationLookup lookup) {
+    public PreviewUtils(final ImplementationLookup lookup) {
         this.lookup = lookup;
     }
 
@@ -47,8 +46,7 @@ public class PreviewUtils implements Serializable {
 
         return Optional.ofNullable(lookup.getPreviewerClass(mimeType)).map(clazz -> {
             try {
-                return ClassUtils.getConstructorIfAvailable(clazz, String.class).
-                        newInstance(new Object[] { mimeType });
+                return ClassUtils.getConstructorIfAvailable(clazz, String.class).newInstance(new Object[] { mimeType });
             } catch (Exception e) {
                 LOG.error("While getting BinaryPreviewer for {}", mimeType, e);
 

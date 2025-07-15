@@ -27,7 +27,8 @@ class GroovyCommand implements Command<CommandArgs> {
   @Autowired
   SyncopeLogic logic;
 
-  String run(CommandArgs args) {
-    return "" + logic.isPwdResetAllowed()
+  @Override
+  CommandArgs.Result run(CommandArgs args) {
+    return new CommandArgs.Result("" + logic.isPwdResetAllowed())    
   }
 }

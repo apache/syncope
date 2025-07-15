@@ -26,6 +26,7 @@ public enum FormPropertyType {
     Date,
     Boolean,
     Dropdown,
-    Password
+    Password,
+    Binary
 
 }

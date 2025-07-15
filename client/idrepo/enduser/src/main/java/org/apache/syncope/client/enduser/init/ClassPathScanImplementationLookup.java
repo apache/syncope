@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser.init;
 
-import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +27,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.pages.BaseExtPage;
 import org.apache.syncope.client.enduser.pages.BasePage;
+import org.apache.syncope.client.ui.commons.ImplementationLookup;
 import org.apache.syncope.client.ui.commons.annotations.AMPage;
 import org.apache.syncope.client.ui.commons.annotations.BinaryPreview;
 import org.apache.syncope.client.ui.commons.annotations.ExtPage;
@@ -41,7 +41,7 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
 
-public class ClassPathScanImplementationLookup implements Serializable {
+public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private static final long serialVersionUID = -4944986595429290116L;
 
@@ -69,6 +69,7 @@ public class ClassPathScanImplementationLookup implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
+    @Override
     public void load() {
         idmPages = new ArrayList<>();
         amPages = new ArrayList<>();
@@ -143,6 +144,7 @@ public class ClassPathScanImplementationLookup implements Serializable {
         return extPages;
     }
 
+    @Override
     public Class<? extends BinaryPreviewer> getPreviewerClass(final String mimeType) {
         LOG.debug("Searching for previewer class for MIME type: {}", mimeType);
         Class<? extends BinaryPreviewer> previewer = null;
