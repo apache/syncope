@@ -32,6 +32,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.RangeQuery;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import co.elastic.clients.json.JsonData;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -290,6 +291,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 from(itemsPerPage * (page <= 0 ? 0 : page - 1)).
                 size(itemsPerPage < 0 ? indexMaxResultWindow : itemsPerPage).
                 sort(sortBuilders(kind, orderBy)).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
         LOG.debug("Search JSON request: {}", request);
 
