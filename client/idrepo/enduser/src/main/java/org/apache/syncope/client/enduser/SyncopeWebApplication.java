@@ -39,6 +39,7 @@ import org.apache.syncope.client.enduser.pages.SelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.panels.Sidebar;
 import org.apache.syncope.client.lib.SyncopeAnonymousClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.client.ui.commons.BaseWebApplication;
 import org.apache.syncope.client.ui.commons.SyncopeUIRequestCycleListener;
 import org.apache.syncope.client.ui.commons.annotations.Resource;
 import org.apache.syncope.client.ui.commons.themes.AdminLTE;
@@ -69,7 +70,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.io.ResourceLoader;
 
-public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
+public class SyncopeWebApplication extends WicketBootSecuredWebApplication implements BaseWebApplication {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeWebApplication.class);
 
@@ -290,12 +291,19 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return Login.class;
     }
 
+    @Override
     public String getAdminUser() {
         return props.getAdminUser();
     }
 
+    @Override
     public String getAnonymousUser() {
         return props.getAnonymousUser();
+    }
+
+    @Override
+    public String getAnonymousKey() {
+        return props.getAnonymousKey();
     }
 
     public boolean isCaptchaEnabled() {
@@ -314,11 +322,13 @@ public class SyncopeWebApplication extends WicketBootSecuredWebApplication {
         return props.isReportPropagationErrorDetails();
     }
 
+    @Override
     public long getMaxWaitTimeInSeconds() {
         return props.getMaxWaitTimeOnApplyChanges();
     }
 
-    public Integer getMaxUploadFileSizeMB() {
+    @Override
+    public int getMaxUploadFileSizeMB() {
         return props.getMaxUploadFileSizeMB();
     }
 }

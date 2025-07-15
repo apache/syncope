@@ -16,15 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.markup.html.form;
+package org.apache.syncope.client.ui.commons.markup.html.form;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
-import org.apache.syncope.client.ui.commons.markup.html.form.AbstractMultiPanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -86,7 +84,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
 
                 @Override
                 protected FieldPanel<? extends Serializable> getItemPanel(final ListItem<E> item) {
-                    final FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
+                    FieldPanel<? extends Serializable> fieldPanel = panelTemplate.clone();
                     fieldPanel.setIndex(item.getIndex());
                     fieldPanel.setNewModel(item);
                     fieldPanel.settingsDependingComponents();
@@ -113,7 +111,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
 
                 @Override
                 protected void sendError(final String message) {
-                    SyncopeEnduserSession.get().error(getString(Constants.OPERATION_ERROR));
+                    Session.get().error(getString(Constants.OPERATION_ERROR));
                 }
             };
         }

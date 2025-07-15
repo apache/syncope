@@ -333,12 +333,13 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
             fpd.setType(fpdTO.getType());
             fpd.setReadable(fpdTO.isReadable());
             fpd.setWritable(fpdTO.isWritable());
-            fpd.setStringRegExp(fpdTO.getStringRegEx());
+            fpd.setStringRegEx(fpdTO.getStringRegEx());
             fpd.setRequired(fpdTO.isRequired());
             fpd.setDatePattern(fpdTO.getDatePattern());
             fpd.setEnumValues(fpdTO.getEnumValues());
             fpd.setDropdownSingleSelection(fpdTO.isDropdownSingleSelection());
             fpd.setDropdownFreeForm(fpdTO.isDropdownFreeForm());
+            fpd.setMimeType(fpdTO.getMimeType());
 
             fpd.setMacroTask(macroTask);
             macroTask.add(fpd);
@@ -566,6 +567,7 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                     fpdTO.getEnumValues().putAll(fpd.getEnumValues());
                     fpdTO.setDropdownSingleSelection(fpd.isDropdownSingleSelection());
                     fpdTO.setDropdownFreeForm(fpd.isDropdownFreeForm());
+                    fpdTO.setMimeType(fpd.getMimeType());
 
                     macroTaskTO.getFormPropertyDefs().add(fpdTO);
                 });
@@ -709,6 +711,10 @@ public class TaskDataBinderImpl extends AbstractExecutableDatabinder implements 
                             forEach((k, v) -> prop.getDropdownValues().add(new FormPropertyValue(k, v))));
                     prop.setDropdownSingleSelection(fpd.isDropdownSingleSelection());
                     prop.setDropdownFreeForm(fpd.isDropdownFreeForm());
+                }
+
+                case Binary -> {
+                    prop.setMimeType(fpd.getMimeType());
                 }
 
                 default -> {

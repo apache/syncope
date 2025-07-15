@@ -559,6 +559,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>elasticsearch</alias>
                   <name>docker.elastic.co/elasticsearch/elasticsearch:${elasticsearch.version}</name>
                   <run>
                     <env>
@@ -572,6 +573,19 @@ under the License.
                     <ports>
                       <port>9200:9200</port>
                       <port>9300:9300</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
+                  <alias>kibana</alias>
+                  <name>docker.elastic.co/kibana/kibana:${elasticsearch.version}</name>
+                  <run>
+                    <env>
+                      <ELASTICSEARCH_HOSTS>http://${docker.container.elasticsearch.ip}:9200</ELASTICSEARCH_HOSTS>
+                      <xpack.security.enabled>false</xpack.security.enabled>
+                    </env>
+                    <ports>
+                      <port>5601:5601</port>
                     </ports>
                   </run>
                 </image>
@@ -669,6 +683,7 @@ under the License.
             <configuration>
               <images>
                 <image>
+                  <alias>opensearch</alias>
                   <name>opensearchproject/opensearch:${opensearch.version}</name>
                   <run>
                     <env>
@@ -682,6 +697,19 @@ under the License.
                     <ports>
                       <port>9200:9200</port>
                       <port>9300:9300</port>
+                    </ports>
+                  </run>
+                </image>
+                <image>
+                  <alias>dashboards</alias>
+                  <name>opensearchproject/opensearch-dashboards:${opensearch.version}</name>
+                  <run>
+                    <env>
+                      <OPENSEARCH_HOSTS>http://${docker.container.opensearch.ip}:9200</OPENSEARCH_HOSTS>
+                      <DISABLE_SECURITY_DASHBOARDS_PLUGIN>true</DISABLE_SECURITY_DASHBOARDS_PLUGIN>
+                    </env>
+                    <ports>
+                      <port>5601:5601</port>
                     </ports>
                   </run>
                 </image>

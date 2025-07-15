@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser;
 
-import org.apache.syncope.client.enduser.commons.PreviewUtils;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.rest.AnyTypeRestClient;
 import org.apache.syncope.client.enduser.rest.GroupRestClient;
@@ -27,6 +26,7 @@ import org.apache.syncope.client.enduser.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.enduser.rest.SyncopeRestClient;
 import org.apache.syncope.client.enduser.rest.UserSelfRestClient;
 import org.apache.syncope.client.ui.commons.MIMETypesLoader;
+import org.apache.syncope.client.ui.commons.PreviewUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

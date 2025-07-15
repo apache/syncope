@@ -51,7 +51,7 @@ class MyMacroActions implements MacroActions {
   }
 
   @Override
-  void afterCommand(Command<CommandArgs> command, CommandArgs args, String output) {
+  void afterCommand(Command<CommandArgs> command, CommandArgs args, CommandArgs.Result result) {
   }
 
   @Override

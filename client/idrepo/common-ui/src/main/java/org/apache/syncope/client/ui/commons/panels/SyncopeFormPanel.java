@@ -39,9 +39,11 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPane
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPasswordFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.common.lib.form.FormProperty;
 import org.apache.syncope.common.lib.form.FormPropertyValue;
 import org.apache.syncope.common.lib.form.SyncopeForm;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -206,6 +208,24 @@ public class SyncopeFormPanel<F extends SyncopeForm> extends Panel {
                     case Password:
                         field = new AjaxPasswordFieldPanel("value", label, new PropertyModel<>(prop, "value"), false).
                                 setResetPassword(false);
+                        break;
+
+                    case Binary:
+                        PageReference pageRef = getPage().getPageReference();
+                        field = new BinaryFieldPanel(
+                                "value",
+                                label,
+                                new PropertyModel<>(prop, "value"),
+                                prop.getMimeType(),
+                                prop.getId()) {
+
+                            private static final long serialVersionUID = -3268213909514986831L;
+
+                            @Override
+                            protected PageReference getPageReference() {
+                                return pageRef;
+                            }
+                        };
                         break;
 
                     case String:

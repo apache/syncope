@@ -46,7 +46,6 @@ import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.ui.commons.DateOps;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxCheckBoxPanel;
@@ -57,6 +56,7 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPane
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.FieldPanel;
+import org.apache.syncope.client.ui.commons.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.report.SearchCondition;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.SchemaTO;
