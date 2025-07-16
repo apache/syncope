@@ -86,6 +86,13 @@ public class SearchITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
+
+        // by key
+        matchingUsers = USER_SERVICE.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().
+                        is("key").equalTo("1417acbe-cbf6-4277-9372-e75e04f97000").query()).build());
+        assertNotNull(matchingUsers);
+        assertFalse(matchingUsers.getResult().isEmpty());
     }
 
     @Test
@@ -93,7 +100,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().
-                                is("username").equalToIgnoreCase("RoSsINI").and("key").lessThan(2).query()).build());
+                                is("username").equalToIgnoreCase("RoSsINI").and("key").notNullValue().query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
@@ -118,7 +125,7 @@ public class SearchITCase extends AbstractITCase {
         PagedResult<UserTO> matchingUsers = USER_SERVICE.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().
-                                is("username").equalTo("rossini").and("key").lessThan(2).query()).build());
+                                is("key").notNullValue().and().is("username").equalTo("rossini").query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
@@ -1033,7 +1040,7 @@ public class SearchITCase extends AbstractITCase {
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
                 allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
-                    orElseThrow().getValues().getFirst())));
+                orElseThrow().getValues().getFirst())));
 
         // 1. create user with similar email
         UserTO user = createUser(UserITCase.getSample("bisverdi@syncope.org")).getEntity();
@@ -1055,7 +1062,7 @@ public class SearchITCase extends AbstractITCase {
         assertFalse(users.getResult().isEmpty());
         assertTrue(users.getResult().stream().
                 allMatch(u -> "verdi@syncope.org".equals(u.getPlainAttr("email").
-                    orElseThrow().getValues().getFirst())));
+                orElseThrow().getValues().getFirst())));
         assertTrue(users.getResult().stream().noneMatch(u -> user.getKey().equals(u.getKey())));
     }
 

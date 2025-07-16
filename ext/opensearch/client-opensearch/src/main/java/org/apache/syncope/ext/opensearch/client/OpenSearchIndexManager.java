@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
@@ -341,7 +340,6 @@ public class OpenSearchIndexManager {
 
         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                 index(OpenSearchUtils.getAuditIndex(domain)).
-                id(SecureRandomUtils.generateRandomUUID().toString()).
                 document(openSearchUtils.document(auditEvent)).
                 build();
         IndexResponse response = client.index(request);

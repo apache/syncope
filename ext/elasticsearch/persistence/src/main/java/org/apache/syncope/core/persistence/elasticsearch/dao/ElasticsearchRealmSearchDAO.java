@@ -30,6 +30,7 @@ import co.elastic.clients.elasticsearch._types.query_dsl.QueryBuilders;
 import co.elastic.clients.elasticsearch.core.CountRequest;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.search.Hit;
+import co.elastic.clients.elasticsearch.core.search.SourceConfig;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -93,6 +94,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 query(new Query.Builder().term(QueryBuilders.term().
                         field("fullPath").value(fullPath).build()).build()).
                 size(1).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         try {
@@ -113,6 +115,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 searchType(SearchType.QueryThenFetch).
                 query(query).
                 sort(REALM_SORT_OPTIONS).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         try {
@@ -214,6 +217,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(REALM_SORT_OPTIONS).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         List<String> result = List.of();
@@ -249,6 +253,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 from(0).
                 size(indexMaxResultWindow).
                 sort(REALM_SORT_OPTIONS).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         List<String> result = List.of();

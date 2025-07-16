@@ -116,7 +116,6 @@ public class ElasticsearchUtils {
     @Transactional
     public Map<String, Object> document(final Any any) {
         Map<String, Object> builder = new HashMap<>();
-        builder.put("id", any.getKey());
         builder.put("realm", any.getRealm().getKey());
         builder.put("anyType", any.getType().getKey());
         builder.put("creationDate", any.getCreationDate());
@@ -229,7 +228,6 @@ public class ElasticsearchUtils {
 
     public Map<String, Object> document(final Realm realm) {
         Map<String, Object> builder = new HashMap<>();
-        builder.put("id", realm.getKey());
         builder.put("name", realm.getName());
         builder.put("parent_id", realm.getParent() == null ? null : realm.getParent().getKey());
         builder.put("fullPath", realm.getFullPath());

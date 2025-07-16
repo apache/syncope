@@ -196,7 +196,7 @@ public class OpenSearchAnySearchDAOTest {
 
             assertThat(
                     new Query.Builder().bool(QueryBuilders.bool().
-                            filter(new Query.Builder().exists(QueryBuilders.exists().field("id").build()).build()).
+                            filter(new Query.Builder().exists(QueryBuilders.exists().field("_id").build()).build()).
                             filter(new Query.Builder().term(QueryBuilders.term().field("memberships").
                                     value(FieldValue.of("groupKey")).build()).build()).build()).build()).
                     usingRecursiveComparison().
@@ -261,17 +261,17 @@ public class OpenSearchAnySearchDAOTest {
             assertThat(
                     new Query.Builder().bool(QueryBuilders.bool().
                             filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("1")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("1")).build()).build()).
                             filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("2")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("2")).build()).build()).
                             filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("3")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("3")).build()).build()).
                             filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("4")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("4")).build()).build()).
                             filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("5")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("5")).build()).build()).
                             filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("6")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("6")).build()).build()).
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
@@ -288,17 +288,17 @@ public class OpenSearchAnySearchDAOTest {
             assertThat(
                     new Query.Builder().disMax(QueryBuilders.disMax().
                             queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("1")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("1")).build()).build()).
                             queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("2")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("2")).build()).build()).
                             queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("3")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("3")).build()).build()).
                             queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("4")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("4")).build()).build()).
                             queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("5")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("5")).build()).build()).
                             queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("id").value(FieldValue.of("6")).build()).build()).
+                                    QueryBuilders.term().field("_id").value(FieldValue.of("6")).build()).build()).
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
@@ -324,24 +324,24 @@ public class OpenSearchAnySearchDAOTest {
                     new Query.Builder().bool(QueryBuilders.bool().
                             filter(new Query.Builder().disMax(QueryBuilders.disMax().
                                     queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("1")).build()).build()).
                                     queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("2")).build()).build()).
                                     queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("3")).build()).build()).build()).
                                     build()).
                             filter(new Query.Builder().disMax(QueryBuilders.disMax().
                                     queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("4")).build()).build()).
                                     queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("5")).build()).build()).
                                     queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("6")).build()).build()).build()).
                                     build()).
                             build()).build()).
@@ -369,24 +369,24 @@ public class OpenSearchAnySearchDAOTest {
                     new Query.Builder().disMax(QueryBuilders.disMax().
                             queries(new Query.Builder().bool(QueryBuilders.bool().
                                     filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("1")).build()).build()).
                                     filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("2")).build()).build()).
                                     filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("3")).build()).build()).build()).
                                     build()).
                             queries(new Query.Builder().bool(QueryBuilders.bool().
                                     filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("4")).build()).build()).
                                     filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("5")).build()).build()).
                                     filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("id").
+                                            QueryBuilders.term().field("_id").
                                                     value(FieldValue.of("6")).build()).build()).build()).
                                     build()).
                             build()).build()).
