@@ -49,7 +49,6 @@ import org.apache.syncope.core.persistence.api.entity.AuditEvent;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.event.EntityLifecycleEvent;
-import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -342,7 +341,6 @@ public class ElasticsearchIndexManager {
 
         IndexRequest<Map<String, Object>> request = new IndexRequest.Builder<Map<String, Object>>().
                 index(ElasticsearchUtils.getAuditIndex(domain)).
-                id(SecureRandomUtils.generateRandomUUID().toString()).
                 document(elasticsearchUtils.document(auditEvent)).
                 build();
         IndexResponse response = client.index(request);

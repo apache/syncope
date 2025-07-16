@@ -237,8 +237,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         orderBy.forEach(clause -> {
             String sortName = null;
 
-            // Manage difference among external key attribute and internal JPA @Id
-            String fieldName = "key".equals(clause.getProperty()) ? "id" : clause.getProperty();
+            // Manage difference between external key attribute and internal _id
+            String fieldName = "key".equals(clause.getProperty()) ? "_id" : clause.getProperty();
 
             Field anyField = anyUtils.getField(fieldName).orElse(null);
             if (anyField == null) {
@@ -600,6 +600,21 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         Pair<PlainSchema, PlainAttrValue> checked = check(cond);
 
         return fillAttrQuery(checked.getLeft(), checked.getRight(), cond);
+    }
+
+    @Override
+    protected Triple<PlainSchema, PlainAttrValue, AnyCond> check(final AnyCond cond, final AnyTypeKind kind) {
+        Triple<PlainSchema, PlainAttrValue, AnyCond> checked = super.check(cond, kind);
+
+        // Manage difference between external id attribute and internal _id
+        if ("id".equals(checked.getRight().getSchema())) {
+            checked.getRight().setSchema("_id");
+        }
+        if ("id".equals(checked.getLeft().getKey())) {
+            checked.getLeft().setKey("_id");
+        }
+
+        return checked;
     }
 
     protected Query getQuery(final AnyCond cond, final AnyTypeKind kind) {

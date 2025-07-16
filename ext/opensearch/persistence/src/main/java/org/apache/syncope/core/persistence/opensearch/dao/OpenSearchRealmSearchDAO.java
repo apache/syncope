@@ -43,6 +43,7 @@ import org.opensearch.client.opensearch._types.query_dsl.QueryBuilders;
 import org.opensearch.client.opensearch.core.CountRequest;
 import org.opensearch.client.opensearch.core.SearchRequest;
 import org.opensearch.client.opensearch.core.search.Hit;
+import org.opensearch.client.opensearch.core.search.SourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -94,6 +95,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 query(new Query.Builder().term(QueryBuilders.term().
                         field("fullPath").value(FieldValue.of(fullPath)).build()).build()).
                 size(1).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         try {
@@ -114,6 +116,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 searchType(SearchType.QueryThenFetch).
                 query(query).
                 sort(REALM_SORT_OPTIONS).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         try {
@@ -214,6 +217,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 from(pageable.isUnpaged() ? 0 : pageable.getPageSize() * pageable.getPageNumber()).
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(REALM_SORT_OPTIONS).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         List<String> result = List.of();
@@ -249,6 +253,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 from(0).
                 size(indexMaxResultWindow).
                 sort(REALM_SORT_OPTIONS).
+                fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
 
         List<String> result = List.of();
