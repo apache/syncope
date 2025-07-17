@@ -26,6 +26,7 @@ import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMGeneralConf;
+import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.types.SCIMEntitlement;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -88,45 +89,57 @@ public class SCIMConfManager {
         conf.getGeneralConf().setLastChangeDate(OffsetDateTime.now());
 
         if (conf.getExtensionUserConf() != null) {
-            conf.getExtensionUserConf().getAttributes().forEach(scimItem -> {
-                try {
-                    PlainSchemaTO schema = schemaLogic.read(SchemaType.PLAIN, scimItem.getExtAttrName());
-                    SyncopeClientException invalidMapping =
-                            SyncopeClientException.build(ClientExceptionType.InvalidMapping);
-                    if (!scimItem.getMandatoryCondition().equals(schema.getMandatoryCondition())) {
-                        invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
-                                + "' should " + (Boolean.parseBoolean(schema.getMandatoryCondition()) ? "" : "not")
-                                + " be required");
-                    }
-                    if (scimItem.isMultiValued() != schema.isMultivalue()) {
-                        invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
-                                + "' should " + (schema.isMultivalue() ? "" : "not") + " be multi-value");
-                    }
-                    if (scimItem.isMutability() != schema.isReadonly()) {
-                        invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
-                                + "' should " + (schema.isReadonly() ? "" : "not") + " be readonly");
-                    }
-                    if (scimItem.isUniqueness() != schema.isUniqueConstraint()) {
-                        invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
-                                + "' should " + (schema.isUniqueConstraint() ? "" : "not") + " be unique");
-                    }
-                    if (!invalidMapping.getElements().isEmpty()) {
-                        throw invalidMapping;
-                    }
-                } catch (NotFoundException e) {
-                    PlainSchemaTO schema = schemaLogic.read(SchemaType.VIRTUAL, scimItem.getExtAttrName());
-                    if (scimItem.isMutability() != schema.isReadonly()) {
-                        SyncopeClientException invalidMapping =
-                                SyncopeClientException.build(ClientExceptionType.InvalidMapping);
-                        invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
-                                + "' should " + (schema.isReadonly() ? "" : "not") + " be readonly");
-                        throw invalidMapping;
-                    }
+            conf.getExtensionUserConf().getAttributes().forEach(this::checkSCIMItem);
+        }
+        if (conf.getExtensionGroupConf() != null) {
+            conf.getExtensionGroupConf().getAttributes().forEach(this::checkSCIMItem);
+        }
+        if (!conf.getExtensionAnyObjectsConf().isEmpty()) {
+            conf.getExtensionAnyObjectsConf().forEach(confItem -> {
+                if (confItem != null) {
+                    confItem.getAttributes().forEach(this::checkSCIMItem);
                 }
             });
         }
 
         confParamOps.set(AuthContextUtils.getDomain(),
                 SCIMConf.KEY, Base64.getEncoder().encodeToString(POJOHelper.serialize(conf).getBytes()));
+    }
+
+    private void checkSCIMItem(final SCIMItem scimItem) {
+        try {
+            PlainSchemaTO schema = schemaLogic.read(SchemaType.PLAIN, scimItem.getExtAttrName());
+            SyncopeClientException invalidMapping =
+                    SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+            if (!scimItem.getMandatoryCondition().equals(schema.getMandatoryCondition())) {
+                invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
+                        + "' should " + (Boolean.parseBoolean(schema.getMandatoryCondition()) ? "" : "not")
+                        + " be required");
+            }
+            if (scimItem.isMultiValued() != schema.isMultivalue()) {
+                invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
+                        + "' should " + (schema.isMultivalue() ? "" : "not") + " be multi-value");
+            }
+            if (scimItem.isMutability() != schema.isReadonly()) {
+                invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
+                        + "' should " + (schema.isReadonly() ? "" : "not") + " be readonly");
+            }
+            if (scimItem.isUniqueness() != schema.isUniqueConstraint()) {
+                invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
+                        + "' should " + (schema.isUniqueConstraint() ? "" : "not") + " be unique");
+            }
+            if (!invalidMapping.getElements().isEmpty()) {
+                throw invalidMapping;
+            }
+        } catch (NotFoundException e) {
+            PlainSchemaTO schema = schemaLogic.read(SchemaType.VIRTUAL, scimItem.getExtAttrName());
+            if (scimItem.isMutability() != schema.isReadonly()) {
+                SyncopeClientException invalidMapping =
+                        SyncopeClientException.build(ClientExceptionType.InvalidMapping);
+                invalidMapping.getElements().add('\'' + scimItem.getIntAttrName()
+                        + "' should " + (schema.isReadonly() ? "" : "not") + " be readonly");
+                throw invalidMapping;
+            }
+        }
     }
 }

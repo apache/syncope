@@ -249,6 +249,15 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                         }
                     }
                 }
+
+                if (conf.getExtensionGroupConf() != null) {
+                    for (Map.Entry<String, String> entry : conf.getExtensionGroupConf().asMap().entrySet()) {
+                        if (schemaEquals(Resource.ExtensionGroup, entry.getKey(), schema)) {
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
+                        }
+                    }
+                }
                 break;
 
             default:

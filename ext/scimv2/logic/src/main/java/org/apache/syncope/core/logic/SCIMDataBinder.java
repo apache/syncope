@@ -89,8 +89,6 @@ public class SCIMDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(SCIMDataBinder.class);
 
-    protected static final List<String> GROUP_SCHEMAS = List.of(Resource.Group.schema());
-
     /**
      * Translates the given SCIM filter into the equivalent JEXL expression.
      *
@@ -506,6 +504,25 @@ public class SCIMDataBinder {
 
             default:
                 userTO.getPlainAttrs().add(new Attr.Builder(schema).value(value).build());
+        }
+    }
+
+    protected void setAttribute(
+            final GroupTO groupTO,
+            final String schema,
+            final String value) {
+
+        if (schema == null || value == null) {
+            return;
+        }
+
+        switch (schema) {
+            case "name":
+                groupTO.setName(value);
+                break;
+
+            default:
+                groupTO.getPlainAttrs().add(new Attr.Builder(schema).value(value).build());
         }
     }
 
@@ -1034,8 +1051,16 @@ public class SCIMDataBinder {
             final List<String> attributes,
             final List<String> excludedAttributes) {
 
+        SCIMConf conf = confManager.get();
+        List<String> schemas = new ArrayList<>();
+        schemas.add(Resource.Group.schema());
+        if (conf.getExtensionGroupConf() != null) {
+            schemas.add(Resource.ExtensionGroup.schema());
+        }
+
         SCIMGroup group = new SCIMGroup(
                 groupTO.getKey(),
+                schemas,
                 new Meta(
                         Resource.Group,
                         groupTO.getCreationDate(),
@@ -1043,8 +1068,6 @@ public class SCIMDataBinder {
                         groupTO.getETagValue(),
                         location),
                 output(attributes, excludedAttributes, "displayName", groupTO.getName()));
-
-        SCIMConf conf = confManager.get();
 
         Map<String, Attr> attrs = new HashMap<>();
         attrs.putAll(EntityTOUtils.buildAttrMap(groupTO.getPlainAttrs()));
@@ -1062,6 +1085,19 @@ public class SCIMDataBinder {
         MembershipCond membCond = new MembershipCond();
         membCond.setGroup(groupTO.getKey());
         SearchCond searchCond = SearchCond.getLeaf(membCond);
+
+        if (conf.getExtensionGroupConf() != null) {
+            SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
+            conf.getExtensionGroupConf().asMap().forEach((scimAttr, syncopeAttr) -> {
+                if (output(attributes, excludedAttributes, scimAttr) && attrs.containsKey(syncopeAttr)) {
+                    extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0));
+                }
+            });
+
+            if (!extensionInfo.isEmpty()) {
+                group.setExtensionInfo(extensionInfo);
+            }
+        }
 
         if (output(attributes, excludedAttributes, "members")) {
             int count = userLogic.search(
@@ -1084,7 +1120,16 @@ public class SCIMDataBinder {
     }
 
     public GroupTO toGroupTO(final SCIMGroup group, final boolean checkSchemas) {
-        if (checkSchemas && !GROUP_SCHEMAS.equals(group.getSchemas())) {
+        SCIMConf conf = confManager.get();
+        Set<String> expectedSchemas = new HashSet<>();
+        expectedSchemas.add(Resource.Group.schema());
+        if (conf.getExtensionGroupConf() != null) {
+            expectedSchemas.add(Resource.ExtensionGroup.schema());
+        }
+        if (checkSchemas
+                && (!group.getSchemas().containsAll(expectedSchemas)
+                || !expectedSchemas.containsAll(group.getSchemas()))) {
+
             throw new BadRequestException(ErrorType.invalidValue);
         }
 
@@ -1093,13 +1138,17 @@ public class SCIMDataBinder {
         groupTO.setKey(group.getId());
         groupTO.setName(group.getDisplayName());
 
-        SCIMConf conf = confManager.get();
         if (conf.getGroupConf() != null
                 && conf.getGroupConf().getExternalId() != null && group.getExternalId() != null) {
 
             groupTO.getPlainAttrs().add(
                     new Attr.Builder(conf.getGroupConf().getExternalId()).
                             value(group.getExternalId()).build());
+        }
+
+        if (conf.getExtensionGroupConf() != null && group.getExtensionInfo() != null) {
+            conf.getExtensionGroupConf().asMap().forEach((scimAttr, syncopeAttr) -> setAttribute(
+                    groupTO, syncopeAttr, group.getExtensionInfo().getAttributes().get(scimAttr)));
         }
 
         return groupTO;
@@ -1128,8 +1177,13 @@ public class SCIMDataBinder {
             groupUR.setName(name.build());
         } else {
             SCIMConf conf = confManager.get();
-            if (conf.getGroupConf() != null) {
+            if (conf.getGroupConf() != null && op.getPath().getAttribute().equals("externalId")) {
                 setAttribute(groupUR.getPlainAttrs(), conf.getGroupConf().getExternalId(), op);
+            }
+            if (conf.getExtensionGroupConf() != null) {
+                Optional.ofNullable(conf.getExtensionGroupConf()).
+                        flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute()))).
+                        ifPresent(schema -> setAttribute(groupUR.getPlainAttrs(), schema, op));
             }
         }
 

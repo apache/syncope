@@ -138,6 +138,16 @@ public class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
             }
         });
 
+        tabs.add(new ITabComponent(new Model<>(getString("tab6")), getString("tab6")) {
+
+            private static final long serialVersionUID = -7858187494595192532L;
+
+            @Override
+            public WebMarkupContainer getPanel(final String panelId) {
+                return new SCIMConfExtensionGroupPanel(panelId, scimConf);
+            }
+        });
+
         return tabs;
     }
 }

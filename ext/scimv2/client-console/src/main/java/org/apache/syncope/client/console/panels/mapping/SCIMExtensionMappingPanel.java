@@ -79,11 +79,15 @@ public class SCIMExtensionMappingPanel extends Panel {
 
     protected final WebMarkupContainer mappingContainer;
 
+    protected final AnyTypeKind anyType;
+
     public SCIMExtensionMappingPanel(
             final String id,
-            final IModel<List<SCIMItem>> model) {
+            final IModel<List<SCIMItem>> model,
+            final AnyTypeKind anyType) {
 
         super(id);
+        this.anyType = anyType;
         setOutputMarkupId(true);
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
@@ -264,9 +268,21 @@ public class SCIMExtensionMappingPanel extends Panel {
     }
 
     protected IModel<List<String>> getExtAttrNames() {
-        List<String> choices = new ArrayList<>(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
+        List<String> choices = new ArrayList<>();
+        switch (anyType) {
+            case USER:
+                choices.addAll(ClassPathScanImplementationLookup.USER_FIELD_NAMES);
+                break;
+            case GROUP:
+                choices.addAll(ClassPathScanImplementationLookup.GROUP_FIELD_NAMES);
+                break;
+            case ANY_OBJECT:
+                choices.addAll(ClassPathScanImplementationLookup.ANY_OBJECT_FIELD_NAMES);
+                break;
+            default:
+        }
 
-        anyTypeClassRestClient.list(anyTypeRestClient.read(AnyTypeKind.USER.name()).getClasses()).
+        anyTypeClassRestClient.list(anyTypeRestClient.read(anyType.name()).getClasses()).
                 forEach(anyTypeClassTO -> {
                     choices.addAll(anyTypeClassTO.getPlainSchemas());
                     choices.addAll(anyTypeClassTO.getDerSchemas());

@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
-import org.apache.syncope.common.lib.scim.SCIMExtensionUserConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
 import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.common.lib.scim.SCIMUserNameConf;
@@ -65,7 +65,7 @@ public class SCIMFilterTest {
         entConf.setOrganization("org");
         conf.setEnterpriseUserConf(entConf);
 
-        SCIMExtensionUserConf extConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extConf = new SCIMExtensionAnyConf();
         SCIMItem item = new SCIMItem();
         item.setIntAttrName("realm");
         item.setExtAttrName("realm");

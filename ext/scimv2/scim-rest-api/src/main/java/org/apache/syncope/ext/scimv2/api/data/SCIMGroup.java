@@ -23,26 +23,37 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.syncope.ext.scimv2.api.type.Resource;
 
-@JsonPropertyOrder({ "schemas", "id", "externalId", "displayName", "members", "meta" })
+@JsonPropertyOrder({ "schemas", "id", "externalId", "displayName", "members", "extensionInfo", "meta" })
 public class SCIMGroup extends SCIMResource {
 
     private static final long serialVersionUID = -2935466041674390279L;
 
     private final List<Member> members = new ArrayList<>();
 
+    @JsonProperty("urn:ietf:params:scim:schemas:extension:syncope:2.0:Group")
+    private SCIMExtensionInfo extensionInfo;
+
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public SCIMGroup(
             @JsonProperty("id") final String id,
+            @JsonProperty("schemas") final List<String> schemas,
             @JsonProperty("meta") final Meta meta,
             @JsonProperty("displayName") final String displayName) {
 
-        super(id, List.of(Resource.Group.schema()), meta);
+        super(id, schemas, meta);
         super.setDisplayName(displayName);
     }
 
     public List<Member> getMembers() {
         return members;
+    }
+
+    public SCIMExtensionInfo getExtensionInfo() {
+        return extensionInfo;
+    }
+
+    public void setExtensionInfo(final SCIMExtensionInfo extensionInfo) {
+        this.extensionInfo = extensionInfo;
     }
 }

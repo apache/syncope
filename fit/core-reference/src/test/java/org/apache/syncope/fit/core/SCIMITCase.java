@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
-import org.apache.syncope.common.lib.scim.SCIMExtensionUserConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
 import org.apache.syncope.common.lib.scim.SCIMGroupConf;
 import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
@@ -143,6 +143,13 @@ public class SCIMITCase extends AbstractITCase {
         return user;
     }
 
+    private static SCIMGroup getSampleGroup(final String name, final List<String> schemas) {
+        SCIMGroup group = new SCIMGroup(null, schemas, null, name);
+        group.setDisplayName(name);
+
+        return group;
+    }
+
     @BeforeAll
     public static void isSCIMAvailable() {
         if (ENABLED == null) {
@@ -209,7 +216,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void schemas() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extensionUserConf = new SCIMExtensionAnyConf();
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -217,6 +224,16 @@ public class SCIMITCase extends AbstractITCase {
         scimItem.setExtAttrName("gender");
         extensionUserConf.add(scimItem);
         CONF.setExtensionUserConf(extensionUserConf);
+
+        SCIMExtensionAnyConf extensionGroupConf = new SCIMExtensionAnyConf();
+        extensionGroupConf.setName("syncope");
+        extensionGroupConf.setDescription("syncope group");
+        SCIMItem scimItemGroup = new SCIMItem();
+        scimItemGroup.setIntAttrName("originalName");
+        scimItemGroup.setExtAttrName("originalName");
+        scimItemGroup.setUniqueness(true);
+        extensionGroupConf.add(scimItemGroup);
+        CONF.setExtensionGroupConf(extensionGroupConf);
         SCIM_CONF_SERVICE.set(CONF);
 
         Response response = webClient().path("Schemas").get();
@@ -227,7 +244,7 @@ public class SCIMITCase extends AbstractITCase {
 
         ArrayNode schemas = response.readEntity(ArrayNode.class);
         assertNotNull(schemas);
-        assertEquals(4, schemas.size());
+        assertEquals(5, schemas.size());
 
         response = webClient().path("Schemas").path("none").get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
@@ -246,7 +263,15 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(extensionUser);
         assertEquals(Resource.ExtensionUser.schema(), extensionUser.get("id").textValue());
 
+        response = webClient().path("Schemas").path(Resource.ExtensionGroup.schema()).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        ObjectNode extensionGroup = response.readEntity(ObjectNode.class);
+        assertNotNull(extensionGroup);
+        assertEquals(Resource.ExtensionGroup.schema(), extensionGroup.get("id").textValue());
+
         CONF.setExtensionUserConf(null);
+        CONF.setExtensionGroupConf(null);
         SCIM_CONF_SERVICE.set(CONF);
     }
 
@@ -306,7 +331,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     void invalidConf() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extensionUserConf = new SCIMExtensionAnyConf();
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -456,13 +481,13 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
 
         SCIMEnterpriseUserConf beforeEntConf = CONF.getEnterpriseUserConf();
-        SCIMExtensionUserConf beforeExtConf = CONF.getExtensionUserConf();
+        SCIMExtensionAnyConf beforeExtConf = CONF.getExtensionUserConf();
         try {
             SCIMEnterpriseUserConf entConf = new SCIMEnterpriseUserConf();
             entConf.setOrganization("userId");
             CONF.setEnterpriseUserConf(entConf);
 
-            SCIMExtensionUserConf extConf = new SCIMExtensionUserConf();
+            SCIMExtensionAnyConf extConf = new SCIMExtensionAnyConf();
             SCIMItem item = new SCIMItem();
             item.setIntAttrName("email");
             item.setExtAttrName("email");
@@ -538,7 +563,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     void crudExtensionUser() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extensionUserConf = new SCIMExtensionAnyConf();
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -792,7 +817,7 @@ public class SCIMITCase extends AbstractITCase {
     public void createGroup() {
         String displayName = UUID.randomUUID().toString();
 
-        SCIMGroup group = new SCIMGroup(null, null, displayName);
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, displayName);
         group.getMembers().add(new Member("1417acbe-cbf6-4277-9372-e75e04f97000", null, null));
         assertNull(group.getId());
         assertEquals(displayName, group.getDisplayName());
@@ -821,10 +846,50 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @Test
+    void crudExtensionGroup() {
+        SCIMExtensionAnyConf extensionGroupConf = new SCIMExtensionAnyConf();
+        extensionGroupConf.setName("syncope");
+        extensionGroupConf.setDescription("syncope group");
+        SCIMItem scimItemGroup = new SCIMItem();
+        scimItemGroup.setIntAttrName("originalName");
+        scimItemGroup.setExtAttrName("originalName");
+        scimItemGroup.setUniqueness(true);
+        extensionGroupConf.add(scimItemGroup);
+        CONF.setExtensionGroupConf(extensionGroupConf);
+        SCIM_CONF_SERVICE.set(CONF);
+
+        SCIMGroup group = getSampleGroup(
+                UUID.randomUUID().toString(), List.of(Resource.Group.schema(), Resource.ExtensionGroup.schema()));
+        SCIMExtensionInfo scimExtensionInfo = new SCIMExtensionInfo();
+        scimExtensionInfo.getAttributes().put("originalName", "originalName");
+        group.setExtensionInfo(scimExtensionInfo);
+
+        Response response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertNotNull(group.getId());
+        assertTrue(response.getLocation().toASCIIString().endsWith(group.getId()));
+
+        GroupTO groupTO = GROUP_SERVICE.read(group.getId());
+        assertEquals(group.getDisplayName(), groupTO.getName());
+        assertEquals(group.getExtensionInfo().getAttributes().get("originalName"),
+                groupTO.getPlainAttr("originalName").get().getValues().get(0));
+
+        response = webClient().path("Groups").path(group.getId()).delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        response = webClient().path("Groups").path(group.getId()).get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        CONF.setExtensionGroupConf(null);
+        SCIM_CONF_SERVICE.set(CONF);
+    }
+
+    @Test
     public void updateGroup() {
         SCIM_CONF_SERVICE.set(CONF);
 
-        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, UUID.randomUUID().toString());
         group.getMembers().add(new Member("74cd8ece-715a-44a4-a736-e17b46c4e7e6", null, null));
         group.getMembers().add(new Member("1417acbe-cbf6-4277-9372-e75e04f97000", null, null));
         Response response = webClient().path("Groups").post(group);
@@ -922,7 +987,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void replaceGroup() {
-        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, UUID.randomUUID().toString());
         group.getMembers().add(new Member("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", null, null));
         Response response = webClient().path("Groups").post(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
@@ -968,7 +1033,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void deleteGroup() {
-        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, UUID.randomUUID().toString());
         Response response = webClient().path("Groups").post(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
