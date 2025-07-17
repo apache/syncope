@@ -72,12 +72,14 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
+import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.ReconStatus;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -1848,5 +1850,50 @@ public class UserIssuesITCase extends AbstractITCase {
                         .getResult().stream().map(PropagationTaskTO.class::cast)
                         .toList().stream().anyMatch(pt -> ResourceOperation.DELETE == pt.
                         getOperation()));
+    }
+
+    @Test
+    public void issueSYNCOPE1894() {
+        SchemaTO userWithDotSchema = new PlainSchemaTO();
+        userWithDotSchema.setKey("user.testWithDot");
+        userWithDotSchema.setAnyTypeClass("minimal user");
+        SCHEMA_SERVICE.create(SchemaType.PLAIN, userWithDotSchema);
+        
+        ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
+        ldap.setKey("ldapWithDot");
+
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow();
+        provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
+        provision.getVirSchemas().clear();
+
+        ldap.getProvisions().clear();
+        ldap.getProvisions().add(provision);
+
+        Item item = new Item();
+        item.setIntAttrName(userWithDotSchema.getKey());
+        item.setExtAttrName("carLicense");
+        item.setPurpose(MappingPurpose.PROPAGATION);
+
+        provision.getMapping().add(item);
+
+        ldap = createResource(ldap);
+
+        try {
+            UserCR userCR = UserITCase.getUniqueSample("userwithdot@syncope.apache.org");
+            userCR.getPlainAttrs().add(attr("user.testWithDot", "someCarLicenseValue"));
+            userCR.getResources().add(ldap.getKey());
+
+            ProvisioningResult<UserTO> result = createUser(userCR);
+            assertEquals(1, result.getPropagationStatuses().size());
+            assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
+
+            Attr carLicense =
+                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("carLicense").orElseThrow();
+            assertEquals(1, carLicense.getValues().size());
+            assertEquals("someCarLicenseValue", carLicense.getValues().get(0));
+        } finally {
+            RESOURCE_SERVICE.delete(ldap.getKey());
+            SCHEMA_SERVICE.delete(SchemaType.PLAIN, userWithDotSchema.getKey());
+        }
     }
 }
