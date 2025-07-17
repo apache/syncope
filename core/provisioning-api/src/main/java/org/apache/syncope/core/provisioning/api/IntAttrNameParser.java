@@ -22,7 +22,7 @@ import java.text.ParseException;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -108,7 +108,7 @@ public class IntAttrNameParser {
         IntAttrName result = new IntAttrName();
 
         Matcher matcher = Pattern.compile(END_PATTERN).matcher(intAttrName);
-        if (!matcher.matches() && !StringUtils.containsAny(intAttrName, RESERVED_WORDS)) {
+        if (!matcher.matches() && !Strings.CS.containsAny(intAttrName, RESERVED_WORDS)) {
             result.setAnyTypeKind(provisionAnyTypeKind);
             setFieldOrSchemaName(intAttrName, result.getAnyTypeKind(), result);
         } else {
