@@ -1880,7 +1880,7 @@ public class UserIssuesITCase extends AbstractITCase {
     }
 
     @Test
-    public void issue1894() {
+    public void issueSYNCOPE1894() {
         SchemaTO userWithDotSchema = new PlainSchemaTO();
         userWithDotSchema.setKey("user.testWithDot");
         userWithDotSchema.setAnyTypeClass("minimal user");
@@ -1889,7 +1889,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithDot");
 
-        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElse(null);
+        Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow();
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
         provision.getVirSchemas().clear();
 
@@ -1915,8 +1915,7 @@ public class UserIssuesITCase extends AbstractITCase {
             assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
 
             Attr carLicense =
-                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("carLicense").orElse(null);
-            assertNotNull(carLicense);
+                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("carLicense").orElseThrow();
             assertEquals(1, carLicense.getValues().size());
             assertEquals("someCarLicenseValue", carLicense.getValues().get(0));
         } finally {

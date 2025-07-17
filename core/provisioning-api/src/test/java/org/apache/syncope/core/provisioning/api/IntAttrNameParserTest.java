@@ -365,7 +365,7 @@ public class IntAttrNameParserTest extends AbstractTest {
     }
 
     @Test
-    public void issue1894() throws ParseException {
+    public void issueSYNCOPE1894() throws ParseException {
         IntAttrName intAttrName = intAttrNameParser.parse("user.valueWithDot", AnyTypeKind.USER);
         assertNotNull(intAttrName);
         assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
