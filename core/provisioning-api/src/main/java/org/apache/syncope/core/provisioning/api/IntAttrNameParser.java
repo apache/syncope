@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -35,26 +36,29 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings({ "squid:S4784", "squid:S3776" })
 public class IntAttrNameParser {
 
-    protected static final String END_PATTERN = ")\\]\\.(.+)";
+    protected static final String END_PATTERN = "\\]\\.(.+)";
 
     protected static final Pattern PRIVILEGE_PATTERN = Pattern.compile(
             "^privileges\\[(" + Entity.ID_REGEX + ")\\]");
 
     protected static final Pattern ENCLOSING_GROUP_PATTERN = Pattern.compile(
-            "^groups\\[(" + Entity.ID_REGEX + END_PATTERN);
+            "^groups\\[(" + Entity.ID_REGEX + ")" + END_PATTERN);
 
     protected static final Pattern RELATED_USER_PATTERN = Pattern.compile(
-            "^users\\[(" + Entity.ID_REGEX + END_PATTERN);
+            "^users\\[(" + Entity.ID_REGEX + ")" + END_PATTERN);
 
     protected static final Pattern RELATED_ANY_OBJECT_PATTERN = Pattern.compile(
-            "^anyObjects\\[(" + Entity.ID_REGEX + END_PATTERN);
+            "^anyObjects\\[(" + Entity.ID_REGEX + ")" + END_PATTERN);
 
     protected static final Pattern MEMBERSHIP_PATTERN = Pattern.compile(
-            "^memberships\\[(" + Entity.ID_REGEX + END_PATTERN);
+            "^memberships\\[(" + Entity.ID_REGEX + ")" + END_PATTERN);
 
     protected static final Pattern RELATIONSHIP_PATTERN = Pattern.compile(
             "^relationships\\[(" + Entity.ID_REGEX + ")\\]"
-            + "\\[(" + Entity.ID_REGEX + END_PATTERN);
+            + "\\[(" + Entity.ID_REGEX + ")" + END_PATTERN);
+
+    protected static final CharSequence[] RESERVED_WORDS =
+            { "groups", "users", "anyObjects", "memberships", "relationships" };
 
     protected final PlainSchemaDAO plainSchemaDAO;
 
@@ -115,8 +119,8 @@ public class IntAttrNameParser {
     public IntAttrName parse(final String intAttrName, final AnyTypeKind provisionAnyTypeKind) throws ParseException {
         IntAttrName result = new IntAttrName();
 
-        Matcher matcher;
-        if (intAttrName.indexOf('.') == -1) {
+        Matcher matcher = Pattern.compile(END_PATTERN).matcher(intAttrName);
+        if (!matcher.matches() && !StringUtils.containsAny(intAttrName, RESERVED_WORDS)) {
             matcher = PRIVILEGE_PATTERN.matcher(intAttrName);
             if (matcher.matches()) {
                 result.setAnyTypeKind(AnyTypeKind.USER);
