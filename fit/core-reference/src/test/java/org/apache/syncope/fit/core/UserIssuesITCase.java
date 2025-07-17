@@ -1864,7 +1864,6 @@ public class UserIssuesITCase extends AbstractITCase {
 
         Provision provision = ldap.getProvision(AnyTypeKind.USER.name()).orElseThrow();
         provision.getMapping().getItems().removeIf(item -> "mail".equals(item.getIntAttrName()));
-        provision.getVirSchemas().clear();
 
         ldap.getProvisions().clear();
         ldap.getProvisions().add(provision);
@@ -1885,12 +1884,12 @@ public class UserIssuesITCase extends AbstractITCase {
 
             ProvisioningResult<UserTO> result = createUser(userCR);
             assertEquals(1, result.getPropagationStatuses().size());
-            assertNotNull(result.getPropagationStatuses().get(0).getAfterObj());
+            assertNotNull(result.getPropagationStatuses().getFirst().getAfterObj());
 
             Attr carLicense =
-                    result.getPropagationStatuses().get(0).getAfterObj().getAttr("carLicense").orElseThrow();
+                    result.getPropagationStatuses().getFirst().getAfterObj().getAttr("carLicense").orElseThrow();
             assertEquals(1, carLicense.getValues().size());
-            assertEquals("someCarLicenseValue", carLicense.getValues().get(0));
+            assertEquals("someCarLicenseValue", carLicense.getValues().getFirst());
         } finally {
             RESOURCE_SERVICE.delete(ldap.getKey());
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, userWithDotSchema.getKey());
