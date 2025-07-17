@@ -105,7 +105,7 @@ public class IntAttrNameParserTest extends AbstractTest {
         lenient().when(plainSchemaDAO.findById(anyString())).thenAnswer(ic -> {
             String schemaName = ic.getArgument(0);
             switch (schemaName) {
-                case "email", "firstname", "location", "index" -> {
+                case "email", "firstname", "location", "index", "user.valueWithDot" -> {
                     PlainSchema schema = mock(PlainSchema.class);
                     lenient().when(schema.getKey()).thenReturn(schemaName);
                     lenient().when(schema.getType()).thenReturn(AttrSchemaType.String);
@@ -373,5 +373,14 @@ public class IntAttrNameParserTest extends AbstractTest {
         } catch (ParseException e) {
             assertNotNull(e);
         }
+    }
+
+    @Test    
+    public void issueSYNCOPE1894() throws ParseException {
+        IntAttrName intAttrName = intAttrNameParser.parse("user.valueWithDot", AnyTypeKind.USER);
+        assertNotNull(intAttrName);
+        assertEquals(AnyTypeKind.USER, intAttrName.getAnyTypeKind());
+        assertNull(intAttrName.getField());
+        assertEquals("user.valueWithDot", intAttrName.getSchema().getKey());
     }
 }
