@@ -142,10 +142,12 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
                 index(ElasticsearchUtils.getAuditIndex(AuthContextUtils.getDomain())).
                 query(getQuery(entityKey, type, category, subcategory, op, outcome, before, after)).
                 build();
+        LOG.debug("Count request: {}", request);
+
         try {
             return client.count(request).count();
         } catch (IOException e) {
-            LOG.error("Search error", e);
+            LOG.error("While counting in Elasticsearch with request {}", request, e);
             return 0L;
         }
     }
@@ -179,12 +181,13 @@ public class ElasticsearchAuditEventDAO implements AuditEventDAO {
                 size(pageable.isUnpaged() ? indexMaxResultWindow : pageable.getPageSize()).
                 sort(sortBuilders(pageable.getSort().get())).
                 build();
+        LOG.debug("Search request: {}", request);
 
         List<Hit<ObjectNode>> esResult = null;
         try {
             esResult = client.search(request, ObjectNode.class).hits().hits();
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in Elasticsearch with request {}", request, e);
         }
 
         return CollectionUtils.isEmpty(esResult)

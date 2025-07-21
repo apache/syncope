@@ -96,6 +96,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 size(1).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         try {
             String result = client.search(request, Void.class).hits().hits().stream().findFirst().
@@ -103,7 +104,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                     orElse(null);
             return realmDAO.findById(result).map(Realm.class::cast);
         } catch (Exception e) {
-            LOG.error("While searching ES for one match", e);
+            LOG.error("While searching Elasticsearch for Realm path {} with request {}", fullPath, request, e);
         }
 
         return Optional.empty();
@@ -117,13 +118,14 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 sort(REALM_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         try {
             return client.search(request, Void.class).hits().hits().stream().
                     map(Hit::id).
                     toList();
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in Elasticsearch with request {}", request, e);
             return List.of();
         }
     }
@@ -194,11 +196,12 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 index(ElasticsearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 query(buildDescendantsQuery(bases, keyword)).
                 build();
+        LOG.debug("Count request: {}", request);
 
         try {
             return client.count(request).count();
         } catch (Exception e) {
-            LOG.error("While counting in Elasticsearch", e);
+            LOG.error("While counting in Elasticsearch with request {}", request, e);
             return 0;
         }
     }
@@ -219,6 +222,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 sort(REALM_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         List<String> result = List.of();
         try {
@@ -226,7 +230,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                     map(Hit::id).
                     toList();
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in Elasticsearch with request {}", request, e);
         }
 
         return result.stream().map(realmDAO::findById).
@@ -255,6 +259,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                 sort(REALM_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         List<String> result = List.of();
         try {
@@ -262,7 +267,7 @@ public class ElasticsearchRealmSearchDAO implements RealmSearchDAO {
                     map(Hit::id).
                     toList();
         } catch (Exception e) {
-            LOG.error("While searching in Elasticsearch", e);
+            LOG.error("While searching in Elasticsearch with request {}", request, e);
         }
         return result;
     }

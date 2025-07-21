@@ -97,6 +97,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 size(1).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         try {
             String result = client.search(request, Void.class).hits().hits().stream().findFirst().
@@ -104,7 +105,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                     orElse(null);
             return realmDAO.findById(result).map(Realm.class::cast);
         } catch (Exception e) {
-            LOG.error("While searching ES for one match", e);
+            LOG.error("While searching OpenSearch for Realm path {} with request {}", fullPath, request, e);
         }
 
         return Optional.empty();
@@ -118,13 +119,14 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 sort(REALM_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         try {
             return client.search(request, Void.class).hits().hits().stream().
                     map(Hit::id).
                     toList();
         } catch (Exception e) {
-            LOG.error("While searching in OpenSearch", e);
+            LOG.error("While searching in OpenSearch with request {}", request, e);
             return List.of();
         }
     }
@@ -194,11 +196,12 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 query(buildDescendantsQuery(bases, keyword)).
                 build();
+        LOG.debug("Count request: {}", request);
 
         try {
             return client.count(request).count();
         } catch (Exception e) {
-            LOG.error("While counting in OpenSearch", e);
+            LOG.error("While counting in OpenSearch with request {}", request, e);
             return 0;
         }
     }
@@ -219,6 +222,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 sort(REALM_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         List<String> result = List.of();
         try {
@@ -226,7 +230,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                     map(Hit::id).
                     toList();
         } catch (Exception e) {
-            LOG.error("While searching in OpenSearch", e);
+            LOG.error("While searching in OpenSearch with request {}", request, e);
         }
 
         return result.stream().map(realmDAO::findById).
