@@ -87,6 +87,8 @@ import org.springframework.util.CollectionUtils;
  */
 public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
+    protected static final Set<String> ID_PROPS = Set.of("key", "id", "_id");
+
     protected final OpenSearchClient client;
 
     protected final int indexMaxResultWindow;
@@ -219,12 +221,12 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 index(OpenSearchUtils.getAnyIndex(AuthContextUtils.getDomain(), kind)).
                 query(getQuery(base, recursive, adminRealms, cond, kind)).
                 build();
-        LOG.debug("Count JSON request: {}", request);
+        LOG.debug("Count request: {}", request);
 
         try {
             return client.count(request).count();
         } catch (Exception e) {
-            LOG.error("While counting in OpenSearch", e);
+            LOG.error("While counting in OpenSearch with request {}", request, e);
             return 0;
         }
     }
@@ -236,17 +238,18 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         orderBy.forEach(clause -> {
             String sortName = null;
 
-            // Manage difference between external key attribute and internal _id
-            String fieldName = "key".equals(clause.getProperty()) ? "_id" : clause.getProperty();
-
-            Field anyField = anyUtils.getField(fieldName).orElse(null);
-            if (anyField == null) {
-                PlainSchema schema = plainSchemaDAO.findById(fieldName).orElse(null);
-                if (schema != null) {
+            String fieldName = clause.getProperty();
+            // Cannot sort by internal _id
+            if (!ID_PROPS.contains(fieldName)) {
+                Field anyField = anyUtils.getField(fieldName).orElse(null);
+                if (anyField == null) {
+                    PlainSchema schema = plainSchemaDAO.findById(fieldName).orElse(null);
+                    if (schema != null) {
+                        sortName = fieldName;
+                    }
+                } else {
                     sortName = fieldName;
                 }
-            } else {
-                sortName = fieldName;
             }
 
             if (sortName == null) {
@@ -281,13 +284,13 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 sort(sortBuilders(kind, pageable.getSort().get())).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
-        LOG.debug("Search JSON request: {}", request);
+        LOG.debug("Search request: {}", request);
 
         List<Hit<Void>> esResult = null;
         try {
             esResult = client.search(request, Void.class).hits().hits();
         } catch (Exception e) {
-            LOG.error("While searching in OpenSearch", e);
+            LOG.error("While searching in OpenSearch with request {}", request, e);
         }
 
         return CollectionUtils.isEmpty(esResult)
