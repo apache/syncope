@@ -17,6 +17,7 @@
  * under the License.
  */
 
+import java.util.Map
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.logic.SyncopeLogic
 import org.apache.syncope.core.provisioning.api.macro.Command
@@ -29,6 +30,6 @@ class GroovyCommand implements Command<CommandArgs> {
 
   @Override
   Result run(CommandArgs args) {
-    return new Result("" + logic.isPwdResetAllowed())
+    return new Result("" + logic.isPwdResetAllowed(), Map.of())
   }
 }
