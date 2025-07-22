@@ -18,11 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.api.macro;
 
+import java.io.Serializable;
+import java.util.Map;
 import org.apache.syncope.common.lib.command.CommandArgs;
-import org.apache.syncope.common.lib.command.CommandArgs.Result;
 
 @FunctionalInterface
 public interface Command<A extends CommandArgs> {
+
+    record Result(String message, Map<String, Serializable> values) implements Serializable {
+
+    }
 
     Result run(A args);
 }
