@@ -19,11 +19,12 @@
 package org.apache.syncope.core.provisioning.api.macro;
 
 import jakarta.validation.ValidationException;
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.syncope.common.lib.command.CommandArgs;
-import org.apache.syncope.common.lib.command.CommandArgs.Result;
 import org.apache.syncope.common.lib.form.SyncopeForm;
+import org.apache.syncope.core.provisioning.api.macro.Command.Result;
 
 /**
  * Interface for actions to be performed during macro execution.
@@ -42,7 +43,7 @@ public interface MacroActions {
         // does nothing by default
     }
 
-    default void beforeAll() {
+    default void beforeAll(Map<String, Serializable> ctx) {
         // does nothing by default
     }
 
@@ -54,7 +55,7 @@ public interface MacroActions {
         // does nothing by default
     }
 
-    default StringBuilder afterAll(StringBuilder output) {
+    default StringBuilder afterAll(Map<String, Serializable> ctx, StringBuilder output) {
         return output;
     }
 }

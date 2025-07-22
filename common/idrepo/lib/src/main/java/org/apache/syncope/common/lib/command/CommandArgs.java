@@ -23,8 +23,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.common.lib.BaseBean;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")
@@ -32,27 +30,14 @@ public class CommandArgs implements BaseBean {
 
     private static final long serialVersionUID = -85050010490462751L;
 
-    public record Result(String message, Map<String, Serializable> values) implements Serializable {
-
-        public static final Result EMPTY = new Result(StringUtils.EMPTY, Map.of());
-
-        public Result(final String message) {
-            this(message, Map.of());
-        }
-
-        public boolean isEmpty() {
-            return StringUtils.isBlank(message) && CollectionUtils.isEmpty(values);
-        }
-    }
-
     @JsonIgnore
-    private Result pipe;
+    private Map<String, Serializable> ctx;
 
-    public final Optional<Result> getPipe() {
-        return Optional.ofNullable(pipe);
+    public final Map<String, Serializable> getCtx() {
+        return Optional.ofNullable(ctx).orElseGet(Map::of);
     }
 
-    public final void setPipe(final Result pipe) {
-        this.pipe = pipe;
+    public final void setCtx(final Map<String, Serializable> ctx) {
+        this.ctx = ctx;
     }
 }

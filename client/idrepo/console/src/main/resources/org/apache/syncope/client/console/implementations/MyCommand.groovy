@@ -24,7 +24,7 @@ import org.apache.syncope.core.provisioning.api.macro.Command
 class MyCommand implements Command<CommandArgs> {
 
   @Override
-  CommandArgs.Result run(CommandArgs args) {
-    return new CommandArgs.Result("SUCCESS")    
+  Result run(CommandArgs args) {
+    return new Result("SUCCESS")
   }
 }

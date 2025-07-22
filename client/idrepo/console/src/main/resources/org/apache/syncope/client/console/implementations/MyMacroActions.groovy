@@ -17,6 +17,7 @@
  * under the License.
  */
 import groovy.transform.CompileStatic
+import java.io.Serializable
 import java.util.Map
 import java.util.Optional
 import jakarta.validation.ValidationException
@@ -24,6 +25,7 @@ import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.common.lib.form.SyncopeForm
 import org.apache.syncope.core.provisioning.api.macro.Command
 import org.apache.syncope.core.provisioning.api.macro.MacroActions
+import org.apache.syncope.core.provisioning.api.macro.Command.Result
 
 @CompileStatic
 class MyMacroActions implements MacroActions {
@@ -43,7 +45,7 @@ class MyMacroActions implements MacroActions {
   }
 
   @Override
-  void beforeAll() {
+  void beforeAll(Map<String, Serializable> ctx) {
   }
 
   @Override
@@ -51,11 +53,11 @@ class MyMacroActions implements MacroActions {
   }
 
   @Override
-  void afterCommand(Command<CommandArgs> command, CommandArgs args, CommandArgs.Result result) {
+  void afterCommand(Command<CommandArgs> command, CommandArgs args, Result result) {
   }
 
   @Override
-  StringBuilder afterAll(StringBuilder output) {
+  StringBuilder afterAll(Map<String, Serializable> ctx, StringBuilder output) {
     return output
   }
 }

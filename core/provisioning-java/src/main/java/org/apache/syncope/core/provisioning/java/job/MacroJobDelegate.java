@@ -22,6 +22,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ValidationException;
 import jakarta.validation.Validator;
+import java.io.Serializable;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -186,9 +187,10 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         return vars.isEmpty() ? Optional.empty() : Optional.of(new MapContext(vars));
     }
 
-    protected String run(
+    protected void run(
             final List<Pair<Command<CommandArgs>, CommandArgs>> commands,
             final Optional<MacroActions> actions,
+            final Map<String, Serializable> ctx,
             final StringBuilder output,
             final boolean dryRun)
             throws JobExecutionException {
@@ -197,8 +199,6 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                 new DelegatingSecurityContextCallable<>(() -> {
 
                     Mutable<Pair<String, Throwable>> error = new MutableObject<>();
-
-                    Mutable<CommandArgs.Result> prevCmdResult = new MutableObject<>(CommandArgs.Result.EMPTY);
 
                     for (int i = 0; i < commands.size() && error.get() == null; i++) {
                         Pair<Command<CommandArgs>, CommandArgs> command = commands.get(i);
@@ -209,13 +209,13 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
                                     append(args).append("\n");
 
                             if (!dryRun) {
-                                command.getRight().setPipe(prevCmdResult.get());
+                                command.getRight().setCtx(ctx);
 
                                 actions.ifPresent(a -> a.beforeCommand(
                                         command.getLeft(), command.getRight()));
 
-                                CommandArgs.Result cmdResult = command.getLeft().run(command.getRight());
-                                prevCmdResult.setValue(cmdResult);
+                                Command.Result cmdResult = command.getLeft().run(command.getRight());
+                                ctx.putAll(cmdResult.values());
 
                                 actions.ifPresent(a -> a.afterCommand(
                                         command.getLeft(), command.getRight(), cmdResult));
@@ -249,8 +249,6 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         }
 
         output.append("COMPLETED");
-
-        return actions.filter(a -> !dryRun).map(a -> a.afterAll(output)).orElse(output).toString();
     }
 
     @SuppressWarnings("unchecked")
@@ -275,9 +273,9 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
         SyncopeForm macroTaskForm = (SyncopeForm) context.getData().get(MACRO_TASK_FORM_JOBDETAIL_KEY);
         Optional<JexlContext> jexlContext = check(macroTaskForm, actions, output);
 
-        if (!context.isDryRun()) {
-            actions.ifPresent(MacroActions::beforeAll);
-        }
+        Map<String, Serializable> ctx = new HashMap<>();
+
+        actions.filter(a -> !context.isDryRun()).ifPresent(a -> a.beforeAll(ctx));
 
         List<Pair<Command<CommandArgs>, CommandArgs>> commands = new ArrayList<>();
         for (MacroTaskCommand command : task.getCommands()) {
@@ -301,14 +299,14 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             } else {
                 args = command.getArgs();
 
-                jexlContext.ifPresent(ctx -> ReflectionUtils.doWithFields(
+                jexlContext.ifPresent(jc -> ReflectionUtils.doWithFields(
                         args.getClass(),
                         field -> {
                             if (String.class.equals(field.getType())) {
                                 field.setAccessible(true);
                                 Object value = field.get(args);
                                 if (value instanceof final String s) {
-                                    field.set(args, JexlUtils.evaluateTemplate(s, ctx));
+                                    field.set(args, JexlUtils.evaluateTemplate(s, jc));
                                 }
                             }
                         },
@@ -329,7 +327,8 @@ public class MacroJobDelegate extends AbstractSchedTaskJobDelegate<MacroTask> {
             commands.add(Pair.of(runnable, args));
         }
 
-        return run(commands, actions, output, context.isDryRun());
+        run(commands, actions, ctx, output, context.isDryRun());
+        return actions.filter(a -> !context.isDryRun()).map(a -> a.afterAll(ctx, output)).orElse(output).toString();
     }
 
     @Override
