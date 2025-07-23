@@ -488,7 +488,7 @@ public class DefaultRealmPushResultHandler
                             resultStatus,
                             beforeObj,
                             output,
-                            realm));
+                            binder.getRealmTO(realm, true)));
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }
