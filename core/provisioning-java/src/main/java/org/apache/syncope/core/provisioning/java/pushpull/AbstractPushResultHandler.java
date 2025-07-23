@@ -42,8 +42,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -498,11 +496,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             resultStatus,
                             beforeObj == null ? null : POJOHelper.serialize(beforeObj),
                             output == null ? null : output instanceof Exception ? output : POJOHelper.serialize(output),
-                            any instanceof User
-                                    ? userDataBinder.getUserTO((User) any, true)
-                                    : any instanceof Group
-                                            ? groupDataBinder.getGroupTO((Group) any, true)
-                                            : anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true)));
+                            getAnyTO(any)));
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }
