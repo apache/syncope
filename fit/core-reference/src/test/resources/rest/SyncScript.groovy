@@ -103,7 +103,7 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
     
     ArrayNode node = mapper.readTree(response.getEntity());
     
-    for (i = 0; i < node.size(); i++) {
+    for (int i = 0; i < node.size(); i++) {
       if (node.get(i).get("deleted").booleanValue()) {
         result.add([
             operation:"DELETE",
