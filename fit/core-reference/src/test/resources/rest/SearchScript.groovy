@@ -106,7 +106,7 @@ case "__ACCOUNT__":
     ArrayNode nodes = mapper.readTree(response.getEntity());
     
     // beware: this is not enforcing any server-side pagination feature
-    for (i = offset; i < (limit < nodes.size() ? limit: nodes.size()); i++) {
+    for (int i = offset; i < (limit < nodes.size() ? limit: nodes.size()); i++) {
       result.add(buildConnectorObject(nodes.get(i)));
     }
   } else {
