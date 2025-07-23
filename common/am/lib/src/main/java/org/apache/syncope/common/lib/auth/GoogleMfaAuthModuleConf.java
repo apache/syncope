@@ -20,12 +20,26 @@ package org.apache.syncope.common.lib.auth;
 
 import java.io.Serializable;
 import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AbstractLDAPConf;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
+import org.apache.syncope.common.lib.types.OIDCTokenEncryptionEncoding;
 
 public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf, LDAPDependantAuthModuleConf {
 
     private static final long serialVersionUID = -7883257599139312426L;
+
+    public enum CryptoStrategy {
+        /**
+         * Encrypt the value first, and then sign.
+         */
+        ENCRYPT_AND_SIGN,
+        /**
+         * Sign the value first, and then encrypt.
+         */
+        SIGN_AND_ENCRYPT;
+
+    }
 
     public static class LDAP extends AbstractLDAPConf implements Serializable {
 
@@ -74,6 +88,41 @@ public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf, LDAPDependant
      * the tolerance defined here as the window size.
      */
     private int windowSize = 3;
+
+    /**
+     * Whether crypto operations are enabled.
+     */
+    private boolean enableCrypto = true;
+
+    /**
+     * The signing/encryption algorithm to use.
+     */
+    private OIDCTokenEncryptionEncoding cryptoAlgorithm = OIDCTokenEncryptionEncoding.A256CBC_HS512;
+
+    /**
+     * Control the cipher sequence of operations.
+     */
+    private CryptoStrategy cryptoStrategy = CryptoStrategy.ENCRYPT_AND_SIGN;
+
+    /**
+     * The signing key size.
+     */
+    private int signingKeySize = 512;
+
+    /**
+     * The signing key is a JWT whose length is defined by the signing key size setting.
+     */
+    private String signingKey = StringUtils.EMPTY;
+
+    /**
+     * The encryption key size.
+     */
+    private int encryptionKeySize = 512;
+
+    /**
+     * The encryption key is a JWT whose length is defined by the encryption key size setting.
+     */
+    private String encryptionKey = StringUtils.EMPTY;
 
     private LDAP ldap;
 
@@ -125,6 +174,62 @@ public class GoogleMfaAuthModuleConf implements MFAAuthModuleConf, LDAPDependant
 
     public void setWindowSize(final int windowSize) {
         this.windowSize = windowSize;
+    }
+
+    public boolean isEnableCrypto() {
+        return enableCrypto;
+    }
+
+    public void setEnableCrypto(final boolean enableCrypto) {
+        this.enableCrypto = enableCrypto;
+    }
+
+    public OIDCTokenEncryptionEncoding getCryptoAlgorithm() {
+        return cryptoAlgorithm;
+    }
+
+    public void setCryptoAlgorithm(final OIDCTokenEncryptionEncoding cryptoAlgorithm) {
+        this.cryptoAlgorithm = cryptoAlgorithm;
+    }
+
+    public CryptoStrategy getCryptoStrategy() {
+        return cryptoStrategy;
+    }
+
+    public void setCryptoStrategy(final CryptoStrategy cryptoStrategy) {
+        this.cryptoStrategy = cryptoStrategy;
+    }
+
+    public int getSigningKeySize() {
+        return signingKeySize;
+    }
+
+    public void setSigningKeySize(final int signingKeySize) {
+        this.signingKeySize = signingKeySize;
+    }
+
+    public String getSigningKey() {
+        return signingKey;
+    }
+
+    public void setSigningKey(final String signingKey) {
+        this.signingKey = signingKey;
+    }
+
+    public int getEncryptionKeySize() {
+        return encryptionKeySize;
+    }
+
+    public void setEncryptionKeySize(final int encryptionKeySize) {
+        this.encryptionKeySize = encryptionKeySize;
+    }
+
+    public String getEncryptionKey() {
+        return encryptionKey;
+    }
+
+    public void setEncryptionKey(final String encryptionKey) {
+        this.encryptionKey = encryptionKey;
     }
 
     public LDAP getLdap() {
