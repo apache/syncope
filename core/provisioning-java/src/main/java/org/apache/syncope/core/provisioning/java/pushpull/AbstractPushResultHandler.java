@@ -543,7 +543,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             resultStatus,
                             beforeObj,
                             output,
-                            any));
+                            getAnyTO(any)));
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }
