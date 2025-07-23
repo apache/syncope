@@ -42,6 +42,8 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -54,6 +56,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -95,7 +98,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             final Boolean enable,
             final ConnectorObject beforeObj,
             final ProvisioningReport result) {
-        
+
         List<String> ownedResources = getAnyUtils().getAllResources(any).stream().
                 map(ExternalResource::getKey).collect(Collectors.toList());
 
@@ -493,9 +496,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             profile.getTask().getResource().getKey(),
                             operation,
                             resultStatus,
-                            beforeObj,
-                            output,
-                            any));
+                            beforeObj == null ? null : POJOHelper.serialize(beforeObj),
+                            output == null ? null : output instanceof Exception ? output : POJOHelper.serialize(output),
+                            any instanceof User
+                                    ? userDataBinder.getUserTO((User) any, true)
+                                    : any instanceof Group
+                                            ? groupDataBinder.getGroupTO((Group) any, true)
+                                            : anyObjectDataBinder.getAnyObjectTO((AnyObject) any, true)));
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }

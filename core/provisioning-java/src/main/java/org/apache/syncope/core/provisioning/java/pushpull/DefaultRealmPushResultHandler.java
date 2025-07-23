@@ -49,6 +49,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.propagation.DefaultPropagationReporter;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -441,9 +442,9 @@ public class DefaultRealmPushResultHandler
                             profile.getTask().getResource().getKey(),
                             operation,
                             resultStatus,
-                            beforeObj,
-                            output,
-                            realm));
+                            beforeObj == null ? null : POJOHelper.serialize(beforeObj),
+                            output == null ? null : output instanceof Exception ? output : POJOHelper.serialize(output),
+                            binder.getRealmTO(realm, true)));
                     AfterHandlingJob.schedule(scheduler, jobMap);
                 }
             }

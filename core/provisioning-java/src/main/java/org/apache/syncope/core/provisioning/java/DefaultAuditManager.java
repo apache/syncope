@@ -149,16 +149,20 @@ public class DefaultAuditManager implements AuditManager {
             auditEntry.setWho(who);
             auditEntry.setLogger(auditLoggerName);
             auditEntry.setDate(OffsetDateTime.now());
-            auditEntry.setBefore(POJOHelper.serialize((maskSensitive(before))));
+            auditEntry.setBefore(before instanceof String
+                    ? (String) before
+                    : POJOHelper.serialize((maskSensitive(before))));
             if (throwable == null) {
-                auditEntry.setOutput(POJOHelper.serialize((maskSensitive(output))));
+                auditEntry.setOutput(output instanceof String
+                        ? (String) output
+                        : POJOHelper.serialize((maskSensitive(output))));
             } else {
                 auditEntry.setOutput(throwable.getMessage());
                 auditEntry.setThrowable(ExceptionUtils2.getFullStackTrace(throwable));
             }
             if (input != null) {
                 auditEntry.getInputs().addAll(Arrays.stream(input).
-                        map(DefaultAuditManager::maskSensitive).map(POJOHelper::serialize).
+                        map(item -> item instanceof String ? (String) item : POJOHelper.serialize(maskSensitive(item))).
                         collect(Collectors.toList()));
             }
 
