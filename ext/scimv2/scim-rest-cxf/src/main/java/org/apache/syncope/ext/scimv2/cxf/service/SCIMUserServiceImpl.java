@@ -31,10 +31,12 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StatusRType;
+import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
@@ -53,12 +55,14 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
     public SCIMUserServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        super(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder, confManager);
     }
 
     @Override
@@ -87,7 +91,7 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
 
     @Override
     public Response update(final String id, final SCIMPatchOp patch) {
-        ResponseBuilder builder = checkETag(Resource.User, id);
+        ResponseBuilder builder = checkETag(Resource.User.schema(), id);
         if (builder != null) {
             return builder.build();
         }
@@ -113,7 +117,7 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
             throw new BadRequestException(ErrorType.invalidPath, "Expected " + id + ", found " + user.getId());
         }
 
-        ResponseBuilder builder = checkETag(Resource.User, id);
+        ResponseBuilder builder = checkETag(Resource.User.schema(), id);
         if (builder != null) {
             return builder.build();
         }
@@ -157,12 +161,12 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
 
     @Override
     public Response delete(final String id) {
-        ResponseBuilder builder = checkETag(Resource.User, id);
+        ResponseBuilder builder = checkETag(Resource.User.schema(), id);
         if (builder != null) {
             return builder.build();
         }
 
-        anyLogic(Resource.User).delete(id, false);
+        anyLogic(Resource.User.name()).delete(id, false);
         return Response.noContent().build();
     }
 
@@ -186,11 +190,11 @@ public class SCIMUserServiceImpl extends AbstractSCIMService<SCIMUser> implement
                     List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
         }
 
-        return doSearch(Resource.User, request);
+        return doSearch(Resource.User.name(), request);
     }
 
     @Override
     public ListResponse<SCIMUser> search(final SCIMSearchRequest request) {
-        return doSearch(Resource.User, request);
+        return doSearch(Resource.User.name(), request);
     }
 }

@@ -72,7 +72,7 @@ public class SCIMFilterTest {
         extConf.add(item);
         conf.setExtensionUserConf(extConf);
 
-        VISITOR = new SearchCondVisitor(Resource.User, conf);
+        VISITOR = new SearchCondVisitor(Resource.User.name(), conf);
     }
 
     @Test

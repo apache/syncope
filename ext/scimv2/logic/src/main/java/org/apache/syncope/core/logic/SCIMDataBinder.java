@@ -35,6 +35,8 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyObjectCR;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.AttrPatch;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
@@ -46,8 +48,10 @@ import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyObjectConf;
 import org.apache.syncope.common.lib.scim.SCIMManagerConf;
 import org.apache.syncope.common.lib.scim.SCIMUserAddressConf;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -66,6 +70,7 @@ import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.Meta;
+import org.apache.syncope.ext.scimv2.api.data.SCIMAnyObject;
 import org.apache.syncope.ext.scimv2.api.data.SCIMComplexValue;
 import org.apache.syncope.ext.scimv2.api.data.SCIMEnterpriseInfo;
 import org.apache.syncope.ext.scimv2.api.data.SCIMExtensionInfo;
@@ -206,7 +211,7 @@ public class SCIMDataBinder {
                 userTO.getKey(),
                 schemas,
                 new Meta(
-                        Resource.User,
+                        Resource.User.name(),
                         userTO.getCreationDate(),
                         Optional.ofNullable(userTO.getLastChangeDate()).orElse(userTO.getCreationDate()),
                         userTO.getETagValue(),
@@ -523,6 +528,22 @@ public class SCIMDataBinder {
 
             default:
                 groupTO.getPlainAttrs().add(new Attr.Builder(schema).value(value).build());
+        }
+    }
+
+    protected void setAttribute(
+            final AnyObjectTO anyObjectTO,
+            final String schema,
+            final String value) {
+
+        if (schema == null || value == null) {
+            return;
+        }
+
+        if (schema.equals("name")) {
+            anyObjectTO.setName(value);
+        } else {
+            anyObjectTO.getPlainAttrs().add(new Attr.Builder(schema).value(value).build());
         }
     }
 
@@ -1062,7 +1083,7 @@ public class SCIMDataBinder {
                 groupTO.getKey(),
                 schemas,
                 new Meta(
-                        Resource.Group,
+                        Resource.Group.name(),
                         groupTO.getCreationDate(),
                         Optional.ofNullable(groupTO.getLastChangeDate()).orElse(groupTO.getCreationDate()),
                         groupTO.getETagValue(),
@@ -1188,5 +1209,136 @@ public class SCIMDataBinder {
         }
 
         return groupUR;
+    }
+
+    public SCIMAnyObject toSCIMAnyObject(
+            final AnyObjectTO anyObjectTO,
+            final String location,
+            final List<String> attributes,
+            final List<String> excludedAttributes) {
+        SCIMConf conf = confManager.get();
+        List<String> schemas = new ArrayList<>();
+        SCIMExtensionAnyObjectConf scimExtensionAnyObjectConf =
+                conf.getExtensionAnyObjectsConf().stream()
+                        .filter(scimExtAnyObjectConf -> scimExtAnyObjectConf.getType().equals(anyObjectTO.getType()))
+                        .findFirst()
+                        .orElseThrow(() -> new NotFoundException("SCIMExtensionAnyObjectConf not found"));
+        schemas.add("urn:ietf:params:scim:schemas:extension:syncope:2.0:" + scimExtensionAnyObjectConf.getType());
+
+        SCIMAnyObject anyObject = new SCIMAnyObject(
+                anyObjectTO.getKey(),
+                schemas,
+                new Meta(
+                        "urn:ietf:params:scim:schemas:extension:syncope:2.0:"
+                                + scimExtensionAnyObjectConf.getType(),
+                        anyObjectTO.getCreationDate(),
+                        Optional.ofNullable(anyObjectTO.getLastChangeDate()).orElse(anyObjectTO.getCreationDate()),
+                        anyObjectTO.getETagValue(),
+                        location),
+                output(attributes, excludedAttributes, "displayName", anyObjectTO.getName()));
+
+        Map<String, Attr> attrs = new HashMap<>();
+        attrs.putAll(EntityTOUtils.buildAttrMap(anyObjectTO.getPlainAttrs()));
+        attrs.putAll(EntityTOUtils.buildAttrMap(anyObjectTO.getDerAttrs()));
+        attrs.putAll(EntityTOUtils.buildAttrMap(anyObjectTO.getVirAttrs()));
+
+        if (output(attributes, excludedAttributes, "externalId")
+                && scimExtensionAnyObjectConf.getExternalId() != null
+                && attrs.containsKey(scimExtensionAnyObjectConf.getExternalId())) {
+
+            anyObject.setExternalId(attrs.get(scimExtensionAnyObjectConf.getExternalId()).getValues().get(0));
+        }
+
+        SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
+        scimExtensionAnyObjectConf.asMap().forEach((scimAttr, syncopeAttr) -> {
+            if (output(attributes, excludedAttributes, scimAttr) && attrs.containsKey(syncopeAttr)) {
+                extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0));
+            }
+        });
+
+        if (!extensionInfo.isEmpty()) {
+            anyObject.setExtensionInfo(extensionInfo);
+        }
+
+        return anyObject;
+    }
+
+    public AnyObjectTO toAnyObjectTO(final SCIMAnyObject anyObject, final boolean checkSchemas) {
+        SCIMConf conf = confManager.get();
+        Set<String> expectedSchemas = new HashSet<>();
+        Optional<SCIMExtensionAnyObjectConf> scimExtensionAnyObjectConf =
+                conf.getExtensionAnyObjectsConf().stream()
+                        .filter(scimExtAnyObjectConf ->
+                                scimExtAnyObjectConf.getType().equals(anyObject.getExtensionUrn()
+                                        .substring(anyObject.getExtensionUrn().lastIndexOf(':') + 1)))
+                        .findFirst();
+        scimExtensionAnyObjectConf.ifPresent(scimExtAnyObjectConf ->
+                expectedSchemas.add("urn:ietf:params:scim:schemas:extension:syncope:2.0:"
+                        + scimExtAnyObjectConf.getType()));
+        if (checkSchemas
+                && (!anyObject.getSchemas().containsAll(expectedSchemas)
+                || !expectedSchemas.containsAll(anyObject.getSchemas()))) {
+
+            throw new BadRequestException(ErrorType.invalidValue);
+        }
+
+        AnyObjectTO anyObjectTO = new AnyObjectTO();
+        anyObjectTO.setRealm(SyncopeConstants.ROOT_REALM);
+        anyObjectTO.setKey(anyObject.getId());
+        anyObjectTO.setName(anyObject.getDisplayName());
+        anyObjectTO.setType(anyObject.getExtensionUrn().substring(anyObject.getExtensionUrn().lastIndexOf(':') + 1));
+
+        if (scimExtensionAnyObjectConf.isPresent()
+                && scimExtensionAnyObjectConf.get().getExternalId() != null && anyObject.getExternalId() != null) {
+
+            anyObjectTO.getPlainAttrs().add(
+                    new Attr.Builder(scimExtensionAnyObjectConf.get().getExternalId()).
+                            value(anyObject.getExternalId()).build());
+        }
+
+        if (scimExtensionAnyObjectConf.isPresent() && anyObject.getExtensionInfo() != null) {
+            scimExtensionAnyObjectConf.get().asMap().forEach((scimAttr, syncopeAttr) -> setAttribute(
+                    anyObjectTO, syncopeAttr, anyObject.getExtensionInfo().getAttributes().get(scimAttr)));
+        }
+
+        return anyObjectTO;
+    }
+
+    public AnyObjectCR toAnyObjectCR(final SCIMAnyObject anyObject) {
+        AnyObjectTO anyObjectTO = toAnyObjectTO(anyObject, true);
+        AnyObjectCR anyObjectCR = new AnyObjectCR();
+        EntityTOUtils.toAnyCR(anyObjectTO, anyObjectCR);
+        return anyObjectCR;
+    }
+
+    public AnyObjectUR toAnyObjectUR(final AnyObjectTO before, final SCIMPatchOperation op) {
+        if (op.getPath() == null) {
+            throw new UnsupportedOperationException("Empty path not supported for AnyObjects");
+        }
+
+        AnyObjectUR anyObjectUR = new AnyObjectUR.Builder(before.getKey()).build();
+
+        if ("displayName".equals(op.getPath().getAttribute())) {
+            StringReplacePatchItem.Builder name = new StringReplacePatchItem.Builder().
+                    operation(op.getOp() == PatchOp.remove ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE);
+            if (!CollectionUtils.isEmpty(op.getValue())) {
+                name.value(op.getValue().get(0).toString());
+            }
+            anyObjectUR.setName(name.build());
+        } else {
+            SCIMConf conf = confManager.get();
+            Optional<SCIMExtensionAnyObjectConf> scimExtensionAnyObjectConf =
+                    conf.getExtensionAnyObjectsConf().stream()
+                            .filter(scimExtAnyObjectConf -> scimExtAnyObjectConf.getType().equals(before.getType()))
+                            .findFirst();
+            if (scimExtensionAnyObjectConf.isPresent() && op.getPath().getAttribute().equals("externalId")) {
+                setAttribute(anyObjectUR.getPlainAttrs(), scimExtensionAnyObjectConf.get().getExternalId(), op);
+            }
+            scimExtensionAnyObjectConf.flatMap(extensionAnyObjectConf -> Optional.of(extensionAnyObjectConf)
+                            .flatMap(schema -> Optional.ofNullable(schema.asMap().get(op.getPath().getAttribute()))))
+                    .ifPresent(schema -> setAttribute(anyObjectUR.getPlainAttrs(), schema, op));
+        }
+
+        return anyObjectUR;
     }
 }

@@ -40,7 +40,7 @@ public class SCIMConf implements Serializable {
 
     private SCIMExtensionAnyConf extensionGroupConf;
 
-    private final List<SCIMExtensionAnyConf> extensionAnyObjectsConf = new ArrayList<>();
+    private final List<SCIMExtensionAnyObjectConf> extensionAnyObjectsConf = new ArrayList<>();
 
     public SCIMGeneralConf getGeneralConf() {
         return generalConf;
@@ -82,7 +82,7 @@ public class SCIMConf implements Serializable {
         this.extensionGroupConf = extensionGroupConf;
     }
 
-    public List<SCIMExtensionAnyConf> getExtensionAnyObjectsConf() {
+    public List<SCIMExtensionAnyObjectConf> getExtensionAnyObjectsConf() {
         return extensionAnyObjectsConf;
     }
 
