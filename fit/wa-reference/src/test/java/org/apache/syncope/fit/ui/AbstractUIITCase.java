@@ -24,11 +24,16 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import org.apache.http.HttpStatus;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.request.UserCR;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -106,6 +111,8 @@ public abstract class AbstractUIITCase extends AbstractITCase {
 
     protected abstract void sso(String baseURL, String username, String password) throws IOException;
 
+    protected abstract void passwordManagement(String baseURL, String username, String password) throws IOException;
+
     @Test
     public void sso2Console() throws IOException {
         sso(CONSOLE_ADDRESS, "bellini", "password");
@@ -114,6 +121,52 @@ public abstract class AbstractUIITCase extends AbstractITCase {
     @Test
     public void sso2Enduser() throws IOException {
         sso(ENDUSER_ADDRESS, "bellini", "password");
+    }
+
+    @Test
+    public void passwordManagementConsole() throws IOException {
+        UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword")
+                .mustChangePassword(Boolean.TRUE)
+                .password("Password123!")
+                .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
+                .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
+                .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build())
+                .build();
+        Response response = USER_SERVICE.create(userCR);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+
+        passwordManagement(CONSOLE_ADDRESS, "mustChangePassword", "Password123!");
+
+        UserTO userTO = USER_SERVICE.read("mustChangePassword");
+        response = USER_SERVICE.delete(userTO.getKey());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
+    }
+
+    @Test
+    public void passwordManagementEnduser() throws IOException {
+        UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword")
+                .mustChangePassword(Boolean.TRUE)
+                .password("Password123!")
+                .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
+                .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
+                .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build())
+                .build();
+        Response response = USER_SERVICE.create(userCR);
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+
+        passwordManagement(ENDUSER_ADDRESS, "mustChangePassword", "Password123!");
+
+        UserTO userTO = USER_SERVICE.read("mustChangePassword");
+        response = USER_SERVICE.delete(userTO.getKey());
+
+        assertNotNull(response);
+        assertEquals(HttpStatus.SC_OK, response.getStatus());
     }
 
     @Test

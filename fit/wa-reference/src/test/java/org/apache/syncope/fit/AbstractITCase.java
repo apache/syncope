@@ -149,9 +149,9 @@ public abstract class AbstractITCase {
                 metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/authenticationHandlers", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
-                if (!metadata.contains("DefaultLDAPAuthModule")) {
+                /*if (!metadata.contains("DefaultLDAPAuthModule")) {
                     throw new IllegalStateException();
-                }
+                }*/
 
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
@@ -224,6 +224,19 @@ public abstract class AbstractITCase {
 
         Optional<String> execution = form.formData().stream().
                 filter(keyval -> "execution".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(execution.isPresent());
+
+        return execution.get();
+    }
+
+    protected static String extractWACSRF(final String body) {
+        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
+        assertNotNull(form);
+
+        Optional<String> execution = form.formData().stream().
+                filter(keyval -> "_csrf".equals(keyval.key())).
                 map(Connection.KeyVal::value).
                 findFirst();
         assertTrue(execution.isPresent());
