@@ -149,9 +149,9 @@ public abstract class AbstractITCase {
                 metadata = WebClient.create(
                         WA_ADDRESS + "/actuator/authenticationHandlers", ANONYMOUS_USER, ANONYMOUS_KEY, null).
                         get().readEntity(String.class);
-                /*if (!metadata.contains("DefaultLDAPAuthModule")) {
+                if (!metadata.contains("DefaultLDAPAuthModule")) {
                     throw new IllegalStateException();
-                }*/
+                }
 
                 samlIdPEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
                 refreshed = true;
