@@ -37,7 +37,7 @@ public abstract class PropertySourceMapper {
 
     protected static final Logger LOG = LoggerFactory.getLogger(PropertySourceMapper.class);
 
-    public static Map<String, Object> prefix(final String prefix, final Map<String, Object> map) {
+    protected static Map<String, Object> prefix(final String prefix, final Map<String, Object> map) {
         return map.entrySet().stream().
                 map(e -> Pair.of(prefix + e.getKey(), e.getValue())).
                 collect(Collectors.toMap(Pair::getKey, Pair::getValue));
