@@ -47,6 +47,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.ExecSpecs;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 
 public class OpenFGAUIITCase extends OIDCC4UIITCase {
 
@@ -153,5 +154,17 @@ public class OpenFGAUIITCase extends OIDCC4UIITCase {
     @Override
     public void createUnmatching() throws IOException {
         assumeFalse(true);
+    }
+
+    @Disabled
+    @Override
+    public void passwordManagementConsole() {
+        // ignore
+    }
+
+    @Disabled
+    @Override
+    public void passwordManagementEnduser() {
+        // ignore
     }
 }

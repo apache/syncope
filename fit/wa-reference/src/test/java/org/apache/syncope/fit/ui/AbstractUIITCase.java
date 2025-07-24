@@ -143,48 +143,46 @@ public abstract class AbstractUIITCase extends AbstractITCase {
 
     @Test
     public void passwordManagementConsole() throws IOException {
-        UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword")
-                .mustChangePassword(Boolean.TRUE)
-                .password("Password123!")
-                .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
-                .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
-                .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build())
-                .build();
-        Response response = USER_SERVICE.create(userCR);
+        String key = null;
+        try {
+            UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword").mustChangePassword(
+                            Boolean.TRUE).password("Password123!")
+                    .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
+                    .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
+                    .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build()).build();
 
-        assertNotNull(response);
-        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+            Response response = USER_SERVICE.create(userCR);
+            assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+            key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
-        passwordManagement(CONSOLE_ADDRESS, "mustChangePassword", "Password123!");
-
-        UserTO userTO = USER_SERVICE.read("mustChangePassword");
-        response = USER_SERVICE.delete(userTO.getKey());
-
-        assertNotNull(response);
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
+            passwordManagement(CONSOLE_ADDRESS, "mustChangePassword", "Password123!");
+        } finally {
+            if (key != null) {
+                USER_SERVICE.delete(key);
+            }
+        }
     }
 
     @Test
     public void passwordManagementEnduser() throws IOException {
-        UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword")
-                .mustChangePassword(Boolean.TRUE)
-                .password("Password123!")
-                .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
-                .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
-                .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build())
-                .build();
-        Response response = USER_SERVICE.create(userCR);
+        String key = null;
+        try {
+            UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword").mustChangePassword(
+                            Boolean.TRUE).password("Password123!")
+                    .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
+                    .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
+                    .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build()).build();
 
-        assertNotNull(response);
-        assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+            Response response = USER_SERVICE.create(userCR);
+            assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+            key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
-        passwordManagement(ENDUSER_ADDRESS, "mustChangePassword", "Password123!");
-
-        UserTO userTO = USER_SERVICE.read("mustChangePassword");
-        response = USER_SERVICE.delete(userTO.getKey());
-
-        assertNotNull(response);
-        assertEquals(HttpStatus.SC_OK, response.getStatus());
+            passwordManagement(ENDUSER_ADDRESS, "mustChangePassword", "Password123!");
+        } finally {
+            if (key != null) {
+                USER_SERVICE.delete(key);
+            }
+        }
     }
 
     @Test
