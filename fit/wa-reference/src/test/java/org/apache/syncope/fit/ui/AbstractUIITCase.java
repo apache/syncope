@@ -20,10 +20,12 @@ package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
 import org.apache.http.HttpStatus;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -38,6 +40,9 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.FormElement;
 import org.junit.jupiter.api.Test;
 
 public abstract class AbstractUIITCase extends AbstractITCase {
@@ -107,6 +112,19 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                             PolicyType.ATTR_RELEASE,
                             response.getHeaderString(RESTHeaders.RESOURCE_KEY));
                 });
+    }
+
+    protected static String extractWACSRF(final String body) {
+        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
+        assertNotNull(form);
+
+        Optional<String> execution = form.formData().stream().
+                filter(keyval -> "_csrf".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(execution.isPresent());
+
+        return execution.get();
     }
 
     protected abstract void sso(String baseURL, String username, String password) throws IOException;

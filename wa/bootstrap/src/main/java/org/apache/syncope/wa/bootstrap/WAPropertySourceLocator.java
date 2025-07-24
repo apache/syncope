@@ -127,7 +127,6 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
-        LOG.debug("Configure properties for CAS password manager on syncope:");
         SyncopePasswordManagementProperties pm = new SyncopePasswordManagementProperties();
         pm.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
         properties.putAll(index(PropertySourceMapper.prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(pm)),

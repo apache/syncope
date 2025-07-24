@@ -231,19 +231,6 @@ public abstract class AbstractITCase {
         return execution.get();
     }
 
-    protected static String extractWACSRF(final String body) {
-        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
-        assertNotNull(form);
-
-        Optional<String> execution = form.formData().stream().
-                filter(keyval -> "_csrf".equals(keyval.key())).
-                map(Connection.KeyVal::value).
-                findFirst();
-        assertTrue(execution.isPresent());
-
-        return execution.get();
-    }
-
     protected static CloseableHttpResponse authenticateToWA(
             final String username,
             final String password,
