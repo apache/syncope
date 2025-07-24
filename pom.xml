@@ -415,7 +415,7 @@ under the License.
     <bouncycastle.version>1.81</bouncycastle.version>
     <nimbus-jose-jwt.version>10.4</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.4.7</spring-boot.version>
+    <spring-boot.version>3.4.8</spring-boot.version>
     <spring-cloud-gateway.version>4.2.4</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
@@ -470,7 +470,7 @@ under the License.
 
     <antlr4.version>4.13.2</antlr4.version>
 
-    <curator.version>5.8.0</curator.version>
+    <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.9.3</zookeeper.version>
 
     <testcontainers.version>1.21.0</testcontainers.version>
