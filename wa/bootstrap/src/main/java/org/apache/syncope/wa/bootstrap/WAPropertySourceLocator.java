@@ -36,7 +36,10 @@ import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.PropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.WAConfUtils;
 import org.apereo.cas.configuration.model.support.oidc.OidcDiscoveryProperties;
+import org.apereo.cas.configuration.model.support.pm.SyncopePasswordManagementProperties;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
 import org.apereo.cas.services.RegisteredServiceAttributeReleasePolicy;
@@ -123,6 +126,12 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             Map<String, Object> map = attrRepoTO.getConf().map(attrRepoTO, attrRepoPropertySourceMapper);
             properties.putAll(index(map, prefixes));
         });
+
+        LOG.debug("Configure properties for CAS password manager on syncope:");
+        SyncopePasswordManagementProperties pm = new SyncopePasswordManagementProperties();
+        pm.setUrl(StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
+        properties.putAll(index(PropertySourceMapper.prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(pm)),
+                                prefixes));
 
         Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
                 filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).
