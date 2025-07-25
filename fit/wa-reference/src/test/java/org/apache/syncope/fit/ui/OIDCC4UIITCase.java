@@ -20,6 +20,7 @@ package org.apache.syncope.fit.ui;
 
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -341,9 +342,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
         UserTO userTO = USER_SERVICE.read("mustChangePassword");
-
-        assertNotNull(userTO);
-        assertEquals(userTO.isMustChangePassword(), Boolean.FALSE);
+        assertFalse(userTO.isMustChangePassword());
 
         responseBody = EntityUtils.toString(response.getEntity());
 

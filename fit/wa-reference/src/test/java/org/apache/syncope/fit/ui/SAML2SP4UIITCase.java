@@ -20,7 +20,6 @@ package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -375,11 +374,10 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
         post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
         post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
         try (CloseableHttpResponse response = httpclient.execute(post, context)) {
-            UserTO userTO = USER_SERVICE.read("mustChangePassword");
-
             assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            assertNotNull(userTO);
-            assertEquals(userTO.isMustChangePassword(), Boolean.FALSE);
+
+            UserTO userTO = USER_SERVICE.read("mustChangePassword");
+            assertFalse(userTO.isMustChangePassword());
 
             responseBody = EntityUtils.toString(response.getEntity());
 

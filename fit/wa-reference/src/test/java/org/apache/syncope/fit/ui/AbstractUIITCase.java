@@ -128,8 +128,6 @@ public abstract class AbstractUIITCase extends AbstractITCase {
 
     protected abstract void sso(String baseURL, String username, String password) throws IOException;
 
-    protected abstract void passwordManagement(String baseURL, String username, String password) throws IOException;
-
     @Test
     public void sso2Console() throws IOException {
         sso(CONSOLE_ADDRESS, "bellini", "password");
@@ -140,12 +138,14 @@ public abstract class AbstractUIITCase extends AbstractITCase {
         sso(ENDUSER_ADDRESS, "bellini", "password");
     }
 
-    @Test
-    public void passwordManagementConsole() throws IOException {
+    protected abstract void passwordManagement(String baseURL, String username, String password) throws IOException;
+
+    protected void passwordManagement(final String baseURL) throws IOException {
         String key = null;
         try {
-            UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword").mustChangePassword(
-                            Boolean.TRUE).password("Password123!")
+            UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword")
+                    .password("Password123!")
+                    .mustChangePassword(true)
                     .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
                     .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
                     .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build()).build();
@@ -154,34 +154,20 @@ public abstract class AbstractUIITCase extends AbstractITCase {
             assertEquals(HttpStatus.SC_CREATED, response.getStatus());
             key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
 
-            passwordManagement(CONSOLE_ADDRESS, "mustChangePassword", "Password123!");
+            AbstractUIITCase.this.passwordManagement(baseURL, "mustChangePassword", "Password123!");
         } finally {
-            if (key != null) {
-                USER_SERVICE.delete(key);
-            }
+            Optional.ofNullable(key).ifPresent(USER_SERVICE::delete);
         }
     }
 
     @Test
+    public void passwordManagementConsole() throws IOException {
+        passwordManagement(CONSOLE_ADDRESS);
+    }
+
+    @Test
     public void passwordManagementEnduser() throws IOException {
-        String key = null;
-        try {
-            UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword").mustChangePassword(
-                            Boolean.TRUE).password("Password123!")
-                    .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
-                    .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
-                    .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build()).build();
-
-            Response response = USER_SERVICE.create(userCR);
-            assertEquals(HttpStatus.SC_CREATED, response.getStatus());
-            key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
-
-            passwordManagement(ENDUSER_ADDRESS, "mustChangePassword", "Password123!");
-        } finally {
-            if (key != null) {
-                USER_SERVICE.delete(key);
-            }
-        }
+        passwordManagement(ENDUSER_ADDRESS);
     }
 
     @Test
