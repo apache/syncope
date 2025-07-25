@@ -53,6 +53,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.SAML2SP4UIIdPTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -246,6 +247,199 @@ public class SAML2SP4UIITCase extends AbstractUIITCase {
             String execution = extractWAExecution(responseBody);
 
             List<NameValuePair> form = new ArrayList<>();
+            form.add(new BasicNameValuePair("_eventId", "confirm"));
+            form.add(new BasicNameValuePair("execution", execution));
+            form.add(new BasicNameValuePair("option", "1"));
+            form.add(new BasicNameValuePair("reminder", "30"));
+            form.add(new BasicNameValuePair("reminderTimeUnit", "days"));
+
+            post = new HttpPost(WA_ADDRESS + "/login");
+            post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+            post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+            post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
+            try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+                assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+                location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+            }
+        }
+
+        if (location.startsWith("http://localhost:8080/syncope-wa")) {
+            location = WA_ADDRESS + StringUtils.substringAfter(location, "http://localhost:8080/syncope-wa");
+        }
+
+        get = new HttpGet(location);
+        get.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        get.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
+
+        // 2d. post SAML response
+        parsed = parseSAMLResponseForm(responseBody);
+
+        post = new HttpPost(parsed.getLeft());
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.setEntity(new UrlEncodedFormEntity(
+                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
+                        new BasicNameValuePair("SAMLResponse", parsed.getRight())), Consts.UTF_8));
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+        }
+
+        // 3. verify that user is now authenticated
+        get = new HttpGet(baseURL + Strings.CS.removeStart(location, "../"));
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            assertTrue(EntityUtils.toString(response.getEntity()).contains(username));
+        }
+
+        // 4. logout
+        get = new HttpGet(CONSOLE_ADDRESS.equals(baseURL)
+                ? baseURL + "wicket/bookmarkable/org.apache.syncope.client.console.pages.Logout"
+                : baseURL + "wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout");
+        httpclient.execute(get, context);
+    }
+
+    @Override
+    protected void passwordManagement(final String baseURL, final String username, final String password)
+            throws IOException {
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpClientContext context = HttpClientContext.create();
+        context.setCookieStore(new BasicCookieStore());
+
+        // 1. fetch login page
+        HttpGet get = new HttpGet(baseURL);
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        }
+
+        // 2. click on the SAML 2.0 IdP
+        get = new HttpGet(baseURL + SAML2SP4UIConstants.URL_CONTEXT
+                + "/login?idp=https%3A//localhost%3A9443/syncope-wa/saml");
+        String responseBody;
+        try (CloseableHttpResponse response = httpclient.execute(get, context)) {
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
+        Triple<String, String, String> parsed = parseSAMLRequestForm(responseBody);
+
+        // 2a. post SAML request
+        HttpPost post = new HttpPost(parsed.getLeft());
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.setEntity(new UrlEncodedFormEntity(
+                List.of(new BasicNameValuePair("RelayState", parsed.getMiddle()),
+                        new BasicNameValuePair("SAMLRequest", parsed.getRight())), Consts.UTF_8));
+        String location;
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_MOVED_TEMPORARILY, response.getStatusLine().getStatusCode());
+            location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+        }
+
+        // 2b. authenticate
+        post = new HttpPost(location);
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.addHeader(HttpHeaders.REFERER, get.getURI().toASCIIString());
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
+        try (CloseableHttpResponse response =
+                authenticateToWA(username, password, responseBody, httpclient, context)) {
+            assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusLine().getStatusCode());
+
+            // 3. redirected to WA reset password screen
+            responseBody = EntityUtils.toString(response.getEntity());
+
+            // check WA reset password screen
+            assertTrue(responseBody.contains("password"));
+            assertTrue(responseBody.contains("confirmedPassword"));
+            assertTrue(responseBody.contains("execution"));
+        }
+
+        String execution = extractWAExecution(responseBody);
+
+        // 3a. change password request
+        List<NameValuePair> form = new ArrayList<>();
+        form.add(new BasicNameValuePair("_eventId", "submit"));
+        form.add(new BasicNameValuePair("execution", execution));
+        form.add(new BasicNameValuePair("password", "PasswordChanged123!"));
+        form.add(new BasicNameValuePair("confirmedPassword", "PasswordChanged123!"));
+
+        post = new HttpPost(WA_ADDRESS + "/login");
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+            UserTO userTO = USER_SERVICE.read("mustChangePassword");
+            assertFalse(userTO.isMustChangePassword());
+
+            responseBody = EntityUtils.toString(response.getEntity());
+
+            assertTrue(responseBody.contains("execution"));
+            assertTrue(responseBody.contains("_csrf"));
+        }
+
+        // 4. go to WA login screen
+        execution = extractWAExecution(responseBody);
+        String csrf = extractWACSRF(responseBody);
+        form.clear();
+        form.add(new BasicNameValuePair("_eventId", "proceed"));
+        form.add(new BasicNameValuePair("_csrf", csrf));
+        form.add(new BasicNameValuePair("execution", execution));
+
+        post = new HttpPost(WA_ADDRESS + "/login");
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.setEntity(new UrlEncodedFormEntity(form, Consts.UTF_8));
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+
+            responseBody = EntityUtils.toString(response.getEntity());
+
+            assertTrue(responseBody.contains("username"));
+            assertTrue(responseBody.contains("password"));
+        }
+
+        // 2b. authenticate
+        post = new HttpPost(location);
+        post.addHeader(HttpHeaders.ACCEPT, MediaType.TEXT_HTML);
+        post.addHeader(HttpHeaders.ACCEPT_LANGUAGE, EN_LANGUAGE);
+        post.addHeader(HttpHeaders.REFERER, get.getURI().toASCIIString());
+        try (CloseableHttpResponse response = httpclient.execute(post, context)) {
+            assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            responseBody = EntityUtils.toString(response.getEntity());
+        }
+        boolean isOk = false;
+        try (CloseableHttpResponse response =
+                authenticateToWA(username, "PasswordChanged123!", responseBody, httpclient, context)) {
+
+            switch (response.getStatusLine().getStatusCode()) {
+                case HttpStatus.SC_OK:
+                    isOk = true;
+                    responseBody = EntityUtils.toString(response.getEntity());
+                    break;
+
+                case HttpStatus.SC_MOVED_TEMPORARILY:
+                    location = response.getFirstHeader(HttpHeaders.LOCATION).getValue();
+                    break;
+
+                default:
+                    fail();
+            }
+        }
+
+        // 2c. WA attribute consent screen
+        if (isOk) {
+            execution = extractWAExecution(responseBody);
+
+            form.clear();
+            form = new ArrayList<>();
             form.add(new BasicNameValuePair("_eventId", "confirm"));
             form.add(new BasicNameValuePair("execution", execution));
             form.add(new BasicNameValuePair("option", "1"));

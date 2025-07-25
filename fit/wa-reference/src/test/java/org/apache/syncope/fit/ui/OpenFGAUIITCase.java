@@ -154,4 +154,14 @@ public class OpenFGAUIITCase extends OIDCC4UIITCase {
     public void createUnmatching() throws IOException {
         assumeFalse(true);
     }
+
+    @Override
+    public void passwordManagementConsole() {
+        assumeFalse(true);
+    }
+
+    @Override
+    public void passwordManagementEnduser() {
+        assumeFalse(true);
+    }
 }
