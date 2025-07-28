@@ -16,24 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.ext.scimv2.api.service;
 
-import org.apache.syncope.common.lib.scim.SCIMConf;
-import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
+import javax.ws.rs.Path;
+import org.apache.syncope.ext.scimv2.api.data.SCIMAnyObject;
 
-public class SCIMConfExtensionUserPanel extends SCIMConfExtensionAnyPanel {
-
-    private static final long serialVersionUID = -94504185795020353L;
-
-    public SCIMConfExtensionUserPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
-        super(id, scimConf, anyTypeKey);
-    }
-
-    @Override
-    public SCIMExtensionAnyConf getExtensionAnyConf(final SCIMConf scimConf) {
-        if (scimConf.getExtensionUserConf() == null) {
-            scimConf.setExtensionUserConf(new SCIMExtensionAnyConf());
-        }
-        return scimConf.getExtensionUserConf();
-    }
+@Path("v2/AnyObjects")
+public interface SCIMAnyObjectService extends SCIMResourceService<SCIMAnyObject> {
 }

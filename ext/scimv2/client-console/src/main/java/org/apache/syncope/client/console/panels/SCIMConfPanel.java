@@ -24,10 +24,12 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.SCIMConfRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -35,6 +37,7 @@ import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +50,9 @@ public class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
     @SpringBean
     protected SCIMConfRestClient scimConfRestClient;
+
+    @SpringBean
+    protected AnyTypeRestClient anyTypeRestClient;
 
     protected final SCIMConf scimConf;
 
@@ -124,7 +130,7 @@ public class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
 
             @Override
             public WebMarkupContainer getPanel(final String panelId) {
-                return new SCIMConfExtensionUserPanel(panelId, scimConf);
+                return new SCIMConfExtensionUserPanel(panelId, scimConf, AnyTypeKind.USER.name());
             }
         });
 
@@ -137,6 +143,30 @@ public class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
                 return new SCIMConfGroupPanel(panelId, scimConf);
             }
         });
+
+        tabs.add(new ITabComponent(new Model<>(getString("tab6")), getString("tab6")) {
+
+            private static final long serialVersionUID = -7858187494595192532L;
+
+            @Override
+            public WebMarkupContainer getPanel(final String panelId) {
+                return new SCIMConfExtensionGroupPanel(panelId, scimConf, AnyTypeKind.GROUP.name());
+            }
+        });
+
+        anyTypeRestClient.listAnyTypes().stream()
+                .filter(anyTypeTO -> AnyTypeKind.ANY_OBJECT.equals(anyTypeTO.getKind()))
+                .forEach(anyTypeTO ->
+                        tabs.add(new ITabComponent(
+                                new ResourceModel("anyType." + anyTypeTO.getKey(), anyTypeTO.getKey())) {
+
+                            private static final long serialVersionUID = 6429988338658964324L;
+
+                            @Override
+                            public WebMarkupContainer getPanel(final String panelId) {
+                                return new SCIMConfExtensionAnyObjectPanel(panelId, scimConf, anyTypeTO.getKey());
+                            }
+                        }));
 
         return tabs;
     }
