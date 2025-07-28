@@ -16,24 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.common.lib.scim;
 
-import org.apache.syncope.common.lib.scim.SCIMConf;
-import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
+public class SCIMExtensionAnyObjectConf extends SCIMExtensionAnyConf {
 
-public class SCIMConfExtensionUserPanel extends SCIMConfExtensionAnyPanel {
+    private static final long serialVersionUID = 6600395333691186244L;
 
-    private static final long serialVersionUID = -94504185795020353L;
+    private String type;
 
-    public SCIMConfExtensionUserPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
-        super(id, scimConf, anyTypeKey);
+    private String externalId;
+
+    public String getType() {
+        return type;
     }
 
-    @Override
-    public SCIMExtensionAnyConf getExtensionAnyConf(final SCIMConf scimConf) {
-        if (scimConf.getExtensionUserConf() == null) {
-            scimConf.setExtensionUserConf(new SCIMExtensionAnyConf());
-        }
-        return scimConf.getExtensionUserConf();
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(final String externalId) {
+        this.externalId = externalId;
     }
 }

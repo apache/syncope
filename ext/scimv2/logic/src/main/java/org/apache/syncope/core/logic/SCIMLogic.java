@@ -100,6 +100,60 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
                         + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:User\"}"));
                 schemaArray.add(extensionObject);
             }
+            if (conf.getExtensionGroupConf() != null) {
+                ObjectNode extensionObject = MAPPER.createObjectNode();
+                extensionObject.put("id", Resource.ExtensionGroup.schema());
+                extensionObject.put("name", conf.getExtensionGroupConf().getName());
+                extensionObject.put("description", conf.getExtensionGroupConf().getDescription());
+                ArrayNode attributes = MAPPER.createArrayNode();
+                conf.getExtensionGroupConf().getAttributes().forEach(scimItem -> {
+                    ObjectNode attribute = MAPPER.createObjectNode();
+                    attribute.put("name", scimItem.getIntAttrName());
+                    attribute.put("type", "string");
+                    attribute.put("multiValued", scimItem.isMultiValued());
+                    attribute.put("required", scimItem.getMandatoryCondition());
+                    attribute.put("caseExact", scimItem.isCaseExact());
+                    attribute.put("mutability", scimItem.isMutability());
+                    attribute.put("returned", scimItem.getReturned().getReturned());
+                    attribute.put("uniqueness", scimItem.isUniqueness());
+                    attributes.add(attribute);
+                });
+                extensionObject.putIfAbsent("attributes", attributes);
+                extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
+                        + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:Group\"}"));
+                schemaArray.add(extensionObject);
+            }
+            if (!conf.getExtensionAnyObjectsConf().isEmpty()) {
+                conf.getExtensionAnyObjectsConf().forEach(confItem -> {
+                    ObjectNode extensionObject = MAPPER.createObjectNode();
+                    extensionObject.put("id",
+                            "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + confItem.getType());
+                    extensionObject.put("name", confItem.getName());
+                    extensionObject.put("description", confItem.getDescription());
+                    ArrayNode attributes = MAPPER.createArrayNode();
+                    confItem.getAttributes().forEach(scimItem -> {
+                        ObjectNode attribute = MAPPER.createObjectNode();
+                        attribute.put("name", scimItem.getIntAttrName());
+                        attribute.put("type", "string");
+                        attribute.put("multiValued", scimItem.isMultiValued());
+                        attribute.put("required", scimItem.getMandatoryCondition());
+                        attribute.put("caseExact", scimItem.isCaseExact());
+                        attribute.put("mutability", scimItem.isMutability());
+                        attribute.put("returned", scimItem.getReturned().getReturned());
+                        attribute.put("uniqueness", scimItem.isUniqueness());
+                        attributes.add(attribute);
+                    });
+                    extensionObject.putIfAbsent("attributes", attributes);
+                    try {
+                        extensionObject.putIfAbsent("meta", MAPPER.readTree("{\"resourceType\": \"Schema\","
+                                + "\"location\": \"/v2/Schemas/urn:ietf:params:scim:schemas:extension:syncope:2.0:"
+                                + confItem.getType() + "}\""));
+                    } catch (IOException e) {
+                        LOG.error("Could not parse the default schema definitions", e);
+                    }
+                    schemaArray.add(extensionObject);
+                });
+            }
             schemas = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(tree);
 
             schemaMap.clear();
@@ -121,7 +175,7 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
 
                 SERVICE_PROVIDER_CONFIG = new ServiceProviderConfig(
                         new Meta(
-                                Resource.ServiceProviderConfig,
+                                Resource.ServiceProviderConfig.name(),
                                 conf.getGeneralConf().getCreationDate(),
                                 conf.getGeneralConf().getLastChangeDate(),
                                 conf.getGeneralConf().getETagValue(),
@@ -162,12 +216,12 @@ public class SCIMLogic extends AbstractLogic<EntityTO> {
             String uri = uriBuilder.build().toASCIIString();
             if (USER == null) {
                 USER = new ResourceType("User", "User", "/Users", "User Account", Resource.User.schema(),
-                        new Meta(Resource.ResourceType, null, null, null, uri + "User"));
+                        new Meta(Resource.ResourceType.name(), null, null, null, uri + "User"));
                 USER.getSchemaExtensions().add(new SchemaExtension(Resource.EnterpriseUser.schema(), true));
             }
             if (GROUP == null) {
                 GROUP = new ResourceType("Group", "Group", "/Groups", "Group", Resource.Group.schema(),
-                        new Meta(Resource.ResourceType, null, null, null, uri + "Group"));
+                        new Meta(Resource.ResourceType.name(), null, null, null, uri + "Group"));
             }
         }
 

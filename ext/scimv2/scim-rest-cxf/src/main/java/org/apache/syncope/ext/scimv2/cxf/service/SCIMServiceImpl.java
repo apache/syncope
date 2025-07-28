@@ -20,11 +20,13 @@ package org.apache.syncope.ext.scimv2.cxf.service;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.SCIMLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
@@ -39,13 +41,15 @@ public class SCIMServiceImpl extends AbstractSCIMService<SCIMResource> implement
     public SCIMServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager,
             final SCIMLogic scimLogic) {
 
-        super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        super(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder, confManager);
         this.scimLogic = scimLogic;
     }
 

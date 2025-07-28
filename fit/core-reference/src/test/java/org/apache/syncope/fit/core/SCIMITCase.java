@@ -46,18 +46,21 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.request.AnyObjectUR;
 import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMEnterpriseUserConf;
-import org.apache.syncope.common.lib.scim.SCIMExtensionUserConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyObjectConf;
 import org.apache.syncope.common.lib.scim.SCIMGroupConf;
 import org.apache.syncope.common.lib.scim.SCIMItem;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.common.lib.scim.SCIMUserNameConf;
 import org.apache.syncope.common.lib.scim.types.EmailCanonicalType;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -70,6 +73,7 @@ import org.apache.syncope.ext.scimv2.api.data.Group;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.Member;
 import org.apache.syncope.ext.scimv2.api.data.ResourceType;
+import org.apache.syncope.ext.scimv2.api.data.SCIMAnyObject;
 import org.apache.syncope.ext.scimv2.api.data.SCIMComplexValue;
 import org.apache.syncope.ext.scimv2.api.data.SCIMError;
 import org.apache.syncope.ext.scimv2.api.data.SCIMExtensionInfo;
@@ -118,6 +122,20 @@ public class SCIMITCase extends AbstractITCase {
         email.setValue("email");
         email.setType(EmailCanonicalType.home);
         CONF.getUserConf().getEmails().add(email);
+
+        SCIMExtensionAnyObjectConf printerConf = new SCIMExtensionAnyObjectConf();
+        printerConf.setType(PRINTER);
+        printerConf.setName("syncope");
+        printerConf.setDescription("syncope printer");
+        SCIMItem model = new SCIMItem();
+        model.setIntAttrName("model");
+        model.setExtAttrName("model");
+        SCIMItem location = new SCIMItem();
+        location.setIntAttrName("location");
+        location.setExtAttrName("location");
+        printerConf.add(model);
+        printerConf.add(location);
+        CONF.getExtensionAnyObjectsConf().add(printerConf);
     }
 
     private static SCIMUser getSampleUser(final String username, final List<String> schemas) {
@@ -141,6 +159,13 @@ public class SCIMITCase extends AbstractITCase {
         user.getEmails().add(email);
 
         return user;
+    }
+
+    private static SCIMGroup getSampleGroup(final String name, final List<String> schemas) {
+        SCIMGroup group = new SCIMGroup(null, schemas, null, name);
+        group.setDisplayName(name);
+
+        return group;
     }
 
     @BeforeAll
@@ -209,7 +234,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void schemas() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extensionUserConf = new SCIMExtensionAnyConf();
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -217,6 +242,16 @@ public class SCIMITCase extends AbstractITCase {
         scimItem.setExtAttrName("gender");
         extensionUserConf.add(scimItem);
         CONF.setExtensionUserConf(extensionUserConf);
+
+        SCIMExtensionAnyConf extensionGroupConf = new SCIMExtensionAnyConf();
+        extensionGroupConf.setName("syncope");
+        extensionGroupConf.setDescription("syncope group");
+        SCIMItem scimItemGroup = new SCIMItem();
+        scimItemGroup.setIntAttrName("originalName");
+        scimItemGroup.setExtAttrName("originalName");
+        scimItemGroup.setUniqueness(true);
+        extensionGroupConf.add(scimItemGroup);
+        CONF.setExtensionGroupConf(extensionGroupConf);
         SCIM_CONF_SERVICE.set(CONF);
 
         Response response = webClient().path("Schemas").get();
@@ -227,7 +262,7 @@ public class SCIMITCase extends AbstractITCase {
 
         ArrayNode schemas = response.readEntity(ArrayNode.class);
         assertNotNull(schemas);
-        assertEquals(4, schemas.size());
+        assertEquals(6, schemas.size());
 
         response = webClient().path("Schemas").path("none").get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
@@ -246,7 +281,23 @@ public class SCIMITCase extends AbstractITCase {
         assertNotNull(extensionUser);
         assertEquals(Resource.ExtensionUser.schema(), extensionUser.get("id").textValue());
 
+        response = webClient().path("Schemas").path(Resource.ExtensionGroup.schema()).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        ObjectNode extensionGroup = response.readEntity(ObjectNode.class);
+        assertNotNull(extensionGroup);
+        assertEquals(Resource.ExtensionGroup.schema(), extensionGroup.get("id").textValue());
+
+        response = webClient().path("Schemas").path("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER").get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        ObjectNode extensionPrinter = response.readEntity(ObjectNode.class);
+        assertNotNull(extensionPrinter);
+        assertEquals("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER",
+                extensionPrinter.get("id").textValue());
+
         CONF.setExtensionUserConf(null);
+        CONF.setExtensionGroupConf(null);
         SCIM_CONF_SERVICE.set(CONF);
     }
 
@@ -306,7 +357,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     void invalidConf() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extensionUserConf = new SCIMExtensionAnyConf();
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -456,13 +507,13 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(newUser.getUsername(), newSCIMUser.getUserName());
 
         SCIMEnterpriseUserConf beforeEntConf = CONF.getEnterpriseUserConf();
-        SCIMExtensionUserConf beforeExtConf = CONF.getExtensionUserConf();
+        SCIMExtensionAnyConf beforeExtConf = CONF.getExtensionUserConf();
         try {
             SCIMEnterpriseUserConf entConf = new SCIMEnterpriseUserConf();
             entConf.setOrganization("userId");
             CONF.setEnterpriseUserConf(entConf);
 
-            SCIMExtensionUserConf extConf = new SCIMExtensionUserConf();
+            SCIMExtensionAnyConf extConf = new SCIMExtensionAnyConf();
             SCIMItem item = new SCIMItem();
             item.setIntAttrName("email");
             item.setExtAttrName("email");
@@ -501,6 +552,28 @@ public class SCIMITCase extends AbstractITCase {
             });
             assertNotNull(users);
             assertEquals(1, users.getTotalResults());
+
+            // PRINTER
+            response = webClient().path("AnyObjects").query(
+                    "filter",
+                    "urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER:model eq \"Canon MFC8030\"").
+                    get();
+            assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), response.getStatus());
+
+            response = webClient().path("AnyObjects").query(
+                    "filter",
+                    "urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER:model eq \"Canon MFC8030\" "
+                            + "and type eq \"PRINTER\"").
+                    get();
+            assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+            assertEquals(
+                    SCIMConstants.APPLICATION_SCIM_JSON,
+                    StringUtils.substringBefore(response.getHeaderString(HttpHeaders.CONTENT_TYPE), ";"));
+
+            ListResponse<SCIMAnyObject> printers = response.readEntity(new GenericType<>() {
+            });
+            assertNotNull(printers);
+            assertEquals(1, printers.getTotalResults());
         } finally {
             CONF.setEnterpriseUserConf(beforeEntConf);
             CONF.setExtensionUserConf(beforeExtConf);
@@ -538,7 +611,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     void crudExtensionUser() {
-        SCIMExtensionUserConf extensionUserConf = new SCIMExtensionUserConf();
+        SCIMExtensionAnyConf extensionUserConf = new SCIMExtensionAnyConf();
         extensionUserConf.setName("syncope");
         extensionUserConf.setDescription("syncope user");
         SCIMItem scimItem = new SCIMItem();
@@ -792,7 +865,7 @@ public class SCIMITCase extends AbstractITCase {
     public void createGroup() {
         String displayName = UUID.randomUUID().toString();
 
-        SCIMGroup group = new SCIMGroup(null, null, displayName);
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, displayName);
         group.getMembers().add(new Member("1417acbe-cbf6-4277-9372-e75e04f97000", null, null));
         assertNull(group.getId());
         assertEquals(displayName, group.getDisplayName());
@@ -821,10 +894,50 @@ public class SCIMITCase extends AbstractITCase {
     }
 
     @Test
+    void crudExtensionGroup() {
+        SCIMExtensionAnyConf extensionGroupConf = new SCIMExtensionAnyConf();
+        extensionGroupConf.setName("syncope");
+        extensionGroupConf.setDescription("syncope group");
+        SCIMItem scimItemGroup = new SCIMItem();
+        scimItemGroup.setIntAttrName("originalName");
+        scimItemGroup.setExtAttrName("originalName");
+        scimItemGroup.setUniqueness(true);
+        extensionGroupConf.add(scimItemGroup);
+        CONF.setExtensionGroupConf(extensionGroupConf);
+        SCIM_CONF_SERVICE.set(CONF);
+
+        SCIMGroup group = getSampleGroup(
+                UUID.randomUUID().toString(), List.of(Resource.Group.schema(), Resource.ExtensionGroup.schema()));
+        SCIMExtensionInfo scimExtensionInfo = new SCIMExtensionInfo();
+        scimExtensionInfo.getAttributes().put("originalName", "originalName");
+        group.setExtensionInfo(scimExtensionInfo);
+
+        Response response = webClient().path("Groups").post(group);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        group = response.readEntity(SCIMGroup.class);
+        assertNotNull(group.getId());
+        assertTrue(response.getLocation().toASCIIString().endsWith(group.getId()));
+
+        GroupTO groupTO = GROUP_SERVICE.read(group.getId());
+        assertEquals(group.getDisplayName(), groupTO.getName());
+        assertEquals(group.getExtensionInfo().getAttributes().get("originalName"),
+                groupTO.getPlainAttr("originalName").get().getValues().get(0));
+
+        response = webClient().path("Groups").path(group.getId()).delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        response = webClient().path("Groups").path(group.getId()).get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+        CONF.setExtensionGroupConf(null);
+        SCIM_CONF_SERVICE.set(CONF);
+    }
+
+    @Test
     public void updateGroup() {
         SCIM_CONF_SERVICE.set(CONF);
 
-        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, UUID.randomUUID().toString());
         group.getMembers().add(new Member("74cd8ece-715a-44a4-a736-e17b46c4e7e6", null, null));
         group.getMembers().add(new Member("1417acbe-cbf6-4277-9372-e75e04f97000", null, null));
         Response response = webClient().path("Groups").post(group);
@@ -922,7 +1035,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void replaceGroup() {
-        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, UUID.randomUUID().toString());
         group.getMembers().add(new Member("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee", null, null));
         Response response = webClient().path("Groups").post(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
@@ -968,7 +1081,7 @@ public class SCIMITCase extends AbstractITCase {
 
     @Test
     public void deleteGroup() {
-        SCIMGroup group = new SCIMGroup(null, null, UUID.randomUUID().toString());
+        SCIMGroup group = new SCIMGroup(null, List.of(Resource.Group.schema()), null, UUID.randomUUID().toString());
         Response response = webClient().path("Groups").post(group);
         assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
 
@@ -982,6 +1095,135 @@ public class SCIMITCase extends AbstractITCase {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
         response = webClient().path("Groups").path(group.getId()).get();
+        assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void createPrinter() {
+        SCIM_CONF_SERVICE.set(CONF);
+
+        String displayName = UUID.randomUUID().toString();
+
+        SCIMAnyObject printer = new SCIMAnyObject(
+                null, List.of("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER"), null, displayName);
+        SCIMExtensionInfo scimExtensionInfo = new SCIMExtensionInfo();
+        scimExtensionInfo.getAttributes().put("model", "HP Inspire 7224e");
+        printer.setExtensionInfo(scimExtensionInfo);
+        assertNull(printer.getId());
+        assertEquals(displayName, printer.getDisplayName());
+
+        Response response = webClient().path("AnyObjects").post(printer);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        printer = response.readEntity(SCIMAnyObject.class);
+        assertNotNull(printer.getId());
+        assertTrue(response.getLocation().toASCIIString().endsWith(printer.getId()));
+        assertEquals(displayName, printer.getDisplayName());
+        assertTrue(printer.getExtensionInfo().getAttributes().containsKey("model"));
+        assertTrue(printer.getExtensionInfo().getAttributes().containsValue("HP Inspire 7224e"));
+
+        response = webClient().path("AnyObjects").post(printer);
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), response.getStatus());
+
+        SCIMError error = response.readEntity(SCIMError.class);
+        assertEquals(Response.Status.CONFLICT.getStatusCode(), error.getStatus());
+        assertEquals(ErrorType.uniqueness, error.getScimType());
+    }
+
+    @Test
+    public void updatePrinter() {
+        SCIM_CONF_SERVICE.set(CONF);
+
+        SCIMAnyObject printer = new SCIMAnyObject(
+                null,
+                List.of("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER"),
+                null,
+                UUID.randomUUID().toString());
+        Response response = webClient().path("AnyObjects").post(printer);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        printer = response.readEntity(SCIMAnyObject.class);
+        assertNotNull(printer.getId());
+        assertNotNull(printer.getDisplayName());
+
+        // update with path, add value
+        String body =
+                "{"
+                        + "\"schemas\":[\"urn:ietf:params:scim:api:messages:2.0:PatchOp\"],"
+                        + "\"Operations\":[{"
+                        + "\"op\":\"Add\","
+                        + "\"path\":\"displayName\","
+                        + "\"value\":\"" + printer.getId() + "\""
+                        + "}]"
+                        + "}";
+        response = webClient().path("AnyObjects").path(printer.getId()).invoke(HttpMethod.PATCH, body);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        printer = response.readEntity(SCIMAnyObject.class);
+        assertEquals(printer.getId(), printer.getDisplayName());
+    }
+
+    @Test
+    public void replacePrinter() {
+        SCIM_CONF_SERVICE.set(CONF);
+
+        SCIMAnyObject printer = new SCIMAnyObject(
+                null,
+                List.of("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER"),
+                null,
+                UUID.randomUUID().toString());
+        SCIMExtensionInfo scimExtensionInfo = new SCIMExtensionInfo();
+        scimExtensionInfo.getAttributes().put("location", "1st floor");
+        printer.setExtensionInfo(scimExtensionInfo);
+        Response response = webClient().path("AnyObjects").post(printer);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        printer = response.readEntity(SCIMAnyObject.class);
+        assertNotNull(printer.getId());
+
+        AnyObjectTO anyObjectTO = ANY_OBJECT_SERVICE.read(printer.getId());
+        assertNotNull(anyObjectTO);
+        ANY_OBJECT_SERVICE.update(new AnyObjectUR.Builder(anyObjectTO.getKey()).resource(
+                new StringPatchItem.Builder().value(RESOURCE_NAME_DBSCRIPTED)
+                        .operation(PatchOperation.ADD_REPLACE).build())
+                .build());
+        anyObjectTO = ANY_OBJECT_SERVICE.read(printer.getId());
+        assertNotNull(anyObjectTO);
+        assertTrue(anyObjectTO.getResources().contains(RESOURCE_NAME_DBSCRIPTED));
+
+        printer.setDisplayName("other" + printer.getId());
+
+        response = webClient().path("AnyObjects").path(printer.getId()).put(printer);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        printer = response.readEntity(SCIMAnyObject.class);
+        assertTrue(printer.getDisplayName().startsWith("other"));
+
+        anyObjectTO = ANY_OBJECT_SERVICE.read(printer.getId());
+        assertNotNull(anyObjectTO);
+        assertTrue(anyObjectTO.getResources().contains(RESOURCE_NAME_DBSCRIPTED));
+    }
+
+    @Test
+    public void deletePrinter() {
+        SCIMAnyObject printer = new SCIMAnyObject(
+                null,
+                List.of("urn:ietf:params:scim:schemas:extension:syncope:2.0:PRINTER"),
+                null,
+                UUID.randomUUID().toString());
+        Response response = webClient().path("AnyObjects").post(printer);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        printer = response.readEntity(SCIMAnyObject.class);
+        assertNotNull(printer.getId());
+
+        response = webClient().path("AnyObjects").path(printer.getId()).get();
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        response = webClient().path("AnyObjects").path(printer.getId()).delete();
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        response = webClient().path("AnyObjects").path(printer.getId()).get();
         assertEquals(Response.Status.NOT_FOUND.getStatusCode(), response.getStatus());
     }
 }

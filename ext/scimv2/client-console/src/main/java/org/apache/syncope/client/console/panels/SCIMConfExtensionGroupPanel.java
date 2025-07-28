@@ -21,19 +21,19 @@ package org.apache.syncope.client.console.panels;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
 
-public class SCIMConfExtensionUserPanel extends SCIMConfExtensionAnyPanel {
+public class SCIMConfExtensionGroupPanel extends SCIMConfExtensionAnyPanel {
 
-    private static final long serialVersionUID = -94504185795020353L;
+    private static final long serialVersionUID = -3719006384765921047L;
 
-    public SCIMConfExtensionUserPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
+    public SCIMConfExtensionGroupPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
         super(id, scimConf, anyTypeKey);
     }
 
     @Override
     public SCIMExtensionAnyConf getExtensionAnyConf(final SCIMConf scimConf) {
-        if (scimConf.getExtensionUserConf() == null) {
-            scimConf.setExtensionUserConf(new SCIMExtensionAnyConf());
+        if (scimConf.getExtensionGroupConf() == null) {
+            scimConf.setExtensionGroupConf(new SCIMExtensionAnyConf());
         }
-        return scimConf.getExtensionUserConf();
+        return scimConf.getExtensionGroupConf();
     }
 }

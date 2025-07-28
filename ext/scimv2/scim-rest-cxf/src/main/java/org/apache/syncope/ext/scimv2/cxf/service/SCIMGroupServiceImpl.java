@@ -38,11 +38,13 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -67,12 +69,14 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
     public SCIMGroupServiceImpl(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        super(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        super(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder, confManager);
     }
 
     private void changeMembership(final String user, final String group, final PatchOp patchOp) {
@@ -142,7 +146,7 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
 
     @Override
     public Response update(final String id, final SCIMPatchOp patch) {
-        ResponseBuilder builder = checkETag(Resource.Group, id);
+        ResponseBuilder builder = checkETag(Resource.Group.schema(), id);
         if (builder != null) {
             return builder.build();
         }
@@ -177,7 +181,7 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
             throw new BadRequestException(ErrorType.invalidPath, "Expected " + id + ", found " + group.getId());
         }
 
-        ResponseBuilder builder = checkETag(Resource.Group, id);
+        ResponseBuilder builder = checkETag(Resource.Group.schema(), id);
         if (builder != null) {
             return builder.build();
         }
@@ -225,12 +229,12 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
 
     @Override
     public Response delete(final String id) {
-        ResponseBuilder builder = checkETag(Resource.Group, id);
+        ResponseBuilder builder = checkETag(Resource.Group.schema(), id);
         if (builder != null) {
             return builder.build();
         }
 
-        anyLogic(Resource.Group).delete(id, false);
+        anyLogic(Resource.Group.name()).delete(id, false);
         return Response.noContent().build();
     }
 
@@ -254,11 +258,11 @@ public class SCIMGroupServiceImpl extends AbstractSCIMService<SCIMGroup> impleme
                     List.of(ArrayUtils.nullToEmpty(StringUtils.split(excludedAttributes, ','))));
         }
 
-        return doSearch(Resource.Group, request);
+        return doSearch(Resource.Group.name(), request);
     }
 
     @Override
     public ListResponse<SCIMGroup> search(final SCIMSearchRequest request) {
-        return doSearch(Resource.Group, request);
+        return doSearch(Resource.Group.name(), request);
     }
 }

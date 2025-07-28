@@ -29,16 +29,20 @@ import org.apache.cxf.jaxrs.spring.JAXRSServerFactoryBeanDefinitionParser.Spring
 import org.apache.cxf.jaxrs.validation.JAXRSBeanValidationInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
 import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.SCIMLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.core.logic.scim.SCIMConfManager;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.ext.scimv2.api.service.SCIMAnyObjectService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMGroupService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMService;
 import org.apache.syncope.ext.scimv2.api.service.SCIMUserService;
+import org.apache.syncope.ext.scimv2.cxf.service.SCIMAnyObjectServiceImpl;
 import org.apache.syncope.ext.scimv2.cxf.service.SCIMGroupServiceImpl;
 import org.apache.syncope.ext.scimv2.cxf.service.SCIMServiceImpl;
 import org.apache.syncope.ext.scimv2.cxf.service.SCIMUserServiceImpl;
@@ -75,6 +79,7 @@ public class SCIMv2RESTCXFContext {
             final SCIMService scimService,
             final SCIMGroupService scimv2GroupService,
             final SCIMUserService scimv2UserService,
+            final SCIMAnyObjectService scimv2AnyObjectService,
             final GZIPInInterceptor gzipInInterceptor,
             final GZIPOutInterceptor gzipOutInterceptor,
             final JAXRSBeanValidationInInterceptor validationInInterceptor,
@@ -91,7 +96,8 @@ public class SCIMv2RESTCXFContext {
 
         scimv2Container.setProperties(Map.of("convert.wadl.resources.to.dom", "false"));
 
-        scimv2Container.setServiceBeans(List.of(scimService, scimv2GroupService, scimv2UserService));
+        scimv2Container.setServiceBeans(
+                List.of(scimService, scimv2GroupService, scimv2UserService, scimv2AnyObjectService));
 
         scimv2Container.setInInterceptors(List.of(gzipInInterceptor, validationInInterceptor));
 
@@ -108,13 +114,16 @@ public class SCIMv2RESTCXFContext {
     public SCIMService scimService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager,
             final SCIMLogic scimLogic) {
 
-        return new SCIMServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager, scimLogic);
+        return new SCIMServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder,
+                confManager, scimLogic);
     }
 
     @ConditionalOnMissingBean
@@ -122,12 +131,15 @@ public class SCIMv2RESTCXFContext {
     public SCIMGroupService scimv2GroupService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        return new SCIMGroupServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        return new SCIMGroupServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder,
+                confManager);
     }
 
     @ConditionalOnMissingBean
@@ -135,11 +147,30 @@ public class SCIMv2RESTCXFContext {
     public SCIMUserService scimv2UserService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
-        return new SCIMUserServiceImpl(userDAO, groupDAO, userLogic, groupLogic, binder, confManager);
+        return new SCIMUserServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic, binder,
+                confManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public SCIMAnyObjectService scimv2AnyObjectService(
+            final UserDAO userDAO,
+            final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
+            final UserLogic userLogic,
+            final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
+            final SCIMDataBinder binder,
+            final SCIMConfManager confManager) {
+
+        return new SCIMAnyObjectServiceImpl(userDAO, groupDAO, anyObjectDAO, userLogic, groupLogic, anyObjectLogic,
+                binder, confManager);
     }
 }
