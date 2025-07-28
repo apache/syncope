@@ -28,12 +28,14 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.ext.MessageContext;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
+import org.apache.syncope.core.logic.AnyObjectLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.SCIMDataBinder;
 import org.apache.syncope.core.logic.UserLogic;
@@ -41,9 +43,12 @@ import org.apache.syncope.core.logic.scim.SCIMConfManager;
 import org.apache.syncope.core.logic.scim.SearchCondConverter;
 import org.apache.syncope.core.logic.scim.SearchCondVisitor;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
 import org.apache.syncope.ext.scimv2.api.data.SCIMResource;
@@ -57,7 +62,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
-abstract class AbstractSCIMService<R extends SCIMResource> {
+public abstract class AbstractSCIMService<R extends SCIMResource> {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSCIMService.class);
 
@@ -71,9 +76,13 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
     protected final GroupDAO groupDAO;
 
+    protected final AnyObjectDAO anyObjectDAO;
+
     protected final UserLogic userLogic;
 
     protected final GroupLogic groupLogic;
+
+    protected final AnyObjectLogic anyObjectLogic;
 
     protected final SCIMDataBinder binder;
 
@@ -82,46 +91,52 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
     protected AbstractSCIMService(
             final UserDAO userDAO,
             final GroupDAO groupDAO,
+            final AnyObjectDAO anyObjectDAO,
             final UserLogic userLogic,
             final GroupLogic groupLogic,
+            final AnyObjectLogic anyObjectLogic,
             final SCIMDataBinder binder,
             final SCIMConfManager confManager) {
 
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
+        this.anyObjectDAO = anyObjectDAO;
         this.userLogic = userLogic;
         this.groupLogic = groupLogic;
+        this.anyObjectLogic = anyObjectLogic;
         this.binder = binder;
         this.confManager = confManager;
     }
 
-    protected AnyDAO<?> anyDAO(final Resource type) {
+    protected AnyDAO<?> anyDAO(final String type) {
         switch (type) {
-            case User -> {
+            case "urn:ietf:params:scim:schemas:core:2.0:User" -> {
                 return userDAO;
             }
 
-            case Group -> {
+            case "urn:ietf:params:scim:schemas:core:2.0:Group" -> {
                 return groupDAO;
             }
 
-            default ->
-                throw new UnsupportedOperationException();
+            default -> {
+                return anyObjectDAO;
+            }
         }
     }
 
-    protected AbstractAnyLogic<?, ?, ?> anyLogic(final Resource type) {
+    protected AbstractAnyLogic<?, ?, ?> anyLogic(final String type) {
         switch (type) {
-            case User -> {
+            case "User" -> {
                 return userLogic;
             }
 
-            case Group -> {
+            case "Group" -> {
                 return groupLogic;
             }
 
-            default ->
-                throw new UnsupportedOperationException();
+            default -> {
+                return anyObjectLogic;
+            }
         }
     }
 
@@ -158,7 +173,7 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
 
     protected abstract SCIMResource getResource(String key);
 
-    protected ResponseBuilder checkETag(final Resource resource, final String key) {
+    protected ResponseBuilder checkETag(final String resource, final String key) {
         OffsetDateTime lastChange = anyDAO(resource).findLastChange(key).
                 orElseThrow(() -> new NotFoundException("Resource" + key + " not found"));
 
@@ -167,7 +182,10 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
     }
 
     @SuppressWarnings("unchecked")
-    protected ListResponse<R> doSearch(final Resource type, final SCIMSearchRequest request) {
+    protected ListResponse<R> doSearch(
+            final String type,
+            final SCIMSearchRequest request) {
+
         if (type == null) {
             throw new UnsupportedOperationException();
         }
@@ -205,10 +223,24 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
                     visitor.createAttrCond(request.getSortBy()).getSchema()));
         }
 
+        SearchCond searchCond = null;
+        String filter = request.getFilter();
+        if (!Resource.Group.name().equals(type) && !Resource.User.name().equals(type)) {
+            AnyTypeCond cond = new AnyTypeCond();
+            cond.setAnyTypeKey(type);
+            searchCond = SearchCond.of(cond);
+            filter = filter.replaceAll(
+                    "(\\s*(and|or)\\s+)?type\\s+eq\\s+\"[^\"]*\"(\\s*(and|or)\\s+)?", " ")
+                    .trim().replaceAll("\\s{2,}", " ");
+        }
+        if (StringUtils.isNotBlank(filter)) {
+            SearchCond filterCond = SearchCondConverter.convert(visitor, filter);
+            searchCond = (searchCond == null)
+                    ? filterCond
+                    : SearchCond.and(filterCond, searchCond);
+        }
         Page<? extends AnyTO> result = anyLogic(type).search(
-                StringUtils.isBlank(request.getFilter())
-                ? null
-                : SearchCondConverter.convert(visitor, request.getFilter()),
+                searchCond,
                 PageRequest.of(page, itemsPerPage, Sort.by(sort)),
                 SyncopeConstants.ROOT_REALM,
                 true,
@@ -231,6 +263,12 @@ abstract class AbstractSCIMService<R extends SCIMResource> {
             } else if (anyTO instanceof GroupTO groupTO) {
                 resource = binder.toSCIMGroup(
                         groupTO,
+                        uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
+                        request.getAttributes(),
+                        request.getExcludedAttributes());
+            } else if (anyTO instanceof AnyObjectTO anyObjectTO) {
+                resource = binder.toSCIMAnyObject(
+                        anyObjectTO,
                         uriInfo.getAbsolutePathBuilder().path(anyTO.getKey()).build().toASCIIString(),
                         request.getAttributes(),
                         request.getExcludedAttributes());
