@@ -441,11 +441,20 @@ public class AuthModulePropertySourceMapper extends PropertySourceMapper impleme
         GoogleAuthenticatorMultifactorProperties props = new GoogleAuthenticatorMultifactorProperties();
         props.setName(authModuleTO.getKey());
         props.setOrder(authModuleTO.getOrder());
+
         props.getCore().setIssuer(conf.getIssuer());
         props.getCore().setCodeDigits(conf.getCodeDigits());
         props.getCore().setLabel(conf.getLabel());
         props.getCore().setTimeStepSize(conf.getTimeStepSize());
         props.getCore().setWindowSize(conf.getWindowSize());
+
+        props.getCrypto().setEnabled(conf.isEnableCrypto());
+        props.getCrypto().setAlg(conf.getCryptoAlgorithm().getExternalForm());
+        props.getCrypto().setStrategyType(conf.getCryptoStrategy().name());
+        props.getCrypto().getEncryption().setKeySize(conf.getEncryptionKeySize());
+        props.getCrypto().getEncryption().setKey(conf.getEncryptionKey());
+        props.getCrypto().getSigning().setKeySize(conf.getSigningKeySize());
+        props.getCrypto().getSigning().setKey(conf.getSigningKey());
 
         if (conf.getLdap() != null) {
             LdapGoogleAuthenticatorMultifactorProperties ldapProps = new LdapGoogleAuthenticatorMultifactorProperties();

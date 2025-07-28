@@ -424,13 +424,13 @@ under the License.
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>4.0.27</groovy.version>
+    <groovy.version>4.0.28</groovy.version>
 
     <flowable.version>6.8.1</flowable.version>
 
     <slf4j.version>1.7.36</slf4j.version>
 
-    <elasticsearch.version>8.17.8</elasticsearch.version>
+    <elasticsearch.version>8.17.9</elasticsearch.version>
     <opensearch.version>2.19.2</opensearch.version>
     <opensearch-java.version>2.26.0</opensearch-java.version>
 
@@ -439,7 +439,7 @@ under the License.
 
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-jexl.version>3.5.0</commons-jexl.version>
-    <commons-text.version>1.13.1</commons-text.version>
+    <commons-text.version>1.14.0</commons-text.version>
 
     <pac4j.version>5.5.0</pac4j.version>
 
