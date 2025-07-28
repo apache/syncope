@@ -19,6 +19,8 @@
 package org.apache.syncope.common.lib.scim;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SCIMConf implements Serializable {
 
@@ -32,9 +34,13 @@ public class SCIMConf implements Serializable {
 
     private SCIMEnterpriseUserConf enterpriseUserConf;
 
-    private SCIMExtensionUserConf extensionUserConf;
+    private SCIMExtensionAnyConf extensionUserConf;
 
     private SCIMGroupConf groupConf;
+
+    private SCIMExtensionAnyConf extensionGroupConf;
+
+    private final List<SCIMExtensionAnyObjectConf> extensionAnyObjectsConf = new ArrayList<>();
 
     public SCIMGeneralConf getGeneralConf() {
         return generalConf;
@@ -60,12 +66,24 @@ public class SCIMConf implements Serializable {
         this.enterpriseUserConf = enterpriseUserConf;
     }
 
-    public SCIMExtensionUserConf getExtensionUserConf() {
+    public SCIMExtensionAnyConf getExtensionUserConf() {
         return extensionUserConf;
     }
 
-    public void setExtensionUserConf(final SCIMExtensionUserConf extensionUserConf) {
+    public void setExtensionUserConf(final SCIMExtensionAnyConf extensionUserConf) {
         this.extensionUserConf = extensionUserConf;
+    }
+
+    public SCIMExtensionAnyConf getExtensionGroupConf() {
+        return extensionGroupConf;
+    }
+
+    public void setExtensionGroupConf(final SCIMExtensionAnyConf extensionGroupConf) {
+        this.extensionGroupConf = extensionGroupConf;
+    }
+
+    public List<SCIMExtensionAnyObjectConf> getExtensionAnyObjectsConf() {
+        return extensionAnyObjectsConf;
     }
 
     public SCIMGroupConf getGroupConf() {
