@@ -155,7 +155,7 @@ public class SCIMConfPanel extends WizardMgtPanel<SCIMConf> {
         });
 
         anyTypeRestClient.listAnyTypes().stream()
-                .filter(anyTypeTO -> anyTypeTO.getKind().equals(AnyTypeKind.ANY_OBJECT))
+                .filter(anyTypeTO -> AnyTypeKind.ANY_OBJECT.equals(anyTypeTO.getKind()))
                 .forEach(anyTypeTO ->
                         tabs.add(new ITabComponent(
                                 new ResourceModel("anyType." + anyTypeTO.getKey(), anyTypeTO.getKey())) {

@@ -540,7 +540,7 @@ public class SCIMDataBinder {
             return;
         }
 
-        if (schema.equals("name")) {
+        if ("name".equals(schema)) {
             anyObjectTO.setName(value);
         } else {
             anyObjectTO.getPlainAttrs().add(new Attr.Builder(schema).value(value).build());
@@ -1198,7 +1198,7 @@ public class SCIMDataBinder {
             groupUR.setName(name.build());
         } else {
             SCIMConf conf = confManager.get();
-            if (conf.getGroupConf() != null && op.getPath().getAttribute().equals("externalId")) {
+            if (conf.getGroupConf() != null && "externalId".equals(op.getPath().getAttribute())) {
                 setAttribute(groupUR.getPlainAttrs(), conf.getGroupConf().getExternalId(), op);
             }
             if (conf.getExtensionGroupConf() != null) {
@@ -1331,7 +1331,7 @@ public class SCIMDataBinder {
                     conf.getExtensionAnyObjectsConf().stream()
                             .filter(scimExtAnyObjectConf -> scimExtAnyObjectConf.getType().equals(before.getType()))
                             .findFirst();
-            if (scimExtensionAnyObjectConf.isPresent() && op.getPath().getAttribute().equals("externalId")) {
+            if (scimExtensionAnyObjectConf.isPresent() && "externalId".equals(op.getPath().getAttribute())) {
                 setAttribute(anyObjectUR.getPlainAttrs(), scimExtensionAnyObjectConf.get().getExternalId(), op);
             }
             scimExtensionAnyObjectConf.flatMap(extensionAnyObjectConf -> Optional.of(extensionAnyObjectConf)

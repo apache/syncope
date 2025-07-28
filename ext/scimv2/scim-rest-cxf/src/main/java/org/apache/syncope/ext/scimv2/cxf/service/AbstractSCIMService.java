@@ -221,7 +221,7 @@ public abstract class AbstractSCIMService<R extends SCIMResource> {
 
         SearchCond searchCond = null;
         String filter = request.getFilter();
-        if (!type.equals(Resource.Group.name()) && !type.equals(Resource.User.name())) {
+        if (!Resource.Group.name().equals(type) && !Resource.User.name().equals(type)) {
             AnyTypeCond cond = new AnyTypeCond();
             cond.setAnyTypeKey(type);
             searchCond = SearchCond.getLeaf(cond);
