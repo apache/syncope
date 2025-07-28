@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.ext.scimv2.api.service;
 
-import javax.ws.rs.Path;
+import jakarta.ws.rs.Path;
 import org.apache.syncope.ext.scimv2.api.data.SCIMAnyObject;
 
 @Path("v2/AnyObjects")

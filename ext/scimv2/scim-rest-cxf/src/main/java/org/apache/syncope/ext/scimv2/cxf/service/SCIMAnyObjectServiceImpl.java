@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.ext.scimv2.cxf.service;
 
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -119,7 +119,7 @@ public class SCIMAnyObjectServiceImpl extends AbstractSCIMService<SCIMAnyObject>
     public Response update(final String id, final SCIMPatchOp patch) {
         SCIMResource resource = getResource(id);
         Response.ResponseBuilder builder = checkETag(
-                "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource.getSchemas().get(0), id);
+                "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource.getSchemas().getFirst(), id);
         if (builder != null) {
             return builder.build();
         }
@@ -143,7 +143,7 @@ public class SCIMAnyObjectServiceImpl extends AbstractSCIMService<SCIMAnyObject>
 
         SCIMResource resource = getResource(id);
         Response.ResponseBuilder builder = checkETag(
-                "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource.getSchemas().get(0), id);
+                "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource.getSchemas().getFirst(), id);
         if (builder != null) {
             return builder.build();
         }
@@ -170,7 +170,7 @@ public class SCIMAnyObjectServiceImpl extends AbstractSCIMService<SCIMAnyObject>
     public Response delete(final String id) {
         SCIMResource resource = getResource(id);
         Response.ResponseBuilder builder = checkETag(
-                "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource.getSchemas().get(0), id);
+                "urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource.getSchemas().getFirst(), id);
         if (builder != null) {
             return builder.build();
         }

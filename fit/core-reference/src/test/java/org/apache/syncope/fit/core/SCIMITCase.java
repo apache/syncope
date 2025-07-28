@@ -922,7 +922,7 @@ public class SCIMITCase extends AbstractITCase {
         GroupTO groupTO = GROUP_SERVICE.read(group.getId());
         assertEquals(group.getDisplayName(), groupTO.getName());
         assertEquals(group.getExtensionInfo().getAttributes().get("originalName"),
-                groupTO.getPlainAttr("originalName").get().getValues().get(0));
+                groupTO.getPlainAttr("originalName").get().getValues().getFirst());
 
         response = webClient().path("Groups").path(group.getId()).delete();
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());

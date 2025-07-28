@@ -45,7 +45,7 @@ public class SCIMAnyObject extends SCIMResource {
 
         super(id, schemas, meta);
         super.setDisplayName(displayName);
-        this.extensionUrn = schemas.isEmpty() ? null : schemas.get(0);
+        this.extensionUrn = schemas.isEmpty() ? null : schemas.getFirst();
     }
 
     @JsonAnyGetter

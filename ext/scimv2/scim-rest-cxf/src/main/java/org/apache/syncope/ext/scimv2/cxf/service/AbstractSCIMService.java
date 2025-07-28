@@ -48,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.ext.scimv2.api.BadRequestException;
 import org.apache.syncope.ext.scimv2.api.data.ListResponse;
@@ -229,7 +228,7 @@ public abstract class AbstractSCIMService<R extends SCIMResource> {
         if (!Resource.Group.name().equals(type) && !Resource.User.name().equals(type)) {
             AnyTypeCond cond = new AnyTypeCond();
             cond.setAnyTypeKey(type);
-            searchCond = SearchCond.getLeaf(cond);
+            searchCond = SearchCond.of(cond);
             filter = filter.replaceAll(
                     "(\\s*(and|or)\\s+)?type\\s+eq\\s+\"[^\"]*\"(\\s*(and|or)\\s+)?", " ")
                     .trim().replaceAll("\\s{2,}", " ");
@@ -238,9 +237,9 @@ public abstract class AbstractSCIMService<R extends SCIMResource> {
             SearchCond filterCond = SearchCondConverter.convert(visitor, filter);
             searchCond = (searchCond == null)
                     ? filterCond
-                    : SearchCond.getAnd(filterCond, searchCond);
+                    : SearchCond.and(filterCond, searchCond);
         }
-        Pair<Integer, ? extends List<? extends AnyTO>> result = anyLogic(type).search(
+        Page<? extends AnyTO> result = anyLogic(type).search(
                 searchCond,
                 PageRequest.of(page, itemsPerPage, Sort.by(sort)),
                 SyncopeConstants.ROOT_REALM,

@@ -1082,7 +1082,7 @@ public class SCIMDataBinder {
             SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
             conf.getExtensionGroupConf().asMap().forEach((scimAttr, syncopeAttr) -> {
                 if (output(attributes, excludedAttributes, scimAttr) && attrs.containsKey(syncopeAttr)) {
-                    extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0));
+                    extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().getFirst());
                 }
             });
 
@@ -1210,19 +1210,18 @@ public class SCIMDataBinder {
         Map<String, Attr> attrs = new HashMap<>();
         attrs.putAll(EntityTOUtils.buildAttrMap(anyObjectTO.getPlainAttrs()));
         attrs.putAll(EntityTOUtils.buildAttrMap(anyObjectTO.getDerAttrs()));
-        attrs.putAll(EntityTOUtils.buildAttrMap(anyObjectTO.getVirAttrs()));
 
         if (output(attributes, excludedAttributes, "externalId")
                 && scimExtensionAnyObjectConf.getExternalId() != null
                 && attrs.containsKey(scimExtensionAnyObjectConf.getExternalId())) {
 
-            anyObject.setExternalId(attrs.get(scimExtensionAnyObjectConf.getExternalId()).getValues().get(0));
+            anyObject.setExternalId(attrs.get(scimExtensionAnyObjectConf.getExternalId()).getValues().getFirst());
         }
 
         SCIMExtensionInfo extensionInfo = new SCIMExtensionInfo();
         scimExtensionAnyObjectConf.asMap().forEach((scimAttr, syncopeAttr) -> {
             if (output(attributes, excludedAttributes, scimAttr) && attrs.containsKey(syncopeAttr)) {
-                extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().get(0));
+                extensionInfo.getAttributes().put(scimAttr, attrs.get(syncopeAttr).getValues().getFirst());
             }
         });
 
@@ -1292,7 +1291,7 @@ public class SCIMDataBinder {
             StringReplacePatchItem.Builder name = new StringReplacePatchItem.Builder().
                     operation(op.getOp() == PatchOp.remove ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE);
             if (!CollectionUtils.isEmpty(op.getValue())) {
-                name.value(op.getValue().get(0).toString());
+                name.value(op.getValue().getFirst().toString());
             }
             anyObjectUR.setName(name.build());
         } else {
