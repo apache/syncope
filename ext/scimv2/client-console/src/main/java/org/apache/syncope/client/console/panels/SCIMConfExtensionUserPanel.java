@@ -20,14 +20,13 @@ package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public class SCIMConfExtensionUserPanel extends SCIMConfExtensionAnyPanel {
 
     private static final long serialVersionUID = -94504185795020353L;
 
-    public SCIMConfExtensionUserPanel(final String id, final SCIMConf scimConf) {
-        super(id, scimConf);
+    public SCIMConfExtensionUserPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
+        super(id, scimConf, anyTypeKey);
     }
 
     @Override
@@ -36,10 +35,5 @@ public class SCIMConfExtensionUserPanel extends SCIMConfExtensionAnyPanel {
             scimConf.setExtensionUserConf(new SCIMExtensionAnyConf());
         }
         return scimConf.getExtensionUserConf();
-    }
-
-    @Override
-    public AnyTypeKind getAnyType() {
-        return AnyTypeKind.USER;
     }
 }

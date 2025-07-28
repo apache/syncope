@@ -22,7 +22,6 @@ import org.apache.syncope.client.console.panels.mapping.SCIMExtensionMappingPane
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -31,9 +30,12 @@ import org.apache.wicket.model.util.ListModel;
 public abstract class SCIMConfExtensionAnyPanel extends SCIMConfTabPanel {
 
     private static final long serialVersionUID = 2459231778083046011L;
-    
-    protected SCIMConfExtensionAnyPanel(final String id, final SCIMConf scimConf) {
+
+    protected final String anyTypeKey;
+
+    protected SCIMConfExtensionAnyPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
         super(id);
+        this.anyTypeKey = anyTypeKey;
 
         SCIMExtensionAnyConf scimExtensionAnyConf = getExtensionAnyConf(scimConf);
 
@@ -71,13 +73,11 @@ public abstract class SCIMConfExtensionAnyPanel extends SCIMConfTabPanel {
         add(descriptionPanel);
 
         SCIMExtensionMappingPanel extensionMappingPanel = new SCIMExtensionMappingPanel(
-                "mapping", new ListModel<>(scimExtensionAnyConf.getAttributes()), getAnyType());
+                "mapping", new ListModel<>(scimExtensionAnyConf.getAttributes()), anyTypeKey);
         Form<SCIMExtensionAnyConf> form = new Form<>("form", new Model<>(scimExtensionAnyConf));
         form.add(extensionMappingPanel);
         add(form);
     }
 
     abstract SCIMExtensionAnyConf getExtensionAnyConf(SCIMConf scimConf);
-
-    abstract AnyTypeKind getAnyType();
 }

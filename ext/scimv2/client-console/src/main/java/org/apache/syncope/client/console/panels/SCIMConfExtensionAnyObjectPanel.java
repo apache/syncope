@@ -18,22 +18,31 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.scim.SCIMConf;
 import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyObjectConf;
 
-public class SCIMConfExtensionGroupPanel extends SCIMConfExtensionAnyPanel {
+public class SCIMConfExtensionAnyObjectPanel extends SCIMConfExtensionAnyPanel {
 
-    private static final long serialVersionUID = -3719006384765921047L;
+    private static final long serialVersionUID = -1540432800132655369L;
 
-    public SCIMConfExtensionGroupPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
+    public SCIMConfExtensionAnyObjectPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
         super(id, scimConf, anyTypeKey);
     }
 
     @Override
     public SCIMExtensionAnyConf getExtensionAnyConf(final SCIMConf scimConf) {
-        if (scimConf.getExtensionGroupConf() == null) {
-            scimConf.setExtensionGroupConf(new SCIMExtensionAnyConf());
+        Optional<SCIMExtensionAnyObjectConf> scimExtAnyObjectConf =
+                scimConf.getExtensionAnyObjectsConf().stream()
+                        .filter(scimExtensionAnyObjectConf -> scimExtensionAnyObjectConf.getType().equals(anyTypeKey))
+                        .findFirst();
+        if (scimExtAnyObjectConf.isPresent()) {
+            return scimExtAnyObjectConf.get();
         }
-        return scimConf.getExtensionGroupConf();
+        SCIMExtensionAnyObjectConf scimExtensionAnyObjectConf = new SCIMExtensionAnyObjectConf();
+        scimExtensionAnyObjectConf.setType(anyTypeKey);
+        scimConf.getExtensionAnyObjectsConf().add(scimExtensionAnyObjectConf);
+        return scimExtensionAnyObjectConf;
     }
 }
