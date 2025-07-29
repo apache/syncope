@@ -85,4 +85,14 @@ public interface OIDCC4UIService extends JAXRSService {
     @Path("logout")
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     OIDCRequest createLogoutRequest(@QueryParam(OIDCConstants.REDIRECT_URI) String redirectURI);
+
+    /**
+     * Removes the JWT matching the provided OIDC logout token.
+     *
+     * @param logoutToken logout token
+     */
+    @POST
+    @Path("backChannelLogout")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void backChannelLogout(@QueryParam(OIDCConstants.LOGOUT_TOKEN) String logoutToken);
 }

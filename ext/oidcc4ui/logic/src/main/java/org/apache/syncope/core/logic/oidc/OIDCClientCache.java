@@ -104,6 +104,7 @@ public class OIDCClientCache {
         cfg.setDiscoveryURI(DISCOVERY_URI.apply(op.getIssuer()));
         cfg.setPreferredJwsAlgorithm(JWSAlgorithm.HS256);
         cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
+        cfg.getOpMetadataResolver().load();
         cfg.setScope(String.join(" ", op.getScopes()));
         cfg.setUseNonce(false);
 

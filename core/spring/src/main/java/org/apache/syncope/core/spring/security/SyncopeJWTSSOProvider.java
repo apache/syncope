@@ -37,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -97,23 +98,23 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     @Transactional(readOnly = true)
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
-        User user = userDAO.findByUsername(jwtClaims.getSubject()).orElse(null);
+        AccessToken accessToken = accessTokenDAO.findById(jwtClaims.getJWTID()).
+                orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
+                "Could not find an Access Token for JWT " + jwtClaims.getJWTID()));
+
         Set<SyncopeGrantedAuthority> authorities = Set.of();
-        if (user != null) {
-            AccessToken accessToken = accessTokenDAO.findById(jwtClaims.getJWTID()).orElse(null);
-            if (accessToken != null && accessToken.getAuthorities() != null) {
-                try {
-                    authorities = POJOHelper.deserialize(
-                            encryptorManager.getInstance().decode(
-                                    new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
-                            new TypeReference<>() {
-                    });
-                } catch (Throwable t) {
-                    LOG.error("Could not read stored authorities", t);
-                }
+        if (accessToken.getAuthorities() != null) {
+            try {
+                authorities = POJOHelper.deserialize(
+                        encryptorManager.getInstance().decode(
+                                new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        new TypeReference<>() {
+                });
+            } catch (Throwable t) {
+                LOG.error("Could not read stored authorities", t);
             }
         }
 
-        return Pair.of(user, authorities);
+        return Pair.of(userDAO.findByUsername(jwtClaims.getSubject()).orElse(null), authorities);
     }
 }
