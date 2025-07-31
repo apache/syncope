@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.scim.SCIMComplexConf;
 import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyObjectConf;
 import org.apache.syncope.common.lib.scim.SCIMUserAddressConf;
 import org.apache.syncope.common.lib.scim.SCIMUserConf;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -40,12 +41,12 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     private static final List<String> MULTIVALUE = List.of(
             "emails", "phoneNumbers", "ims", "photos", "addresses");
 
-    private static boolean schemaEquals(final Resource resource, final String value, final String schema) {
+    private static boolean schemaEquals(final String resource, final String value, final String schema) {
         return resource == null
                 ? value.contains(":")
                 ? StringUtils.substringAfterLast(value, ":").equalsIgnoreCase(schema)
                 : value.equalsIgnoreCase(schema)
-                : value.equalsIgnoreCase(schema) || (resource.schema() + ":" + value).equalsIgnoreCase(schema);
+                : value.equalsIgnoreCase(schema) || (resource + ":" + value).equalsIgnoreCase(schema);
     }
 
     private static SearchCond setOperator(final AttrCond attrCond, final String operator) {
@@ -154,11 +155,11 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         return null;
     }
 
-    private final Resource resource;
+    private final String resource;
 
     private final SCIMConf conf;
 
-    public SearchCondVisitor(final Resource resource, final SCIMConf conf) {
+    public SearchCondVisitor(final String resource, final SCIMConf conf) {
         this.resource = resource;
         this.conf = conf;
     }
@@ -171,10 +172,13 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
     public AttrCond createAttrCond(final String schema) {
         AttrCond attrCond = null;
 
-        if (schemaEquals(Resource.User, "userName", schema)) {
+        if (schemaEquals(Resource.User.schema(), "userName", schema)) {
             attrCond = new AnyCond();
             attrCond.setSchema("username");
-        } else if (resource == Resource.Group && schemaEquals(Resource.Group, "displayName", schema)) {
+        } else if ((resource.equals(Resource.Group.name())
+                && schemaEquals(Resource.Group.schema(), "displayName", schema))
+                || (resource.contains("urn:ietf:params:scim:schemas:extension:syncope:2.0:")
+                && schemaEquals(resource, "displayName", schema))) {
             attrCond = new AnyCond();
             attrCond.setSchema("name");
         } else if (schemaEquals(null, "meta.created", schema)) {
@@ -186,11 +190,11 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
         }
 
         switch (resource) {
-            case User:
+            case "User":
                 if (conf.getUserConf() != null) {
                     if (conf.getUserConf().getName() != null) {
                         for (Map.Entry<String, String> entry : conf.getUserConf().getName().asMap().entrySet()) {
-                            if (schemaEquals(Resource.User, "name." + entry.getKey(), schema)) {
+                            if (schemaEquals(Resource.User.schema(), "name." + entry.getKey(), schema)) {
                                 attrCond = new AttrCond();
                                 attrCond.setSchema(entry.getValue());
                             }
@@ -198,7 +202,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                     }
 
                     for (Map.Entry<String, String> entry : conf.getUserConf().asMap().entrySet()) {
-                        if (schemaEquals(Resource.User, entry.getKey(), schema)) {
+                        if (schemaEquals(Resource.User.schema(), entry.getKey(), schema)) {
                             attrCond = new AttrCond();
                             attrCond.setSchema(entry.getValue());
                         }
@@ -206,7 +210,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
                     for (SCIMUserAddressConf address : conf.getUserConf().getAddresses()) {
                         for (Map.Entry<String, String> entry : address.asMap().entrySet()) {
-                            if (schemaEquals(Resource.User, "addresses." + entry.getKey(), schema)) {
+                            if (schemaEquals(Resource.User.schema(), "addresses." + entry.getKey(), schema)) {
                                 attrCond = new AttrCond();
                                 attrCond.setSchema(entry.getValue());
                             }
@@ -216,7 +220,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
                 if (conf.getEnterpriseUserConf() != null) {
                     for (Map.Entry<String, String> entry : conf.getEnterpriseUserConf().asMap().entrySet()) {
-                        if (schemaEquals(Resource.EnterpriseUser, entry.getKey(), schema)) {
+                        if (schemaEquals(Resource.EnterpriseUser.schema(), entry.getKey(), schema)) {
                             attrCond = new AttrCond();
                             attrCond.setSchema(entry.getValue());
                         }
@@ -232,7 +236,7 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
 
                 if (conf.getExtensionUserConf() != null) {
                     for (Map.Entry<String, String> entry : conf.getExtensionUserConf().asMap().entrySet()) {
-                        if (schemaEquals(Resource.ExtensionUser, entry.getKey(), schema)) {
+                        if (schemaEquals(Resource.ExtensionUser.schema(), entry.getKey(), schema)) {
                             attrCond = new AttrCond();
                             attrCond.setSchema(entry.getValue());
                         }
@@ -240,10 +244,19 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 }
                 break;
 
-            case Group:
+            case "Group":
                 if (conf.getGroupConf() != null) {
                     for (Map.Entry<String, String> entry : conf.getGroupConf().asMap().entrySet()) {
-                        if (schemaEquals(Resource.Group, entry.getKey(), schema)) {
+                        if (schemaEquals(Resource.Group.schema(), entry.getKey(), schema)) {
+                            attrCond = new AttrCond();
+                            attrCond.setSchema(entry.getValue());
+                        }
+                    }
+                }
+
+                if (conf.getExtensionGroupConf() != null) {
+                    for (Map.Entry<String, String> entry : conf.getExtensionGroupConf().asMap().entrySet()) {
+                        if (schemaEquals(Resource.ExtensionGroup.schema(), entry.getKey(), schema)) {
                             attrCond = new AttrCond();
                             attrCond.setSchema(entry.getValue());
                         }
@@ -252,6 +265,20 @@ public class SearchCondVisitor extends SCIMFilterBaseVisitor<SearchCond> {
                 break;
 
             default:
+                if (!conf.getExtensionAnyObjectsConf().isEmpty()) {
+                    Optional<SCIMExtensionAnyObjectConf> scimExtAnyObject = conf.getExtensionAnyObjectsConf().stream()
+                            .filter(scimExtensionAnyConf -> scimExtensionAnyConf.getType().equals(resource))
+                            .findFirst();
+                    if (scimExtAnyObject.isPresent()) {
+                        for (Map.Entry<String, String> entry : scimExtAnyObject.get().asMap().entrySet()) {
+                            if (schemaEquals("urn:ietf:params:scim:schemas:extension:syncope:2.0:" + resource,
+                                    entry.getKey(), schema)) {
+                                attrCond = new AttrCond();
+                                attrCond.setSchema(entry.getValue());
+                            }
+                        }
+                    }
+                }
         }
 
         if (attrCond == null) {

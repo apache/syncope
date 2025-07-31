@@ -429,7 +429,7 @@ under the License.
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.0.3</elasticsearch.version>
+    <elasticsearch.version>9.0.4</elasticsearch.version>
     <opensearch.version>3.1.0</opensearch.version>
     <opensearch-java.version>3.2.0</opensearch-java.version>
 
@@ -439,7 +439,7 @@ under the License.
 
     <commons-lang3.version>3.18.0</commons-lang3.version>
     <commons-jexl.version>3.5.0</commons-jexl.version>
-    <commons-text.version>1.13.1</commons-text.version>
+    <commons-text.version>1.14.0</commons-text.version>
 
     <pac4j.version>6.2.0</pac4j.version>
 
@@ -447,7 +447,7 @@ under the License.
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.34</swagger-core.version>
-    <swagger-ui.version>5.26.2</swagger-ui.version>
+    <swagger-ui.version>5.27.0</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
@@ -515,9 +515,9 @@ under the License.
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
     <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
-    <jdbc.mysql.version>9.2.0</jdbc.mysql.version>
+    <jdbc.mysql.version>9.4.0</jdbc.mysql.version>
     <jdbc.mariadb.version>3.5.4</jdbc.mariadb.version>
-    <jdbc.oracle.version>23.8.0.25.04</jdbc.oracle.version>
+    <jdbc.oracle.version>23.9.0.25.07</jdbc.oracle.version>
 
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
 

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import java.lang.reflect.Method;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.oidc.OIDCConstants;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -44,6 +46,7 @@ import org.apache.syncope.core.logic.oidc.OIDCC4UIContext;
 import org.apache.syncope.core.logic.oidc.OIDCClientCache;
 import org.apache.syncope.core.logic.oidc.OIDCUserManager;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.OIDCC4UIProviderDAO;
 import org.apache.syncope.core.persistence.api.entity.OIDCC4UIProvider;
@@ -53,7 +56,10 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.credentials.SessionKeyCredentials;
 import org.pac4j.core.exception.http.WithLocationAction;
+import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
@@ -77,6 +83,8 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
 
     protected final OIDCC4UIProviderDAO opDAO;
 
+    protected final AccessTokenDAO accessTokenDAO;
+
     protected final OIDCUserManager userManager;
 
     protected final EncryptorManager encryptorManager;
@@ -87,6 +95,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             final AuthDataAccessor authDataAccessor,
             final AccessTokenDataBinder accessTokenDataBinder,
             final OIDCC4UIProviderDAO opDAO,
+            final AccessTokenDAO accessTokenDAO,
             final OIDCUserManager userManager,
             final EncryptorManager encryptorManager) {
 
@@ -95,6 +104,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         this.authDataAccessor = authDataAccessor;
         this.accessTokenDataBinder = accessTokenDataBinder;
         this.opDAO = opDAO;
+        this.accessTokenDAO = accessTokenDAO;
         this.userManager = userManager;
         this.encryptorManager = encryptorManager;
     }
@@ -104,7 +114,14 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             final OIDCC4UIProvider op,
             final String callbackUrl) {
 
-        return oidcClientCache.get(op.getName()).orElseGet(() -> oidcClientCache.add(op, callbackUrl));
+        return oidcClientCache.get(op.getName()).
+                map(oidcClient -> {
+                    Optional.ofNullable(callbackUrl).
+                            filter(c -> !c.equals(oidcClient.getCallbackUrl())).
+                            ifPresent(oidcClient::setCallbackUrl);
+                    return oidcClient;
+                }).
+                orElseGet(() -> oidcClientCache.add(op, callbackUrl));
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
@@ -163,8 +180,9 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             oidcClient.getAuthenticator().validate(
                     new CallContext(new OIDCC4UIContext(), NoOpSessionStore.INSTANCE), credentials);
 
-            idToken = credentials.toIdToken().getJWTClaimsSet();
-            idTokenHint = credentials.toIdToken().serialize();
+            JWT jwt = credentials.toIdToken();
+            idToken = jwt.getJWTClaimsSet();
+            idTokenHint = jwt.serialize();
         } catch (Exception e) {
             LOG.error("While validating Token Response", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -258,8 +276,12 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             LOG.error("Could not fetch authorities", e);
         }
 
-        Pair<String, OffsetDateTime> accessTokenInfo =
-                accessTokenDataBinder.create(loginResp.getUsername(), claims, authorities, true);
+        Pair<String, OffsetDateTime> accessTokenInfo = accessTokenDataBinder.create(
+                Optional.ofNullable(idToken.getClaim(Pac4jConstants.OIDC_CLAIM_SESSIONID)).map(Object::toString),
+                loginResp.getUsername(),
+                claims,
+                authorities,
+                true);
         loginResp.setAccessToken(accessTokenInfo.getLeft());
         loginResp.setAccessTokenExpiryTime(accessTokenInfo.getRight());
 
@@ -278,11 +300,11 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             sce.getElements().add(e.getMessage());
             throw sce;
         }
+        String opName = (String) claimsSet.getClaim(JWT_CLAIM_OP_NAME);
 
         // 1. look for OidcClient
-        OIDCC4UIProvider op = opDAO.findByName((String) claimsSet.getClaim(JWT_CLAIM_OP_NAME)).
-                orElseThrow(() -> new NotFoundException(""
-                + "OIDC Provider '" + claimsSet.getClaim(JWT_CLAIM_OP_NAME) + '\''));
+        OIDCC4UIProvider op = opDAO.findByName(opName).
+                orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
         OidcClient oidcClient = getOidcClient(oidcClientCacheLogout, op, redirectURI);
 
         // 2. create OIDCRequest
@@ -303,6 +325,45 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
         OIDCRequest logoutRequest = new OIDCRequest();
         logoutRequest.setLocation(action.getLocation());
         return logoutRequest;
+    }
+
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    public void backChannelLogout(final String logoutToken, final String redirectURI) {
+        // 0. parse the logout token to identify the OP
+        JWTClaimsSet claimsSet;
+        try {
+            SignedJWT jwt = SignedJWT.parse(logoutToken);
+            claimsSet = jwt.getJWTClaimsSet();
+        } catch (ParseException e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAccessToken);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+        String opName = claimsSet.getAudience().getFirst();
+
+        // 1. look for OidcClient
+        OIDCC4UIProvider op = opDAO.findByName(opName).
+                orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
+        OidcClient oidcClient = getOidcClient(oidcClientCacheLogout, op, redirectURI);
+
+        // 2. get the JWT key
+        Credentials credentials = oidcClient.getCredentials(new CallContext(new OIDCC4UIContext() {
+
+            @Override
+            public Optional<String> getRequestParameter(final String name) {
+                if (OIDCConstants.LOGOUT_TOKEN.equals(name)) {
+                    return Optional.of(logoutToken);
+                }
+                return Optional.empty();
+            }
+        }, NoOpSessionStore.INSTANCE)).orElseThrow(() -> {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Could not validate the logout token");
+            return sce;
+        });
+
+        // 3. delete the JWT
+        accessTokenDAO.deleteById(((SessionKeyCredentials) credentials).getSessionKey());
     }
 
     @Override

@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class SCIMExtensionUserConf implements Serializable {
+public class SCIMExtensionAnyConf implements Serializable {
 
     private static final long serialVersionUID = -9091596628402547645L;
 

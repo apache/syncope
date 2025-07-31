@@ -25,13 +25,12 @@ import jakarta.ws.rs.core.EntityTag;
 import jakarta.ws.rs.ext.RuntimeDelegate;
 import java.time.OffsetDateTime;
 import java.util.Optional;
-import org.apache.syncope.ext.scimv2.api.type.Resource;
 
 public class Meta extends SCIMBean {
 
     private static final long serialVersionUID = 8976451652101091915L;
 
-    private final Resource resourceType;
+    private final String resourceType;
 
     private final OffsetDateTime created;
 
@@ -44,7 +43,7 @@ public class Meta extends SCIMBean {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Meta(
-            @JsonProperty("resourceType") final Resource resourceType,
+            @JsonProperty("resourceType") final String resourceType,
             @JsonProperty("created") final OffsetDateTime created,
             @JsonProperty("lastModified") final OffsetDateTime lastModified,
             @JsonProperty("version") final String version,
@@ -57,7 +56,7 @@ public class Meta extends SCIMBean {
         this.location = location;
     }
 
-    public Resource getResourceType() {
+    public String getResourceType() {
         return resourceType;
     }
 

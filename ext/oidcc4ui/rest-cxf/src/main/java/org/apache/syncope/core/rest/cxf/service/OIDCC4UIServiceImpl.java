@@ -45,16 +45,17 @@ public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIServ
 
     @Override
     public OIDCRequest createLogoutRequest(final String redirectURI) {
-        return logic.createLogoutRequest(getAccessToken(), redirectURI);
-    }
-
-    private String getAccessToken() {
         String auth = messageContext.getHttpHeaders().getHeaderString(HttpHeaders.AUTHORIZATION);
         String[] parts = Optional.ofNullable(auth).map(s -> s.split(" ")).orElse(null);
         if (parts == null || parts.length != 2 || !"Bearer".equals(parts[0])) {
             return null;
         }
 
-        return parts[1];
+        return logic.createLogoutRequest(parts[1], redirectURI);
+    }
+
+    @Override
+    public void backChannelLogout(final String logoutToken, final String redirectURI) {
+        logic.backChannelLogout(logoutToken, redirectURI);
     }
 }

@@ -18,24 +18,26 @@
  */
 package org.apache.syncope.ext.scimv2.api.data;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-@JsonPropertyOrder({ "schemas", "id", "externalId", "displayName", "members", "extensionInfo", "meta" })
-public class SCIMGroup extends SCIMResource {
+@JsonPropertyOrder({ "schemas", "id", "externalId", "displayName", "extensionInfo", "meta" })
+public class SCIMAnyObject extends SCIMResource {
 
-    private static final long serialVersionUID = -2935466041674390279L;
+    @JsonIgnore
+    private String extensionUrn;
 
-    private final List<Member> members = new ArrayList<>();
-
-    @JsonProperty("urn:ietf:params:scim:schemas:extension:syncope:2.0:Group")
+    @JsonIgnore
     private SCIMExtensionInfo extensionInfo;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public SCIMGroup(
+    public SCIMAnyObject(
             @JsonProperty("id") final String id,
             @JsonProperty("schemas") final List<String> schemas,
             @JsonProperty("meta") final Meta meta,
@@ -43,10 +45,39 @@ public class SCIMGroup extends SCIMResource {
 
         super(id, schemas, meta);
         super.setDisplayName(displayName);
+        this.extensionUrn = schemas.isEmpty() ? null : schemas.getFirst();
     }
 
-    public List<Member> getMembers() {
-        return members;
+    @JsonAnyGetter
+    public Map<String, SCIMExtensionInfo> getExtensionAsMap() {
+        if (extensionUrn != null && extensionInfo != null && !extensionInfo.isEmpty()) {
+            return Map.of(extensionUrn, extensionInfo);
+        }
+        return Map.of();
+    }
+
+    @JsonAnySetter
+    public void setDynamicExtension(final String key, final Object value) {
+        if (key.startsWith("urn:ietf:params:scim:schemas:extension:syncope:2.0:")) {
+            this.extensionUrn = key;
+
+            if (value instanceof Map) {
+                SCIMExtensionInfo info = new SCIMExtensionInfo();
+                Map<?, ?> rawMap = (Map<?, ?>) value;
+                for (Map.Entry<?, ?> entry : rawMap.entrySet()) {
+                    info.add(entry.getKey().toString(), entry.getValue().toString());
+                }
+                this.extensionInfo = info;
+            }
+        }
+    }
+
+    public String getExtensionUrn() {
+        return extensionUrn;
+    }
+
+    public void setExtensionUrn(final String extensionUrn) {
+        this.extensionUrn = extensionUrn;
     }
 
     public SCIMExtensionInfo getExtensionInfo() {

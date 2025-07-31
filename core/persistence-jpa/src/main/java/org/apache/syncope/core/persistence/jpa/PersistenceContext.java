@@ -198,6 +198,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
@@ -269,7 +270,8 @@ public class PersistenceContext {
     }
 
     @ConditionalOnMissingBean
-    @Bean
+    @Bean(name = "domainTransactionManager")
+    @Primary
     public PlatformTransactionManager domainTransactionManager(final EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }

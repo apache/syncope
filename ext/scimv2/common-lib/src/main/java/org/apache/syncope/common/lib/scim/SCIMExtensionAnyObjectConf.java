@@ -16,19 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.oidc;
+package org.apache.syncope.common.lib.scim;
 
-public final class OIDCConstants {
+public class SCIMExtensionAnyObjectConf extends SCIMExtensionAnyConf {
 
-    public static final String REDIRECT_URI = "redirect_uri";
+    private static final long serialVersionUID = 6600395333691186244L;
 
-    public static final String CODE = "code";
+    private String type;
 
-    public static final String OP = "op";
+    private String externalId;
 
-    public static final String LOGOUT_TOKEN = "logout_token";
+    public String getType() {
+        return type;
+    }
 
-    private OIDCConstants() {
-        // private constructor for static utility class
+    public void setType(final String type) {
+        this.type = type;
+    }
+
+    public String getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(final String externalId) {
+        this.externalId = externalId;
     }
 }

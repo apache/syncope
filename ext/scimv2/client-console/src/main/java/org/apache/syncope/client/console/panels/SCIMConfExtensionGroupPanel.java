@@ -16,19 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.oidc;
+package org.apache.syncope.client.console.panels;
 
-public final class OIDCConstants {
+import org.apache.syncope.common.lib.scim.SCIMConf;
+import org.apache.syncope.common.lib.scim.SCIMExtensionAnyConf;
 
-    public static final String REDIRECT_URI = "redirect_uri";
+public class SCIMConfExtensionGroupPanel extends SCIMConfExtensionAnyPanel {
 
-    public static final String CODE = "code";
+    private static final long serialVersionUID = -3719006384765921047L;
 
-    public static final String OP = "op";
+    public SCIMConfExtensionGroupPanel(final String id, final SCIMConf scimConf, final String anyTypeKey) {
+        super(id, scimConf, anyTypeKey);
+    }
 
-    public static final String LOGOUT_TOKEN = "logout_token";
-
-    private OIDCConstants() {
-        // private constructor for static utility class
+    @Override
+    public SCIMExtensionAnyConf getExtensionAnyConf(final SCIMConf scimConf) {
+        if (scimConf.getExtensionGroupConf() == null) {
+            scimConf.setExtensionGroupConf(new SCIMExtensionAnyConf());
+        }
+        return scimConf.getExtensionGroupConf();
     }
 }

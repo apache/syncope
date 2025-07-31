@@ -20,7 +20,8 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.time.OffsetDateTime;
-import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -83,8 +84,9 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
         }
 
         return binder.create(
+                Optional.empty(),
                 AuthContextUtils.getUsername(),
-                Collections.emptyMap(),
+                Map.of(),
                 getAuthorities(),
                 false);
     }

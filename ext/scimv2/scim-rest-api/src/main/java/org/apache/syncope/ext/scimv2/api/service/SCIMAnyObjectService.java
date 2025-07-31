@@ -16,19 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.oidc;
+package org.apache.syncope.ext.scimv2.api.service;
 
-public final class OIDCConstants {
+import jakarta.ws.rs.Path;
+import org.apache.syncope.ext.scimv2.api.data.SCIMAnyObject;
 
-    public static final String REDIRECT_URI = "redirect_uri";
-
-    public static final String CODE = "code";
-
-    public static final String OP = "op";
-
-    public static final String LOGOUT_TOKEN = "logout_token";
-
-    private OIDCConstants() {
-        // private constructor for static utility class
-    }
+@Path("v2/AnyObjects")
+public interface SCIMAnyObjectService extends SCIMResourceService<SCIMAnyObject> {
 }
