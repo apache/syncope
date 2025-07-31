@@ -20,19 +20,28 @@ package org.apache.syncope.fit.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.Optional;
+import org.apache.http.HttpStatus;
+import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyTO;
 import org.apache.syncope.common.lib.policy.AuthPolicyTO;
 import org.apache.syncope.common.lib.policy.DefaultAttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.DefaultAuthPolicyConf;
+import org.apache.syncope.common.lib.request.UserCR;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.fit.AbstractITCase;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.FormElement;
 import org.junit.jupiter.api.Test;
 
 public abstract class AbstractUIITCase extends AbstractITCase {
@@ -104,6 +113,19 @@ public abstract class AbstractUIITCase extends AbstractITCase {
                 });
     }
 
+    protected static String extractWACSRF(final String body) {
+        FormElement form = (FormElement) Jsoup.parse(body).body().getElementsByTag("form").first();
+        assertNotNull(form);
+
+        Optional<String> execution = form.formData().stream().
+                filter(keyval -> "_csrf".equals(keyval.key())).
+                map(Connection.KeyVal::value).
+                findFirst();
+        assertTrue(execution.isPresent());
+
+        return execution.get();
+    }
+
     protected abstract void sso(String baseURL, String username, String password) throws IOException;
 
     @Test
@@ -114,6 +136,38 @@ public abstract class AbstractUIITCase extends AbstractITCase {
     @Test
     public void sso2Enduser() throws IOException {
         sso(ENDUSER_ADDRESS, "bellini", "password");
+    }
+
+    protected abstract void passwordManagement(String baseURL, String username, String password) throws IOException;
+
+    protected void passwordManagement(final String baseURL) throws IOException {
+        String key = null;
+        try {
+            UserCR userCR = new UserCR.Builder(SyncopeConstants.ROOT_REALM, "mustChangePassword")
+                    .password("Password123!")
+                    .mustChangePassword(true)
+                    .plainAttr(new Attr.Builder("fullname").value("mustChangePassword").build())
+                    .plainAttr(new Attr.Builder("userId").value("mustChangePassword@syncope.org").build())
+                    .plainAttr(new Attr.Builder("surname").value("mustChangePassword").build()).build();
+
+            Response response = USER_SERVICE.create(userCR);
+            assertEquals(HttpStatus.SC_CREATED, response.getStatus());
+            key = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+
+            AbstractUIITCase.this.passwordManagement(baseURL, "mustChangePassword", "Password123!");
+        } finally {
+            Optional.ofNullable(key).ifPresent(USER_SERVICE::delete);
+        }
+    }
+
+    @Test
+    public void passwordManagementConsole() throws IOException {
+        passwordManagement(CONSOLE_ADDRESS);
+    }
+
+    @Test
+    public void passwordManagementEnduser() throws IOException {
+        passwordManagement(ENDUSER_ADDRESS);
     }
 
     @Test

@@ -124,6 +124,9 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
+        properties.put("cas.authn.pm.syncope.url",
+                StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
+
         Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
                 filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).
                 flatMap(app -> {
