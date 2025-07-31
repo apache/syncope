@@ -54,6 +54,7 @@ import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.OIDCC4UIProviderTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCResponseType;
 import org.apache.syncope.common.lib.types.OIDCSubjectType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -93,6 +94,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
         clientApp.getRedirectUris().add(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/code-consumer");
         clientApp.setSignIdToken(true);
         clientApp.setJwtAccessToken(true);
+        clientApp.setLogoutType(LogoutType.BACK_CHANNEL);
         clientApp.setLogoutUri(baseAddress + OIDCC4UIConstants.URL_CONTEXT + "/logout");
         clientApp.getSupportedResponseTypes().addAll(
                 Set.of(OIDCResponseType.CODE, OIDCResponseType.ID_TOKEN_TOKEN, OIDCResponseType.TOKEN));
@@ -154,11 +156,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             cas.setClientSecret(appName);
 
             cas.setIssuer(WA_ADDRESS + "/oidc");
-            cas.setAuthorizationEndpoint(cas.getIssuer() + "/authorize");
-            cas.setTokenEndpoint(cas.getIssuer() + "/accessToken");
-            cas.setJwksUri(cas.getIssuer() + "/jwks");
-            cas.setUserinfoEndpoint(cas.getIssuer() + "/profile");
-            cas.setEndSessionEndpoint(cas.getIssuer() + "/logout");
+            cas.setHasDiscovery(true);
 
             cas.getScopes().addAll(OIDCScopeConstants.ALL_STANDARD_SCOPES);
             cas.getScopes().add("syncope");
@@ -197,7 +195,7 @@ public class OIDCC4UIITCase extends AbstractUIITCase {
             item.setExtAttrName("name");
             cas.add(item);
 
-            OIDCC4UI_PROVIDER_SERVICE.create(cas);
+            OIDCC4UI_PROVIDER_SERVICE.createFromDiscovery(cas);
         }
     }
 
