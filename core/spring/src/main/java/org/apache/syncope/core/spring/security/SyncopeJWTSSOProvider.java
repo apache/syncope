@@ -25,6 +25,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jca.JCAContext;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -36,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -94,22 +96,22 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     @Transactional(readOnly = true)
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JWTClaimsSet jwtClaims) {
-        User user = userDAO.findByUsername(jwtClaims.getSubject());
+        AccessToken accessToken = Optional.ofNullable(accessTokenDAO.find(jwtClaims.getJWTID())).
+                orElseThrow(() -> new AuthenticationCredentialsNotFoundException(
+                "Could not find an Access Token for JWT " + jwtClaims.getJWTID()));
+
         Set<SyncopeGrantedAuthority> authorities = Set.of();
-        if (user != null) {
-            AccessToken accessToken = accessTokenDAO.find(jwtClaims.getJWTID());
-            if (accessToken != null && accessToken.getAuthorities() != null) {
-                try {
-                    authorities = POJOHelper.deserialize(
-                            ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
-                            new TypeReference<>() {
-                    });
-                } catch (Throwable t) {
-                    LOG.error("Could not read stored authorities", t);
-                }
+        if (accessToken.getAuthorities() != null) {
+            try {
+                authorities = POJOHelper.deserialize(
+                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        new TypeReference<>() {
+                });
+            } catch (Throwable t) {
+                LOG.error("Could not read stored authorities", t);
             }
         }
 
-        return Pair.of(user, authorities);
+        return Pair.of(userDAO.findByUsername(jwtClaims.getSubject()), authorities);
     }
 }

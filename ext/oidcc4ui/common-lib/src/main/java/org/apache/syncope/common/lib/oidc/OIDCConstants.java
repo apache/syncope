@@ -26,6 +26,8 @@ public final class OIDCConstants {
 
     public static final String OP = "op";
 
+    public static final String LOGOUT_TOKEN = "logout_token";
+
     private OIDCConstants() {
         // private constructor for static utility class
     }

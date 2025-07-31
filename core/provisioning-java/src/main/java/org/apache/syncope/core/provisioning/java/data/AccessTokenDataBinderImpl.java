@@ -26,6 +26,7 @@ import java.text.ParseException;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -130,6 +131,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
     @Override
     public Pair<String, OffsetDateTime> create(
+            final Optional<String> key,
             final String subject,
             final Map<String, Object> claims,
             final byte[] authorities,
@@ -139,7 +141,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         if (accessToken == null) {
             // no AccessToken found: create new
             accessToken = entityFactory.newEntity(AccessToken.class);
-            accessToken.setKey(SecureRandomUtils.generateRandomUUID().toString());
+            accessToken.setKey(key.orElseGet(() -> SecureRandomUtils.generateRandomUUID().toString()));
 
             accessToken = replace(subject, claims, authorities, accessToken);
         } else if (replace

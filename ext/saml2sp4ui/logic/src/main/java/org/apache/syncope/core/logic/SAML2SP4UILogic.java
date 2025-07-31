@@ -439,8 +439,8 @@ public class SAML2SP4UILogic extends AbstractSAML2SP4UILogic {
             LOG.error("Could not fetch authorities", e);
         }
 
-        Pair<String, OffsetDateTime> accessTokenInfo =
-                accessTokenDataBinder.create(loginResp.getUsername(), claims, authorities, true);
+        Pair<String, OffsetDateTime> accessTokenInfo = accessTokenDataBinder.create(
+                Optional.of(loginResp.getSessionIndex()), loginResp.getUsername(), claims, authorities, true);
         loginResp.setAccessToken(accessTokenInfo.getLeft());
         loginResp.setAccessTokenExpiryTime(accessTokenInfo.getRight());
 
