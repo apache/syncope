@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.oidc.OIDCConstants;
 import org.apache.syncope.common.lib.oidc.OIDCLoginResponse;
 import org.apache.syncope.common.lib.oidc.OIDCRequest;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -55,6 +56,8 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.pac4j.core.context.CallContext;
 import org.pac4j.core.context.WebContext;
+import org.pac4j.core.credentials.Credentials;
+import org.pac4j.core.credentials.SessionKeyCredentials;
 import org.pac4j.core.exception.http.WithLocationAction;
 import org.pac4j.core.util.Pac4jConstants;
 import org.pac4j.oidc.client.OidcClient;
@@ -325,7 +328,7 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
-    public void backChannelLogout(final String logoutToken) {
+    public void backChannelLogout(final String logoutToken, final String redirectURI) {
         // 0. parse the logout token to identify the OP
         JWTClaimsSet claimsSet;
         try {
@@ -336,15 +339,31 @@ public class OIDCC4UILogic extends AbstractTransactionalLogic<EntityTO> {
             sce.getElements().add(e.getMessage());
             throw sce;
         }
+        String opName = claimsSet.getAudience().getFirst();
 
-        String accessToken = Optional.ofNullable(claimsSet.getClaim(Pac4jConstants.OIDC_CLAIM_SESSIONID)).
-                map(String.class::cast).orElseThrow(() -> {
+        // 1. look for OidcClient
+        OIDCC4UIProvider op = opDAO.findByName(opName).
+                orElseThrow(() -> new NotFoundException("OIDC Provider '" + opName + '\''));
+        OidcClient oidcClient = getOidcClient(oidcClientCacheLogout, op, redirectURI);
+
+        // 2. get the JWT key
+        Credentials credentials = oidcClient.getCredentials(new CallContext(new OIDCC4UIContext() {
+
+            @Override
+            public Optional<String> getRequestParameter(final String name) {
+                if (OIDCConstants.LOGOUT_TOKEN.equals(name)) {
+                    return Optional.of(logoutToken);
+                }
+                return Optional.empty();
+            }
+        }, NoOpSessionStore.INSTANCE)).orElseThrow(() -> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
-            sce.getElements().add("Could not find the " + Pac4jConstants.OIDC_CLAIM_SESSIONID + " claim");
+            sce.getElements().add("Could not validate the logout token");
             return sce;
         });
 
-        accessTokenDAO.deleteById(accessToken);
+        // 3. delete the JWT
+        accessTokenDAO.deleteById(((SessionKeyCredentials) credentials).getSessionKey());
     }
 
     @Override

@@ -23,11 +23,9 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.util.Optional;
 import org.apache.syncope.client.ui.commons.BaseSession;
-import org.apache.syncope.client.ui.commons.panels.OIDCC4UIConstants;
+import org.apache.syncope.common.lib.oidc.OIDCConstants;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
@@ -51,7 +49,7 @@ public abstract class LogoutResource extends AbstractResource {
 
         // if no logout token was found, complete RP-initated logout
         // otherwise, proceed with back-channel logout for the provided token
-        String logoutToken = Optional.ofNullable(request.getParameter(OIDCC4UIConstants.PARAM_LOGOUT_TOKEN)).
+        String logoutToken = Optional.ofNullable(request.getParameter(OIDCConstants.LOGOUT_TOKEN)).
                 orElseThrow(() -> new RestartResponseException(getLogoutPageClass(), new PageParameters()));
 
         OIDCC4UIService service = BaseSession.class.cast(Session.get()).getAnonymousService(OIDCC4UIService.class);
@@ -60,7 +58,7 @@ public abstract class LogoutResource extends AbstractResource {
         response.getHeaders().addHeader(HttpHeaders.CACHE_CONTROL, "no-cache, no-store");
         response.getHeaders().addHeader("Pragma", "no-cache");
         try {
-            service.backChannelLogout(logoutToken);
+            service.backChannelLogout(logoutToken, request.getRequestURL().toString());
 
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
@@ -72,8 +70,7 @@ public abstract class LogoutResource extends AbstractResource {
 
                 @Override
                 public void writeData(final Attributes atrbts) throws IOException {
-                    Writer writer = new OutputStreamWriter(atrbts.getResponse().getOutputStream());
-                    writer.write("{\"error\": \"" + e.getMessage() + "\"}");
+                    atrbts.getResponse().write("{\"error\": \"" + e.getMessage() + "\"}");
                 }
             });
         }

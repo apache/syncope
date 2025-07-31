@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.oidc;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -39,6 +40,7 @@ import org.pac4j.core.http.callback.NoParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.metadata.StaticOidcOpMetadataResolver;
+import org.pac4j.oidc.profile.creator.TokenValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,15 +54,21 @@ public class OIDCClientCache {
     protected static final Function<String, String> DISCOVERY_URI =
             issuer -> issuer + "/.well-known/openid-configuration";
 
-    public static void importMetadata(final OIDCC4UIProviderTO opTO)
+    protected static OIDCProviderMetadata fetchMetadata(final String issuer)
             throws IOException, InterruptedException, ParseException {
 
-        String discoveryDocumentURI = DISCOVERY_URI.apply(opTO.getIssuer());
+        String discoveryDocumentURI = DISCOVERY_URI.apply(issuer);
         HttpResponse<String> response = HttpClient.newBuilder().build().send(
                 HttpRequest.newBuilder(URI.create(discoveryDocumentURI)).GET().build(),
                 HttpResponse.BodyHandlers.ofString());
 
-        OIDCProviderMetadata metadata = OIDCProviderMetadata.parse(response.body());
+        return OIDCProviderMetadata.parse(response.body());
+    }
+
+    public static void importMetadata(final OIDCC4UIProviderTO opTO)
+            throws IOException, InterruptedException, ParseException {
+
+        OIDCProviderMetadata metadata = fetchMetadata(opTO.getIssuer());
 
         opTO.setIssuer(
                 Optional.ofNullable(metadata.getIssuer()).map(Issuer::getValue).orElse(null));
@@ -84,11 +92,16 @@ public class OIDCClientCache {
     }
 
     public OidcClient add(final OIDCC4UIProvider op, final String callbackUrl) {
+        OidcConfiguration cfg = new OidcConfiguration();
+        cfg.setClientId(op.getClientID());
+        cfg.setSecret(op.getClientSecret());
+        cfg.setScope(String.join(" ", op.getScopes()));
+        cfg.setUseNonce(false);
+
         OIDCProviderMetadata metadata = new OIDCProviderMetadata(
                 new Issuer(op.getIssuer()),
                 List.of(SubjectType.PUBLIC),
                 Optional.ofNullable(op.getJwksUri()).map(URI::create).orElse(null));
-        metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
         metadata.setAuthorizationEndpointURI(
                 Optional.ofNullable(op.getAuthorizationEndpoint()).map(URI::create).orElse(null));
         metadata.setTokenEndpointURI(
@@ -97,16 +110,37 @@ public class OIDCClientCache {
                 Optional.ofNullable(op.getUserinfoEndpoint()).map(URI::create).orElse(null));
         metadata.setEndSessionEndpointURI(
                 Optional.ofNullable(op.getEndSessionEndpoint()).map(URI::create).orElse(null));
+        if (op.getHasDiscovery()) {
+            try {
+                metadata.setIDTokenJWSAlgs(fetchMetadata(op.getIssuer()).getIDTokenJWSAlgs());
+            } catch (Exception e) {
+                LOG.error("While fetching OIDC metadata for issuer {}", op.getIssuer(), e);
+                metadata.setIDTokenJWSAlgs(List.of(JWSAlgorithm.HS256));
+            }
+        }
+        cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata) {
 
-        OidcConfiguration cfg = new OidcConfiguration();
-        cfg.setClientId(op.getClientID());
-        cfg.setSecret(op.getClientSecret());
-        cfg.setDiscoveryURI(DISCOVERY_URI.apply(op.getIssuer()));
-        cfg.setPreferredJwsAlgorithm(JWSAlgorithm.HS256);
-        cfg.setOpMetadataResolver(new StaticOidcOpMetadataResolver(cfg, metadata));
-        cfg.getOpMetadataResolver().load();
-        cfg.setScope(String.join(" ", op.getScopes()));
-        cfg.setUseNonce(false);
+            @Override
+            public boolean hasChanged() {
+                return true;
+            }
+
+            @Override
+            public ClientAuthentication getClientAuthentication() {
+                if (clientAuthentication == null) {
+                    clientAuthentication = computeClientAuthentication();
+                }
+                return clientAuthentication;
+            }
+
+            @Override
+            public TokenValidator getTokenValidator() {
+                if (tokenValidator == null) {
+                    tokenValidator = new TokenValidator(configuration, metadata);
+                }
+                return tokenValidator;
+            }
+        });
 
         OidcClient client = new OidcClient(cfg);
         client.setName(op.getName());

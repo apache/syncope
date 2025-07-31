@@ -55,7 +55,7 @@ public class OIDCC4UIServiceImpl extends AbstractService implements OIDCC4UIServ
     }
 
     @Override
-    public void backChannelLogout(final String logoutToken) {
-        logic.backChannelLogout(logoutToken);
+    public void backChannelLogout(final String logoutToken, final String redirectURI) {
+        logic.backChannelLogout(logoutToken, redirectURI);
     }
 }
