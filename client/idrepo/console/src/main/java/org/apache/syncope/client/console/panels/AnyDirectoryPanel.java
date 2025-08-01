@@ -63,6 +63,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDa
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -86,7 +87,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     /**
      * Filter used in case of filtered search.
      */
-    protected String fiql;
+    protected final Model<String> fiql;
 
     /**
      * Realm related to current panel.
@@ -120,7 +121,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         realm = builder.realm;
         type = builder.type;
-        fiql = builder.fiql;
+        fiql = new Model<>(builder.fiql);
 
         utilityModal.size(Modal.Size.Large);
         addOuterObject(utilityModal);
@@ -242,7 +243,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
     @Override
     protected AnyDataProvider<A> dataProvider() {
-        return new AnyDataProvider<>(restClient, rows, filtered, realm, type, pageRef).setFIQL(this.fiql);
+        return new AnyDataProvider<>(restClient, rows, filtered, realm, type, pageRef).setFIQL(fiql.getObject());
     }
 
     public AnyDataProvider<A> getDataProvider() {
@@ -250,7 +251,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     }
 
     public void search(final String fiql, final AjaxRequestTarget target) {
-        this.fiql = fiql;
+        this.fiql.setObject(fiql);
         dataProvider.setFIQL(fiql);
         super.search(target);
     }

@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.model.Model;
 
 public interface AnyDirectoryPanelAdditionalActionsProvider extends Serializable {
 
@@ -33,7 +34,7 @@ public interface AnyDirectoryPanelAdditionalActionsProvider extends Serializable
             WebMarkupContainer container,
             String type,
             String realm,
-            String fiql,
+            Model<String> fiql,
             int rows,
             List<String> pSchemaNames,
             List<String> dSchemaNames,
