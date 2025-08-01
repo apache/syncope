@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -120,9 +119,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         tabs.add(new RealmDetailsTabPanel());
 
-        AnyLayout anyLayout = AnyLayoutUtils.fetch(
-                roleRestClient,
-                anyTypes.stream().map(AnyTypeTO::getKey).collect(Collectors.toList()));
+        AnyLayout anyLayout = AnyLayoutUtils.fetch(roleRestClient, anyTypes.stream().map(AnyTypeTO::getKey).toList());
         for (AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
                     new ResourceModel("anyType." + anyType.getKey(), anyType.getKey()),

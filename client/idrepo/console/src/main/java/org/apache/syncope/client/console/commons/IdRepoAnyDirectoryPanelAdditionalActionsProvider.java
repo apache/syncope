@@ -25,6 +25,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.model.Model;
 
 public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDirectoryPanelAdditionalActionsProvider {
 
@@ -38,7 +39,7 @@ public class IdRepoAnyDirectoryPanelAdditionalActionsProvider implements AnyDire
             final WebMarkupContainer container,
             final String type,
             final String realm,
-            final String fiql,
+            final Model<String> fiql,
             final int rows,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames,

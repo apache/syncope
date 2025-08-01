@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -83,7 +82,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             final WebMarkupContainer container,
             final String type,
             final String realm,
-            final String fiql,
+            final Model<String> fiql,
             final int rows,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames,
@@ -99,7 +98,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
                 if (event.getPayload() instanceof final AjaxWizard.NewItemCancelEvent<?> newItemCancelEvent) {
                     newItemCancelEvent.getTarget().
                             ifPresent(modal::close);
-                } else if (event.getPayload() instanceof final AjaxWizard.NewItemFinishEvent newItemFinishEvent) {
+                } else if (event.getPayload() instanceof final AjaxWizard.NewItemFinishEvent<?> newItemFinishEvent) {
                     AjaxWizard.NewItemFinishEvent<?> payload = newItemFinishEvent;
                     Optional<AjaxRequestTarget> target = payload.getTarget();
 
@@ -152,7 +151,7 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 CSVPushSpec spec = csvPushSpec(type, pSchemaNames, dSchemaNames);
-                AnyQuery query = csvAnyQuery(realm, fiql, rows, panel.getDataProvider());
+                AnyQuery query = csvAnyQuery(realm, fiql.getObject(), rows, panel.getDataProvider());
 
                 target.add(modal.setContent(new CSVPushWizardBuilder(
                         spec, query, csvDownloadBehavior, reconciliationRestClient, implementationRestClient, pageRef).
@@ -195,25 +194,18 @@ public class IdMAnyDirectoryPanelAdditionalActionsProvider implements AnyDirecto
             final List<String> pSchemaNames,
             final List<String> dSchemaNames) {
 
-        CSVPushSpec spec = new CSVPushSpec.Builder(type).build();
-        spec.setFields(PreferenceManager.getList(
-                DisplayAttributesModalPanel.getPrefDetailView(type)).
-                stream().filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
-                collect(Collectors.toList()));
-        spec.setPlainAttrs(PreferenceManager.getList(
-                DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
-                stream().filter(pSchemaNames::contains).collect(Collectors.toList()));
-        spec.setDerAttrs(PreferenceManager.getList(
-                DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
-                stream().filter(dSchemaNames::contains).collect(Collectors.toList()));
-        return spec;
+        return new CSVPushSpec.Builder(type).
+                fields(PreferenceManager.getList(DisplayAttributesModalPanel.getPrefDetailView(type)).
+                        stream().filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).toList()).
+                plainAttrs(PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                        stream().filter(pSchemaNames::contains).toList()).
+                derAttrs(PreferenceManager.getList(DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).
+                        stream().filter(dSchemaNames::contains).toList()).
+                build();
     }
 
     protected CSVPullSpec csvPullSpec(final String type, final String realm) {
-        CSVPullSpec spec = new CSVPullSpec();
-        spec.setAnyTypeKey(type);
-        spec.setDestinationRealm(realm);
-        return spec;
+        return new CSVPullSpec.Builder(type, realm).build();
     }
 
     protected AnyQuery csvAnyQuery(
