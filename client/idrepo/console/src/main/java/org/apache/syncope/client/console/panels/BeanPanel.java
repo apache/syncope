@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -76,6 +77,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.validator.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -332,6 +334,26 @@ public class BeanPanel<T extends Serializable> extends Panel {
                     PropertyResolver.setValue(fieldName, bean, Duration.parse(object), prc);
                 }
             });
+        } else if (URI.class.equals(type)) {
+            panel = new AjaxTextFieldPanel(id, fieldName, new IModel<>() {
+
+                private static final long serialVersionUID = -608076080746590282L;
+
+                @Override
+                public String getObject() {
+                    return Optional.ofNullable(PropertyResolver.getValue(fieldName, bean)).
+                            map(o -> ((URI) o).toASCIIString()).orElse(null);
+                }
+
+                @Override
+                public void setObject(final String object) {
+                    PropertyResolverConverter prc = new PropertyResolverConverter(
+                            SyncopeWebApplication.get().getConverterLocator(),
+                            SyncopeConsoleSession.get().getLocale());
+                    PropertyResolver.setValue(fieldName, bean, object == null ? null : URI.create(object), prc);
+                }
+            });
+            panel.getField().add(new UrlValidator(new String[] { "http", "https" }));
         } else {
             // treat as String if nothing matched above
             panel = new AjaxTextFieldPanel(id, fieldName, model);
