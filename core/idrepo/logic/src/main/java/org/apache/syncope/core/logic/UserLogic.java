@@ -671,7 +671,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
     }
 
     @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
-    @Transactional
+    @Transactional(readOnly = true)
     public void verifySecurityAnswer(final String username, final String securityAnswer) {
         User user = userDAO.findByUsername(username).
                 orElseThrow(() -> new NotFoundException("User " + username));

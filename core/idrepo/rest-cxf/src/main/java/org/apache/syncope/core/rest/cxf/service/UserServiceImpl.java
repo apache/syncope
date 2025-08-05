@@ -90,7 +90,8 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserCR, UserUR> 
         return modificationResponse(updated);
     }
 
-    @Override public void verifySecurityAnswer(final String username, final String securityAnswer) {
+    @Override
+    public void verifySecurityAnswer(final String username, final String securityAnswer) {
         if (!syncopeLogic.isPwdResetAllowed()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.DelegatedAdministration);
             sce.getElements().add("Password reset forbidden by configuration");

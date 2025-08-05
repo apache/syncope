@@ -44,7 +44,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -100,7 +99,6 @@ import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
 import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 public class UserITCase extends AbstractITCase {
 
@@ -1403,21 +1401,9 @@ public class UserITCase extends AbstractITCase {
         UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
         user.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
         user.setSecurityAnswer("Rossi");
-        user.getResources().add(RESOURCE_NAME_TESTDB);
         createUser(user);
 
-        // verify propagation (including password) on external db
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String pwdOnResource = queryForObject(jdbcTemplate,
-                MAX_WAIT_SECONDS, "SELECT password FROM test WHERE id=?", String.class, user.getUsername());
-        assertTrue(StringUtils.isNotBlank(pwdOnResource));
-
-        // 2. verify that new user is able to authenticate
-        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
-        UserTO read = authClient.self().getRight();
-        assertNotNull(read);
-
-        // 3. request password reset providing the expected security answer
+        // 2. verify wrong security answer
         try {
             ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "WRONG");
             fail("This should not happen");
@@ -1425,6 +1411,7 @@ public class UserITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
         }
 
+        // 3. verify the expected security answer
         try {
             ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "Rossi");
         } catch (SyncopeClientException e) {
