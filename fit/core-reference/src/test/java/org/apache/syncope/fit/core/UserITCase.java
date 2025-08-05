@@ -1391,4 +1391,32 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
     }
+
+    @Test
+    public void passwordReset() throws Exception {
+        // 0. ensure that password request DOES require security question
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
+
+        // 1. create an user with security question and answer
+        UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
+        user.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        user.setSecurityAnswer("Rossi");
+        createUser(user);
+
+        // 2. verify wrong security answer
+        try {
+            ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "WRONG");
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+        }
+
+        // 3. verify the expected security answer
+        try {
+            ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "Rossi");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+            fail("This should not happen");
+        }
+    }
 }
