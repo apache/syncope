@@ -34,6 +34,7 @@ import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -194,4 +195,19 @@ public interface UserService extends AnyService<UserTO> {
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     Response status(@NotNull StatusR updateReq);
+
+    /**
+     * Provides answer for the security question configured for user matching the given username, if any.
+     * If provided answer matches the one stored for that user, check completes successfully,
+     * otherwise an error is returned.
+     *
+     * @param username username for which the security answer is provided
+     * @param securityAnswer actual answer text
+     */
+    @ApiResponses(
+            @ApiResponse(responseCode = "204", description = "Operation was successful"))
+    @POST
+    @Path("verifySecurityAnswer")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void verifySecurityAnswer(@NotNull @QueryParam("username") String username, String securityAnswer);
 }

@@ -638,6 +638,20 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserCR, UserUR> {
         return result;
     }
 
+    @PreAuthorize("hasRole('" + IdRepoEntitlement.USER_SEARCH + "')")
+    @Transactional(readOnly = true)
+    public void verifySecurityAnswer(final String username, final String securityAnswer) {
+        User user = userDAO.findByUsername(username).
+                orElseThrow(() -> new NotFoundException("User " + username));
+
+        if (syncopeLogic.isPwdResetRequiringSecurityQuestions()
+                && (securityAnswer == null || !encryptorManager.getInstance().
+                        verify(securityAnswer, user.getCipherAlgorithm(), user.getSecurityAnswer()))) {
+
+            throw SyncopeClientException.build(ClientExceptionType.InvalidSecurityAnswer);
+        }
+    }
+
     @Override
     protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
         String key = null;

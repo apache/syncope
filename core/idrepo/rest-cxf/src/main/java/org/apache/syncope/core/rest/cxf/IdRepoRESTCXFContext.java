@@ -488,8 +488,9 @@ public class IdRepoRESTCXFContext {
     public UserService userService(
             final UserDAO userDAO,
             final UserLogic userLogic,
+            final SyncopeLogic syncopeLogic,
             final SearchCondVisitor searchCondVisitor) {
 
-        return new UserServiceImpl(searchCondVisitor, userDAO, userLogic);
+        return new UserServiceImpl(searchCondVisitor, userDAO, userLogic, syncopeLogic);
     }
 }
