@@ -44,6 +44,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -99,6 +100,7 @@ import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
 import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 public class UserITCase extends AbstractITCase {
 
@@ -1390,5 +1392,44 @@ public class UserITCase extends AbstractITCase {
         userCR.setPassword('1' + RandomStringUtils.insecure().nextAlphanumeric(10));
         UserTO userTO = createUser(userCR).getEntity();
         assertNotNull(userTO.getKey());
+    }
+
+    @Test
+    public void passwordReset() throws Exception {
+        // 0. ensure that password request DOES require security question
+        confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
+
+        // 1. create an user with security question and answer
+        UserCR user = UserITCase.getUniqueSample("pwdReset@syncope.apache.org");
+        user.setSecurityQuestion("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        user.setSecurityAnswer("Rossi");
+        user.getResources().add(RESOURCE_NAME_TESTDB);
+        createUser(user);
+
+        // verify propagation (including password) on external db
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String pwdOnResource = queryForObject(jdbcTemplate,
+                MAX_WAIT_SECONDS, "SELECT password FROM test WHERE id=?", String.class, user.getUsername());
+        assertTrue(StringUtils.isNotBlank(pwdOnResource));
+
+        // 2. verify that new user is able to authenticate
+        SyncopeClient authClient = CLIENT_FACTORY.create(user.getUsername(), "password123");
+        UserTO read = authClient.self().getRight();
+        assertNotNull(read);
+
+        // 3. request password reset providing the expected security answer
+        try {
+            ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "WRONG");
+            fail("This should not happen");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+        }
+
+        try {
+            ADMIN_CLIENT.getService(UserService.class).verifySecurityAnswer(user.getUsername(), "Rossi");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidSecurityAnswer, e.getType());
+            fail("This should not happen");
+        }
     }
 }
