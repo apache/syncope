@@ -507,7 +507,7 @@ under the License.
 
     <tomcat.version>10.1.43</tomcat.version>
     <wildfly.version>37.0.0.Final</wildfly.version>
-    <payara.version>6.2025.7</payara.version>
+    <payara.version>6.2025.8</payara.version>
     <jakarta.faces.version>4.1.3</jakarta.faces.version>
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
