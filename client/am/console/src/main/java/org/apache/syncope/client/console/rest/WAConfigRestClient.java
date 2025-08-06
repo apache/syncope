@@ -30,6 +30,10 @@ public class WAConfigRestClient extends BaseRestClient {
         return getService(WAConfigService.class).list();
     }
 
+    public Attr get(final String schema) {
+        return getService(WAConfigService.class).get(schema);
+    }
+
     public void set(final Attr value) {
         getService(WAConfigService.class).set(value);
     }
