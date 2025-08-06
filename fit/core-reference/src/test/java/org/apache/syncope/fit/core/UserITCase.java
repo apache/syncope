@@ -1393,7 +1393,7 @@ public class UserITCase extends AbstractITCase {
     }
 
     @Test
-    public void passwordReset() throws Exception {
+    public void verifySecurityAnswer() throws Exception {
         // 0. ensure that password request DOES require security question
         confParamOps.set(SyncopeConstants.MASTER_DOMAIN, "passwordReset.securityQuestion", true);
 

@@ -78,7 +78,11 @@ public class WAConfigDirectoryPanel extends AttrListDirectoryPanel {
             public void onClick(final AjaxRequestTarget target, final Attr ignore) {
                 target.add(modal);
                 modal.header(new StringResourceModel("any.edit"));
-                modal.setContent(new WAConfigModalPanel(modal, model.getObject(), AjaxWizard.Mode.EDIT, pageRef));
+                modal.setContent(new WAConfigModalPanel(
+                        modal,
+                        ((WAConfigRestClient) restClient).get(model.getObject().getSchema()),
+                        AjaxWizard.Mode.EDIT,
+                        pageRef));
                 modal.show(true);
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.WA_CONFIG_SET);

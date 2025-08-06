@@ -59,6 +59,13 @@ public class ParametersDirectoryPanel
 
     private static final long serialVersionUID = 2765863608539154422L;
 
+    protected static ConfParam toConfParam(final String key, final Object value) {
+        ConfParam param = new ConfParam();
+        param.setSchema(key);
+        param.setValues(value);
+        return param;
+    }
+
     @SpringBean
     protected ConfParamOps confParamOps;
 
@@ -143,10 +150,20 @@ public class ParametersDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final ConfParam ignore) {
+                Object value = confParamOps.get(
+                        SyncopeConsoleSession.get().getDomain(),
+                        model.getObject().getSchema(),
+                        null,
+                        Object.class);
+
                 target.add(modal);
                 modal.header(new StringResourceModel("any.edit"));
                 modal.setContent(new ParametersModalPanel(
-                        modal, model.getObject(), confParamOps, AjaxWizard.Mode.EDIT, pageRef));
+                        modal,
+                        toConfParam(model.getObject().getSchema(), value),
+                        confParamOps,
+                        AjaxWizard.Mode.EDIT,
+                        pageRef));
                 modal.show(true);
             }
         }, ActionLink.ActionType.EDIT, null);
@@ -189,12 +206,8 @@ public class ParametersDirectoryPanel
         public Iterator<ConfParam> iterator(final long first, final long count) {
             List<ConfParam> list = confParamOps.list(SyncopeConsoleSession.get().getDomain()).entrySet().stream().
                     skip(first).limit(count).
-                    map(entry -> {
-                        ConfParam param = new ConfParam();
-                        param.setSchema(entry.getKey());
-                        param.setValues(entry.getValue());
-                        return param;
-                    }).collect(Collectors.toList());
+                    map(entry -> toConfParam(entry.getKey(), entry.getValue())).
+                    collect(Collectors.toList());
 
             list.sort(comparator);
             return list.iterator();
