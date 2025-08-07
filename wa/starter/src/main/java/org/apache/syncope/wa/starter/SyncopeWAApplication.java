@@ -25,7 +25,7 @@ import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apache.syncope.wa.starter.config.WARefreshContextJob;
 import org.apereo.cas.config.CasGoogleAuthenticatorLdapAutoConfiguration;
 import org.apereo.cas.configuration.CasConfigurationProperties;
-import org.apereo.cas.configuration.CasConfigurationPropertiesValidator;
+import org.apereo.cas.metadata.CasConfigurationPropertiesValidator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
