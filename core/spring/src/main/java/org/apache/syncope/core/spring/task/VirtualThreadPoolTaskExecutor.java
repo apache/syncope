@@ -65,10 +65,6 @@ public class VirtualThreadPoolTaskExecutor
      * involves considerable overhead in case of a high number of tasks.
      * However, for a modest level of submissions with longer-running
      * tasks, this is feasible in order to arrive at a graceful shutdown.
-     * <p>
-     * Note that {@code SimpleAsyncTaskExecutor} does not participate in
-     * a coordinated lifecycle stop but rather just awaits task termination
-     * on {@link #close()}.
      *
      * @param taskTerminationTimeout the timeout in milliseconds
      * @see SimpleAsyncTaskExecutor#close
