@@ -2,6 +2,31 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.1
+================================================================================
+
+** Bug
+    * [SYNCOPE-1888] - Console: change required property for specific inputs in policy configuration
+    * [SYNCOPE-1890] - Configure max retry attempts for login with Syncope authentication module on WA 
+    * [SYNCOPE-1891] - Missing mapped attribute setting for SAML2IdPAuthModuleConf
+    * [SYNCOPE-1894] - Mapping parsing error while schema contains a dot
+    * [SYNCOPE-1895] - Console CSV export does not consider search filter
+    * [SYNCOPE-1896] - Audit: not serializable exception for ConnectorObject and Any instances
+    * [SYNCOPE-1899] - Console: code editor does not persist changes
+    * [SYNCOPE-1902] - Can't set Unauthorized Redirect URL in access policy via Console
+    * [SYNCOPE-1904] - Console: cannot edit authentication.attributes under Keymaster > Parameters
+
+** Improvement
+    * [SYNCOPE-1886] - Elasticsearch and Opensearch query performance improvements
+    * [SYNCOPE-1887] - Enduser: require re-authentication for sensitive features
+    * [SYNCOPE-1889] - Improve group search using SCIM extension
+    * [SYNCOPE-1892] - Further Macro improvements
+    * [SYNCOPE-1893] - SCIM extension improvement
+    * [SYNCOPE-1897] - WA: mapping Google MFA crypto settings
+    * [SYNCOPE-1898] - Reset password with WA if mustChangePassword is true
+    * [SYNCOPE-1900] - Implement OIDC Back-Channel Logout for Console and Enduser
+    * [SYNCOPE-1903] - Add endpoint to verify the security answer during password reset in CAS
+
 Release Notes - Syncope - Version 4.0.0
 ================================================================================
 
