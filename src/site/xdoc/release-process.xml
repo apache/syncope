@@ -245,8 +245,8 @@ cp $SYNCOPE_RELEASE_DIR/target/syncope-*-source-release.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip .
 cp $SYNCOPE_RELEASE_DIR/standalone/target/syncope-standalone-*-distribution.zip.asc .
 # if releasing from 4_0_X              
-cp $SYNCOPE_RELEASE_DIR/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar .
-cp $SYNCOPE_RELEASE_DIR/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar.asc .
+cp $SYNCOPE_RELEASE_DIR/core/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar .
+cp $SYNCOPE_RELEASE_DIR/core/persistence-jpa-upgrader/target/syncope-core-persistence-jpa-upgrader-*.jar.asc .
 
 for file in `find . -type f -iname '*.asc'`
 do
