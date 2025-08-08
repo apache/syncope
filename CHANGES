@@ -7,7 +7,7 @@ Release Notes - Syncope - Version 4.0.1
 
 ** Bug
     * [SYNCOPE-1888] - Console: change required property for specific inputs in policy configuration
-    * [SYNCOPE-1890] - Configure max retry attempts for login with Syncope authentication module on WA 
+    * [SYNCOPE-1890] - Configure max retry attempts for login with Syncope authentication module on WA
     * [SYNCOPE-1891] - Missing mapped attribute setting for SAML2IdPAuthModuleConf
     * [SYNCOPE-1894] - Mapping parsing error while schema contains a dot
     * [SYNCOPE-1895] - Console CSV export does not consider search filter
