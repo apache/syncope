@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.core</groupId>
     <artifactId>syncope-core-idrepo</artifactId>
-    <version>3.0.13-SNAPSHOT</version>
+    <version>3.0.13</version>
   </parent>
 
   <name>Apache Syncope Core IdRepo REST CXF</name>

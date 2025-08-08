@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>3.0.13-SNAPSHOT</version>
+    <version>3.0.13</version>
   </parent>
 
   <name>Apache Syncope Core Workflow Java</name>
