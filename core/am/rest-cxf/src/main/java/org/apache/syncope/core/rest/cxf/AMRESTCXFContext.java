@@ -24,6 +24,7 @@ import org.apache.syncope.common.rest.api.service.AuthProfileSelfService;
 import org.apache.syncope.common.rest.api.service.AuthProfileService;
 import org.apache.syncope.common.rest.api.service.ClientAppService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
+import org.apache.syncope.common.rest.api.service.PasswordModuleService;
 import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.common.rest.api.service.SRARouteService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthAccountService;
@@ -39,6 +40,7 @@ import org.apache.syncope.core.logic.AuthModuleLogic;
 import org.apache.syncope.core.logic.AuthProfileLogic;
 import org.apache.syncope.core.logic.ClientAppLogic;
 import org.apache.syncope.core.logic.OIDCJWKSLogic;
+import org.apache.syncope.core.logic.PasswordModuleLogic;
 import org.apache.syncope.core.logic.SAML2IdPEntityLogic;
 import org.apache.syncope.core.logic.SRARouteLogic;
 import org.apache.syncope.core.logic.wa.GoogleMfaAuthAccountLogic;
@@ -54,6 +56,7 @@ import org.apache.syncope.core.rest.cxf.service.AuthProfileSelfServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.AuthProfileServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.ClientAppServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.OIDCJWKSServiceImpl;
+import org.apache.syncope.core.rest.cxf.service.PasswordModuleServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SAML2IdPEntityServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.SRARouteServiceImpl;
 import org.apache.syncope.core.rest.cxf.service.wa.GoogleMfaAuthAccountServiceImpl;
@@ -75,6 +78,12 @@ public class AMRESTCXFContext {
     @Bean
     public AuthModuleService authModuleService(final AuthModuleLogic authModuleLogic) {
         return new AuthModuleServiceImpl(authModuleLogic);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordModuleService passwordModuleService(final PasswordModuleLogic passwordModuleLogic) {
+        return new PasswordModuleServiceImpl(passwordModuleLogic);
     }
 
     @ConditionalOnMissingBean

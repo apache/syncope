@@ -58,6 +58,16 @@ public final class AMEntitlement {
 
     public static final String AUTH_MODULE_DELETE = "AUTH_MODULE_DELETE";
 
+    public static final String PASSWORD_MODULE_LIST = "PASSWORD_MODULE_LIST";
+
+    public static final String PASSWORD_MODULE_CREATE = "PASSWORD_MODULE_CREATE";
+
+    public static final String PASSWORD_MODULE_READ = "PASSWORD_MODULE_READ";
+
+    public static final String PASSWORD_MODULE_UPDATE = "PASSWORD_MODULE_UPDATE";
+
+    public static final String PASSWORD_MODULE_DELETE = "PASSWORD_MODULE_DELETE";
+
     public static final String ATTR_REPO_LIST = "ATTR_REPO_LIST";
 
     public static final String ATTR_REPO_CREATE = "ATTR_REPO_CREATE";

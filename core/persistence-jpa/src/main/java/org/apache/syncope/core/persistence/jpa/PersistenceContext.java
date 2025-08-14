@@ -57,6 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.PasswordModuleDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -154,6 +155,9 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PasswordModuleRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PasswordModuleRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PasswordModuleRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepo;
@@ -513,6 +517,20 @@ public class PersistenceContext {
             final AuthModuleRepoExt authModuleRepoExt) {
 
         return jpaRepositoryFactory.getRepository(AuthModuleRepo.class, authModuleRepoExt);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordModuleRepoExt passwordModuleRepoExt(final EntityManager entityManager) {
+        return new PasswordModuleRepoExtImpl(entityManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordModuleDAO passwordModuleDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final PasswordModuleRepoExt passwordModuleRepoExt) {
+        return jpaRepositoryFactory.getRepository(PasswordModuleRepo.class, passwordModuleRepoExt);
     }
 
     @ConditionalOnMissingBean
