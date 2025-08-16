@@ -67,7 +67,7 @@ public class CommandWizardBuilder extends BaseAjaxWizardBuilder<CommandTO> {
                     return command.getArgs();
                 }
             };
-            add(new BeanPanel<>("bean", bean, pageRef).setRenderBodyOnly(true));
+            add(new BeanPanel<>("bean", bean, pageRef, "ctx").setRenderBodyOnly(true));
         }
     }
 }
