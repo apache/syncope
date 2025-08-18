@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.password.LDAPPasswordModuleConf;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordModuleConf;
 import org.apache.syncope.common.lib.to.PasswordModuleTO;
@@ -24,7 +25,8 @@ import org.junit.jupiter.api.Test;
 public class PasswordModuleITCase extends AbstractITCase {
 
     private enum PasswordModuleSupportedType {
-        SYNCOPE
+        SYNCOPE,
+        LDAP
     };
 
     private static PasswordModuleTO createAuthModule(final PasswordModuleTO passwordModuleTO) {
@@ -50,6 +52,16 @@ public class PasswordModuleITCase extends AbstractITCase {
                 SyncopePasswordModuleConf.class.cast(conf).setDomain(SyncopeConstants.MASTER_DOMAIN);
                 passwordModuleTO.setConf(conf);
                 break;
+            case LDAP:
+                conf = new LDAPPasswordModuleConf();
+                LDAPPasswordModuleConf.class.cast(conf).setBaseDn("dc=example,dc=org");
+                LDAPPasswordModuleConf.class.cast(conf).setSearchFilter("cn={user}");
+                LDAPPasswordModuleConf.class.cast(conf).setSubtreeSearch(true);
+                LDAPPasswordModuleConf.class.cast(conf).setLdapUrl("ldap://localhost:1389");
+                LDAPPasswordModuleConf.class.cast(conf).setUsernameAttribute("uid");
+                LDAPPasswordModuleConf.class.cast(conf).setBaseDn("cn=Directory Manager,dc=example,dc=org");
+                LDAPPasswordModuleConf.class.cast(conf).setBindCredential("Password");
+                break;
         }
 
         return passwordModuleTO;
@@ -68,6 +80,9 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertTrue(passwordModuleTOS.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), SyncopePasswordModuleConf.class)
                         && authModule.getKey().equals("DefaultSyncopePasswordModule")));
+        assertTrue(passwordModuleTOS.stream().anyMatch(
+                authModule -> isSpecificConf(authModule.getConf(), LDAPPasswordModuleConf.class)
+                        && authModule.getKey().equals("DefaultLDAPPasswordModule")));
     }
 
     @Test
@@ -77,6 +92,15 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertNotNull(passwordModuleTO);
         assertTrue(StringUtils.isNotBlank(passwordModuleTO.getDescription()));
         assertTrue(isSpecificConf(passwordModuleTO.getConf(), SyncopePasswordModuleConf.class));
+    }
+
+    @Test
+    public void getLdapPasswordModule() {
+        PasswordModuleTO passwordModuleTO = PASSWORD_MODULE_SERVICE.read("DefaultLDAPPasswordModule");
+
+        assertNotNull(passwordModuleTO);
+        assertTrue(StringUtils.isNotBlank(passwordModuleTO.getDescription()));
+        assertTrue(isSpecificConf(passwordModuleTO.getConf(), LDAPPasswordModuleConf.class));
     }
 
     @Test
@@ -110,6 +134,29 @@ public class PasswordModuleITCase extends AbstractITCase {
 
         conf = newSyncopePasswordModuleTO.getConf();
         assertEquals("Two", SyncopePasswordModuleConf.class.cast(conf).getDomain());
+    }
+
+    @Test
+    public void updateLdapPasswordModule() {
+        PasswordModuleTO ldapPasswordModuleTO = PASSWORD_MODULE_SERVICE.read("DefaultLDAPPasswordModule");
+        assertNotNull(ldapPasswordModuleTO);
+
+        PasswordModuleTO newLdapPasswordModuleTO = buildPasswordModuleTO(PasswordModuleSupportedType.LDAP);
+        newLdapPasswordModuleTO = createAuthModule(newLdapPasswordModuleTO);
+        assertNotNull(newLdapPasswordModuleTO);
+
+        PasswordModuleConf conf = ldapPasswordModuleTO.getConf();
+        assertNotNull(conf);
+        LDAPPasswordModuleConf.class.cast(conf).setSubtreeSearch(false);
+        newLdapPasswordModuleTO.setConf(conf);
+
+        // update new password module
+        PASSWORD_MODULE_SERVICE.update(newLdapPasswordModuleTO);
+        newLdapPasswordModuleTO = PASSWORD_MODULE_SERVICE.read(newLdapPasswordModuleTO.getKey());
+        assertNotNull(newLdapPasswordModuleTO);
+
+        conf = newLdapPasswordModuleTO.getConf();
+        assertFalse(LDAPPasswordModuleConf.class.cast(conf).isSubtreeSearch());
     }
 
     @Test

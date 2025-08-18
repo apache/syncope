@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.syncope.common.lib.password.LDAPPasswordModuleConf;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordModuleConf;
 import org.apache.syncope.common.lib.to.Item;
@@ -32,12 +33,16 @@ public class PasswordModuleTest extends AbstractTest {
         List<? extends PasswordModule> modules = passwordModuleDAO.findAll();
         assertNotNull(modules);
         assertFalse(modules.isEmpty());
+        assertEquals(2, modules.size());
     }
 
     @Test
     public void find() {
         PasswordModule passwordModule = passwordModuleDAO.findById("DefaultSyncopePasswordModule").orElseThrow();
-        assertTrue(passwordModule.getConf() instanceof PasswordModuleConf);
+        assertTrue(passwordModule.getConf() instanceof SyncopePasswordModuleConf);
+
+        passwordModule = passwordModuleDAO.findById("DefaultLDAPPasswordModule").orElseThrow();
+        assertTrue(passwordModule.getConf() instanceof LDAPPasswordModuleConf);
     }
 
     @Test
@@ -47,6 +52,10 @@ public class PasswordModuleTest extends AbstractTest {
                 passwordModule -> isSpecificConf(passwordModule.getConf(),
                         SyncopePasswordModuleConf.class)
                         && passwordModule.getKey().equals("DefaultSyncopePasswordModule")));
+        assertTrue(passwordModules.stream().anyMatch(
+                passwordModule -> isSpecificConf(passwordModule.getConf(),
+                        LDAPPasswordModuleConf.class)
+                        && passwordModule.getKey().equals("DefaultLDAPPasswordModule")));
     }
 
     private void savePasswordModule(final String key, final PasswordModuleConf conf) {
@@ -83,6 +92,19 @@ public class PasswordModuleTest extends AbstractTest {
     }
 
     @Test
+    public void saveWithLdapModule() {
+        LDAPPasswordModuleConf conf = new LDAPPasswordModuleConf();
+        conf.setBaseDn("dc=example,dc=org");
+        conf.setSearchFilter("cn={user}");
+        conf.setSubtreeSearch(true);
+        conf.setLdapUrl("ldap://localhost:1389");
+        conf.setUsernameAttribute("uid");
+        conf.setBindCredential("Password");
+
+        savePasswordModule("LDAPPasswordModuleTest", conf);
+    }
+
+    @Test
     public void updateWithSyncopeModule() {
         PasswordModule module = passwordModuleDAO.findById("DefaultSyncopePasswordModule").orElseThrow();
 
@@ -93,8 +115,27 @@ public class PasswordModuleTest extends AbstractTest {
         module = passwordModuleDAO.save(module);
         assertNotNull(module);
         assertNotNull(module.getKey());
+
         PasswordModule found = passwordModuleDAO.findById(module.getKey()).orElseThrow();
         assertEquals("Two", SyncopePasswordModuleConf.class.cast(found.getConf()).getDomain());
+    }
+
+    @Test
+    public void updateWithLdapModule() {
+        PasswordModule module = passwordModuleDAO.findById("DefaultLDAPPasswordModule").orElseThrow();
+
+        PasswordModuleConf conf = module.getConf();
+        LDAPPasswordModuleConf.class.cast(conf).setBaseDn("dc=example2,dc=org");
+        LDAPPasswordModuleConf.class.cast(conf).setSearchFilter("cn={user2}");
+        module.setConf(conf);
+
+        module = passwordModuleDAO.save(module);
+        assertNotNull(module);
+        assertNotNull(module.getKey());
+
+        PasswordModule found = passwordModuleDAO.findById(module.getKey()).orElseThrow();
+        assertEquals("dc=example2,dc=org", LDAPPasswordModuleConf.class.cast(found.getConf()).getBaseDn());
+        assertEquals("cn={user2}", LDAPPasswordModuleConf.class.cast(found.getConf()).getSearchFilter());
     }
 
     @Test

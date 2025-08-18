@@ -3,10 +3,13 @@ package org.apache.syncope.wa.bootstrap.mapping;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.password.LDAPPasswordModuleConf;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordModuleConf;
 import org.apache.syncope.common.lib.to.PasswordModuleTO;
 import org.apache.syncope.wa.bootstrap.WARestClient;
+import org.apereo.cas.configuration.model.support.ldap.AbstractLdapProperties;
+import org.apereo.cas.configuration.model.support.pm.LdapPasswordManagementProperties;
 import org.apereo.cas.configuration.model.support.pm.SyncopePasswordManagementProperties;
 
 public class PasswordModulePropertySourceMapper extends PropertySourceMapper implements PasswordModuleConf.Mapper {
@@ -17,7 +20,8 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
         this.waRestClient = waRestClient;
     }
 
-    @Override public Map<String, Object> map(PasswordModuleTO passwordModuleTO, SyncopePasswordModuleConf conf) {
+    @Override
+    public Map<String, Object> map(PasswordModuleTO passwordModuleTO, SyncopePasswordModuleConf conf) {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
         if (syncopeClient == null) {
             LOG.warn("Application context is not ready to bootstrap WA configuration");
@@ -33,5 +37,17 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
         props.setHeaders(conf.getHeaders());
 
         return prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(props));
+    }
+
+    @Override
+    public Map<String, Object> map(PasswordModuleTO passwordModuleTO, LDAPPasswordModuleConf conf) {
+        LdapPasswordManagementProperties props = new LdapPasswordManagementProperties();
+        props.setName(passwordModuleTO.getKey());
+        props.setType(AbstractLdapProperties.LdapType.valueOf(conf.getLdapType().name()));
+        props.setUsernameAttribute(conf.getUsernameAttribute());
+
+        fill(props, conf);
+
+        return prefix("cas.authn.pm.ldap[].", WAConfUtils.asMap(props));
     }
 }
