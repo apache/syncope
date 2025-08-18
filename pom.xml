@@ -2457,8 +2457,8 @@ under the License.
       </activation>
 
       <properties>
-        <byte-buddy.version>1.17.5</byte-buddy.version>
-        <mockito.version>5.17.0</mockito.version>
+        <byte-buddy.version>1.17.7</byte-buddy.version>
+        <mockito.version>5.19.0</mockito.version>
       </properties>
 
       <dependencyManagement>
