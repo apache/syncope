@@ -2,13 +2,11 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.common.lib.to.PasswordModuleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.am.AuthModule;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordModule;
 import org.apache.syncope.core.provisioning.api.data.PasswordModuleDataBinder;
 import org.apache.syncope.core.provisioning.api.jexl.JexlUtils;

@@ -92,7 +92,7 @@ under the License.
 
   <!-- Password management -->
   <PasswordModule id="DefaultSyncopePasswordModule" description="Syncope password management module"
-                 jsonConf='{"_class":"org.apache.syncope.common.lib.password.SyncopePasswordModuleConf","domain":"Master","searchFilter":"username={user}","basicAuthUsername":"admin","basicAuthPassword":"password", "headers":{},"attributeMappings":{}}'/>
+                 jsonConf='{"_class":"org.apache.syncope.common.lib.password.SyncopePasswordModuleConf","domain":"Master","searchFilter":"username={user}","basicAuthUsername":"admin","basicAuthPassword":"password", "headers":{}}'/>
 
 
   <!-- Attribute repositories -->

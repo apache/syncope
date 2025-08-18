@@ -31,11 +31,13 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.PasswordModuleService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.PasswordModulePropertySourceMapper;
 import org.apereo.cas.configuration.model.support.oidc.OidcDiscoveryProperties;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
@@ -60,6 +62,8 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper;
 
+    protected final PasswordModulePropertySourceMapper passwordModulePropertySourceMapper;
+
     protected final AttrReleaseMapper attrReleaseMapper;
 
     protected final CipherExecutor<String, String> configurationCipher;
@@ -68,12 +72,14 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             final WARestClient waRestClient,
             final AuthModulePropertySourceMapper authModulePropertySourceMapper,
             final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
+            final PasswordModulePropertySourceMapper passwordModulePropertySourceMapper,
             final AttrReleaseMapper attrReleaseMapper,
             final CipherExecutor<String, String> configurationCipher) {
 
         this.waRestClient = waRestClient;
         this.authModulePropertySourceMapper = authModulePropertySourceMapper;
         this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
+        this.passwordModulePropertySourceMapper = passwordModulePropertySourceMapper;
         this.attrReleaseMapper = attrReleaseMapper;
         this.configurationCipher = configurationCipher;
     }
@@ -124,8 +130,12 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
-        properties.put("cas.authn.pm.syncope.url",
-                StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
+        syncopeClient.getService(PasswordModuleService.class).list().forEach(passwordModuleTO -> {
+            LOG.debug("Mapping password module {} ", passwordModuleTO.getKey());
+
+            Map<String, Object> map = passwordModuleTO.getConf().map(passwordModuleTO, passwordModulePropertySourceMapper);
+            properties.putAll(index(map, prefixes));
+        });
 
         Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
                 filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).

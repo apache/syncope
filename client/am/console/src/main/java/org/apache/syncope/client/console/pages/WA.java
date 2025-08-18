@@ -39,12 +39,14 @@ import org.apache.syncope.client.console.panels.AMSessionPanel;
 import org.apache.syncope.client.console.panels.AttrRepoDirectoryPanel;
 import org.apache.syncope.client.console.panels.AuthModuleDirectoryPanel;
 import org.apache.syncope.client.console.panels.OIDC;
+import org.apache.syncope.client.console.panels.PasswordModuleDirectoryPanel;
 import org.apache.syncope.client.console.panels.SAML2IdPEntityDirectoryPanel;
 import org.apache.syncope.client.console.panels.WAConfigDirectoryPanel;
 import org.apache.syncope.client.console.panels.WAPushModalPanel;
 import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
+import org.apache.syncope.client.console.rest.PasswordModuleRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
@@ -80,6 +82,9 @@ public class WA extends BasePage {
 
     @SpringBean
     protected AuthModuleRestClient authModuleRestClient;
+
+    @SpringBean
+    protected PasswordModuleRestClient passwordModuleRestClient;
 
     @SpringBean
     protected AttrRepoRestClient attrRepoRestClient;
@@ -175,6 +180,18 @@ public class WA extends BasePage {
                 @Override
                 public Panel getPanel(final String panelId) {
                     return new AuthModuleDirectoryPanel(panelId, authModuleRestClient, getPageReference());
+                }
+            });
+        }
+
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.PASSWORD_MODULE_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("passwordModules")) {
+
+                private static final long serialVersionUID = 5211692813425391144L;
+
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new PasswordModuleDirectoryPanel(panelId, passwordModuleRestClient, getPageReference());
                 }
             });
         }
