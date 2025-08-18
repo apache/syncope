@@ -21,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class PasswordModuleTest extends AbstractTest {
 
-    private static boolean isSpecificConf(final PasswordModuleConf conf, final Class<? extends PasswordModuleConf> clazz) {
+    private static boolean isSpecificConf(
+            final PasswordModuleConf conf,
+            final Class<? extends PasswordModuleConf> clazz) {
         return ClassUtils.isAssignable(clazz, conf.getClass());
     }
 

@@ -133,7 +133,8 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         syncopeClient.getService(PasswordModuleService.class).list().forEach(passwordModuleTO -> {
             LOG.debug("Mapping password module {} ", passwordModuleTO.getKey());
 
-            Map<String, Object> map = passwordModuleTO.getConf().map(passwordModuleTO, passwordModulePropertySourceMapper);
+            Map<String, Object> map = passwordModuleTO.getConf()
+                    .map(passwordModuleTO, passwordModulePropertySourceMapper);
             properties.putAll(index(map, prefixes));
         });
 

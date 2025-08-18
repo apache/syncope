@@ -21,7 +21,7 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
     }
 
     @Override
-    public Map<String, Object> map(PasswordModuleTO passwordModuleTO, SyncopePasswordModuleConf conf) {
+    public Map<String, Object> map(final PasswordModuleTO passwordModuleTO, final SyncopePasswordModuleConf conf) {
         SyncopeClient syncopeClient = waRestClient.getSyncopeClient();
         if (syncopeClient == null) {
             LOG.warn("Application context is not ready to bootstrap WA configuration");
@@ -40,7 +40,7 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
     }
 
     @Override
-    public Map<String, Object> map(PasswordModuleTO passwordModuleTO, LDAPPasswordModuleConf conf) {
+    public Map<String, Object> map(final PasswordModuleTO passwordModuleTO, final LDAPPasswordModuleConf conf) {
         LdapPasswordManagementProperties props = new LdapPasswordManagementProperties();
         props.setName(passwordModuleTO.getKey());
         props.setType(AbstractLdapProperties.LdapType.valueOf(conf.getLdapType().name()));

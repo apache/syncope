@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.PasswordModuleTO;
 
-public class SyncopePasswordModuleConf implements PasswordModuleConf{
+public class SyncopePasswordModuleConf implements PasswordModuleConf {
 
     private static final long serialVersionUID = -8203692328056109683L;
 

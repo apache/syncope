@@ -19,7 +19,7 @@ public class PasswordModuleRepoExtImpl implements PasswordModuleRepoExt {
     }
 
     @Override
-    public PasswordModule save(PasswordModule passwordModule) {
+    public PasswordModule save(final PasswordModule passwordModule) {
         ((Neo4jPasswordModule) passwordModule).list2json();
         PasswordModule saved = neo4jTemplate.save(nodeValidator.validate(passwordModule));
         ((Neo4jPasswordModule) saved).postSave();
@@ -27,7 +27,7 @@ public class PasswordModuleRepoExtImpl implements PasswordModuleRepoExt {
     }
 
     @Override
-    public void delete(PasswordModule passwordModule) {
+    public void delete(final PasswordModule passwordModule) {
         neo4jTemplate.deleteById(passwordModule.getKey(), Neo4jPasswordModule.class);
     }
 }

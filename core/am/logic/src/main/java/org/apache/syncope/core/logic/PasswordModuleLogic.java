@@ -41,7 +41,8 @@ public class PasswordModuleLogic extends AbstractTransactionalLogic<PasswordModu
                 passwordModuleDAO.save(passwordModuleDataBinder.update(passwordModule, passwordModuleTO)));
     }
 
-    @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MODULE_LIST + "') or hasRole('" + IdRepoEntitlement.ANONYMOUS + "')")
+    @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MODULE_LIST + "') or hasRole('"
+            + IdRepoEntitlement.ANONYMOUS + "')")
     @Transactional(readOnly = true)
     public List<PasswordModuleTO> list() {
         return passwordModuleDAO.findAll().stream()
@@ -68,7 +69,8 @@ public class PasswordModuleLogic extends AbstractTransactionalLogic<PasswordModu
         return deleted;
     }
 
-    @Override protected PasswordModuleTO resolveReference(Method method, Object... args)
+    @Override
+    protected PasswordModuleTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
         if (ArrayUtils.isEmpty(args)) {
             throw new UnresolvedReferenceException();

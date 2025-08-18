@@ -266,7 +266,7 @@ abstract class AbstractEntityFactory implements EntityFactory {
             result = (E) new JPAAuthModule();
         } else if (reference.equals(PasswordModule.class)) {
             result = (E) new JPAPasswordModule();
-        }else if (reference.equals(AttrRepo.class)) {
+        } else if (reference.equals(AttrRepo.class)) {
             result = (E) new JPAAttrRepo();
         } else if (reference.equals(AuthPolicy.class)) {
             result = (E) new JPAAuthPolicy();

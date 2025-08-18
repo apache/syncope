@@ -267,7 +267,7 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jAuthModule();
         } else if (reference.equals(PasswordModule.class)) {
             result = (E) new Neo4jPasswordModule();
-        }else if (reference.equals(AttrRepo.class)) {
+        } else if (reference.equals(AttrRepo.class)) {
             result = (E) new Neo4jAttrRepo();
         } else if (reference.equals(AuthPolicy.class)) {
             result = (E) new Neo4jAuthPolicy();

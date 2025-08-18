@@ -15,11 +15,11 @@ public class LDAPPasswordModuleConf extends AbstractLDAPConf implements Password
         return usernameAttribute;
     }
 
-    public void setUsernameAttribute(String usernameAttribute) {
+    public void setUsernameAttribute(final String usernameAttribute) {
         this.usernameAttribute = usernameAttribute;
     }
 
-    @Override public Map<String, Object> map(PasswordModuleTO passwordModuleTO, Mapper mapper) {
+    @Override public Map<String, Object> map(final PasswordModuleTO passwordModuleTO, final Mapper mapper) {
         return mapper.map(passwordModuleTO, this);
     }
 }

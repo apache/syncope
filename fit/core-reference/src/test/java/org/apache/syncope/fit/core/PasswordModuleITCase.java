@@ -62,12 +62,16 @@ public class PasswordModuleITCase extends AbstractITCase {
                 LDAPPasswordModuleConf.class.cast(conf).setBaseDn("cn=Directory Manager,dc=example,dc=org");
                 LDAPPasswordModuleConf.class.cast(conf).setBindCredential("Password");
                 break;
+            default:
+                break;
         }
 
         return passwordModuleTO;
     }
 
-    private static boolean isSpecificConf(final PasswordModuleConf conf, final Class<? extends PasswordModuleConf> clazz) {
+    private static boolean isSpecificConf(
+            final PasswordModuleConf conf,
+            final Class<? extends PasswordModuleConf> clazz) {
         return ClassUtils.isAssignable(clazz, conf.getClass());
     }
 

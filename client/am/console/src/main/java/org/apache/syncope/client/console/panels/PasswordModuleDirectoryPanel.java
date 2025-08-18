@@ -42,8 +42,11 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class PasswordModuleDirectoryPanel
-        extends DirectoryPanel<PasswordModuleTO, PasswordModuleTO, PasswordModuleDirectoryPanel.PasswordModuleProvider, PasswordModuleRestClient> {
+public class PasswordModuleDirectoryPanel extends DirectoryPanel<
+        PasswordModuleTO,
+        PasswordModuleTO,
+        PasswordModuleDirectoryPanel.PasswordModuleProvider,
+        PasswordModuleRestClient> {
     private static final long serialVersionUID = 1005345990563741296L;
 
     @SpringBean

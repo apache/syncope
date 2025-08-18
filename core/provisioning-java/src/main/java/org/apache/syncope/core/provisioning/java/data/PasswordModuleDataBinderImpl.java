@@ -84,13 +84,15 @@ public class PasswordModuleDataBinderImpl implements PasswordModuleDataBinder {
         });
     }
 
-    @Override public PasswordModule create(PasswordModuleTO passwordModuleTO) {
+    @Override
+    public PasswordModule create(final PasswordModuleTO passwordModuleTO) {
         PasswordModule passwordModule = entityFactory.newEntity(PasswordModule.class);
         passwordModule.setKey(passwordModuleTO.getKey());
         return update(passwordModule, passwordModuleTO);
     }
 
-    @Override public PasswordModule update(PasswordModule passwordModule, PasswordModuleTO passwordModuleTO) {
+    @Override
+    public PasswordModule update(final PasswordModule passwordModule, final PasswordModuleTO passwordModuleTO) {
         passwordModule.setDescription(passwordModuleTO.getDescription());
         passwordModule.setOrder(passwordModuleTO.getOrder());
         passwordModule.setConf(passwordModuleTO.getConf());
@@ -101,7 +103,8 @@ public class PasswordModuleDataBinderImpl implements PasswordModuleDataBinder {
         return passwordModule;
     }
 
-    @Override public PasswordModuleTO getPasswordModuleTO(PasswordModule passwordModule) {
+    @Override
+    public PasswordModuleTO getPasswordModuleTO(final PasswordModule passwordModule) {
         PasswordModuleTO passwordModuleTO = new PasswordModuleTO();
 
         passwordModuleTO.setKey(passwordModule.getKey());

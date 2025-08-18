@@ -7,7 +7,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 
-public class PasswordModuleTO implements EntityTO{
+public class PasswordModuleTO implements EntityTO {
 
     private String key;
 
