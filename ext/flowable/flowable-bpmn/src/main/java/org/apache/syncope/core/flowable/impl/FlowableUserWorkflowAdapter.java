@@ -326,9 +326,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
                 Optional.ofNullable(propByLinkedAccountBeforeUpdate).orElse(propByLinkedAccount));
 
         if (inFormTask) {
-            propByRes = engine.getRuntimeService().getVariable(
+            @SuppressWarnings("unchecked")
+            PropagationByResource<String> propByResAfterForm = engine.getRuntimeService().getVariable(
                     procInstID, FlowableRuntimeUtils.PROP_BY_RESOURCE, PropagationByResource.class);
-        }        
+            propByRes = propByResAfterForm;
+        }
 
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 procInstID, FlowableRuntimeUtils.PROPAGATE_ENABLE, Boolean.class);

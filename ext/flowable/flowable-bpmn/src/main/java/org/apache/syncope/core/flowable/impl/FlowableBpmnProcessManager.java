@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.BpmnProcess;
 import org.apache.syncope.common.lib.types.BpmnProcessFormat;
 import org.apache.syncope.core.flowable.api.BpmnProcessManager;
@@ -116,7 +115,7 @@ public class FlowableBpmnProcessManager implements BpmnProcessManager {
 
     protected void exportProcessResource(final String deploymentId, final String resourceName, final OutputStream os) {
         try (InputStream procDefIS = engine.getRepositoryService().getResourceAsStream(deploymentId, resourceName)) {
-            IOUtils.copy(procDefIS, os);
+            procDefIS.transferTo(os);
         } catch (IOException e) {
             LOG.error("While exporting {}", resourceName, e);
         }

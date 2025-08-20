@@ -34,7 +34,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.util.Date;
 import java.util.UUID;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.persistence.api.dao.SAML2SPEntityDAO;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPEntity;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -135,7 +134,7 @@ public class SAML2SPEntityTest extends AbstractTest {
     private SAML2SPEntity create(final String owner) throws Exception {
         SAML2SPEntity entity = entityFactory.newEntity(SAML2SPEntity.class);
         entity.setKey(owner);
-        entity.setMetadata(IOUtils.toByteArray(new ClassPathResource("sp-metadata.xml").getInputStream()));
+        entity.setMetadata(new ClassPathResource("sp-metadata.xml").getInputStream().readAllBytes());
 
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         char[] pwdArray = "password".toCharArray();

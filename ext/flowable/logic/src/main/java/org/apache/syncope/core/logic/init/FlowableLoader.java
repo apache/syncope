@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import javax.sql.DataSource;
-import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.types.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.FlowableEntitlement;
 import org.apache.syncope.core.flowable.impl.FlowableDeployUtils;
@@ -65,7 +64,7 @@ public class FlowableLoader implements SyncopeCoreLoader {
         byte[] wfDef = new byte[0];
 
         try (InputStream wfIn = userWorkflowDef.getInputStream()) {
-            wfDef = IOUtils.toByteArray(wfIn);
+            wfDef = wfIn.readAllBytes();
         } catch (IOException e) {
             LOG.error("While loading " + userWorkflowDef.getFilename(), e);
         }

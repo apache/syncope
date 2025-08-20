@@ -252,7 +252,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             try (InputStream src = Files.newInputStream(Path.of(props.getProperty("test.csv.src")));
                     OutputStream dst = Files.newOutputStream(Path.of(props.getProperty("test.csv.dst")))) {
 
-                IOUtils.copy(src, dst);
+                src.transferTo(dst);
             }
         } catch (IOException e) {
             fail(e.getMessage(), e);
