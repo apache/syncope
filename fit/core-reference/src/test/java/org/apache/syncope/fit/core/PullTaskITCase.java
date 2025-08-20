@@ -255,7 +255,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             try (InputStream src = Files.newInputStream(Path.of(props.getProperty("test.csv.src")));
                     OutputStream dst = Files.newOutputStream(Path.of(props.getProperty("test.csv.dst")))) {
 
-                IOUtils.copy(src, dst);
+                src.transferTo(dst);
             }
         } catch (IOException e) {
             fail(e.getMessage(), e);
@@ -1660,12 +1660,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ProvisioningReport result = null;
         try {
             List<ProvisioningReport> results =
-                RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.GROUP.name(),
-                    RESOURCE_NAME_LDAP).fiql(
-                    SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder()
-                        .is(Uid.NAME)
-                        .equalToIgnoreCase("testLDAPGroup")
-                        .query()).build(), pullTaskTO);
+                    RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.GROUP.name(),
+                            RESOURCE_NAME_LDAP).fiql(
+                            SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder()
+                                    .is(Uid.NAME)
+                                    .equalToIgnoreCase("testLDAPGroup")
+                                    .query()).build(), pullTaskTO);
 
             assertNotNull(results.getFirst());
             result = results.getFirst();
