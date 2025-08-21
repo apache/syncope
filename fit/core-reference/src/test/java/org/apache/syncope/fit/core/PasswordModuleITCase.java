@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.password.JDBCPasswordModuleConf;
 import org.apache.syncope.common.lib.password.LDAPPasswordModuleConf;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordModuleConf;
@@ -26,7 +27,8 @@ public class PasswordModuleITCase extends AbstractITCase {
 
     private enum PasswordModuleSupportedType {
         SYNCOPE,
-        LDAP
+        LDAP,
+        JDBC
     };
 
     private static PasswordModuleTO createAuthModule(final PasswordModuleTO passwordModuleTO) {
@@ -62,6 +64,17 @@ public class PasswordModuleITCase extends AbstractITCase {
                 LDAPPasswordModuleConf.class.cast(conf).setBaseDn("cn=Directory Manager,dc=example,dc=org");
                 LDAPPasswordModuleConf.class.cast(conf).setBindCredential("Password");
                 break;
+            case JDBC:
+                conf = new JDBCPasswordModuleConf();
+                JDBCPasswordModuleConf.class.cast(conf)
+                        .setSqlFindEmail("SELECT email from users_table where name=?");
+                JDBCPasswordModuleConf.class.cast(conf)
+                        .setSqlFindPhone("SELECT phoneNumber from users_table where name=?");
+                JDBCPasswordModuleConf.class.cast(conf)
+                        .setSqlFindUser("SELECT * from users_table where name=?");
+                JDBCPasswordModuleConf.class.cast(conf)
+                        .setSqlChangePassword("UPDATE users_table SET password=? WHERE name=?");
+                break;
             default:
                 break;
         }
@@ -87,6 +100,9 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertTrue(passwordModuleTOS.stream().anyMatch(
                 authModule -> isSpecificConf(authModule.getConf(), LDAPPasswordModuleConf.class)
                         && authModule.getKey().equals("DefaultLDAPPasswordModule")));
+        assertTrue(passwordModuleTOS.stream().anyMatch(
+                authModule -> isSpecificConf(authModule.getConf(), JDBCPasswordModuleConf.class)
+                        && authModule.getKey().equals("DefaultJDBCPasswordModule")));
     }
 
     @Test
@@ -105,6 +121,15 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertNotNull(passwordModuleTO);
         assertTrue(StringUtils.isNotBlank(passwordModuleTO.getDescription()));
         assertTrue(isSpecificConf(passwordModuleTO.getConf(), LDAPPasswordModuleConf.class));
+    }
+
+    @Test
+    public void getJdbcPasswordModule() {
+        PasswordModuleTO passwordModuleTO = PASSWORD_MODULE_SERVICE.read("DefaultJDBCPasswordModule");
+
+        assertNotNull(passwordModuleTO);
+        assertTrue(StringUtils.isNotBlank(passwordModuleTO.getDescription()));
+        assertTrue(isSpecificConf(passwordModuleTO.getConf(), JDBCPasswordModuleConf.class));
     }
 
     @Test
@@ -161,6 +186,30 @@ public class PasswordModuleITCase extends AbstractITCase {
 
         conf = newLdapPasswordModuleTO.getConf();
         assertFalse(LDAPPasswordModuleConf.class.cast(conf).isSubtreeSearch());
+    }
+
+    @Test
+    public void updateJdbcPasswordModule() {
+        PasswordModuleTO jdbcPasswordModuleTO = PASSWORD_MODULE_SERVICE.read("DefaultJDBCPasswordModule");
+        assertNotNull(jdbcPasswordModuleTO);
+
+        PasswordModuleTO newJdbcPasswordModuleTO = buildPasswordModuleTO(PasswordModuleSupportedType.JDBC);
+        newJdbcPasswordModuleTO = createAuthModule(newJdbcPasswordModuleTO);
+        assertNotNull(newJdbcPasswordModuleTO);
+
+        PasswordModuleConf conf = jdbcPasswordModuleTO.getConf();
+        assertNotNull(conf);
+        JDBCPasswordModuleConf.class.cast(conf).setSqlFindUser("SELECT * from other_table where name=?");
+        newJdbcPasswordModuleTO.setConf(conf);
+
+        // update new password module
+        PASSWORD_MODULE_SERVICE.update(newJdbcPasswordModuleTO);
+        newJdbcPasswordModuleTO = PASSWORD_MODULE_SERVICE.read(newJdbcPasswordModuleTO.getKey());
+        assertNotNull(newJdbcPasswordModuleTO);
+
+        conf = newJdbcPasswordModuleTO.getConf();
+        assertEquals("SELECT * from other_table where name=?",
+                JDBCPasswordModuleConf.class.cast(conf).getSqlFindUser());
     }
 
     @Test

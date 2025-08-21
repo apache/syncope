@@ -35,7 +35,7 @@ public class JPAPasswordModule extends AbstractProvidedKeyEntity implements Pass
     private String description;
 
     @NotNull
-    private Integer authModuleOrder = 0;
+    private Integer passwordModuleOrder = 0;
 
     @Lob
     private String items;
@@ -58,12 +58,12 @@ public class JPAPasswordModule extends AbstractProvidedKeyEntity implements Pass
 
     @Override
     public int getOrder() {
-        return Optional.ofNullable(authModuleOrder).orElse(0);
+        return Optional.ofNullable(passwordModuleOrder).orElse(0);
     }
 
     @Override
     public void setOrder(final int order) {
-        this.authModuleOrder = order;
+        this.passwordModuleOrder = order;
     }
 
     @Override

@@ -15,6 +15,8 @@ public interface PasswordModuleConf extends BaseBean {
 
         Map<String, Object> map(PasswordModuleTO passwordModuleTO, LDAPPasswordModuleConf conf);
 
+        Map<String, Object> map(PasswordModuleTO passwordModuleTO, JDBCPasswordModuleConf conf);
+
     }
 
     Map<String, Object> map(PasswordModuleTO passwordModuleTO, Mapper mapper);
