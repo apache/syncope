@@ -76,11 +76,25 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     protected GroupDAO groupDAO;
 
     /**
-     * Allows easy subclassing for the ConnId AD connector bundle.
+     * Allows easy subclassing for different LDAP schemes.
+     *
+     * @return the name of the attribute used to keep track of group memberships on the __ACCOUNT__ object
+     */
+    protected String getGroupMembershipAttrName() {
+        return "memberOf";
+    }
+
+    @Override
+    public Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, Provision provision) {
+        return Set.of(getGroupMembershipAttrName());
+    }
+
+    /**
+     * Attribute used inside the LDAP connector bundle to track group memberships
      *
      * @return the name of the attribute used to keep track of group memberships
      */
-    protected String getGroupMembershipAttrName() {
+	protected String getConnectorLdapGroupsAttrName() {
         return "ldapGroups";
     }
 
@@ -138,7 +152,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
             PropagationData data = taskInfo.getPropagationData();
 
             // if groups were defined by resource mapping, take their values and clear up
-            Optional.ofNullable(AttributeUtil.find(getGroupMembershipAttrName(), data.getAttributes())).
+            Optional.ofNullable(AttributeUtil.find(getConnectorLdapGroupsAttrName(), data.getAttributes())).
                     ifPresent(ldapGroups -> {
                         Optional.ofNullable(ldapGroups.getValue()).
                                 ifPresent(value -> value.forEach(obj -> groups.add(obj.toString())));
@@ -164,8 +178,8 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                                 forEach(value -> groups.add(String.valueOf(value)));
                     });
 
-            LOG.debug("Adding Group connObjectLinks to attributes: {}={}", getGroupMembershipAttrName(), groups);
-            data.getAttributes().add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
+            LOG.debug("Adding Group connObjectLinks to attributes: {}={}", getConnectorLdapGroupsAttrName(), groups);
+            data.getAttributes().add(AttributeBuilder.build(getConnectorLdapGroupsAttrName(), groups));
 
             if (data.getAttributeDeltas() != null && taskInfo.getUpdateRequest() != null) {
                 Set<String> groupsToAdd = new HashSet<>();
@@ -186,7 +200,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
 
                 // if groups were already considered, take their values and clear up
                 Optional.ofNullable(
-                        AttributeDeltaUtil.find(getGroupMembershipAttrName(), data.getAttributeDeltas())).
+                        AttributeDeltaUtil.find(getConnectorLdapGroupsAttrName(), data.getAttributeDeltas())).
                         ifPresent(ldapGroups -> {
                             Optional.ofNullable(ldapGroups.getValuesToAdd()).
                                     ifPresent(value -> value.forEach(obj -> groupsToAdd.add(obj.toString())));
@@ -198,9 +212,9 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
 
                 if (!groupsToAdd.isEmpty() || !groupsToRemove.isEmpty()) {
                     LOG.debug("Adding Group connObjectLinks to attribute deltas: {}={},{}",
-                            getGroupMembershipAttrName(), groupsToAdd, groupsToRemove);
+                            getConnectorLdapGroupsAttrName(), groupsToAdd, groupsToRemove);
                     data.getAttributeDeltas().add(
-                            AttributeDeltaBuilder.build(getGroupMembershipAttrName(), groupsToAdd,
+                            AttributeDeltaBuilder.build(getConnectorLdapGroupsAttrName(), groupsToAdd,
                                     groupsToRemove));
                 }
             }
