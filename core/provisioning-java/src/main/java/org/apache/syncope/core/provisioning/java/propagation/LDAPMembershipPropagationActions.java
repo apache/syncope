@@ -133,7 +133,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                     orElseThrow(() -> new NotFoundException("User " + taskInfo.getEntityKey()));
             Set<String> groups = new HashSet<>();
 
-            // for each user group assigned to the resource of this task, compute and add the group's 
+            // for each user group assigned to the resource of this task, compute and add the group's
             // connector object link
             userDAO.findAllGroupKeys(user).stream().
                     map(groupDAO::findById).flatMap(Optional::stream).
@@ -162,16 +162,16 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
             LOG.debug("Group connObjectLinks after including the ones from mapping: {}", groups);
 
             // take groups already assigned from beforeObj and include them too
+            Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            buildManagedGroupConnObjectLinks(
+                    taskInfo.getResource(),
+                    mapping.getConnObjectLink(),
+                    connObjectLinks);
+
             taskInfo.getBeforeObj().
                     map(beforeObj -> beforeObj.getAttributeByName(getGroupMembershipAttrName())).
                     filter(Objects::nonNull).
                     ifPresent(beforeLdapGroups -> {
-                        Set<String> connObjectLinks = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-                        buildManagedGroupConnObjectLinks(
-                                taskInfo.getResource(),
-                                mapping.getConnObjectLink(),
-                                connObjectLinks);
-
                         LOG.debug("Memberships not managed by Syncope: {}", beforeLdapGroups);
                         beforeLdapGroups.getValue().stream().
                                 filter(value -> !connObjectLinks.contains(String.valueOf(value))).
