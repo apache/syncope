@@ -415,7 +415,7 @@ under the License.
     <bouncycastle.version>1.81</bouncycastle.version>
     <nimbus-jose-jwt.version>10.4.2</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.4.8</spring-boot.version>
+    <spring-boot.version>3.4.9</spring-boot.version>
     <spring-cloud-gateway.version>4.2.4</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
@@ -424,7 +424,7 @@ under the License.
 
     <groovy.version>5.0.0-rc-1</groovy.version>
 
-    <flowable.version>7.1.0</flowable.version>
+    <flowable.version>7.2.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>4.0.0</disruptor.version>
