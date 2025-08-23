@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.io.Serializable
 import java.util.Map
 import java.util.Optional
@@ -27,7 +26,6 @@ import org.apache.syncope.core.provisioning.api.macro.Command
 import org.apache.syncope.core.provisioning.api.macro.MacroActions
 import org.apache.syncope.core.provisioning.api.macro.Command.Result
 
-@CompileStatic
 class MyMacroActions implements MacroActions {
 
   @Override

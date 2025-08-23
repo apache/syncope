@@ -31,14 +31,10 @@ import org.apache.syncope.core.spring.SpringTestConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 @SpringJUnitConfig(classes = { SpringTestConfiguration.class })
 class GroovySandboxTest {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(GroovySandboxTest.class);
 
     @Test
     void processBuilder() throws Exception {
@@ -46,7 +42,7 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("processBuilder");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                GroovySandboxTest.class.getResourceAsStream("/ProcessBuilderMacroActions.groovy")));
+                getClass().getResourceAsStream("/ProcessBuilderMacroActions.groovy")));
 
         MacroActions actions = ImplementationManager.build(impl);
 
@@ -62,7 +58,7 @@ class GroovySandboxTest {
         when(impl.getKey()).thenReturn("bash");
         when(impl.getEngine()).thenReturn(ImplementationEngine.GROOVY);
         when(impl.getBody()).thenReturn(IOUtils.toString(
-                GroovySandboxTest.class.getResourceAsStream("/BashMacroActions.groovy")));
+                getClass().getResourceAsStream("/BashMacroActions.groovy")));
 
         MacroActions actions = ImplementationManager.build(impl);
 

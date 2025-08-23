@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair
 import org.apache.syncope.common.lib.to.EntityTO
@@ -26,7 +25,6 @@ import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer
 
-@CompileStatic
 class MyItemTransformer implements ItemTransformer {
 	
   @Override

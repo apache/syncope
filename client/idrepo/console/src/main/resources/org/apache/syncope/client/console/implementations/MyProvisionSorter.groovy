@@ -16,11 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.provisioning.api.ProvisionSorter
 
-@CompileStatic
 class MyProvisionSorter implements ProvisionSorter {
  
   @Override
