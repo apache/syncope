@@ -18,15 +18,22 @@
  */
 package org.apache.syncope.core.spring;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import org.apache.syncope.core.persistence.api.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
 import org.apache.syncope.core.spring.security.DefaultEncryptorManager;
 import org.apache.syncope.core.spring.security.DummyImplementationLookup;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
 
+@EnableAspectJAutoProxy(proxyTargetClass = false)
 @Configuration(proxyBeanMethods = false)
 public class SpringTestConfiguration {
 
@@ -44,5 +51,14 @@ public class SpringTestConfiguration {
     @Bean
     public ImplementationLookup implementationLookup() {
         return new DummyImplementationLookup();
+    }
+
+    @Bean
+    public Blacklist groovyBlackList() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/META-INF/groovy.blacklist");
+                Reader reader = new InputStreamReader(is);) {
+
+            return new Blacklist(reader);
+        }
     }
 }

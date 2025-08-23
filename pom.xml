@@ -985,6 +985,12 @@ under the License.
         <version>${groovy.version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>net.tirasa</groupId>
+        <artifactId>groovy-security-sandbox</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+      </dependency>
+
       <!-- Flowable -->
       <dependency>
         <groupId>org.flowable</groupId>
