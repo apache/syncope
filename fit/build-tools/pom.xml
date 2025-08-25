@@ -171,6 +171,11 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>net.tirasa</groupId>
+      <artifactId>groovy-security-sandbox</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>com.icegreen</groupId>
       <artifactId>greenmail</artifactId>
     </dependency>

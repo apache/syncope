@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.sql.Sql;
-import groovy.sql.DataSet;
+import groovy.sql.Sql
 
 // Parameters:
 // The connector sends the following:
@@ -46,54 +45,52 @@ import groovy.sql.DataSet;
 // "attributes":Map<String,List> of attributes name/values
 // ]
 
-log.info("Entering " + action + " Script");
-def sql = new Sql(connection);
+log.info("Entering " + action + " Script")
+def sql = new Sql(connection)
 
 if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
   switch (objectClass) {
   case "__PRINTER__":
-    row = sql.firstRow("SELECT lastmodification FROM TESTPRINTER ORDER BY lastmodification DESC");
+    row = sql.firstRow("SELECT lastmodification FROM TESTPRINTER ORDER BY lastmodification DESC")
     log.ok("Get Latest Sync Token script: last token is: " + row["lastmodification"])
-    break;
+    break
     
   default:
-    row = null;
+    row = null
   }
 
-  return row == null ? null : row["lastmodification"].getTime();
+  return row == null ? null : row["lastmodification"].getTime()
 } else if (action.equalsIgnoreCase("SYNC")) {
-  def result = [];
-  def lastmodification = null;
+  def result = []
+  def lastmodification = null
   if (token != null) {
-    lastmodification = new Date(token);
+    lastmodification = new Date(token)
   } else {
-    lastmodification = new Date(0);
+    lastmodification = new Date(0)
   }
 
   switch (objectClass) {
   case "__PRINTER__":
-    sql.eachRow("SELECT * FROM TESTPRINTER WHERE lastmodification > ${lastmodification}",
-      {
-        result.add([
-            operation:it.deleted ? "DELETE": "CREATE_OR_UPDATE", 
-            uid:it.id.toString(), 
-            token:it.lastmodification.getTime(), 
-            attributes:[
-              __UID__:it.id.toString(),
-              __NAME__:it.id.toString(),
-              ID:it.id.toString(),
-              PRINTERNAME:it.printername,
-              LOCATION:it.location
-            ]
-          ]);
-      }
-    )
-    break;
+    sql.eachRow("SELECT * FROM TESTPRINTER WHERE lastmodification > ${lastmodification}") { row ->
+      result.add([
+          operation:row["deleted"] ? "DELETE": "CREATE_OR_UPDATE", 
+          uid:row["id"].toString(), 
+          token:row["lastmodification"].getTime(), 
+          attributes:[
+            __UID__:row["id"].toString(),
+            __NAME__:row["id"].toString(),
+            ID:row["id"].toString(),
+            PRINTERNAME:row["printername"],
+            LOCATION:row["location"]
+          ]
+        ])
+    }
+    break
   }
   
-  log.ok("Sync script: found " + result.size() + " events to sync");
-  return result;
+  log.ok("Sync script: found " + result.size() + " events to sync")
+  return result
 } else {
-  log.error("Sync script: action '" + action + "' is not implemented in this script");
-  return null;
+  log.error("Sync script: action '" + action + "' is not implemented in this script")
+  return null
 }
