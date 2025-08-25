@@ -433,6 +433,12 @@ under the License.
           <include>errorMessages.properties</include>
         </includes>
       </testResource>
+      <testResource>
+        <directory>${basedir}/../../core/spring/src/test/resources</directory>
+        <includes>
+          <include>*.groovy</include>
+        </includes>
+      </testResource>
     </testResources>
   </build>
   

@@ -46,8 +46,8 @@ class GroovySandboxTest {
 
         MacroActions actions = ImplementationManager.build(impl);
 
-        UnsupportedOperationException e = assertThrows(
-                UnsupportedOperationException.class, () -> actions.afterAll(null, new StringBuilder()));
+        SecurityException e = assertThrows(
+                SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new java.lang.ProcessBuilder java.lang.String[]'"));
     }
 
@@ -62,8 +62,8 @@ class GroovySandboxTest {
 
         MacroActions actions = ImplementationManager.build(impl);
 
-        UnsupportedOperationException e = assertThrows(
-                UnsupportedOperationException.class, () -> actions.afterAll(null, new StringBuilder()));
+        SecurityException e = assertThrows(
+                SecurityException.class, () -> actions.afterAll(null, new StringBuilder()));
         assertTrue(e.getMessage().contains("Insecure call to 'new java.io.File java.lang.String'"));
     }
 }
