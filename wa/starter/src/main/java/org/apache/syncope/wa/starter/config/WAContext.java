@@ -27,6 +27,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.sql.DataSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.keymaster.client.api.startstop.KeymasterStart;
@@ -67,13 +69,22 @@ import org.apache.syncope.wa.starter.webauthn.WAWebAuthnCredentialRepository;
 import org.apereo.cas.audit.AuditTrailExecutionPlanConfigurer;
 import org.apereo.cas.authentication.AuthenticationEventExecutionPlan;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
+import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
+import org.apereo.cas.configuration.model.support.pm.JdbcPasswordManagementProperties;
+import org.apereo.cas.configuration.model.support.pm.LdapPasswordManagementProperties;
+import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
 import org.apereo.cas.oidc.jwks.generator.OidcJsonWebKeystoreGeneratorService;
 import org.apereo.cas.otp.repository.credentials.OneTimeTokenCredentialRepository;
+import org.apereo.cas.pm.LdapPasswordManagementService;
+import org.apereo.cas.pm.PasswordHistoryService;
+import org.apereo.cas.pm.PasswordManagementService;
+import org.apereo.cas.pm.impl.NoOpPasswordManagementService;
+import org.apereo.cas.pm.jdbc.JdbcPasswordManagementService;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
@@ -84,6 +95,7 @@ import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerat
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGeneratorConfigurationContext;
 import org.apereo.cas.support.saml.idp.metadata.locator.SamlIdPMetadataLocator;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
+import org.apereo.cas.syncope.pm.SyncopePasswordManagementService;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustRecordKeyGenerator;
 import org.apereo.cas.trusted.authentication.api.MultifactorAuthenticationTrustStorage;
 import org.apereo.cas.util.LdapUtils;
@@ -105,7 +117,9 @@ import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.transaction.support.TransactionOperations;
 
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
@@ -335,6 +349,103 @@ public class WAContext {
                     ldap);
         }
         return new WAGoogleMfaAuthCredentialRepository(waRestClient, googleAuthenticatorInstance);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public PasswordManagementService syncopePasswordChangeService(
+            final CasConfigurationProperties casProperties,
+            @Qualifier("passwordManagementCipherExecutor")
+            final CipherExecutor passwordManagementCipherExecutor,
+            @Qualifier(PasswordHistoryService.BEAN_NAME)
+            final PasswordHistoryService passwordHistoryService) {
+        PasswordManagementProperties pm = casProperties.getAuthn().getPm();
+        if (pm.getCore().isEnabled() && pm.getSyncope().isDefined()) {
+            return new SyncopePasswordManagementService(
+                    passwordManagementCipherExecutor,
+                    casProperties,
+                    passwordHistoryService);
+        }
+        return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public PasswordManagementService ldapPasswordChangeService(
+            final CasConfigurationProperties casProperties,
+            @Qualifier("passwordManagementCipherExecutor")
+            final CipherExecutor passwordManagementCipherExecutor,
+            @Qualifier(PasswordHistoryService.BEAN_NAME)
+            final PasswordHistoryService passwordHistoryService) {
+        List<LdapPasswordManagementProperties> ldaps = casProperties.getAuthn().getPm().getLdap();
+        if (!ldaps.isEmpty() && StringUtils.isNotBlank(ldaps.get(0).getLdapUrl())) {
+            ConcurrentHashMap<String, ConnectionFactory> connectionFactoryMap =
+                    new ConcurrentHashMap<String, ConnectionFactory>();
+            ldaps.forEach(ldap -> connectionFactoryMap.put(
+                    ldap.getLdapUrl(),
+                    LdapUtils.newLdaptiveConnectionFactory(ldap)));
+            return new LdapPasswordManagementService(passwordManagementCipherExecutor, casProperties,
+                    passwordHistoryService, connectionFactoryMap);
+        }
+        return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public PasswordManagementService jdbcPasswordChangeService(
+            final CasConfigurationProperties casProperties,
+            final ConfigurableApplicationContext applicationContext,
+            @Qualifier("jdbcPasswordManagementDataSource")
+            final DataSource jdbcPasswordManagementDataSource,
+            @Qualifier("jdbcPasswordManagementTransactionTemplate")
+            final TransactionOperations jdbcPasswordManagementTransactionTemplate,
+            @Qualifier("passwordManagementCipherExecutor")
+            final CipherExecutor passwordManagementCipherExecutor,
+            @Qualifier(PasswordHistoryService.BEAN_NAME)
+            final PasswordHistoryService passwordHistoryService) {
+        JdbcPasswordManagementProperties jdbc = casProperties.getAuthn().getPm().getJdbc();
+        if (StringUtils.isNotBlank(jdbc.getUrl())) {
+            PasswordEncoder encoder = PasswordEncoderUtils.newPasswordEncoder(
+                    casProperties.getAuthn().getPm().getJdbc().getPasswordEncoder(), applicationContext);
+                        return new JdbcPasswordManagementService(passwordManagementCipherExecutor,
+                                casProperties, jdbcPasswordManagementDataSource,
+                                jdbcPasswordManagementTransactionTemplate, passwordHistoryService, encoder);
+        }
+        return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public PasswordManagementService passwordChangeService(
+            final ConfigurableApplicationContext applicationContext,
+            final CasConfigurationProperties casProperties,
+            @Qualifier("passwordManagementCipherExecutor")
+            final CipherExecutor passwordManagementCipherExecutor,
+            @Qualifier(PasswordHistoryService.BEAN_NAME)
+            final PasswordHistoryService passwordHistoryService,
+            @Qualifier("syncopePasswordChangeService")
+            final PasswordManagementService syncopePasswordManagementService,
+            @Qualifier("ldapPasswordChangeService")
+            final PasswordManagementService ldapPasswordManagementService,
+            @Qualifier("jdbcPasswordChangeService")
+            final PasswordManagementService jdbcPasswordManagementService) {
+
+        if (applicationContext.getEnvironment()
+                .getProperty("cas.authn.pm.syncope.enabled", Boolean.class, Boolean.FALSE)) {
+            return syncopePasswordManagementService;
+        }
+
+        if (applicationContext.getEnvironment()
+                .getProperty("cas.authn.pm.ldap.enabled", Boolean.class, Boolean.FALSE)) {
+            return ldapPasswordManagementService;
+        }
+
+        if (applicationContext.getEnvironment()
+                .getProperty("cas.authn.pm.jdbc.enabled", Boolean.class, Boolean.FALSE)) {
+            return jdbcPasswordManagementService;
+        }
+
+        return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)

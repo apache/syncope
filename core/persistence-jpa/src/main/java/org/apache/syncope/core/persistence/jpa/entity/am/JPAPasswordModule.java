@@ -2,6 +2,8 @@ package org.apache.syncope.core.persistence.jpa.entity.am;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PostPersist;
@@ -13,10 +15,10 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordModule;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -34,8 +36,9 @@ public class JPAPasswordModule extends AbstractProvidedKeyEntity implements Pass
 
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
-    private Integer passwordModuleOrder = 0;
+    private PasswordModuleState passwordModuleState;
 
     @Lob
     private String items;
@@ -57,13 +60,13 @@ public class JPAPasswordModule extends AbstractProvidedKeyEntity implements Pass
     }
 
     @Override
-    public int getOrder() {
-        return Optional.ofNullable(passwordModuleOrder).orElse(0);
+    public PasswordModuleState getState() {
+        return passwordModuleState;
     }
 
     @Override
-    public void setOrder(final int order) {
-        this.passwordModuleOrder = order;
+    public void setState(final PasswordModuleState passwordModuleState) {
+        this.passwordModuleState = passwordModuleState;
     }
 
     @Override

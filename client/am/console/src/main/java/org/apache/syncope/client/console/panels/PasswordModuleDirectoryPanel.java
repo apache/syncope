@@ -114,8 +114,7 @@ public class PasswordModuleDirectoryPanel extends DirectoryPanel<
                         rowModel.getObject().getConf().getClass().getSimpleName(), "PasswordModuleConf")));
             }
         });
-        //columns.add(new PropertyColumn<>(new ResourceModel("state"), "state", "state"));
-        columns.add(new PropertyColumn<>(new ResourceModel("order"), "order", "order"));
+        columns.add(new PropertyColumn<>(new ResourceModel("state"), "state", "state"));
         return columns;
     }
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 
 public class PasswordModuleTO implements EntityTO {
 
@@ -13,7 +14,7 @@ public class PasswordModuleTO implements EntityTO {
 
     private String description;
 
-    private int order = 0;
+    private PasswordModuleState state = PasswordModuleState.DISABLED;
 
     private final List<Item> items = new ArrayList<>();
 
@@ -38,12 +39,12 @@ public class PasswordModuleTO implements EntityTO {
         this.description = description;
     }
 
-    public int getOrder() {
-        return order;
+    public PasswordModuleState getState() {
+        return state;
     }
 
-    public void setOrder(final int order) {
-        this.order = order;
+    public void setState(final PasswordModuleState state) {
+        this.state = state;
     }
 
     public List<Item> getItems() {
@@ -73,7 +74,7 @@ public class PasswordModuleTO implements EntityTO {
         return new EqualsBuilder().
                 append(key, other.key).
                 append(description, other.description).
-                append(order, other.order).
+                append(state, other.state).
                 append(items, other.items).
                 append(conf, other.conf).
                 build();

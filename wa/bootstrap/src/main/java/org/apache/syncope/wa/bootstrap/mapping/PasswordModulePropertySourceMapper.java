@@ -8,6 +8,7 @@ import org.apache.syncope.common.lib.password.LDAPPasswordModuleConf;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordModuleConf;
 import org.apache.syncope.common.lib.to.PasswordModuleTO;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapProperties;
 import org.apereo.cas.configuration.model.support.pm.JdbcPasswordManagementProperties;
@@ -38,7 +39,9 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
         props.setSearchFilter(conf.getSearchFilter());
         props.setHeaders(conf.getHeaders());
 
-        return prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(props));
+        Map<String, Object> mappedProps = prefix("cas.authn.pm.syncope.", WAConfUtils.asMap(props));
+        mappedProps.put("cas.authn.pm.syncope.enabled", PasswordModuleState.ACTIVE.equals(passwordModuleTO.getState()));
+        return mappedProps;
     }
 
     @Override
@@ -50,7 +53,9 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
 
         fill(props, conf);
 
-        return prefix("cas.authn.pm.ldap[].", WAConfUtils.asMap(props));
+        Map<String, Object> mappedProps = prefix("cas.authn.pm.ldap[].", WAConfUtils.asMap(props));
+        mappedProps.put("cas.authn.pm.ldap.enabled", PasswordModuleState.ACTIVE.equals(passwordModuleTO.getState()));
+        return mappedProps;
     }
 
     @Override
@@ -66,6 +71,8 @@ public class PasswordModulePropertySourceMapper extends PropertySourceMapper imp
         props.setSqlUnlockAccount(conf.getSqlUnlockAccount());
         fill(props, conf);
 
-        return prefix("cas.authn.pm.jdbc.", WAConfUtils.asMap(props));
+        Map<String, Object> mappedProps = prefix("cas.authn.pm.jdbc.", WAConfUtils.asMap(props));
+        mappedProps.put("cas.authn.pm.jdbc.enabled", PasswordModuleState.ACTIVE.equals(passwordModuleTO.getState()));
+        return mappedProps;
     }
 }

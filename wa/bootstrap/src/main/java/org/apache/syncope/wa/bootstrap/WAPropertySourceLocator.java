@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.PasswordModuleService;
@@ -130,13 +131,15 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
-        syncopeClient.getService(PasswordModuleService.class).list().forEach(passwordModuleTO -> {
-            LOG.debug("Mapping password module {} ", passwordModuleTO.getKey());
+        syncopeClient.getService(PasswordModuleService.class).list().stream().filter(
+                passwordModuleTO -> PasswordModuleState.ACTIVE.equals(passwordModuleTO.getState()))
+                .findFirst().ifPresent(passwordModuleTO -> {
+                    LOG.debug("Mapping password module {} ", passwordModuleTO.getKey());
 
-            Map<String, Object> map = passwordModuleTO.getConf()
-                    .map(passwordModuleTO, passwordModulePropertySourceMapper);
-            properties.putAll(index(map, prefixes));
-        });
+                    Map<String, Object> map = passwordModuleTO.getConf()
+                            .map(passwordModuleTO, passwordModulePropertySourceMapper);
+                    properties.putAll(index(map, prefixes));
+                });
 
         Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
                 filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).

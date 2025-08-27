@@ -8,11 +8,11 @@ import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.PasswordModuleRestClient;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.client.ui.commons.markup.html.form.AjaxNumberFieldPanel;
 import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.to.PasswordModuleTO;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -58,6 +58,17 @@ public class PasswordModuleWizardBuilder extends BaseAjaxWizardBuilder<PasswordM
         } else {
             passwordModuleRestClient.update(modelObject);
         }
+
+        // PasswordManagement works on single source.
+        if (PasswordModuleState.ACTIVE.equals(modelObject.getState())) {
+            passwordModuleRestClient.list().stream().filter(passwordModuleTO ->
+                    !passwordModuleTO.getKey().equals(modelObject.getKey())).toList()
+                    .forEach(passwordModuleTO -> {
+                        passwordModuleTO.setState(PasswordModuleState.DISABLED);
+                        passwordModuleRestClient.update(passwordModuleTO);
+            });
+        }
+
         return modelObject;
     }
 
@@ -65,7 +76,6 @@ public class PasswordModuleWizardBuilder extends BaseAjaxWizardBuilder<PasswordM
     protected WizardModel buildModelSteps(final PasswordModuleTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject, passwordModuleConfs, passwordModuleConfClass));
         wizardModel.add(new Configuration(modelObject));
-        //wizardModel.add(new AuthModuleWizardBuilder.Mapping(modelObject));
         return wizardModel;
     }
 
@@ -95,11 +105,12 @@ public class PasswordModuleWizardBuilder extends BaseAjaxWizardBuilder<PasswordM
                     new PropertyModel<>(passwordModule, Constants.DESCRIPTION_FIELD_NAME));
             add(description);
 
-            add(new AjaxNumberFieldPanel.Builder<Integer>().build(
-                    "order",
-                    "order",
-                    Integer.class,
-                    new PropertyModel<>(passwordModule, "order")).addRequiredLabel());
+            AjaxDropDownChoicePanel<PasswordModuleState> state = new AjaxDropDownChoicePanel<>(
+                    "state", getString("state"), new PropertyModel<>(passwordModule, "state"));
+            state.setChoices(List.of(PasswordModuleState.values()));
+            state.addRequiredLabel();
+            state.setNullValid(false);
+            add(state);
 
             AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>("conf", getString("type"), isNew
                     ? Model.of()

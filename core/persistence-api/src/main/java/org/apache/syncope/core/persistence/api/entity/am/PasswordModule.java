@@ -3,6 +3,7 @@ package org.apache.syncope.core.persistence.api.entity.am;
 import java.util.List;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 
 public interface PasswordModule extends ProvidedKeyEntity {
@@ -11,9 +12,9 @@ public interface PasswordModule extends ProvidedKeyEntity {
 
     void setDescription(String description);
 
-    int getOrder();
+    PasswordModuleState getState();
 
-    void setOrder(int order);
+    void setState(PasswordModuleState state);
 
     PasswordModuleConf getConf();
 

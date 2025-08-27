@@ -94,7 +94,7 @@ public class PasswordModuleDataBinderImpl implements PasswordModuleDataBinder {
     @Override
     public PasswordModule update(final PasswordModule passwordModule, final PasswordModuleTO passwordModuleTO) {
         passwordModule.setDescription(passwordModuleTO.getDescription());
-        passwordModule.setOrder(passwordModuleTO.getOrder());
+        passwordModule.setState(passwordModuleTO.getState());
         passwordModule.setConf(passwordModuleTO.getConf());
 
         passwordModule.getItems().clear();
@@ -109,7 +109,7 @@ public class PasswordModuleDataBinderImpl implements PasswordModuleDataBinder {
 
         passwordModuleTO.setKey(passwordModule.getKey());
         passwordModuleTO.setDescription(passwordModule.getDescription());
-        passwordModuleTO.setOrder(passwordModule.getOrder());
+        passwordModuleTO.setState(passwordModule.getState());
         passwordModuleTO.setConf(passwordModule.getConf());
 
         populateItems(passwordModule, passwordModuleTO);

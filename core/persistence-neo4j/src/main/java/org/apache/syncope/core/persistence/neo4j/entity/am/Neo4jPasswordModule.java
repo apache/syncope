@@ -4,10 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.password.PasswordModuleConf;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.types.PasswordModuleState;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordModule;
 import org.apache.syncope.core.persistence.neo4j.entity.AbstractProvidedKeyNode;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -27,7 +27,7 @@ public class Neo4jPasswordModule extends AbstractProvidedKeyNode implements Pass
     private String description;
 
     @NotNull
-    private Integer passwordModuleOrder = 0;
+    private PasswordModuleState passwordModuleState;
 
     private String items;
 
@@ -46,14 +46,12 @@ public class Neo4jPasswordModule extends AbstractProvidedKeyNode implements Pass
         this.description = description;
     }
 
-    @Override
-    public int getOrder() {
-        return Optional.ofNullable(passwordModuleOrder).orElse(0);
+    @Override public PasswordModuleState getState() {
+        return passwordModuleState;
     }
 
-    @Override
-    public void setOrder(final int order) {
-        this.passwordModuleOrder = order;
+    @Override public void setState(final PasswordModuleState state) {
+        this.passwordModuleState = passwordModuleState;
     }
 
     @Override
