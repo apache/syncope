@@ -1638,7 +1638,7 @@ under the License.
               <images>
                 <image>
                   <alias>openldap</alias>
-                  <name>bitnami/openldap:2.6</name>
+                  <name>bitnamilegacy/openldap:2.6</name>
                   <run>
                     <env>
                       <LDAP_PORT_NUMBER>1389</LDAP_PORT_NUMBER>
