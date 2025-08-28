@@ -104,6 +104,7 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -1922,5 +1923,35 @@ public class UserIssuesITCase extends AbstractITCase {
             RESOURCE_SERVICE.delete(ldap.getKey());
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, userWithDotSchema.getKey());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE1906() {
+
+        updateUser(
+                new UserUR.Builder(USER_SERVICE.read("bellini").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa1"))
+                        .build());
+        updateUser(
+                new UserUR.Builder(USER_SERVICE.read("puccini").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa2"))
+                        .build());
+        updateUser(
+                new UserUR.Builder(USER_SERVICE.read("verdi").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa3"))
+                        .build());
+        updateUser(
+                new UserUR.Builder(USER_SERVICE.read("vivaldi").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa4"))
+                        .build());
+        updateUser(
+                new UserUR.Builder(USER_SERVICE.read("rossini").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa5"))
+                        .build());
+
+        List<UserTO> users =
+                USER_SERVICE.search(new AnyQuery.Builder().size(10).page(1)
+                        .orderBy("ctype DESC").build()).getResult();
+
+        assertEquals("bellini", users.get(4).getUsername());
+        assertEquals("puccini", users.get(3).getUsername());
+        assertEquals("verdi", users.get(2).getUsername());
+        assertEquals("vivaldi", users.get(1).getUsername());
+        assertEquals("rossini", users.get(0).getUsername());
     }
 }
