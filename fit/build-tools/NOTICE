@@ -121,6 +121,12 @@ Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 
 ==
 
+This product includes software developed by Groovy Security Sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
+Copyright (c) 2025 Tirasa
+
+==
+
 This product includes software developed by jose.4.j
 Copyright 2012-2015 Brian Campbell
 
@@ -136,6 +142,11 @@ This product includes software developed by the Stax 2 Extension API Project.
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by groovy-sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
 
 ==
 

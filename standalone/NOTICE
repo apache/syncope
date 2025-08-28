@@ -136,6 +136,11 @@ This product includes software developed by J2ObjC: Java to Objective-C Translat
 
 ==
 
+This product includes software developed by Protocol Buffers
+Copyright 2008 Google Inc. All rights reserved.
+
+==
+
 This product includes software developed by ZXing
 Copyright: 2007-2020, ZXing authors
 
@@ -167,6 +172,11 @@ Copyright (c) Microsoft Corporation. All rights reserved.
 
 ==
 
+This product includes software developed by Spectator
+Copyright Netflix. All Rights Reserved.
+
+==
+
 This product includes software developed by Nimbus Content Type
 Copyright 2020, Connect2id Ltd
 
@@ -187,9 +197,19 @@ Copyright 2012-2022, Connect2id Ltd
 
 ==
 
+This product includes software developed by RabbitMQ Java Client
+Copyright (c) 2007-Present Pivotal Software, Inc.  All rights reserved.
+
+==
+
 This product includes software developed by Java implementation of the Mustache template language.
 Copyright (c) 2010, Michael Bayne
 All rights reserved.
+
+==
+
+This product includes software developed by SignalFx client libraries
+Copyright © 2014-2023 SignalFx | Splunk
 
 ==
 
@@ -228,6 +248,11 @@ Copyright (c) 2018, 2024 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
+This product includes software developed by t-digest
+The code for the t-digest was originally authored by Ted Dunning
+
+==
+
 This product includes software developed by Method Parameter Name Access for Java.
 Portions copyright (c) 2006-2018 Paul Hammant & ThoughtWorks Inc
 Portions copyright (c) 2000-2007 INRIA, France Telecom
@@ -253,6 +278,11 @@ Copyright (c) 2015-present Vincent DURMONT <vdurmont@gmail.com>
 This product includes software developed by GoogleAuth
 Copyright (c) 2013 Warren Strange
 Copyright (c) 2014-2017 Enrico M. Crisostomo
+
+==
+
+This product includes software developed by Wavefront's Java SDK
+Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
 
@@ -355,6 +385,12 @@ Copyright (c) 2006, Ivan Sagalaev
 
 ==
 
+This product includes software developed by gmetric4j
+Copyright (C) 2010-2015 Daniel Pocock <daniel@pocock.com.au>
+Copyright (c) 2008-2011 Jasper Humphrey <jasper521@gmail.com>
+
+==
+
 This product includes software developed by inherits
 Copyright (c) 2011-2023 Isaac Z. Schlueter
 
@@ -387,6 +423,16 @@ Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 This product includes software developed by Netty
 Copyright 2014 The Netty Project
+
+==
+
+This product includes software developed by Java Bindings for the OpenTelemetry Protocol (OTLP)
+Copyright The OpenTelemetry Authors
+
+==
+
+This product includes software developed by Prometheus Java Metrics Library
+Copyright 2012-2015 The Prometheus Authors
 
 ==
 
@@ -550,6 +596,12 @@ Copyright 2017 Flowable
 
 ==
 
+This product includes software developed by Groovy Security Sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
+Copyright (c) 2025 Tirasa
+
+==
+
 This product includes software developed by normalize.css
 Copyright © Nicolas Gallagher and Jonathan Neal
 
@@ -610,6 +662,11 @@ This product includes software developed by the Stax 2 Extension API Project.
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by groovy-sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
 
 ==
 
@@ -691,6 +748,11 @@ Copyright (c), Data Geekery GmbH, contact@datageekery.com
 
 This product includes software developed by JSON in Java
 Copyright (c) 2002 JSON.org
+
+==
+
+This product includes software developed by JSpecify
+Copyright 2022 The JSpecify Authors.
 
 ==
 
@@ -793,6 +855,11 @@ Copyright 2012 Twitter, Inc.
 
 ==
 
+This product includes software developed by zxcvbn
+Copyright (c) 2012-2016 Dan Wheeler and Dropbox, Inc.
+
+==
+
 This product includes software developed by WicketStuff
 Copyright (c) 1998-2004, Drew Davidson and Luke Blanshard
 
@@ -807,8 +874,23 @@ Copyright (c) 2021 Floating UI contributors
 
 ==
 
+This product includes software developed by AWS SDK for Java
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+==
+
+This product includes software developed by AWS EventStream for Java
+Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+
+==
+
 This product includes software developed by Summernote
 Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
+
+==
+
+This product includes software developed by sweetalert2
+Copyright (c) 2014 Tristan Edwards & Limon Monte
 
 ==
 
@@ -822,6 +904,16 @@ Copyright (c) Microsoft Corporation.
 
 ==
 
+This product includes software developed by UAParser.js
+Copyright (c) 2012-2025 Faisal Salman <f@faisalman.com>
+
+==
+
+This product includes software developed by webjars-locator-lite
+Copyright (c) 2013 James Ward
+
+==
+
 This product includes software developed by window.fetch polyfill
 Copyright (c) 2014-2016 GitHub, Inc.
 
@@ -830,8 +922,3 @@ Copyright (c) 2014-2016 GitHub, Inc.
 This product includes software developed by the Web Services Description Language for Java project.
 Copyright (c) Dice.
 All Rights Reserved.
-
-==
-
-This product includes software developed by zxcvbn
-Copyright (c) 2012-2016 Dan Wheeler and Dropbox, Inc.

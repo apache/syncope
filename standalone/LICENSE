@@ -527,6 +527,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Gson (https://github.com/google/gson):
 This is licensed under the AL 2.0, see above.
 
@@ -544,6 +549,11 @@ This is licensed under the AL 2.0, see above.
 
 For J2ObjC: Java to Objective-C Translator and Runtime (http://j2objc.org/):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For Protocol Buffers (https://developers.google.com/protocol-buffers/):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -801,6 +811,11 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Spectator (https://github.com/Netflix/spectator):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Nimbus Content Type (https://bitbucket.org/connect2id/nimbus-content-type/):
 This is licensed under the AL 2.0, see above.
 
@@ -826,8 +841,18 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For RabbitMQ Java Client (https://www.rabbitmq.com/java-client.html):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Java implementation of the Mustache template language (https://github.com/samskivert/jmustache):
 This is licensed under the BSD license, see above.
+
+==
+
+For SignalFx client libraries (https://github.com/signalfx/signalfx-java):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1272,6 +1297,11 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For t-digest (https://github.com/tdunning/t-digest):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Method Parameter Name Access for Java (https://github.com/paul-hammant/paranamer):
 This is licensed under the BSD license, see above.
 
@@ -1304,6 +1334,11 @@ This is licensed under the MIT license, see above.
 
 For GoogleAuth (https://github.com/wstrange/GoogleAuth):
 This is licensed under the BSD license, see above.
+
+==
+
+For Wavefront's Java SDK (https://github.com/wavefrontHQ/wavefront-sdk-java):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1417,6 +1452,11 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For gmetric4j (https://github.com/ganglia/gmetric4j):
+This is licensed under the BSD license, see above.
+
+==
+
 For inherits (https://github.com/isaacs/inherits):
 This is licensed under the MIT license, see above.
 
@@ -1452,7 +1492,17 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Java Bindings for the OpenTelemetry Protocol (OTLP) (https://github.com/open-telemetry/opentelemetry-proto-java):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Project Reactor (https://projectreactor.io/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Prometheus Java Metrics Library (http://prometheus.github.io/client_java/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1632,6 +1682,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Groovy Security Sandbox (https://github.com/Tirasa/groovy-security-sandbox):
+This is licensed under the MIT license, see above.
+
+==
+
 For normalize.css (http://necolas.github.io/normalize.css/):
 This is licensed under the MIT license, see above.
 
@@ -1694,6 +1749,11 @@ This is licensed under the BSD license, see above.
 
 For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For groovy-sandbox (https://github.com/craftercms/groovy-sandbox):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1789,6 +1849,11 @@ This is licensed under the AL 2.0, see above.
 
 For JSON in Java (https://github.com/stleary/JSON-java):
 This is licensed under the MIT license, see above.
+
+==
+
+For JSpecify (https://jspecify.dev/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1907,6 +1972,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For zxcvbn (https://github.com/dropbox/zxcvbn):
+This is licensed under the MIT license, see above.
+
+==
+
 For WicketStuff (https://wicketstuff.org/):
 This is licensed under the AL 2.0, see above.
 
@@ -1927,12 +1997,27 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For AWS SDK for Java (https://aws.amazon.com/sdkforjava):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For AWS EventStream for Java (https://github.com/awslabs/aws-eventstream-java):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For spin.js (http://spin.js.org/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Summernote (https://summernote.org/):
+This is licensed under the MIT license, see above.
+
+==
+
+For sweetalert2 (https://github.com/sweetalert2/sweetalert2):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1953,6 +2038,16 @@ This is licensed under the BSD license, see above.
 ==
 
 For typeahead.js (http://twitter.github.io/typeahead.js/):
+This is licensed under the MIT license, see above.
+
+==
+
+For UAParser.js (https://github.com/faisalman/ua-parser-js):
+This is licensed under the MIT license, see above.
+
+==
+
+For webjars-locator-lite (https://github.com/webjars/webjars-locator-lite/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -2181,8 +2276,3 @@ intellectual property laws of the United States of America. No party to this
 Agreement will bring a legal action under this Agreement more than one year
 after the cause of action arose. Each party waives its rights to a jury trial in
 any resulting litigation.
-
-==
-
-For zxcvbn (https://github.com/dropbox/zxcvbn):
-This is licensed under the MIT license, see above.
