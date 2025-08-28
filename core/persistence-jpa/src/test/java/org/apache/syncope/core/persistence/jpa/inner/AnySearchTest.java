@@ -34,11 +34,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.request.UserUR;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -60,10 +57,8 @@ import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -1011,10 +1006,10 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(verdi);
 
         userDAO.save(addPlainAttr(verdi, ctypeSchema, "aa3"));
-        
+
         User vivaldi = userDAO.findByUsername("vivaldi");
         assertNotNull(vivaldi);
-        
+
         userDAO.save(addPlainAttr(vivaldi, ctypeSchema, "aa4"));
 
         User rossini = userDAO.findByUsername("rossini");
@@ -1023,7 +1018,7 @@ public class AnySearchTest extends AbstractTest {
         userDAO.save(addPlainAttr(rossini, ctypeSchema, "aa5"));
 
         entityManager().flush();
-        
+
         OrderByClause orderByCtype = new OrderByClause();
         orderByCtype.setField("ctype");
         orderByCtype.setDirection(OrderByClause.Direction.DESC);
@@ -1047,15 +1042,14 @@ public class AnySearchTest extends AbstractTest {
         AttrCond surnameCond = new AttrCond(AttrCond.Type.IEQ);
         surnameCond.setSchema("surname");
         surnameCond.setExpression("%ini");
-        
+
         AttrCond coolCond = new AttrCond(AttrCond.Type.ISNULL);
         coolCond.setSchema("cool");
 
         users = searchDAO.search(SearchCond.getAnd(SearchCond.getLeaf(surnameCond), SearchCond.getLeaf(coolCond)),
                 List.of(orderByCtype), AnyTypeKind.USER);
-        
+
         assertFalse(users.isEmpty());
-        
     }
 
     private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
