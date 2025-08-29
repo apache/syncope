@@ -10,6 +10,8 @@ import org.apache.syncope.common.lib.types.PasswordModuleState;
 
 public class PasswordModuleTO implements EntityTO {
 
+    private static final long serialVersionUID = -7203295929825782174L;
+
     private String key;
 
     private String description;

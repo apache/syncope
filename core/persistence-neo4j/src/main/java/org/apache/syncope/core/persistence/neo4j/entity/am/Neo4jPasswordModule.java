@@ -17,6 +17,7 @@ import org.springframework.data.neo4j.core.schema.PostLoad;
 
 @Node(Neo4jPasswordModule.NODE)
 public class Neo4jPasswordModule extends AbstractProvidedKeyNode implements PasswordModule {
+
     private static final long serialVersionUID = 5457779846065079998L;
 
     public static final String NODE = "PasswordModule";
@@ -26,7 +27,7 @@ public class Neo4jPasswordModule extends AbstractProvidedKeyNode implements Pass
 
     private String description;
 
-    @NotNull
+    @NotNull(message = "passwordModuleState must not be empty")
     private PasswordModuleState passwordModuleState;
 
     private String items;
@@ -46,12 +47,14 @@ public class Neo4jPasswordModule extends AbstractProvidedKeyNode implements Pass
         this.description = description;
     }
 
-    @Override public PasswordModuleState getState() {
+    @Override
+    public PasswordModuleState getState() {
         return passwordModuleState;
     }
 
-    @Override public void setState(final PasswordModuleState state) {
-        this.passwordModuleState = passwordModuleState;
+    @Override
+    public void setState(final PasswordModuleState state) {
+        this.passwordModuleState = state;
     }
 
     @Override

@@ -13,12 +13,14 @@ public class PasswordModuleRepoExtImpl implements  PasswordModuleRepoExt {
     }
 
 
-    @Override public PasswordModule save(final PasswordModule passwordModule) {
+    @Override
+    public PasswordModule save(final PasswordModule passwordModule) {
         ((JPAPasswordModule) passwordModule).list2json();
         return entityManager.merge(passwordModule);
     }
 
-    @Override public void delete(final PasswordModule passwordModule) {
+    @Override
+    public void delete(final PasswordModule passwordModule) {
         entityManager.remove(passwordModule);
     }
 }

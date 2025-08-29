@@ -93,13 +93,13 @@ under the License.
   <!-- Password management -->
   <PasswordModule id="DefaultSyncopePasswordModule" description="Syncope password management module"
                   jsonConf='{"_class":"org.apache.syncope.common.lib.password.SyncopePasswordModuleConf","domain":"Master","searchFilter":"username={user}","basicAuthUsername":"admin","basicAuthPassword":"password", "headers":{}}'
-                  passwordModuleOrder="0"/>
+                  passwordModuleState="ACTIVE"/>
   <PasswordModule description="LDAP password module" id="DefaultLDAPPasswordModule"
                   jsonConf='{"_class":"org.apache.syncope.common.lib.password.LDAPPasswordModuleConf","searchFilter":"cn={user}","subtreeSearch":true,"pageSize":0,"baseDn":"ou=People,${testds.rootDn}","ldapUrl":"ldap://localhost:${testds.port}","ldapType":"GENERIC","bindDn":"${testds.bindDn}","bindCredential":"${testds.password}","disablePooling":false,"minPoolSize":3,"maxPoolSize":10,"poolPassivator":"BIND","hostnameVerifier":"DEFAULT","trustManager":null,"validateOnCheckout":true,"validatePeriodically":true,"validateTimeout":5.000000000,"validatePeriod":300.000000000,"failFast":true,"idleTime":600.000000000,"prunePeriod":7200.000000000,"blockWaitTime":3.000000000,"connectionStrategy":null,"useStartTls":false,"connectTimeout":5.000000000,"responseTimeout":5.000000000,"allowMultipleDns":false,"allowMultipleEntries":false,"followReferrals":true,"binaryAttributes":["objectGUID","objectSid"],"usernameAttribute":"uid"}'
-                  passwordModuleOrder="0"/>
+                  passwordModuleState="DISABLED"/>
   <PasswordModule description="JDBC Password Module" id="DefaultJDBCPasswordModule"
                   jsonConf='{"_class":"org.apache.syncope.common.lib.password.JDBCPasswordModuleConf","sql":"SELECT * FROM users_table WHERE name=?","dialect":"org.hibernate.dialect.H2Dialect","driverClass":"org.h2.Driver","url":"jdbc:h2:tcp://localhost:9092/mem:authdb;DB_CLOSE_DELAY=-1","user":"sa","password":"sa","defaultCatalog":null,"defaultSchema":null,"healthQuery":null,"idleTimeout":600.000000000,"dataSourceName":null,"minPoolSize":6,"maxPoolSize":18,"maxPoolWait":2.000000000,"poolSuspension":false,"poolTimeoutMillis":1000,"poolLeakThreshold":6.000000000,"sqlChangePassword":"UPDATE users_table SET password=? WHERE name=?","sqlFindEmail":"SELECT email FROM users_table WHERE name=?","sqlFindPhone":"SELECT phoneNumber FROM users_table WHERE name=?","sqlFindUser":"SELECT * FROM users_table WHERE name=?","sqlGetSecurityQuestions":null,"sqlUpdateSecurityQuestions":null,"sqlUnlockAccount":null,"sqlDeleteSecurityQuestions":null}'
-                  passwordModuleOrder="0"/>
+                  passwordModuleState="DISABLED"/>
 
   <!-- Attribute repositories -->
   <AttrRepo id="DefaultLDAPAttrRepo" attrRepoState="ACTIVE"

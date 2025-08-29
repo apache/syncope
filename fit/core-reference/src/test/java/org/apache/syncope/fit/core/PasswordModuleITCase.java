@@ -31,7 +31,7 @@ public class PasswordModuleITCase extends AbstractITCase {
         JDBC
     };
 
-    private static PasswordModuleTO createAuthModule(final PasswordModuleTO passwordModuleTO) {
+    private static PasswordModuleTO createPasswordModule(final PasswordModuleTO passwordModuleTO) {
         Response response = PASSWORD_MODULE_SERVICE.create(passwordModuleTO);
         if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
             Exception ex = CLIENT_FACTORY.getExceptionMapper().fromResponse(response);
@@ -135,7 +135,7 @@ public class PasswordModuleITCase extends AbstractITCase {
     @Test
     public void create() {
         EnumSet.allOf(PasswordModuleSupportedType.class).forEach(type -> {
-            PasswordModuleTO passwordModuleTO = createAuthModule(buildPasswordModuleTO(type));
+            PasswordModuleTO passwordModuleTO = createPasswordModule(buildPasswordModuleTO(type));
             assertNotNull(passwordModuleTO);
             assertTrue(passwordModuleTO.getDescription().contains("A test " + type + " Password Module"));
             assertTrue(passwordModuleTO.getItems().isEmpty());
@@ -148,7 +148,7 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertNotNull(syncopePasswordModuleTO);
 
         PasswordModuleTO newSyncopePasswordModuleTO = buildPasswordModuleTO(PasswordModuleSupportedType.SYNCOPE);
-        newSyncopePasswordModuleTO = createAuthModule(newSyncopePasswordModuleTO);
+        newSyncopePasswordModuleTO = createPasswordModule(newSyncopePasswordModuleTO);
         assertNotNull(newSyncopePasswordModuleTO);
 
         PasswordModuleConf conf = syncopePasswordModuleTO.getConf();
@@ -171,7 +171,7 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertNotNull(ldapPasswordModuleTO);
 
         PasswordModuleTO newLdapPasswordModuleTO = buildPasswordModuleTO(PasswordModuleSupportedType.LDAP);
-        newLdapPasswordModuleTO = createAuthModule(newLdapPasswordModuleTO);
+        newLdapPasswordModuleTO = createPasswordModule(newLdapPasswordModuleTO);
         assertNotNull(newLdapPasswordModuleTO);
 
         PasswordModuleConf conf = ldapPasswordModuleTO.getConf();
@@ -194,7 +194,7 @@ public class PasswordModuleITCase extends AbstractITCase {
         assertNotNull(jdbcPasswordModuleTO);
 
         PasswordModuleTO newJdbcPasswordModuleTO = buildPasswordModuleTO(PasswordModuleSupportedType.JDBC);
-        newJdbcPasswordModuleTO = createAuthModule(newJdbcPasswordModuleTO);
+        newJdbcPasswordModuleTO = createPasswordModule(newJdbcPasswordModuleTO);
         assertNotNull(newJdbcPasswordModuleTO);
 
         PasswordModuleConf conf = jdbcPasswordModuleTO.getConf();
@@ -215,7 +215,7 @@ public class PasswordModuleITCase extends AbstractITCase {
     @Test
     public void delete() throws IOException {
         EnumSet.allOf(PasswordModuleSupportedType.class).forEach(type -> {
-            PasswordModuleTO read = createAuthModule(buildPasswordModuleTO(type));
+            PasswordModuleTO read = createPasswordModule(buildPasswordModuleTO(type));
             assertNotNull(read);
 
             PASSWORD_MODULE_SERVICE.delete(read.getKey());
