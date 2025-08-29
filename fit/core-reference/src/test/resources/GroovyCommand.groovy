@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 import java.util.Map
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.logic.SyncopeLogic

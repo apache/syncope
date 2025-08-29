@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.sql.Sql;
-import groovy.sql.DataSet;
+import groovy.sql.Sql
 
 // Parameters:
 // The connector sends the following:
@@ -25,7 +24,7 @@ import groovy.sql.DataSet;
 // action: a string describing the action ("TEST" here)
 // log: a handler to the Log facility
 
-log.info("Entering " + action + " Script");
-def sql = new Sql(connection);
+log.info("Entering " + action + " Script")
+def sql = new Sql(connection)
 
-sql.eachRow("select * from TESTPRINTER", { println it.id} );
+sql.eachRow("select * from TESTPRINTER"), { row -> println row["id"] }
