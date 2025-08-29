@@ -156,7 +156,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             execution.setStatus(TaskJob.Status.SUCCESS.name());
 
             result = AuditElements.Result.SUCCESS;
-        } catch (JobExecutionException e) {
+        } catch (SecurityException | JobExecutionException e) {
             LOG.error("While executing task {}", taskKey, e);
             result = AuditElements.Result.FAILURE;
 

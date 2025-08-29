@@ -237,6 +237,16 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For balanced-match (https://github.com/juliangruber/balanced-match):
+This is licensed under the MIT license, see above.
+
+==
+
+For base64-js (https://github.com/beatgammit/base64-js):
+This is licensed under the MIT license, see above.
+
+==
+
 For Bootbox.js (http://bootboxjs.com/):
 This is licensed under the MIT license, see above.
 
@@ -253,6 +263,11 @@ This is licensed under the MIT license, see above.
 ==
 
 For cglib (https://github.com/cglib/cglib):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Chart.js (http://www.chartjs.org/):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -776,12 +791,12 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For mchange-commons-java (https://github.com/swaldman/mchange-commons-java):
-This is licensed under the EPL 1.0, see above.
+For Microsoft OAuth 2.0 User Agent library for Java (https://github.com/Microsoft/oauth2-useragent):
+This is licensed under the MIT license, see above.
 
 ==
 
-For Microsoft OAuth 2.0 User Agent library for Java (https://github.com/Microsoft/oauth2-useragent):
+For Microsoft Azure Active Directory Authentication Library (ADAL) for Java (https://github.com/AzureAD/azure-activedirectory-library-for-java):
 This is licensed under the MIT license, see above.
 
 ==
@@ -802,6 +817,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For OAuth 2.0 SDK with OpenID Connect extensions (https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Okta Java Management SDK (https://github.com/okta/okta-sdk-java):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1217,37 +1237,12 @@ of liability.
 
 ==
 
-For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
-This is licensed under the EDL 1.0:
-
-Eclipse Distribution License - v 1.0
-
-Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
-
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-following conditions are met:
-
-* Redistributions of source code must retain the above copyright notice, this list of conditions and the following
-  disclaimer.
-* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
-  disclaimer in the documentation and/or other materials provided with the distribution.
-* Neither the name of the Eclipse Foundation, Inc. nor the names of its contributors may be used to endorse or promote
-  products derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+For QDox (https://github.com/paul-hammant/qdox):
+This is licensed under the AL 2.0, see above.
 
 ==
 
-For QDox (https://github.com/paul-hammant/qdox):
+For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -1282,6 +1277,11 @@ This is Public Domain.
 
 ==
 
+For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
+This is licensed under the MIT license, see above.
+
+==
+
 For DataTables (https://datatables.net/):
 This is licensed under the MIT license, see above.
 
@@ -1293,7 +1293,32 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
-This is licensed under the EDL 1.0, see above.
+This is licensed under the EDL 1.0:
+
+Eclipse Distribution License - v 1.0
+
+Copyright (c) 2007, Eclipse Foundation, Inc. and its licensors.
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following
+  disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of the Eclipse Foundation, Inc. nor the names of its contributors may be used to endorse or promote
+  products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 
 ==
 
@@ -1317,6 +1342,11 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For get-css-data (https://github.com/jhildenbiddle/get-css-data):
+This is licensed under the MIT license, see above.
+
+==
+
 For google-diff-match-patch (https://code.google.com/archive/p/google-diff-match-patch/):
 This is licensed under the AL 2.0, see above.
 
@@ -1332,6 +1362,11 @@ This is licensed under the BSD license, see above.
 
 ==
 
+For Inputmask (https://github.com/RobinHerbots/Inputmask):
+This is licensed under the MIT license, see above.
+
+==
+
 For Metrics (http://dropwizard.github.io/metrics/):
 This is licensed under the AL 2.0, see above.
 
@@ -1339,6 +1374,11 @@ This is licensed under the AL 2.0, see above.
 
 For ClassGraph (https://github.com/classgraph/classgraph):
 This is licensed under the MIT license, see above.
+
+==
+
+For jsonwebtoken.io (https://jsonwebtoken.io):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1389,6 +1429,11 @@ This is licensed under the EPL 1.0, see above.
 
 For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
 This is licensed under the CDDL 1.0, see above.
+
+==
+
+For JSR107 (JCache) (https://github.com/jsr107/jsr107spec):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1462,6 +1507,16 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Material Components for the web (https://github.com/material-components/material-components-web):
+This is licensed under the MIT license, see above.
+
+==
+
+For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
+This is licensed under the MIT license, see above.
+
+==
+
 For Modernizr (https://modernizr.com):
 This is licensed under the MIT license, see above.
 
@@ -1494,6 +1549,16 @@ This is licensed under the BSD license, see above.
 
 For ConnId (http://connid.tirasa.net/):
 This is licensed under the CDDL 1.0, see above.
+
+==
+
+For Groovy Security Sandbox (https://github.com/Tirasa/groovy-security-sandbox):
+This is licensed under the MIT license, see above.
+
+==
+
+For normalize.css (http://necolas.github.io/normalize.css/):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1567,11 +1632,6 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For MojoHaus AnimalSniffer Maven Plugin (https://github.com/mojohaus/animal-sniffer):
-This is licensed under the MIT license, see above.
-
-==
-
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
 This is licensed under the BSD license, see above.
 
@@ -1582,6 +1642,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For groovy-sandbox (https://github.com/craftercms/groovy-sandbox):
+This is licensed under the MIT license, see above.
+
+==
+
 For Cryptacular (https://github.com/vt-middleware/cryptacular):
 This is licensed under the AL 2.0, see above.
 
@@ -1589,6 +1654,11 @@ This is licensed under the AL 2.0, see above.
 
 For Serializable java.util.function Interfaces (https://github.com/danekja/jdk-serializable-functional):
 This is licensed under the MIT license, see above.
+
+==
+
+For Ehcache (http://ehcache.org/):
+This is licensed under the AL 2.0, see above.
 
 ==
 
@@ -1757,77 +1827,12 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Chart.js (http://www.chartjs.org/):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For Moment.js (http://momentjs.com/):
 This is licensed under the MIT license, see above.
 
 ==
 
 For zxcvbn (https://github.com/dropbox/zxcvbn):
-This is licensed under the MIT license, see above.
-
-==
-
-For balanced-match (https://github.com/juliangruber/balanced-match):
-This is licensed under the MIT license, see above.
-
-==
-
-For base64-js (https://github.com/beatgammit/base64-js):
-This is licensed under the MIT license, see above.
-
-==
-
-For css-vars-ponyfill (https://github.com/jhildenbiddle/css-vars-ponyfill):
-This is licensed under the MIT license, see above.
-
-==
-
-For get-css-data (https://github.com/jhildenbiddle/get-css-data):
-This is licensed under the MIT license, see above.
-
-==
-
-For Inputmask (https://github.com/RobinHerbots/Inputmask):
-This is licensed under the MIT license, see above.
-
-==
-
-For Material Components for the web (https://github.com/material-components/material-components-web):
-This is licensed under the MIT license, see above.
-
-==
-
-For Webfont - Material Design Icons (https://github.com/Templarian/MaterialDesign-Webfont):
-This is licensed under the MIT license, see above.
-
-==
-
-For normalize.css (http://necolas.github.io/normalize.css/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Summernote (https://summernote.org/):
-This is licensed under the MIT license, see above.
-
-==
-
-For text-encoding (https://github.com/inexorabletash/text-encoding):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For tslib (https://github.com/Microsoft/tslib):
-This is licensed under the BSD license, see above.
-
-==
-
-For window.fetch polyfill (https://github.github.io/fetch/):
 This is licensed under the MIT license, see above.
 
 ==
@@ -1852,8 +1857,23 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Summernote (https://summernote.org/):
+This is licensed under the MIT license, see above.
+
+==
+
 For Tempus Dominus Bootstrap 4 Datetime Picker (https://github.com/tempusdominus/bootstrap-4):
 This is licensed under the MIT license, see above.
+
+==
+
+For text-encoding (https://github.com/inexorabletash/text-encoding):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For tslib (https://github.com/Microsoft/tslib):
+This is licensed under the BSD license, see above.
 
 ==
 
@@ -1863,6 +1883,11 @@ This is licensed under the MIT license, see above.
 ==
 
 For Webjars-locator core functionality (https://github.com/webjars/webjars-locator-core):
+This is licensed under the MIT license, see above.
+
+==
+
+For window.fetch polyfill (https://github.github.io/fetch/):
 This is licensed under the MIT license, see above.
 
 ==

@@ -1,5 +1,5 @@
 Apache Syncope
-Copyright 2012-2023 The Apache Software Foundation
+Copyright 2012-2025 The Apache Software Foundation
 
 This product includes software developed by:
 The Apache Software Foundation (http://www.apache.org/).
@@ -13,11 +13,6 @@ This product includes software developed by the Jackson project.
 
 ==
 
-This product includes software developed by the Caffeine project.
-Copyright (c) 2021 Ben Manes. All Rights Reserved.
-
-==
-
 This product includes software developed by the GreenMail project.
 Copyright (c) 2006 - 2019, Wael Chatila and GreenMail project contributors
 
@@ -28,8 +23,8 @@ Copyright (c) 1997, 2021 Oracle and/or its affiliates. All rights reserved.
 
 ==
 
-This product includes software produced and maintained by Eclipse Metro
-All content is the property of the respective authors or their employers.
+This product includes software developed by UnboundID LDAP SDK for Java
+Copyright 2007-2022 Ping Identity Corporation
 
 ==
 
@@ -70,8 +65,9 @@ Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
 
 ==
 
-This product includes software developed by the Legion of the Bouncy Castle.
-Copyright (c) 2000-2016 The Legion of the Bouncy Castle Inc. (http://www.bouncycastle.org)
+This product includes software developed by Groovy Security Sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
+Copyright (c) 2025 Tirasa
 
 ==
 
@@ -80,6 +76,11 @@ This product includes software developed by the Stax 2 Extension API Project.
 ==
 
 This product includes software developed by the Woodstox Project.
+
+==
+
+This product includes software developed by groovy-sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
 
 ==
 

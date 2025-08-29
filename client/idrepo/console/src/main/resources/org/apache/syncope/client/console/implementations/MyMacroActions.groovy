@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.Map
 import java.util.Optional
 import javax.validation.ValidationException
@@ -25,7 +24,6 @@ import org.apache.syncope.common.lib.form.SyncopeForm
 import org.apache.syncope.core.provisioning.api.macro.Command
 import org.apache.syncope.core.provisioning.api.macro.MacroActions
 
-@CompileStatic
 class MyMacroActions implements MacroActions {
 
   @Override

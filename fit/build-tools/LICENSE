@@ -208,11 +208,6 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For Caffeine (https://github.com/ben-manes/caffeine):
-This is licensed under the AL 2.0, see above.
-
-==
-
 For H2 (http://www.h2database.com/):
 This is licensed under the EPL 1.0:
 
@@ -437,7 +432,12 @@ This is licensed under the EPL 1.0, see above.
 
 ==
 
-For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
+For UnboundID LDAP SDK for Java (https://github.com/pingidentity/ldapsdk):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0:
 
 Eclipse Distribution License - v 1.0
@@ -464,11 +464,6 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-==
-
-For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
-This is licensed under the EDL 1.0, see above.
 
 ==
 
@@ -883,7 +878,7 @@ of liability.
 
 ==
 
-For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
+For Groovy Security Sandbox (https://github.com/Tirasa/groovy-security-sandbox):
 This is licensed under the MIT license:
 
  Permission is hereby granted, free  of charge, to any person obtaining
@@ -939,6 +934,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For groovy-sandbox (https://github.com/craftercms/groovy-sandbox):
+This is licensed under the MIT license, see above.
 
 ==
 

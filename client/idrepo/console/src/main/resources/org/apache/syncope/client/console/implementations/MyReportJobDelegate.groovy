@@ -16,13 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.report.ReportConf
 import org.apache.syncope.core.provisioning.api.job.report.ReportJobDelegate
 import org.quartz.JobExecutionContext
 import org.quartz.JobExecutionException
 
-@CompileStatic
 class MyReportJobDelegate implements ReportJobDelegate {	
 
   void interrupt() {

@@ -21,6 +21,10 @@ package org.apache.syncope.core.spring.security;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.KeyLengthException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -32,6 +36,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.policy.DefaultRuleEnforcer;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSSigner;
 import org.apache.syncope.core.spring.security.jws.AccessTokenJWSVerifier;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -39,10 +44,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Role;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 
 @EnableConfigurationProperties(SecurityProperties.class)
+@EnableAspectJAutoProxy(proxyTargetClass = false)
 @Configuration(proxyBeanMethods = false)
 public class SecurityContext {
 
@@ -145,5 +153,17 @@ public class SecurityContext {
     @Bean
     public ApplicationContextProvider applicationContextProvider() {
         return new ApplicationContextProvider();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public Blacklist groovyBlackList(final ResourceLoader resourceLoader, final SecurityProperties props)
+            throws IOException {
+
+        try (InputStream in = resourceLoader.getResource(props.getGroovyBlacklist()).getInputStream();
+                Reader reader = new InputStreamReader(in)) {
+
+            return new Blacklist(reader);
+        }
     }
 }

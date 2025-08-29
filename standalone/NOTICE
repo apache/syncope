@@ -1,5 +1,5 @@
 Apache Syncope
-Copyright 2012-2023 The Apache Software Foundation
+Copyright 2012-2025 The Apache Software Foundation
 
 This product includes software developed by:
 The Apache Software Foundation (http://www.apache.org/).
@@ -23,6 +23,16 @@ Copyright (c) 2013 Kohsuke Kawaguchi and other contributors
 
 ==
 
+This product includes software developed by balanced-match
+Copyright (c) 2013 Julian Gruber <julian@juliangruber.com>
+
+==
+
+This product includes software developed by base64-js
+Copyright (c) 2014 Jameson Little
+
+==
+
 This product includes software developed by the Bootbox.js project.
 Copyright (C) 2011-2015 by Nick Payne nick@kurai.co.uk
 
@@ -35,6 +45,11 @@ Copyright (c) 2011-2016 Twitter, Inc.
 
 This product includes software developed by the bootstrap-select project.
 Copyright (c) 2013-2015 bootstrap-select]
+
+==
+
+This product includes software developed by the Chart.js project.
+Copyright (c) 2018 Chart.js Contributors
 
 ==
 
@@ -154,13 +169,13 @@ Copyright (c) 2006 - 2019, Wael Chatila and GreenMail project contributors
 
 ==
 
-This product includes software developed by mchange-commons-java
-Copyright (C) 2015 Machinery For Change, Inc.
+This product includes software developed by Microsoft OAuth 2.0 User Agent library for Java
+Copyright (c) Microsoft Corporation
 
 ==
 
-This product includes software developed by Microsoft OAuth 2.0 User Agent library for Java
-Copyright (c) Microsoft Corporation
+This product includes software developed by Microsoft Azure Active Directory Authentication Library (ADAL) for Java
+Copyright (c) Microsoft Corporation. All rights reserved.
 
 ==
 
@@ -184,11 +199,6 @@ Copyright 2012-2022, Connect2id Ltd
 
 ==
 
-This product includes software developed by Okio
-Copyright 2013 Square, Inc.
-
-==
-
 This product includes software developed by Moshi
 Copyright (C) 2020 Square, Inc.
 
@@ -196,6 +206,11 @@ Copyright (C) 2020 Square, Inc.
 
 This product includes software developed by OkHttp
 Copyright (c) 2022 Square, Inc.
+
+==
+
+This product includes software developed by Okio
+Copyright 2013 Square, Inc.
 
 ==
 
@@ -214,13 +229,13 @@ Copyright (c) 2013-2016 The JAXB project.
 
 ==
 
-This product includes software produced and maintained by Eclipse Metro
-All content is the property of the respective authors or their employers.
+This product includes software developed by QDox.
+Copyright 2002-2009 Joe Walnes and QDox Project Team
 
 ==
 
-This product includes software developed by QDox.
-Copyright 2002-2009 Joe Walnes and QDox Project Team
+This product includes software developed by UnboundID LDAP SDK for Java
+Copyright 2007-2022 Ping Identity Corporation
 
 ==
 
@@ -245,6 +260,11 @@ This product includes software developed by the HikariCP project.
 ==
 
 This product includes software developed by Dough Lea
+
+==
+
+This product includes software developed by css-vars-ponyfill
+Copyright (c) 2018 John Hildenbiddle
 
 ==
 
@@ -278,6 +298,11 @@ Copyright (C) 2009-2016 Kristopher Michael Kowal and contributors
 
 ==
 
+This product includes software developed by get-css-data
+Copyright (c) 2018 John Hildenbiddle
+
+==
+
 This product includes software developed by the google-diff-match-patch project.
 Copyright (c) 2006 Google Inc.
 
@@ -293,6 +318,11 @@ Copyright (c) 2006, Ivan Sagalaev
 
 ==
 
+This product includes software developed by Inputmask
+Copyright (c) 2010 - 2018 Robin Herbots
+
+==
+
 This product includes software developed by the Metrics project.
 Copyright (c) 2010-2014 Coda Hale, Yammer.com
 
@@ -303,7 +333,12 @@ Copyright (c) 2020 Luke Hutchison
 
 ==
 
-This product includes software developed by Micrometer Application Metrics
+This product includes software developed by jsonwebtoken.io.
+Copyright (C) 2014-2023 jsonwebtoken.io
+
+==
+
+This product includes software developed by Micrometer Application Metrics.
 Copyright (c) 2017-Present VMware, Inc. All Rights Reserved.
 
 ==
@@ -346,6 +381,11 @@ All content is the property of the respective authors or their employers. For mo
 
 This product includs software developed by Oracle.
 Copyright (c) 2012-2013 Oracle and/or its affiliates. All rights reserved.
+
+==
+
+This product includes software developed by JSR107 (JCache).
+Copyright (c) JSR107 Expert Group
 
 ==
 
@@ -415,6 +455,11 @@ Copyright (c) 2010 - 2014 jsPlumb, http://jsplumbtoolkit.com/
 
 ==
 
+This product includes software developed by Material Components for the web
+Copyright 2018 Google Inc.
+
+==
+
 This product includes software developed by Byte Buddy
 Copyright 2014 - Present Rafael Winterhalter
 
@@ -429,6 +474,17 @@ All rights reserved.
 This product includes software developed by the ConnId project.
 Copyright 2008-2009 Sun Microsystems, Inc. All rights reserved.
 Copyright 2011-2016 Tirasa S.r.l. All rights reserved.
+
+==
+
+This product includes software developed by Groovy Security Sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
+Copyright (c) 2025 Tirasa
+
+==
+
+This product includes software developed by normalize.css
+Copyright © Nicolas Gallagher and Jonathan Neal
 
 ==
 
@@ -482,11 +538,6 @@ Copyright (c) 2004-present by the Checker Framework developers
 
 ==
 
-This product includes software developed by MojoHaus AnimalSniffer Maven Plugin
-Copyright (c) 2009, codehaus.org
-
-==
-
 This product includes software developed by the Stax 2 Extension API Project.
 
 ==
@@ -495,8 +546,18 @@ This product includes software developed by the Woodstox Project.
 
 ==
 
+This product includes software developed by groovy-sandbox
+Copyright (c) 2012-2020 Kohsuke Kawaguchi, CloudBees, Inc., other contributors
+
+==
+
 This product includes software developed by Serializable java.util.function Interfaces.
 Copyright (c) 2015 Jakub Danek
+
+==
+
+This product includes software developed by Terracotta. Inc.
+Ehcache source code and documentation are Copyright (c) Terracotta, Inc.
 
 ==
 
@@ -634,11 +695,6 @@ Copyright 2012 Twitter, Inc.
 
 ==
 
-This product includes software developed by the Chart.js project.
-Copyright (c) 2018 Chart.js Contributors
-
-==
-
 This product includes software developed by Moment.js.
 Copyright (c) JS Foundation and other contributors
 
@@ -646,56 +702,6 @@ Copyright (c) JS Foundation and other contributors
 
 This product includes software developed by zxcvbn
 Copyright (c) 2012-2016 Dan Wheeler and Dropbox, Inc.
-
-==
-
-This product includes software developed by balanced-match
-Copyright (c) 2013 Julian Gruber <julian@juliangruber.com>
-
-==
-
-This product includes software developed by base64-js
-Copyright (c) 2014 Jameson Little
-
-==
-
-This product includes software developed by css-vars-ponyfill
-Copyright (c) 2018 John Hildenbiddle
-
-==
-
-This product includes software developed by get-css-data
-Copyright (c) 2018 John Hildenbiddle
-
-==
-
-This product includes software developed by Inputmask
-Copyright (c) 2010 - 2018 Robin Herbots
-
-==
-
-This product includes software developed by Material Components for the web
-Copyright 2018 Google Inc.
-
-==
-
-This product includes software developed by normalize.css
-Copyright © Nicolas Gallagher and Jonathan Neal
-
-==
-
-This product includes software developed by Summernote
-Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
-
-==
-
-This product includes software developed by tslib
-Copyright (c) Microsoft Corporation.
-
-==
-
-This product includes software developed by window.fetch polyfill
-Copyright (c) 2014-2016 GitHub, Inc.
 
 ==
 
@@ -713,13 +719,28 @@ Copyright (c) 2021 Floating UI contributors
 
 ==
 
+This product includes software developed by Summernote
+Copyright (c) 2015~ Summernote Team (https://github.com/orgs/summernote/people)
+
+==
+
 This product includes software developed by Tempus Dominus Bootstrap 4 Datetime Picker
 Copyright (c) 2016 Tempus Dominus
 
 ==
 
+This product includes software developed by tslib
+Copyright (c) Microsoft Corporation.
+
+==
+
 This product includes software developed by Webjars-locator core functionality
 Copyright (c) 2013 James Ward
+
+==
+
+This product includes software developed by window.fetch polyfill
+Copyright (c) 2014-2016 GitHub, Inc.
 
 ==
 

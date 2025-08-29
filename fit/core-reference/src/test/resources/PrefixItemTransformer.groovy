@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +27,6 @@ import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
-@CompileStatic
 class PrefixItemTransformer implements ItemTransformer {
 	
   public static String PREFIX = "PREFIX_";

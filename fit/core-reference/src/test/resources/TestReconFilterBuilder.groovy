@@ -21,9 +21,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass
 import org.identityconnectors.framework.common.objects.filter.Filter
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder
-import groovy.transform.CompileStatic
 
-@CompileStatic
 class TestReconFilterBuilder implements ReconFilterBuilder {
 
   private static final Filter EQUALS = FilterBuilder.equalTo(AttributeBuilder.build("SURNAME", "Rossi"));

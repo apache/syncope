@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.dao.AccountRule
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
 import org.apache.syncope.core.persistence.api.entity.user.User
 
-@CompileStatic
 class MyAccountRule implements AccountRule {
   
   void enforce(String username) {

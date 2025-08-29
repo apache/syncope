@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.SpringTestConfiguration;
-import org.apache.syncope.core.spring.implementation.ImplementationManagerTest;
+import org.apache.syncope.core.spring.implementation.PasswordRuleTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
@@ -36,7 +36,7 @@ public class PasswordGeneratorTest {
 
     @Test
     public void digit() {
-        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setDigit(1);
         TestImplementation passwordRule = new TestImplementation();
         passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
@@ -48,7 +48,7 @@ public class PasswordGeneratorTest {
 
     @Test
     public void alphabetical() {
-        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setAlphabetical(1);
         TestImplementation passwordRule = new TestImplementation();
         passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
@@ -60,7 +60,7 @@ public class PasswordGeneratorTest {
 
     @Test
     public void lowercase() {
-        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setLowercase(1);
         TestImplementation passwordRule = new TestImplementation();
         passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
@@ -72,7 +72,7 @@ public class PasswordGeneratorTest {
 
     @Test
     public void uppercase() {
-        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setUppercase(1);
         TestImplementation passwordRule = new TestImplementation();
         passwordRule.setBody(POJOHelper.serialize(pwdRuleConf));
@@ -84,7 +84,7 @@ public class PasswordGeneratorTest {
 
     @Test
     public void special() {
-        DefaultPasswordRuleConf pwdRuleConf = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf.setSpecial(1);
         pwdRuleConf.getSpecialChars().add('@');
         pwdRuleConf.getSpecialChars().add('!');
@@ -102,7 +102,7 @@ public class PasswordGeneratorTest {
         String password = passwordGenerator.generate(List.of());
         assertNotNull(password);
 
-        DefaultPasswordRuleConf pwdRuleConf1 = ImplementationManagerTest.createBaseDefaultPasswordRuleConf();
+        DefaultPasswordRuleConf pwdRuleConf1 = PasswordRuleTest.createBaseDefaultPasswordRuleConf();
         pwdRuleConf1.setMinLength(0);
         TestImplementation passwordRule = new TestImplementation();
         passwordRule.setBody(POJOHelper.serialize(pwdRuleConf1));

@@ -16,8 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -34,14 +32,13 @@ import org.apache.syncope.common.lib.request.AttrPatch;
 /**
  * Class for integration tests: add new resource and put a password only for it.
  */
-@CompileStatic
 class AddResourcePullActions implements PullActions {
 
   void beforeUpdate(
-          final ProvisioningProfile<?, ?> profile,
-          final SyncDelta delta,
-          final EntityTO entity,
-          final AnyUR anyUR) throws JobExecutionException {
+    final ProvisioningProfile<?, ?> profile,
+    final SyncDelta delta,
+    final EntityTO entity,
+    final AnyUR anyUR) throws JobExecutionException {
 
     if (anyUR instanceof UserUR) {
       UserUR userUR = (UserUR) anyUR;

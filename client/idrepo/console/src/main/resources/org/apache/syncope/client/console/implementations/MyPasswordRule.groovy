@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.dao.PasswordRule
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount
 import org.apache.syncope.core.persistence.api.entity.user.User
 
-@CompileStatic
 class MyPasswordRule implements PasswordRule {
   
   void enforce(String username, String clearPassword) {
