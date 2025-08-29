@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.persistence.api.dao.PushCorrelationRule
 import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.ExternalResource
 import org.identityconnectors.framework.common.objects.filter.Filter
 
-@CompileStatic
 class MyPushCorrelationRule implements PushCorrelationRule {
 
   @Override

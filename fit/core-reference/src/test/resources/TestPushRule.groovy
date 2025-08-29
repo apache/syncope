@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.to.Provision
 import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.ExternalResource
@@ -28,7 +27,6 @@ import org.identityconnectors.framework.common.objects.filter.FilterBuilder
 /**
  * Test push rule relying on {@code email} attribute value.
  */
-@CompileStatic
 class TestPushRule implements PushCorrelationRule {
 
   @Override

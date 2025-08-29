@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.Attr
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
@@ -26,7 +25,6 @@ import org.apache.syncope.core.logic.api.LogicActions
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
  */
-@CompileStatic
 class DoubleValueLogicActions implements LogicActions {
   
   private static final String NAME = "makeItDouble";

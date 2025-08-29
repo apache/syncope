@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.implementation;
 
+import groovy.grape.GrabAnnotationTransformation;
 import groovy.lang.GroovyClassLoader;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.tuple.Pair;
@@ -36,6 +38,7 @@ import org.apache.syncope.common.lib.policy.PullCorrelationRuleConf;
 import org.apache.syncope.common.lib.policy.PushCorrelationRuleConf;
 import org.apache.syncope.common.lib.report.ReportConf;
 import org.apache.syncope.common.lib.types.IdRepoImplementationType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
 import org.apache.syncope.common.lib.types.ImplementationTypesHolder;
 import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.provisioning.api.ImplementationLookup;
@@ -46,12 +49,25 @@ import org.apache.syncope.core.provisioning.api.rules.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.rules.PushCorrelationRule;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.codehaus.groovy.control.CompilerConfiguration;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.blacklists.Blacklist;
+import org.jenkinsci.plugins.scriptsecurity.sandbox.groovy.RejectASTTransformsCustomizer;
+import org.kohsuke.groovy.sandbox.SandboxTransformer;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
 public final class ImplementationManager {
 
-    private static final GroovyClassLoader GROOVY_CLASSLOADER = new GroovyClassLoader();
+    private static final GroovyClassLoader GROOVY_CLASSLOADER;
 
     private static final Map<String, Class<?>> CLASS_CACHE = Collections.synchronizedMap(new HashMap<>());
+
+    static {
+        CompilerConfiguration cc = new CompilerConfiguration();
+        cc.addCompilationCustomizers(new RejectASTTransformsCustomizer(), new SandboxTransformer());
+        cc.setDisabledGlobalASTTransformations(Set.of(GrabAnnotationTransformation.class.getName()));
+
+        GROOVY_CLASSLOADER = new GroovyClassLoader(Thread.currentThread().getContextClassLoader(), cc);
+    }
 
     @SuppressWarnings("unchecked")
     public static Optional<ReportJobDelegate> buildReportJobDelegate(
@@ -75,7 +91,7 @@ public final class ImplementationManager {
                     return Optional.empty();
                 }
 
-                ReportJobDelegate report = build(clazz, true, cacheGetter, cachePutter);
+                ReportJobDelegate report = build(clazz, true, impl.getEngine(), cacheGetter, cachePutter);
                 report.setConf(conf);
                 return Optional.of(report);
         }
@@ -102,7 +118,7 @@ public final class ImplementationManager {
                     return Optional.empty();
                 }
 
-                AccountRule rule = build(clazz, true, cacheGetter, cachePutter);
+                AccountRule rule = build(clazz, true, impl.getEngine(), cacheGetter, cachePutter);
                 rule.setConf(conf);
                 return Optional.of(rule);
         }
@@ -129,7 +145,7 @@ public final class ImplementationManager {
                     return Optional.empty();
                 }
 
-                PasswordRule rule = build(clazz, true, cacheGetter, cachePutter);
+                PasswordRule rule = build(clazz, true, impl.getEngine(), cacheGetter, cachePutter);
                 rule.setConf(conf);
                 return Optional.of(rule);
         }
@@ -157,7 +173,7 @@ public final class ImplementationManager {
                     return Optional.empty();
                 }
 
-                PullCorrelationRule rule = build(clazz, true, cacheGetter, cachePutter);
+                PullCorrelationRule rule = build(clazz, true, impl.getEngine(), cacheGetter, cachePutter);
                 rule.setConf(conf);
                 return Optional.of(rule);
         }
@@ -185,7 +201,7 @@ public final class ImplementationManager {
                     return Optional.empty();
                 }
 
-                PushCorrelationRule rule = build(clazz, true, cacheGetter, cachePutter);
+                PushCorrelationRule rule = build(clazz, true, impl.getEngine(), cacheGetter, cachePutter);
                 rule.setConf(conf);
                 return Optional.of(rule);
         }
@@ -251,15 +267,27 @@ public final class ImplementationManager {
         return Pair.of((Class<T>) clazz, false);
     }
 
+    private static <T> T createBean(final Class<T> clazz, final ImplementationEngine engine) {
+        T bean = ApplicationContextProvider.getBeanFactory().createBean(clazz);
+        if (engine == ImplementationEngine.GROOVY) {
+            AspectJProxyFactory factory = new AspectJProxyFactory(bean);
+            factory.addAspect(new GroovySandbox(
+                    ApplicationContextProvider.getApplicationContext().getBean(Blacklist.class)));
+            bean = factory.getProxy();
+        }
+        return bean;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> T build(final Implementation impl) throws ClassNotFoundException {
-        return (T) ApplicationContextProvider.getBeanFactory().createBean(getClass(impl).getLeft());
+        return createBean((Class<T>) getClass(impl).getLeft(), impl.getEngine());
     }
 
     @SuppressWarnings("unchecked")
     private static <T> T build(
             final Class<T> clazz,
             final boolean classCached,
+            final ImplementationEngine engine,
             final Supplier<T> cacheGetter,
             final Consumer<T> cachePutter) {
 
@@ -271,7 +299,7 @@ public final class ImplementationManager {
             instance = cacheGetter.get();
         }
         if (instance == null) {
-            instance = ApplicationContextProvider.getBeanFactory().createBean(clazz);
+            instance = createBean(clazz, engine);
 
             if (perContext) {
                 cachePutter.accept(instance);
@@ -286,7 +314,7 @@ public final class ImplementationManager {
 
         Pair<Class<T>, Boolean> clazz = getClass(impl);
 
-        return build(clazz.getLeft(), clazz.getRight(), cacheGetter, cachePutter);
+        return build(clazz.getLeft(), clazz.getRight(), impl.getEngine(), cacheGetter, cachePutter);
     }
 
     public static Class<?> purge(final String implementation) {

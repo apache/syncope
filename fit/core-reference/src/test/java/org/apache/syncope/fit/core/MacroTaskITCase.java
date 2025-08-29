@@ -25,8 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -74,6 +76,27 @@ public class MacroTaskITCase extends AbstractITCase {
         TCA.setPrinterName("aprinter112");
     }
 
+    private static void createMacroActionsIfNeeded(final String key, final ImplementationEngine engine,
+            final String body) {
+        ImplementationTO macroActions = null;
+        try {
+            macroActions = IMPLEMENTATION_SERVICE.read(IdRepoImplementationType.MACRO_ACTIONS, key);
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                macroActions = new ImplementationTO();
+                macroActions.setKey(key);
+                macroActions.setEngine(engine);
+                macroActions.setType(IdRepoImplementationType.MACRO_ACTIONS);
+                macroActions.setBody(body);
+                Response response = IMPLEMENTATION_SERVICE.create(macroActions);
+                macroActions = IMPLEMENTATION_SERVICE.read(
+                        macroActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+                assertNotNull(macroActions.getKey());
+            }
+        }
+        assertNotNull(macroActions);
+    }
+
     @BeforeAll
     public static void testCommandsSetup() throws Exception {
         CommandITCase.testCommandSetup();
@@ -98,24 +121,10 @@ public class MacroTaskITCase extends AbstractITCase {
         }
         assertNotNull(transformer);
 
-        ImplementationTO macroActions = null;
-        try {
-            macroActions = IMPLEMENTATION_SERVICE.read(IdRepoImplementationType.MACRO_ACTIONS,
-                    TestMacroActions.class.getSimpleName());
-        } catch (SyncopeClientException e) {
-            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
-                macroActions = new ImplementationTO();
-                macroActions.setKey(TestMacroActions.class.getSimpleName());
-                macroActions.setEngine(ImplementationEngine.JAVA);
-                macroActions.setType(IdRepoImplementationType.MACRO_ACTIONS);
-                macroActions.setBody(TestMacroActions.class.getName());
-                Response response = IMPLEMENTATION_SERVICE.create(macroActions);
-                macroActions = IMPLEMENTATION_SERVICE.read(
-                        macroActions.getType(), response.getHeaderString(RESTHeaders.RESOURCE_KEY));
-                assertNotNull(macroActions.getKey());
-            }
-        }
-        assertNotNull(macroActions);
+        createMacroActionsIfNeeded(
+                TestMacroActions.class.getSimpleName(),
+                ImplementationEngine.JAVA,
+                TestMacroActions.class.getName());
 
         if (MACRO_TASK_KEY == null) {
             MACRO_TASK_KEY = TASK_SERVICE.<MacroTaskTO>search(
@@ -174,8 +183,8 @@ public class MacroTaskITCase extends AbstractITCase {
         parent.setValue("/odd");
 
         int preExecs = TASK_SERVICE.read(TaskType.MACRO, MACRO_TASK_KEY, true).getExecutions().size();
-        ExecTO execution = TASK_SERVICE.execute(new ExecSpecs.Builder().key(MACRO_TASK_KEY).build(), form);
-        assertNotNull(execution.getExecutor());
+        ExecTO exec = TASK_SERVICE.execute(new ExecSpecs.Builder().key(MACRO_TASK_KEY).build(), form);
+        assertNotNull(exec.getExecutor());
 
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
             try {
@@ -185,7 +194,7 @@ public class MacroTaskITCase extends AbstractITCase {
             }
         });
 
-        ExecTO exec = TASK_SERVICE.read(TaskType.MACRO, MACRO_TASK_KEY, true).getExecutions().get(preExecs);
+        exec = TASK_SERVICE.read(TaskType.MACRO, MACRO_TASK_KEY, true).getExecutions().get(preExecs);
         assertEquals(ExecStatus.SUCCESS.name(), exec.getStatus());
 
         AnyObjectTO printer = ANY_OBJECT_SERVICE.read(PRINTER, TCA.getPrinterName());
@@ -263,5 +272,62 @@ public class MacroTaskITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
         }
+    }
+
+    @Test
+    public void groovySecuritySandbox() throws IOException {
+        createMacroActionsIfNeeded(
+                "ProcessBuilderMacroActions",
+                ImplementationEngine.GROOVY,
+                IOUtils.toString(
+                        getClass().getResourceAsStream("/ProcessBuilderMacroActions.groovy"), StandardCharsets.UTF_8));
+
+        MacroTaskTO task = new MacroTaskTO();
+        task.setName("groovySecuritySandbox" + UUID.randomUUID().toString());
+        task.setActive(true);
+        task.setRealm("/odd");
+        task.setMacroActions("ProcessBuilderMacroActions");
+
+        Response response = TASK_SERVICE.create(TaskType.MACRO, task);
+        String firstTaskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(firstTaskKey);
+        TASK_SERVICE.execute(new ExecSpecs.Builder().key(firstTaskKey).build());
+
+        ExecTO exec = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                return TASK_SERVICE.read(TaskType.MACRO, firstTaskKey, true).getExecutions().get(0);
+            } catch (Exception e) {
+                return null;
+            }
+        }, e -> e != null && !"JOB_FIRED".equals(e.getStatus()));
+        assertEquals(ExecStatus.FAILURE.name(), exec.getStatus());
+        assertTrue(exec.getMessage().startsWith("java.lang.SecurityException: Insecure call to"));
+
+        createMacroActionsIfNeeded(
+                "BashMacroActions",
+                ImplementationEngine.GROOVY,
+                IOUtils.toString(
+                        getClass().getResourceAsStream("/BashMacroActions.groovy"), StandardCharsets.UTF_8));
+
+        task = new MacroTaskTO();
+        task.setName("groovySecuritySandbox" + UUID.randomUUID().toString());
+        task.setActive(true);
+        task.setRealm("/odd");
+        task.setMacroActions("BashMacroActions");
+
+        response = TASK_SERVICE.create(TaskType.MACRO, task);
+        String secondTaskKey = response.getHeaderString(RESTHeaders.RESOURCE_KEY);
+        assertNotNull(secondTaskKey);
+        TASK_SERVICE.execute(new ExecSpecs.Builder().key(firstTaskKey).build());
+
+        exec = await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).pollInterval(1, TimeUnit.SECONDS).until(() -> {
+            try {
+                return TASK_SERVICE.read(TaskType.MACRO, firstTaskKey, true).getExecutions().get(0);
+            } catch (Exception e) {
+                return null;
+            }
+        }, e -> e != null && !"JOB_FIRED".equals(e.getStatus()));
+        assertEquals(ExecStatus.FAILURE.name(), exec.getStatus());
+        assertTrue(exec.getMessage().startsWith("java.lang.SecurityException: Insecure call to"));
     }
 }

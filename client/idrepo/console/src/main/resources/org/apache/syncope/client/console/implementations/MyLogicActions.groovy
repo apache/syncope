@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.to.AnyTO
 import org.apache.syncope.common.lib.to.PropagationStatus
 import org.apache.syncope.core.logic.api.LogicActions
 
-@CompileStatic
 class MyLogicActions implements LogicActions {
   
   @Override

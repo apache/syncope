@@ -16,12 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.core.persistence.api.attrvalue.validation.PlainAttrValueValidator
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue
 import org.apache.syncope.core.persistence.api.entity.PlainSchema
 
-@CompileStatic
 class MyAttrValueValidator implements PlainAttrValueValidator {
   
   @Override

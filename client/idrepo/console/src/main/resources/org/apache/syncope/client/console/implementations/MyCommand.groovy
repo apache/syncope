@@ -16,11 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.command.CommandArgs
 import org.apache.syncope.core.provisioning.api.macro.Command
 
-@CompileStatic
 class MyCommand implements Command<CommandArgs> {
 
   String run(CommandArgs args) {

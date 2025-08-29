@@ -228,6 +228,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Error Prone (https://errorprone.info/):
 This is licensed under the AL 2.0, see above.
 
@@ -248,7 +253,27 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
-For mchange-commons-java (https://github.com/swaldman/mchange-commons-java):
+For Nimbus Content Type (https://bitbucket.org/connect2id/nimbus-content-type/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Nimbus Language Tags (https://bitbucket.org/connect2id/nimbus-language-tags/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Nimbus JOSE-JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For OAuth 2.0 SDK with OpenID Connect extensions (https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Jakarta Mail:
 This is licensed under the EPL 1.0:
 
 Eclipse Public License - v 1.0
@@ -457,27 +482,12 @@ any resulting litigation.
 
 ==
 
-For Nimbus Content Type (https://bitbucket.org/connect2id/nimbus-content-type/):
+For HikariCP (http://brettwooldridge.github.io/HikariCP/):
 This is licensed under the AL 2.0, see above.
 
 ==
 
-For Nimbus Language Tags (https://bitbucket.org/connect2id/nimbus-language-tags/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Nimbus JOSE-JWT (https://bitbucket.org/connect2id/nimbus-jose-jwt):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For OAuth 2.0 SDK with OpenID Connect extensions (https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Eclipse Metro (https://projects.eclipse.org/projects/ee4j.metro):
+For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
 This is licensed under the EDL 1.0:
 
 Eclipse Distribution License - v 1.0
@@ -504,21 +514,6 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSE
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-==
-
-For QDox (https://github.com/paul-hammant/qdox):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For HikariCP (http://brettwooldridge.github.io/HikariCP/):
-This is licensed under the AL 2.0, see above.
-
-==
-
-For Jakarta Activation (https://eclipse-ee4j.github.io/jaf/):
-This is licensed under the EDL 1.0, see above.
 
 ==
 
@@ -587,6 +582,11 @@ This is licensed under the EPL 1.0, see above.
 ==
 
 For Jakarta Persistence project(https://github.com/eclipse-ee4j/jpa-api):
+This is licensed under the EPL 1.0, see above.
+
+==
+
+For Jakarta Servlet (https://projects.eclipse.org/projects/ee4j.servlet):
 This is licensed under the EPL 1.0, see above.
 
 ==
@@ -1042,6 +1042,11 @@ This is licensed under the CDDL 1.0, see above.
 
 ==
 
+For Groovy Security Sandbox (https://github.com/Tirasa/groovy-security-sandbox):
+This is licensed under the MIT license, see above.
+
+==
+
 For ANTLR (https://www.antlr.org/):
 This is licensed under the BSD license, see above.
 
@@ -1062,11 +1067,6 @@ This is licensed under the MIT license, see above.
 
 ==
 
-For MojoHaus AnimalSniffer Maven Plugin (https://github.com/mojohaus/animal-sniffer):
-This is licensed under the MIT license, see above.
-
-==
-
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
 This is licensed under the BSD license, see above.
 
@@ -1074,6 +1074,11 @@ This is licensed under the BSD license, see above.
 
 For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For groovy-sandbox (https://github.com/craftercms/groovy-sandbox):
+This is licensed under the MIT license, see above.
 
 ==
 

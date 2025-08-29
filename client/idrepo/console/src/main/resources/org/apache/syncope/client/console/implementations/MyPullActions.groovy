@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.Set
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
@@ -34,7 +33,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions
 import org.identityconnectors.framework.common.objects.SyncDelta
 import org.quartz.JobExecutionException
 
-@CompileStatic
 class MyPullActions implements PullActions {
 
   @Override
