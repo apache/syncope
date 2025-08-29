@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.Set
 import org.apache.syncope.common.lib.request.AnyCR
 import org.apache.syncope.common.lib.request.AnyUR
@@ -34,7 +33,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions
 import org.identityconnectors.framework.common.objects.LiveSyncDelta
 
-@CompileStatic
 class MyInboundActions implements InboundActions {
 
   @Override

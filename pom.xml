@@ -395,10 +395,10 @@ under the License.
     <project.build.outputTimestamp>2025-04-05T12:25:38Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.1</connid.version>
+    <connid.version>1.6.1.0-SNAPSHOT</connid.version>
     <connid.soap.version>1.5.0</connid.soap.version>
-    <connid.rest.version>1.1.0</connid.rest.version>
-    <connid.db.version>2.4.0</connid.db.version>
+    <connid.rest.version>1.1.1-SNAPSHOT</connid.rest.version>
+    <connid.db.version>2.4.1-SNAPSHOT</connid.db.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
     <connid.ldap.version>1.5.10</connid.ldap.version>
     <connid.ad.version>1.4.0</connid.ad.version>
@@ -413,24 +413,24 @@ under the License.
 
     <cxf.version>4.1.3</cxf.version>
     <bouncycastle.version>1.81</bouncycastle.version>
-    <nimbus-jose-jwt.version>10.4.1</nimbus-jose-jwt.version>
+    <nimbus-jose-jwt.version>10.4.2</nimbus-jose-jwt.version>
 
-    <spring-boot.version>3.5.4</spring-boot.version>
+    <spring-boot.version>3.5.5</spring-boot.version>
     <spring-cloud-gateway.version>4.3.0</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
 
     <jasypt.version>1.9.3</jasypt.version>
 
-    <groovy.version>5.0.0-rc-1</groovy.version>
+    <groovy.version>5.0.0</groovy.version>
 
-    <flowable.version>7.1.0</flowable.version>
+    <flowable.version>7.2.0</flowable.version>
     <flowable-old.version>6.8.1</flowable-old.version>
 
     <disruptor.version>4.0.0</disruptor.version>
 
-    <elasticsearch.version>9.1.0</elasticsearch.version>
-    <opensearch.version>3.1.0</opensearch.version>
+    <elasticsearch.version>9.1.3</elasticsearch.version>
+    <opensearch.version>3.2.0</opensearch.version>
     <opensearch-java.version>3.2.0</opensearch-java.version>
 
     <openfga.version>v1</openfga.version>
@@ -441,12 +441,12 @@ under the License.
     <commons-jexl.version>3.5.0</commons-jexl.version>
     <commons-text.version>1.14.0</commons-text.version>
 
-    <pac4j.version>6.2.0</pac4j.version>
+    <pac4j.version>6.2.1</pac4j.version>
 
     <cas.version>7.3.0-SNAPSHOT</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
-    <swagger-core.version>2.2.35</swagger-core.version>
+    <swagger-core.version>2.2.36</swagger-core.version>
     <swagger-ui.version>5.27.1</swagger-ui.version>
 
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -473,8 +473,8 @@ under the License.
     <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.9.3</zookeeper.version>
 
-    <zonky.embedded-postgres.version>2.1.0</zonky.embedded-postgres.version>
-    <zonky.embedded-postgres-binaries.version>17.5.0</zonky.embedded-postgres-binaries.version>
+    <zonky.embedded-postgres.version>2.1.1</zonky.embedded-postgres.version>
+    <zonky.embedded-postgres-binaries.version>17.6.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
     <testds.bindDn>uid=admin,ou=system</testds.bindDn>
@@ -510,7 +510,7 @@ under the License.
 
     <docker.postgresql.version>17-alpine</docker.postgresql.version>
     <docker.mysql.version>9.0</docker.mysql.version>
-    <docker.mariadb.version>11</docker.mariadb.version>
+    <docker.mariadb.version>12</docker.mariadb.version>
     <docker.oracle.version>23-slim-faststart</docker.oracle.version>
     <docker.neo4j.version>5.26</docker.neo4j.version>
 
@@ -992,6 +992,12 @@ under the License.
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-groovysh</artifactId>
         <version>${groovy.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.tirasa</groupId>
+        <artifactId>groovy-security-sandbox</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <!-- Flowable -->
@@ -1546,7 +1552,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.11.2</version>
+          <version>3.11.3</version>
           <configuration>
             <release>${targetJdk}</release>
             <additionalOptions>
@@ -1840,7 +1846,7 @@ under the License.
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.0</version>
         <configuration>
           <javaVersion>${targetJdk}</javaVersion>
           <ignorePackages>
@@ -2092,7 +2098,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.11.2</version>
+        <version>3.11.3</version>
         <configuration>
           <source>${targetJdk}</source>
           <destDir>apidocs/4.0</destDir>

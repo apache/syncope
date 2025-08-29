@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.Set
 import org.apache.syncope.common.lib.to.ProvisioningReport
 import org.apache.syncope.core.persistence.api.entity.Entity
@@ -24,7 +23,6 @@ import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions
 
-@CompileStatic
 class MyPushActions implements PushActions {
   
   @Override

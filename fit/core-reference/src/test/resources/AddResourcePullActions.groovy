@@ -16,8 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
-
 import org.apache.syncope.core.provisioning.api.pushpull.InboundActions;
 import org.apache.syncope.common.lib.request.AnyUR;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -34,7 +32,6 @@ import org.identityconnectors.framework.common.objects.LiveSyncDelta;
 /**
  * Class for integration tests: add new resource and put a password only for it.
  */
-@CompileStatic
 class AddResourcePullActions implements InboundActions {
   
   void beforeUpdate(

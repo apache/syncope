@@ -80,6 +80,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.Provision;
+import org.apache.syncope.common.lib.to.ProvisioningReport;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.RemediationTO;
@@ -118,6 +119,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullAction
 import org.apache.syncope.fit.core.reference.TestInboundActions;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -253,7 +255,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             try (InputStream src = Files.newInputStream(Path.of(props.getProperty("test.csv.src")));
                     OutputStream dst = Files.newOutputStream(Path.of(props.getProperty("test.csv.dst")))) {
 
-                IOUtils.copy(src, dst);
+                src.transferTo(dst);
             }
         } catch (IOException e) {
             fail(e.getMessage(), e);
@@ -1639,6 +1641,39 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // remove test entities
             Optional.ofNullable(pullTask).ifPresent(t -> TASK_SERVICE.delete(TaskType.PULL, t.getKey()));
             Optional.ofNullable(user).ifPresent(u -> deleteUser(u.getKey()));
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1905() {
+
+        ldapCleanup();
+
+        PullTaskTO pullTaskTO = new PullTaskTO();
+        pullTaskTO.setResource(RESOURCE_NAME_LDAP);
+        pullTaskTO.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+        pullTaskTO.setUnmatchingRule(UnmatchingRule.PROVISION);
+        pullTaskTO.setMatchingRule(MatchingRule.UPDATE);
+        pullTaskTO.setPerformCreate(true);
+        pullTaskTO.setPerformUpdate(true);
+
+        ProvisioningReport result = null;
+        try {
+            List<ProvisioningReport> results =
+                    RECONCILIATION_SERVICE.pull(new ReconQuery.Builder(AnyTypeKind.GROUP.name(),
+                            RESOURCE_NAME_LDAP).fiql(
+                            SyncopeClient.getConnObjectTOFiqlSearchConditionBuilder()
+                                    .is(Uid.NAME)
+                                    .equalToIgnoreCase("testLDAPGroup")
+                                    .query()).build(), pullTaskTO);
+
+            assertNotNull(results.getFirst());
+            result = results.getFirst();
+
+            assertEquals(ProvisioningReport.Status.SUCCESS, result.getStatus());
+            assertEquals("testLDAPGroup", results.getFirst().getName());
+        } finally {
+            Optional.ofNullable(result).ifPresent(r -> deleteGroup(r.getKey()));
         }
     }
 }

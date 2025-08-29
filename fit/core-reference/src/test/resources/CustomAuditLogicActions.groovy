@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.time.OffsetDateTime
 import org.apache.syncope.common.lib.request.AnyUR
 import org.apache.syncope.common.lib.types.OpEvent
@@ -25,7 +24,6 @@ import org.apache.syncope.core.provisioning.api.AuditManager
 import org.apache.syncope.core.spring.security.AuthContextUtils
 import org.springframework.beans.factory.annotation.Autowired
 
-@CompileStatic
 class CustomAuditLogicActions implements LogicActions {
 
   @Autowired

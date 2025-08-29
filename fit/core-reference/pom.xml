@@ -433,6 +433,12 @@ under the License.
           <include>errorMessages.properties</include>
         </includes>
       </testResource>
+      <testResource>
+        <directory>${basedir}/../../core/spring/src/test/resources</directory>
+        <includes>
+          <include>*.groovy</include>
+        </includes>
+      </testResource>
     </testResources>
   </build>
   
@@ -1632,7 +1638,7 @@ under the License.
               <images>
                 <image>
                   <alias>openldap</alias>
-                  <name>bitnami/openldap:2.6</name>
+                  <name>bitnamilegacy/openldap:2.6</name>
                   <run>
                     <env>
                       <LDAP_PORT_NUMBER>1389</LDAP_PORT_NUMBER>

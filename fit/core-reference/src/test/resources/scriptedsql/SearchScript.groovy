@@ -16,8 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.sql.Sql;
-import groovy.sql.DataSet;
+import groovy.sql.Sql
 
 // Parameters:
 // The connector sends the following:
@@ -48,11 +47,11 @@ import groovy.sql.DataSet;
 // !!!! Each Map must contain a '__UID__' and '__NAME__' attribute.
 // This is required to build a ConnectorObject.
 
-log.info("Entering " + action + " Script");
+log.info("Entering " + action + " Script")
 
-def sql = new Sql(connection);
+def sql = new Sql(connection)
 def result = []
-def where = "";
+def where = ""
 
 if (query != null)  {
   // Need to handle the __UID__ in queries
@@ -61,7 +60,7 @@ if (query != null)  {
   }
   
   // We can use Groovy template engine to generate our custom SQL queries
-  def engine = new groovy.text.SimpleTemplateEngine();
+  def engine = new groovy.text.SimpleTemplateEngine()
 
   def whereTemplates = [
     CONTAINS:' WHERE $left ${not ? "NOT " : ""}LIKE "%$right%"',
@@ -74,21 +73,22 @@ if (query != null)  {
     LESSTHANOREQUAL:' WHERE $left ${not ? ">" : "<="} "$right"'
   ]
 
-  def wt = whereTemplates.get(query.get("operation"));
-  def binding = [left:query.get("left"),right:query.get("right"),not:query.get("not")];
-  def template = engine.createTemplate(wt).make(binding);
-  where = template.toString();
+  def wt = whereTemplates.get(query.get("operation"))
+  def binding = [left:query.get("left"),right:query.get("right"),not:query.get("not")]
+  def template = engine.createTemplate(wt).make(binding)
+  where = template.toString()
   log.ok("Search WHERE clause is: "+ where)
 }
 
-switch ( objectClass ) {
+switch (objectClass) {
 case "__PRINTER__":
-  sql.eachRow("SELECT * FROM TESTPRINTER " + where + ((where?.trim ()) ? "AND" : "WHERE") + " deleted <> TRUE", 
-    {result.add([__UID__:it.id, __NAME__:it.id, ID:it.id, PRINTERNAME:it.printername, LOCATION:it.location])} );
+  sql.eachRow("SELECT * FROM TESTPRINTER " + where + ((where?.trim()) ? "AND" : "WHERE") + " deleted <> TRUE") { row -> 
+    result.add([__UID__:row["id"], __NAME__:row["id"], ID:row["id"], PRINTERNAME:row["printername"], LOCATION:row["location"]])
+  }
   break
 
 default:
-  result;
+  result
 }
 
-return result;
+return result

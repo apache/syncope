@@ -16,13 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.common.lib.types.TaskType
 import org.apache.syncope.core.provisioning.api.job.JobExecutionContext
 import org.apache.syncope.core.provisioning.api.job.JobExecutionException
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate
 
-@CompileStatic
 class MySchedTaskJobDelegate implements SchedTaskJobDelegate {
 
   @Override

@@ -16,13 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder
 import org.identityconnectors.framework.common.objects.ObjectClass
 import org.identityconnectors.framework.common.objects.filter.Filter
 import org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler
 
-@CompileStatic
 class MyReconFilterBuilder implements ReconFilterBuilder {
   
   @Override

@@ -16,7 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.Optional
 import java.util.Set
 import org.apache.syncope.common.lib.to.OrgUnit
@@ -26,7 +25,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationActions
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskInfo;
 import org.identityconnectors.framework.common.objects.ConnectorObject
 
-@CompileStatic
 class MyPropagationActions implements PropagationActions {
   
   @Override

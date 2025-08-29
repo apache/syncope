@@ -100,6 +100,8 @@ public class SecurityProperties {
 
     private String secretKey;
 
+    private String groovyBlacklist = "classpath:META-INF/groovy.blacklist";
+
     private final DigesterProperties digester = new DigesterProperties();
 
     public String getAdminUser() {
@@ -172,6 +174,14 @@ public class SecurityProperties {
 
     public void setSecretKey(final String secretKey) {
         this.secretKey = secretKey;
+    }
+
+    public String getGroovyBlacklist() {
+        return groovyBlacklist;
+    }
+
+    public void setGroovyBlacklist(final String groovyBlacklist) {
+        this.groovyBlacklist = groovyBlacklist;
     }
 
     public DigesterProperties getDigester() {
