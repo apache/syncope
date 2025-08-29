@@ -33,6 +33,15 @@ Customizing and extending the Core behavior by uploading a Groovy class via REST
 platform, allows to speed up the development cycle and can be used as Swiss army knife for maintenance and
 administration.
 
-Please beware that granting the permission to manage Implementations to non-admin users can result in security threat,
-as there is virtually no limitation in what the Groovy code has access to.
+Please beware that granting the permission to manage Implementations to non-admin users shall be performed with great
+care. The Groovy code is anyway going to be executed in a sandbox, where the set of forbidden classes and methods
+can be configured on each deployment. +
+Check the provided
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/ilgrosso/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/META-INF/groovy.blacklist[groovy.blacklist^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/ilgrosso/syncope/blob/4_0_X/core/spring/src/main/resources/META-INF/groovy.blacklist[groovy.blacklist^]
+endif::[]
+.
 ====

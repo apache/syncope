@@ -198,7 +198,7 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             message = doExecute(context);
             status = TaskJob.Status.SUCCESS.name();
             result = OpEvent.Outcome.SUCCESS;
-        } catch (JobExecutionException e) {
+        } catch (SecurityException | JobExecutionException e) {
             LOG.error("While executing task {}", taskKey, e);
 
             message = ExceptionUtils2.getFullStackTrace(e);

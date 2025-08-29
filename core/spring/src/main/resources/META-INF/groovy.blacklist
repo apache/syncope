@@ -1,0 +1,112 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Reflective access to Groovy
+method groovy.lang.GroovyObject getMetaClass
+method groovy.lang.GroovyObject getProperty java.lang.String
+method groovy.lang.GroovyObject invokeMethod java.lang.String java.lang.Object
+method groovy.lang.GroovyObject setMetaClass groovy.lang.MetaClass
+method groovy.lang.GroovyObject setProperty java.lang.String java.lang.Object
+
+# Raw file operations
+staticMethod java.io.File createTempFile java.lang.String java.lang.String
+staticMethod java.io.File createTempFile java.lang.String java.lang.String java.io.File
+new java.io.File java.lang.String
+new java.io.File java.lang.String java.lang.String
+new java.io.File java.net.URI
+staticMethod java.io.File listRoots
+new java.io.FileInputStream java.lang.String
+new java.io.FileOutputStream java.lang.String
+new java.io.FileOutputStream java.lang.String boolean
+new java.io.FileReader java.lang.String
+new java.io.FileWriter java.lang.String
+new java.io.FileWriter java.lang.String boolean
+new java.io.PrintStream java.lang.String
+new java.io.PrintStream java.lang.String java.lang.String
+new java.io.PrintWriter java.lang.String
+new java.io.PrintWriter java.lang.String java.lang.String
+new java.io.RandomAccessFile java.lang.String java.lang.String
+
+# No reflection!
+method java.lang.Class getConstructor java.lang.Class[]
+method java.lang.Class getConstructors
+method java.lang.Class getDeclaredConstructor java.lang.Class[]
+method java.lang.Class getDeclaredConstructors
+method java.lang.Class getDeclaredField java.lang.String
+method java.lang.Class getDeclaredFields
+method java.lang.Class getDeclaredMethod java.lang.String java.lang.Class[]
+method java.lang.Class getDeclaredMethods
+method java.lang.Class getField java.lang.String
+method java.lang.Class getFields
+method java.lang.Class getMethod java.lang.String java.lang.Class[]
+method java.lang.Class getMethods
+method java.lang.Class getResource java.lang.String
+method java.lang.Class getResourceAsStream java.lang.String
+method java.lang.Class newInstance
+
+# Same for local process execution.
+new java.lang.ProcessBuilder java.lang.String[]
+new java.lang.ProcessBuilder java.util.List
+method java.lang.Process start
+staticMethod java.lang.Runtime getRuntime
+staticMethod java.lang.System exit int
+
+# Leak information.
+staticMethod java.lang.System getProperties
+staticMethod java.lang.System getProperty java.lang.String
+staticMethod java.lang.System getProperty java.lang.String java.lang.String
+staticMethod java.lang.System getenv
+staticMethod java.lang.System getenv java.lang.String
+staticMethod java.lang.System nanoTime
+staticMethod java.lang.System setProperty java.lang.String java.lang.String
+
+# Could be used to read local files.
+method java.net.URL getContent
+method java.net.URL getContent java.lang.Class[]
+method java.net.URL openConnection
+method java.net.URL openStream
+
+# NIO file operations must start with a Path:
+staticMethod java.nio.file.Paths get java.lang.String java.lang.String[]
+staticMethod java.nio.file.Paths get java.net.URI
+
+# More process execution, Groovy-style:
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String java.util.List java.io.File
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String[]
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String[] java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.lang.String[] java.util.List java.io.File
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.util.List
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.util.List java.lang.String[] java.io.File
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods execute java.util.List java.util.List java.io.File
+
+# JSON
+staticMethod groovy.json.JsonOutput toJson groovy.lang.Closure
+staticMethod groovy.json.JsonOutput toJson java.lang.Object
+
+# SECURITY-538
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getAt java.lang.Object java.lang.String
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getMetaPropertyValues java.lang.Object
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods getProperties java.lang.Object
+staticMethod org.codehaus.groovy.runtime.DefaultGroovyMethods putAt java.lang.Object java.lang.String java.lang.Object
+staticMethod org.codehaus.groovy.runtime.ScriptBytecodeAdapter asType java.lang.Object java.lang.Class
+staticMethod org.codehaus.groovy.runtime.ScriptBytecodeAdapter castToType java.lang.Object java.lang.Class
+
+# SECURITY-1754
+new org.kohsuke.groovy.sandbox.impl.Checker$SuperConstructorWrapper java.lang.Object[]
+new org.kohsuke.groovy.sandbox.impl.Checker$ThisConstructorWrapper java.lang.Object[]

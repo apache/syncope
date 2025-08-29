@@ -228,6 +228,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For FindBugs-jsr305 (http://findbugs.sourceforge.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Error Prone (https://errorprone.info/):
 This is licensed under the AL 2.0, see above.
 
@@ -1017,6 +1022,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Groovy Security Sandbox (https://github.com/Tirasa/groovy-security-sandbox):
+This is licensed under the MIT license, see above.
+
+==
+
 For ANTLR (https://www.antlr.org/):
 This is licensed under the BSD license:
 
@@ -1069,6 +1079,11 @@ This is licensed under the BSD license, see above.
 
 For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
 This is licensed under the AL 2.0, see above.
+
+==
+
+For groovy-sandbox (https://github.com/craftercms/groovy-sandbox):
+This is licensed under the MIT license, see above.
 
 ==
 
@@ -1294,11 +1309,6 @@ This is licensed under the AL 2.0, see above.
 
 For Passay (https://www.passay.org/):
 This is licensed under the AL 2.0, see above.
-
-==
-
-For Postgresql JDBC Driver (http://jdbc.postgresql.org/):
-This is licensed under the BSD license, see above.
 
 ==
 

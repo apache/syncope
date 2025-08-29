@@ -395,10 +395,10 @@ under the License.
     <project.build.outputTimestamp>2025-04-05T12:25:38Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
-    <connid.version>1.6.0.1</connid.version>
+    <connid.version>1.6.1.0-SNAPSHOT</connid.version>
     <connid.soap.version>1.5.0</connid.soap.version>
-    <connid.rest.version>1.1.0</connid.rest.version>
-    <connid.db.version>2.4.0</connid.db.version>
+    <connid.rest.version>1.1.1-SNAPSHOT</connid.rest.version>
+    <connid.db.version>2.4.1-SNAPSHOT</connid.db.version>
     <connid.csvdir.version>0.8.9</connid.csvdir.version>
     <connid.ldap.version>1.5.10</connid.ldap.version>
     <connid.ad.version>1.4.0</connid.ad.version>
@@ -473,7 +473,7 @@ under the License.
     <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.9.3</zookeeper.version>
 
-    <zonky.embedded-postgres.version>2.1.0</zonky.embedded-postgres.version>
+    <zonky.embedded-postgres.version>2.1.1</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.6.0</zonky.embedded-postgres-binaries.version>
 
     <testds.rootDn>o=isp</testds.rootDn>
@@ -992,6 +992,12 @@ under the License.
         <groupId>org.apache.groovy</groupId>
         <artifactId>groovy-groovysh</artifactId>
         <version>${groovy.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>net.tirasa</groupId>
+        <artifactId>groovy-security-sandbox</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <!-- Flowable -->

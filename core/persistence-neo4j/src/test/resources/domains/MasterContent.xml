@@ -159,7 +159,7 @@ under the License.
                enumValues='{"M":"Male","F":"Female"}'/>
   <PlainSchema_AnyTypeClass left="gender" right="other"/>
   <Implementation id="TestDropdownValueProvider" type="DROPDOWN_VALUE_PROVIDER" engine="GROOVY"
-                  body='import groovy.transform.CompileStatic&#13;&#10;import java.util.List&#13;&#10;import org.apache.syncope.common.lib.to.AttributableTO&#13;&#10;import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider&#13;&#10;&#13;&#10;@CompileStatic&#13;&#10;class TestDropdownValueProvider implements DropdownValueProvider {&#13;&#10;List&lt;String&gt; getChoices(AttributableTO attributableTO) {&#13;&#10;return ["A", "B"]&#13;&#10;}&#13;&#10;}'/>
+                  body='import java.util.List&#13;&#10;import org.apache.syncope.common.lib.to.AttributableTO&#13;&#10;import org.apache.syncope.core.persistence.api.attrvalue.DropdownValueProvider&#13;&#10;&#13;&#10;class TestDropdownValueProvider implements DropdownValueProvider {&#13;&#10;List&lt;String&gt; getChoices(AttributableTO attributableTO) {&#13;&#10;return ["A", "B"]&#13;&#10;}&#13;&#10;}'/>
   <PlainSchema id="dd" type="Dropdown" mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"/>
   <PlainSchema_AnyTypeClass left="dd" right="other"/>
   <PlainSchema_Implementation type="PLAIN_SCHEMA_DROPDOWN_VALUE_PROVIDER" left="dd" right="TestDropdownValueProvider"/>

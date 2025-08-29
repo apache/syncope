@@ -60,7 +60,41 @@ under the License.
       <groupId>net.tirasa.connid</groupId>
       <artifactId>slf4j-logging</artifactId>
     </dependency>
-      
+
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy-templates</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy-xml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy-jsr223</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy-datetime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy-dateutil</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.groovy</groupId>
+      <artifactId>groovy-sql</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>net.tirasa</groupId>
+      <artifactId>groovy-security-sandbox</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>org.apache.syncope.common.idm</groupId>
       <artifactId>syncope-common-idm-lib</artifactId>

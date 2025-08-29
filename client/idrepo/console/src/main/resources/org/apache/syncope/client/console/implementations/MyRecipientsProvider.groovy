@@ -16,14 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import groovy.transform.CompileStatic
 import java.util.Map
 import java.util.Set
 import org.apache.syncope.core.persistence.api.entity.Any
 import org.apache.syncope.core.persistence.api.entity.Notification
 import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider
 
-@CompileStatic
 class MyRecipientsProvider implements RecipientsProvider {
   
   @Override
