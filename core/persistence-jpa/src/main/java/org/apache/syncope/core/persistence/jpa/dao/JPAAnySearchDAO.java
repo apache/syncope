@@ -1013,8 +1013,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     append(svs.asSearchViewSupport().attr().alias).
                     append(".any_id").
                     append(" AND usa.schema_id ='").append(fieldName).append("'").
-                    append(" LIMIT 1 )").
-                    append(" AS ").append(fieldName).toString();
+                    append(isOracle() ? " FETCH FIRST 1 ROWS ONLY " : " LIMIT 1").
+                    append(") AS ").append(fieldName).toString();
             item.where = new StringBuilder().
                     append(svs.asSearchViewSupport().attr().alias).
                     append(".schema_id='").append(fieldName).append("'").toString();

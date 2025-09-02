@@ -1947,6 +1947,12 @@ public class UserIssuesITCase extends AbstractITCase {
         userCR.getPlainAttrs().add(attr("ctype", "aa5"));
         UserTO aa5 = createUser(userCR).getEntity();
         try {
+            await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
+                    .size(0)
+                    .page(1)
+                    .orderBy("ctype DESC")
+                    .build()).getTotalCount() == 5);
             List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
                     .size(10)
