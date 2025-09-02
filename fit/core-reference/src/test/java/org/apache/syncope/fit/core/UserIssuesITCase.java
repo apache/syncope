@@ -1927,31 +1927,45 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE1906() {
+        UserCR userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().add(attr("ctype", "aa1"));
+        UserTO aa1 = createUser(userCR).getEntity();
 
-        updateUser(
-                new UserUR.Builder(USER_SERVICE.read("bellini").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa1"))
-                        .build());
-        updateUser(
-                new UserUR.Builder(USER_SERVICE.read("puccini").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa2"))
-                        .build());
-        updateUser(
-                new UserUR.Builder(USER_SERVICE.read("verdi").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa3"))
-                        .build());
-        updateUser(
-                new UserUR.Builder(USER_SERVICE.read("vivaldi").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa4"))
-                        .build());
-        updateUser(
-                new UserUR.Builder(USER_SERVICE.read("rossini").getKey()).plainAttr(attrAddReplacePatch("ctype", "aa5"))
-                        .build());
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().add(attr("ctype", "aa2"));
+        UserTO aa2 = createUser(userCR).getEntity();
 
-        List<UserTO> users =
-                USER_SERVICE.search(new AnyQuery.Builder().size(10).page(1)
-                        .orderBy("ctype DESC").build()).getResult();
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().add(attr("ctype", "aa3"));
+        UserTO aa3 = createUser(userCR).getEntity();
 
-        assertEquals("bellini", users.get(4).getUsername());
-        assertEquals("puccini", users.get(3).getUsername());
-        assertEquals("verdi", users.get(2).getUsername());
-        assertEquals("vivaldi", users.get(1).getUsername());
-        assertEquals("rossini", users.get(0).getUsername());
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().add(attr("ctype", "aa4"));
+        UserTO aa4 = createUser(userCR).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().add(attr("ctype", "aa5"));
+        UserTO aa5 = createUser(userCR).getEntity();
+        try {
+            List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
+                    .size(10)
+                    .page(1)
+                    .orderBy("ctype DESC")
+                    .build()).getResult();
+
+            assertEquals(aa1.getUsername(), users.get(4).getUsername());
+            assertEquals(aa2.getUsername(), users.get(3).getUsername());
+            assertEquals(aa3.getUsername(), users.get(2).getUsername());
+            assertEquals(aa4.getUsername(), users.get(1).getUsername());
+            assertEquals(aa5.getUsername(), users.get(0).getUsername());
+        } finally {
+            USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
+                    .size(10)
+                    .page(1)
+                    .orderBy("ctype DESC")
+                    .build()).getResult().forEach(u -> deleteUser(u.getKey()));
+        }
     }
 }

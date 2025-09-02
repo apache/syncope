@@ -1039,7 +1039,8 @@ public class AnySearchTest extends AbstractTest {
         assertEquals("vivaldi", users.get(1).getUsername());
         assertEquals("rossini", users.get(0).getUsername());
 
-        AttrCond surnameCond = new AttrCond(AttrCond.Type.IEQ);
+        // order by ctype even not searching by it
+        AttrCond surnameCond = new AttrCond(AttrCond.Type.ILIKE);
         surnameCond.setSchema("surname");
         surnameCond.setExpression("%ini");
 
@@ -1050,6 +1051,7 @@ public class AnySearchTest extends AbstractTest {
                 List.of(orderByCtype), AnyTypeKind.USER);
 
         assertFalse(users.isEmpty());
+        assertEquals(2, users.size());
     }
 
     private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
