@@ -59,7 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
-import org.apache.syncope.core.persistence.api.dao.PasswordModuleDAO;
+import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -161,9 +161,9 @@ import org.apache.syncope.core.persistence.neo4j.dao.repo.NotificationRepoExtImp
 import org.apache.syncope.core.persistence.neo4j.dao.repo.OIDCRPClientAppRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.OIDCRPClientAppRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.OIDCRPClientAppRepoExtImpl;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.PasswordModuleRepo;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.PasswordModuleRepoExt;
-import org.apache.syncope.core.persistence.neo4j.dao.repo.PasswordModuleRepoExtImpl;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.PasswordManagementRepo;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.PasswordManagementRepoExt;
+import org.apache.syncope.core.persistence.neo4j.dao.repo.PasswordManagementRepoExtImpl;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.PlainSchemaRepo;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.neo4j.dao.repo.PlainSchemaRepoExtImpl;
@@ -679,10 +679,10 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PasswordModuleRepoExt passwordModuleRepoExt(
+    public PasswordManagementRepoExt passwordManagementRepoExt(
             final Neo4jTemplate neo4jTemplate,
             final NodeValidator nodeValidator) {
-        return new PasswordModuleRepoExtImpl(neo4jTemplate, nodeValidator);
+        return new PasswordManagementRepoExtImpl(neo4jTemplate, nodeValidator);
     }
 
     @ConditionalOnMissingBean
@@ -696,10 +696,10 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PasswordModuleDAO passwordModuleDAO(
+    public PasswordManagementDAO passwordManagementDAO(
             final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
-            final PasswordModuleRepoExt passwordModuleRepoExt) {
-        return neo4jRepositoryFactory.getRepository(PasswordModuleRepo.class, passwordModuleRepoExt);
+            final PasswordManagementRepoExt passwordManagementRepoExt) {
+        return neo4jRepositoryFactory.getRepository(PasswordManagementRepo.class, passwordManagementRepoExt);
     }
 
     @ConditionalOnMissingBean

@@ -22,7 +22,7 @@ import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.DefaultAttrReleaseMapper;
-import org.apache.syncope.wa.bootstrap.mapping.PasswordModulePropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.PasswordManagementPropertySourceMapper;
 import org.apereo.cas.configuration.support.CasConfigurationJasyptCipherExecutor;
 import org.apereo.cas.util.crypto.CipherExecutor;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,8 +77,9 @@ public class WABootstrapConfiguration {
 
         @ConditionalOnMissingBean
         @Bean
-        public PasswordModulePropertySourceMapper passwordModulePropertySourceMapper(final WARestClient waRestClient) {
-            return new PasswordModulePropertySourceMapper(waRestClient);
+        public PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper(
+                final WARestClient waRestClient) {
+            return new PasswordManagementPropertySourceMapper(waRestClient);
         }
 
         @ConditionalOnMissingBean
@@ -100,14 +101,13 @@ public class WABootstrapConfiguration {
                 final WARestClient waRestClient,
                 final AuthModulePropertySourceMapper authModulePropertySourceMapper,
                 final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
-                final PasswordModulePropertySourceMapper passwordModulePropertySourceMapper,
+                final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper,
                 final AttrReleaseMapper attrReleaseMapper) {
 
             return new WAPropertySourceLocator(
                     waRestClient,
                     authModulePropertySourceMapper,
-                    attrRepoPropertySourceMapper,
-                    passwordModulePropertySourceMapper,
+                    attrRepoPropertySourceMapper, passwordManagementPropertySourceMapper,
                     attrReleaseMapper,
                     waConfigurationCipher);
         }

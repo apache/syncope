@@ -54,7 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
-import org.apache.syncope.core.persistence.api.entity.am.PasswordModule;
+import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
@@ -101,7 +101,7 @@ import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jCASSPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCJWKS;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jOIDCRPClientApp;
-import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jPasswordModule;
+import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4JPasswordManagement;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2IdPEntity;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jSAML2SPClientApp;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jWAConfigEntry;
@@ -265,8 +265,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jSRARoute();
         } else if (reference.equals(AuthModule.class)) {
             result = (E) new Neo4jAuthModule();
-        } else if (reference.equals(PasswordModule.class)) {
-            result = (E) new Neo4jPasswordModule();
+        } else if (reference.equals(PasswordManagement.class)) {
+            result = (E) new Neo4JPasswordManagement();
         } else if (reference.equals(AttrRepo.class)) {
             result = (E) new Neo4jAttrRepo();
         } else if (reference.equals(AuthPolicy.class)) {

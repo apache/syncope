@@ -148,7 +148,7 @@ import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIProviderService;
 import org.apache.syncope.common.rest.api.service.OIDCC4UIService;
 import org.apache.syncope.common.rest.api.service.OIDCJWKSService;
-import org.apache.syncope.common.rest.api.service.PasswordModuleService;
+import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.ReconciliationService;
@@ -355,7 +355,7 @@ public abstract class AbstractITCase {
 
     protected static AuthModuleService AUTH_MODULE_SERVICE;
 
-    protected static PasswordModuleService PASSWORD_MODULE_SERVICE;
+    protected static PasswordManagementService PASSWORD_MANAGEMENT_SERVICE;
 
     protected static AttrRepoService ATTR_REPO_SERVICE;
 
@@ -598,7 +598,7 @@ public abstract class AbstractITCase {
         SCIM_CONF_SERVICE = ADMIN_CLIENT.getService(SCIMConfService.class);
         CLIENT_APP_SERVICE = ADMIN_CLIENT.getService(ClientAppService.class);
         AUTH_MODULE_SERVICE = ADMIN_CLIENT.getService(AuthModuleService.class);
-        PASSWORD_MODULE_SERVICE = ADMIN_CLIENT.getService(PasswordModuleService.class);
+        PASSWORD_MANAGEMENT_SERVICE = ADMIN_CLIENT.getService(PasswordManagementService.class);
         ATTR_REPO_SERVICE = ADMIN_CLIENT.getService(AttrRepoService.class);
         SAML2IDP_ENTITY_SERVICE = ADMIN_CLIENT.getService(SAML2IdPEntityService.class);
         AUTH_PROFILE_SERVICE = ADMIN_CLIENT.getService(AuthProfileService.class);
