@@ -34,8 +34,6 @@ import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPane
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
-import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -51,12 +49,10 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.RelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -80,12 +76,6 @@ public class Relationships extends WizardStep implements ICondition {
 
     @SpringBean
     protected RelationshipTypeRestClient relationshipTypeRestClient;
-
-    @SpringBean
-    protected AnyTypeRestClient anyTypeRestClient;
-
-    @SpringBean
-    protected AnyTypeClassRestClient anyTypeClassRestClient;
 
     @SpringBean
     protected AnyObjectRestClient anyObjectRestClient;
@@ -200,14 +190,11 @@ public class Relationships extends WizardStep implements ICondition {
                     filter(relationshipType -> relationshipType.getLeftEndAnyType().equals(anyTO.getType())).
                     collect(Collectors.toMap(RelationshipTypeTO::getKey, Function.identity()));
             AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
-                    "type", "type", new PropertyModel<>(rel, "type"));
+                    "type", "type", new PropertyModel<>(rel, "type"), false);
             type.setChoices(relationshipTypes.keySet().stream().sorted().toList());
             type.setNullValid(false);
             add(type.setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true).setRenderBodyOnly(true));
 
-            Map<String, AnyTypeTO> otherEndTypes = anyTypeRestClient.listAnyTypes().stream().
-                    filter(anyType -> anyType.getKind() == AnyTypeKind.ANY_OBJECT).
-                    collect(Collectors.toMap(AnyTypeTO::getKey, Function.identity()));
             AjaxTextFieldPanel otherEndType = new AjaxTextFieldPanel(
                     "otherType", "otherType", new PropertyModel<>(rel, "otherEndType"));
             add(otherEndType.setEnabled(false).setOutputMarkupId(true).setOutputMarkupPlaceholderTag(true));
@@ -228,18 +215,17 @@ public class Relationships extends WizardStep implements ICondition {
                 protected void onUpdate(final AjaxRequestTarget target) {
                     container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
 
-                    if (type.getModelObject() != null) {
-                        Optional.ofNullable(relationshipTypes.get(type.getModelObject())).
-                                flatMap(relationshipType -> Optional.ofNullable(
-                                otherEndTypes.get(relationshipType.getRightEndAnyType()))).ifPresentOrElse(
-                                oet -> {
-                                    otherEndType.setModelObject(oet.getKey());
-                                    onOtherEndTypeUpdate(oet);
-                                },
-                                () -> onOtherEndTypeUpdate(null));
-                    } else {
+                    if (type.getModelObject() == null) {
                         otherEndType.setModelObject(null);
-                        otherEndType.setEnabled(false);
+                    } else {
+                        Optional.ofNullable(relationshipTypes.get(type.getModelObject())).
+                                map(RelationshipTypeTO::getRightEndAnyType).ifPresent(
+                                oet -> {
+                                    otherEndType.setModelObject(oet);
+
+                                    setupFragment(oet);
+                                    container.addOrReplace(fragment.setRenderBodyOnly(true));
+                                });
                     }
 
                     target.add(otherEndType);
@@ -248,18 +234,9 @@ public class Relationships extends WizardStep implements ICondition {
             });
         }
 
-        protected void onOtherEndTypeUpdate(final AnyTypeTO anyType) {
-            if (anyType == null) {
-                container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
-            } else {
-                setupFragment(anyType);
-                container.addOrReplace(fragment.setRenderBodyOnly(true));
-            }
-        }
-
-        protected void setupFragment(final AnyTypeTO anyType) {
+        protected void setupFragment(final String anyType) {
             anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
-                    anyType.getKey(),
+                    anyType,
                     new ListModel<>(new ArrayList<>()),
                     pageRef).
                     enableSearch(Specification.this).
@@ -267,11 +244,11 @@ public class Relationships extends WizardStep implements ICondition {
             fragment.addOrReplace(anyObjectSearchPanel.setRenderBodyOnly(true));
 
             anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
-                    anyTypeClassRestClient.list(anyType.getClasses()),
+                    List.of(),
                     anyObjectRestClient,
-                    anyType.getKey(),
+                    anyType,
                     pageRef).
-                    setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
+                    setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType).
                             is(Constants.KEY_FIELD_NAME).notNullValue().query()).
                     setWizardInModal(true).build("searchResultPanel");
             fragment.addOrReplace(anyObjectDirectoryPanel.setRenderBodyOnly(true));
