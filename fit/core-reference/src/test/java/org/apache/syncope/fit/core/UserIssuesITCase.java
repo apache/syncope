@@ -1928,24 +1928,40 @@ public class UserIssuesITCase extends AbstractITCase {
     @Test
     public void issueSYNCOPE1906() {
         UserCR userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
         userCR.getPlainAttrs().add(attr("ctype", "aa1"));
         UserTO aa1 = createUser(userCR).getEntity();
 
         userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
         userCR.getPlainAttrs().add(attr("ctype", "aa2"));
         UserTO aa2 = createUser(userCR).getEntity();
 
         userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
         userCR.getPlainAttrs().add(attr("ctype", "aa3"));
         UserTO aa3 = createUser(userCR).getEntity();
 
         userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
         userCR.getPlainAttrs().add(attr("ctype", "aa4"));
         UserTO aa4 = createUser(userCR).getEntity();
 
         userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
         userCR.getPlainAttrs().add(attr("ctype", "aa5"));
         UserTO aa5 = createUser(userCR).getEntity();
+
+        // add also other users with valued ctype
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "a ctype"));
+        createUser(userCR).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs().removeIf(attr -> "ctype".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "a ctype 2"));
+        createUser(userCR).getEntity();
         try {
             await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
@@ -1959,6 +1975,8 @@ public class UserIssuesITCase extends AbstractITCase {
                     .page(1)
                     .orderBy("ctype DESC")
                     .build()).getResult();
+
+            assertEquals(5, users.size());
 
             assertEquals(aa1.getUsername(), users.get(4).getUsername());
             assertEquals(aa2.getUsername(), users.get(3).getUsername());
