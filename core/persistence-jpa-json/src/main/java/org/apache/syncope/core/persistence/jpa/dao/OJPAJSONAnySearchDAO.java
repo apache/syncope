@@ -77,9 +77,18 @@ public class OJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = svs.field().alias + '.'
-                + (schema.isUniqueConstraint() ? "u" : "") + key(schema.getType())
-                + " AS " + fieldName;
+        item.select = new StringBuilder().append("( SELECT usa").
+                append('.').
+                append((schema.isUniqueConstraint() ? "u" : "") + key(schema.getType())).
+                append(" FROM ").
+                append(svs.field().name).
+                append(" usa WHERE usa.any_id = ").
+                append(svs.field().alias).
+                append(".any_id").
+                append(" AND usa.plainSchema ='").append(fieldName).append("'").
+                append(" FETCH FIRST 1 ROWS ONLY ").
+                append(") AS ").append(fieldName).toString();
+        
         item.where = "plainSchema = '" + fieldName + '\'';
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }

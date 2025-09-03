@@ -80,12 +80,17 @@ public class MyJPAJSONAnySearchDAO extends JPAAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select =
-                "JSON_UNQUOTE(JSON_EXTRACT(" + svs.field().alias + ".plainAttrs, REPLACE(JSON_UNQUOTE(JSON_SEARCH("
-                        + svs.field().alias + ".plainAttrs, 'one', '" 
-                        + fieldName + "', NULL, '$[*].schema')), '.schema','.values[0]." 
-                        + (schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType())) + "')))"
-                        + " AS " + fieldName;
+        item.select = new StringBuilder().append("( SELECT usa").
+                append('.').
+                append((schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType()))).
+                append(" FROM ").
+                append(svs.field().name).
+                append(" usa WHERE usa.any_id = ").
+                append(svs.field().alias).
+                append(".any_id").
+                append(" AND usa.plainSchema ='").append(fieldName).append("'").
+                append(" LIMIT 1").
+                append(") AS ").append(fieldName).toString();
         item.where = "plainSchema = '" + fieldName + '\'';
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
     }
