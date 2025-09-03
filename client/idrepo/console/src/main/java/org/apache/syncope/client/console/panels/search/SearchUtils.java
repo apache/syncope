@@ -246,14 +246,14 @@ public final class SearchUtils implements Serializable {
 
                 switch (clause.getType()) {
                     case GROUP_MEMBER:
-                        if (builder instanceof GroupFiqlSearchConditionBuilder) {
+                        if (builder instanceof final GroupFiqlSearchConditionBuilder gbuilder) {
                             switch (clause.getComparator()) {
                                 case EQUALS:
-                                    condition = ((GroupFiqlSearchConditionBuilder) builder).withMembers(value);
+                                    condition = gbuilder.withMembers(value);
                                     break;
 
                                 case NOT_EQUALS:
-                                    condition = ((GroupFiqlSearchConditionBuilder) builder).withoutMembers(value);
+                                    condition = gbuilder.withoutMembers(value);
                                     break;
 
                                 default:
@@ -265,14 +265,14 @@ public final class SearchUtils implements Serializable {
                         if (StringUtils.isNotBlank(clause.getProperty())) {
                             String groupKey = clause.getProperty();
 
-                            if (builder instanceof final UserFiqlSearchConditionBuilder conditionBuilder) {
+                            if (builder instanceof final UserFiqlSearchConditionBuilder ubuilder) {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                        ? conditionBuilder.inGroups(groupKey)
-                                        : conditionBuilder.notInGroups(groupKey);
-                            } else {
+                                        ? ubuilder.inGroups(groupKey)
+                                        : ubuilder.notInGroups(groupKey);
+                            } else if (builder instanceof final AnyObjectFiqlSearchConditionBuilder abuilder) {
                                 condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                        ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)
-                                        : ((AnyObjectFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
+                                        ? abuilder.inGroups(groupKey)
+                                        : abuilder.notInGroups(groupKey);
                             }
                         }
                         break;

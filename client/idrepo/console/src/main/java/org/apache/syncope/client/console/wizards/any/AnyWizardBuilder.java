@@ -26,7 +26,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.SyncopeWebApplication;
-import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.ui.commons.layout.AbstractAnyFormLayout;
@@ -127,8 +126,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
-            wizardModel.add(
-                    new PlainAttrs(modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs()) {
+            wizardModel.add(new PlainAttrs(modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs()) {
 
                 private static final long serialVersionUID = 8167894751609598306L;
 
@@ -151,12 +149,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
             wizardModel.add(new Roles(userWrapper));
         }
 
-        // relationship panel step (available for users and any objects)
-        if ((formLayoutInfo instanceof UserFormLayoutInfo
-                && UserFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())
-                || (formLayoutInfo instanceof AnyObjectFormLayoutInfo
-                && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())) {
-
+        if (formLayoutInfo.isRelationships()) {
             wizardModel.add(new Relationships(modelObject, pageRef));
         }
 

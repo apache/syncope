@@ -87,7 +87,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected final AnyTypeKind typeKind;
 
-    protected final String type;
+    protected final String anyType;
 
     public abstract static class Builder<T extends AbstractSearchPanel> implements Serializable {
 
@@ -150,7 +150,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
         this.model = builder.model;
         this.typeKind = kind;
-        this.type = type;
+        this.anyType = type;
 
         setOutputMarkupId(true);
 
@@ -233,8 +233,8 @@ public abstract class AbstractSearchPanel extends Panel {
     protected abstract String getFIQLQueryTarget();
 
     protected void updateFIQL(final AjaxRequestTarget target, final String fiql) {
-        model.setObject(SearchUtils.getSearchClauses(
-                fiql.replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), "")));
+        model.setObject(SearchUtils.getSearchClauses(fiql.replaceAll(SearchUtils.getTypeConditionPattern(anyType).
+                pattern(), "")));
         target.add(searchFormContainer);
     }
 
@@ -275,17 +275,17 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return SyncopeWebApplication.get().getResourceProvider().get();
+                return SyncopeWebApplication.get().getResourceProvider().get(anyType);
             }
         };
     }
 
     public IModel<List<SearchClause>> getModel() {
-        return this.model;
+        return model;
     }
 
-    public String getBackObjectType() {
-        return this.type;
+    public String getAnyType() {
+        return anyType;
     }
 
     public Map<String, PlainSchemaTO> getAvailableSchemaTypes() {
