@@ -47,10 +47,10 @@ public class Resources extends AbstractResources {
     public boolean evaluate() {
         if (SyncopeWebApplication.get().getSecuritySettings().
                 getAuthorizationStrategy().isActionAuthorized(this, RENDER)) {
-            available.setObject(SyncopeWebApplication.get().getResourceProvider().get());
+
+            available.setObject(SyncopeWebApplication.get().getResourceProvider().get(anyTO.getType()));
             return !available.getObject().isEmpty();
-        } else {
-            return false;
         }
+        return false;
     }
 }

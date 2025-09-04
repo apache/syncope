@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public class IdMExternalResourceProvider implements ExternalResourceProvider {
 
@@ -34,7 +35,18 @@ public class IdMExternalResourceProvider implements ExternalResourceProvider {
     }
 
     @Override
-    public List<String> get() {
-        return resourceRestClient.list().stream().map(ResourceTO::getKey).collect(Collectors.toList());
+    public List<String> get(final String anyType) {
+        return resourceRestClient.list().stream().
+                filter(r -> AnyTypeKind.GROUP.name().equals(anyType) || r.getProvision(anyType).isPresent()).
+                map(ResourceTO::getKey).
+                collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getForRealms() {
+        return resourceRestClient.list().stream().
+                filter(r -> r.getOrgUnit() != null).
+                map(ResourceTO::getKey).
+                collect(Collectors.toList());
     }
 }
