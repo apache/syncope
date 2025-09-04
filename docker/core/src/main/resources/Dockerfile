@@ -15,25 +15,19 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM eclipse-temurin:17-jammy
+FROM eclipse-temurin:17-jdk-alpine
 LABEL org.opencontainers.image.authors="dev@syncope.apache.org"
 
-RUN set -x
+RUN apk update && apk add bash curl
 
-RUN mkdir /opt/syncope
-RUN mkdir /opt/syncope/bin
-RUN mkdir /opt/syncope/bundles
-RUN mkdir /opt/syncope/conf
-RUN mkdir /opt/syncope/lib
-RUN mkdir /opt/syncope/jpa-json
-RUN mkdir /opt/syncope/log
+RUN mkdir /opt/syncope /opt/syncope/bin /opt/syncope/bundles /opt/syncope/conf /opt/syncope/lib /opt/syncope/jpa-json /opt/syncope/log
 
-COPY *.properties /opt/syncope/conf/
-COPY *.xml /opt/syncope/conf/
-COPY saml.keystore.jks /opt/syncope/conf/
+COPY *.properties *.xml saml.keystore.jks /opt/syncope/conf/
 
 COPY bundles/*.jar /opt/syncope/bundles/
-COPY lib/*.jar /opt/syncope/lib/
+
+COPY lib/mariadb*.jar lib/mysql*jar lib/ojdbc*jar lib/postgresql*jar /opt/syncope/lib/
+
 COPY jpa-json/*.jar /opt/syncope/jpa-json/
 
 COPY lib/syncope-docker-core-*jar /opt/syncope/lib/syncope.jar
@@ -47,5 +41,9 @@ RUN chmod 755 /opt/syncope/bin/startup.sh
 CMD ["/opt/syncope/bin/startup.sh"]
 
 RUN curl -o /usr/local/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
+
+RUN addgroup --system syncope && adduser -S -s /usr/sbin/nologin -G syncope syncope
+RUN chown -R syncope:syncope /opt/syncope
+USER syncope
 
 EXPOSE 8080
