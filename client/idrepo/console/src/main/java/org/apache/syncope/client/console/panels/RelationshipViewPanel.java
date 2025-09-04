@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -56,8 +57,15 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
             final AnyTO anyTO,
             final boolean reuseItem,
             final boolean wizardInModal) {
+
         super(id, wizardInModal);
-        addInnerObject(getHeader());
+
+        WebMarkupContainer header = new WebMarkupContainer("header");
+        header.add(new Label("header_left_end", getString("left.end")));
+        header.add(new Label("header_relationship", new ResourceModel("relationship")));
+        header.add(new Label("header_right_end", new ResourceModel("right.end")));
+        addInnerObject(header);
+
         relationshipsList = new ListView<>("relationships", relationships) {
 
             private static final long serialVersionUID = 4983556433071042668L;
@@ -101,9 +109,8 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
                 if (togglePanel == null) {
                     relationshipItem.add(action);
                 } else {
-                    relationshipItem.add(new ActionsPanel<>("action", new Model<>(relationshipTO))
-                            .setVisible(false)
-                            .setEnabled(false));
+                    relationshipItem.add(new ActionsPanel<>("action", new Model<>(relationshipTO)).
+                            setVisible(false).setEnabled(false));
                 }
             }
         };
@@ -112,25 +119,20 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
         relationshipsList.setRenderBodyOnly(true);
 
         addInnerObject(relationshipsList);
-
     }
 
-    private WebMarkupContainer getHeader() {
-        WebMarkupContainer headerContainer = new WebMarkupContainer("header");
-        headerContainer.add(new Label("header_left_end", getString("left.end")));
-        headerContainer.add(new Label("header_relationship", new ResourceModel("relationship")));
-        headerContainer.add(new Label("header_right_end", new ResourceModel("right.end")));
-        return headerContainer;
-    }
-
-    private void buildRowLabels(
+    private static void buildRowLabels(
             final ListItem<RelationshipTO> row,
             final RelationshipTO relationshipTO,
             final AnyTO anyTO) {
+
         boolean isLeftRelation = relationshipTO.getEnd() == RelationshipTO.End.LEFT;
-        String anyName = anyTO instanceof UserTO
-                ? UserTO.class.cast(anyTO).getUsername()
-                : AnyObjectTO.class.cast(anyTO).getName();
+
+        String anyName = anyTO instanceof UserTO userTO
+                ? userTO.getUsername()
+                : anyTO instanceof GroupTO groupTO
+                        ? groupTO.getName()
+                        : AnyObjectTO.class.cast(anyTO).getName();
 
         row.add(new Label("relationship", relationshipTO.getType()));
         Label leftEnd = new Label("left_end", isLeftRelation
@@ -149,7 +151,7 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
         row.add(leftEnd, rightEnd);
     }
 
-    private void setBold(final Label... labels) {
+    private static void setBold(final Label... labels) {
         for (Label label : labels) {
             label.add(new AttributeModifier("style", "font-weight: bold;"));
         }
@@ -175,7 +177,6 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
             this.anyTO = anyTO;
             return this;
         }
-
 
         public RelationshipViewPanel.Builder setRelationships(final List<RelationshipTO> relationships) {
             this.relationships = relationships;
@@ -204,8 +205,5 @@ public final class RelationshipViewPanel extends WizardMgtPanel<RelationshipTO> 
         protected WizardMgtPanel<RelationshipTO> newInstance(final String id, final boolean wizardInModal) {
             return new RelationshipViewPanel(id, relationships, anyTO, reuseItem, wizardInModal);
         }
-
     }
-
 }
-
