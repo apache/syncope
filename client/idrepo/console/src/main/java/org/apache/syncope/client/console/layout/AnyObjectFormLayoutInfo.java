@@ -26,19 +26,8 @@ public class AnyObjectFormLayoutInfo extends AbstractAnyFormLayout<AnyObjectTO, 
 
     private static final long serialVersionUID = -5573691733739618500L;
 
-    private boolean relationships = true;
-
     @Override
     protected Class<? extends AnyObjectForm> getDefaultFormClass() {
         return AnyObjectWizardBuilder.class;
     }
-
-    public boolean isRelationships() {
-        return relationships;
-    }
-
-    public void setRelationships(final boolean relationships) {
-        this.relationships = relationships;
-    }
-
 }

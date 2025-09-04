@@ -31,5 +31,4 @@ public class AccountPolicy extends Panel {
     public AccountPolicy(final String id) {
         super(id);
     }
-
 }
