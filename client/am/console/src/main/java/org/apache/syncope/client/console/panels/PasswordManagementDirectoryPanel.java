@@ -143,7 +143,7 @@ public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordMan
             public void onClick(final AjaxRequestTarget target, final PasswordManagementTO ignore) {
                 try {
                     model.setObject(restClient.read(model.getObject().getKey()));
-                    Boolean enabled = Boolean.parseBoolean(model.getObject().getEnabled());
+                    boolean enabled = Boolean.parseBoolean(model.getObject().getEnabled());
                     model.getObject().setEnabled(String.valueOf(!enabled));
                     restClient.update(model.getObject());
 

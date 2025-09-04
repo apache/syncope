@@ -437,8 +437,6 @@ public class WAContext {
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
-            @Qualifier(PasswordHistoryService.BEAN_NAME)
-            final PasswordHistoryService passwordHistoryService,
             @Qualifier("syncopePasswordChangeService")
             final PasswordManagementService syncopePasswordManagementService,
             @Qualifier("ldapPasswordChangeService")
