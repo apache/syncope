@@ -33,7 +33,9 @@ public class RelationshipValidator extends AbstractValidator<RelationshipCheck, 
 
         RelationshipType relationshipType = relationship.getType();
 
-        if (!relationshipType.getLeftEndAnyType().equals(relationship.getLeftEnd().getType())) {
+        if (relationship.getLeftEnd() != null
+                && !relationshipType.getLeftEndAnyType().equals(relationship.getLeftEnd().getType())) {
+
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidAnyType, relationship.getLeftEnd().getType().getKey())).
                     addPropertyNode("leftEnd").addConstraintViolation();
@@ -41,7 +43,9 @@ public class RelationshipValidator extends AbstractValidator<RelationshipCheck, 
             isValid = false;
         }
 
-        if (!relationshipType.getRightEndAnyType().equals(relationship.getRightEnd().getType())) {
+        if (relationship.getRightEnd() != null
+                && !relationshipType.getRightEndAnyType().equals(relationship.getRightEnd().getType())) {
+
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidAnyType, relationship.getRightEnd().getType().getKey())).
                     addPropertyNode("rightEnd").addConstraintViolation();

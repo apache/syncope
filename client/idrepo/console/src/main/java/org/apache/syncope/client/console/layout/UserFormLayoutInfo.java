@@ -31,8 +31,6 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
 
     private boolean roles = true;
 
-    private boolean relationships = true;
-
     @Override
     protected Class<? extends UserForm> getDefaultFormClass() {
         return UserWizardBuilder.class;
@@ -52,13 +50,5 @@ public class UserFormLayoutInfo extends AbstractAnyFormLayout<UserTO, UserForm> 
 
     public void setRoles(final boolean roles) {
         this.roles = roles;
-    }
-
-    public boolean isRelationships() {
-        return relationships;
-    }
-
-    public void setRelationships(final boolean relationships) {
-        this.relationships = relationships;
     }
 }

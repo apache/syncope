@@ -28,9 +28,19 @@ public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A
 
     private static final long serialVersionUID = -6061683026789976508L;
 
+    private boolean relationships = true;
+
     private final List<String> whichPlainAttrs = new ArrayList<>();
 
     private final List<String> whichDerAttrs = new ArrayList<>();
+
+    public boolean isRelationships() {
+        return relationships;
+    }
+
+    public void setRelationships(final boolean relationships) {
+        this.relationships = relationships;
+    }
 
     public List<String> getWhichPlainAttrs() {
         return whichPlainAttrs;

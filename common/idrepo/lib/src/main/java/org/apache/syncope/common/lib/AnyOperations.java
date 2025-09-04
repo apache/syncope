@@ -175,7 +175,7 @@ public final class AnyOperations {
                 EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         updatedRels.entrySet().stream().
-                filter(entry -> (!originalRels.containsKey(entry.getKey()))).
+                filter(entry -> !originalRels.containsKey(entry.getKey())).
                 forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
                 operation(PatchOperation.ADD_REPLACE).build()));
 
@@ -277,7 +277,7 @@ public final class AnyOperations {
                 EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         updatedRels.entrySet().stream().
-                filter(entry -> (!originalRels.containsKey(entry.getKey()))).
+                filter(entry -> !originalRels.containsKey(entry.getKey())).
                 forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
                 operation(PatchOperation.ADD_REPLACE).build()));
 
@@ -358,6 +358,23 @@ public final class AnyOperations {
         // 4. type extensions
         result.getTypeExtensions().addAll(updated.getTypeExtensions());
 
+        // 5. relationships
+        Map<Pair<String, String>, RelationshipTO> updatedRels =
+                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
+        Map<Pair<String, String>, RelationshipTO> originalRels =
+                EntityTOUtils.buildRelationshipMap(original.getRelationships());
+
+        updatedRels.entrySet().stream().
+                filter(entry -> !originalRels.containsKey(entry.getKey())).
+                forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
+                operation(PatchOperation.ADD_REPLACE).build()));
+
+        if (!incremental) {
+            originalRels.keySet().stream().filter(relationship -> !updatedRels.containsKey(relationship)).
+                    forEach(key -> result.getRelationships().add(new RelationshipUR.Builder(originalRels.get(key)).
+                    operation(PatchOperation.DELETE).build()));
+        }
+
         return result;
     }
 
@@ -367,10 +384,11 @@ public final class AnyOperations {
 
         if (updated instanceof UserTO updatedUserTO && original instanceof UserTO originalUserTO) {
             return (P) diff(updatedUserTO, originalUserTO, incremental);
-        } else if (updated instanceof GroupTO updatedGroupTO && original instanceof GroupTO originalGroupTO) {
+        }
+        if (updated instanceof GroupTO updatedGroupTO && original instanceof GroupTO originalGroupTO) {
             return (P) diff(updatedGroupTO, originalGroupTO, incremental);
-        } else if (updated instanceof AnyObjectTO updatedAnyObjectTO
-                && original instanceof AnyObjectTO originalObjectTO) {
+        }
+        if (updated instanceof AnyObjectTO updatedAnyObjectTO && original instanceof AnyObjectTO originalObjectTO) {
             return (P) diff(updatedAnyObjectTO, originalObjectTO, incremental);
         }
 
