@@ -40,5 +40,4 @@ public class AnyObjectFormLayoutInfo extends AbstractAnyFormLayout<AnyObjectTO, 
     public void setRelationships(final boolean relationships) {
         this.relationships = relationships;
     }
-
 }

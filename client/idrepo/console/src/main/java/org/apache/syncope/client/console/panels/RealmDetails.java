@@ -67,7 +67,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected List<String> load() {
-            return SyncopeWebApplication.get().getResourceProvider().get();
+            return SyncopeWebApplication.get().getResourceProvider().getForRealms();
         }
     };
 

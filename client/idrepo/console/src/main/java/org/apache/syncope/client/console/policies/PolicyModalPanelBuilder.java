@@ -134,7 +134,7 @@ public class PolicyModalPanelBuilder<T extends PolicyTO> extends AbstractModalPa
 
             @Override
             protected List<String> load() {
-                return SyncopeWebApplication.get().getResourceProvider().get();
+                return SyncopeWebApplication.get().getResourceProvider().get(null);
             }
         };
 

@@ -34,10 +34,12 @@ public abstract class AbstractResources extends WizardStep implements ICondition
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    protected final AnyTO anyTO;
+
     protected final ListModel<String> available;
 
     public <T extends AnyTO> AbstractResources(final AnyWrapper<T> modelObject) {
-        final T entityTO = modelObject.getInnerObject();
+        anyTO = modelObject.getInnerObject();
 
         if (modelObject instanceof UserWrapper
                 && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
@@ -52,21 +54,20 @@ public abstract class AbstractResources extends WizardStep implements ICondition
         this.setOutputMarkupId(true);
         this.available = new ListModel<>(List.of());
 
-        add(new AjaxPalettePanel.Builder<String>().build("resources",
-            new PropertyModel<>(entityTO, "resources") {
+        add(new AjaxPalettePanel.Builder<String>().build("resources", new PropertyModel<>(anyTO, "resources") {
 
-                private static final long serialVersionUID = 3799387950428254072L;
+            private static final long serialVersionUID = 3799387950428254072L;
 
-                @Override
-                public List<String> getObject() {
-                    return new ArrayList<>(entityTO.getResources());
-                }
+            @Override
+            public List<String> getObject() {
+                return new ArrayList<>(anyTO.getResources());
+            }
 
-                @Override
-                public void setObject(final List<String> object) {
-                    entityTO.getResources().clear();
-                    entityTO.getResources().addAll(object);
-                }
-            }, available).hideLabel().setOutputMarkupId(true));
+            @Override
+            public void setObject(final List<String> object) {
+                anyTO.getResources().clear();
+                anyTO.getResources().addAll(object);
+            }
+        }, available).hideLabel().setOutputMarkupId(true));
     }
 }

@@ -77,12 +77,12 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
     @Override
     protected AbstractFiqlSearchConditionBuilder<?, ?, ?> getSearchConditionBuilder() {
-        return SyncopeClient.getAnyObjectSearchConditionBuilder(type);
+        return SyncopeClient.getAnyObjectSearchConditionBuilder(anyType);
     }
 
     @Override
     protected String getFIQLQueryTarget() {
-        return type;
+        return anyType;
     }
 
     @Override
@@ -121,8 +121,8 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, PlainSchemaTO> load() {
-                return schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, null, anyTypeRestClient.read(type).
-                        getClasses().toArray(String[]::new)).
+                return schemaRestClient.<PlainSchemaTO>getSchemas(
+                        SchemaType.PLAIN, null, anyTypeRestClient.read(anyType).getClasses().toArray(String[]::new)).
                         stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };

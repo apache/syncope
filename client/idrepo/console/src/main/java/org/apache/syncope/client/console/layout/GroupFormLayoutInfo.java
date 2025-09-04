@@ -60,5 +60,4 @@ public class GroupFormLayoutInfo extends AbstractAnyFormLayout<GroupTO, GroupFor
     public void setTypeExtensions(final boolean typeExtensions) {
         this.typeExtensions = typeExtensions;
     }
-
 }
