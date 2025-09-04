@@ -13,7 +13,6 @@ import org.apache.syncope.client.ui.commons.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
 import org.apache.syncope.common.lib.to.PasswordManagementTO;
-import org.apache.syncope.common.lib.types.PasswordManagementState;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -97,8 +96,7 @@ public class PasswordManagementWizardBuilder extends BaseAjaxWizardBuilder<Passw
             add(description);
 
             AjaxCheckBoxPanel isEnabled = new AjaxCheckBoxPanel(
-                    "enabled", getString("enabled"), new PropertyModel<>(passwordManagement, "enabled"));
-            isEnabled.addRequiredLabel();
+                    "enabled", "enabled", new PropertyModel<>(passwordManagement, "enabled"));
             add(isEnabled);
 
             AjaxDropDownChoicePanel<String> conf = new AjaxDropDownChoicePanel<>("conf", getString("type"), isNew

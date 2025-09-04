@@ -38,7 +38,8 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
                 orElseThrow(() -> new NotFoundException("PasswordManagement " + passwordManagementTO.getKey()));
 
         return passwordManagementDataBinder.getPasswordManagementTO(
-                passwordManagementDAO.save(passwordManagementDataBinder.update(passwordManagement, passwordManagementTO)));
+                passwordManagementDAO.save(passwordManagementDataBinder
+                        .update(passwordManagement, passwordManagementTO)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MANAGEMENT_LIST + "') or hasRole('"
@@ -87,7 +88,8 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
         }
 
         try {
-            return passwordManagementDataBinder.getPasswordManagementTO(passwordManagementDAO.findById(key).orElseThrow());
+            return passwordManagementDataBinder.getPasswordManagementTO(passwordManagementDAO.findById(key)
+                    .orElseThrow());
         } catch (Throwable ignore) {
             LOG.debug("Unresolved reference", ignore);
             throw new UnresolvedReferenceException(ignore);

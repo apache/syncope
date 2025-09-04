@@ -1,12 +1,10 @@
 package org.apache.syncope.common.lib.to;
 
 import jakarta.ws.rs.PathParam;
-import java.util.ArrayList;
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
-import org.apache.syncope.common.lib.types.PasswordManagementState;
 
 public class PasswordManagementTO implements EntityTO {
 
@@ -16,9 +14,7 @@ public class PasswordManagementTO implements EntityTO {
 
     private String description;
 
-    private boolean enabled = false;
-
-//    private final List<Item> items = new ArrayList<>();
+    private String enabled = Boolean.FALSE.toString();
 
     private PasswordManagementConf conf;
 
@@ -41,17 +37,15 @@ public class PasswordManagementTO implements EntityTO {
         this.description = description;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public String getEnabled() {
+        return StringUtils.isNotBlank(enabled)
+                ? enabled
+                : Boolean.FALSE.toString();
     }
 
-    public void setEnabled(boolean enabled) {
+    public void setEnabled(final String enabled) {
         this.enabled = enabled;
     }
-
-//    public List<Item> getItems() {
-//        return items;
-//    }
 
     public PasswordManagementConf getConf() {
         return conf;
@@ -77,7 +71,6 @@ public class PasswordManagementTO implements EntityTO {
                 append(key, other.key).
                 append(description, other.description).
                 append(enabled, other.enabled).
-//                append(items, other.items).
                 append(conf, other.conf).
                 build();
     }
@@ -87,7 +80,6 @@ public class PasswordManagementTO implements EntityTO {
         return new HashCodeBuilder().
                 append(key).
                 append(description).
-//                append(items).
                 append(conf).
                 build();
     }

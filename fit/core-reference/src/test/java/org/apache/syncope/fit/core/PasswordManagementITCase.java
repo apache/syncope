@@ -110,7 +110,8 @@ public class PasswordManagementITCase extends AbstractITCase {
 
     @Test
     public void getSyncopePasswordManagement() {
-        PasswordManagementTO passwordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read("DefaultSyncopePasswordManagement");
+        PasswordManagementTO passwordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultSyncopePasswordManagement");
 
         assertNotNull(passwordManagementTO);
         assertTrue(StringUtils.isNotBlank(passwordManagementTO.getDescription()));
@@ -119,7 +120,8 @@ public class PasswordManagementITCase extends AbstractITCase {
 
     @Test
     public void getLdapPasswordManagement() {
-        PasswordManagementTO passwordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read("DefaultLDAPPasswordManagement");
+        PasswordManagementTO passwordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultLDAPPasswordManagement");
 
         assertNotNull(passwordManagementTO);
         assertTrue(StringUtils.isNotBlank(passwordManagementTO.getDescription()));
@@ -128,7 +130,8 @@ public class PasswordManagementITCase extends AbstractITCase {
 
     @Test
     public void getJdbcPasswordManagement() {
-        PasswordManagementTO passwordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read("DefaultJDBCPasswordManagement");
+        PasswordManagementTO passwordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultJDBCPasswordManagement");
 
         assertNotNull(passwordManagementTO);
         assertTrue(StringUtils.isNotBlank(passwordManagementTO.getDescription()));
@@ -146,10 +149,12 @@ public class PasswordManagementITCase extends AbstractITCase {
 
     @Test
     public void updateSyncopePasswordManagement() {
-        PasswordManagementTO syncopePasswordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read("DefaultSyncopePasswordManagement");
+        PasswordManagementTO syncopePasswordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultSyncopePasswordManagement");
         assertNotNull(syncopePasswordManagementTO);
 
-        PasswordManagementTO newSyncopePasswordManagementTO = buildPasswordManagementTO(PasswordManagementSupportedType.SYNCOPE);
+        PasswordManagementTO newSyncopePasswordManagementTO =
+                buildPasswordManagementTO(PasswordManagementSupportedType.SYNCOPE);
         newSyncopePasswordManagementTO = createPasswordManagement(newSyncopePasswordManagementTO);
         assertNotNull(newSyncopePasswordManagementTO);
 
@@ -169,10 +174,12 @@ public class PasswordManagementITCase extends AbstractITCase {
 
     @Test
     public void updateLdapPasswordManagement() {
-        PasswordManagementTO ldapPasswordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read("DefaultLDAPPasswordManagement");
+        PasswordManagementTO ldapPasswordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultLDAPPasswordManagement");
         assertNotNull(ldapPasswordManagementTO);
 
-        PasswordManagementTO newLdapPasswordManagementTO = buildPasswordManagementTO(PasswordManagementSupportedType.LDAP);
+        PasswordManagementTO newLdapPasswordManagementTO =
+                buildPasswordManagementTO(PasswordManagementSupportedType.LDAP);
         newLdapPasswordManagementTO = createPasswordManagement(newLdapPasswordManagementTO);
         assertNotNull(newLdapPasswordManagementTO);
 
@@ -192,10 +199,12 @@ public class PasswordManagementITCase extends AbstractITCase {
 
     @Test
     public void updateJdbcPasswordManagement() {
-        PasswordManagementTO jdbcPasswordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read("DefaultJDBCPasswordManagement");
+        PasswordManagementTO jdbcPasswordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultJDBCPasswordManagement");
         assertNotNull(jdbcPasswordManagementTO);
 
-        PasswordManagementTO newJdbcPasswordManagementTO = buildPasswordManagementTO(PasswordManagementSupportedType.JDBC);
+        PasswordManagementTO newJdbcPasswordManagementTO =
+                buildPasswordManagementTO(PasswordManagementSupportedType.JDBC);
         newJdbcPasswordManagementTO = createPasswordManagement(newJdbcPasswordManagementTO);
         assertNotNull(newJdbcPasswordManagementTO);
 

@@ -110,7 +110,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         EDIT_APPROVAL("edit"),
         VIEW_AUDIT_HISTORY("read"),
         EXTERNAL_EDITOR("externalEditor"),
-        EXPLORE_RESOURCE("search");
+        EXPLORE_RESOURCE("search"),
+        ENABLE_PM("update");
 
         private final String actionId;
 

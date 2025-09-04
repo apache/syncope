@@ -74,23 +74,12 @@ public class PasswordManagementTest extends AbstractTest {
         module.setKey(key);
         module.setDescription("A password management module");
         module.setConf(conf);
-
-        Item keyMapping = new Item();
-        keyMapping.setIntAttrName("uid");
-        keyMapping.setExtAttrName("username");
-        module.getItems().add(keyMapping);
-
-        Item fullnameMapping = new Item();
-        fullnameMapping.setIntAttrName("cn");
-        fullnameMapping.setExtAttrName("fullname");
-        module.getItems().add(fullnameMapping);
-
+        module.setEnabled(Boolean.FALSE.toString());
         module = passwordManagementDAO.save(module);
 
         assertNotNull(module);
         assertNotNull(module.getKey());
         assertEquals(module, passwordManagementDAO.findById(module.getKey()).orElseThrow());
-        assertEquals(2, module.getItems().size());
     }
 
     @Test

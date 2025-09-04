@@ -6,6 +6,8 @@ import org.apache.syncope.common.lib.to.PasswordManagementTO;
 
 public class LDAPPasswordManagementConf extends AbstractLDAPConf implements PasswordManagementConf {
 
+    private static final long serialVersionUID = 3721321025567652223L;
+
     /**
      * Username attribute required by LDAP.
      */

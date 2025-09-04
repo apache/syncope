@@ -43,7 +43,8 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordManagementTO, PasswordManagementTO, PasswordManagementDirectoryPanel.PasswordManagementProvider, PasswordManagementRestClient> {
+public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordManagementTO, PasswordManagementTO,
+        PasswordManagementDirectoryPanel.PasswordManagementProvider, PasswordManagementRestClient> {
     private static final long serialVersionUID = 1005345990563741296L;
 
     @SpringBean
@@ -60,7 +61,8 @@ public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordMan
 
         disableCheckBoxes();
 
-        addNewItemPanelBuilder(new PasswordManagementWizardBuilder(new PasswordManagementTO(), restClient, pageRef), true);
+        addNewItemPanelBuilder(new PasswordManagementWizardBuilder(
+                new PasswordManagementTO(), restClient, pageRef), true);
 
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, AMEntitlement.AUTH_MODULE_CREATE);
 
@@ -132,6 +134,28 @@ public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordMan
                         restClient.read(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.PASSWORD_MANAGEMENT_UPDATE);
+
+        panel.add(new ActionLink<>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PasswordManagementTO ignore) {
+                try {
+                    model.setObject(restClient.read(model.getObject().getKey()));
+                    Boolean enabled = Boolean.parseBoolean(model.getObject().getEnabled());
+                    model.getObject().setEnabled(String.valueOf(!enabled));
+                    restClient.update(model.getObject());
+
+                    SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While actioning object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().onException(e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.ENABLE_PM, AMEntitlement.PASSWORD_MANAGEMENT_UPDATE);
 
         panel.add(new ActionLink<>() {
 

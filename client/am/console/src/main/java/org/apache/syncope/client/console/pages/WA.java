@@ -191,7 +191,8 @@ public class WA extends BasePage {
 
                 @Override
                 public Panel getPanel(final String panelId) {
-                    return new PasswordManagementDirectoryPanel(panelId, passwordManagementRestClient, getPageReference());
+                    return new PasswordManagementDirectoryPanel(
+                            panelId, passwordManagementRestClient, getPageReference());
                 }
             });
         }
