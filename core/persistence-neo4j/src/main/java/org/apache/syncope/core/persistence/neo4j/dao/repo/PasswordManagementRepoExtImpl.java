@@ -30,7 +30,7 @@ public class PasswordManagementRepoExtImpl implements PasswordManagementRepoExt 
     @Override
     public boolean isAnotherInstanceEnabled(final String key) {
         Long count = neo4jClient.query(
-                        "MATCH (pm:" + Neo4JPasswordManagement.NODE +") "
+                        "MATCH (pm:" + Neo4JPasswordManagement.NODE + ") "
                                 + "WHERE pm.enabled = 'true' AND pm.id <> $id "
                                 + "RETURN count(pm) AS cnt")
                 .bindAll(Map.of("id", key))

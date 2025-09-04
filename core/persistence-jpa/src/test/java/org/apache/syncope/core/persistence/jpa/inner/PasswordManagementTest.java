@@ -130,7 +130,8 @@ public class PasswordManagementTest extends AbstractTest {
         conf.setEndpointUrlChange("http://localhost:9443/syncope-fit-build-tools/cxf/rest/changePassword");
         conf.setEndpointUrlEmail("http://localhost:9443/syncope-fit-build-tools/cxf/rest/findEmail");
         conf.setEndpointUrlPhone("http://localhost:9443/syncope-fit-build-tools/cxf/rest/findPhone");
-        conf.setEndpointUrlSecurityQuestions("http://localhost:9443/syncope-fit-build-tools/cxf/rest/securityQuestions");
+        conf.setEndpointUrlSecurityQuestions(
+                "http://localhost:9443/syncope-fit-build-tools/cxf/rest/securityQuestions");
         conf.setEndpointUsername("http://localhost:9443/syncope-fit-build-tools/cxf/rest/findUser");
         conf.setFieldNamePasswordOld("oldPassword");
         conf.setFieldNamePassword("password");

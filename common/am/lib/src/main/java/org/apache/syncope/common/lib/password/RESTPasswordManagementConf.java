@@ -73,7 +73,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointPassword;
     }
 
-    public void setEndpointPassword(String endpointPassword) {
+    public void setEndpointPassword(final String endpointPassword) {
         this.endpointPassword = endpointPassword;
     }
 
@@ -81,7 +81,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUrlAccountUnlock;
     }
 
-    public void setEndpointUrlAccountUnlock(String endpointUrlAccountUnlock) {
+    public void setEndpointUrlAccountUnlock(final String endpointUrlAccountUnlock) {
         this.endpointUrlAccountUnlock = endpointUrlAccountUnlock;
     }
 
@@ -89,7 +89,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUrlChange;
     }
 
-    public void setEndpointUrlChange(String endpointUrlChange) {
+    public void setEndpointUrlChange(final String endpointUrlChange) {
         this.endpointUrlChange = endpointUrlChange;
     }
 
@@ -97,7 +97,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUrlEmail;
     }
 
-    public void setEndpointUrlEmail(String endpointUrlEmail) {
+    public void setEndpointUrlEmail(final String endpointUrlEmail) {
         this.endpointUrlEmail = endpointUrlEmail;
     }
 
@@ -105,7 +105,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUrlPhone;
     }
 
-    public void setEndpointUrlPhone(String endpointUrlPhone) {
+    public void setEndpointUrlPhone(final String endpointUrlPhone) {
         this.endpointUrlPhone = endpointUrlPhone;
     }
 
@@ -113,7 +113,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUrlSecurityQuestions;
     }
 
-    public void setEndpointUrlSecurityQuestions(String endpointUrlSecurityQuestions) {
+    public void setEndpointUrlSecurityQuestions(final String endpointUrlSecurityQuestions) {
         this.endpointUrlSecurityQuestions = endpointUrlSecurityQuestions;
     }
 
@@ -121,7 +121,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUrlUser;
     }
 
-    public void setEndpointUrlUser(String endpointUrlUser) {
+    public void setEndpointUrlUser(final String endpointUrlUser) {
         this.endpointUrlUser = endpointUrlUser;
     }
 
@@ -129,7 +129,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return endpointUsername;
     }
 
-    public void setEndpointUsername(String endpointUsername) {
+    public void setEndpointUsername(final String endpointUsername) {
         this.endpointUsername = endpointUsername;
     }
 
@@ -137,7 +137,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return fieldNamePasswordOld;
     }
 
-    public void setFieldNamePasswordOld(String fieldNamePasswordOld) {
+    public void setFieldNamePasswordOld(final String fieldNamePasswordOld) {
         this.fieldNamePasswordOld = fieldNamePasswordOld;
     }
 
@@ -145,7 +145,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return fieldNamePassword;
     }
 
-    public void setFieldNamePassword(String fieldNamePassword) {
+    public void setFieldNamePassword(final String fieldNamePassword) {
         this.fieldNamePassword = fieldNamePassword;
     }
 
@@ -153,7 +153,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return fieldNameUser;
     }
 
-    public void setFieldNameUser(String fieldNameUser) {
+    public void setFieldNameUser(final String fieldNameUser) {
         this.fieldNameUser = fieldNameUser;
     }
 
@@ -161,12 +161,12 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
+    public void setHeaders(final Map<String, String> headers) {
         this.headers = headers;
     }
 
     @Override
-    public Map<String, Object> map(PasswordManagementTO passwordManagementTO, Mapper mapper) {
+    public Map<String, Object> map(final PasswordManagementTO passwordManagementTO, final Mapper mapper) {
         return mapper.map(passwordManagementTO, this);
     }
 }
