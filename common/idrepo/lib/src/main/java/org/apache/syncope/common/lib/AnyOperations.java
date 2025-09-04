@@ -179,7 +179,7 @@ public final class AnyOperations {
                 EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         updatedRels.entrySet().stream().
-                filter(entry -> (!originalRels.containsKey(entry.getKey()))).
+                filter(entry -> !originalRels.containsKey(entry.getKey())).
                 forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
                 operation(PatchOperation.ADD_REPLACE).build()));
 
@@ -285,7 +285,7 @@ public final class AnyOperations {
                 EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         updatedRels.entrySet().stream().
-                filter(entry -> (!originalRels.containsKey(entry.getKey()))).
+                filter(entry -> !originalRels.containsKey(entry.getKey())).
                 forEach(entry -> result.getRelationships().add(new RelationshipUR.Builder(entry.getValue()).
                 operation(PatchOperation.ADD_REPLACE).build()));
 

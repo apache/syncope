@@ -21,8 +21,9 @@ package org.apache.syncope.client.console.commons;
 import java.io.Serializable;
 import java.util.List;
 
-@FunctionalInterface
 public interface ExternalResourceProvider extends Serializable {
 
-    List<String> get();
+    List<String> get(String anyType);
+
+    List<String> getForRealms();
 }

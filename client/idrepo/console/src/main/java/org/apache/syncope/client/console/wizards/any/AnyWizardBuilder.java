@@ -127,8 +127,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AbstractAnyWizar
 
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
-            wizardModel.add(
-                    new PlainAttrs(modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs()) {
+            wizardModel.add(new PlainAttrs(modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichPlainAttrs()) {
 
                 private static final long serialVersionUID = 8167894751609598306L;
 
