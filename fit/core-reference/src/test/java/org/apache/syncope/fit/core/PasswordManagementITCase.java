@@ -17,6 +17,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.password.JDBCPasswordManagementConf;
 import org.apache.syncope.common.lib.password.LDAPPasswordManagementConf;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
+import org.apache.syncope.common.lib.password.RESTPasswordManagementConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordManagementConf;
 import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
@@ -28,7 +29,8 @@ public class PasswordManagementITCase extends AbstractITCase {
     private enum PasswordManagementSupportedType {
         SYNCOPE,
         LDAP,
-        JDBC
+        JDBC,
+        REST
     };
 
     private static PasswordManagementTO createPasswordManagement(final PasswordManagementTO passwordManagementTO) {
@@ -52,7 +54,6 @@ public class PasswordManagementITCase extends AbstractITCase {
             case SYNCOPE:
                 conf = new SyncopePasswordManagementConf();
                 SyncopePasswordManagementConf.class.cast(conf).setDomain(SyncopeConstants.MASTER_DOMAIN);
-                passwordManagementTO.setConf(conf);
                 break;
             case LDAP:
                 conf = new LDAPPasswordManagementConf();
@@ -75,9 +76,29 @@ public class PasswordManagementITCase extends AbstractITCase {
                 JDBCPasswordManagementConf.class.cast(conf)
                         .setSqlChangePassword("UPDATE users_table SET password=? WHERE name=?");
                 break;
+            case REST:
+                conf = new RESTPasswordManagementConf();
+                RESTPasswordManagementConf.class.cast(conf).setEndpointPassword("password");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUrlAccountUnlock(
+                        "http://localhost:9443/syncope-fit-build-tools/cxf/rest/unlockAccount");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUrlChange(
+                        "http://localhost:9443/syncope-fit-build-tools/cxf/rest/changePassword");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUrlEmail(
+                        "http://localhost:9443/syncope-fit-build-tools/cxf/rest/findEmail");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUrlPhone(
+                        "http://localhost:9443/syncope-fit-build-tools/cxf/rest/findPhone");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUrlSecurityQuestions(
+                        "http://localhost:9443/syncope-fit-build-tools/cxf/rest/securityQuestions");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUsername(
+                        "http://localhost:9443/syncope-fit-build-tools/cxf/rest/findUser");
+                RESTPasswordManagementConf.class.cast(conf).setFieldNamePasswordOld("oldPassword");
+                RESTPasswordManagementConf.class.cast(conf).setFieldNamePassword("password");
+                RESTPasswordManagementConf.class.cast(conf).setEndpointUsername("username");
             default:
+                conf = null;
                 break;
         }
+        passwordManagementTO.setConf(conf);
 
         return passwordManagementTO;
     }
@@ -106,6 +127,10 @@ public class PasswordManagementITCase extends AbstractITCase {
                 passwordManagement -> isSpecificConf(passwordManagement.getConf(),
                         JDBCPasswordManagementConf.class) && passwordManagement.getKey()
                         .equals("DefaultJDBCPasswordManagement")));
+        assertTrue(passwordManagementTOS.stream().anyMatch(
+                passwordManagement -> isSpecificConf(passwordManagement.getConf(),
+                        RESTPasswordManagementConf.class) && passwordManagement.getKey()
+                        .equals("DefaultRESTPasswordManagement")));
     }
 
     @Test
@@ -119,7 +144,7 @@ public class PasswordManagementITCase extends AbstractITCase {
     }
 
     @Test
-    public void getLdapPasswordManagement() {
+    public void getLDAPPasswordManagement() {
         PasswordManagementTO passwordManagementTO =
                 PASSWORD_MANAGEMENT_SERVICE.read("DefaultLDAPPasswordManagement");
 
@@ -129,13 +154,23 @@ public class PasswordManagementITCase extends AbstractITCase {
     }
 
     @Test
-    public void getJdbcPasswordManagement() {
+    public void getJDBCPasswordManagement() {
         PasswordManagementTO passwordManagementTO =
                 PASSWORD_MANAGEMENT_SERVICE.read("DefaultJDBCPasswordManagement");
 
         assertNotNull(passwordManagementTO);
         assertTrue(StringUtils.isNotBlank(passwordManagementTO.getDescription()));
         assertTrue(isSpecificConf(passwordManagementTO.getConf(), JDBCPasswordManagementConf.class));
+    }
+
+    @Test
+    public void getRESTPasswordManagement() {
+        PasswordManagementTO passwordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultRESTPasswordManagement");
+
+        assertNotNull(passwordManagementTO);
+        assertTrue(StringUtils.isNotBlank(passwordManagementTO.getDescription()));
+        assertTrue(isSpecificConf(passwordManagementTO.getConf(), RESTPasswordManagementConf.class));
     }
 
     @Test
@@ -173,7 +208,7 @@ public class PasswordManagementITCase extends AbstractITCase {
     }
 
     @Test
-    public void updateLdapPasswordManagement() {
+    public void updateLDAPPasswordManagement() {
         PasswordManagementTO ldapPasswordManagementTO =
                 PASSWORD_MANAGEMENT_SERVICE.read("DefaultLDAPPasswordManagement");
         assertNotNull(ldapPasswordManagementTO);
@@ -198,7 +233,7 @@ public class PasswordManagementITCase extends AbstractITCase {
     }
 
     @Test
-    public void updateJdbcPasswordManagement() {
+    public void updateJDBCPasswordManagement() {
         PasswordManagementTO jdbcPasswordManagementTO =
                 PASSWORD_MANAGEMENT_SERVICE.read("DefaultJDBCPasswordManagement");
         assertNotNull(jdbcPasswordManagementTO);
@@ -221,6 +256,32 @@ public class PasswordManagementITCase extends AbstractITCase {
         conf = newJdbcPasswordManagementTO.getConf();
         assertEquals("SELECT * from other_table where name=?",
                 JDBCPasswordManagementConf.class.cast(conf).getSqlFindUser());
+    }
+
+    @Test
+    public void updateRESTPasswordManagement() {
+        PasswordManagementTO restPasswordManagementTO =
+                PASSWORD_MANAGEMENT_SERVICE.read("DefaultRESTPasswordManagement");
+        assertNotNull(restPasswordManagementTO);
+
+        PasswordManagementTO newRestPasswordManagementTO =
+                buildPasswordManagementTO(PasswordManagementSupportedType.REST);
+        newRestPasswordManagementTO = createPasswordManagement(newRestPasswordManagementTO);
+        assertNotNull(newRestPasswordManagementTO);
+
+        PasswordManagementConf conf = restPasswordManagementTO.getConf();
+        assertNotNull(conf);
+        RESTPasswordManagementConf.class.cast(conf).setFieldNamePasswordOld("changedOldPassword");
+        newRestPasswordManagementTO.setConf(conf);
+
+        // update new password management
+        PASSWORD_MANAGEMENT_SERVICE.update(newRestPasswordManagementTO);
+        newRestPasswordManagementTO = PASSWORD_MANAGEMENT_SERVICE.read(newRestPasswordManagementTO.getKey());
+        assertNotNull(newRestPasswordManagementTO);
+
+        conf = newRestPasswordManagementTO.getConf();
+        assertEquals("changedOldPassword",
+                RESTPasswordManagementConf.class.cast(conf).getFieldNamePasswordOld());
     }
 
     @Test

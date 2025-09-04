@@ -23,6 +23,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +86,7 @@ import org.apereo.cas.pm.PasswordHistoryService;
 import org.apereo.cas.pm.PasswordManagementService;
 import org.apereo.cas.pm.impl.NoOpPasswordManagementService;
 import org.apereo.cas.pm.jdbc.JdbcPasswordManagementService;
+import org.apereo.cas.pm.rest.RestPasswordManagementService;
 import org.apereo.cas.services.ServiceRegistryExecutionPlanConfigurer;
 import org.apereo.cas.services.ServiceRegistryListener;
 import org.apereo.cas.support.events.CasEventRepository;
@@ -120,6 +122,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration(proxyBeanMethods = false)
 public class WAContext {
@@ -356,7 +359,7 @@ public class WAContext {
     public PasswordManagementService syncopePasswordChangeService(
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
-            final CipherExecutor passwordManagementCipherExecutor,
+            final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
         PasswordManagementProperties pm = casProperties.getAuthn().getPm();
@@ -374,7 +377,7 @@ public class WAContext {
     public PasswordManagementService ldapPasswordChangeService(
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
-            final CipherExecutor passwordManagementCipherExecutor,
+            final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
         List<LdapPasswordManagementProperties> ldaps = casProperties.getAuthn().getPm().getLdap();
@@ -400,7 +403,7 @@ public class WAContext {
             @Qualifier("jdbcPasswordManagementTransactionTemplate")
             final TransactionOperations jdbcPasswordManagementTransactionTemplate,
             @Qualifier("passwordManagementCipherExecutor")
-            final CipherExecutor passwordManagementCipherExecutor,
+            final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
         JdbcPasswordManagementProperties jdbc = casProperties.getAuthn().getPm().getJdbc();
@@ -416,11 +419,25 @@ public class WAContext {
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
+    public PasswordManagementService restPasswordChangeService(
+            @Qualifier("passwordChangeServiceRestTemplate")
+            final RestTemplate passwordChangeServiceRestTemplate,
+            final CasConfigurationProperties casProperties,
+            @Qualifier("passwordManagementCipherExecutor")
+            final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
+            @Qualifier(PasswordHistoryService.BEAN_NAME)
+            final PasswordHistoryService passwordHistoryService) {
+        return new RestPasswordManagementService(passwordManagementCipherExecutor,
+                casProperties, passwordChangeServiceRestTemplate, passwordHistoryService);
+    }
+
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
     public PasswordManagementService passwordChangeService(
             final ConfigurableApplicationContext applicationContext,
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
-            final CipherExecutor passwordManagementCipherExecutor,
+            final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService,
             @Qualifier("syncopePasswordChangeService")
@@ -428,7 +445,9 @@ public class WAContext {
             @Qualifier("ldapPasswordChangeService")
             final PasswordManagementService ldapPasswordManagementService,
             @Qualifier("jdbcPasswordChangeService")
-            final PasswordManagementService jdbcPasswordManagementService) {
+            final PasswordManagementService jdbcPasswordManagementService,
+            @Qualifier("restPasswordChangeService")
+            final PasswordManagementService restPasswordManagementService) {
 
         if (applicationContext.getEnvironment()
                 .getProperty("cas.authn.pm.syncope.enabled", Boolean.class, Boolean.FALSE)) {
@@ -443,6 +462,11 @@ public class WAContext {
         if (applicationContext.getEnvironment()
                 .getProperty("cas.authn.pm.jdbc.enabled", Boolean.class, Boolean.FALSE)) {
             return jdbcPasswordManagementService;
+        }
+
+        if (applicationContext.getEnvironment()
+                .getProperty("cas.authn.pm.rest.enabled", Boolean.class, Boolean.FALSE)) {
+            return restPasswordManagementService;
         }
 
         return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);

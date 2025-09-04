@@ -6,12 +6,14 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.password.JDBCPasswordManagementConf;
 import org.apache.syncope.common.lib.password.LDAPPasswordManagementConf;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
+import org.apache.syncope.common.lib.password.RESTPasswordManagementConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordManagementConf;
 import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.wa.bootstrap.WARestClient;
 import org.apereo.cas.configuration.model.support.ldap.AbstractLdapProperties;
 import org.apereo.cas.configuration.model.support.pm.JdbcPasswordManagementProperties;
 import org.apereo.cas.configuration.model.support.pm.LdapPasswordManagementProperties;
+import org.apereo.cas.configuration.model.support.pm.RestfulPasswordManagementProperties;
 import org.apereo.cas.configuration.model.support.pm.SyncopePasswordManagementProperties;
 
 public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
@@ -76,6 +78,28 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
 
         Map<String, Object> mappedProps = prefix("cas.authn.pm.jdbc.", WAConfUtils.asMap(props));
         mappedProps.put("cas.authn.pm.jdbc.enabled", passwordManagementTO.getEnabled());
+        return mappedProps;
+    }
+
+    @Override
+    public Map<String, Object> map(final PasswordManagementTO passwordManagementTO,
+            final RESTPasswordManagementConf conf) {
+        RestfulPasswordManagementProperties props = new RestfulPasswordManagementProperties();
+        props.setEndpointPassword(conf.getEndpointPassword());
+        props.setEndpointUrlAccountUnlock(conf.getEndpointUrlAccountUnlock());
+        props.setEndpointUrlChange(conf.getEndpointUrlChange());
+        props.setEndpointUrlEmail(conf.getEndpointUrlEmail());
+        props.setEndpointUrlPhone(conf.getEndpointUrlPhone());
+        props.setEndpointUrlSecurityQuestions(conf.getEndpointUrlSecurityQuestions());
+        props.setEndpointUrlUser(conf.getEndpointUrlUser());
+        props.setEndpointUsername(conf.getEndpointUsername());
+        props.setFieldNamePasswordOld(conf.getFieldNamePasswordOld());
+        props.setFieldNamePassword(conf.getFieldNamePassword());
+        props.setFieldNameUser(conf.getFieldNameUser());
+        props.setHeaders(conf.getHeaders());
+
+        Map<String, Object> mappedProps = prefix("cas.authn.pm.rest.", WAConfUtils.asMap(props));
+        mappedProps.put("cas.authn.pm.rest.enabled", passwordManagementTO.getEnabled());
         return mappedProps;
     }
 }

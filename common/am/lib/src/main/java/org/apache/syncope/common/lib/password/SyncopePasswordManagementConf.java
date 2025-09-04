@@ -74,7 +74,8 @@ public class SyncopePasswordManagementConf implements PasswordManagementConf {
         this.headers = headers;
     }
 
-    @Override public Map<String, Object> map(final PasswordManagementTO passwordManagementTO, final Mapper mapper) {
+    @Override
+    public Map<String, Object> map(final PasswordManagementTO passwordManagementTO, final Mapper mapper) {
         return mapper.map(passwordManagementTO, this);
     }
 }

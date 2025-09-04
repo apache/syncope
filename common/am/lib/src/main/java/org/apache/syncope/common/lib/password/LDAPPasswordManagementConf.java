@@ -21,7 +21,8 @@ public class LDAPPasswordManagementConf extends AbstractLDAPConf implements Pass
         this.usernameAttribute = usernameAttribute;
     }
 
-    @Override public Map<String, Object> map(final PasswordManagementTO passwordManagementTO, final Mapper mapper) {
+    @Override
+    public Map<String, Object> map(final PasswordManagementTO passwordManagementTO, final Mapper mapper) {
         return mapper.map(passwordManagementTO, this);
     }
 }

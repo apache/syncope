@@ -17,6 +17,8 @@ public interface PasswordManagementConf extends BaseBean {
 
         Map<String, Object> map(PasswordManagementTO passwordManagementTO, JDBCPasswordManagementConf conf);
 
+        Map<String, Object> map(PasswordManagementTO passwordManagementTO, RESTPasswordManagementConf conf);
+
     }
 
     Map<String, Object> map(PasswordManagementTO passwordManagementTO, Mapper mapper);

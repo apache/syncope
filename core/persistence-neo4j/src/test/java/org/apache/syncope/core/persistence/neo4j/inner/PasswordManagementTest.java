@@ -2,6 +2,7 @@ package org.apache.syncope.core.persistence.neo4j.inner;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,6 +11,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.password.JDBCPasswordManagementConf;
 import org.apache.syncope.common.lib.password.LDAPPasswordManagementConf;
 import org.apache.syncope.common.lib.password.PasswordManagementConf;
+import org.apache.syncope.common.lib.password.RESTPasswordManagementConf;
 import org.apache.syncope.common.lib.password.SyncopePasswordManagementConf;
 import org.apache.syncope.common.lib.to.Item;
 import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
@@ -36,20 +38,20 @@ public class PasswordManagementTest extends AbstractTest {
         List<? extends PasswordManagement> modules = passwordManagementDAO.findAll();
         assertNotNull(modules);
         assertFalse(modules.isEmpty());
-        assertEquals(3, modules.size());
+        assertEquals(4, modules.size());
     }
 
     @Test
     public void find() {
         PasswordManagement passwordManagement = passwordManagementDAO.findById("DefaultSyncopePasswordManagement")
                 .orElseThrow();
-        assertTrue(passwordManagement.getConf() instanceof SyncopePasswordManagementConf);
+        assertInstanceOf(SyncopePasswordManagementConf.class, passwordManagement.getConf());
 
         passwordManagement = passwordManagementDAO.findById("DefaultLDAPPasswordManagement").orElseThrow();
-        assertTrue(passwordManagement.getConf() instanceof LDAPPasswordManagementConf);
+        assertInstanceOf(LDAPPasswordManagementConf.class, passwordManagement.getConf());
 
         passwordManagement = passwordManagementDAO.findById("DefaultJDBCPasswordManagement").orElseThrow();
-        assertTrue(passwordManagement.getConf() instanceof JDBCPasswordManagementConf);
+        assertInstanceOf(JDBCPasswordManagementConf.class, passwordManagement.getConf());
     }
 
     @Test
@@ -91,7 +93,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithLdapModule() {
+    public void saveWithLDAPModule() {
         LDAPPasswordManagementConf conf = new LDAPPasswordManagementConf();
         conf.setBaseDn("dc=example,dc=org");
         conf.setSearchFilter("cn={user}");
@@ -104,7 +106,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void saveWithJdbcModule() {
+    public void saveWithJDBCModule() {
         JDBCPasswordManagementConf conf = new JDBCPasswordManagementConf();
         conf.setSqlFindEmail("SELECT email from users_table where name=?");
         conf.setSqlFindPhone("SELECT phoneNumber from users_table where name=?");
@@ -112,6 +114,23 @@ public class PasswordManagementTest extends AbstractTest {
         conf.setSqlChangePassword("UPDATE users_table SET password=? WHERE name=?");
 
         savePasswordManagement("JDBCPasswordManagementTest", conf);
+    }
+
+    @Test
+    public void saveWithRESTModule() {
+        RESTPasswordManagementConf conf = new RESTPasswordManagementConf();
+        conf.setEndpointPassword("password");
+        conf.setEndpointUrlAccountUnlock("http://localhost:9443/syncope-fit-build-tools/cxf/rest/unlockAccount");
+        conf.setEndpointUrlChange("http://localhost:9443/syncope-fit-build-tools/cxf/rest/changePassword");
+        conf.setEndpointUrlEmail("http://localhost:9443/syncope-fit-build-tools/cxf/rest/findEmail");
+        conf.setEndpointUrlPhone("http://localhost:9443/syncope-fit-build-tools/cxf/rest/findPhone");
+        conf.setEndpointUrlSecurityQuestions("http://localhost:9443/syncope-fit-build-tools/cxf/rest/securityQuestions");
+        conf.setEndpointUsername("http://localhost:9443/syncope-fit-build-tools/cxf/rest/findUser");
+        conf.setFieldNamePasswordOld("oldPassword");
+        conf.setFieldNamePassword("password");
+        conf.setEndpointUsername("username");
+
+        savePasswordManagement("RESTPasswordManagementTest", conf);
     }
 
     @Test
@@ -131,7 +150,7 @@ public class PasswordManagementTest extends AbstractTest {
     }
 
     @Test
-    public void updateWithLdapModule() {
+    public void updateWithLDAPModule() {
         PasswordManagement module = passwordManagementDAO.findById("DefaultLDAPPasswordManagement").orElseThrow();
 
         PasswordManagementConf conf = module.getConf();
@@ -163,6 +182,23 @@ public class PasswordManagementTest extends AbstractTest {
         PasswordManagement found = passwordManagementDAO.findById(module.getKey()).orElseThrow();
         assertEquals("SELECT * from other_table where name=?",
                 JDBCPasswordManagementConf.class.cast(found.getConf()).getSqlFindUser());
+    }
+
+    @Test
+    public void updateWithRESTModule() {
+        PasswordManagement module = passwordManagementDAO.findById("DefaultRESTPasswordManagement").orElseThrow();
+
+        PasswordManagementConf conf = module.getConf();
+        RESTPasswordManagementConf.class.cast(conf).setFieldNamePasswordOld("changedOldPassword");
+        module.setConf(conf);
+
+        module = passwordManagementDAO.save(module);
+        assertNotNull(module);
+        assertNotNull(module.getKey());
+
+        PasswordManagement found = passwordManagementDAO.findById(module.getKey()).orElseThrow();
+        assertEquals("changedOldPassword",
+                RESTPasswordManagementConf.class.cast(found.getConf()).getFieldNamePasswordOld());
     }
 
     @Test
