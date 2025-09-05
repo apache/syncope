@@ -163,22 +163,6 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-jdbc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-pm-ldap</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-pm-jdbc</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
-      <artifactId>cas-server-support-pm-rest</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-reports</artifactId>
     </dependency>
     <dependency>
@@ -421,15 +405,26 @@ under the License.
         </exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>org.pac4j</groupId>
+      <artifactId>pac4j-oidc</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.apereo.cas</groupId>
       <artifactId>cas-server-support-pm-core</artifactId>
     </dependency>
-
     <dependency>
-      <groupId>org.pac4j</groupId>
-      <artifactId>pac4j-oidc</artifactId>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-pm-ldap</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-pm-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apereo.cas</groupId>
+      <artifactId>cas-server-support-pm-rest</artifactId>
     </dependency>
 
     <dependency>
@@ -438,15 +433,15 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-actuator</artifactId>
     </dependency>
 
     <dependency>

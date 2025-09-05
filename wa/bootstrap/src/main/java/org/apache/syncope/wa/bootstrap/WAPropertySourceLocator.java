@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
 import org.apache.syncope.common.rest.api.service.PasswordManagementService;
@@ -131,7 +132,7 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
         });
 
         syncopeClient.getService(PasswordManagementService.class).list()
-                .stream().filter(pm -> Boolean.parseBoolean(pm.getEnabled())).findFirst()
+                .stream().filter(PasswordManagementTO::isEnabled).findFirst()
                 .ifPresent(passwordManagementTO -> {
                     LOG.debug("Mapping password module {} ", passwordManagementTO.getKey());
 
