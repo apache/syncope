@@ -92,7 +92,7 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 append(defaultSV(svs).alias()).
                 append(".any_id").
                 append(" AND usa.schema_id ='").append(fieldName).append("'").
-                append(isOracle() ? " FETCH FIRST 1 ROWS ONLY " : " LIMIT 1").
+                append(" LIMIT 1").
                 append(") AS ").append(fieldName).toString();
         item.where = "plainSchema = '" + fieldName + '\'';
         item.orderBy = fieldName + ' ' + clause.getDirection().name();
