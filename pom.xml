@@ -466,7 +466,7 @@ under the License.
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.11</wicket-bootstrap.version>
     <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
-    <wicket-spring-boot.version>4.0.0</wicket-spring-boot.version>
+    <wicket-spring-boot.version>4.1.1</wicket-spring-boot.version>
 
     <antlr4.version>4.13.2</antlr4.version>
 
@@ -504,7 +504,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>11.0.10</tomcat.version>
-    <wildfly.version>37.0.0.Final</wildfly.version>
+    <wildfly.version>37.0.1.Final</wildfly.version>
     <payara.version>6.2025.9</payara.version>
     <jakarta.faces.version>4.1.3</jakarta.faces.version>
 
