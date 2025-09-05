@@ -56,7 +56,7 @@ jobs:
     - name: Start PostgreSQL on Windows
       if: runner.os == 'Windows'
       run: |
-        sc.exe config postgresql-x64-14 start=auto
-        sc.exe start postgresql-x64-14
+        sc.exe config postgresql-x64-17 start=auto
+        sc.exe start postgresql-x64-17
     - name: Verify
       run: mvn -f fit/core-reference/pom.xml verify '-Dit.test=RESTITCase' '-Dinvoker.streamLogs=true' '-Dmodernizer.skip=true' '-Drat.skip=true' '-Dcheckstyle.skip=true' '-Djacoco.skip=true'

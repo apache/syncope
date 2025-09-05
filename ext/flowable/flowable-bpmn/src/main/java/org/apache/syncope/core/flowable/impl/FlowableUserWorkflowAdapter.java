@@ -215,25 +215,26 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         }
 
         List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(procInstID).list();
-        String task = null;
-        if (tasks.size() == 1) {
-            try {
-                engine.getTaskService().complete(tasks.getFirst().getId(), variables);
-                task = tasks.getFirst().getTaskDefinitionKey();
-            } catch (FlowableException e) {
-                FlowableRuntimeUtils.throwException(
-                        e, "While completing task '" + tasks.getFirst().getName() + "' for " + user);
+        if (tasks.isEmpty()) {
+            LOG.warn("No tasks found for process instance id {}", procInstID);
+            return Set.of();
+        }
+
+        Task task = tasks.removeFirst();
+        try {
+            engine.getTaskService().complete(task.getId(), variables);
+
+            if (!tasks.isEmpty()) {
+                engine.getTaskService().deleteTasks(tasks.stream().map(Task::getId).toList());
             }
-        } else {
-            LOG.warn("Expected a single task, found {}", tasks.size());
+        } catch (FlowableException e) {
+            FlowableRuntimeUtils.throwException(
+                    e, "While completing task '" + task.getName() + "' for " + user);
         }
 
         Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
         postTasks.removeAll(preTasks);
-        if (task != null) {
-            postTasks.add(task);
-        }
-
+        postTasks.add(task.getTaskDefinitionKey());
         return postTasks;
     }
 
