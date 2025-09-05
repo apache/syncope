@@ -88,7 +88,7 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 append(" FROM ").
                 append(svs.asSearchViewSupport().attr().name()).
                 append(" usa WHERE usa.any_id = ").
-                append(svs.asSearchViewSupport().attr().alias()).
+                append(defaultSV(svs).alias()).
                 append(".any_id").
                 append(" AND usa.schema_id ='").append(fieldName).append("'").
                 append(isOracle() ? " FETCH FIRST 1 ROWS ONLY " : " LIMIT 1").
