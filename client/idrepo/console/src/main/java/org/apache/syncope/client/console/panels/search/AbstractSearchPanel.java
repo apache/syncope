@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -204,10 +205,12 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                saveFIQLQuery.setFiql(
-                        SearchUtils.buildFIQL(AbstractSearchPanel.this.getModel().getObject(),
-                                getSearchConditionBuilder()).
-                                replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), ""));
+                Optional.ofNullable(SearchUtils.buildFIQL(
+                        AbstractSearchPanel.this.getModel().getObject(), getSearchConditionBuilder())).
+                        ifPresentOrElse(
+                                fiql -> saveFIQLQuery.setFiql(
+                                        fiql.replaceAll(SearchUtils.getTypeConditionPattern(type).pattern(), "")),
+                                () -> saveFIQLQuery.setFiql(null));
                 saveFIQLQuery.toggle(target, true);
             }
         }, ActionLink.ActionType.EXPORT, StringUtils.EMPTY).hideLabel();
