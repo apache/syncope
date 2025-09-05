@@ -19,6 +19,7 @@
 package org.apache.syncope.core.flowable.impl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import org.flowable.task.api.Task;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter implements WorkflowTaskManager {
 
@@ -220,13 +222,17 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
             return Set.of();
         }
 
+        tasks.sort(Comparator.comparing(Task::getCreateTime).reversed());
+
         Task task = tasks.removeFirst();
         try {
-            engine.getTaskService().complete(task.getId(), variables);
-
             if (!tasks.isEmpty()) {
-                engine.getTaskService().deleteTasks(tasks.stream().map(Task::getId).toList());
+                new NamedParameterJdbcTemplate(engine.getDataSource()).update(
+                        "DELETE FROM ACT_RU_TASK WHERE id_ IN (:tasks)",
+                        Map.of("tasks", tasks.stream().map(Task::getId).toList()));
             }
+
+            engine.getTaskService().complete(task.getId(), variables);
         } catch (FlowableException e) {
             FlowableRuntimeUtils.throwException(
                     e, "While completing task '" + task.getName() + "' for " + user);
