@@ -84,9 +84,9 @@ public class MySQLJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         obs.views.add(svs.field());
 
-        item.select = new StringBuilder().append("( SELECT usa").
-                append('.').
-                append((schema.isUniqueConstraint() ? "attrUniqueValue" : key(schema.getType()))).
+        item.select = new StringBuilder().append(schema.isUniqueConstraint()
+                ? "( SELECT JSON_UNQUOTE(JSON_EXTRACT(usa.attrUniqueValue, '$. " + key(schema.getType()) + "')) "
+                : "( SELECT usa." + key(schema.getType())).
                 append(" FROM ").
                 append(svs.field().name()).
                 append(" usa WHERE usa.any_id = ").
