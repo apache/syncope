@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.to.AuditConfTO;
 import org.apache.syncope.common.lib.to.AuditEventTO;
 import org.apache.syncope.common.lib.to.AuthModuleTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.OpEvent;
 import org.apache.syncope.common.lib.wa.GoogleMfaAuthToken;
@@ -47,6 +48,7 @@ import org.apache.syncope.common.rest.api.beans.AuditQuery;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuditService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.wa.GoogleMfaAuthTokenService;
 import org.apache.syncope.common.rest.api.service.wa.ImpersonationService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
@@ -62,6 +64,8 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
     public static final List<AuthModuleTO> AUTH_MODULES = new ArrayList<>();
 
     public static final List<AttrRepoTO> ATTR_REPOS = new ArrayList<>();
+
+    public static final List<PasswordManagementTO> PASSWORD_MANAGEMENTS = new ArrayList<>();
 
     public static final List<WAClientApp> CLIENT_APPS = new ArrayList<>();
 
@@ -126,6 +130,37 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
         @Override
         public void delete(final String key) {
             ATTR_REPOS.removeIf(m -> Objects.equals(key, m.getKey()));
+        }
+    }
+
+    protected static class StubPasswordManagementService implements PasswordManagementService {
+
+        @Override
+        public PasswordManagementTO read(final String key) {
+            return PASSWORD_MANAGEMENTS.stream().filter(pm -> Objects.equals(key, pm.getKey())).
+                    findFirst().orElseThrow(() -> new NotFoundException("Password Management with key " + key));
+        }
+
+        @Override
+        public List<PasswordManagementTO> list() {
+            return PASSWORD_MANAGEMENTS;
+        }
+
+        @Override
+        public Response create(final PasswordManagementTO passwordManagementTO) {
+            PASSWORD_MANAGEMENTS.add(passwordManagementTO);
+            return Response.created(null).build();
+        }
+
+        @Override
+        public void update(final PasswordManagementTO passwordManagementTO) {
+            delete(passwordManagementTO.getKey());
+            create(passwordManagementTO);
+        }
+
+        @Override
+        public void delete(final String key) {
+            PASSWORD_MANAGEMENTS.removeIf(pm -> Objects.equals(key, pm.getKey()));
         }
     }
 
@@ -329,6 +364,7 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                         AuditService.class,
                         AuthModuleService.class,
                         AttrRepoService.class,
+                        PasswordManagementService.class,
                         WAClientAppService.class,
                         WAConfigService.class,
                         GoogleMfaAuthTokenService.class,
@@ -342,6 +378,9 @@ public class SyncopeCoreTestingServer implements ApplicationListener<ContextRefr
                 sf.setResourceProvider(
                         AttrRepoService.class,
                         new SingletonResourceProvider(new StubAttrRepoService(), true));
+                sf.setResourceProvider(
+                        PasswordManagementService.class,
+                        new SingletonResourceProvider(new StubPasswordManagementService(), true));
                 sf.setResourceProvider(
                         WAClientAppService.class,
                         new SingletonResourceProvider(new StubWAClientAppService(), true));
