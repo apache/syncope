@@ -15,10 +15,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:17-jammy
 LABEL org.opencontainers.image.authors="dev@syncope.apache.org"
-
-RUN apk update && apk add bash curl
 
 RUN mkdir /opt/syncope /opt/syncope/bin /opt/syncope/bundles /opt/syncope/conf /opt/syncope/lib /opt/syncope/jpa-json /opt/syncope/log
 
@@ -42,8 +40,7 @@ CMD ["/opt/syncope/bin/startup.sh"]
 
 RUN curl -o /usr/local/bin/wait-for-it https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh && chmod 755 /usr/local/bin/wait-for-it
 
-RUN addgroup --system syncope && adduser -S -s /usr/sbin/nologin -G syncope syncope
-RUN chown -R syncope:syncope /opt/syncope
+RUN useradd -ms /usr/sbin/nologin syncope && chown -R syncope /opt/syncope
 USER syncope
 
 EXPOSE 8080
