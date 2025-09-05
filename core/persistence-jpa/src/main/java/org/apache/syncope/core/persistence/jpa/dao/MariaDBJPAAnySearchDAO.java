@@ -85,8 +85,9 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
         item.select = new StringBuilder().
                 append("( SELECT usa").append('.').append(key(schema.getType())).
-                append(" FROM ").
-                append(svs.asSearchViewSupport().attr().name()).
+                append(" FROM ").append(schema.isUniqueConstraint()
+                ? svs.asSearchViewSupport().uniqueAttr().name()
+                : svs.asSearchViewSupport().attr().name()).
                 append(" usa WHERE usa.any_id = ").
                 append(defaultSV(svs).alias()).
                 append(".any_id").
