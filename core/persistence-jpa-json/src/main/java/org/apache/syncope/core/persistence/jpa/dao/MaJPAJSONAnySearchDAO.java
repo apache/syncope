@@ -30,6 +30,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttrCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.JSONPlainAttr;
@@ -64,6 +65,35 @@ public class MaJPAJSONAnySearchDAO extends JPAAnySearchDAO {
                 validator);
     }
 
+    @Override
+    protected void parseOrderByForPlainSchema(
+            final SearchSupport svs,
+            final OrderBySupport obs,
+            final OrderBySupport.Item item,
+            final OrderByClause clause,
+            final PlainSchema schema,
+            final String fieldName) {
+
+        // keep track of involvement of non-mandatory schemas in the order by clauses
+        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
+
+        obs.views.add(svs.field());
+
+        item.select = new StringBuilder().
+                append("( SELECT usa").append('.').append(key(schema.getType())).
+                append(" FROM ").append(schema.isUniqueConstraint()
+                ? svs.asSearchViewSupport().uniqueAttr().name
+                : svs.asSearchViewSupport().attr().name).
+                append(" usa WHERE usa.any_id = ").
+                append(defaultSV(svs).alias).
+                append(".any_id").
+                append(" AND usa.schema_id ='").append(fieldName).append("'").
+                append(" LIMIT 1").
+                append(") AS ").append(fieldName).toString();
+        item.where = "plainSchema = '" + fieldName + '\'';
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
+    }
+    
     @Override
     protected AnySearchNode getQuery(
             final AttrCond cond,

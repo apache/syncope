@@ -1052,6 +1052,19 @@ public class AnySearchTest extends AbstractTest {
 
         assertFalse(users.isEmpty());
         assertEquals(2, users.size());
+
+        // order by unique attribute
+        OrderByClause orderByFullname = new OrderByClause();
+        orderByFullname.setField("fullname");
+        orderByFullname.setDirection(OrderByClause.Direction.DESC);
+        
+        users = searchDAO.search(SearchCond.getLeaf(idCond), List.of(orderByFullname), AnyTypeKind.USER);
+
+        assertEquals("vivaldi", users.get(4).getUsername());
+        assertEquals("puccini", users.get(3).getUsername());
+        assertEquals("rossini", users.get(2).getUsername());
+        assertEquals("verdi", users.get(1).getUsername());
+        assertEquals("bellini", users.get(0).getUsername());
     }
 
     private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
