@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.springframework.data.domain.Sort;
 
 public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
 
@@ -68,6 +69,35 @@ public class MariaDBJPAAnySearchDAO extends AbstractJPAAnySearchDAO {
                 entityManager);
     }
 
+    @Override
+    protected void parseOrderByForPlainSchema(
+            final SearchSupport svs,
+            final OrderBySupport obs,
+            final OrderBySupport.Item item,
+            final Sort.Order clause,
+            final PlainSchema schema,
+            final String fieldName) {
+
+        // keep track of involvement of non-mandatory schemas in the order by clauses
+        obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
+
+        obs.views.add(svs.field());
+
+        item.select = new StringBuilder().
+                append("( SELECT usa").append('.').append(key(schema.getType())).
+                append(" FROM ").append(schema.isUniqueConstraint()
+                ? svs.asSearchViewSupport().uniqueAttr().name()
+                : svs.asSearchViewSupport().attr().name()).
+                append(" usa WHERE usa.any_id = ").
+                append(defaultSV(svs).alias()).
+                append(".any_id").
+                append(" AND usa.schema_id ='").append(fieldName).append("'").
+                append(" LIMIT 1").
+                append(") AS ").append(fieldName).toString();
+        item.where = "plainSchema = '" + fieldName + '\'';
+        item.orderBy = fieldName + ' ' + clause.getDirection().name();
+    }
+    
     @Override
     protected Pair<Boolean, AnySearchNode> getQuery(
             final AttrCond cond,

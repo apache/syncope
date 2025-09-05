@@ -102,6 +102,7 @@ import org.apache.syncope.common.lib.types.StatusRType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.RealmQuery;
 import org.apache.syncope.common.rest.api.beans.ReconQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
@@ -1893,6 +1894,107 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             RESOURCE_SERVICE.delete(ldap.getKey());
             SCHEMA_SERVICE.delete(SchemaType.PLAIN, userWithDotSchema.getKey());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1906() {
+        UserCR userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "aa1"));
+        userCR.getPlainAttrs().add(attr("fullname", "aa1"));
+        UserTO aa1 = createUser(userCR).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "aa2"));
+        userCR.getPlainAttrs().add(attr("fullname", "aa2"));
+        UserTO aa2 = createUser(userCR).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "aa3"));
+        userCR.getPlainAttrs().add(attr("fullname", "aa3"));
+        UserTO aa3 = createUser(userCR).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "aa4"));
+        userCR.getPlainAttrs().add(attr("fullname", "aa4"));
+        UserTO aa4 = createUser(userCR).getEntity();
+
+        userCR = UserITCase.getUniqueSample("issuesyncope1906@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "aa5"));
+        userCR.getPlainAttrs().add(attr("fullname", "aa5"));
+        UserTO aa5 = createUser(userCR).getEntity();
+
+        // add also other users with valued ctype
+        userCR = UserITCase.getUniqueSample("actype@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "a ctype"));
+        userCR.getPlainAttrs().add(attr("fullname", "a fullname"));
+        createUser(userCR);
+
+        userCR = UserITCase.getUniqueSample("actypetwo@syncope.apache.org");
+        userCR.getPlainAttrs()
+                .removeIf(attr -> "ctype".equals(attr.getSchema()) || "fullname".equals(attr.getSchema()));
+        userCR.getPlainAttrs().add(attr("ctype", "a ctype 2"));
+        userCR.getPlainAttrs().add(attr("fullname", "a fullname 2"));
+        createUser(userCR);
+        try {
+            await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                                    .query())
+                    .size(0)
+                    .page(1)
+                    .build()).getTotalCount() == 5);
+            List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                                    .query()).size(10).page(1).orderBy("ctype DESC").build()).getResult();
+
+            assertEquals(5, users.size());
+
+            assertEquals(aa1.getUsername(), users.get(4).getUsername());
+            assertEquals(aa2.getUsername(), users.get(3).getUsername());
+            assertEquals(aa3.getUsername(), users.get(2).getUsername());
+            assertEquals(aa4.getUsername(), users.get(1).getUsername());
+            assertEquals(aa5.getUsername(), users.get(0).getUsername());
+
+            users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                                    .query()).size(10).page(1).orderBy("ctype ASC").build()).getResult();
+
+            assertEquals(aa5.getUsername(), users.get(4).getUsername());
+            assertEquals(aa4.getUsername(), users.get(3).getUsername());
+            assertEquals(aa3.getUsername(), users.get(2).getUsername());
+            assertEquals(aa2.getUsername(), users.get(1).getUsername());
+            assertEquals(aa1.getUsername(), users.get(0).getUsername());
+
+            // order by unique attribute
+            users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                                    .query()).size(10).page(1).orderBy("fullname ASC").build()).getResult();
+
+            assertEquals(aa5.getUsername(), users.get(4).getUsername());
+            assertEquals(aa4.getUsername(), users.get(3).getUsername());
+            assertEquals(aa3.getUsername(), users.get(2).getUsername());
+            assertEquals(aa2.getUsername(), users.get(1).getUsername());
+            assertEquals(aa1.getUsername(), users.get(0).getUsername());
+
+        } finally {
+            USER_SERVICE.search(new AnyQuery.Builder().fiql(
+                            SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
+                    .size(10)
+                    .page(1)
+                    .orderBy("ctype DESC")
+                    .build()).getResult().forEach(u -> deleteUser(u.getKey()));
         }
     }
 }
