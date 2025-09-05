@@ -1957,11 +1957,7 @@ public class UserIssuesITCase extends AbstractITCase {
                     .build()).getTotalCount() == 5);
             List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query())
-                    .size(10)
-                    .page(1)
-                    .orderBy("ctype DESC")
-                    .build()).getResult();
+                                    .query()).size(10).page(1).orderBy("ctype DESC").build()).getResult();
 
             assertEquals(5, users.size());
 
@@ -1973,33 +1969,25 @@ public class UserIssuesITCase extends AbstractITCase {
 
             users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query())
-                    .size(10)
-                    .page(1)
-                    .orderBy("ctype ASC")
-                    .build()).getResult();
+                                    .query()).size(10).page(1).orderBy("ctype ASC").build()).getResult();
 
             assertEquals(aa5.getUsername(), users.get(4).getUsername());
             assertEquals(aa4.getUsername(), users.get(3).getUsername());
             assertEquals(aa3.getUsername(), users.get(2).getUsername());
             assertEquals(aa2.getUsername(), users.get(1).getUsername());
             assertEquals(aa1.getUsername(), users.get(0).getUsername());
-            
+
             // order by unique attribute
             users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query())
-                    .size(10)
-                    .page(1)
-                    .orderBy("fullname ASC")
-                    .build()).getResult();
+                                    .query()).size(10).page(1).orderBy("fullname ASC").build()).getResult();
 
             assertEquals(aa5.getUsername(), users.get(4).getUsername());
             assertEquals(aa4.getUsername(), users.get(3).getUsername());
             assertEquals(aa3.getUsername(), users.get(2).getUsername());
             assertEquals(aa2.getUsername(), users.get(1).getUsername());
             assertEquals(aa1.getUsername(), users.get(0).getUsername());
-            
+
         } finally {
             USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
