@@ -1057,7 +1057,7 @@ public class AnySearchTest extends AbstractTest {
         OrderByClause orderByFullname = new OrderByClause();
         orderByFullname.setField("fullname");
         orderByFullname.setDirection(OrderByClause.Direction.DESC);
-        
+
         users = searchDAO.search(SearchCond.getLeaf(idCond), List.of(orderByFullname), AnyTypeKind.USER);
 
         assertEquals("vivaldi", users.get(4).getUsername());
