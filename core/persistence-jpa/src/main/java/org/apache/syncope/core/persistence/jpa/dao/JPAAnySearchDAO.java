@@ -995,9 +995,15 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             obs.views.add(svs.asSearchViewSupport().uniqueAttr());
 
             item.select = new StringBuilder().
-                    append(svs.asSearchViewSupport().uniqueAttr().alias).append('.').
-                    append(key(schema.getType())).
-                    append(" AS ").append(fieldName).toString();
+                    append("( SELECT usa").append('.').append(key(schema.getType())).
+                    append(" FROM ").
+                    append(svs.asSearchViewSupport().uniqueAttr().name).
+                    append(" usa WHERE usa.any_id = ").
+                    append(svs.asSearchViewSupport().uniqueAttr().alias).
+                    append(".any_id").
+                    append(" AND usa.schema_id ='").append(fieldName).append("'").
+                    append(isOracle() ? " FETCH FIRST 1 ROWS ONLY " : " LIMIT 1").
+                    append(") AS ").append(fieldName).toString();
             item.where = new StringBuilder().
                     append(svs.asSearchViewSupport().uniqueAttr().alias).
                     append(".schema_id='").append(fieldName).append("'").toString();
