@@ -1573,20 +1573,13 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 2. remove resources, auxiliary classes and roles
         userUR.getResources().clear();
-        userUR.getResources().add(new StringPatchItem.Builder()
-                .value(RESOURCE_NAME_TESTDB)
-                .operation(PatchOperation.DELETE)
-                .build());
+        userUR.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_TESTDB)
+                .operation(PatchOperation.DELETE).build());
         userUR.getAuxClasses().clear();
-        userUR.getAuxClasses().add(new StringPatchItem.Builder()
-                .value("csv")
-                .operation(PatchOperation.DELETE)
+        userUR.getAuxClasses().add(new StringPatchItem.Builder().value("csv").operation(PatchOperation.DELETE)
                 .build());
         userUR.getRoles().clear();
-        userUR.getRoles().add(new StringPatchItem.Builder()
-                .value("Other")
-                .operation(PatchOperation.DELETE)
-                .build());
+        userUR.getRoles().add(new StringPatchItem.Builder().value("Other").operation(PatchOperation.DELETE).build());
         updateUser(userUR);
 
         UserTO userTO = USER_SERVICE.read("1417acbe-cbf6-4277-9372-e75e04f97000");
@@ -1603,8 +1596,7 @@ public class UserIssuesITCase extends AbstractITCase {
         req.setUsername(new StringReplacePatchItem.Builder().value("newUsername" + getUUIDString()).build());
 
         WebClient webClient = WebClient.create(ADDRESS + "/users/" + userTO.getKey(), ADMIN_UNAME, ADMIN_PWD, null).
-                accept(MediaType.APPLICATION_JSON_TYPE).
-                type(MediaType.APPLICATION_JSON_TYPE);
+                accept(MediaType.APPLICATION_JSON_TYPE).type(MediaType.APPLICATION_JSON_TYPE);
 
         Response response = webClient.invoke(HttpMethod.PATCH, JSON_MAPPER.writeValueAsString(req));
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
@@ -1736,10 +1728,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
             // 2. pull users from resource-db-pull
             ExecTO execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE,
-                    TaskType.PULL,
-                    "7c2242f4-14af-4ab5-af31-cdae23783655",
-                    MAX_WAIT_SECONDS,
-                    false);
+                    TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", MAX_WAIT_SECONDS, false);
             assertEquals("SUCCESS", execution.getStatus());
             assertFalse(rossini.isSuspended());
             assertEquals("active", rossini.getStatus());
@@ -1761,12 +1750,8 @@ public class UserIssuesITCase extends AbstractITCase {
                     + "'false' WHERE USERNAME = 'rossini'");
 
             // 5. pull again rossini from resource-db-pull
-            execution = AbstractTaskITCase.execProvisioningTask(
-                    TASK_SERVICE,
-                    TaskType.PULL,
-                    "7c2242f4-14af-4ab5-af31-cdae23783655",
-                    MAX_WAIT_SECONDS,
-                    false);
+            execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE, TaskType.PULL, 
+                    "7c2242f4-14af-4ab5-af31-cdae23783655", MAX_WAIT_SECONDS, false);
             assertEquals("SUCCESS", execution.getStatus());
 
             rossini = USER_SERVICE.read("rossini");
@@ -1785,11 +1770,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
             // 7. pull again rossini from resource-db-pull
             execution = AbstractTaskITCase.execProvisioningTask(
-                    TASK_SERVICE,
-                    TaskType.PULL,
-                    "7c2242f4-14af-4ab5-af31-cdae23783655",
-                    MAX_WAIT_SECONDS,
-                    false);
+                    TASK_SERVICE, TaskType.PULL, "7c2242f4-14af-4ab5-af31-cdae23783655", MAX_WAIT_SECONDS, false);
             assertEquals("SUCCESS", execution.getStatus());
 
             rossini = USER_SERVICE.read("rossini");
@@ -1809,8 +1790,7 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             // restore attributes and (if needed) status
             updateUser(new UserUR.Builder(rossini.getKey()).
-                    plainAttrs(
-                            attrAddReplacePatch("surname", "Rossini"),
+                    plainAttrs(attrAddReplacePatch("surname", "Rossini"),
                             new AttrPatch.Builder(
                                     new Attr.Builder("email").build()).operation(PatchOperation.DELETE).build()).
                     resource(new StringPatchItem.Builder().
@@ -1846,16 +1826,12 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. propagation tasks cleanup
         TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
-                .anyTypeKind(AnyTypeKind.USER)
-                .resource(RESOURCE_NAME_LDAP)
-                .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24")
-                .build()).getResult()
+                .anyTypeKind(AnyTypeKind.USER).resource(RESOURCE_NAME_LDAP)
+                .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24").build()).getResult()
                 .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
         TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
-                .anyTypeKind(AnyTypeKind.USER)
-                .resource(RESOURCE_NAME_LDAP)
-                .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee")
-                .build()).getResult()
+                .anyTypeKind(AnyTypeKind.USER).resource(RESOURCE_NAME_LDAP)
+                .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").build()).getResult()
                 .forEach(pt -> TASK_SERVICE.delete(TaskType.PROPAGATION, pt.getKey()));
 
         // 4. delete group cGroupForPropagation: no deprovision should be fired on bellini, since there is already
@@ -1863,8 +1839,7 @@ public class UserIssuesITCase extends AbstractITCase {
         GROUP_SERVICE.delete(cGroupForPropagation.getKey());
         await().during(5, TimeUnit.SECONDS).atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
                 () -> TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
-                        .anyTypeKind(AnyTypeKind.USER)
-                        .resource(RESOURCE_NAME_LDAP)
+                        .anyTypeKind(AnyTypeKind.USER).resource(RESOURCE_NAME_LDAP)
                         .entityKey("c9b2dec2-00a7-4855-97c0-d854842b4b24").build())
                         .getResult().stream().map(PropagationTaskTO.class::cast)
                         .collect(Collectors.toList()).stream().noneMatch(pt -> ResourceOperation.DELETE == pt.
@@ -1872,8 +1847,7 @@ public class UserIssuesITCase extends AbstractITCase {
         GROUP_SERVICE.delete(dGroupForPropagation.getKey());
         await().atMost(MAX_WAIT_SECONDS, TimeUnit.SECONDS).until(
                 () -> TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION)
-                        .anyTypeKind(AnyTypeKind.USER)
-                        .resource(RESOURCE_NAME_LDAP)
+                        .anyTypeKind(AnyTypeKind.USER).resource(RESOURCE_NAME_LDAP)
                         .entityKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee").build())
                         .getResult().stream().map(PropagationTaskTO.class::cast)
                         .collect(Collectors.toList()).stream().anyMatch(pt -> ResourceOperation.DELETE == pt.
@@ -1886,7 +1860,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userWithDotSchema.setKey("user.testWithDot");
         userWithDotSchema.setAnyTypeClass("minimal user");
         SCHEMA_SERVICE.create(SchemaType.PLAIN, userWithDotSchema);
-        
+
         ResourceTO ldap = RESOURCE_SERVICE.read(RESOURCE_NAME_LDAP);
         ldap.setKey("ldapWithDot");
 
@@ -1979,10 +1953,7 @@ public class UserIssuesITCase extends AbstractITCase {
         try {
             await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query())
-                    .size(0)
-                    .page(1)
-                    .build()).getTotalCount() == 5);
+                                    .query()).size(0).page(1).build()).getTotalCount() == 5);
             List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
                             .query()).size(10).page(1).orderBy("ctype DESC").build()).getResult();
@@ -2019,10 +1990,7 @@ public class UserIssuesITCase extends AbstractITCase {
         } finally {
             USER_SERVICE.search(new AnyQuery.Builder().fiql(
                             SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
-                    .size(10)
-                    .page(1)
-                    .orderBy("ctype DESC")
-                    .build()).getResult().forEach(u -> deleteUser(u.getKey()));
+                    .size(10).page(1).orderBy("ctype DESC").build()).getResult().forEach(u -> deleteUser(u.getKey()));
         }
     }
 }
