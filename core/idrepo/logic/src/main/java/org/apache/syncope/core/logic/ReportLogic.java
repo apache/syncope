@@ -92,6 +92,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
     public ReportTO create(final ReportTO reportTO) {
         Report report = entityFactory.newEntity(Report.class);
         binder.getReport(report, reportTO);
+
         report = reportDAO.save(report);
         try {
             jobManager.register(
@@ -116,11 +117,15 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
         binder.getReport(report, reportTO);
         report = reportDAO.save(report);
         try {
-            jobManager.register(
-                    report,
-                    AuthContextUtils.getUsername());
+            if (report.isActive()) {
+                jobManager.register(
+                        report,
+                        AuthContextUtils.getUsername());
+            } else {
+                jobManager.unregister(report);
+            }
         } catch (Exception e) {
-            LOG.error("While registering job for report {}", report.getKey(), e);
+            LOG.error("While (un)registering job for report {}", report.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());

@@ -148,6 +148,13 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             final boolean dryRun,
             final Map<String, Object> jobData) {
 
+        TaskType type = taskUtilsFactory.getInstance(task).getType();
+
+        if (!task.isActive()) {
+            LOG.debug("{} Task {} {} not active, skipping job registration", type, task.getKey(), task.getName());
+            return;
+        }
+
         Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
                         ? implementationDAO.findByType(IdRepoImplementationType.TASKJOB_DELEGATE).stream().
@@ -169,7 +176,7 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 JobNamer.getJobName(task),
                 executor,
                 dryRun);
-        context.getData().put(JobManager.TASK_TYPE, taskUtilsFactory.getInstance(task).getType());
+        context.getData().put(JobManager.TASK_TYPE, type);
         context.getData().put(JobManager.TASK_KEY, task.getKey());
         context.getData().put(JobManager.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
         context.getData().putAll(jobData);
@@ -221,6 +228,11 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
             final OffsetDateTime startAt,
             final String executor,
             final boolean dryRun) {
+
+        if (!report.isActive()) {
+            LOG.debug("Report {} {} not active, skipping job registration", report.getKey(), report.getName());
+            return;
+        }
 
         JobExecutionContext context = new JobExecutionContext(
                 domain,
@@ -314,31 +326,24 @@ public class DefaultJobManager implements JobManager, SyncopeCoreLoader {
                 }
             }
 
-            if (loadException) {
-                LOG.error("Errors while loading job for tasks, aborting");
-            } else {
-                // 2. jobs for Reports
-                for (Iterator<? extends Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
-                    Report report = it.next();
+            // 2. jobs for Reports
+            loadException = false;
+            for (Iterator<? extends Report> it = reportDAO.findAll().iterator(); it.hasNext() && !loadException;) {
+                Report report = it.next();
 
-                    LOG.debug("Loading job for Report {} {}", report.getKey(), report.getName());
+                LOG.debug("Loading job for Report {} {}", report.getKey(), report.getName());
 
-                    try {
-                        register(
-                                domain,
-                                report,
-                                report.getCronExpression(),
-                                null,
-                                securityProperties.getAdminUser(),
-                                false);
-                    } catch (Exception e) {
-                        LOG.error("While loading job instance for report {}", report.getName(), e);
-                        loadException = true;
-                    }
-                }
-
-                if (loadException) {
-                    LOG.error("Errors while loading job for reports, aborting");
+                try {
+                    register(
+                            domain,
+                            report,
+                            report.getCronExpression(),
+                            null,
+                            securityProperties.getAdminUser(),
+                            false);
+                } catch (Exception e) {
+                    LOG.error("While loading job instance for report {}", report.getName(), e);
+                    loadException = true;
                 }
             }
         });
