@@ -109,11 +109,6 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
         task = (T) taskDAO.findById(taskType, taskKey).
                 orElseThrow(() -> new JobExecutionException("Not found: " + taskType + " Task " + taskKey));
 
-        if (!task.isActive()) {
-            LOG.info("Task {} not active, aborting...", taskKey);
-            return;
-        }
-
         manageOperationId = Optional.ofNullable(MDC.get(Job.OPERATION_ID)).
                 map(operationId -> false).
                 orElseGet(() -> {
@@ -186,6 +181,11 @@ public abstract class AbstractSchedTaskJobDelegate<T extends SchedTask> implemen
             throws JobExecutionException {
 
         init(taskType, taskKey, context);
+
+        if (!task.isActive()) {
+            LOG.info("Task {} not active, aborting...", taskKey);
+            return;
+        }
 
         setStatus("Initialization completed");
 
