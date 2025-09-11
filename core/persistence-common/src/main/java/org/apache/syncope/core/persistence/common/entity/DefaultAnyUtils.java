@@ -18,10 +18,6 @@
  */
 package org.apache.syncope.core.persistence.common.entity;
 
-import static org.apache.syncope.common.lib.types.AnyTypeKind.ANY_OBJECT;
-import static org.apache.syncope.common.lib.types.AnyTypeKind.GROUP;
-import static org.apache.syncope.common.lib.types.AnyTypeKind.USER;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
