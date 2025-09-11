@@ -23,11 +23,10 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
-public interface Group extends Relatable<Group, AnyObject, GRelationship> {
+public interface Group extends Relatable<Group, GRelationship> {
 
     String getName();
 

@@ -196,7 +196,7 @@ public class ElasticsearchUtils {
         }
 
         // add also flattened membership attributes
-        if (any instanceof Groupable<?, ?, ?, ?> groupable) {
+        if (any instanceof Groupable<?, ?, ?> groupable) {
             groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
                 List<Object> values = mAttr.getValues().stream().
                         map(PlainAttrValue::getValue).collect(Collectors.toList());

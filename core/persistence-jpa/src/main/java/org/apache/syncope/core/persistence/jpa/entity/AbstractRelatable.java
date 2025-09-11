@@ -24,12 +24,12 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public abstract class AbstractRelatable<
         L extends Any,
-        R extends Any,
-        REL extends Relationship<L, R>>
-        extends AbstractAny implements Relatable<L, R, REL> {
+        REL extends Relationship<L, AnyObject>>
+        extends AbstractAny implements Relatable<L, REL> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 

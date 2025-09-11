@@ -32,7 +32,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RelationshipTO;
 
 @JsonPropertyOrder(value = { "_class", "name" })
 @Schema(allOf = { AnyCR.class })
@@ -51,21 +50,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
             super(realm);
             getInstance().setType(type);
             getInstance().setName(name);
-        }
-
-        public Builder relationship(final RelationshipTO relationship) {
-            getInstance().getRelationships().add(relationship);
-            return this;
-        }
-
-        public Builder relationships(final RelationshipTO... relationships) {
-            getInstance().getRelationships().addAll(List.of(relationships));
-            return this;
-        }
-
-        public Builder relationships(final Collection<RelationshipTO> relationships) {
-            getInstance().getRelationships().addAll(relationships);
-            return this;
         }
 
         public Builder membership(final MembershipTO membership) {
@@ -87,8 +71,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
     private String type;
 
     private String name;
-
-    private final List<RelationshipTO> relationships = new ArrayList<>();
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
@@ -121,21 +103,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
-        return relationships.stream().filter(
-                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
-                findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
-    @Override
-    public List<RelationshipTO> getRelationships() {
-        return relationships;
-    }
-
-    @JsonIgnore
-    @Override
     public Optional<MembershipTO> getMembership(final String groupKey) {
         return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
@@ -158,7 +125,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(relationships).
                 append(memberships).
                 build();
     }
@@ -178,7 +144,6 @@ public class AnyObjectCR extends AnyCR implements GroupableRelatableTO {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 build();
     }

@@ -24,12 +24,11 @@ import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface User extends
         Account,
-        Groupable<User, UMembership, AnyObject, URelationship>,
-        Relatable<User, AnyObject, URelationship> {
+        Groupable<User, UMembership, URelationship>,
+        Relatable<User, URelationship> {
 
     String getToken();
 

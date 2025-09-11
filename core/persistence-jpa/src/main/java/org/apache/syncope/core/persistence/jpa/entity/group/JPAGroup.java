@@ -45,7 +45,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
@@ -65,7 +64,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 @Cacheable
 @GroupCheck
 public class JPAGroup
-        extends AbstractRelatable<Group, AnyObject, GRelationship>
+        extends AbstractRelatable<Group, GRelationship>
         implements Group {
 
     private static final long serialVersionUID = -5281258853142421875L;

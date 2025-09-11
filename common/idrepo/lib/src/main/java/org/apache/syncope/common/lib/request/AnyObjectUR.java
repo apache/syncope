@@ -50,21 +50,6 @@ public class AnyObjectUR extends AnyUR {
             return this;
         }
 
-        public Builder relationship(final RelationshipUR relationship) {
-            getInstance().getRelationships().add(relationship);
-            return this;
-        }
-
-        public Builder relationships(final RelationshipUR... relationships) {
-            getInstance().getRelationships().addAll(List.of(relationships));
-            return this;
-        }
-
-        public Builder relationships(final Collection<RelationshipUR> relationships) {
-            getInstance().getRelationships().addAll(relationships);
-            return this;
-        }
-
         public Builder membership(final MembershipUR membership) {
             getInstance().getMemberships().add(membership);
             return this;
@@ -82,8 +67,6 @@ public class AnyObjectUR extends AnyUR {
     }
 
     private StringReplacePatchItem name;
-
-    private final Set<RelationshipUR> relationships = new HashSet<>();
 
     private final Set<MembershipUR> memberships = new HashSet<>();
 
@@ -104,12 +87,6 @@ public class AnyObjectUR extends AnyUR {
         this.name = name;
     }
 
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
-    public Set<RelationshipUR> getRelationships() {
-        return relationships;
-    }
-
     @JacksonXmlElementWrapper(localName = "memberships")
     @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
@@ -118,7 +95,7 @@ public class AnyObjectUR extends AnyUR {
 
     @Override
     public boolean isEmpty() {
-        return super.isEmpty() && name == null && relationships.isEmpty() && memberships.isEmpty();
+        return super.isEmpty() && name == null && memberships.isEmpty();
     }
 
     @Override
@@ -126,7 +103,6 @@ public class AnyObjectUR extends AnyUR {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(relationships).
                 append(memberships).
                 build();
     }
@@ -146,7 +122,6 @@ public class AnyObjectUR extends AnyUR {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 build();
     }

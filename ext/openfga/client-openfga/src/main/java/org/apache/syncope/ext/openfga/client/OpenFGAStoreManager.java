@@ -240,14 +240,14 @@ public class OpenFGAStoreManager {
             next = List.of();
         } else {
             next = new ArrayList<>();
-            if (any instanceof Groupable<?, ?, ?, ?> groupable) {
+            if (any instanceof Groupable<?, ?, ?> groupable) {
                 next.addAll(groupable.getMemberships().stream().map(m -> new TupleKey().
                         user(id(groupable)).
                         relation(OpenFGAClientFactory.MEMBERSHIP_RELATION).
                         _object(id(m.getRightEnd()))).
                         toList());
             }
-            if (any instanceof Relatable<?, ?, ?> relatable) {
+            if (any instanceof Relatable<?, ?> relatable) {
                 next.addAll(relatable.getRelationships().stream().
                         filter(r -> !r.getType().getRightEndAnyType().equals(any.getType())).
                         map(r -> new TupleKey().

@@ -704,7 +704,7 @@ public class DefaultMappingManager implements MappingManager {
             } else {
                 references.add(user);
             }
-        } else if (intAttrName.getRelatedAnyObject() != null && any instanceof Relatable<?, ?, ?> relatable) {
+        } else if (intAttrName.getRelatedAnyObject() != null && any instanceof Relatable<?, ?> relatable) {
             AnyObject anyObject = anyObjectDAO.findById(intAttrName.getRelatedAnyObject()).orElse(null);
             if (anyObject == null || relatable.getRelationships(anyObject.getKey()).isEmpty()) {
                 LOG.warn("No relationship for {} in {}, ignoring", intAttrName.getRelatedAnyObject(), relatable);
@@ -712,7 +712,7 @@ public class DefaultMappingManager implements MappingManager {
                 references.add(anyObject);
             }
         } else if (intAttrName.getRelationshipAnyType() != null && intAttrName.getRelationshipType() != null
-                && any instanceof Relatable<?, ?, ?> relatable) {
+                && any instanceof Relatable<?, ?> relatable) {
 
             RelationshipType relationshipType = relationshipTypeDAO.findById(
                     intAttrName.getRelationshipType()).orElse(null);
@@ -727,7 +727,7 @@ public class DefaultMappingManager implements MappingManager {
                         map(Relationship::getRightEnd).
                         toList());
             }
-        } else if (intAttrName.getMembershipOfGroup() != null && any instanceof Groupable<?, ?, ?, ?> groupable) {
+        } else if (intAttrName.getMembershipOfGroup() != null && any instanceof Groupable<?, ?, ?> groupable) {
             membership = groupDAO.findByName(intAttrName.getMembershipOfGroup()).
                     flatMap(group -> groupable.getMembership(group.getKey())).
                     orElse(null);
@@ -829,7 +829,7 @@ public class DefaultMappingManager implements MappingManager {
                     case PLAIN -> {
                         PlainAttr attr = membership == null
                                 ? plainAttrGetter.apply(ref, intAttrName.getSchema().getKey())
-                                : ((Groupable<?, ?, ?, ?>) ref).getPlainAttr(
+                                : ((Groupable<?, ?, ?>) ref).getPlainAttr(
                                         intAttrName.getSchema().getKey(), membership).orElse(null);
                         if (attr != null) {
                             if (attr.getUniqueValue() != null) {
