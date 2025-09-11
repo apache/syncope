@@ -22,8 +22,8 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Relatable;
 
 public interface AnyObject extends
-        Groupable<AnyObject, AMembership, AnyObject, ARelationship>,
-        Relatable<AnyObject, AnyObject, ARelationship> {
+        Groupable<AnyObject, AMembership, ARelationship>,
+        Relatable<AnyObject, ARelationship> {
 
     String getName();
 

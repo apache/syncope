@@ -21,8 +21,9 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public interface Groupable<L extends Any, M extends Membership<L>, R extends Any, REL extends Relationship<L, R>>
+public interface Groupable<L extends Any, M extends Membership<L>, REL extends Relationship<L, AnyObject>>
         extends Any {
 
     /**

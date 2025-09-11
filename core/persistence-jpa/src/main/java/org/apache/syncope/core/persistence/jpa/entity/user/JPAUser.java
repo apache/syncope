@@ -53,7 +53,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -72,7 +71,7 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 @EntityListeners({ JSONUserListener.class })
 @Cacheable
 public class JPAUser
-        extends AbstractGroupableRelatable<User, UMembership, AnyObject, URelationship>
+        extends AbstractGroupableRelatable<User, UMembership, URelationship>
         implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;

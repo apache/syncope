@@ -18,6 +18,10 @@
  */
 package org.apache.syncope.core.persistence.common.entity;
 
+import static org.apache.syncope.common.lib.types.AnyTypeKind.ANY_OBJECT;
+import static org.apache.syncope.common.lib.types.AnyTypeKind.GROUP;
+import static org.apache.syncope.common.lib.types.AnyTypeKind.USER;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collection;
@@ -56,8 +60,13 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Relatable;
+import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -336,5 +345,58 @@ public class DefaultAnyUtils implements AnyUtils {
                     dao().save(any);
                 },
                 () -> LOG.warn("Any {} does not contain {} PLAIN attribute", key, schema.getKey()));
+    }
+
+    @Transactional
+    @Override
+    public void addRelationship(
+            final Relatable<?, ?> relatable,
+            final RelationshipType relationshipType,
+            final AnyObject otherEnd) {
+
+        switch (anyTypeKind) {
+            case USER -> {
+                URelationship urelationship = entityFactory.newEntity(URelationship.class);
+                urelationship.setType(relationshipType);
+                urelationship.setRightEnd(otherEnd);
+                urelationship.setLeftEnd((User) relatable);
+
+                ((User) relatable).add(urelationship);
+            }
+
+            case GROUP -> {
+                GRelationship grelationship = entityFactory.newEntity(GRelationship.class);
+                grelationship.setType(relationshipType);
+                grelationship.setRightEnd(otherEnd);
+                grelationship.setLeftEnd((Group) relatable);
+
+                ((Group) relatable).add(grelationship);
+            }
+
+            case ANY_OBJECT -> {
+                ARelationship arelationship = entityFactory.newEntity(ARelationship.class);
+                arelationship.setType(relationshipType);
+                arelationship.setRightEnd(otherEnd);
+                arelationship.setLeftEnd((AnyObject) relatable);
+
+                ((AnyObject) relatable).add(arelationship);
+            }
+
+            default -> {
+            }
+        }
+    }
+
+    @Transactional
+    @Override
+    public void removeRelationship(
+            final Relatable<?, ?> relatable,
+            final RelationshipType relationshipType,
+            final String otherEndKey) {
+
+        relatable.getRelationship(relationshipType, otherEndKey).ifPresent(relationship -> {
+            relatable.getRelationships().remove(relationship);
+            relationship.setLeftEnd(null);
+        });
     }
 }

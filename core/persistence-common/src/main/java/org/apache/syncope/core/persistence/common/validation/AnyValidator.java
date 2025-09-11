@@ -66,7 +66,7 @@ public class AnyValidator extends AbstractValidator<AnyCheck, Any> {
                 return raiseNotAllowedViolation(context, plainSchema, null);
             }
         }
-        if (any instanceof Groupable<?, ?, ?, ?> groupableRelatable) {
+        if (any instanceof Groupable<?, ?, ?> groupableRelatable) {
             for (Membership<?> membership : groupableRelatable.getMemberships()) {
                 for (PlainAttr attr : groupableRelatable.getPlainAttrs(membership)) {
                     String plainSchema = Optional.ofNullable(attr).map(PlainAttr::getSchema).orElse(null);

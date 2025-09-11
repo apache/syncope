@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface AnyUtils {
 
@@ -49,4 +50,8 @@ public interface AnyUtils {
     void addAttr(PlainAttrValidationManager validator, String key, PlainSchema schema, String value);
 
     void removeAttr(String key, PlainSchema schema);
+
+    void addRelationship(Relatable<?, ?> relatable, RelationshipType relationshipType, AnyObject otherEnd);
+
+    void removeRelationship(Relatable<?, ?> relatable, RelationshipType relationshipType, String otherEndKey);
 }

@@ -36,8 +36,6 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private String name;
 
-    private final List<RelationshipTO> relationships = new ArrayList<>();
-
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private final List<MembershipTO> dynMemberships = new ArrayList<>();
@@ -57,21 +55,6 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     public void setName(final String name) {
         this.name = name;
-    }
-
-    @JsonIgnore
-    @Override
-    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
-        return relationships.stream().filter(
-                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
-                findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
-    @Override
-    public List<RelationshipTO> getRelationships() {
-        return relationships;
     }
 
     @JsonIgnore
@@ -99,7 +82,6 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
         return new HashCodeBuilder().
                 appendSuper(super.hashCode()).
                 append(name).
-                append(relationships).
                 append(memberships).
                 append(dynMemberships).
                 build();
@@ -120,7 +102,6 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
         return new EqualsBuilder().
                 appendSuper(super.equals(obj)).
                 append(name, other.name).
-                append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 append(dynMemberships, other.dynMemberships).
                 build();

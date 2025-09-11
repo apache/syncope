@@ -19,27 +19,23 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.request.GroupCR;
 import org.apache.syncope.common.lib.request.GroupUR;
-import org.apache.syncope.common.lib.request.RelationshipUR;
 import org.apache.syncope.common.lib.to.ConnObject;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -59,10 +55,7 @@ import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.GRelationship;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
@@ -179,7 +172,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         }
         group.setRealm(realm);
 
-        // attributes and resources
+        // attributes, resources and relationships
         fill(anyTO, group, groupCR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         // owner
@@ -220,46 +213,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
                     }
                 },
                 () -> LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType())));
-
-        // relationships
-        Set<Pair<String, String>> relationships = new HashSet<>();
-        groupCR.getRelationships().forEach(relationshipTO -> {
-            AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
-            if (otherEnd == null) {
-                LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
-            } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
-                SyncopeClientException noRight =
-                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                noRight.getElements().add(
-                        "Relationships shall be created or updated only from their left end");
-                scce.addException(noRight);
-            } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                SyncopeClientException assigned =
-                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                        + " in relationship " + relationshipTO.getType());
-                scce.addException(assigned);
-            } else if (group.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
-                relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
-
-                relationshipTypeDAO.findById(relationshipTO.getType()).ifPresentOrElse(
-                        relationshipType -> {
-                            GRelationship relationship = entityFactory.newEntity(GRelationship.class);
-                            relationship.setType(relationshipType);
-                            relationship.setRightEnd(otherEnd);
-                            relationship.setLeftEnd(group);
-
-                            group.add(relationship);
-                        },
-                        () -> LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType()));
-            } else {
-                SyncopeClientException unrelatable =
-                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                        + " cannot be related");
-                scce.addException(unrelatable);
-            }
-        });
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -327,7 +280,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
             }
         }
 
-        // attributes and resources
+        // attributes, resources and relationships
         fill(anyTO, group, groupUR, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         group = groupDAO.save(group);
@@ -396,64 +349,6 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
         // remove all type extensions not contained in the TO
         group.getTypeExtensions().
                 removeIf(typeExt -> groupUR.getTypeExtension(typeExt.getAnyType().getKey()).isEmpty());
-
-        // relationships
-        Set<Pair<String, String>> relationships = new HashSet<>();
-        for (RelationshipUR patch : groupUR.getRelationships().stream().
-                filter(patch -> patch.getRelationshipTO() != null).toList()) {
-
-            RelationshipType relationshipType = relationshipTypeDAO.findById(patch.getRelationshipTO().getType()).
-                    orElse(null);
-            if (relationshipType == null) {
-                LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
-            } else {
-                GRelationship relationship = group.getRelationship(
-                        relationshipType, patch.getRelationshipTO().getOtherEndKey()).orElse(null);
-                if (relationship != null) {
-                    group.getRelationships().remove(relationship);
-                    relationship.setLeftEnd(null);
-                }
-
-                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    AnyObject otherEnd = anyObjectDAO.findById(patch.getRelationshipTO().getOtherEndKey()).orElse(null);
-                    if (otherEnd == null) {
-                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
-                    } else if (relationships.contains(
-                            Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
-
-                        SyncopeClientException assigned =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        assigned.getElements().add("Group was already in relationship "
-                                + patch.getRelationshipTO().getType() + " with "
-                                + otherEnd.getType().getKey() + " " + otherEnd.getName());
-                        scce.addException(assigned);
-                    } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
-                        SyncopeClientException noRight =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        noRight.getElements().add(
-                                "Relationships shall be created or updated only from their left end");
-                        scce.addException(noRight);
-                    } else if (group.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
-                        relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
-
-                        GRelationship newRelationship = entityFactory.newEntity(GRelationship.class);
-                        newRelationship.setType(relationshipType);
-                        newRelationship.setRightEnd(otherEnd);
-                        newRelationship.setLeftEnd(group);
-
-                        group.add(newRelationship);
-                    } else {
-                        LOG.error("{} cannot be related to {}", otherEnd, group);
-
-                        SyncopeClientException unrelatable =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                                + " cannot be related");
-                        scce.addException(unrelatable);
-                    }
-                }
-            }
-        }
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -541,7 +436,7 @@ public class GroupDataBinderImpl extends AnyDataBinder implements GroupDataBinde
 
     protected static void populateTransitiveResources(
             final Group group,
-            final Groupable<?, ?, ?, ?> any,
+            final Groupable<?, ?, ?> any,
             final Map<String, PropagationByResource<String>> result) {
 
         PropagationByResource<String> propByRes = new PropagationByResource<>();
