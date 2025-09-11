@@ -377,12 +377,12 @@ public class UserITCase extends AbstractITCase {
     public void createWithRequiredValueMissing() {
         UserCR userCR = getUniqueSample("a.b@c.it");
 
-        Attr type = userCR.getPlainAttr("ctype").get();
-        userCR.getPlainAttrs().remove(type);
+        Attr userId = userCR.getPlainAttr("userId").orElseThrow();
+        userCR.getPlainAttrs().remove(userId);
 
         userCR.getMemberships().add(new MembershipTO.Builder("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
-        // 1. create user without type (mandatory by UserSchema)
+        // 1. create user without userId (mandatory by UserSchema)
         try {
             createUser(userCR);
             fail("This should not happen");
@@ -390,12 +390,16 @@ public class UserITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
 
+        userCR.getPlainAttrs().add(attr("userId", userCR.getUsername()));
+
+        Attr ctype = userCR.getPlainAttr("userId").orElseThrow();
+        userCR.getPlainAttrs().remove(ctype);
         userCR.getPlainAttrs().add(attr("ctype", "F"));
 
-        Attr surname = userCR.getPlainAttr("surname").get();
+        Attr surname = userCR.getPlainAttr("surname").orElseThrow();
         userCR.getPlainAttrs().remove(surname);
 
-        // 2. create user without surname (mandatory when type == 'F')
+        // 2. create user without surname (mandatory when ctype == 'F')
         try {
             createUser(userCR);
             fail("This should not happen");
