@@ -33,9 +33,11 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -236,11 +238,16 @@ public class DefaultPropagationManager implements PropagationManager {
     public List<PropagationTaskInfo> getUserUpdateTasks(final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult) {
         UserUR userUR = wfResult.getResult().getLeft();
 
+        List<String> linkedAccountsResources = userUR.getLinkedAccounts().stream()
+            .map(LinkedAccountUR::getLinkedAccountTO)
+            .filter(linkedAccountTO -> linkedAccountTO.getPassword() != null)
+            .map(LinkedAccountTO::getResource).collect(Collectors.toList());
+
         // Propagate password update only to requested resources
         List<PropagationTaskInfo> tasks;
         if (userUR.getPassword() == null) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
-            tasks = getUserUpdateTasks(wfResult, List.of(), null);
+            tasks = getUserUpdateTasks(wfResult, linkedAccountsResources, null);
         } else {
             tasks = new ArrayList<>();
 
@@ -283,7 +290,7 @@ public class DefaultPropagationManager implements PropagationManager {
             noPwdWFResult.getPropByRes().removeAll(pwdResourceNames);
             noPwdWFResult.getPropByRes().purge();
             if (!noPwdWFResult.getPropByRes().isEmpty()) {
-                tasks.addAll(getUserUpdateTasks(noPwdWFResult, List.of(), pwdResourceNames));
+                tasks.addAll(getUserUpdateTasks(noPwdWFResult, linkedAccountsResources, pwdResourceNames));
             }
 
             tasks = tasks.stream().distinct().collect(Collectors.toList());

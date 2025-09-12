@@ -71,10 +71,12 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRule;
 import org.apache.syncope.fit.core.reference.LinkedAccountSamplePullCorrelationRuleConf;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -283,10 +285,33 @@ public class LinkedAccountITCase extends AbstractITCase {
                     sce.getMessage());
         }
 
+        // clean propagation tasks
+        TASK_SERVICE.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION)
+                    .resource(RESOURCE_NAME_LDAP)
+                    .anyTypeKind(AnyTypeKind.USER)
+                    .entityKey(user.getKey())
+                    .build()
+                           )
+            .getResult()
+            .forEach(task -> TASK_SERVICE.delete(TaskType.PROPAGATION, task.getKey()));
+
         // set a correct password
         account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().get(0).getPassword());
+
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
+            new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
+                anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+
+        assertEquals(1, tasks.getTotalCount());
+        assertEquals(connObjectKeyValue, tasks.getResult().get(0).getConnObjectKey());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+        PropagationData propagationData = POJOHelper.deserialize(
+            tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+        assertTrue(propagationData.getAttributes().stream().
+            anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
 
         // 5. update linked account  password
         String beforeUpdatePassword = user.getLinkedAccounts().get(0).getPassword();
@@ -294,10 +319,32 @@ public class LinkedAccountITCase extends AbstractITCase {
         userUR = new UserUR();
         userUR.setKey(user.getKey());
 
+        TASK_SERVICE.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION)
+                    .resource(RESOURCE_NAME_LDAP)
+                    .anyTypeKind(AnyTypeKind.USER)
+                    .entityKey(user.getKey())
+                    .build()
+                           )
+            .getResult()
+            .forEach(task -> TASK_SERVICE.delete(TaskType.PROPAGATION, task.getKey()));
+
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().get(0).getPassword());
         assertNotEquals(beforeUpdatePassword, user.getLinkedAccounts().get(0).getPassword());
+
+        tasks = TASK_SERVICE.search(
+            new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
+                anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+
+        assertEquals(1, tasks.getTotalCount());
+        assertEquals(connObjectKeyValue, tasks.getResult().get(0).getConnObjectKey());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().get(0).getLatestExecStatus());
+        propagationData = POJOHelper.deserialize(
+            tasks.getResult().get(0).getPropagationData(), PropagationData.class);
+        assertTrue(propagationData.getAttributes().stream().
+            anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
 
         // 6. set linked account password to null
         account.setPassword(null);
