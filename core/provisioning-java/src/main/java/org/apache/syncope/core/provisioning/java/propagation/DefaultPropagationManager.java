@@ -240,8 +240,8 @@ public class DefaultPropagationManager implements PropagationManager {
 
         List<String> linkedAccountsResources = userUR.getLinkedAccounts().stream()
             .map(LinkedAccountUR::getLinkedAccountTO)
-            .filter(linkedAccountTO -> linkedAccountTO.getPassword() != null)
-            .map(LinkedAccountTO::getResource).collect(Collectors.toList());
+            .filter(linkedAccountTO -> linkedAccountTO != null && linkedAccountTO.getPassword() != null)
+            .map(LinkedAccountTO::getResource).distinct().collect(Collectors.toList());
 
         // Propagate password update only to requested resources
         List<PropagationTaskInfo> tasks;
