@@ -161,7 +161,7 @@ public class XMLContentExporter extends AbstractXMLContentExporter {
         }).filter(Objects::nonNull).findFirst().orElse(columnName);
 
         if (Strings.CI.endsWith(name, "_ID")) {
-            String left = StringUtils.substringBefore(name, "_");
+            String left = StringUtils.substringBeforeLast(name, "_");
             String prefix = attrs.get().filter(attr -> left.equalsIgnoreCase(attr.getName())).findFirst().
                     map(Attribute::getName).orElse(left);
             name = prefix + "_id";
