@@ -226,11 +226,9 @@ public class DefaultPropagationManager implements PropagationManager {
     public List<PropagationTaskInfo> getUserUpdateTasks(final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult) {
         UserUR userUR = wfResult.getResult().getLeft();
 
-        Collection<String> assignedResources = anyUtilsFactory.getInstance(AnyTypeKind.USER).
-                dao().findAllResourceKeys(userUR.getKey());
         List<String> urPwdResources = userUR.getPassword() == null
                 ? List.of()
-                : userUR.getPassword().getResources().stream().filter(assignedResources::contains).distinct().toList();
+                : userUR.getPassword().getResources().stream().distinct().toList();
 
         List<String> laPwdResources = userUR.getLinkedAccounts().stream().
                 filter(laur -> laur.getOperation() == PatchOperation.ADD_REPLACE).
@@ -253,13 +251,13 @@ public class DefaultPropagationManager implements PropagationManager {
 
             PropagationByResource<String> urNoPwdPropByRes = new PropagationByResource<>();
             urNoPwdPropByRes.merge(wfResult.getPropByRes());
-            urNoPwdPropByRes.removeAll(urPwdResources);
             urNoPwdPropByRes.purge();
+            urNoPwdPropByRes.removeAll(urPwdResources);
 
             PropagationByResource<Pair<String, String>> laNoPwdPropByRes = new PropagationByResource<>();
             laNoPwdPropByRes.merge(wfResult.getPropByLinkedAccount());
-            laNoPwdPropByRes.removeIf(p -> laPwdResources.contains(p.getLeft()));
             laNoPwdPropByRes.purge();
+            laNoPwdPropByRes.removeIf(p -> laPwdResources.contains(p.getLeft()));
 
             if (!urNoPwdPropByRes.isEmpty() || !laNoPwdPropByRes.isEmpty()) {
                 UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
@@ -273,13 +271,13 @@ public class DefaultPropagationManager implements PropagationManager {
 
             PropagationByResource<String> urPwdPropByRes = new PropagationByResource<>();
             urPwdPropByRes.merge(wfResult.getPropByRes());
-            urPwdPropByRes.retainAll(urPwdResources);
             urPwdPropByRes.purge();
+            urPwdPropByRes.retainAll(urPwdResources);
 
             PropagationByResource<Pair<String, String>> laPwdPropByRes = new PropagationByResource<>();
             laPwdPropByRes.merge(wfResult.getPropByLinkedAccount());
-            laPwdPropByRes.removeIf(p -> !laPwdResources.contains(p.getLeft()));
             laPwdPropByRes.purge();
+            laPwdPropByRes.removeIf(p -> !laPwdResources.contains(p.getLeft()));
 
             if (!urPwdPropByRes.isEmpty() || !laPwdPropByRes.isEmpty()) {
                 UserWorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new UserWorkflowResult<>(
