@@ -270,11 +270,8 @@ public class UserIssuesITCase extends AbstractITCase {
         List<PropagationStatus> propagations = result.getPropagationStatuses();
         assertNotNull(propagations);
         assertEquals(1, propagations.size());
-
         assertEquals(ExecStatus.SUCCESS, propagations.get(0).getStatus());
-
-        String resource = propagations.get(0).getResource();
-        assertEquals(RESOURCE_NAME_TESTDB, resource);
+        assertEquals(RESOURCE_NAME_TESTDB, propagations.get(0).getResource());
     }
 
     @Test
@@ -1750,7 +1747,7 @@ public class UserIssuesITCase extends AbstractITCase {
                     + "'false' WHERE USERNAME = 'rossini'");
 
             // 5. pull again rossini from resource-db-pull
-            execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE, TaskType.PULL, 
+            execution = AbstractTaskITCase.execProvisioningTask(TASK_SERVICE, TaskType.PULL,
                     "7c2242f4-14af-4ab5-af31-cdae23783655", MAX_WAIT_SECONDS, false);
             assertEquals("SUCCESS", execution.getStatus());
 
@@ -1952,8 +1949,8 @@ public class UserIssuesITCase extends AbstractITCase {
         createUser(userCR);
         try {
             await().until(() -> USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
-                                    .query()).size(0).page(1).build()).getTotalCount() == 5);
+                    SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
+                            .query()).size(0).page(1).build()).getTotalCount() == 5);
             List<UserTO> users = USER_SERVICE.search(new AnyQuery.Builder().fiql(
                     SyncopeClient.getUserSearchConditionBuilder().is("email").equalTo("*issuesyncope1906*")
                             .query()).size(10).page(1).orderBy("ctype DESC").build()).getResult();
@@ -1989,7 +1986,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         } finally {
             USER_SERVICE.search(new AnyQuery.Builder().fiql(
-                            SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
+                    SyncopeClient.getUserSearchConditionBuilder().is("ctype").equalTo("aa*").query())
                     .size(10).page(1).orderBy("ctype DESC").build()).getResult().forEach(u -> deleteUser(u.getKey()));
         }
     }
