@@ -70,10 +70,12 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationData;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.LinkedAccountSampleInboundCorrelationRule;
 import org.apache.syncope.fit.core.reference.LinkedAccountSampleInboundCorrelationRuleConf;
+import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.jupiter.api.Test;
 
 public class LinkedAccountITCase extends AbstractITCase {
@@ -247,21 +249,53 @@ public class LinkedAccountITCase extends AbstractITCase {
                     sce.getMessage());
         }
 
+        // clean propagation tasks
+        TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
+                anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build()).getResult().
+                forEach(task -> TASK_SERVICE.delete(TaskType.PROPAGATION, task.getKey()));
+
         // set a correct password
         account.setPassword("Password123");
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
 
-        // 5. update linked account  password
+        PagedResult<PropagationTaskTO> tasks = TASK_SERVICE.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
+                        anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+        assertEquals(1, tasks.getTotalCount());
+        assertEquals(connObjectKeyValue, tasks.getResult().getFirst().getConnObjectKey());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().getFirst().getLatestExecStatus());
+        PropagationData propagationData = POJOHelper.deserialize(
+                tasks.getResult().getFirst().getPropagationData(), PropagationData.class);
+        assertTrue(propagationData.getAttributes().stream().
+                anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
+
+        // 5. update linked account password
         String beforeUpdatePassword = user.getLinkedAccounts().getFirst().getPassword();
         account.setPassword("Password123Updated");
         userUR = new UserUR();
         userUR.setKey(user.getKey());
 
+        // clean propagation tasks
+        TASK_SERVICE.search(new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
+                anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build()).getResult().
+                forEach(task -> TASK_SERVICE.delete(TaskType.PROPAGATION, task.getKey()));
+
         userUR.getLinkedAccounts().add(new LinkedAccountUR.Builder().linkedAccountTO(account).build());
         user = updateUser(userUR).getEntity();
         assertNotNull(user.getLinkedAccounts().getFirst().getPassword());
         assertNotEquals(beforeUpdatePassword, user.getLinkedAccounts().getFirst().getPassword());
+
+        tasks = TASK_SERVICE.search(
+                new TaskQuery.Builder(TaskType.PROPAGATION).resource(RESOURCE_NAME_LDAP).
+                        anyTypeKind(AnyTypeKind.USER).entityKey(user.getKey()).build());
+        assertEquals(1, tasks.getTotalCount());
+        assertEquals(connObjectKeyValue, tasks.getResult().getFirst().getConnObjectKey());
+        assertEquals(ExecStatus.SUCCESS.name(), tasks.getResult().getFirst().getLatestExecStatus());
+        propagationData = POJOHelper.deserialize(
+                tasks.getResult().getFirst().getPropagationData(), PropagationData.class);
+        assertTrue(propagationData.getAttributes().stream().
+                anyMatch(a -> OperationalAttributes.PASSWORD_NAME.equals(a.getName())));
 
         // 6. set linked account password to null
         account.setPassword(null);

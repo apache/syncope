@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 
@@ -52,7 +53,7 @@ public class PropagationByResource<T extends Serializable> implements Serializab
     private final Set<T> toBeDeleted;
 
     /**
-     * Mapping target resource names to old ConnObjectKeys (when applicable).
+     * Mapping target keys to old ConnObjectKeys (when applicable).
      */
     private final Map<String, String> oldConnObjectKeys;
 
@@ -189,11 +190,10 @@ public class PropagationByResource<T extends Serializable> implements Serializab
     }
 
     /**
-     * Removes only the resource names in the underlying resource name sets that are contained in the specified
-     * collection.
+     * Removes only the keys in the underlying sets that are contained in the specified collection.
      *
-     * @param keys collection containing resource names to be retained in the underlying resource name sets
-     * @return {@code true} if the underlying resource name sets changed as a result of the call
+     * @param keys collection containing keys to be retained in the underlying sets
+     * @return {@code true} if the underlying sets changed as a result of the call
      * @see Collection#removeAll(java.util.Collection)
      */
     public boolean removeAll(final Collection<T> keys) {
@@ -203,11 +203,24 @@ public class PropagationByResource<T extends Serializable> implements Serializab
     }
 
     /**
-     * Retains only the resource names in the underlying resource name sets that are contained in the specified
+     * Removes all of the keys in the underlying sets that satisfy the given predicate.
+     *
+     * @param filter a predicate which returns true for elements to be removed
+     * @return {@code true} if the underlying sets changed as a result of the call
+     * @see Collection#removeIf(java.util.function.Predicate)
+     */
+    public boolean removeIf(final Predicate<? super T> filter) {
+        return toBeCreated.removeIf(filter)
+                || toBeUpdated.removeIf(filter)
+                || toBeDeleted.removeIf(filter);
+    }
+
+    /**
+     * Retains only the keys in the underlying sets that are contained in the specified
      * collection.
      *
-     * @param keys collection containing resource names to be retained in the underlying resource name sets
-     * @return {@code true} if the underlying resource name sets changed as a result of the call
+     * @param keys collection containing keys to be retained in the underlying sets
+     * @return {@code true} if the underlying sets changed as a result of the call
      * @see Collection#retainAll(java.util.Collection)
      */
     public boolean retainAll(final Collection<T> keys) {
