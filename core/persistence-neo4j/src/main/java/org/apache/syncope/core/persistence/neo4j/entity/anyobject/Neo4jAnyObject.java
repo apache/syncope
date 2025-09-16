@@ -44,7 +44,7 @@ import org.springframework.data.neo4j.core.schema.Relationship;
 @AnyObjectCheck
 @AttributableCheck
 public class Neo4jAnyObject
-        extends AbstractGroupableRelatable<AnyObject, AMembership, AnyObject, ARelationship>
+        extends AbstractGroupableRelatable<AnyObject, AMembership, ARelationship>
         implements AnyObject {
 
     private static final long serialVersionUID = -3905046855521446823L;

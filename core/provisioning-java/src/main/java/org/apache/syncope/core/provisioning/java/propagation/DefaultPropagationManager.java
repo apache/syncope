@@ -31,14 +31,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.request.AbstractPatchItem;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.LinkedAccountUR;
 import org.apache.syncope.common.lib.request.PasswordPatch;
 import org.apache.syncope.common.lib.request.UserUR;
 import org.apache.syncope.common.lib.to.Item;
+import org.apache.syncope.common.lib.to.LinkedAccountTO;
 import org.apache.syncope.common.lib.to.OrgUnit;
 import org.apache.syncope.common.lib.to.Provision;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -224,58 +226,68 @@ public class DefaultPropagationManager implements PropagationManager {
     public List<PropagationTaskInfo> getUserUpdateTasks(final UserWorkflowResult<Pair<UserUR, Boolean>> wfResult) {
         UserUR userUR = wfResult.getResult().getLeft();
 
+        List<String> urPwdResources = userUR.getPassword() == null
+                ? List.of()
+                : userUR.getPassword().getResources().stream().distinct().toList();
+
+        List<String> laPwdResources = userUR.getLinkedAccounts().stream().
+                filter(laur -> laur.getOperation() == PatchOperation.ADD_REPLACE).
+                map(LinkedAccountUR::getLinkedAccountTO).
+                filter(la -> la != null && la.getPassword() != null).
+                map(LinkedAccountTO::getResource).
+                distinct().toList();
+
+        List<String> pwdResources = Stream.concat(urPwdResources.stream(), laPwdResources.stream()).
+                distinct().toList();
+
         // Propagate password update only to requested resources
         List<PropagationTaskInfo> tasks;
-        if (userUR.getPassword() == null) {
+        if (pwdResources.isEmpty()) {
             // a. no specific password propagation request: generate propagation tasks for any resource associated
             tasks = getUserUpdateTasks(wfResult, List.of(), null);
         } else {
+            // b. generate the propagation task list in two phases: first the ones with no password, then the others
             tasks = new ArrayList<>();
 
-            // b. generate the propagation task list in two phases: first the ones containing password,
-            // then the rest (with no password)
-            UserWorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new UserWorkflowResult<>(
-                    wfResult.getResult(),
-                    new PropagationByResource<>(),
-                    wfResult.getPropByLinkedAccount(),
-                    wfResult.getPerformedTasks());
+            PropagationByResource<String> urNoPwdPropByRes = new PropagationByResource<>();
+            urNoPwdPropByRes.merge(wfResult.getPropByRes());
+            urNoPwdPropByRes.purge();
+            urNoPwdPropByRes.removeAll(urPwdResources);
 
-            Set<String> pwdResourceNames = new HashSet<>(userUR.getPassword().getResources());
-            Collection<String> allResourceNames = anyUtilsFactory.getInstance(AnyTypeKind.USER).
-                    dao().findAllResourceKeys(userUR.getKey());
-            pwdResourceNames.retainAll(allResourceNames);
+            PropagationByResource<Pair<String, String>> laNoPwdPropByRes = new PropagationByResource<>();
+            laNoPwdPropByRes.merge(wfResult.getPropByLinkedAccount());
+            laNoPwdPropByRes.purge();
+            laNoPwdPropByRes.removeIf(p -> laPwdResources.contains(p.getLeft()));
 
-            if (wfResult.getPropByRes() == null || wfResult.getPropByRes().isEmpty()) {
-                pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
-            } else {
-                Map<String, ResourceOperation> wfPropByResMap = wfResult.getPropByRes().asMap();
-                pwdResourceNames.forEach(r -> pwdWFResult.getPropByRes().
-                        add(wfPropByResMap.getOrDefault(r, ResourceOperation.UPDATE), r));
-            }
-            if (!pwdWFResult.getPropByRes().isEmpty()) {
-                Set<String> toBeExcluded = new HashSet<>(allResourceNames);
-                toBeExcluded.addAll(userUR.getResources().stream().
-                        map(AbstractPatchItem::getValue).toList());
-                toBeExcluded.removeAll(pwdResourceNames);
+            if (!urNoPwdPropByRes.isEmpty() || !laNoPwdPropByRes.isEmpty()) {
+                UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
+                        wfResult.getResult(),
+                        urNoPwdPropByRes,
+                        laNoPwdPropByRes,
+                        wfResult.getPerformedTasks());
 
-                tasks.addAll(getUserUpdateTasks(pwdWFResult, new ArrayList<>(pwdResourceNames), toBeExcluded));
+                tasks.addAll(getUserUpdateTasks(noPwdWFResult, List.of(), null));
             }
 
-            UserWorkflowResult<Pair<UserUR, Boolean>> noPwdWFResult = new UserWorkflowResult<>(
-                    wfResult.getResult(),
-                    new PropagationByResource<>(),
-                    new PropagationByResource<>(),
-                    wfResult.getPerformedTasks());
+            PropagationByResource<String> urPwdPropByRes = new PropagationByResource<>();
+            urPwdPropByRes.merge(wfResult.getPropByRes());
+            urPwdPropByRes.purge();
+            urPwdPropByRes.retainAll(urPwdResources);
 
-            noPwdWFResult.getPropByRes().merge(wfResult.getPropByRes());
-            noPwdWFResult.getPropByRes().removeAll(pwdResourceNames);
-            noPwdWFResult.getPropByRes().purge();
-            if (!noPwdWFResult.getPropByRes().isEmpty()) {
-                tasks.addAll(getUserUpdateTasks(noPwdWFResult, List.of(), pwdResourceNames));
+            PropagationByResource<Pair<String, String>> laPwdPropByRes = new PropagationByResource<>();
+            laPwdPropByRes.merge(wfResult.getPropByLinkedAccount());
+            laPwdPropByRes.purge();
+            laPwdPropByRes.removeIf(p -> !laPwdResources.contains(p.getLeft()));
+
+            if (!urPwdPropByRes.isEmpty() || !laPwdPropByRes.isEmpty()) {
+                UserWorkflowResult<Pair<UserUR, Boolean>> pwdWFResult = new UserWorkflowResult<>(
+                        wfResult.getResult(),
+                        urPwdPropByRes,
+                        laPwdPropByRes,
+                        wfResult.getPerformedTasks());
+
+                tasks.addAll(getUserUpdateTasks(pwdWFResult, pwdResources, null));
             }
-
-            tasks = tasks.stream().distinct().toList();
-            tasks.forEach(task -> task.setUpdateRequest(wfResult.getResult().getLeft()));
         }
 
         return tasks;

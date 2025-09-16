@@ -48,35 +48,35 @@ public class NotificationWrapper extends EntityWrapper<NotificationTO> {
     }
 
     public List<Pair<String, List<SearchClause>>> getAboutClauses() {
-        if (this.aboutClauses == null) {
-            this.aboutClauses = SearchUtils.getSearchClauses(getInnerObject().getAbouts()).entrySet().stream().
+        if (aboutClauses == null) {
+            aboutClauses = SearchUtils.getSearchClauses(getInnerObject().getAbouts()).entrySet().stream().
                     map(entry -> Pair.of(entry.getKey(), entry.getValue())).collect(Collectors.toList());
         }
 
-        return this.aboutClauses;
+        return aboutClauses;
     }
 
     public void setAboutClauses(final List<Pair<String, List<SearchClause>>> dynClauses) {
-        this.aboutClauses = dynClauses;
+        aboutClauses = dynClauses;
     }
 
     public List<SearchClause> getRecipientClauses() {
-        if (this.recipientClauses == null) {
-            this.recipientClauses = SearchUtils.getSearchClauses(getInnerObject().getRecipientsFIQL());
+        if (recipientClauses == null) {
+            recipientClauses = SearchUtils.getSearchClauses(getInnerObject().getRecipientsFIQL());
         }
-        return this.recipientClauses;
+        return recipientClauses;
     }
 
     public void setRecipientClauses(final List<SearchClause> dynClauses) {
-        this.recipientClauses = dynClauses;
+        recipientClauses = dynClauses;
     }
 
     public Map<String, String> getAboutFIQLs() {
-        if (CollectionUtils.isEmpty(this.aboutClauses) || this.aboutClauses.getFirst().getValue().isEmpty()) {
+        if (CollectionUtils.isEmpty(aboutClauses) || aboutClauses.getFirst().getValue().isEmpty()) {
             return getInnerObject().getAbouts();
         } else {
             Map<String, String> res = new HashMap<>();
-            for (Pair<String, List<SearchClause>> pair : this.aboutClauses) {
+            for (Pair<String, List<SearchClause>> pair : aboutClauses) {
                 AbstractFiqlSearchConditionBuilder<?, ?, ?> builder;
                 switch (pair.getLeft()) {
                     case "USER":
@@ -97,21 +97,21 @@ public class NotificationWrapper extends EntityWrapper<NotificationTO> {
     }
 
     private String getRecipientsFIQL() {
-        if (CollectionUtils.isEmpty(this.recipientClauses)) {
+        if (CollectionUtils.isEmpty(recipientClauses)) {
             return null;
         } else {
-            return SearchUtils.buildFIQL(this.recipientClauses, SyncopeClient.getUserSearchConditionBuilder());
+            return SearchUtils.buildFIQL(recipientClauses, SyncopeClient.getUserSearchConditionBuilder());
         }
     }
 
     public NotificationTO fillAboutConditions() {
         getInnerObject().getAbouts().clear();
-        getInnerObject().getAbouts().putAll(this.getAboutFIQLs());
+        getInnerObject().getAbouts().putAll(getAboutFIQLs());
         return getInnerObject();
     }
 
     public NotificationTO fillRecipientConditions() {
-        getInnerObject().setRecipientsFIQL(this.getRecipientsFIQL());
+        getInnerObject().setRecipientsFIQL(getRecipientsFIQL());
         return getInnerObject();
     }
 }

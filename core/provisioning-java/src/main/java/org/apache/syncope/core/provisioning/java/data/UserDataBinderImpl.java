@@ -72,14 +72,11 @@ import org.apache.syncope.core.persistence.api.entity.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.LinkedAccount;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrNameParser;
@@ -313,45 +310,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         }
         user.setRealm(realm);
 
-        // relationships
-        Set<Pair<String, String>> relationships = new HashSet<>();
-        userCR.getRelationships().forEach(relationshipTO -> {
-            AnyObject otherEnd = anyObjectDAO.findById(relationshipTO.getOtherEndKey()).orElse(null);
-            if (otherEnd == null) {
-                LOG.debug("Ignoring invalid anyObject {}", relationshipTO.getOtherEndKey());
-            } else if (relationshipTO.getEnd() == RelationshipTO.End.RIGHT) {
-                SyncopeClientException noRight =
-                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                noRight.getElements().add(
-                        "Relationships shall be created or updated only from their left end");
-                scce.addException(noRight);
-            } else if (relationships.contains(Pair.of(otherEnd.getKey(), relationshipTO.getType()))) {
-                SyncopeClientException assigned =
-                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                assigned.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                        + " in relationship " + relationshipTO.getType());
-                scce.addException(assigned);
-            } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
-                relationships.add(Pair.of(otherEnd.getKey(), relationshipTO.getType()));
-
-                relationshipTypeDAO.findById(relationshipTO.getType()).ifPresentOrElse(
-                        relationshipType -> {
-                            URelationship relationship = entityFactory.newEntity(URelationship.class);
-                            relationship.setType(relationshipType);
-                            relationship.setRightEnd(otherEnd);
-                            relationship.setLeftEnd(user);
-
-                            user.add(relationship);
-                        },
-                        () -> LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType()));
-            } else {
-                SyncopeClientException unrelatable =
-                        SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                        + " cannot be related");
-                scce.addException(unrelatable);
-            }
-        });
+        // attributes, resources and relationships
+        fill(anyTO, user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // memberships
         Set<String> groups = new HashSet<>();
@@ -389,9 +349,6 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
-
-        // attributes and resources
-        fill(anyTO, user, userCR, anyUtilsFactory.getInstance(AnyTypeKind.USER), scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -498,63 +455,8 @@ public class UserDataBinderImpl extends AnyDataBinder implements UserDataBinder 
                     () -> LOG.warn("Ignoring unknown role with key {}", patch.getValue()));
         }
 
-        // attributes and resources
+        // attributes, resources and relationships
         fill(anyTO, user, userUR, anyUtils, scce);
-
-        // relationships
-        Set<Pair<String, String>> relationships = new HashSet<>();
-        userUR.getRelationships().stream().filter(patch -> patch.getRelationshipTO() != null).forEach(patch -> {
-            RelationshipType relationshipType = relationshipTypeDAO.findById(patch.getRelationshipTO().getType()).
-                    orElse(null);
-            if (relationshipType == null) {
-                LOG.debug("Ignoring invalid relationship type {}", patch.getRelationshipTO().getType());
-            } else {
-                user.getRelationship(relationshipType, patch.getRelationshipTO().getOtherEndKey()).
-                        ifPresent(relationship -> {
-                            user.getRelationships().remove(relationship);
-                            relationship.setLeftEnd(null);
-                        });
-
-                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    AnyObject otherEnd = anyObjectDAO.findById(patch.getRelationshipTO().getOtherEndKey()).orElse(null);
-                    if (otherEnd == null) {
-                        LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getOtherEndKey());
-                    } else if (relationships.contains(
-                            Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()))) {
-
-                        SyncopeClientException assigned =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        assigned.getElements().add("User was already in relationship "
-                                + patch.getRelationshipTO().getType() + " with "
-                                + otherEnd.getType().getKey() + " " + otherEnd.getName());
-                        scce.addException(assigned);
-                    } else if (patch.getRelationshipTO().getEnd() == RelationshipTO.End.RIGHT) {
-                        SyncopeClientException noRight =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        noRight.getElements().add(
-                                "Relationships shall be created or updated only from their left end");
-                        scce.addException(noRight);
-                    } else if (user.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
-                        relationships.add(Pair.of(otherEnd.getKey(), patch.getRelationshipTO().getType()));
-
-                        URelationship newRelationship = entityFactory.newEntity(URelationship.class);
-                        newRelationship.setType(relationshipType);
-                        newRelationship.setRightEnd(otherEnd);
-                        newRelationship.setLeftEnd(user);
-
-                        user.add(newRelationship);
-                    } else {
-                        LOG.error("{} cannot be related to {}", otherEnd, user);
-
-                        SyncopeClientException unrelatable =
-                                SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                        unrelatable.getElements().add(otherEnd.getType().getKey() + " " + otherEnd.getName()
-                                + " cannot be related");
-                        scce.addException(unrelatable);
-                    }
-                }
-            }
-        });
 
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 

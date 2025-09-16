@@ -34,12 +34,12 @@ public class FIQLQueryRestClient extends BaseRestClient {
         return getService(FIQLQueryService.class).read(key);
     }
 
-    public void update(final FIQLQueryTO roleTO) {
-        getService(FIQLQueryService.class).update(roleTO);
+    public void update(final FIQLQueryTO fiqlQueryTO) {
+        getService(FIQLQueryService.class).update(fiqlQueryTO);
     }
 
-    public void create(final FIQLQueryTO roleTO) {
-        getService(FIQLQueryService.class).create(roleTO);
+    public void create(final FIQLQueryTO fiqlQueryTO) {
+        getService(FIQLQueryService.class).create(fiqlQueryTO);
     }
 
     public List<FIQLQueryTO> list(final String target) {

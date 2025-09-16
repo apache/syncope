@@ -49,7 +49,6 @@ import org.apache.syncope.client.ui.commons.wizards.any.AnyWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.RelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -121,12 +120,11 @@ public class Relationships extends WizardStep implements ICondition {
         Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        List<RelationshipTO> relationships = getCurrentRelationships();
-        viewFragment.add(relationships.isEmpty()
+        viewFragment.add(anyTO.getRelationships().isEmpty()
                 ? new Label("relationships", new Model<>(getString("relationships.empty.list")))
                 : new RelationshipViewPanel.Builder(pageRef).
                         setAnyTO(anyTO).
-                        setRelationships(relationships).
+                        setRelationships(anyTO.getRelationships()).
                         build("relationships"));
 
         ActionsPanel<RelationshipTO> panel = new ActionsPanel<>("actions", null);
@@ -146,18 +144,6 @@ public class Relationships extends WizardStep implements ICondition {
         }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).hideLabel();
 
         return viewFragment;
-    }
-
-    protected List<RelationshipTO> getCurrentRelationships() {
-        return anyTO instanceof RelatableTO relatableTO
-                ? relatableTO.getRelationships()
-                : List.of();
-    }
-
-    protected void addNewRelationship(final RelationshipTO relaltionship) {
-        if (anyTO instanceof RelatableTO relatableTO) {
-            relatableTO.getRelationships().add(relaltionship);
-        }
     }
 
     @Override
@@ -270,7 +256,7 @@ public class Relationships extends WizardStep implements ICondition {
                 rel.setOtherEndKey(right.getKey());
                 rel.setOtherEndName(AnyObjectTO.class.cast(right).getName());
 
-                Relationships.this.addNewRelationship(rel);
+                anyTO.getRelationships().add(rel);
 
                 Relationships.this.addOrReplace(getViewFragment().setRenderBodyOnly(true));
                 target.add(Relationships.this);

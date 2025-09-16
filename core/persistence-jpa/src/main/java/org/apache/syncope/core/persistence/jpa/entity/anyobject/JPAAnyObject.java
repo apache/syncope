@@ -56,7 +56,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAExternalResource;
 @Cacheable
 @AnyObjectCheck
 public class JPAAnyObject
-        extends AbstractGroupableRelatable<AnyObject, AMembership, AnyObject, ARelationship>
+        extends AbstractGroupableRelatable<AnyObject, AMembership, ARelationship>
         implements AnyObject {
 
     private static final long serialVersionUID = 9063766472970643492L;

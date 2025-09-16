@@ -116,7 +116,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     protected static Map<DerSchema, String> getValues(
-            final Groupable<?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+            final Groupable<?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
 
         Map<DerSchema, String> result = new HashMap<>(schemas.size());
 
@@ -132,7 +132,7 @@ public class DefaultDerAttrHandler implements DerAttrHandler {
     }
 
     @Override
-    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?, ?> any, final Membership<?> membership) {
+    public Map<DerSchema, String> getValues(final Groupable<?, ?, ?> any, final Membership<?> membership) {
         return getValues(
                 any,
                 membership,

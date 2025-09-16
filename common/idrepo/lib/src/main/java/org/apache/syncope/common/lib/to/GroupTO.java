@@ -33,7 +33,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @Schema(allOf = { AnyTO.class })
-public class GroupTO extends AnyTO implements RelatableTO {
+public class GroupTO extends AnyTO {
 
     private static final long serialVersionUID = -7785920258290147542L;
 
@@ -56,8 +56,6 @@ public class GroupTO extends AnyTO implements RelatableTO {
     private final Map<String, String> adynMembershipConds = new HashMap<>();
 
     private final List<TypeExtensionTO> typeExtensions = new ArrayList<>();
-
-    private final List<RelationshipTO> relationships = new ArrayList<>();
 
     @JacksonXmlProperty(localName = "_class", isAttribute = true)
     @JsonProperty("_class")
@@ -159,21 +157,6 @@ public class GroupTO extends AnyTO implements RelatableTO {
         return typeExtensions;
     }
 
-    @JsonIgnore
-    @Override
-    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
-        return relationships.stream().filter(
-                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
-                findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
-    @Override
-    public List<RelationshipTO> getRelationships() {
-        return relationships;
-    }
-
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -184,7 +167,6 @@ public class GroupTO extends AnyTO implements RelatableTO {
                 append(udynMembershipCond).
                 append(adynMembershipConds).
                 append(typeExtensions).
-                append(relationships).
                 build();
     }
 
@@ -208,7 +190,6 @@ public class GroupTO extends AnyTO implements RelatableTO {
                 append(udynMembershipCond, other.udynMembershipCond).
                 append(adynMembershipConds, other.adynMembershipConds).
                 append(typeExtensions, other.typeExtensions).
-                append(relationships, other.relationships).
                 build();
     }
 }
