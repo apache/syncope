@@ -471,7 +471,7 @@ under the License.
     <antlr4.version>4.13.2</antlr4.version>
 
     <curator.version>5.9.0</curator.version>
-    <zookeeper.version>3.9.3</zookeeper.version>
+    <zookeeper.version>3.9.4</zookeeper.version>
 
     <testcontainers.version>1.21.0</testcontainers.version>
 

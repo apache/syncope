@@ -33,9 +33,12 @@ import org.apache.syncope.common.keymaster.client.api.DomainOps;
 import org.apache.syncope.common.keymaster.client.api.KeymasterProperties;
 import org.apache.syncope.common.keymaster.client.api.ServiceOps;
 import org.apache.zookeeper.ZooDefs;
+import org.apache.zookeeper.client.ZKClientConfig;
+import org.apache.zookeeper.common.X509Util;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.server.auth.DigestLoginModule;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -63,8 +66,20 @@ public class ZookeeperKeymasterClientContext {
     }
 
     @Conditional(ZookeeperCondition.class)
+    @ConditionalOnMissingBean
     @Bean
-    public CuratorFramework curatorFramework(final KeymasterProperties props) throws InterruptedException {
+    public ZKClientConfig zkClientConfig() {
+        ZKClientConfig zkClientConfig = new ZKClientConfig();
+        zkClientConfig.setProperty(X509Util.FIPS_MODE_PROPERTY, "false");
+        return zkClientConfig;
+    }
+
+    @Conditional(ZookeeperCondition.class)
+    @Bean
+    public CuratorFramework curatorFramework(
+            final ZKClientConfig zkClientConfig,
+            final KeymasterProperties props) throws InterruptedException {
+
         if (StringUtils.isNotBlank(props.getUsername()) && StringUtils.isNotBlank(props.getPassword())) {
             javax.security.auth.login.Configuration.setConfiguration(new javax.security.auth.login.Configuration() {
 
@@ -102,7 +117,7 @@ public class ZookeeperKeymasterClientContext {
                 }
             });
         }
-        CuratorFramework client = clientBuilder.build();
+        CuratorFramework client = clientBuilder.zkClientConfig(zkClientConfig).build();
         client.start();
         client.blockUntilConnected(3, TimeUnit.SECONDS);
 
