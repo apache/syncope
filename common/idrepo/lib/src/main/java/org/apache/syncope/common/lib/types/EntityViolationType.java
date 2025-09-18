@@ -44,7 +44,8 @@ public enum EntityViolationType {
     InvalidUsername,
     InvalidValueList,
     InvalidRemediation,
-    MoreThanOneNonNull;
+    MoreThanOneNonNull,
+    MoreThanOneEnabled;
 
     private String message;
 
