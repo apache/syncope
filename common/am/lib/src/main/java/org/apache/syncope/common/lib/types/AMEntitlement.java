@@ -74,6 +74,8 @@ public final class AMEntitlement {
 
     public static final String SAML2_IDP_ENTITY_GET = "SAML2_IDP_ENTITY_GET";
 
+    public static final String SAML2_IDP_ENTITY_DELETE = "SAML2_IDP_ENTITY_DELETE";
+
     public static final String AUTH_PROFILE_DELETE = "AUTH_PROFILE_DELETE";
 
     public static final String AUTH_PROFILE_CREATE = "AUTH_PROFILE_CREATE";

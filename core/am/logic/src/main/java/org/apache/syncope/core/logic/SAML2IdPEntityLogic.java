@@ -68,6 +68,11 @@ public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEnti
         return binder.getSAML2IdPEntityTO(saml2IdPEntityDAO.save(entity));
     }
 
+    @PreAuthorize("hasRole('" + AMEntitlement.SAML2_IDP_ENTITY_DELETE + "')")
+    public void delete(final String key) {
+        saml2IdPEntityDAO.deleteById(key);
+    }
+
     @Override
     protected SAML2IdPEntityTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
@@ -77,8 +82,8 @@ public class SAML2IdPEntityLogic extends AbstractTransactionalLogic<SAML2IdPEnti
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String string) {
                     key = string;
-                } else if (args[i] instanceof SAML2IdPEntityTO sAML2IdPEntityTO) {
-                    key = sAML2IdPEntityTO.getKey();
+                } else if (args[i] instanceof SAML2IdPEntityTO idp) {
+                    key = idp.getKey();
                 }
             }
         }

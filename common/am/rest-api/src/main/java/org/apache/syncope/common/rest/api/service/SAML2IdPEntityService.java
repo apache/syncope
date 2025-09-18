@@ -26,6 +26,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -69,7 +70,7 @@ public interface SAML2IdPEntityService extends JAXRSService {
     SAML2IdPEntityTO get(@NotNull @PathParam("key") String key);
 
     /**
-     * Store the entity to finalize the generation process.
+     * Stores the entity to finalize the generation process.
      *
      * @param entityTO entity to be created
      */
@@ -80,4 +81,16 @@ public interface SAML2IdPEntityService extends JAXRSService {
     @Consumes({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
     void set(@NotNull SAML2IdPEntityTO entityTO);
+
+    /**
+     * Deletes the SAML 2.0 IdP entity matching the given key.
+     *
+     * @param key key of requested SAML 2.0 IdP entity
+     */
+    @Parameter(name = "key", description = "SAML2IdPEntityTO's key", in = ParameterIn.PATH, schema =
+            @Schema(type = "string"))
+    @DELETE
+    @Path("{key}")
+    @Produces({ MediaType.APPLICATION_JSON, RESTHeaders.APPLICATION_YAML, MediaType.APPLICATION_XML })
+    void delete(@NotNull @PathParam("key") String key);
 }

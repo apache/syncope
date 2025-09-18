@@ -469,6 +469,8 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field", "entityId", new PropertyModel<>(clientAppTO, "entityId"), false);
                     fields.add(entityId.setRequired(true));
 
+                    fields.add(new AjaxTextFieldPanel("field", "idp", new PropertyModel<>(clientAppTO, "idp"), false));
+
                     fields.add(new AjaxTextFieldPanel("field", "metadataLocation",
                             new PropertyModel<>(clientAppTO, "metadataLocation"), false).setRequired(true));
 

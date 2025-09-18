@@ -31,6 +31,7 @@ import org.apereo.cas.support.saml.idp.metadata.locator.AbstractSamlIdPMetadataL
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.crypto.CipherExecutor;
+import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -51,17 +52,26 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
         this.waRestClient = waRestClient;
     }
 
+    @Override
+    public String getAppliesToFor(final Optional<SamlRegisteredService> registeredService) {
+        return registeredService.
+                map(SamlRegisteredService::getIdpMetadataLocation).
+                flatMap(Optional::ofNullable).
+                orElse(SAML2IdPEntityService.DEFAULT_OWNER);
+    }
+
     protected SAML2IdPEntityTO fetchFromCore(final Optional<SamlRegisteredService> registeredService) {
         SAML2IdPEntityService idpEntityService = waRestClient.getService(SAML2IdPEntityService.class);
 
         SAML2IdPEntityTO result = null;
         try {
-            result = idpEntityService.get(registeredService.
-                    map(SamlRegisteredService::getName).
-                    orElse(SAML2IdPEntityService.DEFAULT_OWNER));
+            result = idpEntityService.get(getAppliesToFor(registeredService));
         } catch (SyncopeClientException e) {
             if (e.getType() == ClientExceptionType.NotFound && registeredService.isPresent()) {
-                result = idpEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
+                String idp = registeredService.get().getIdpMetadataLocation();
+                if (idp == null || SAML2IdPEntityService.DEFAULT_OWNER.equals(idp)) {
+                    result = idpEntityService.get(SAML2IdPEntityService.DEFAULT_OWNER);
+                }
             } else {
                 throw e;
             }
@@ -71,14 +81,7 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
     }
 
     @Override
-    public String getAppliesToFor(final Optional<SamlRegisteredService> registeredService) {
-        return registeredService.
-                map(SamlRegisteredService::getName).
-                orElse(SAML2IdPEntityService.DEFAULT_OWNER);
-    }
-
-    @Override
-    public SamlIdPMetadataDocument fetchInternal(final Optional<SamlRegisteredService> registeredService) {
+    protected SamlIdPMetadataDocument fetchInternal(final Optional<SamlRegisteredService> registeredService) {
         try {
             LOG.info("Locating SAML2 IdP metadata document");
 
@@ -114,8 +117,7 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
             LOG.warn("Not a valid SAML2 IdP metadata document");
             return null;
         } catch (Exception e) {
-            if (e instanceof final SyncopeClientException syncopeClientException
-                    && syncopeClientException.getType() == ClientExceptionType.NotFound) {
+            if (e instanceof final SyncopeClientException sce && sce.getType() == ClientExceptionType.NotFound) {
                 LOG.info(e.getMessage());
             } else {
                 if (LOG.isDebugEnabled()) {
@@ -127,5 +129,26 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
         }
 
         return null;
+    }
+
+    @Override
+    public SamlIdPMetadataDocument fetch(final Optional<SamlRegisteredService> registeredService) {
+        String key = getAppliesToFor(registeredService);
+
+        return getMetadataCache().get(key, Unchecked.function(__ -> {
+            SamlIdPMetadataDocument metadataDocument = fetchInternal(registeredService);
+            if (metadataDocument != null && metadataDocument.isValid()) {
+                LOG.trace("Fetched and cached SAML IdP metadata document [{}] under key [{}]", metadataDocument, key);
+                return metadataDocument;
+            }
+
+            LOG.trace("SAML IdP metadata document [{}] is considered invalid", metadataDocument);
+            return null;
+        }));
+    }
+
+    @Override
+    public boolean shouldGenerateMetadataFor(final Optional<SamlRegisteredService> registeredService) {
+        return registeredService.isEmpty() || fetchFromCore(registeredService) == null;
     }
 }
