@@ -63,6 +63,7 @@ import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
 import org.apache.syncope.wa.starter.saml.idp.WASamlIdPCasEventListener;
+import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataCacheRefresher;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.WAServiceRegistry;
@@ -252,6 +253,12 @@ public class WAContext {
         return new WASamlIdPMetadataGenerator(context, waRestClient);
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache() {
+        return Caffeine.newBuilder().build();
+    }
+
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(
             @Qualifier("samlIdPMetadataGeneratorCipherExecutor")
@@ -264,6 +271,15 @@ public class WAContext {
                 cipherExecutor,
                 samlIdPMetadataCache,
                 waRestClient);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public WASamlIdPMetadataCacheRefresher samlIdPMetadataCacheRefresher(
+            @Qualifier("samlIdPMetadataCache")
+            final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache) {
+
+        return new WASamlIdPMetadataCacheRefresher(samlIdPMetadataCache);
     }
 
     @Bean
