@@ -47,7 +47,7 @@ public class SAML2IdPEntityServiceImpl extends AbstractService implements SAML2I
     }
 
     @Override
-    public void delete(String key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 }
