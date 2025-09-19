@@ -36,6 +36,8 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     private String entityId;
 
+    private String idp;
+
     private String metadataLocation;
 
     private String metadataSignatureLocation;
@@ -87,6 +89,14 @@ public class SAML2SPClientAppTO extends ClientAppTO {
 
     public void setEntityId(final String entityId) {
         this.entityId = entityId;
+    }
+
+    public String getIdp() {
+        return idp;
+    }
+
+    public void setIdp(final String idp) {
+        this.idp = idp;
     }
 
     public String getMetadataLocation() {

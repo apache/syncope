@@ -23,18 +23,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SAML2IdPEntityDirectoryPanel.SAML2IdPEntityProvider;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.SAML2IdPEntityWizardBuilder;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.AMEntitlement;
+import org.apache.syncope.common.lib.types.ClientAppType;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -43,10 +50,12 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColu
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -55,15 +64,47 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = -6535332920023200166L;
 
+    private static ExternalLink metadataLink(final String componentId, final String url) {
+        return new ExternalLink(componentId, Model.of(url), Model.of(url)) {
+
+            private static final long serialVersionUID = -1919646533527005367L;
+
+            @Override
+            protected void onComponentTag(final ComponentTag tag) {
+                super.onComponentTag(tag);
+
+                tag.setName("a");
+                if (url.startsWith("http")) {
+                    tag.put("href", getDefaultModelObject().toString());
+                    tag.put("target", "_blank");
+                }
+            }
+        };
+    }
+
+    private final LoadableDetachableModel<List<SAML2SPClientAppTO>> clientApps;
+
     private final String metadataURL;
 
     public SAML2IdPEntityDirectoryPanel(
             final String id,
             final SAML2IdPEntityRestClient restClient,
+            final ClientAppRestClient clientAppRestClient,
             final String waPrefix,
             final PageReference pageRef) {
 
         super(id, restClient, pageRef);
+
+        clientApps = new LoadableDetachableModel<>() {
+
+            private static final long serialVersionUID = 7172461137064525667L;
+
+            @Override
+            protected List<SAML2SPClientAppTO> load() {
+                return clientAppRestClient.list(ClientAppType.SAML2SP);
+            }
+        };
+
         this.metadataURL = waPrefix + "/idp/metadata";
 
         disableCheckBoxes();
@@ -98,24 +139,16 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
                     final String componentId,
                     final IModel<SAML2IdPEntityTO> rowModel) {
 
-                cellItem.add(new ExternalLink(
-                        componentId,
-                        Model.of(metadataURL),
-                        Model.of(metadataURL)) {
-
-                    private static final long serialVersionUID = -1919646533527005367L;
-
-                    @Override
-                    protected void onComponentTag(final ComponentTag tag) {
-                        super.onComponentTag(tag);
-
-                        tag.setName("a");
-                        if (metadataURL.startsWith("http")) {
-                            tag.put("href", getDefaultModelObject().toString());
-                            tag.put("target", "_blank");
-                        }
-                    }
-                });
+                if (SAML2IdPEntityService.DEFAULT_OWNER.equals(rowModel.getObject().getKey())) {
+                    cellItem.add(metadataLink(componentId, metadataURL));
+                } else {
+                    clientApps.getObject().stream().
+                            filter(app -> rowModel.getObject().getKey().equals(app.getIdp())).
+                            findFirst().ifPresentOrElse(
+                                    app -> cellItem.add(metadataLink(
+                                            componentId, metadataURL + "?service=" + app.getClientAppId())),
+                                    () -> cellItem.add(new Label(componentId, Model.of())));
+                }
             }
         });
 
@@ -137,6 +170,26 @@ public class SAML2IdPEntityDirectoryPanel extends DirectoryPanel<
                                 restClient.get(model.getObject().getKey()), target));
             }
         }, ActionLink.ActionType.EDIT, AMEntitlement.SAML2_IDP_ENTITY_SET);
+
+        if (!SAML2IdPEntityService.DEFAULT_OWNER.equals(model.getObject().getKey())) {
+            panel.add(new ActionLink<>() {
+
+                private static final long serialVersionUID = -3722207913631435501L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final SAML2IdPEntityTO ignore) {
+                    try {
+                        restClient.delete(model.getObject().getKey());
+                        SyncopeConsoleSession.get().success(getString(Constants.OPERATION_SUCCEEDED));
+                        target.add(container);
+                    } catch (SyncopeClientException e) {
+                        LOG.error("While deleting IdP {}", model.getObject().getKey(), e);
+                        SyncopeConsoleSession.get().onException(e);
+                    }
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                }
+            }, ActionLink.ActionType.DELETE, AMEntitlement.SAML2_IDP_ENTITY_DELETE, true);
+        }
 
         return panel;
     }

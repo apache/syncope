@@ -38,4 +38,8 @@ public class SAML2IdPEntityRestClient extends BaseRestClient {
     public void set(final SAML2IdPEntityTO entityTO) {
         getService(SAML2IdPEntityService.class).set(entityTO);
     }
+
+    public void delete(final String key) {
+        getService(SAML2IdPEntityService.class).delete(key);
+    }
 }

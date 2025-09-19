@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.am;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
@@ -28,6 +29,10 @@ public interface SAML2SPClientApp extends ClientApp {
     String getEntityId();
 
     void setEntityId(String id);
+
+    Optional<String> getIdp();
+
+    void setIdp(String idp);
 
     String getMetadataLocation();
 
