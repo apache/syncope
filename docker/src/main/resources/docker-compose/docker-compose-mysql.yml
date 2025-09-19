@@ -21,6 +21,7 @@ services:
    db:
      image: mysql:9.0
      restart: always
+     command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_bin']
      environment:
        MYSQL_ROOT_PASSWORD: password
        MYSQL_DATABASE: syncope
