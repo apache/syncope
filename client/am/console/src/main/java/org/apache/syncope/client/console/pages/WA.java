@@ -45,6 +45,7 @@ import org.apache.syncope.client.console.panels.WAPushModalPanel;
 import org.apache.syncope.client.console.rest.AttrRepoRestClient;
 import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
+import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.rest.WAConfigRestClient;
 import org.apache.syncope.client.console.rest.WASessionRestClient;
@@ -86,6 +87,9 @@ public class WA extends BasePage {
 
     @SpringBean
     protected SAML2IdPEntityRestClient saml2IdPEntityRestClient;
+
+    @SpringBean
+    protected ClientAppRestClient clientAppRestClient;
 
     @SpringBean
     protected ServiceOps serviceOps;
@@ -210,7 +214,7 @@ public class WA extends BasePage {
             @Override
             public Panel getPanel(final String panelId) {
                 return new SAML2IdPEntityDirectoryPanel(
-                        panelId, saml2IdPEntityRestClient, waPrefix, getPageReference());
+                        panelId, saml2IdPEntityRestClient, clientAppRestClient, waPrefix, getPageReference());
             }
         });
 

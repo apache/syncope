@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Base64;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.SAML2IdPEntityTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
@@ -64,21 +65,14 @@ public class SAML2IdPEntityDataBinderImpl implements SAML2IdPEntityDataBinder {
         SAML2IdPEntityTO entityTO = new SAML2IdPEntityTO();
         entityTO.setKey(entity.getKey());
         entityTO.setMetadata(Base64.getEncoder().encodeToString(entity.getMetadata()));
-        if (entity.getEncryptionCertificate() != null) {
-            entityTO.setEncryptionCertificate(
-                    Base64.getEncoder().encodeToString(entity.getEncryptionCertificate()));
-        }
-        if (entity.getEncryptionKey() != null) {
-            entityTO.setEncryptionKey(
-                    Base64.getEncoder().encodeToString(entity.getEncryptionKey()));
-        }
-        if (entity.getSigningCertificate() != null) {
-            entityTO.setSigningCertificate(
-                    Base64.getEncoder().encodeToString(entity.getSigningCertificate()));
-        }
-        if (entity.getSigningKey() != null) {
-            entityTO.setSigningKey(Base64.getEncoder().encodeToString(entity.getSigningKey()));
-        }
+        Optional.ofNullable(entity.getEncryptionCertificate()).
+                ifPresent(cert -> entityTO.setEncryptionCertificate(Base64.getEncoder().encodeToString(cert)));
+        Optional.ofNullable(entity.getEncryptionKey()).
+                ifPresent(key -> entityTO.setEncryptionKey(Base64.getEncoder().encodeToString(key)));
+        Optional.ofNullable(entity.getSigningCertificate()).
+                ifPresent(cert -> entityTO.setSigningCertificate(Base64.getEncoder().encodeToString(cert)));
+        Optional.ofNullable(entity.getSigningKey()).
+                ifPresent(key -> entityTO.setSigningKey(Base64.getEncoder().encodeToString(key)));
         return entityTO;
     }
 }

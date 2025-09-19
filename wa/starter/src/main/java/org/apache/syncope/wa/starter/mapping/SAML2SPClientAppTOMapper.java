@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.wa.WAClientApp;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apereo.cas.configuration.support.TriStateBoolean;
 import org.apereo.cas.services.RegisteredService;
 import org.apereo.cas.services.RegisteredServiceAccessStrategy;
@@ -58,6 +59,10 @@ public class SAML2SPClientAppTOMapper extends AbstractClientAppMapper {
         setCommon(service, sp);
 
         service.setServiceId(sp.getEntityId());
+
+        if (sp.getIdp() != null && !SAML2IdPEntityService.DEFAULT_OWNER.equals(sp.getIdp())) {
+            service.setIdpMetadataLocation(sp.getIdp());
+        }
 
         service.setMetadataLocation(sp.getMetadataLocation());
         service.setMetadataSignatureLocation(sp.getMetadataSignatureLocation());

@@ -19,6 +19,7 @@
 package org.apache.syncope.wa.starter.config;
 
 import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.warrenstrange.googleauth.IGoogleAuthenticator;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
@@ -60,6 +61,7 @@ import org.apache.syncope.wa.starter.mapping.TimeBasedAccessMapper;
 import org.apache.syncope.wa.starter.mfa.WAMultifactorAuthenticationTrustStorage;
 import org.apache.syncope.wa.starter.oidc.WAOIDCJWKSGeneratorService;
 import org.apache.syncope.wa.starter.pac4j.saml.WASAML2ClientCustomizer;
+import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataCacheRefresher;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataGenerator;
 import org.apache.syncope.wa.starter.saml.idp.metadata.WASamlIdPMetadataLocator;
 import org.apache.syncope.wa.starter.services.WAServiceRegistry;
@@ -210,7 +212,7 @@ public class WAContext {
 
         return new RegisteredServiceMapper(
                 Optional.ofNullable(casProperties.getAuthn().getPac4j().getCore().getName()).
-                    orElseGet(DelegatedClientAuthenticationHandler.class::getSimpleName),
+                        orElseGet(DelegatedClientAuthenticationHandler.class::getSimpleName),
                 authenticationEventExecutionPlan,
                 multifactorAuthenticationProviders,
                 authMappers,
@@ -251,6 +253,12 @@ public class WAContext {
         return new WASamlIdPMetadataGenerator(context, waRestClient);
     }
 
+    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
+    @Bean
+    public Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache() {
+        return Caffeine.newBuilder().build();
+    }
+
     @Bean
     public SamlIdPMetadataLocator samlIdPMetadataLocator(
             @Qualifier("samlIdPMetadataGeneratorCipherExecutor")
@@ -265,6 +273,15 @@ public class WAContext {
                 samlIdPMetadataCache,
                 applicationContext,
                 waRestClient);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public WASamlIdPMetadataCacheRefresher samlIdPMetadataCacheRefresher(
+            @Qualifier("samlIdPMetadataCache")
+            final Cache<String, SamlIdPMetadataDocument> samlIdPMetadataCache) {
+
+        return new WASamlIdPMetadataCacheRefresher(samlIdPMetadataCache);
     }
 
     @Bean

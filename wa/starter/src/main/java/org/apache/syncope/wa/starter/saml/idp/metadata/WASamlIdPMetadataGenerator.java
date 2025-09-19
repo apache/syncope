@@ -49,7 +49,8 @@ public class WASamlIdPMetadataGenerator extends BaseSamlIdPMetadataGenerator {
     @Override
     public String getAppliesToFor(final Optional<SamlRegisteredService> registeredService) {
         return registeredService.
-                map(SamlRegisteredService::getName).
+                map(SamlRegisteredService::getIdpMetadataLocation).
+                flatMap(Optional::ofNullable).
                 orElse(SAML2IdPEntityService.DEFAULT_OWNER);
     }
 

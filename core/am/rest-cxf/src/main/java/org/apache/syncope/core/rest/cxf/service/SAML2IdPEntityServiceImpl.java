@@ -45,4 +45,9 @@ public class SAML2IdPEntityServiceImpl extends AbstractService implements SAML2I
     public void set(final SAML2IdPEntityTO entityTO) {
         logic.set(entityTO);
     }
+
+    @Override
+    public void delete(final String key) {
+        logic.delete(key);
+    }
 }
