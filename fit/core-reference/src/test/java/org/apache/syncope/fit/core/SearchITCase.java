@@ -118,6 +118,32 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
+
+        matchingUsers = USER_SERVICE.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("username").equalTo("RoSsINI").query()).build());
+        assertTrue(matchingUsers.getResult().isEmpty());
+
+        matchingUsers = USER_SERVICE.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("username").equalTo("rossini").query()).build());
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
+
+        matchingUsers = USER_SERVICE.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("fullname").equalTo("gioacchino rossini").query()).build());
+        assertTrue(matchingUsers.getResult().isEmpty());
+
+        matchingUsers = USER_SERVICE.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("fullname").equalTo("Gioacchino Rossini").query()).build());
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().getFirst().getUsername());
     }
 
     @Test

@@ -31,8 +31,6 @@ import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.OpenSearchException;
 import org.opensearch.client.opensearch._types.Refresh;
-import org.opensearch.client.opensearch._types.analysis.CustomNormalizer;
-import org.opensearch.client.opensearch._types.analysis.Normalizer;
 import org.opensearch.client.opensearch._types.mapping.DynamicTemplate;
 import org.opensearch.client.opensearch._types.mapping.KeywordProperty;
 import org.opensearch.client.opensearch._types.mapping.Property;
@@ -100,14 +98,7 @@ public class OpenSearchIndexManager {
 
     public IndexSettings defaultSettings() {
         return new IndexSettings.Builder().
-                analysis(new IndexSettingsAnalysis.Builder().
-                        normalizer("string_lowercase", new Normalizer.Builder().
-                                custom(new CustomNormalizer.Builder().
-                                        charFilter(List.of()).
-                                        filter("lowercase").
-                                        build()).
-                                build()).
-                        build()).
+                analysis(new IndexSettingsAnalysis.Builder().build()).
                 numberOfShards(numberOfShards).
                 numberOfReplicas(numberOfReplicas).
                 build();
@@ -120,7 +111,7 @@ public class OpenSearchIndexManager {
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
                                 mapping(new Property.Builder().
-                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        keyword(new KeywordProperty.Builder().build()).
                                         build()).
                                 build()))).
                 build();
@@ -133,7 +124,7 @@ public class OpenSearchIndexManager {
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
                                 mapping(new Property.Builder().
-                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        keyword(new KeywordProperty.Builder().build()).
                                         build()).
                                 build()))).
                 build();
@@ -146,7 +137,7 @@ public class OpenSearchIndexManager {
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
                                 mapping(new Property.Builder().
-                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        keyword(new KeywordProperty.Builder().build()).
                                         build()).
                                 build()))).
                 properties(
