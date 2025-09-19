@@ -143,15 +143,15 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                     realmSearchDAO.findDescendants(realm.getFullPath(), base.getFullPath()).
                             forEach(descendant -> queries.add(
                             new Query.Builder().term(QueryBuilders.term().
-                                    field("realm").value(FieldValue.of(descendant)).build()).
+                                    field("realm").value(FieldValue.of(descendant)).caseInsensitive(false).build()).
                                     build()));
                 } else {
                     dynRealmDAO.findById(realmPath).ifPresentOrElse(
                             dynRealm -> {
                                 dynRealmKeys.add(dynRealm.getKey());
                                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                                        field("dynRealm").value(FieldValue.of(dynRealm.getKey())).build()).
-                                        build());
+                                        field("dynRealm").value(FieldValue.of(dynRealm.getKey())).
+                                        caseInsensitive(false).build()).build());
                             },
                             () -> LOG.warn("Ignoring invalid dynamic realm {}", realmPath));
                 }
@@ -159,7 +159,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
         } else {
             if (adminRealms.stream().anyMatch(r -> r.startsWith(base.getFullPath()))) {
                 queries.add(new Query.Builder().term(QueryBuilders.term().
-                        field("realm").value(FieldValue.of(base.getKey())).build()).
+                        field("realm").value(FieldValue.of(base.getKey())).caseInsensitive(false).build()).
                         build());
             }
         }
@@ -187,8 +187,8 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 query = new Query.Builder().bool(
                         QueryBuilders.bool().
                                 filter(new Query.Builder().term(QueryBuilders.term().
-                                        field("realm").value(FieldValue.of(base.getKey())).build()).
-                                        build()).
+                                        field("realm").value(FieldValue.of(base.getKey())).caseInsensitive(false).
+                                        build()).build()).
                                 filter(query).build()).
                         build();
             }
@@ -434,14 +434,14 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final RelationshipTypeCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("relationshipTypes").value(FieldValue.of(cond.getRelationshipTypeKey())).build()).
-                build();
+                field("relationshipTypes").value(FieldValue.of(cond.getRelationshipTypeKey())).
+                caseInsensitive(false).build()).build();
     }
 
     protected Query getQuery(final RelationshipCond cond) {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("relationships").value(FieldValue.of(key)).build()).
+                field("relationships").value(FieldValue.of(key)).caseInsensitive(false).build()).
                 build()).toList();
 
         return queries.size() == 1
@@ -452,7 +452,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
     protected Query getQuery(final MembershipCond cond) {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("memberships").value(FieldValue.of(key)).build()).
+                field("memberships").value(FieldValue.of(key)).caseInsensitive(false).build()).
                 build()).toList();
 
         return queries.size() == 1
@@ -462,20 +462,20 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final RoleCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("roles").value(FieldValue.of(cond.getRole())).build()).
+                field("roles").value(FieldValue.of(cond.getRole())).caseInsensitive(false).build()).
                 build();
     }
 
     protected Query getQuery(final DynRealmCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("dynRealms").value(FieldValue.of(cond.getDynRealm())).build()).
+                field("dynRealms").value(FieldValue.of(cond.getDynRealm())).caseInsensitive(false).build()).
                 build();
     }
 
     protected Query getQuery(final MemberCond cond) {
         List<Query> queries = check(cond).stream().
                 map(key -> new Query.Builder().term(QueryBuilders.term().
-                field("members").value(FieldValue.of(key)).build()).
+                field("members").value(FieldValue.of(key)).caseInsensitive(false).build()).
                 build()).toList();
 
         return queries.size() == 1
@@ -485,13 +485,13 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
 
     protected Query getQuery(final AuxClassCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("auxClasses").value(FieldValue.of(cond.getAuxClass())).build()).
+                field("auxClasses").value(FieldValue.of(cond.getAuxClass())).caseInsensitive(false).build()).
                 build();
     }
 
     protected Query getQuery(final ResourceCond cond) {
         return new Query.Builder().term(QueryBuilders.term().
-                field("resources").value(FieldValue.of(cond.getResource())).build()).
+                field("resources").value(FieldValue.of(cond.getResource())).caseInsensitive(false).build()).
                 build();
     }
 
@@ -518,33 +518,21 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                 break;
 
             case ILIKE:
-                StringBuilder output = new StringBuilder();
-                for (char c : cond.getExpression().toLowerCase().replace("\\_", "_").toCharArray()) {
-                    if (c == '%') {
-                        output.append(".*");
-                    } else if (Character.isLetter(c)) {
-                        output.append('[').
-                                append(c).
-                                append(Character.toUpperCase(c)).
-                                append(']');
-                    } else {
-                        output.append(OpenSearchUtils.escapeForLikeRegex(c));
-                    }
-                }
-                query = new Query.Builder().regexp(QueryBuilders.regexp().
-                        field(schema.getKey()).value(output.toString()).build()).build();
+                query = new Query.Builder().wildcard(QueryBuilders.wildcard().
+                        field(schema.getKey()).value(cond.getExpression().replace('%', '*').replace("\\_", "_")).
+                        caseInsensitive(true).build()).build();
                 break;
 
             case LIKE:
                 query = new Query.Builder().wildcard(QueryBuilders.wildcard().
                         field(schema.getKey()).value(cond.getExpression().replace('%', '*').replace("\\_", "_")).
-                        build()).build();
+                        caseInsensitive(false).build()).build();
                 break;
 
             case IEQ:
-                query = new Query.Builder().match(QueryBuilders.match().
-                        field(schema.getKey()).query(FieldValue.of(cond.getExpression().toLowerCase())).build()).
-                        build();
+                query = new Query.Builder().term(QueryBuilders.term().
+                        field(schema.getKey()).value(FieldValue.of(cond.getExpression())).caseInsensitive(true).
+                        build()).build();
                 break;
 
             case EQ:
@@ -559,7 +547,7 @@ public class OpenSearchAnySearchDAO extends AbstractAnySearchDAO {
                     fieldValue = FieldValue.of(value.toString());
                 }
                 query = new Query.Builder().term(QueryBuilders.term().
-                        field(schema.getKey()).value(fieldValue).build()).
+                        field(schema.getKey()).value(fieldValue).caseInsensitive(false).build()).
                         build();
                 break;
 

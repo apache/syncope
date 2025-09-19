@@ -128,7 +128,8 @@ public class ElasticsearchAnySearchDAOTest {
                 searchDAO.getAdminRealmsFilter(root, true, adminRealms, AnyTypeKind.USER);
 
         assertThat(new Query.Builder().disMax(QueryBuilders.disMax().queries(
-                new Query.Builder().term(QueryBuilders.term().field("realm").value("rootKey").build()).
+                new Query.Builder().term(QueryBuilders.term().caseInsensitive(false).
+                        field("realm").value("rootKey").caseInsensitive(false).build()).
                         build()).build()).build()).
                 usingRecursiveComparison().isEqualTo(filter.getLeft().get());
         assertEquals(Set.of(), filter.getMiddle());
@@ -196,7 +197,8 @@ public class ElasticsearchAnySearchDAOTest {
             assertThat(
                     new Query.Builder().bool(QueryBuilders.bool().
                             filter(new Query.Builder().exists(QueryBuilders.exists().field("_id").build()).build()).
-                            filter(new Query.Builder().term(QueryBuilders.term().field("memberships").value("groupKey").
+                            filter(new Query.Builder().term(QueryBuilders.term().caseInsensitive(false).
+                                    field("memberships").value("groupKey").caseInsensitive(false).
                                     build()).build()).build()).build()).
                     usingRecursiveComparison().
                     isEqualTo(request.query());
@@ -259,18 +261,18 @@ public class ElasticsearchAnySearchDAOTest {
             assertEquals(6, ((BoolQuery) query._get()).filter().size());
             assertThat(
                     new Query.Builder().bool(QueryBuilders.bool().
-                            filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("1").build()).build()).
-                            filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("2").build()).build()).
-                            filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("3").build()).build()).
-                            filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("4").build()).build()).
-                            filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("5").build()).build()).
-                            filter(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("6").build()).build()).
+                            filter(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("1").build()).build()).
+                            filter(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("2").build()).build()).
+                            filter(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("3").build()).build()).
+                            filter(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("4").build()).build()).
+                            filter(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("5").build()).build()).
+                            filter(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("6").build()).build()).
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
@@ -286,18 +288,18 @@ public class ElasticsearchAnySearchDAOTest {
             assertEquals(6, ((DisMaxQuery) query._get()).queries().size());
             assertThat(
                     new Query.Builder().disMax(QueryBuilders.disMax().
-                            queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("1").build()).build()).
-                            queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("2").build()).build()).
-                            queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("3").build()).build()).
-                            queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("4").build()).build()).
-                            queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("5").build()).build()).
-                            queries(new Query.Builder().term(
-                                    QueryBuilders.term().field("_id").value("6").build()).build()).
+                            queries(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("1").build()).build()).
+                            queries(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("2").build()).build()).
+                            queries(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("3").build()).build()).
+                            queries(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("4").build()).build()).
+                            queries(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("5").build()).build()).
+                            queries(new Query.Builder().term(QueryBuilders.term().
+                                    caseInsensitive(false).field("_id").value("6").build()).build()).
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
 
@@ -322,20 +324,26 @@ public class ElasticsearchAnySearchDAOTest {
             assertThat(
                     new Query.Builder().bool(QueryBuilders.bool().
                             filter(new Query.Builder().disMax(QueryBuilders.disMax().
-                                    queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("1").build()).build()).
-                                    queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("2").build()).build()).
-                                    queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("3").build()).build()).build()).
+                                    queries(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("1").build()).
+                                            build()).
+                                    queries(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("2").build()).
+                                            build()).
+                                    queries(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("3").build()).
+                                            build()).build()).
                                     build()).
                             filter(new Query.Builder().disMax(QueryBuilders.disMax().
-                                    queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("4").build()).build()).
-                                    queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("5").build()).build()).
-                                    queries(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("6").build()).build()).build()).
+                                    queries(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("4").build()).
+                                            build()).
+                                    queries(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("5").build()).
+                                            build()).
+                                    queries(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("6").build()).
+                                            build()).build()).
                                     build()).
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);
@@ -361,20 +369,26 @@ public class ElasticsearchAnySearchDAOTest {
             assertThat(
                     new Query.Builder().disMax(QueryBuilders.disMax().
                             queries(new Query.Builder().bool(QueryBuilders.bool().
-                                    filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("1").build()).build()).
-                                    filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("2").build()).build()).
-                                    filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("3").build()).build()).build()).
+                                    filter(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("1").build()).
+                                            build()).
+                                    filter(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("2").build()).
+                                            build()).
+                                    filter(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("3").build()).
+                                            build()).build()).
                                     build()).
                             queries(new Query.Builder().bool(QueryBuilders.bool().
-                                    filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("4").build()).build()).
-                                    filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("5").build()).build()).
-                                    filter(new Query.Builder().term(
-                                            QueryBuilders.term().field("_id").value("6").build()).build()).build()).
+                                    filter(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("4").build()).
+                                            build()).
+                                    filter(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("5").build()).
+                                            build()).
+                                    filter(new Query.Builder().term(QueryBuilders.term().
+                                            caseInsensitive(false).field("_id").value("6").build()).
+                                            build()).build()).
                                     build()).
                             build()).build()).
                     usingRecursiveComparison().isEqualTo(query);

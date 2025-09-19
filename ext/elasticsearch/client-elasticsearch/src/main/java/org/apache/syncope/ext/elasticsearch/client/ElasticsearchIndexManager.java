@@ -21,8 +21,6 @@ package org.apache.syncope.ext.elasticsearch.client;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.Refresh;
-import co.elastic.clients.elasticsearch._types.analysis.CustomNormalizer;
-import co.elastic.clients.elasticsearch._types.analysis.Normalizer;
 import co.elastic.clients.elasticsearch._types.mapping.DynamicTemplate;
 import co.elastic.clients.elasticsearch._types.mapping.KeywordProperty;
 import co.elastic.clients.elasticsearch._types.mapping.Property;
@@ -101,14 +99,7 @@ public class ElasticsearchIndexManager {
 
     public IndexSettings defaultSettings() {
         return new IndexSettings.Builder().
-                analysis(new IndexSettingsAnalysis.Builder().
-                        normalizer("string_lowercase", new Normalizer.Builder().
-                                custom(new CustomNormalizer.Builder().
-                                        charFilter(List.of()).
-                                        filter("lowercase").
-                                        build()).
-                                build()).
-                        build()).
+                analysis(new IndexSettingsAnalysis.Builder().build()).
                 numberOfShards(numberOfShards).
                 numberOfReplicas(numberOfReplicas).
                 build();
@@ -121,7 +112,7 @@ public class ElasticsearchIndexManager {
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
                                 mapping(new Property.Builder().
-                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        keyword(new KeywordProperty.Builder().build()).
                                         build()).
                                 build()))).
                 build();
@@ -134,7 +125,7 @@ public class ElasticsearchIndexManager {
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
                                 mapping(new Property.Builder().
-                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        keyword(new KeywordProperty.Builder().build()).
                                         build()).
                                 build()))).
                 build();
@@ -147,7 +138,7 @@ public class ElasticsearchIndexManager {
                         new DynamicTemplate.Builder().
                                 matchMappingType("string").
                                 mapping(new Property.Builder().
-                                        keyword(new KeywordProperty.Builder().normalizer("string_lowercase").build()).
+                                        keyword(new KeywordProperty.Builder().build()).
                                         build()).
                                 build()))).
                 properties(
