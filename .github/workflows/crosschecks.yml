@@ -31,7 +31,7 @@ jobs:
       fail-fast: false
       matrix:
         language: ['java']
-        java: [ '21', '25' ]
+        java: [ '21', '25-ea' ]
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:

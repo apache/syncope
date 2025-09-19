@@ -31,7 +31,6 @@ import org.apereo.cas.support.saml.idp.metadata.locator.AbstractSamlIdPMetadataL
 import org.apereo.cas.support.saml.services.SamlRegisteredService;
 import org.apereo.cas.support.saml.services.idp.metadata.SamlIdPMetadataDocument;
 import org.apereo.cas.util.crypto.CipherExecutor;
-import org.jooq.lambda.Unchecked;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -135,7 +134,7 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
     public SamlIdPMetadataDocument fetch(final Optional<SamlRegisteredService> registeredService) {
         String key = getAppliesToFor(registeredService);
 
-        return getMetadataCache().get(key, Unchecked.function(__ -> {
+        return getMetadataCache().get(key, __ -> {
             SamlIdPMetadataDocument metadataDocument = fetchInternal(registeredService);
             if (metadataDocument != null && metadataDocument.isValid()) {
                 LOG.trace("Fetched and cached SAML IdP metadata document [{}] under key [{}]", metadataDocument, key);
@@ -144,7 +143,7 @@ public class WASamlIdPMetadataLocator extends AbstractSamlIdPMetadataLocator {
 
             LOG.trace("SAML IdP metadata document [{}] is considered invalid", metadataDocument);
             return null;
-        }));
+        });
     }
 
     @Override
