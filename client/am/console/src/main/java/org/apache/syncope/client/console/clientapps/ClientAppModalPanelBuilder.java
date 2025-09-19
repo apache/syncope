@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -59,6 +60,7 @@ import org.apache.syncope.common.lib.policy.PolicyTO;
 import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientAppType;
 import org.apache.syncope.common.lib.types.LogoutType;
 import org.apache.syncope.common.lib.types.OIDCApplicationType;
@@ -72,6 +74,7 @@ import org.apache.syncope.common.lib.types.OIDCTokenSigningAlg;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -469,7 +472,16 @@ public class ClientAppModalPanelBuilder<T extends ClientAppTO> extends AbstractM
                             "field", "entityId", new PropertyModel<>(clientAppTO, "entityId"), false);
                     fields.add(entityId.setRequired(true));
 
-                    fields.add(new AjaxTextFieldPanel("field", "idp", new PropertyModel<>(clientAppTO, "idp"), false));
+                    fields.add(new AjaxTextFieldPanel("field", "idp", new PropertyModel<>(clientAppTO, "idp") {
+
+                        private static final long serialVersionUID = -1476737401674143862L;
+
+                        @Override
+                        public String getObject() {
+                            return Optional.ofNullable(((SAML2SPClientAppTO) clientAppTO).getIdp()).
+                                    orElse(SAML2IdPEntityService.DEFAULT_OWNER);
+                        }
+                    }, false));
 
                     fields.add(new AjaxTextFieldPanel("field", "metadataLocation",
                             new PropertyModel<>(clientAppTO, "metadataLocation"), false).setRequired(true));
