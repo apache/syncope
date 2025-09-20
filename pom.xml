@@ -507,9 +507,9 @@ under the License.
     <docker.mysql.version>8.0</docker.mysql.version>
     <docker.mariadb.version>11</docker.mariadb.version>
 
-    <jdbc.postgresql.version>42.7.7</jdbc.postgresql.version>
+    <jdbc.postgresql.version>42.7.8</jdbc.postgresql.version>
     <jdbc.mysql.version>9.4.0</jdbc.mysql.version>
-    <jdbc.mariadb.version>3.5.4</jdbc.mariadb.version>
+    <jdbc.mariadb.version>3.5.6</jdbc.mariadb.version>
     <jdbc.mssql.version>12.6.1.jre11</jdbc.mssql.version>
     <jdbc.oracle.version>23.9.0.25.07</jdbc.oracle.version>
 
@@ -1427,7 +1427,7 @@ under the License.
       <dependency>
         <groupId>org.jsoup</groupId>
         <artifactId>jsoup</artifactId>
-        <version>1.21.1</version>
+        <version>1.21.2</version>
       </dependency>
 
       <!-- TEST -->
