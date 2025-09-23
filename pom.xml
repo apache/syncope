@@ -2461,15 +2461,15 @@ under the License.
     </profile>
 
     <profile>
-      <id>jdk25</id>
+      <id>jdk25+</id>
 
       <activation>
-        <jdk>25</jdk>
+        <jdk>[25,)</jdk>
       </activation>
 
       <properties>
         <byte-buddy.version>1.17.7</byte-buddy.version>
-        <mockito.version>5.19.0</mockito.version>
+        <mockito.version>5.20.0</mockito.version>
       </properties>
 
       <dependencyManagement>
