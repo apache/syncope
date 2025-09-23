@@ -50,7 +50,8 @@ public class PersistenceUpgraderContext {
     public JDBCConfiguration jdbcConf(
             final DataSource syncopeDataSource,
             final @Value("${db.jdbcDriverClassName}") String jdbcDriver,
-            final @Value("${db.dictionary}") String dbDictionary) {
+            final @Value("${db.dictionary}") String dbDictionary,
+            final @Value("${db.schema}") String dbSchema) {
 
         JDBCConfiguration jdbcConf = new JDBCConfigurationImpl();
         jdbcConf.setConnection2DriverName(jdbcDriver);
@@ -59,7 +60,7 @@ public class PersistenceUpgraderContext {
 
         FileSchemaFactory schemaFactory = new FileSchemaFactory();
         schemaFactory.setConfiguration(jdbcConf);
-        schemaFactory.setFile("schema.xml");
+        schemaFactory.setFile(dbSchema);
         jdbcConf.setSchemaFactory(schemaFactory);
 
         return jdbcConf;
