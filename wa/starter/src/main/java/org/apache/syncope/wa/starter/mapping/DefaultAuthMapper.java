@@ -126,6 +126,7 @@ public class DefaultAuthMapper implements AuthMapper {
 
             mfaPolicy.setForceExecution(policyConf.isForceMfaExecution());
             mfaPolicy.setMultifactorAuthenticationProviders(mfaProviders);
+            mfaPolicy.setBypassTrustedDeviceEnabled(policyConf.isBypassTrustedDeviceEnabled());
         }
 
         DefaultRegisteredServiceDelegatedAuthenticationPolicy delegatedAuthPolicy = null;

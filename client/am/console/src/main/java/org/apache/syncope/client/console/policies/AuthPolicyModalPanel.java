@@ -104,6 +104,12 @@ public class AuthPolicyModalPanel extends AbstractModalPanel<AuthPolicyTO> {
                 "bypassPrincipalAttributeValue",
                 new PropertyModel<>(model.getObject().getConf(), "bypassPrincipalAttributeValue"),
                 false));
+
+        add(new AjaxCheckBoxPanel(
+                "bypassTrustedDeviceEnabled",
+                "bypassTrustedDeviceEnabled",
+                new PropertyModel<>(model.getObject().getConf(), "bypassTrustedDeviceEnabled"),
+                false));
     }
 
     @Override
