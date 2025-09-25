@@ -27,7 +27,6 @@ import org.apache.syncope.core.persistence.api.DomainHolder;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.actuate.metrics.data.MetricsRepositoryMethodInvocationListener;
 import org.springframework.boot.actuate.metrics.jdbc.DataSourcePoolMetrics;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -47,7 +46,6 @@ public class JPAMetricsContext {
 
     @Bean
     public MeterBinder dataSourcePoolMetadataMeterBinder(
-            final ConfigurableListableBeanFactory beanFactory,
             final ObjectProvider<DataSourcePoolMetadataProvider> metadataProviders,
             final DomainHolder<DataSource> domainHolder) {
 
