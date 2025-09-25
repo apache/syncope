@@ -251,7 +251,7 @@ public class AuthDataAccessor {
             }
 
             if (userModified) {
-                userDAO.save(user);
+                user = userDAO.save(user);
             }
         }
 

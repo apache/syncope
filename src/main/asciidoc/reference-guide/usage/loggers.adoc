@@ -16,30 +16,11 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Usage
+=== Loggers
 
-Before proceeding, please ensure that you have access to a running Apache Syncope deployment.
-You can take a look at the
-ifeval::["{backend}" == "html5"]
-https://syncope.apache.org/docs/4.0/getting-started.html[Apache Syncope Getting Started Guide]
-endif::[]
-ifeval::["{backend}" == "pdf"]
-https://syncope.apache.org/docs/4.0/getting-started.pdf[Apache Syncope Getting Started Guide]
-endif::[]
-to check system requirements and to choose among the various options for obtaining Apache Syncope.
+Spring Boot actuator includes the ability to
+https://docs.spring.io/spring-boot/3.4/reference/actuator/loggers.html[view and configure the log levels^] of all
+Syncope modules at runtime. 
 
-include::adminconsole.adoc[]
-
-include::enduser.adoc[]
-
-include::core.adoc[]
-
-include::clientlibrary.adoc[]
-
-include::customization.adoc[]
-
-include::actuator.adoc[]
-
-include::loggers.adoc[]
-
-include::metrics.adoc[]
+In addition, Console provides a UI to view the list of logger’s configuration and set their level, for all
+Syncope modules.

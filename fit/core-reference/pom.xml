@@ -69,6 +69,11 @@ under the License.
       <artifactId>syncope-core-self-keymaster-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-metrics-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
