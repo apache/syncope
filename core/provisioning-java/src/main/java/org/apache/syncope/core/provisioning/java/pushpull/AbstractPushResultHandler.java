@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.request.AnyUR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.request.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.Provision;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -179,6 +181,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
 
+        if (any instanceof Group && ((Group) any).getUDynMembership() != null) {
+            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
+        }
+
         update(req);
 
         result.setStatus(ProvisioningReport.Status.SUCCESS);
@@ -190,6 +196,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
 
+        if (any instanceof Group && ((Group) any).getUDynMembership() != null) {
+            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
+        }
+    
         update(req);
 
         deprovision(any, beforeObj, result);
@@ -200,6 +210,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         req.getResources().add(new StringPatchItem.Builder().
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
+
+        if (any instanceof Group && ((Group) any).getUDynMembership() != null) {
+            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
+        }
 
         update(req);
 

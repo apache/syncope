@@ -29,9 +29,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.request.GroupCR;
+import org.apache.syncope.common.lib.request.GroupUR;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -512,5 +514,25 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
         assertNotNull(taskTO);
+    }
+
+    @Test
+    void issueSYNCOPE1918() {
+        GroupUR groupUR = new GroupUR.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3")
+                .udynMembershipCond("username=~ros*").build();
+        GroupTO groupTO = updateGroup(groupUR).getEntity();
+        assertTrue(StringUtils.isNotBlank(groupTO.getUDynMembershipCond()));
+
+        execProvisioningTask(
+                TASK_SERVICE, TaskType.PUSH, "fd905ba5-9d56-4f51-83e2-859096a67b75", MAX_WAIT_SECONDS, false);
+
+        groupTO = GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
+        assertTrue(StringUtils.isNotBlank(groupTO.getUDynMembershipCond()));
+
+        //Restore group citizen
+        groupUR.setUDynMembershipCond(null);
+        groupTO = updateGroup(groupUR).getEntity();
+
+        assertTrue(StringUtils.isBlank(groupTO.getUDynMembershipCond()));
     }
 }
