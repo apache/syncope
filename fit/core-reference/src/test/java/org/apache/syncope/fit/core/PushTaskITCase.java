@@ -519,7 +519,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
     @Test
     void issueSYNCOPE1918() {
         GroupUR groupUR = new GroupUR.Builder("29f96485-729e-4d31-88a1-6fc60e4677f3")
-                .udynMembershipCond("username=~ros*").build();
+                .udynMembershipCond("username=~ros*").adynMembershipCond(PRINTER, "name=~hp*").build();
         GroupTO groupTO = updateGroup(groupUR).getEntity();
         assertTrue(StringUtils.isNotBlank(groupTO.getUDynMembershipCond()));
 
@@ -528,11 +528,14 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         groupTO = GROUP_SERVICE.read("29f96485-729e-4d31-88a1-6fc60e4677f3");
         assertTrue(StringUtils.isNotBlank(groupTO.getUDynMembershipCond()));
+        assertFalse(groupTO.getADynMembershipConds().isEmpty());
 
         //Restore group citizen
         groupUR.setUDynMembershipCond(null);
+        groupUR.getADynMembershipConds().clear();
         groupTO = updateGroup(groupUR).getEntity();
 
         assertTrue(StringUtils.isBlank(groupTO.getUDynMembershipCond()));
+        assertTrue(groupTO.getADynMembershipConds().isEmpty());
     }
 }

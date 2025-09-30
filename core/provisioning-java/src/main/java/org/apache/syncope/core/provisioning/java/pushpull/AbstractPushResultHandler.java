@@ -181,9 +181,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
 
-        if (any instanceof Group && ((Group) any).getUDynMembership() != null) {
-            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
-        }
+        copyDynMembershipConds(any, req);
 
         update(req);
 
@@ -196,9 +194,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 operation(PatchOperation.DELETE).
                 value(profile.getTask().getResource().getKey()).build());
 
-        if (any instanceof Group && ((Group) any).getUDynMembership() != null) {
-            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
-        }
+        copyDynMembershipConds(any, req);
     
         update(req);
 
@@ -211,13 +207,22 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 operation(PatchOperation.ADD_REPLACE).
                 value(profile.getTask().getResource().getKey()).build());
 
-        if (any instanceof Group && ((Group) any).getUDynMembership() != null) {
-            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
-        }
+        copyDynMembershipConds(any, req);
 
         update(req);
 
         provision(any, enabled, result);
+    }
+
+    protected void copyDynMembershipConds(final Any<?> any, final AnyUR req) {
+        if (any instanceof Group &&
+                (((Group) any).getUDynMembership() != null || !((Group) any).getADynMemberships().isEmpty())) {
+            ((GroupUR) req).setUDynMembershipCond(((Group) any).getUDynMembership().getFIQLCond());
+
+            ((Group) any).getADynMemberships().forEach(aDynGroupMembership ->
+                    ((GroupUR) req).getADynMembershipConds().put(
+                            aDynGroupMembership.getAnyType().getKey(), aDynGroupMembership.getFIQLCond()));
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
