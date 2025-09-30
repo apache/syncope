@@ -461,7 +461,7 @@ under the License.
     <jsplumb.version>2.0.7</jsplumb.version>
     <chartjs.version>4.4.3</chartjs.version>
 
-    <wicket.version>10.6.0</wicket.version>
+    <wicket.version>10.7.0</wicket.version>
     <wicketstuff.version>10.6.0</wicketstuff.version>
     <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.11</wicket-bootstrap.version>
