@@ -291,8 +291,8 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public JobStatusUpdater jobStatusUpdater(final JobStatusDAO jobStatusDAO, final EntityFactory entityFactory) {
-        return new JobStatusUpdater(jobStatusDAO, entityFactory);
+    public JobStatusUpdater jobStatusUpdater(final JobStatusDAO jobStatusDAO) {
+        return new JobStatusUpdater(jobStatusDAO);
     }
 
     @ConditionalOnMissingBean

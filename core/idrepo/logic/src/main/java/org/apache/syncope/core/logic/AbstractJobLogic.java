@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
-import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.java.job.SyncopeTaskScheduler;
 import org.apache.syncope.core.provisioning.java.job.SystemLoadReporterJob;
@@ -91,7 +90,7 @@ abstract class AbstractJobLogic<T extends EntityTO> extends AbstractTransactiona
 
             jobTO.setRunning(jobManager.isRunning(jobName));
 
-            jobTO.setStatus(jobStatusDAO.findById(jobName).map(JobStatus::getStatus).orElse("UNKNOWN"));
+            jobTO.setStatus(jobStatusDAO.get(jobName));
         }
 
         return Optional.ofNullable(jobTO);
