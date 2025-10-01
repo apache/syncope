@@ -175,6 +175,16 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
+    protected void copyDynMembershipConds(final Any<?> any, final AnyUR req) {
+        if (any instanceof Group && req instanceof GroupUR) {
+            Optional.ofNullable(((Group) any).getUDynMembership()).
+                    ifPresent(udc -> ((GroupUR) req).setUDynMembershipCond(udc.getFIQLCond()));
+
+            ((Group) any).getADynMemberships().forEach(adc -> ((GroupUR) req).getADynMembershipConds().
+                    put(adc.getAnyType().getKey(), adc.getFIQLCond()));
+        }
+    }
+
     protected void link(final Any<?> any, final boolean unlink, final ProvisioningReport result) {
         AnyUR req = getAnyUtils().newAnyUR(any.getKey());
         req.getResources().add(new StringPatchItem.Builder().
@@ -195,7 +205,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 value(profile.getTask().getResource().getKey()).build());
 
         copyDynMembershipConds(any, req);
-    
+
         update(req);
 
         deprovision(any, beforeObj, result);
@@ -212,17 +222,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         update(req);
 
         provision(any, enabled, result);
-    }
-
-    protected void copyDynMembershipConds(final Any<?> any, final AnyUR req) {
-        if (any instanceof Group) {
-            Optional.ofNullable(((Group) any).getUDynMembership()).
-            ifPresent(udc ->  ((GroupUR) req).setUDynMembershipCond(udc.getFIQLCond()));
-
-            ((Group) any).getADynMemberships().forEach(aDynGroupMembership ->
-                    ((GroupUR) req).getADynMembershipConds().put(
-                            aDynGroupMembership.getAnyType().getKey(), aDynGroupMembership.getFIQLCond()));
-        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
