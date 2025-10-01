@@ -19,8 +19,6 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.slf4j.Logger;
@@ -34,13 +32,10 @@ public class JobStatusUpdater {
 
     protected final JobStatusDAO jobStatusDAO;
 
-    protected final EntityFactory entityFactory;
-
     protected boolean initCompleted = false;
 
-    public JobStatusUpdater(final JobStatusDAO jobStatusDAO, final EntityFactory entityFactory) {
+    public JobStatusUpdater(final JobStatusDAO jobStatusDAO) {
         this.jobStatusDAO = jobStatusDAO;
-        this.entityFactory = entityFactory;
     }
 
     public void initComplete() {
@@ -69,16 +64,9 @@ public class JobStatusUpdater {
             LOG.debug("Updating job '{}#{}' with status '{}'",
                     event.getDomain(), event.getJobName(), event.getJobStatus());
 
-            AuthContextUtils.runAsAdmin(event.getDomain(), () -> {
-                JobStatus jobStatus = jobStatusDAO.findById(event.getJobName()).orElse(null);
-                if (jobStatus == null) {
-                    jobStatus = entityFactory.newEntity(JobStatus.class);
-                    jobStatus.setKey(event.getJobName());
-                }
-
-                jobStatus.setStatus(event.getJobStatus());
-                jobStatusDAO.save(jobStatus);
-            });
+            AuthContextUtils.runAsAdmin(
+                    event.getDomain(),
+                    () -> jobStatusDAO.set(event.getJobName(), event.getJobStatus()));
         }
     }
 }
