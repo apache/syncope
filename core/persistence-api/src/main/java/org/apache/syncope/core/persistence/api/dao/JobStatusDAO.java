@@ -18,13 +18,17 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.core.persistence.api.entity.JobStatus;
-
-public interface JobStatusDAO extends DAO<JobStatus> {
+public interface JobStatusDAO {
 
     String JOB_FIRED_STATUS = "JOB_FIRED";
+
+    String UNKNOWN_STATUS = "UNKNOWN";
 
     boolean lock(String key);
 
     void unlock(String key);
+
+    void set(String key, String status);
+
+    String get(String key);
 }

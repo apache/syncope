@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.neo4j.dao;
 
-import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
 import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.neo4j.entity.Neo4jJobStatus;
@@ -43,48 +41,10 @@ public class Neo4jJobStatusDAO implements JobStatusDAO {
         this.nodeValidator = nodeValidator;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsById(final String key) {
-        return neo4jTemplate.existsById(key, Neo4jJobStatus.class);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<? extends JobStatus> findById(final String key) {
-        return neo4jTemplate.findById(key, Neo4jJobStatus.class);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public long count() {
-        return neo4jTemplate.count(Neo4jJobStatus.class);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<? extends JobStatus> findAll() {
-        return neo4jTemplate.findAll(Neo4jJobStatus.class);
-    }
-
-    @Override
-    public <S extends JobStatus> S save(final S jobStatus) {
-        return neo4jTemplate.save(nodeValidator.validate(jobStatus));
-    }
-
-    @Override
-    public void delete(final JobStatus jobStatus) {
-        neo4jTemplate.deleteById(jobStatus.getKey(), Neo4jJobStatus.class);
-    }
-
-    @Override
-    public void deleteById(final String key) {
-        findById(key).ifPresent(this::delete);
-    }
-
     @Override
     public boolean lock(final String key) {
-        if (existsById(key)) {
+        if (neo4jTemplate.existsById(key, Neo4jJobStatus.class)) {
+            LOG.debug("Job {} already locked", key);
             return false;
         }
 
@@ -92,7 +52,7 @@ public class Neo4jJobStatusDAO implements JobStatusDAO {
             JobStatus jobStatus = new Neo4jJobStatus();
             jobStatus.setKey(key);
             jobStatus.setStatus(JOB_FIRED_STATUS);
-            save(jobStatus);
+            neo4jTemplate.save(nodeValidator.validate(jobStatus));
 
             return true;
         } catch (Exception e) {
@@ -103,6 +63,22 @@ public class Neo4jJobStatusDAO implements JobStatusDAO {
 
     @Override
     public void unlock(final String key) {
-        deleteById(key);
+        neo4jTemplate.deleteById(key, Neo4jJobStatus.class);
+    }
+
+    @Override
+    public void set(final String key, final String status) {
+        if (neo4jTemplate.existsById(key, Neo4jJobStatus.class)) {
+            JobStatus jobStatus = new Neo4jJobStatus();
+            jobStatus.setKey(key);
+            jobStatus.setStatus(status);
+            neo4jTemplate.save(nodeValidator.validate(jobStatus));
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public String get(final String key) {
+        return neo4jTemplate.findById(key, Neo4jJobStatus.class).map(JobStatus::getStatus).orElse(UNKNOWN_STATUS);
     }
 }
