@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import com.googlecode.wicket.jquery.core.Options;
-import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
-import com.googlecode.wicket.kendo.ui.widget.notification.NotificationBehavior;
 import java.io.Serializable;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
+import org.wicketstuff.jquery.core.Options;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
+import org.wicketstuff.kendo.ui.widget.notification.NotificationBehavior;
 
 public class StyledNotificationBehavior extends NotificationBehavior {
 

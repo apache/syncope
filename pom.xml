@@ -463,9 +463,7 @@ under the License.
 
     <wicket.version>10.7.0</wicket.version>
     <wicketstuff.version>10.6.0</wicketstuff.version>
-    <wicket-jqueryui.version>10.0.0-M1</wicket-jqueryui.version>
     <wicket-bootstrap.version>7.0.11</wicket-bootstrap.version>
-    <wicket-jquery-selectors.version>4.0.4</wicket-jquery-selectors.version>
     <wicket-spring-boot.version>4.1.1</wicket-spring-boot.version>
 
     <antlr4.version>4.13.2</antlr4.version>
@@ -1114,39 +1112,34 @@ under the License.
         <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.googlecode.wicket-jquery-ui</groupId>
-        <artifactId>wicket-jquery-ui</artifactId>
-        <version>${wicket-jqueryui.version}</version>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>wicketstuff-jquery-ui</artifactId>
+        <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.googlecode.wicket-jquery-ui</groupId>
-        <artifactId>wicket-jquery-ui-theme-base</artifactId>
-        <version>${wicket-jqueryui.version}</version>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>wicketstuff-jquery-ui-theme-base</artifactId>
+        <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.googlecode.wicket-jquery-ui</groupId>
-        <artifactId>wicket-kendo-ui</artifactId>
-        <version>${wicket-jqueryui.version}</version>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>wicketstuff-kendo-ui</artifactId>
+        <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.googlecode.wicket-jquery-ui</groupId>
-        <artifactId>wicket-kendo-ui-culture</artifactId>
-        <version>${wicket-jqueryui.version}</version>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>wicketstuff-kendo-ui-culture</artifactId>
+        <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.googlecode.wicket-jquery-ui</groupId>
-        <artifactId>wicket-kendo-ui-theme-bootstrap</artifactId>
-        <version>${wicket-jqueryui.version}</version>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>wicketstuff-kendo-ui-theme-bootstrap</artifactId>
+        <version>${wicketstuff.version}</version>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>
         <artifactId>wicket-bootstrap-core</artifactId>
         <version>${wicket-bootstrap.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>de.agilecoders.wicket</groupId>
-        <artifactId>wicket-jquery-selectors</artifactId>
-        <version>${wicket-jquery-selectors.version}</version>
       </dependency>
       <dependency>
         <groupId>de.agilecoders.wicket</groupId>

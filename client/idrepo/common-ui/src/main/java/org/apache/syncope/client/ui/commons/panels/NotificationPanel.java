@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons.panels;
 
-import com.googlecode.wicket.jquery.core.Options;
-import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import java.util.List;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.syncope.client.ui.commons.StyledNotificationBehavior;
@@ -30,6 +28,8 @@ import org.apache.wicket.feedback.FeedbackMessagesModel;
 import org.apache.wicket.feedback.IFeedback;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.wicketstuff.jquery.core.Options;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public class NotificationPanel extends Panel
         implements IFeedback, IGenericComponent<List<FeedbackMessage>, NotificationPanel> {
@@ -118,5 +118,5 @@ public class NotificationPanel extends Panel
     public String getNotificationMarkupId() {
         return this.notification.getMarkupId();
     }
-    
+
 }
