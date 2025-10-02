@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons;
 
-import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.core.HttpHeaders;
 import java.util.ArrayList;
@@ -55,6 +54,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 public abstract class BaseLogin extends WebPage {
 

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import com.googlecode.wicket.kendo.ui.form.datetime.AjaxDateTimePicker;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -27,6 +26,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.wicketstuff.kendo.ui.form.datetime.AjaxDateTimePicker;
 
 public class AjaxDateTimeFieldPanel extends DateFieldPanel {
 

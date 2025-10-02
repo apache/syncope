@@ -18,11 +18,11 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import com.googlecode.wicket.kendo.ui.widget.notification.Notification;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.ui.commons.Constants;
 import org.apache.wicket.RestartResponseAtInterceptPageException;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.wicketstuff.kendo.ui.widget.notification.Notification;
 
 abstract class BaseReauthPage extends BasePage {
 

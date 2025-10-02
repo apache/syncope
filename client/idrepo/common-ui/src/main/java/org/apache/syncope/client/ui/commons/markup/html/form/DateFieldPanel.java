@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import com.googlecode.wicket.kendo.ui.resource.KendoCultureResourceReference;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
@@ -34,6 +33,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.springframework.util.StringUtils;
+import org.wicketstuff.kendo.ui.resource.KendoCultureResourceReference;
 
 public abstract class DateFieldPanel extends FieldPanel<Date> {
 
