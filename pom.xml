@@ -443,7 +443,7 @@ under the License.
 
     <pac4j.version>6.2.2</pac4j.version>
 
-    <cas.version>7.3.0-SNAPSHOT</cas.version>
+    <cas.version>7.3.0</cas.version>
     <cas-client.version>4.0.4</cas-client.version>
 
     <swagger-core.version>2.2.38</swagger-core.version>
