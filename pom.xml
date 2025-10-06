@@ -463,7 +463,7 @@ under the License.
 
     <wicket.version>10.7.0</wicket.version>
     <wicketstuff.version>10.7.0</wicketstuff.version>
-    <wicket-bootstrap.version>7.0.11</wicket-bootstrap.version>
+    <wicket-bootstrap.version>7.0.13</wicket-bootstrap.version>
     <wicket-spring-boot.version>4.1.1</wicket-spring-boot.version>
 
     <antlr4.version>4.13.2</antlr4.version>
