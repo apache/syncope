@@ -34,7 +34,7 @@ under the License.
   <packaging>maven-archetype</packaging>
 
   <properties>
-    <maven.archetype.version>3.4.0</maven.archetype.version>
+    <maven.archetype.version>3.4.1</maven.archetype.version>
 
     <rootpom.basedir>${basedir}/..</rootpom.basedir>
   </properties>
