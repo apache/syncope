@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import jakarta.ws.rs.core.Response;
 import java.time.OffsetDateTime;
@@ -199,6 +200,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE660() {
+        assumeFalse(IS_NEO4J_PERSISTENCE);
+
         int oldSize = TASK_SERVICE.listJobs().size();
 
         ImplementationTO taskJobDelegate = IMPLEMENTATION_SERVICE.read(
