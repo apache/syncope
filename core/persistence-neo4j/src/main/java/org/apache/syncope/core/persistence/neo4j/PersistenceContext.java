@@ -679,15 +679,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PasswordManagementRepoExt passwordManagementRepoExt(
-            final Neo4jTemplate neo4jTemplate,
-            final Neo4jClient neo4jClient,
-            final NodeValidator nodeValidator) {
-        return new PasswordManagementRepoExtImpl(neo4jTemplate, neo4jClient, nodeValidator);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuthModuleDAO authModuleDAO(
             final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
             final AuthModuleRepoExt authModuleRepoExt) {
@@ -697,9 +688,20 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public PasswordManagementRepoExt passwordManagementRepoExt(
+            final Neo4jTemplate neo4jTemplate,
+            final Neo4jClient neo4jClient,
+            final NodeValidator nodeValidator) {
+
+        return new PasswordManagementRepoExtImpl(neo4jTemplate, neo4jClient, nodeValidator);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public PasswordManagementDAO passwordManagementDAO(
             final SyncopeNeo4jRepositoryFactory neo4jRepositoryFactory,
             final PasswordManagementRepoExt passwordManagementRepoExt) {
+
         return neo4jRepositoryFactory.getRepository(PasswordManagementRepo.class, passwordManagementRepoExt);
     }
 

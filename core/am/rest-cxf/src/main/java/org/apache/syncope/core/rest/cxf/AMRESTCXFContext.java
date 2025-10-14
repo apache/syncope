@@ -82,14 +82,14 @@ public class AMRESTCXFContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PasswordManagementService passwordManagementService(final PasswordManagementLogic passwordManagementLogic) {
-        return new PasswordManagementServiceImpl(passwordManagementLogic);
+    public AttrRepoService attrRepoService(final AttrRepoLogic attrRepoLogic) {
+        return new AttrRepoServiceImpl(attrRepoLogic);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoService attrRepoService(final AttrRepoLogic attrRepoLogic) {
-        return new AttrRepoServiceImpl(attrRepoLogic);
+    public PasswordManagementService passwordManagementService(final PasswordManagementLogic passwordManagementLogic) {
+        return new PasswordManagementServiceImpl(passwordManagementLogic);
     }
 
     @ConditionalOnMissingBean

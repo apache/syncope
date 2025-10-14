@@ -77,15 +77,16 @@ public class WABootstrapConfiguration {
 
         @ConditionalOnMissingBean
         @Bean
-        public PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper(
-                final WARestClient waRestClient) {
-            return new PasswordManagementPropertySourceMapper(waRestClient);
+        public AttrRepoPropertySourceMapper attrRepoPropertySourceMapper(final WARestClient waRestClient) {
+            return new AttrRepoPropertySourceMapper(waRestClient);
         }
 
         @ConditionalOnMissingBean
         @Bean
-        public AttrRepoPropertySourceMapper attrRepoPropertySourceMapper(final WARestClient waRestClient) {
-            return new AttrRepoPropertySourceMapper(waRestClient);
+        public PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper(
+                final WARestClient waRestClient) {
+
+            return new PasswordManagementPropertySourceMapper(waRestClient);
         }
 
         @ConditionalOnMissingBean

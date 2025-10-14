@@ -50,7 +50,7 @@ public class SyncopePasswordManagementConf implements PasswordManagementConf {
      * send and include in the request. Key in the map should be the header name
      * and the value in the map should be the header value.
      */
-    private Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<>();
 
     public String getDomain() {
         return domain;
@@ -86,10 +86,6 @@ public class SyncopePasswordManagementConf implements PasswordManagementConf {
 
     public Map<String, String> getHeaders() {
         return headers;
-    }
-
-    public void setHeaders(final Map<String, String> headers) {
-        this.headers = headers;
     }
 
     @Override

@@ -34,20 +34,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class PasswordManagementLogic extends AbstractTransactionalLogic<PasswordManagementTO> {
 
-    protected final PasswordManagementDataBinder passwordManagementDataBinder;
+    protected final PasswordManagementDataBinder binder;
 
     protected final PasswordManagementDAO passwordManagementDAO;
 
-    public PasswordManagementLogic(final PasswordManagementDataBinder passwordManagementDataBinder,
+    public PasswordManagementLogic(
+            final PasswordManagementDataBinder passwordManagementDataBinder,
             final PasswordManagementDAO passwordManagementDAO) {
-        this.passwordManagementDataBinder = passwordManagementDataBinder;
+
+        this.binder = passwordManagementDataBinder;
         this.passwordManagementDAO = passwordManagementDAO;
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MANAGEMENT_CREATE + "')")
     public PasswordManagementTO create(final PasswordManagementTO passwordManagementTO) {
-        return passwordManagementDataBinder.getPasswordManagementTO(
-                passwordManagementDAO.save(passwordManagementDataBinder.create(passwordManagementTO)));
+        return binder.getPasswordManagementTO(passwordManagementDAO.save(binder.create(passwordManagementTO)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MANAGEMENT_UPDATE + "')")
@@ -55,9 +56,8 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
         PasswordManagement passwordManagement = passwordManagementDAO.findById(passwordManagementTO.getKey()).
                 orElseThrow(() -> new NotFoundException("PasswordManagement " + passwordManagementTO.getKey()));
 
-        return passwordManagementDataBinder.getPasswordManagementTO(
-                passwordManagementDAO.save(passwordManagementDataBinder
-                        .update(passwordManagement, passwordManagementTO)));
+        return binder.getPasswordManagementTO(
+                passwordManagementDAO.save(binder.update(passwordManagement, passwordManagementTO)));
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MANAGEMENT_LIST + "') or hasRole('"
@@ -65,7 +65,7 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
     @Transactional(readOnly = true)
     public List<PasswordManagementTO> list() {
         return passwordManagementDAO.findAll().stream()
-                .map(passwordManagementDataBinder::getPasswordManagementTO).toList();
+                .map(binder::getPasswordManagementTO).toList();
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MANAGEMENT_READ + "')")
@@ -74,7 +74,7 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
         PasswordManagement passwordManagement = passwordManagementDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("PasswordManagement " + key));
 
-        return passwordManagementDataBinder.getPasswordManagementTO(passwordManagement);
+        return binder.getPasswordManagementTO(passwordManagement);
     }
 
     @PreAuthorize("hasRole('" + AMEntitlement.PASSWORD_MANAGEMENT_DELETE + "')")
@@ -82,7 +82,7 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
         PasswordManagement passwordManagement = passwordManagementDAO.findById(key).
                 orElseThrow(() -> new NotFoundException("PasswordManagement " + key));
 
-        PasswordManagementTO deleted = passwordManagementDataBinder.getPasswordManagementTO(passwordManagement);
+        PasswordManagementTO deleted = binder.getPasswordManagementTO(passwordManagement);
         passwordManagementDAO.delete(passwordManagement);
 
         return deleted;
@@ -106,8 +106,7 @@ public class PasswordManagementLogic extends AbstractTransactionalLogic<Password
         }
 
         try {
-            return passwordManagementDataBinder.getPasswordManagementTO(passwordManagementDAO.findById(key)
-                    .orElseThrow());
+            return binder.getPasswordManagementTO(passwordManagementDAO.findById(key).orElseThrow());
         } catch (Throwable ignore) {
             LOG.debug("Unresolved reference", ignore);
             throw new UnresolvedReferenceException(ignore);

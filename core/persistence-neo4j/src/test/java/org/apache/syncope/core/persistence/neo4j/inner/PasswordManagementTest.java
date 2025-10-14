@@ -44,6 +44,7 @@ public class PasswordManagementTest extends AbstractTest {
     private static boolean isSpecificConf(
             final PasswordManagementConf conf,
             final Class<? extends PasswordManagementConf> clazz) {
+
         return ClassUtils.isAssignable(clazz, conf.getClass());
     }
 
@@ -77,15 +78,14 @@ public class PasswordManagementTest extends AbstractTest {
         assertTrue(passwordManagements.stream().anyMatch(
                 passwordManagement -> isSpecificConf(passwordManagement.getConf(),
                         SyncopePasswordManagementConf.class)
-                        && passwordManagement.getKey().equals("DefaultSyncopePasswordManagement")));
+                && passwordManagement.getKey().equals("DefaultSyncopePasswordManagement")));
         assertTrue(passwordManagements.stream().anyMatch(
                 passwordManagement -> isSpecificConf(passwordManagement.getConf(),
                         LDAPPasswordManagementConf.class)
-                        && passwordManagement.getKey().equals("DefaultLDAPPasswordManagement")));
+                && passwordManagement.getKey().equals("DefaultLDAPPasswordManagement")));
         assertTrue(passwordManagements.stream().anyMatch(
-                passwordManagement -> isSpecificConf(passwordManagement.getConf(),
-                        JDBCPasswordManagementConf.class)
-                        && passwordManagement.getKey().equals("DefaultJDBCPasswordManagement")));
+                passwordManagement -> isSpecificConf(passwordManagement.getConf(), JDBCPasswordManagementConf.class)
+                && passwordManagement.getKey().equals("DefaultJDBCPasswordManagement")));
     }
 
     private void savePasswordManagement(final String key, final PasswordManagementConf conf) {

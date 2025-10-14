@@ -32,7 +32,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface PasswordManagementCheck {
 
-    String message() default "{org.apache.syncope.core.persistence.validation.passwordManagement}";
+    String message() default "{org.apache.syncope.core.persistence.validation.passwordmanagement}";
 
     Class<?>[] groups() default {};
 

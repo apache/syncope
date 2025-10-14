@@ -761,14 +761,14 @@ public class ProvisioningContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PasswordManagementDataBinder passwordManagementDataBinder(final EntityFactory entityFactory) {
-        return new PasswordManagementDataBinderImpl(entityFactory);
+    public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory) {
+        return new AttrRepoDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory) {
-        return new AttrRepoDataBinderImpl(entityFactory);
+    public PasswordManagementDataBinder passwordManagementDataBinder(final EntityFactory entityFactory) {
+        return new PasswordManagementDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean

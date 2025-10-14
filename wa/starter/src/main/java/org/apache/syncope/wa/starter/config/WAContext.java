@@ -27,6 +27,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
@@ -75,8 +76,6 @@ import org.apereo.cas.authentication.support.password.PasswordEncoderUtils;
 import org.apereo.cas.authentication.surrogate.SurrogateAuthenticationService;
 import org.apereo.cas.configuration.CasConfigurationProperties;
 import org.apereo.cas.configuration.model.support.mfa.gauth.LdapGoogleAuthenticatorMultifactorProperties;
-import org.apereo.cas.configuration.model.support.pm.JdbcPasswordManagementProperties;
-import org.apereo.cas.configuration.model.support.pm.LdapPasswordManagementProperties;
 import org.apereo.cas.configuration.model.support.pm.PasswordManagementProperties;
 import org.apereo.cas.gauth.CasGoogleAuthenticator;
 import org.apereo.cas.gauth.credential.LdapGoogleAuthenticatorTokenCredentialRepository;
@@ -378,6 +377,7 @@ public class WAContext {
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
+
         PasswordManagementProperties pm = casProperties.getAuthn().getPm();
         if (pm.getCore().isEnabled() && pm.getSyncope().isDefined()) {
             return new SyncopePasswordManagementService(
@@ -385,6 +385,7 @@ public class WAContext {
                     casProperties,
                     passwordHistoryService);
         }
+
         return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
     }
 
@@ -396,16 +397,22 @@ public class WAContext {
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
-        List<LdapPasswordManagementProperties> ldaps = casProperties.getAuthn().getPm().getLdap();
-        if (!ldaps.isEmpty() && StringUtils.isNotBlank(ldaps.get(0).getLdapUrl())) {
-            ConcurrentHashMap<String, ConnectionFactory> connectionFactoryMap =
-                    new ConcurrentHashMap<String, ConnectionFactory>();
-            ldaps.forEach(ldap -> connectionFactoryMap.put(
+
+        PasswordManagementProperties pm = casProperties.getAuthn().getPm();
+        if (pm.getCore().isEnabled()
+                && !pm.getLdap().isEmpty() && StringUtils.isNotBlank(pm.getLdap().getFirst().getLdapUrl())) {
+
+            Map<String, ConnectionFactory> connectionFactoryMap = new ConcurrentHashMap<>();
+            pm.getLdap().forEach(ldap -> connectionFactoryMap.put(
                     ldap.getLdapUrl(),
                     LdapUtils.newLdaptiveConnectionFactory(ldap)));
-            return new LdapPasswordManagementService(passwordManagementCipherExecutor, casProperties,
-                    passwordHistoryService, connectionFactoryMap);
+            return new LdapPasswordManagementService(
+                    passwordManagementCipherExecutor,
+                    casProperties,
+                    passwordHistoryService,
+                    connectionFactoryMap);
         }
+
         return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
     }
 
@@ -413,7 +420,7 @@ public class WAContext {
     @Bean
     public PasswordManagementService jdbcPasswordChangeService(
             final CasConfigurationProperties casProperties,
-            final ConfigurableApplicationContext applicationContext,
+            final ConfigurableApplicationContext ctx,
             @Qualifier("jdbcPasswordManagementDataSource")
             final DataSource jdbcPasswordManagementDataSource,
             @Qualifier("jdbcPasswordManagementTransactionTemplate")
@@ -422,14 +429,19 @@ public class WAContext {
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
-        JdbcPasswordManagementProperties jdbc = casProperties.getAuthn().getPm().getJdbc();
-        if (StringUtils.isNotBlank(jdbc.getUrl())) {
+
+        PasswordManagementProperties pm = casProperties.getAuthn().getPm();
+        if (pm.getCore().isEnabled() && StringUtils.isNotBlank(pm.getJdbc().getUrl())) {
             PasswordEncoder encoder = PasswordEncoderUtils.newPasswordEncoder(
-                    casProperties.getAuthn().getPm().getJdbc().getPasswordEncoder(), applicationContext);
-                        return new JdbcPasswordManagementService(passwordManagementCipherExecutor,
-                                casProperties, jdbcPasswordManagementDataSource,
-                                jdbcPasswordManagementTransactionTemplate, passwordHistoryService, encoder);
+                    pm.getJdbc().getPasswordEncoder(), ctx);
+            return new JdbcPasswordManagementService(
+                    passwordManagementCipherExecutor,
+                    casProperties,
+                    jdbcPasswordManagementDataSource,
+                    jdbcPasswordManagementTransactionTemplate,
+                    passwordHistoryService, encoder);
         }
+
         return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
     }
 
@@ -443,14 +455,22 @@ public class WAContext {
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
             @Qualifier(PasswordHistoryService.BEAN_NAME)
             final PasswordHistoryService passwordHistoryService) {
-        return new RestPasswordManagementService(passwordManagementCipherExecutor,
-                casProperties, passwordChangeServiceRestTemplate, passwordHistoryService);
+
+        if (casProperties.getAuthn().getPm().getCore().isEnabled()) {
+            return new RestPasswordManagementService(
+                    passwordManagementCipherExecutor,
+                    casProperties,
+                    passwordChangeServiceRestTemplate,
+                    passwordHistoryService);
+        }
+
+        return new NoOpPasswordManagementService(passwordManagementCipherExecutor, casProperties);
     }
 
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     @Bean
     public PasswordManagementService passwordChangeService(
-            final ConfigurableApplicationContext applicationContext,
+            final ConfigurableApplicationContext ctx,
             final CasConfigurationProperties casProperties,
             @Qualifier("passwordManagementCipherExecutor")
             final CipherExecutor<Serializable, String> passwordManagementCipherExecutor,
@@ -463,23 +483,19 @@ public class WAContext {
             @Qualifier("restPasswordChangeService")
             final PasswordManagementService restPasswordManagementService) {
 
-        if (applicationContext.getEnvironment()
-                .getProperty("cas.authn.pm.syncope.enabled", Boolean.class, Boolean.FALSE)) {
+        if (ctx.getEnvironment().getProperty("cas.authn.pm.syncope.enabled", Boolean.class, Boolean.FALSE)) {
             return syncopePasswordManagementService;
         }
 
-        if (applicationContext.getEnvironment()
-                .getProperty("cas.authn.pm.ldap.enabled", Boolean.class, Boolean.FALSE)) {
+        if (ctx.getEnvironment().getProperty("cas.authn.pm.ldap.enabled", Boolean.class, Boolean.FALSE)) {
             return ldapPasswordManagementService;
         }
 
-        if (applicationContext.getEnvironment()
-                .getProperty("cas.authn.pm.jdbc.enabled", Boolean.class, Boolean.FALSE)) {
+        if (ctx.getEnvironment().getProperty("cas.authn.pm.jdbc.enabled", Boolean.class, Boolean.FALSE)) {
             return jdbcPasswordManagementService;
         }
 
-        if (applicationContext.getEnvironment()
-                .getProperty("cas.authn.pm.rest.enabled", Boolean.class, Boolean.FALSE)) {
+        if (ctx.getEnvironment().getProperty("cas.authn.pm.rest.enabled", Boolean.class, Boolean.FALSE)) {
             return restPasswordManagementService;
         }
 

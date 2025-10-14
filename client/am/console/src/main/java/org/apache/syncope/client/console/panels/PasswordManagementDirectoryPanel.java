@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.commons.AMConstants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.PasswordManagementDirectoryPanel.PasswordManagementProvider;
 import org.apache.syncope.client.console.rest.AuditRestClient;
 import org.apache.syncope.client.console.rest.PasswordManagementRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
@@ -61,8 +62,9 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 
-public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordManagementTO, PasswordManagementTO,
-        PasswordManagementDirectoryPanel.PasswordManagementProvider, PasswordManagementRestClient> {
+public class PasswordManagementDirectoryPanel extends DirectoryPanel<
+        PasswordManagementTO, PasswordManagementTO, PasswordManagementProvider, PasswordManagementRestClient> {
+
     private static final long serialVersionUID = 1005345990563741296L;
 
     @SpringBean
@@ -128,7 +130,7 @@ public class PasswordManagementDirectoryPanel extends DirectoryPanel<PasswordMan
                 item.add(new Label(componentId, rowModel.getObject().getConf() == null
                         ? StringUtils.EMPTY
                         : StringUtils.substringBefore(
-                        rowModel.getObject().getConf().getClass().getSimpleName(), "PasswordManagementConf")));
+                                rowModel.getObject().getConf().getClass().getSimpleName(), "PasswordManagementConf")));
             }
         });
         columns.add(new BooleanPropertyColumn<>(

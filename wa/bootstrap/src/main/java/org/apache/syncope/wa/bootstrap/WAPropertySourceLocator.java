@@ -131,15 +131,14 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
-        syncopeClient.getService(PasswordManagementService.class).list()
-                .stream().filter(PasswordManagementTO::isEnabled).findFirst()
-                .ifPresent(passwordManagementTO -> {
-                    LOG.debug("Mapping password module {} ", passwordManagementTO.getKey());
+        syncopeClient.getService(PasswordManagementService.class).list().stream().
+                filter(PasswordManagementTO::isEnabled).findFirst().ifPresent(passwordManagementTO -> {
+            LOG.debug("Mapping password module {} ", passwordManagementTO.getKey());
 
-                    Map<String, Object> map = passwordManagementTO.getConf()
-                            .map(passwordManagementTO, passwordManagementPropertySourceMapper);
-                    properties.putAll(index(map, prefixes));
-                });
+            Map<String, Object> map = passwordManagementTO.getConf().
+                    map(passwordManagementTO, passwordManagementPropertySourceMapper);
+            properties.putAll(index(map, prefixes));
+        });
 
         Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
                 filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).
@@ -168,7 +167,7 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
                     Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
                             collect(Collectors.joining(",")));
             properties.put("cas.authn.oidc.core.user-defined-scopes.syncope",
-                String.join(",", customClaims));
+                    String.join(",", customClaims));
         }
 
         syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(

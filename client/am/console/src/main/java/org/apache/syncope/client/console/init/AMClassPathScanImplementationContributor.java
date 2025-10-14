@@ -36,8 +36,8 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
     @Override
     public void extend(final ClassPathScanningCandidateComponentProvider scanner) {
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthModuleConf.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordManagementConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AttrRepoConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordManagementConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccessPolicyConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AttrReleasePolicyConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthPolicyConf.class));
@@ -49,11 +49,11 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
         if (AuthModuleConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AuthModuleConf.class.getName());
         }
-        if (PasswordManagementConf.class.isAssignableFrom(clazz)) {
-            return Optional.of(PasswordManagementConf.class.getName());
-        }
         if (AttrRepoConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AttrRepoConf.class.getName());
+        }
+        if (PasswordManagementConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(PasswordManagementConf.class.getName());
         }
         if (AccessPolicyConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AccessPolicyConf.class.getName());

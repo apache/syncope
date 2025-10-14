@@ -85,7 +85,7 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
      * Additional headers to be included in REST API calls for password management.
      * The map keys are header names and the corresponding values are header values.
      */
-    private Map<String, String> headers = new HashMap<>();
+    private final Map<String, String> headers = new HashMap<>();
 
     public String getEndpointPassword() {
         return endpointPassword;
@@ -177,10 +177,6 @@ public class RESTPasswordManagementConf implements PasswordManagementConf {
 
     public Map<String, String> getHeaders() {
         return headers;
-    }
-
-    public void setHeaders(final Map<String, String> headers) {
-        this.headers = headers;
     }
 
     @Override

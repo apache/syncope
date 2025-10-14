@@ -22,12 +22,8 @@ import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.provisioning.api.data.PasswordManagementDataBinder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class PasswordManagementDataBinderImpl implements PasswordManagementDataBinder {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(PasswordManagementDataBinder.class);
 
     protected final EntityFactory entityFactory;
 
@@ -43,8 +39,10 @@ public class PasswordManagementDataBinderImpl implements PasswordManagementDataB
     }
 
     @Override
-    public PasswordManagement update(final PasswordManagement passwordManagement,
+    public PasswordManagement update(
+            final PasswordManagement passwordManagement,
             final PasswordManagementTO passwordManagementTO) {
+
         passwordManagement.setDescription(passwordManagementTO.getDescription());
         passwordManagement.setEnabled(passwordManagementTO.isEnabled());
         passwordManagement.setConf(passwordManagementTO.getConf());

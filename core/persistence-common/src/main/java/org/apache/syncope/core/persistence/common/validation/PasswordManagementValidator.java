@@ -28,20 +28,19 @@ public class PasswordManagementValidator extends AbstractValidator<PasswordManag
 
     @Override
     public boolean isValid(final PasswordManagement passwordManagement, final ConstraintValidatorContext context) {
-        PasswordManagementDAO passwordManagementDAO =
-                ApplicationContextProvider.getApplicationContext().getBean(PasswordManagementDAO.class);
-        context.disableDefaultConstraintViolation();
-
         if (!passwordManagement.isEnabled()) {
             return true;
         }
 
+        PasswordManagementDAO passwordManagementDAO =
+                ApplicationContextProvider.getApplicationContext().getBean(PasswordManagementDAO.class);
+        context.disableDefaultConstraintViolation();
+
         boolean isValid = !passwordManagementDAO.isAnotherInstanceEnabled(passwordManagement.getKey());
         if (!isValid) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.MoreThanOneEnabled,
-                            "Enable only one configuration")).
-                    addPropertyNode("key").addConstraintViolation();
+                    getTemplate(EntityViolationType.MoreThanOneEnabled, "More than one enabled instance found")).
+                    addPropertyNode(PasswordManagement.class.getSimpleName()).addConstraintViolation();
         }
         return isValid;
     }

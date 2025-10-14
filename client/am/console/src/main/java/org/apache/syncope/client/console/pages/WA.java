@@ -85,10 +85,10 @@ public class WA extends BasePage {
     protected AuthModuleRestClient authModuleRestClient;
 
     @SpringBean
-    protected PasswordManagementRestClient passwordManagementRestClient;
+    protected AttrRepoRestClient attrRepoRestClient;
 
     @SpringBean
-    protected AttrRepoRestClient attrRepoRestClient;
+    protected PasswordManagementRestClient passwordManagementRestClient;
 
     @SpringBean
     protected SAML2IdPEntityRestClient saml2IdPEntityRestClient;
@@ -188,6 +188,18 @@ public class WA extends BasePage {
             });
         }
 
+        if (SyncopeConsoleSession.get().owns(AMEntitlement.ATTR_REPO_LIST)) {
+            tabs.add(new AbstractTab(new ResourceModel("attrRepos")) {
+
+                private static final long serialVersionUID = 5211692813425391144L;
+
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new AttrRepoDirectoryPanel(panelId, attrRepoRestClient, getPageReference());
+                }
+            });
+        }
+
         if (SyncopeConsoleSession.get().owns(AMEntitlement.PASSWORD_MANAGEMENT_LIST)) {
             tabs.add(new AbstractTab(new ResourceModel("passwordManagements")) {
 
@@ -197,18 +209,6 @@ public class WA extends BasePage {
                 public Panel getPanel(final String panelId) {
                     return new PasswordManagementDirectoryPanel(
                             panelId, passwordManagementRestClient, getPageReference());
-                }
-            });
-        }
-
-        if (SyncopeConsoleSession.get().owns(AMEntitlement.ATTR_REPO_LIST)) {
-            tabs.add(new AbstractTab(new ResourceModel("attrRepos")) {
-
-                private static final long serialVersionUID = 5211692813425391144L;
-
-                @Override
-                public Panel getPanel(final String panelId) {
-                    return new AttrRepoDirectoryPanel(panelId, attrRepoRestClient, getPageReference());
                 }
             });
         }

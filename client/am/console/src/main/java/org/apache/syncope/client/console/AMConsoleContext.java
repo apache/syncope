@@ -66,14 +66,14 @@ public class AMConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoRestClient attrRepoRestClient() {
-        return new AttrRepoRestClient();
+    public AuthModuleRestClient authModuleRestClient() {
+        return new AuthModuleRestClient();
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleRestClient authModuleRestClient() {
-        return new AuthModuleRestClient();
+    public AttrRepoRestClient attrRepoRestClient() {
+        return new AttrRepoRestClient();
     }
 
     @ConditionalOnMissingBean

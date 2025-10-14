@@ -28,25 +28,25 @@ import org.apache.syncope.core.logic.PasswordManagementLogic;
 
 public class PasswordManagementServiceImpl extends AbstractService implements PasswordManagementService {
 
-    protected final PasswordManagementLogic passwordManagementLogic;
+    protected final PasswordManagementLogic logic;
 
     public PasswordManagementServiceImpl(final PasswordManagementLogic passwordManagementLogic) {
-        this.passwordManagementLogic = passwordManagementLogic;
+        this.logic = passwordManagementLogic;
     }
 
     @Override
     public PasswordManagementTO read(final String key) {
-        return passwordManagementLogic.read(key);
+        return logic.read(key);
     }
 
     @Override
     public List<PasswordManagementTO> list() {
-        return passwordManagementLogic.list();
+        return logic.list();
     }
 
     @Override
     public Response create(final PasswordManagementTO passwordManagementTO) {
-        PasswordManagementTO passwordManagement = passwordManagementLogic.create(passwordManagementTO);
+        PasswordManagementTO passwordManagement = logic.create(passwordManagementTO);
         URI location = uriInfo.getAbsolutePathBuilder().path(passwordManagement.getKey()).build();
         return Response.created(location).
                 header(RESTHeaders.RESOURCE_KEY, passwordManagement.getKey()).
@@ -55,11 +55,11 @@ public class PasswordManagementServiceImpl extends AbstractService implements Pa
 
     @Override
     public void update(final PasswordManagementTO passwordManagementTO) {
-        passwordManagementLogic.update(passwordManagementTO);
+        logic.update(passwordManagementTO);
     }
 
     @Override
     public void delete(final String key) {
-        passwordManagementLogic.delete(key);
+        logic.delete(key);
     }
 }

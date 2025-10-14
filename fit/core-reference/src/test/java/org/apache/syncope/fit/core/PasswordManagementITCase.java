@@ -49,6 +49,7 @@ public class PasswordManagementITCase extends AbstractITCase {
         LDAP,
         JDBC,
         REST
+
     };
 
     private static PasswordManagementTO createPasswordManagement(final PasswordManagementTO passwordManagementTO) {
@@ -67,12 +68,13 @@ public class PasswordManagementITCase extends AbstractITCase {
         passwordManagementTO.setKey("Test" + type + "PasswordManagement" + getUUIDString());
         passwordManagementTO.setDescription("A test " + type + " Password Management");
 
-        PasswordManagementConf conf;
+        PasswordManagementConf conf = null;
         switch (type) {
             case SYNCOPE:
                 conf = new SyncopePasswordManagementConf();
                 SyncopePasswordManagementConf.class.cast(conf).setDomain(SyncopeConstants.MASTER_DOMAIN);
                 break;
+
             case LDAP:
                 conf = new LDAPPasswordManagementConf();
                 LDAPPasswordManagementConf.class.cast(conf).setBaseDn("dc=example,dc=org");
@@ -83,6 +85,7 @@ public class PasswordManagementITCase extends AbstractITCase {
                 LDAPPasswordManagementConf.class.cast(conf).setBaseDn("cn=Directory Manager,dc=example,dc=org");
                 LDAPPasswordManagementConf.class.cast(conf).setBindCredential("Password");
                 break;
+
             case JDBC:
                 conf = new JDBCPasswordManagementConf();
                 JDBCPasswordManagementConf.class.cast(conf)
@@ -94,6 +97,7 @@ public class PasswordManagementITCase extends AbstractITCase {
                 JDBCPasswordManagementConf.class.cast(conf)
                         .setSqlChangePassword("UPDATE users_table SET password=? WHERE name=?");
                 break;
+
             case REST:
                 conf = new RESTPasswordManagementConf();
                 RESTPasswordManagementConf.class.cast(conf).setEndpointPassword("password");
@@ -112,9 +116,9 @@ public class PasswordManagementITCase extends AbstractITCase {
                 RESTPasswordManagementConf.class.cast(conf).setFieldNamePasswordOld("oldPassword");
                 RESTPasswordManagementConf.class.cast(conf).setFieldNamePassword("password");
                 RESTPasswordManagementConf.class.cast(conf).setEndpointUsername("username");
-            default:
-                conf = null;
                 break;
+
+            default:
         }
         passwordManagementTO.setConf(conf);
 
@@ -124,6 +128,7 @@ public class PasswordManagementITCase extends AbstractITCase {
     private static boolean isSpecificConf(
             final PasswordManagementConf conf,
             final Class<? extends PasswordManagementConf> clazz) {
+
         return ClassUtils.isAssignable(clazz, conf.getClass());
     }
 

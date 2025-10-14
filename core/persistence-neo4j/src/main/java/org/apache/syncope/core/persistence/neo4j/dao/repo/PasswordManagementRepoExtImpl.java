@@ -39,6 +39,7 @@ public class PasswordManagementRepoExtImpl implements PasswordManagementRepoExt 
             final Neo4jTemplate neo4jTemplate,
             final Neo4jClient neo4jClient,
             final NodeValidator nodeValidator) {
+
         this.neo4jTemplate = neo4jTemplate;
         this.neo4jClient = neo4jClient;
         this.nodeValidator = nodeValidator;
@@ -48,22 +49,19 @@ public class PasswordManagementRepoExtImpl implements PasswordManagementRepoExt 
     @Override
     public boolean isAnotherInstanceEnabled(final String key) {
         Long count = neo4jClient.query(
-                        "MATCH (pm:" + Neo4JPasswordManagement.NODE + ") "
-                                + "WHERE pm.enabled = 'true' AND pm.id <> $id "
-                                + "RETURN count(pm) AS cnt")
-                .bindAll(Map.of("id", key))
-                .fetch()
-                .one()
-                .map(record -> ((Number) record.get("cnt")).longValue())
-                .orElse(0L);
+                "MATCH (pm:" + Neo4JPasswordManagement.NODE + ") "
+                + "WHERE pm.enabled = 'true' AND pm.id <> $id "
+                + "RETURN count(pm) AS cnt").
+                bindAll(Map.of("id", key)).fetch().one().
+                map(record -> ((Number) record.get("cnt")).longValue()).
+                orElse(0L);
 
         return count > 0;
     }
 
     @Override
     public PasswordManagement save(final PasswordManagement passwordManagement) {
-        PasswordManagement saved = neo4jTemplate.save(nodeValidator.validate(passwordManagement));
-        return saved;
+        return neo4jTemplate.save(nodeValidator.validate(passwordManagement));
     }
 
     @Override

@@ -497,15 +497,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDAO attrRepoDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AttrRepoRepoExt attrRepoRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class, attrRepoRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuthModuleRepoExt authModuleRepoExt(final PolicyDAO policyDAO, final EntityManager entityManager) {
         return new AuthModuleRepoExtImpl(policyDAO, entityManager);
     }
@@ -521,6 +512,15 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AttrRepoDAO attrRepoDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final AttrRepoRepoExt attrRepoRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class, attrRepoRepoExt);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public PasswordManagementRepoExt passwordManagementRepoExt(final EntityManager entityManager) {
         return new PasswordManagementRepoExtImpl(entityManager);
     }
@@ -530,6 +530,7 @@ public class PersistenceContext {
     public PasswordManagementDAO passwordManagementDAO(
             final JpaRepositoryFactory jpaRepositoryFactory,
             final PasswordManagementRepoExt passwordManagementRepoExt) {
+
         return jpaRepositoryFactory.getRepository(PasswordManagementRepo.class, passwordManagementRepoExt);
     }
 

@@ -75,19 +75,20 @@ public class AMLogicContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public PasswordManagementLogic passwordManagementLogic(
-            final PasswordManagementDataBinder passwordManagementDataBinder,
-            final PasswordManagementDAO passwordManagementDAO) {
-        return new PasswordManagementLogic(passwordManagementDataBinder, passwordManagementDAO);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AttrRepoLogic attrRepoLogic(
             final AttrRepoDataBinder binder,
             final AttrRepoDAO attrRepoDAO) {
 
         return new AttrRepoLogic(binder, attrRepoDAO);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordManagementLogic passwordManagementLogic(
+            final PasswordManagementDataBinder passwordManagementDataBinder,
+            final PasswordManagementDAO passwordManagementDAO) {
+
+        return new PasswordManagementLogic(passwordManagementDataBinder, passwordManagementDAO);
     }
 
     @ConditionalOnMissingBean
