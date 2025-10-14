@@ -102,7 +102,6 @@ public class PasswordManagementPropertySourceMapper extends PropertySourceMapper
 
         Map<String, Object> mapped = prefix("cas.authn.pm.jdbc.", WAConfUtils.asMap(props));
         mapped.put("cas.authn.pm.jdbc.enabled", passwordManagementTO.isEnabled());
-        mapped.put("management.health.db.enabled", "false");
         return mapped;
     }
 

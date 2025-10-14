@@ -29,6 +29,7 @@ import org.apereo.cas.metadata.CasConfigurationPropertiesValidator;
 import org.apereo.cas.support.saml.idp.metadata.generator.SamlIdPMetadataGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.actuate.autoconfigure.jdbc.DataSourceHealthContributorAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cassandra.CassandraAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration;
@@ -65,12 +66,13 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
     GsonAutoConfiguration.class,
     JmxAutoConfiguration.class,
     DataSourceAutoConfiguration.class,
+    DataSourceHealthContributorAutoConfiguration.class,
+    DataSourceTransactionManagerAutoConfiguration.class,
     RedisAutoConfiguration.class,
+    RedisRepositoriesAutoConfiguration.class,
     MongoAutoConfiguration.class,
     MongoDataAutoConfiguration.class,
     CassandraAutoConfiguration.class,
-    DataSourceTransactionManagerAutoConfiguration.class,
-    RedisRepositoriesAutoConfiguration.class,
     CasGoogleAuthenticatorLdapAutoConfiguration.class
 })
 @EnableConfigurationProperties({ WAProperties.class, CasConfigurationProperties.class })
