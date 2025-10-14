@@ -21,8 +21,9 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
-public interface Relatable<L extends Any, R extends Any, REL extends Relationship<L, R>> extends Any {
+public interface Relatable<L extends Any, REL extends Relationship<L, AnyObject>> extends Any {
 
     boolean add(REL relationship);
 

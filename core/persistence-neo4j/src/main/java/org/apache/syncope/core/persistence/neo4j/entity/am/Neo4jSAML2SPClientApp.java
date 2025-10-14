@@ -23,6 +23,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
@@ -48,6 +49,8 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
 
     @NotNull
     private String entityId;
+
+    private String idp;
 
     private String metadataLocation;
 
@@ -114,6 +117,16 @@ public class Neo4jSAML2SPClientApp extends AbstractClientApp implements SAML2SPC
     @Override
     public void setEntityId(final String entityId) {
         this.entityId = entityId;
+    }
+
+    @Override
+    public Optional<String> getIdp() {
+        return Optional.ofNullable(idp);
+    }
+
+    @Override
+    public void setIdp(final String idp) {
+        this.idp = idp;
     }
 
     @Override

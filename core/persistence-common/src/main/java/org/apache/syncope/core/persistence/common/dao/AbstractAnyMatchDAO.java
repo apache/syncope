@@ -213,7 +213,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final Relatable<?, ?, ?> any, final RelationshipTypeCond cond, final boolean not) {
+            final Relatable<?, ?> any, final RelationshipTypeCond cond, final boolean not) {
 
         boolean found = any.getRelationships().stream().
                 anyMatch(rel -> rel.getType().getKey().equals(cond.getRelationshipTypeKey()));
@@ -221,7 +221,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final Relatable<?, ?, ?> any, final RelationshipCond cond, final boolean not) {
+            final Relatable<?, ?> any, final RelationshipCond cond, final boolean not) {
 
         Set<String> candidates = SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()
                 ? Set.of(cond.getAnyObject())
@@ -237,7 +237,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     }
 
     protected boolean matches(
-            final Groupable<?, ?, ?, ?> any, final MembershipCond cond, final boolean not) {
+            final Groupable<?, ?, ?> any, final MembershipCond cond, final boolean not) {
 
         final String group = SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()
                 ? cond.getGroup()
@@ -266,7 +266,7 @@ public abstract class AbstractAnyMatchDAO implements AnyMatchDAO {
     protected boolean matches(final Group group, final MemberCond cond, final boolean not) {
         boolean found = false;
 
-        Groupable<?, ?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
+        Groupable<?, ?, ?> any = userDAO.findById(cond.getMember()).orElse(null);
         if (any == null) {
             any = anyObjectDAO.findById(cond.getMember()).orElse(null);
             if (any != null) {

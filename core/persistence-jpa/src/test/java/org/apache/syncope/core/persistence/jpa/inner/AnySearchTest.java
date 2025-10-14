@@ -36,10 +36,12 @@ import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -56,6 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -104,6 +107,12 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @BeforeEach
     public void adjustLoginDateForLocalSystem() throws ParseException {
@@ -947,5 +956,86 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
+    }
+
+    @Test
+    public void issueSYNCOPE1906() {
+        User bellini = userDAO.findByUsername("bellini").orElseThrow();
+
+        PlainSchema ctypeSchema = plainSchemaDAO.findById("ctype").orElseThrow();
+        assertNotNull(ctypeSchema);
+
+        userDAO.save(addPlainAttr(bellini, ctypeSchema, "aa1"));
+
+        User puccini = userDAO.findByUsername("puccini").orElseThrow();
+        assertNotNull(bellini);
+
+        userDAO.save(addPlainAttr(puccini, ctypeSchema, "aa2"));
+
+        User verdi = userDAO.findByUsername("verdi").orElseThrow();
+        assertNotNull(verdi);
+
+        userDAO.save(addPlainAttr(verdi, ctypeSchema, "aa3"));
+
+        User vivaldi = userDAO.findByUsername("vivaldi").orElseThrow();
+        assertNotNull(vivaldi);
+
+        userDAO.save(addPlainAttr(vivaldi, ctypeSchema, "aa4"));
+
+        User rossini = userDAO.findByUsername("rossini").orElseThrow();
+        assertNotNull(rossini);
+
+        userDAO.save(addPlainAttr(rossini, ctypeSchema, "aa5"));
+
+        entityManager.flush();
+
+        AnyCond idCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        idCond.setSchema("id");
+
+        List<User> users =
+                searchDAO.search(SearchCond.of(idCond), List.of(new Sort.Order(Sort.Direction.DESC, "ctype")),
+                        AnyTypeKind.USER);
+
+        assertEquals("bellini", users.get(4).getUsername());
+        assertEquals("puccini", users.get(3).getUsername());
+        assertEquals("verdi", users.get(2).getUsername());
+        assertEquals("vivaldi", users.get(1).getUsername());
+        assertEquals("rossini", users.get(0).getUsername());
+
+        // order by ctype even not searching by it
+        AttrCond surnameCond = new AttrCond(AttrCond.Type.ILIKE);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("%ini");
+
+        AttrCond coolCond = new AttrCond(AttrCond.Type.ISNULL);
+        coolCond.setSchema("cool");
+
+        users = searchDAO.search(SearchCond.and(SearchCond.of(surnameCond), SearchCond.of(coolCond)),
+                List.of(new Sort.Order(Sort.Direction.DESC, "ctype")), AnyTypeKind.USER);
+
+        assertFalse(users.isEmpty());
+        assertEquals(2, users.size());
+        
+        // order by unique attribute
+        users = searchDAO.search(SearchCond.of(idCond), List.of(new Sort.Order(Sort.Direction.DESC, "fullname")),
+                AnyTypeKind.USER);
+
+        assertEquals("vivaldi", users.get(4).getUsername());
+        assertEquals("puccini", users.get(3).getUsername());
+        assertEquals("rossini", users.get(2).getUsername());
+        assertEquals("verdi", users.get(1).getUsername());
+        assertEquals("bellini", users.get(0).getUsername());
+    }
+
+    private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
+        user.getPlainAttr(plainSchema.getKey())
+                .ifPresentOrElse(ctype -> ctype.getValues().get(0).setStringValue(value), () -> {
+                    PlainAttr attr = new PlainAttr();
+                    attr.setPlainSchema(plainSchema);
+                    attr.add(validator, value);
+
+                    user.add(attr);
+                });
+        return user;
     }
 }

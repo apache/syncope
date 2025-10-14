@@ -37,6 +37,8 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     private String bypassPrincipalAttributeValue;
 
+    private boolean bypassTrustedDeviceEnabled = true;
+
     private final List<String> authModules = new ArrayList<>();
 
     public boolean isTryAll() {
@@ -77,6 +79,14 @@ public class DefaultAuthPolicyConf implements AuthPolicyConf {
 
     public void setBypassPrincipalAttributeValue(final String bypassPrincipalAttributeValue) {
         this.bypassPrincipalAttributeValue = bypassPrincipalAttributeValue;
+    }
+
+    public boolean isBypassTrustedDeviceEnabled() {
+        return bypassTrustedDeviceEnabled;
+    }
+
+    public void setBypassTrustedDeviceEnabled(final boolean bypassTrustedDeviceEnabled) {
+        this.bypassTrustedDeviceEnabled = bypassTrustedDeviceEnabled;
     }
 
     @JacksonXmlElementWrapper(localName = "authModules")

@@ -93,7 +93,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 index(OpenSearchUtils.getRealmIndex(AuthContextUtils.getDomain())).
                 searchType(SearchType.QueryThenFetch).
                 query(new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(FieldValue.of(fullPath)).build()).build()).
+                        field("fullPath").value(FieldValue.of(fullPath)).caseInsensitive(false).build()).build()).
                 size(1).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
@@ -135,7 +135,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
     public List<Realm> findByName(final String name) {
         List<String> result = search(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("name").value(FieldValue.of(name)).build()).build());
+                        field("name").value(FieldValue.of(name)).caseInsensitive(false).build()).build());
         return result.stream().map(realmDAO::findById).
                 flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
@@ -144,7 +144,8 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
     public List<Realm> findChildren(final Realm realm) {
         List<String> result = search(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("parent_id").value(FieldValue.of(realm.getKey())).build()).build());
+                        field("parent_id").value(FieldValue.of(realm.getKey())).caseInsensitive(false).
+                        build()).build());
         return result.stream().map(realmDAO::findById).
                 flatMap(Optional::stream).map(Realm.class::cast).toList();
     }
@@ -153,35 +154,22 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
         List<Query> basesQueries = new ArrayList<>();
         bases.forEach(base -> {
             basesQueries.add(new Query.Builder().term(QueryBuilders.term().
-                    field("fullPath").value(FieldValue.of(base)).build()).build());
+                    field("fullPath").value(FieldValue.of(base)).caseInsensitive(false).build()).build());
             basesQueries.add(new Query.Builder().regexp(QueryBuilders.regexp().
                     field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(base) ? "/.*" : base + "/.*").
                     build()).build());
         });
         Query prefix = new Query.Builder().disMax(QueryBuilders.disMax().queries(basesQueries).build()).build();
+
         if (keyword == null) {
             return prefix;
         }
 
-        StringBuilder output = new StringBuilder();
-        for (char c : keyword.toLowerCase().toCharArray()) {
-            if (c == '%') {
-                output.append(".*");
-            } else if (Character.isLetter(c)) {
-                output.append('[').
-                        append(c).
-                        append(Character.toUpperCase(c)).
-                        append(']');
-            } else {
-                output.append(OpenSearchUtils.escapeForLikeRegex(c));
-            }
-        }
-
         return new Query.Builder().bool(QueryBuilders.bool().filter(
                 prefix,
-                new Query.Builder().regexp(QueryBuilders.regexp().
-                        field("name").value(output.toString()).build()).
-                        build()).build()).
+                new Query.Builder().wildcard(QueryBuilders.wildcard().
+                        field("name").value(keyword.replace('%', '*').replace("\\_", "_")).
+                        caseInsensitive(true).build()).build()).build()).
                 build();
     }
 
@@ -241,7 +229,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
     public List<String> findDescendants(final String base, final String prefix) {
         Query prefixQuery = new Query.Builder().disMax(QueryBuilders.disMax().queries(
                 new Query.Builder().term(QueryBuilders.term().
-                        field("fullPath").value(FieldValue.of(prefix)).build()).build(),
+                        field("fullPath").value(FieldValue.of(prefix)).caseInsensitive(false).build()).build(),
                 new Query.Builder().prefix(QueryBuilders.prefix().
                         field("fullPath").value(SyncopeConstants.ROOT_REALM.equals(prefix) ? "/" : prefix + "/").
                         build()).build()).build()).build();
@@ -259,6 +247,7 @@ public class OpenSearchRealmSearchDAO implements RealmSearchDAO {
                 sort(REALM_SORT_OPTIONS).
                 fields(List.of()).source(new SourceConfig.Builder().fetch(false).build()).
                 build();
+        LOG.debug("Search request: {}", request);
 
         List<String> result = List.of();
         try {

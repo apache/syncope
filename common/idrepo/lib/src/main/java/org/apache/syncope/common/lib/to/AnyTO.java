@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.RealmMember;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class", "key", "type", "realm", "username", "name" })
 @Schema(subTypes = { UserTO.class, GroupTO.class, AnyObjectTO.class }, discriminatorProperty = "_class")
-public abstract class AnyTO implements EntityTO, RealmMember {
+public abstract class AnyTO implements EntityTO, RealmMember, RelatableTO {
 
     private static final long serialVersionUID = -754311920679872084L;
 
@@ -89,6 +89,8 @@ public abstract class AnyTO implements EntityTO, RealmMember {
     private final Set<Attr> derAttrs = new TreeSet<>();
 
     private final Set<String> resources = new TreeSet<>();
+
+    private final List<RelationshipTO> relationships = new ArrayList<>();
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
@@ -234,6 +236,21 @@ public abstract class AnyTO implements EntityTO, RealmMember {
         return resources;
     }
 
+    @JsonIgnore
+    @Override
+    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
+        return relationships.stream().filter(
+                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
+                findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
+    @Override
+    public List<RelationshipTO> getRelationships() {
+        return relationships;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -252,6 +269,7 @@ public abstract class AnyTO implements EntityTO, RealmMember {
                 append(plainAttrs).
                 append(derAttrs).
                 append(resources).
+                append(relationships).
                 build();
     }
 
@@ -283,6 +301,7 @@ public abstract class AnyTO implements EntityTO, RealmMember {
                 append(plainAttrs, other.plainAttrs).
                 append(derAttrs, other.derAttrs).
                 append(resources, other.resources).
+                append(relationships, other.relationships).
                 build();
     }
 }

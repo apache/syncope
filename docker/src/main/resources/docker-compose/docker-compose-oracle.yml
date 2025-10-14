@@ -29,14 +29,14 @@ services:
    syncope:
      depends_on:
        - db
-     command: ["wait-for-it", "db:3306", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
+     command: ["wait-for-it", "db:1521", "-t", "60", "--", "/opt/syncope/bin/startup.sh"]
      image: apache/syncope:${SYNCOPE_VERSION}
      ports:
        - "18080:8080"
      restart: always
      environment:
        SPRING_PROFILES_ACTIVE: docker,oracle,saml2
-       DB_URL: jdbc:oracle:thin:@db:1521/XEPDB1
+       DB_URL: jdbc:oracle:thin:@db:1521/FREEPDB1
        DB_SCHEMA: SYNCOPE
        DB_USER: syncope
        DB_PASSWORD: syncope

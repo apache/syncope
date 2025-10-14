@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.FIQLQueryTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -68,7 +69,9 @@ public class FIQLQueryDataBinderImpl implements FIQLQueryDataBinder {
         fiqlQuery.setName(fiqlQueryTO.getName());
         fiqlQuery.setTarget(fiqlQueryTO.getTarget());
 
-        SearchCond cond = SearchCondConverter.convert(searchCondVisitor, fiqlQueryTO.getFiql());
+        SearchCond cond = StringUtils.isBlank(fiqlQueryTO.getFiql())
+                ? new SearchCond()
+                : SearchCondConverter.convert(searchCondVisitor, fiqlQueryTO.getFiql());
         if (!cond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchParameters);
             sce.getElements().add(fiqlQueryTO.getFiql());

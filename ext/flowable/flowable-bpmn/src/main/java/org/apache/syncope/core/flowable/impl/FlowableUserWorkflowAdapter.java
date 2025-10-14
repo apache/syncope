@@ -19,6 +19,7 @@
 package org.apache.syncope.core.flowable.impl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +60,7 @@ import org.flowable.task.api.Task;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter implements WorkflowTaskManager {
 
@@ -215,25 +217,30 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter imp
         }
 
         List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(procInstID).list();
-        String task = null;
-        if (tasks.size() == 1) {
-            try {
-                engine.getTaskService().complete(tasks.getFirst().getId(), variables);
-                task = tasks.getFirst().getTaskDefinitionKey();
-            } catch (FlowableException e) {
-                FlowableRuntimeUtils.throwException(
-                        e, "While completing task '" + tasks.getFirst().getName() + "' for " + user);
+        if (tasks.isEmpty()) {
+            LOG.warn("No tasks found for process instance id {}", procInstID);
+            return Set.of();
+        }
+
+        tasks.sort(Comparator.comparing(Task::getCreateTime).reversed());
+
+        Task task = tasks.removeFirst();
+        try {
+            if (!tasks.isEmpty()) {
+                new NamedParameterJdbcTemplate(engine.getDataSource()).update(
+                        "DELETE FROM ACT_RU_TASK WHERE id_ IN (:tasks)",
+                        Map.of("tasks", tasks.stream().map(Task::getId).toList()));
             }
-        } else {
-            LOG.warn("Expected a single task, found {}", tasks.size());
+
+            engine.getTaskService().complete(task.getId(), variables);
+        } catch (FlowableException e) {
+            FlowableRuntimeUtils.throwException(
+                    e, "While completing task '" + task.getName() + "' for " + user);
         }
 
         Set<String> postTasks = FlowableRuntimeUtils.getPerformedTasks(engine, procInstID);
         postTasks.removeAll(preTasks);
-        if (task != null) {
-            postTasks.add(task);
-        }
-
+        postTasks.add(task.getTaskDefinitionKey());
         return postTasks;
     }
 

@@ -39,3 +39,7 @@ include::clientlibrary.adoc[]
 include::customization.adoc[]
 
 include::actuator.adoc[]
+
+include::loggers.adoc[]
+
+include::metrics.adoc[]

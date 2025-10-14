@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -62,21 +61,6 @@ public class OpenSearchUtils {
 
     public static String getAuditIndex(final String domain) {
         return domain.toLowerCase() + "_audit";
-    }
-
-    protected static final char[] ELASTICSEARCH_REGEX_CHARS = {
-        '.', '?', '+', '*', '|', '{', '}', '[', ']', '(', ')', '"', '\\', '&' };
-
-    public static String escapeForLikeRegex(final char c) {
-        StringBuilder output = new StringBuilder();
-
-        if (ArrayUtils.contains(ELASTICSEARCH_REGEX_CHARS, c)) {
-            output.append('\\');
-        }
-
-        output.append(c);
-
-        return output.toString();
     }
 
     protected final UserDAO userDAO;
@@ -196,7 +180,7 @@ public class OpenSearchUtils {
         }
 
         // add also flattened membership attributes
-        if (any instanceof Groupable<?, ?, ?, ?> groupable) {
+        if (any instanceof Groupable<?, ?, ?> groupable) {
             groupable.getMemberships().forEach(m -> groupable.getPlainAttrs(m).forEach(mAttr -> {
                 List<Object> values = mAttr.getValues().stream().
                         map(PlainAttrValue::getValue).collect(Collectors.toList());

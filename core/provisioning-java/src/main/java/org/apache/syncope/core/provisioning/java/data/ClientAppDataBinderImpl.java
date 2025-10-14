@@ -25,6 +25,7 @@ import org.apache.syncope.common.lib.to.ClientAppTO;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
 import org.apache.syncope.common.lib.to.SAML2SPClientAppTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.rest.api.service.SAML2IdPEntityService;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -76,14 +77,15 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
 
     @Override
     public <T extends ClientApp> void update(final T clientApp, final ClientAppTO clientAppTO) {
-        if (clientAppTO instanceof SAML2SPClientAppTO sAML2SPClientAppTO) {
-            doUpdate((SAML2SPClientApp) clientApp, sAML2SPClientAppTO);
-        } else if (clientAppTO instanceof OIDCRPClientAppTO oIDCRPClientAppTO) {
-            doUpdate((OIDCRPClientApp) clientApp, oIDCRPClientAppTO);
-        } else if (clientAppTO instanceof CASSPClientAppTO cASSPClientAppTO) {
-            doUpdate((CASSPClientApp) clientApp, cASSPClientAppTO);
-        } else {
-            throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
+        switch (clientAppTO) {
+            case SAML2SPClientAppTO saml2sp ->
+                doUpdate((SAML2SPClientApp) clientApp, saml2sp);
+            case OIDCRPClientAppTO oidcrp ->
+                doUpdate((OIDCRPClientApp) clientApp, oidcrp);
+            case CASSPClientAppTO cassp ->
+                doUpdate((CASSPClientApp) clientApp, cassp);
+            default ->
+                throw new IllegalArgumentException("Unsupported client app: " + clientAppTO.getClass().getName());
         }
     }
 
@@ -118,6 +120,9 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         copyToEntity(clientApp, clientAppTO);
 
         clientApp.setEntityId(clientAppTO.getEntityId());
+        if (clientAppTO.getIdp() != null && !SAML2IdPEntityService.DEFAULT_OWNER.equals(clientAppTO.getIdp())) {
+            clientApp.setIdp(clientAppTO.getIdp());
+        }
         clientApp.setMetadataLocation(clientAppTO.getMetadataLocation());
         clientApp.setMetadataSignatureLocation(clientAppTO.getMetadataSignatureLocation());
         clientApp.setSignAssertions(clientAppTO.isSignAssertions());
@@ -183,6 +188,7 @@ public class ClientAppDataBinderImpl implements ClientAppDataBinder {
         SAML2SPClientAppTO clientAppTO = new SAML2SPClientAppTO();
         copyToTO(clientApp, clientAppTO);
 
+        clientAppTO.setIdp(clientApp.getIdp().orElse(null));
         clientAppTO.setEntityId(clientApp.getEntityId());
         clientAppTO.setMetadataLocation(clientApp.getMetadataLocation());
         clientAppTO.setMetadataSignatureLocation(clientApp.getMetadataSignatureLocation());

@@ -20,11 +20,8 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import java.util.List;
-import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
-import org.apache.syncope.core.persistence.api.entity.JobStatus;
 import org.apache.syncope.core.persistence.jpa.entity.JPAJobStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,64 +38,21 @@ public class JPAJobStatusDAO implements JobStatusDAO {
         this.entityManager = entityManager;
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public boolean existsById(final String key) {
-        Query query = entityManager.createQuery(
-                "SELECT COUNT(e) FROM " + JPAJobStatus.class.getSimpleName() + " e WHERE e.id = :key");
-        query.setParameter("key", key);
-        return ((Number) query.getSingleResult()).longValue() > 0;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Optional<? extends JobStatus> findById(final String key) {
-        return Optional.ofNullable(entityManager.find(JPAJobStatus.class, key));
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public long count() {
-        Query query = entityManager.createQuery(
-                "SELECT COUNT(e) FROM " + JPAJobStatus.class.getSimpleName() + " e");
-        return ((Number) query.getSingleResult()).longValue();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<? extends JobStatus> findAll() {
-        TypedQuery<JobStatus> query = entityManager.createQuery(
-                "SELECT e FROM " + JPAJobStatus.class.getSimpleName() + " e", JobStatus.class);
-        return query.getResultList();
-    }
-
-    @Override
-    public <S extends JobStatus> S save(final S jobStatus) {
-        return entityManager.merge(jobStatus);
-    }
-
-    @Override
-    public void delete(final JobStatus jobStatus) {
-        entityManager.remove(jobStatus);
-    }
-
-    @Override
-    public void deleteById(final String key) {
-        findById(key).ifPresent(this::delete);
-    }
-
     @Override
     public boolean lock(final String key) {
-        if (existsById(key)) {
+        if (!UNKNOWN_STATUS.equals(get(key))) {
+            LOG.debug("Job {} already locked", key);
             return false;
         }
 
         try {
-            JobStatus jobStatus = new JPAJobStatus();
-            jobStatus.setKey(key);
-            jobStatus.setStatus(JOB_FIRED_STATUS);
-            save(jobStatus);
+            Query query = entityManager.createNativeQuery(
+                    "INSERT INTO " + JPAJobStatus.TABLE + "(id, jobStatus) VALUES (?,?)");
+            query.setParameter(1, key);
+            query.setParameter(2, JOB_FIRED_STATUS);
+            query.executeUpdate();
 
+            LOG.debug("Job {} locked", key);
             return true;
         } catch (Exception e) {
             LOG.debug("Could not lock job {}", key, e);
@@ -108,6 +62,28 @@ public class JPAJobStatusDAO implements JobStatusDAO {
 
     @Override
     public void unlock(final String key) {
-        deleteById(key);
+        Query query = entityManager.createNativeQuery("DELETE FROM " + JPAJobStatus.TABLE + " WHERE id=?");
+        query.setParameter(1, key);
+        query.executeUpdate();
+        LOG.debug("Job {} unlocked", key);
+    }
+
+    @Override
+    public void set(final String key, final String status) {
+        Query query = entityManager.createNativeQuery("UPDATE " + JPAJobStatus.TABLE + " SET jobStatus=? WHERE id=?");
+        query.setParameter(1, UNKNOWN_STATUS.equals(status) ? "Status " + UNKNOWN_STATUS : status);
+        query.setParameter(2, key);
+        query.executeUpdate();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public String get(final String key) {
+        Query query = entityManager.createNativeQuery("SELECT jobStatus FROM " + JPAJobStatus.TABLE + " WHERE id=?");
+        query.setParameter(1, key);
+
+        @SuppressWarnings("unchecked")
+        List<Object> result = query.getResultList();
+        return result.isEmpty() ? UNKNOWN_STATUS : result.getFirst().toString();
     }
 }

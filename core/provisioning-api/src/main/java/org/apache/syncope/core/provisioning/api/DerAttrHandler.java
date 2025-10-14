@@ -79,5 +79,5 @@ public interface DerAttrHandler {
      * @param membership membership
      * @return derived attribute values
      */
-    Map<DerSchema, String> getValues(Groupable<?, ?, ?, ?> any, Membership<?> membership);
+    Map<DerSchema, String> getValues(Groupable<?, ?, ?> any, Membership<?> membership);
 }

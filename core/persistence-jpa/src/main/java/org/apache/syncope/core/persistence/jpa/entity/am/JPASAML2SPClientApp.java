@@ -32,6 +32,7 @@ import jakarta.persistence.Transient;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.SAML2SPNameId;
 import org.apache.syncope.common.lib.types.XmlSecAlgorithm;
@@ -55,6 +56,8 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
 
     @Column(unique = true, nullable = false)
     private String entityId;
+
+    private String idp;
 
     @Column(nullable = false)
     private String metadataLocation;
@@ -137,6 +140,16 @@ public class JPASAML2SPClientApp extends AbstractClientApp implements SAML2SPCli
     @Override
     public void setEntityId(final String entityId) {
         this.entityId = entityId;
+    }
+
+    @Override
+    public Optional<String> getIdp() {
+        return Optional.ofNullable(idp);
+    }
+
+    @Override
+    public void setIdp(final String idp) {
+        this.idp = idp;
     }
 
     @Override

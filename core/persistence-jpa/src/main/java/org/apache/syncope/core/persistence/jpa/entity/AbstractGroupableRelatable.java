@@ -26,13 +26,13 @@ import org.apache.syncope.core.persistence.api.entity.Groupable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public abstract class AbstractGroupableRelatable<
         L extends Any, 
         M extends Membership<L>, 
-        R extends Any,
-        REL extends Relationship<L, R>>
-        extends AbstractRelatable<L, R, REL> implements Groupable<L, M, R, REL> {
+        REL extends Relationship<L, AnyObject>>
+        extends AbstractRelatable<L, REL> implements Groupable<L, M, REL> {
 
     private static final long serialVersionUID = -2269285197388729673L;
 

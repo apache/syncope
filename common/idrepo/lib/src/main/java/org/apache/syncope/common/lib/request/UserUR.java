@@ -72,21 +72,6 @@ public class UserUR extends AnyUR {
             return this;
         }
 
-        public Builder relationship(final RelationshipUR relationship) {
-            getInstance().getRelationships().add(relationship);
-            return this;
-        }
-
-        public Builder relationships(final RelationshipUR... relationships) {
-            getInstance().getRelationships().addAll(List.of(relationships));
-            return this;
-        }
-
-        public Builder relationships(final Collection<RelationshipUR> relationships) {
-            getInstance().getRelationships().addAll(relationships);
-            return this;
-        }
-
         public Builder membership(final MembershipUR membership) {
             getInstance().getMemberships().add(membership);
             return this;
@@ -127,8 +112,6 @@ public class UserUR extends AnyUR {
     private StringReplacePatchItem securityAnswer;
 
     private BooleanReplacePatchItem mustChangePassword;
-
-    private final Set<RelationshipUR> relationships = new HashSet<>();
 
     private final Set<MembershipUR> memberships = new HashSet<>();
 
@@ -185,12 +168,6 @@ public class UserUR extends AnyUR {
         this.mustChangePassword = mustChangePassword;
     }
 
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
-    public Set<RelationshipUR> getRelationships() {
-        return relationships;
-    }
-
     @JacksonXmlElementWrapper(localName = "memberships")
     @JacksonXmlProperty(localName = "membership")
     public Set<MembershipUR> getMemberships() {
@@ -213,7 +190,7 @@ public class UserUR extends AnyUR {
     protected boolean isEmptyNotConsideringPassword() {
         return super.isEmpty()
                 && username == null && securityQuestion == null && securityAnswer == null
-                && mustChangePassword == null && relationships.isEmpty() && memberships.isEmpty() && roles.isEmpty()
+                && mustChangePassword == null && memberships.isEmpty() && roles.isEmpty()
                 && linkedAccounts.isEmpty();
     }
 
@@ -236,7 +213,6 @@ public class UserUR extends AnyUR {
                 append(securityQuestion).
                 append(securityAnswer).
                 append(mustChangePassword).
-                append(relationships).
                 append(memberships).
                 append(roles).
                 append(linkedAccounts).
@@ -261,7 +237,6 @@ public class UserUR extends AnyUR {
                 append(securityQuestion, other.securityQuestion).
                 append(securityAnswer, other.securityAnswer).
                 append(mustChangePassword, other.mustChangePassword).
-                append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 append(roles, other.roles).
                 append(linkedAccounts, other.linkedAccounts).

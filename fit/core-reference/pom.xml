@@ -69,6 +69,11 @@ under the License.
       <artifactId>syncope-core-self-keymaster-starter</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-metrics-starter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.apache.syncope.common.keymaster</groupId>
@@ -816,7 +821,7 @@ under the License.
                   <alias>mysql</alias>
                   <name>mysql:${docker.mysql.version}</name>
                   <run>
-                    <cmd>--skip-log-bin --server-id=1 --sort_buffer_size=348M</cmd>
+                    <cmd>--skip-log-bin --server-id=1 --sort_buffer_size=348M --character-set-server=utf8mb4 --collation-server=utf8mb4_bin</cmd>
                     <env>
                       <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
                       <MYSQL_DATABASE>syncope</MYSQL_DATABASE>
@@ -916,6 +921,7 @@ under the License.
                   <alias>mariadb</alias>
                   <name>mariadb:${docker.mariadb.version}</name>
                   <run>
+                    <cmd>--character-set-server=utf8mb4 --collation-server=utf8mb4_bin</cmd>
                     <env>
                       <MYSQL_ROOT_PASSWORD>password</MYSQL_ROOT_PASSWORD>
                       <MYSQL_DATABASE>syncope</MYSQL_DATABASE>

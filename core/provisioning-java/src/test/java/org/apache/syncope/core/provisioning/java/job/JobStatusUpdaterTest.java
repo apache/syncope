@@ -18,11 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.JobStatusDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.event.JobStatusEvent;
 import org.apache.syncope.core.provisioning.java.AbstractTest;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
@@ -34,23 +33,23 @@ import org.springframework.transaction.annotation.Transactional;
 public class JobStatusUpdaterTest extends AbstractTest {
 
     @Autowired
-    private EntityFactory entityFactory;
-
-    @Autowired
     private JobStatusDAO jobStatusDAO;
 
     @Test
     public void verifyUpdate() {
         String jobName = "job-" + SecureRandomUtils.generateRandomNumber();
 
-        JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO, entityFactory);
+        JobStatusUpdater jobStatusUpdater = new JobStatusUpdater(jobStatusDAO);
         jobStatusUpdater.initComplete();
 
         jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, jobName, "Started"));
-        assertTrue(jobStatusDAO.findById(jobName).isPresent());
+        assertEquals(JobStatusDAO.UNKNOWN_STATUS, jobStatusDAO.get(jobName));
 
-        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, jobName, null));
-        // no change is expected
-        assertTrue(jobStatusDAO.findById(jobName).isPresent());
+        jobStatusDAO.lock(jobName);
+        jobStatusUpdater.update(new JobStatusEvent(this, SyncopeConstants.MASTER_DOMAIN, jobName, "Started"));
+        assertEquals("Started", jobStatusDAO.get(jobName));
+
+        jobStatusDAO.unlock(jobName);
+        assertEquals(JobStatusDAO.UNKNOWN_STATUS, jobStatusDAO.get(jobName));
     }
 }

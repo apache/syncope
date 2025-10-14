@@ -58,8 +58,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private boolean mustChangePassword;
 
-    private final List<RelationshipTO> relationships = new ArrayList<>();
-
     private final List<MembershipTO> memberships = new ArrayList<>();
 
     private final List<MembershipTO> dynMemberships = new ArrayList<>();
@@ -184,21 +182,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
-        return relationships.stream().filter(
-                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
-                findFirst();
-    }
-
-    @JacksonXmlElementWrapper(localName = "relationships")
-    @JacksonXmlProperty(localName = "relationship")
-    @Override
-    public List<RelationshipTO> getRelationships() {
-        return relationships;
-    }
-
-    @JsonIgnore
-    @Override
     public Optional<MembershipTO> getMembership(final String groupKey) {
         return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
@@ -265,7 +248,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(securityAnswer).
                 append(suspended).
                 append(mustChangePassword).
-                append(relationships).
                 append(memberships).
                 append(dynMemberships).
                 append(linkedAccounts).
@@ -300,7 +282,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
                 append(securityAnswer, other.securityAnswer).
                 append(suspended, other.suspended).
                 append(mustChangePassword, other.mustChangePassword).
-                append(relationships, other.relationships).
                 append(memberships, other.memberships).
                 append(dynMemberships, other.dynMemberships).
                 append(linkedAccounts, other.linkedAccounts).

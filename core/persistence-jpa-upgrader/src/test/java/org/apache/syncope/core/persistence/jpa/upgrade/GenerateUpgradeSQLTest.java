@@ -51,6 +51,8 @@ class GenerateUpgradeSQLTest {
 
     protected static final Supplier<Object> DB_CRED_SUPPLIER = () -> "syncope";
 
+    protected static final Supplier<Object> DB_SCHEMA_SUPPLIER = () -> "schema-postgresql.xml";
+
     static {
         try {
             EmbeddedPostgres pg = EmbeddedPostgres.builder().start();
@@ -80,6 +82,7 @@ class GenerateUpgradeSQLTest {
         registry.add("db.jdbcURL", JDBC_URL_SUPPLIER);
         registry.add("db.username", DB_CRED_SUPPLIER);
         registry.add("db.password", DB_CRED_SUPPLIER);
+        registry.add("db.schema", DB_SCHEMA_SUPPLIER);
     }
 
     @Autowired

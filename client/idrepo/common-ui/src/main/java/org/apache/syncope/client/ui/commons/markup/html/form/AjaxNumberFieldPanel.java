@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.ui.commons.markup.html.form;
 
-import com.googlecode.wicket.jquery.core.Options;
-import com.googlecode.wicket.kendo.ui.form.NumberTextField;
-import com.googlecode.wicket.kendo.ui.resource.KendoCultureResourceReference;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +34,9 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.wicketstuff.jquery.core.Options;
+import org.wicketstuff.kendo.ui.form.NumberTextField;
+import org.wicketstuff.kendo.ui.resource.KendoCultureResourceReference;
 
 public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extends FieldPanel<T> {
 

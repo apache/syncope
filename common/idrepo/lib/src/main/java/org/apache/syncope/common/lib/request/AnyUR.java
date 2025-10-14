@@ -118,6 +118,24 @@ public abstract class AnyUR implements BaseBean {
             return (B) this;
         }
 
+        @SuppressWarnings("unchecked")
+        public B relationship(final RelationshipUR relationship) {
+            getInstance().getRelationships().add(relationship);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B relationships(final RelationshipUR... relationships) {
+            getInstance().getRelationships().addAll(List.of(relationships));
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B relationships(final Collection<RelationshipUR> relationships) {
+            getInstance().getRelationships().addAll(relationships);
+            return (B) this;
+        }
+
         public R build() {
             return getInstance();
         }
@@ -136,6 +154,8 @@ public abstract class AnyUR implements BaseBean {
     private final Set<AttrPatch> plainAttrs = new HashSet<>();
 
     private final Set<StringPatchItem> resources = new HashSet<>();
+
+    private final Set<RelationshipUR> relationships = new HashSet<>();
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
@@ -180,6 +200,12 @@ public abstract class AnyUR implements BaseBean {
         return resources;
     }
 
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
+    public Set<RelationshipUR> getRelationships() {
+        return relationships;
+    }
+
     /**
      * @return true if no actual changes are defined
      */
@@ -188,7 +214,8 @@ public abstract class AnyUR implements BaseBean {
         return realm == null
                 && auxClasses.isEmpty()
                 && plainAttrs.isEmpty()
-                && resources.isEmpty();
+                && resources.isEmpty()
+                && relationships.isEmpty();
     }
 
     @Override
@@ -200,6 +227,7 @@ public abstract class AnyUR implements BaseBean {
                 append(auxClasses).
                 append(plainAttrs).
                 append(resources).
+                append(relationships).
                 build();
     }
 
@@ -222,6 +250,7 @@ public abstract class AnyUR implements BaseBean {
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
                 append(resources, other.resources).
+                append(relationships, other.relationships).
                 build();
     }
 }

@@ -147,9 +147,7 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
             securityChecks(IdRepoEntitlement.TASK_CREATE, ((MacroTaskTO) taskTO).getRealm());
         }
 
-        SchedTask task = binder.createSchedTask(taskTO, taskUtils);
-        task = taskDAO.save(task);
-
+        SchedTask task = taskDAO.save(binder.createSchedTask(taskTO, taskUtils));
         try {
             jobManager.register(
                     task,
@@ -185,11 +183,15 @@ public class TaskLogic extends AbstractExecutableLogic<TaskTO> {
         binder.updateSchedTask(task, taskTO, taskUtils);
         task = taskDAO.save(task);
         try {
-            jobManager.register(
-                    task,
-                    AuthContextUtils.getUsername());
+            if (task.isActive()) {
+                jobManager.register(
+                        task,
+                        AuthContextUtils.getUsername());
+            } else {
+                jobManager.unregister(task);
+            }
         } catch (Exception e) {
-            LOG.error("While registering job for task {}", task.getKey(), e);
+            LOG.error("While (un)registering job for task {}", task.getKey(), e);
 
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
             sce.getElements().add(e.getMessage());

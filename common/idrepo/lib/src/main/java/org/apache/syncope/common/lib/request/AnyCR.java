@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -35,11 +36,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.BaseBean;
 import org.apache.syncope.common.lib.RealmMember;
+import org.apache.syncope.common.lib.to.RelatableTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "_class")
 @JsonPropertyOrder(value = { "_class" })
 @Schema(subTypes = { UserCR.class, GroupCR.class, AnyObjectCR.class }, discriminatorProperty = "_class")
-public abstract class AnyCR implements BaseBean, RealmMember {
+public abstract class AnyCR implements BaseBean, RealmMember, RelatableTO {
 
     private static final long serialVersionUID = -1180587903919947455L;
 
@@ -114,6 +117,24 @@ public abstract class AnyCR implements BaseBean, RealmMember {
             return (B) this;
         }
 
+        @SuppressWarnings("unchecked")
+        public B relationship(final RelationshipTO relationship) {
+            getInstance().getRelationships().add(relationship);
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B relationships(final RelationshipTO... relationships) {
+            getInstance().getRelationships().addAll(List.of(relationships));
+            return (B) this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public B relationships(final Collection<RelationshipTO> relationships) {
+            getInstance().getRelationships().addAll(relationships);
+            return (B) this;
+        }
+
         public R build() {
             return getInstance();
         }
@@ -130,6 +151,8 @@ public abstract class AnyCR implements BaseBean, RealmMember {
     private final Set<Attr> plainAttrs = new HashSet<>();
 
     private final Set<String> resources = new HashSet<>();
+
+    private final List<RelationshipTO> relationships = new ArrayList<>();
 
     @Schema(name = "_class", requiredMode = Schema.RequiredMode.REQUIRED)
     public abstract String getDiscriminator();
@@ -186,6 +209,21 @@ public abstract class AnyCR implements BaseBean, RealmMember {
         return resources;
     }
 
+    @JsonIgnore
+    @Override
+    public Optional<RelationshipTO> getRelationship(final String type, final String otherKey) {
+        return relationships.stream().filter(
+                relationship -> type.equals(relationship.getType()) && otherKey.equals(relationship.getOtherEndKey())).
+                findFirst();
+    }
+
+    @JacksonXmlElementWrapper(localName = "relationships")
+    @JacksonXmlProperty(localName = "relationship")
+    @Override
+    public List<RelationshipTO> getRelationships() {
+        return relationships;
+    }
+
     @Override
     public int hashCode() {
         return new HashCodeBuilder().
@@ -194,6 +232,7 @@ public abstract class AnyCR implements BaseBean, RealmMember {
                 append(auxClasses).
                 append(plainAttrs).
                 append(resources).
+                append(relationships).
                 build();
     }
 
@@ -215,6 +254,7 @@ public abstract class AnyCR implements BaseBean, RealmMember {
                 append(auxClasses, other.auxClasses).
                 append(plainAttrs, other.plainAttrs).
                 append(resources, other.resources).
+                append(relationships, other.relationships).
                 build();
     }
 }

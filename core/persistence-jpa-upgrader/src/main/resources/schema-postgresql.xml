@@ -23,10 +23,10 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="fiql" type="varchar" size="255"/>
-            <column name="GROUP_ID" type="varchar" size="36"/>
             <column name="ANYTYPE_ID" type="varchar" size="255"/>
-            <fk to-table="SyncopeGroup" column="GROUP_ID"/>
+            <column name="GROUP_ID" type="varchar" size="36"/>
             <fk to-table="AnyType" column="ANYTYPE_ID"/>
+            <fk to-table="SyncopeGroup" column="GROUP_ID"/>
             <index name="I_DYNGSHP_ANYTYPE" column="ANYTYPE_ID"/>
             <index name="I_DYNGSHP_GROUP" column="GROUP_ID"/>
         </table>
@@ -37,8 +37,8 @@ under the License.
             <column name="group_id" type="varchar" size="36"/>
             <fk to-table="AnyObject" column="anyObject_id"/>
             <fk to-table="SyncopeGroup" column="group_id"/>
-            <index name="I_MMBRSHP_LEFTEND" column="anyObject_id"/>
-            <index name="I_MMBRSHP_RIGHTEND" column="group_id"/>
+            <index name="I_MMBRSHP_LEFTEND1" column="anyObject_id"/>
+            <index name="I_MMBRSHP_RIGHTEND1" column="group_id"/>
         </table>
         <table name="ARelationship">
             <pk column="id"/>
@@ -49,10 +49,10 @@ under the License.
             <fk to-table="AnyObject" column="left_anyObject_id"/>
             <fk to-table="AnyObject" column="right_anyObject_id"/>
             <fk to-table="RelationshipType" column="TYPE_ID"/>
-            <index name="I_RLTNSHP_LEFTEND" column="left_anyObject_id"/>
-            <index name="I_RLTNSHP_RIGHTEND" column="right_anyObject_id"/>
-            <index name="I_RLTNSHP_TYPE" column="TYPE_ID"/>
-            <unique name="U_RLTNSHP_TYPE_ID">
+            <index name="I_RLTNSHP_LEFTEND1" column="left_anyObject_id"/>
+            <index name="I_RLTNSHP_RIGHTEND1" column="right_anyObject_id"/>
+            <index name="I_RLTNSHP_TYPE1" column="TYPE_ID"/>
+            <unique name="U_RLTNSHP_TYPE_ID1">
                 <on column="TYPE_ID"/>
                 <on column="left_anyObject_id"/>
                 <on column="right_anyObject_id"/>
@@ -158,11 +158,11 @@ under the License.
             <pk column="id"/>
             <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="template" type="clob" size="-1"/>
-            <column name="LIVESYNCTASK_ID" type="varchar" size="36"/>
             <column name="ANYTYPE_ID" type="varchar" size="255"/>
-            <fk to-table="LiveSyncTask" column="LIVESYNCTASK_ID"/>
+            <column name="LIVESYNCTASK_ID" type="varchar" size="36"/>
             <fk to-table="AnyType" column="ANYTYPE_ID"/>
-            <index name="I_NYTMTSK_ANYTYPE1" column="ANYTYPE_ID"/>
+            <fk to-table="LiveSyncTask" column="LIVESYNCTASK_ID"/>
+            <index name="I_NYTMTSK_ANYTYPE" column="ANYTYPE_ID"/>
             <index name="I_NYTMTSK_LIVESYNCTASK" column="LIVESYNCTASK_ID"/>
             <unique name="U_NYTMTSK_LIVESYNCTASK_ID">
                 <on column="LIVESYNCTASK_ID"/>
@@ -177,7 +177,7 @@ under the License.
             <column name="PULLTASK_ID" type="varchar" size="36"/>
             <fk to-table="AnyType" column="ANYTYPE_ID"/>
             <fk to-table="PullTask" column="PULLTASK_ID"/>
-            <index name="I_NYTMTSK_ANYTYPE" column="ANYTYPE_ID"/>
+            <index name="I_NYTMTSK_ANYTYPE1" column="ANYTYPE_ID"/>
             <index name="I_NYTMTSK_PULLTASK" column="PULLTASK_ID"/>
             <unique name="U_NYTMTSK_PULLTASK_ID">
                 <on column="PULLTASK_ID"/>
@@ -442,13 +442,14 @@ under the License.
         </table>
         <table name="FormPropertyDef">
             <pk column="id"/>
-            <column name="id" type="varchar" not-null="true" size="255"/>
+            <column name="id" type="varchar" not-null="true" size="36"/>
             <column name="datePattern" type="varchar" size="255"/>
             <column name="dropdownFreeForm" type="bit"/>
             <column name="dropdownSingleSelection" type="bit"/>
             <column name="enumValues" type="clob" size="-1"/>
             <column name="idx" type="integer"/>
             <column name="labels" type="clob" size="-1"/>
+            <column name="mimeType" type="varchar" size="255"/>
             <column name="name" type="varchar" size="255"/>
             <column name="readable" type="bit"/>
             <column name="required" type="bit"/>
@@ -539,7 +540,6 @@ under the License.
             <column name="cronExpression" type="varchar" size="255"/>
             <column name="description" type="varchar" size="255"/>
             <column name="name" type="varchar" not-null="true" size="255"/>
-            <column name="startAt" type="timestamp"/>
             <column name="concurrentSettings" type="clob" size="-1"/>
             <column name="matchingRule" type="varchar" size="20"/>
             <column name="performCreate" type="bit"/>
@@ -595,7 +595,6 @@ under the License.
             <column name="cronExpression" type="varchar" size="255"/>
             <column name="description" type="varchar" size="255"/>
             <column name="name" type="varchar" not-null="true" size="255"/>
-            <column name="startAt" type="timestamp"/>
             <column name="continueOnError" type="bit"/>
             <column name="saveExecs" type="bit"/>
             <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
@@ -845,7 +844,6 @@ under the License.
             <column name="cronExpression" type="varchar" size="255"/>
             <column name="description" type="varchar" size="255"/>
             <column name="name" type="varchar" not-null="true" size="255"/>
-            <column name="startAt" type="timestamp"/>
             <column name="concurrentSettings" type="clob" size="-1"/>
             <column name="matchingRule" type="varchar" size="20"/>
             <column name="performCreate" type="bit"/>
@@ -923,7 +921,6 @@ under the License.
             <column name="cronExpression" type="varchar" size="255"/>
             <column name="description" type="varchar" size="255"/>
             <column name="name" type="varchar" not-null="true" size="255"/>
-            <column name="startAt" type="timestamp"/>
             <column name="concurrentSettings" type="clob" size="-1"/>
             <column name="matchingRule" type="varchar" size="20"/>
             <column name="performCreate" type="bit"/>
@@ -1109,6 +1106,7 @@ under the License.
             <column name="encKeyAlg" type="clob" size="-1"/>
             <column name="encryptionOptional" type="bit"/>
             <column name="entityId" type="varchar" not-null="true" size="255"/>
+            <column name="idp" type="varchar" size="255"/>
             <column name="metadataLocation" type="varchar" not-null="true" size="255"/>
             <column name="metadataSignatureLocation" type="varchar" size="255"/>
             <column name="nameIdQualifier" type="varchar" size="255"/>
@@ -1162,7 +1160,6 @@ under the License.
             <column name="cronExpression" type="varchar" size="255"/>
             <column name="description" type="varchar" size="255"/>
             <column name="name" type="varchar" not-null="true" size="255"/>
-            <column name="startAt" type="timestamp"/>
             <column name="JOBDELEGATE_ID" type="varchar" size="255"/>
             <fk to-table="Implementation" column="JOBDELEGATE_ID"/>
             <index name="I_SCHDTSK_JOBDELEGATE" column="JOBDELEGATE_ID"/>
@@ -1178,9 +1175,9 @@ under the License.
             <column name="status" type="varchar" size="255"/>
             <column name="TASK_ID" type="varchar" size="36"/>
             <fk to-table="SchedTask" column="TASK_ID"/>
-            <fk to-table="PullTask" column="TASK_ID"/>
-            <fk to-table="MacroTask" column="TASK_ID"/>
             <fk to-table="LiveSyncTask" column="TASK_ID"/>
+            <fk to-table="MacroTask" column="TASK_ID"/>
+            <fk to-table="PullTask" column="TASK_ID"/>
             <fk to-table="PushTask" column="TASK_ID"/>
             <index name="I_SCHDKXC_TASK" column="TASK_ID"/>
         </table>
@@ -1398,8 +1395,8 @@ under the License.
             <column name="group_id" type="varchar" size="36"/>
             <fk to-table="SyncopeUser" column="user_id"/>
             <fk to-table="SyncopeGroup" column="group_id"/>
-            <index name="I_MMBRSHP_LEFTEND1" column="user_id"/>
-            <index name="I_MMBRSHP_RIGHTEND1" column="group_id"/>
+            <index name="I_MMBRSHP_LEFTEND" column="user_id"/>
+            <index name="I_MMBRSHP_RIGHTEND" column="group_id"/>
         </table>
         <table name="URelationship">
             <pk column="id"/>
@@ -1410,10 +1407,10 @@ under the License.
             <fk to-table="SyncopeUser" column="user_id"/>
             <fk to-table="AnyObject" column="anyObject_id"/>
             <fk to-table="RelationshipType" column="TYPE_ID"/>
-            <index name="I_RLTNSHP_LEFTEND1" column="user_id"/>
-            <index name="I_RLTNSHP_RIGHTEND1" column="anyObject_id"/>
-            <index name="I_RLTNSHP_TYPE1" column="TYPE_ID"/>
-            <unique name="U_RLTNSHP_TYPE_ID1">
+            <index name="I_RLTNSHP_LEFTEND" column="user_id"/>
+            <index name="I_RLTNSHP_RIGHTEND" column="anyObject_id"/>
+            <index name="I_RLTNSHP_TYPE" column="TYPE_ID"/>
+            <unique name="U_RLTNSHP_TYPE_ID">
                 <on column="TYPE_ID"/>
                 <on column="user_id"/>
                 <on column="anyObject_id"/>
