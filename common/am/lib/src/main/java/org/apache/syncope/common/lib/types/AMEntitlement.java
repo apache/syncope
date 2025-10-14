@@ -68,6 +68,16 @@ public final class AMEntitlement {
 
     public static final String ATTR_REPO_DELETE = "ATTR_REPO_DELETE";
 
+    public static final String PASSWORD_MANAGEMENT_LIST = "PASSWORD_MANAGEMENT_LIST";
+
+    public static final String PASSWORD_MANAGEMENT_CREATE = "PASSWORD_MANAGEMENT_CREATE";
+
+    public static final String PASSWORD_MANAGEMENT_READ = "PASSWORD_MANAGEMENT_READ";
+
+    public static final String PASSWORD_MANAGEMENT_UPDATE = "PASSWORD_MANAGEMENT_UPDATE";
+
+    public static final String PASSWORD_MANAGEMENT_DELETE = "PASSWORD_MANAGEMENT_DELETE";
+
     public static final String SAML2_IDP_ENTITY_SET = "SAML2_IDP_ENTITY_SET";
 
     public static final String SAML2_IDP_ENTITY_LIST = "SAML2_IDP_ENTITY_LIST";

@@ -22,6 +22,7 @@ import java.util.Optional;
 import org.apache.syncope.common.lib.attr.AttrRepoConf;
 import org.apache.syncope.common.lib.auth.AuthModuleConf;
 import org.apache.syncope.common.lib.clientapps.UsernameAttributeProviderConf;
+import org.apache.syncope.common.lib.password.PasswordManagementConf;
 import org.apache.syncope.common.lib.policy.AccessPolicyConf;
 import org.apache.syncope.common.lib.policy.AttrReleasePolicyConf;
 import org.apache.syncope.common.lib.policy.AuthPolicyConf;
@@ -36,6 +37,7 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
     public void extend(final ClassPathScanningCandidateComponentProvider scanner) {
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthModuleConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AttrRepoConf.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(PasswordManagementConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccessPolicyConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AttrReleasePolicyConf.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AuthPolicyConf.class));
@@ -49,6 +51,9 @@ public class AMClassPathScanImplementationContributor implements ClassPathScanIm
         }
         if (AttrRepoConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AttrRepoConf.class.getName());
+        }
+        if (PasswordManagementConf.class.isAssignableFrom(clazz)) {
+            return Optional.of(PasswordManagementConf.class.getName());
         }
         if (AccessPolicyConf.class.isAssignableFrom(clazz)) {
             return Optional.of(AccessPolicyConf.class.getName());

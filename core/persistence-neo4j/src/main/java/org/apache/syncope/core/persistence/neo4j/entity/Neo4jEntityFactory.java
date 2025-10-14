@@ -54,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.am.AuthProfile;
 import org.apache.syncope.core.persistence.api.entity.am.CASSPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCJWKS;
 import org.apache.syncope.core.persistence.api.entity.am.OIDCRPClientApp;
+import org.apache.syncope.core.persistence.api.entity.am.PasswordManagement;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2IdPEntity;
 import org.apache.syncope.core.persistence.api.entity.am.SAML2SPClientApp;
 import org.apache.syncope.core.persistence.api.entity.am.WAConfigEntry;
@@ -94,6 +95,7 @@ import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4JPasswordManagement;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAttrRepo;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthModule;
 import org.apache.syncope.core.persistence.neo4j.entity.am.Neo4jAuthProfile;
@@ -265,6 +267,8 @@ public class Neo4jEntityFactory implements EntityFactory {
             result = (E) new Neo4jAuthModule();
         } else if (reference.equals(AttrRepo.class)) {
             result = (E) new Neo4jAttrRepo();
+        } else if (reference.equals(PasswordManagement.class)) {
+            result = (E) new Neo4JPasswordManagement();
         } else if (reference.equals(AuthPolicy.class)) {
             result = (E) new Neo4jAuthPolicy();
         } else if (reference.equals(AccessPolicy.class)) {

@@ -88,6 +88,7 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.ImplementationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.core.provisioning.api.data.OIDCJWKSDataBinder;
+import org.apache.syncope.core.provisioning.api.data.PasswordManagementDataBinder;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.data.RelationshipTypeDataBinder;
@@ -125,6 +126,7 @@ import org.apache.syncope.core.provisioning.java.data.GroupDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.ImplementationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.NotificationDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.OIDCJWKSDataBinderImpl;
+import org.apache.syncope.core.provisioning.java.data.PasswordManagementDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.PolicyDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.RealmDataBinderImpl;
 import org.apache.syncope.core.provisioning.java.data.RelationshipTypeDataBinderImpl;
@@ -761,6 +763,12 @@ public class ProvisioningContext {
     @Bean
     public AttrRepoDataBinder attrRepoDataBinder(final EntityFactory entityFactory) {
         return new AttrRepoDataBinderImpl(entityFactory);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordManagementDataBinder passwordManagementDataBinder(final EntityFactory entityFactory) {
+        return new PasswordManagementDataBinderImpl(entityFactory);
     }
 
     @ConditionalOnMissingBean

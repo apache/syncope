@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.rest.AuthModuleRestClient;
 import org.apache.syncope.client.console.rest.AuthProfileRestClient;
 import org.apache.syncope.client.console.rest.ClientAppRestClient;
 import org.apache.syncope.client.console.rest.OIDCJWKSRestClient;
+import org.apache.syncope.client.console.rest.PasswordManagementRestClient;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.SAML2IdPEntityRestClient;
 import org.apache.syncope.client.console.rest.SRARouteRestClient;
@@ -65,14 +66,20 @@ public class AMConsoleContext {
 
     @ConditionalOnMissingBean
     @Bean
+    public AuthModuleRestClient authModuleRestClient() {
+        return new AuthModuleRestClient();
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
     public AttrRepoRestClient attrRepoRestClient() {
         return new AttrRepoRestClient();
     }
 
     @ConditionalOnMissingBean
     @Bean
-    public AuthModuleRestClient authModuleRestClient() {
-        return new AuthModuleRestClient();
+    public PasswordManagementRestClient passwordManagementRestClient() {
+        return new PasswordManagementRestClient();
     }
 
     @ConditionalOnMissingBean

@@ -29,13 +29,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.OIDCRPClientAppTO;
+import org.apache.syncope.common.lib.to.PasswordManagementTO;
 import org.apache.syncope.common.rest.api.service.AttrRepoService;
 import org.apache.syncope.common.rest.api.service.AuthModuleService;
+import org.apache.syncope.common.rest.api.service.PasswordManagementService;
 import org.apache.syncope.common.rest.api.service.wa.WAClientAppService;
 import org.apache.syncope.common.rest.api.service.wa.WAConfigService;
 import org.apache.syncope.wa.bootstrap.mapping.AttrReleaseMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AttrRepoPropertySourceMapper;
 import org.apache.syncope.wa.bootstrap.mapping.AuthModulePropertySourceMapper;
+import org.apache.syncope.wa.bootstrap.mapping.PasswordManagementPropertySourceMapper;
 import org.apereo.cas.configuration.model.support.oidc.OidcDiscoveryProperties;
 import org.apereo.cas.oidc.claims.OidcCustomScopeAttributeReleasePolicy;
 import org.apereo.cas.services.ChainingAttributeReleasePolicy;
@@ -60,6 +63,8 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
 
     protected final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper;
 
+    protected final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper;
+
     protected final AttrReleaseMapper attrReleaseMapper;
 
     protected final CipherExecutor<String, String> configurationCipher;
@@ -68,12 +73,14 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             final WARestClient waRestClient,
             final AuthModulePropertySourceMapper authModulePropertySourceMapper,
             final AttrRepoPropertySourceMapper attrRepoPropertySourceMapper,
+            final PasswordManagementPropertySourceMapper passwordManagementPropertySourceMapper,
             final AttrReleaseMapper attrReleaseMapper,
             final CipherExecutor<String, String> configurationCipher) {
 
         this.waRestClient = waRestClient;
         this.authModulePropertySourceMapper = authModulePropertySourceMapper;
         this.attrRepoPropertySourceMapper = attrRepoPropertySourceMapper;
+        this.passwordManagementPropertySourceMapper = passwordManagementPropertySourceMapper;
         this.attrReleaseMapper = attrReleaseMapper;
         this.configurationCipher = configurationCipher;
     }
@@ -124,8 +131,14 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
             properties.putAll(index(map, prefixes));
         });
 
-        properties.put("cas.authn.pm.syncope.url",
-                StringUtils.substringBefore(syncopeClient.getAddress(), "/rest"));
+        syncopeClient.getService(PasswordManagementService.class).list().stream().
+                filter(PasswordManagementTO::isEnabled).findFirst().ifPresent(passwordManagementTO -> {
+            LOG.debug("Mapping password module {} ", passwordManagementTO.getKey());
+
+            Map<String, Object> map = passwordManagementTO.getConf().
+                    map(passwordManagementTO, passwordManagementPropertySourceMapper);
+            properties.putAll(index(map, prefixes));
+        });
 
         Set<String> customClaims = syncopeClient.getService(WAClientAppService.class).list().stream().
                 filter(app -> app.getClientAppTO() instanceof OIDCRPClientAppTO && app.getAttrReleasePolicy() != null).
@@ -154,7 +167,7 @@ public class WAPropertySourceLocator implements PropertySourceLocator {
                     Stream.concat(new OidcDiscoveryProperties().getClaims().stream(), customClaims.stream()).
                             collect(Collectors.joining(",")));
             properties.put("cas.authn.oidc.core.user-defined-scopes.syncope",
-                String.join(",", customClaims));
+                    String.join(",", customClaims));
         }
 
         syncopeClient.getService(WAConfigService.class).list().forEach(attr -> properties.put(

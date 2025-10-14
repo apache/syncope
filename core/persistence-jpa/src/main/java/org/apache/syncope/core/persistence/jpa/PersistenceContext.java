@@ -57,6 +57,7 @@ import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCJWKSDAO;
 import org.apache.syncope.core.persistence.api.dao.OIDCRPClientAppDAO;
+import org.apache.syncope.core.persistence.api.dao.PasswordManagementDAO;
 import org.apache.syncope.core.persistence.api.dao.PersistenceInfoDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
@@ -154,6 +155,9 @@ import org.apache.syncope.core.persistence.jpa.dao.repo.NotificationRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.OIDCRPClientAppRepoExtImpl;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PasswordManagementRepo;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PasswordManagementRepoExt;
+import org.apache.syncope.core.persistence.jpa.dao.repo.PasswordManagementRepoExtImpl;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepo;
 import org.apache.syncope.core.persistence.jpa.dao.repo.PlainSchemaRepoExt;
 import org.apache.syncope.core.persistence.jpa.dao.repo.RelationshipTypeRepo;
@@ -493,15 +497,6 @@ public class PersistenceContext {
 
     @ConditionalOnMissingBean
     @Bean
-    public AttrRepoDAO attrRepoDAO(
-            final JpaRepositoryFactory jpaRepositoryFactory,
-            final AttrRepoRepoExt attrRepoRepoExt) {
-
-        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class, attrRepoRepoExt);
-    }
-
-    @ConditionalOnMissingBean
-    @Bean
     public AuthModuleRepoExt authModuleRepoExt(final PolicyDAO policyDAO, final EntityManager entityManager) {
         return new AuthModuleRepoExtImpl(policyDAO, entityManager);
     }
@@ -513,6 +508,30 @@ public class PersistenceContext {
             final AuthModuleRepoExt authModuleRepoExt) {
 
         return jpaRepositoryFactory.getRepository(AuthModuleRepo.class, authModuleRepoExt);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public AttrRepoDAO attrRepoDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final AttrRepoRepoExt attrRepoRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(AttrRepoRepo.class, attrRepoRepoExt);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordManagementRepoExt passwordManagementRepoExt(final EntityManager entityManager) {
+        return new PasswordManagementRepoExtImpl(entityManager);
+    }
+
+    @ConditionalOnMissingBean
+    @Bean
+    public PasswordManagementDAO passwordManagementDAO(
+            final JpaRepositoryFactory jpaRepositoryFactory,
+            final PasswordManagementRepoExt passwordManagementRepoExt) {
+
+        return jpaRepositoryFactory.getRepository(PasswordManagementRepo.class, passwordManagementRepoExt);
     }
 
     @ConditionalOnMissingBean

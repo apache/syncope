@@ -50,6 +50,8 @@ include::authenticationmodules.adoc[]
 
 include::attributerepositories.adoc[]
 
+include::passwordmanagement.adoc[]
+
 include::clientapplications.adoc[]
 
 include::domains.adoc[]
