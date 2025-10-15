@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.cxf.Bus;
 import org.apache.cxf.endpoint.Server;
+import org.apache.cxf.feature.Feature;
 import org.apache.cxf.jaxrs.ext.ContextProvider;
 import org.apache.cxf.jaxrs.ext.search.SearchContext;
 import org.apache.cxf.jaxrs.ext.search.SearchContextImpl;
@@ -300,7 +301,7 @@ public class IdRepoRESTCXFContext {
             final GZIPInInterceptor gzipInInterceptor,
             final GZIPOutInterceptor gzipOutInterceptor,
             final ThreadLocalCleanupOutInterceptor threadLocalCleanupOutInterceptor,
-            final OpenApiFeature openapiFeature,
+            final List<Feature> features,
             final RestServiceExceptionMapper restServiceExceptionMapper,
             final Bus bus) {
 
@@ -331,7 +332,7 @@ public class IdRepoRESTCXFContext {
 
         restContainer.setOutInterceptors(List.of(gzipOutInterceptor, threadLocalCleanupOutInterceptor));
 
-        restContainer.setFeatures(List.of(openapiFeature));
+        restContainer.setFeatures(features);
 
         return restContainer.create();
     }
