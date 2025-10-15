@@ -602,6 +602,11 @@ under the License.
         <artifactId>cxf-rt-features-logging</artifactId>
         <version>${cxf.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-features-metrics</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
       <!-- /CXF -->
 
       <!-- Swagger -->

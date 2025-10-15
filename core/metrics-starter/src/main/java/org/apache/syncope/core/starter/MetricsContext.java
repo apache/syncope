@@ -20,6 +20,16 @@ package org.apache.syncope.core.starter;
 
 import io.micrometer.core.instrument.MeterRegistry;
 import java.util.List;
+import org.apache.cxf.metrics.MetricsFeature;
+import org.apache.cxf.metrics.MetricsProvider;
+import org.apache.cxf.metrics.micrometer.MicrometerMetricsProperties;
+import org.apache.cxf.metrics.micrometer.MicrometerMetricsProvider;
+import org.apache.cxf.metrics.micrometer.provider.DefaultExceptionClassProvider;
+import org.apache.cxf.metrics.micrometer.provider.DefaultTimedAnnotationProvider;
+import org.apache.cxf.metrics.micrometer.provider.StandardTags;
+import org.apache.cxf.metrics.micrometer.provider.StandardTagsProvider;
+import org.apache.cxf.metrics.micrometer.provider.jaxrs.JaxrsOperationTagsCustomizer;
+import org.apache.cxf.metrics.micrometer.provider.jaxrs.JaxrsTags;
 import org.apache.syncope.common.keymaster.client.api.ConfParamOps;
 import org.apache.syncope.core.persistence.api.EncryptorManager;
 import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
@@ -57,6 +67,19 @@ import org.springframework.core.task.AsyncTaskExecutor;
 
 @Configuration(proxyBeanMethods = false)
 public class MetricsContext {
+
+    @ConditionalOnMissingBean
+    @Bean
+    public MetricsFeature metricsFeature(final MeterRegistry meterRegistry) {
+        MetricsProvider metricsProvider = new MicrometerMetricsProvider(
+                meterRegistry,
+                new StandardTagsProvider(new DefaultExceptionClassProvider(), new StandardTags()),
+                List.of(new JaxrsOperationTagsCustomizer(new JaxrsTags())),
+                new DefaultTimedAnnotationProvider(),
+                new MicrometerMetricsProperties());
+
+        return new MetricsFeature(metricsProvider);
+    }
 
     @ConditionalOnMissingBean(name = "instrumentedAuthDataAccessor")
     @Bean(name = { "authDataAccessor", "instrumentedAuthDataAccessor" })
