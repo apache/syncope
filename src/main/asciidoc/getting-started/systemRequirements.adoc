@@ -38,7 +38,7 @@ Apache Syncope {docVersion} is verified with the following Jakarta EE containers
 
  . https://tomcat.apache.org/download-10.cgi[Apache Tomcat 10^]
  . https://www.payara.fish/[Payara Server 6^]
- . https://www.wildfly.org/[Wildfly 37^]
+ . https://www.wildfly.org/[Wildfly 38^]
 
 === Internal Storage
 
