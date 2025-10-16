@@ -37,6 +37,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.lang.Objects;
 
 public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extends FieldPanel<T> {
 
@@ -74,7 +75,13 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
         this.enableOnChange = enableOnChange;
         this.convertValuesToString = convertValuesToString;
 
-        field = new NumberTextField<>("numberTextField", model, reference, options);
+        field = new NumberTextField<>("numberTextField", model, reference, options) {
+            @Override
+            protected String getModelValue() {
+                Object value = getModelObject();
+                return value == null ? "" : Objects.stringValue(value);
+            }
+        };
 
         if (enableOnChange && !isReadOnly()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
