@@ -74,7 +74,16 @@ public final class AjaxNumberFieldPanel<T extends Number & Comparable<T>> extend
         this.enableOnChange = enableOnChange;
         this.convertValuesToString = convertValuesToString;
 
-        field = new NumberTextField<>("numberTextField", model, reference, options);
+        field = new NumberTextField<>("numberTextField", model, reference, options) {
+
+            private static final long serialVersionUID = -8837755342786762653L;
+
+            @Override
+            protected String getModelValue() {
+                T value = getModelObject();
+                return value == null ? "" : value.toString().trim();
+            }
+        };
 
         if (enableOnChange && !isReadOnly()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
