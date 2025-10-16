@@ -416,7 +416,7 @@ under the License.
     <nimbus-jose-jwt.version>10.5</nimbus-jose-jwt.version>
 
     <spring-boot.version>3.4.10</spring-boot.version>
-    <spring-cloud-gateway.version>4.2.5</spring-cloud-gateway.version>
+    <spring-cloud-gateway.version>4.2.6</spring-cloud-gateway.version>
 
     <openjpa.version>4.1.1</openjpa.version>
 
@@ -504,7 +504,7 @@ under the License.
     <cargo.deployable.ping.timeout>60000</cargo.deployable.ping.timeout>
 
     <tomcat.version>10.1.48</tomcat.version>
-    <wildfly.version>37.0.1.Final</wildfly.version>
+    <wildfly.version>38.0.0.Final</wildfly.version>
     <payara.version>6.2025.10</payara.version>
     <jakarta.faces.version>4.1.4</jakarta.faces.version>
 
