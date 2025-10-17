@@ -52,7 +52,7 @@ under the License.
     <connection>scm:git:https://gitbox.apache.org/repos/asf/syncope.git</connection>
     <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/syncope.git</developerConnection>
     <url>https://gitbox.apache.org/repos/asf?p=syncope.git</url>
-    <tag>HEAD</tag>
+    <tag>syncope-4.0.2</tag>
   </scm>
 
   <issueManagement>
@@ -392,7 +392,7 @@ under the License.
   </contributors>
 
   <properties>
-    <project.build.outputTimestamp>2025-10-17T10:52:38Z</project.build.outputTimestamp>
+    <project.build.outputTimestamp>2025-10-17T10:43:35Z</project.build.outputTimestamp>
     <syncope.version>${project.version}</syncope.version>
 
     <connid.version>1.6.1.0</connid.version>
@@ -2152,21 +2152,19 @@ under the License.
             <link>https://www.slf4j.org/api/</link>
             <link>https://connid.tirasa.net/apidocs/1.6/</link>
             <link>https://cxf.apache.org/javadoc/latest/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-core/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-databind/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.core/jackson-annotations/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-xml/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml/2.17.3/</link>
-            <link>https://javadoc.io/static/com.fasterxml.jackson.dataformat/jackson-dataformat-csv/2.17.3/</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.9/</link>
+            <link>https://fasterxml.github.io/jackson-databind/javadoc/2.9/</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.9/</link>
+            <link>https://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.9/</link>
             <link>https://nightlies.apache.org/wicket/apidocs/10.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/3.2.1/api/</link>
+            <link>https://tika.apache.org/3.2.3/api/</link>
             <link>https://docs.spring.io/spring-boot/3.4/api/java/</link>
             <link>https://docs.spring.io/spring-framework/docs/6.2.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/6.4.x/api/</link>
-            <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>https://docs.swagger.io/swagger-core/v2.2.28/apidocs/</link>
+            <link>https://developer-docs.flowable.com/javadocs/flowable-oss-javadoc/2025.1/</link>
+            <link>https://docs.swagger.io/swagger-core/v2.2.39/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>
