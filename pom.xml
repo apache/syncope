@@ -2150,21 +2150,18 @@ under the License.
             <link>http://www.slf4j.org/api/</link>
             <link>http://connid.tirasa.net/apidocs/1.5/</link>
             <link>https://cxf.apache.org/javadoc/latest-3.6.x/</link>
-            <link>http://fasterxml.github.io/jackson-core/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/yaml/2.14/</link>
-            <link>http://fasterxml.github.io/jackson-dataformats-text/javadoc/csv/2.14/</link>
+            <link>https://fasterxml.github.io/jackson-core/javadoc/2.14/</link>
+            <link>https://fasterxml.github.io/jackson-databind/javadoc/2.14/</link>
+            <link>https://fasterxml.github.io/jackson-annotations/javadoc/2.14/</link>
+            <link>https://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.14/</link>
             <link>https://ci.apache.org/projects/wicket/apidocs/9.x/</link>
             <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-            <link>https://tika.apache.org/2.9.2/api/</link>
+            <link>https://tika.apache.org/2.9.4/api/</link>
             <link>https://docs.spring.io/spring-boot/docs/2.7.x/api/</link>
             <link>https://docs.spring.io/spring-framework/docs/5.3.x/javadoc-api/</link>
             <link>https://docs.spring.io/spring-security/site/docs/5.8.x/api/</link>
-            <link>https://www.flowable.com/open-source/docs/javadocs/</link>
-            <link>http://docs.swagger.io/swagger-core/v2.2.24/apidocs/</link>
+            <link>http://docs.swagger.io/swagger-core/v2.2.39/apidocs/</link>
           </links>
           <additionalOptions>
             <additionalOption>--legal-notices</additionalOption>
