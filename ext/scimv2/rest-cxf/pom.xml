@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.ext</groupId>
     <artifactId>syncope-ext-scimv2</artifactId>
-    <version>3.0.14</version>
+    <version>3.0.15-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Ext: SCIMv2 REST CXF</name>
