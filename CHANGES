@@ -2,6 +2,20 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 3.0.14
+================================================================================
+
+** Bug
+    * [SYNCOPE-1906] - Wrong result order if sorting by plain attribute
+    * [SYNCOPE-1912] - Linked account password is not propagated on update
+    * [SYNCOPE-1920] - Error in search panel while trying to add a condition after an attribute of type Long
+
+** Improvement
+    * [SYNCOPE-1907] - Run Groovy code in a sandbox
+    * [SYNCOPE-1908] - Improve Relationship management
+    * [SYNCOPE-1909] - Docker containers as unprivileged user
+    * [SYNCOPE-1918] - Push task with assign unmatching rule remove dynamic memberships
+
 Release Notes - Syncope - Version 3.0.13
 ================================================================================
 
