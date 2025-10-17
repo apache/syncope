@@ -2,6 +2,31 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 4.0.2
+================================================================================
+
+** Bug
+    * [SYNCOPE-1905] - Error while pulling a specific group (single pull) from resource
+    * [SYNCOPE-1906] - Wrong result order if sorting by plain attribute
+    * [SYNCOPE-1910] - Tasks and Reports executed nevertheless inactive
+    * [SYNCOPE-1911] - Case sensisitve search failing with Elasticsearch or OpenSearch
+    * [SYNCOPE-1912] - Linked account password is not propagated on update
+    * [SYNCOPE-1913] - Missing dependency to resolve inline Groovy in Syncope WA
+    * [SYNCOPE-1915] - Failure when running the Persistence Storage Upgrader against Oracle DBMS
+    * [SYNCOPE-1919] - Notification Job occasionally stuck
+    * [SYNCOPE-1920] - Error in search panel while trying to add a condition after an attribute of type Long
+
+** New Feature
+    * [SYNCOPE-1916] - Metrics
+
+** Improvement
+    * [SYNCOPE-1907] - Run Groovy code in a sandbox
+    * [SYNCOPE-1908] - Improve Relationship management
+    * [SYNCOPE-1909] - Docker containers as unprivileged user
+    * [SYNCOPE-1914] - WA SAML 2.0: support IdP customization per Client Application
+    * [SYNCOPE-1917] - Manage bypassTrustedDeviceEnabled on Syncope WA
+    * [SYNCOPE-1918] - Push task with assign unmatching rule remove dynamic memberships
+
 Release Notes - Syncope - Version 4.0.1
 ================================================================================
 
