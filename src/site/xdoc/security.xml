@@ -36,6 +36,49 @@ under the License.
 
       <p>If you want to report a vulnerability, please follow <a href="https://www.apache.org/security/">the procedure</a>.</p>
 
+      <subsection name="CVE-2025-57738: Apache Syncope: Remote Code Execution by delegated administrators">
+        <p>Apache Syncope offers the ability to extend / customize the base behavior on every deployment by allowing to provide custom implementations of a few Java interfaces; such implementations can be provided either as Java or Groovy classes, with the latter being particularly attractive as the machinery is set for runtime reload.
+Such a feature has been available for a while, but recently it was discovered that a malicious administrator can inject Groovy code that can be executed remotely by a running Apache Syncope Core instance.
+Users are recommended to upgrade to version 3.0.14 / 4.0.2, which fix this issue by forcing the Groovy code to run in a sandbox.</p>
+
+        <p>
+          <b>Severity</b>
+        </p>
+        <p>Moderate</p>
+
+        <p>
+          <b>Affects</b>
+        </p>
+        <p>
+          <ul>
+            <li>4.0 through 4.0.1</li>
+            <li>3.0 through 3.0.13</li>
+            <li>2.1 through 2.1.14</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Solution</b>
+        </p>
+        <p>
+          <ul>
+            <li>Users are recommended to upgrade to version 4.0.2 / 3.0.14 which fix this issue.</li>
+          </ul>
+        </p>
+
+        <p>
+          <b>Fixed in</b>
+        </p>
+        <p>
+          <ul>
+            <li>Release 4.0.2</li>
+            <li>Release 3.0.14</li>
+          </ul>
+        </p>
+
+        <p>Read the <a href="https://www.cve.org/CVERecord?id=CVE-2025-57738">full CVE advisory</a>.</p>
+      </subsection>
+
       <subsection name="CVE-2024-45031: Apache Syncope: Stored XSS in Console and Enduser">
         <p>When editing objects in the Syncope Console, incomplete HTML tags could be used to bypass HTML sanitization. This made it possible to inject stored XSS payloads which would trigger for other users during ordinary usage of the application.<br/>
 XSS payloads could also be injected in Syncope Enduser when editing “Personal Information” or “User Requests”: such payloads would trigger for administrators in Syncope Console, thus enabling session hijacking.</p>
