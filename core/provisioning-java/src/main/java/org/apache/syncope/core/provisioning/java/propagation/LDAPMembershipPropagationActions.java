@@ -85,7 +85,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     }
 
     @Override
-    public Set<String> moreAttrsToGet(Optional<PropagationTaskInfo> taskInfo, Provision provision) {
+    public Set<String> moreAttrsToGet(final Optional<PropagationTaskInfo> taskInfo, final Provision provision) {
         return Set.of(getGroupMembershipAttrName());
     }
 
