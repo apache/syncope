@@ -94,7 +94,7 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
      *
      * @return the name of the attribute used to keep track of group memberships
      */
-	protected String getConnectorLdapGroupsAttrName() {
+    protected String getConnectorLdapGroupsAttrName() {
         return "ldapGroups";
     }
 
