@@ -58,7 +58,7 @@ public class DashboardSystemPanel extends Panel {
         String versionLink =
                 StringUtils.isNotBlank(gitAndBuildInfo.getLeft()) && gitAndBuildInfo.getRight().endsWith("-SNAPSHOT")
                 ? "https://gitbox.apache.org/repos/asf?p=syncope.git;a=commit;h=" + gitAndBuildInfo.getLeft()
-                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Maggiore";
+                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Notturno";
         version.add(new AttributeModifier("onclick", "window.open('" + versionLink + "', '_blank')"));
         add(version);
 
