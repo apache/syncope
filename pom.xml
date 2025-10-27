@@ -2482,7 +2482,7 @@ under the License.
           <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
+            <version>${byte-buddy.jdk25.version}</version>
           </dependency>
 
           <dependency>
