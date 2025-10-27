@@ -53,6 +53,9 @@ applications as standalone fat JAR or WAR files.
 Spring Boot applications can also be
 https://docs.spring.io/spring-boot/3.4/how-to/deployment/installing.html[installed as system services^].
 
+[TIP]
+https://docs.spring.io/spring-boot/3.4/reference/features/spring-application.html#features.spring-application.virtual-threads[Virtual Threads^] can be enabled but JDK >= 24 is required in order to run properly.
+
 .Run Core application as standalone under GNU / Linux
 ====
 Assuming that the JDBC driver JAR file for the configured <<dbms>> is available under `/opt/syncope/lib`,
