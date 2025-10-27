@@ -66,6 +66,12 @@ under the License.
       <artifactId>syncope-common-keymaster-client-zookeeper</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>${byte-buddy.jdk25.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

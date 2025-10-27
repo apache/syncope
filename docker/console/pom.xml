@@ -83,6 +83,12 @@ under the License.
       <artifactId>syncope-ext-scimv2-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>${byte-buddy.jdk25.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

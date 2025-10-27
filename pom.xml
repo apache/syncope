@@ -471,7 +471,10 @@ under the License.
     <curator.version>5.9.0</curator.version>
     <zookeeper.version>3.9.4</zookeeper.version>
 
-    <testcontainers.version>1.21.0</testcontainers.version>
+    <byte-buddy.jdk25.version>1.17.8</byte-buddy.jdk25.version>
+    <mockito.jdk25.version>5.20.0</mockito.jdk25.version>
+
+    <testcontainers.version>1.21.3</testcontainers.version>
 
     <zonky.embedded-postgres.version>2.1.1</zonky.embedded-postgres.version>
     <zonky.embedded-postgres-binaries.version>17.6.0</zonky.embedded-postgres-binaries.version>
@@ -2469,17 +2472,12 @@ under the License.
         <jdk>[25,)</jdk>
       </activation>
 
-      <properties>
-        <byte-buddy.version>1.17.7</byte-buddy.version>
-        <mockito.version>5.20.0</mockito.version>
-      </properties>
-
       <dependencyManagement>
         <dependencies>
           <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
+            <version>${byte-buddy.jdk25.version}</version>
           </dependency>
           <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -2490,7 +2488,7 @@ under the License.
           <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
-            <version>${mockito.version}</version>
+            <version>${mockito.jdk25.version}</version>
             <scope>test</scope>
           </dependency>
         </dependencies>
