@@ -242,6 +242,11 @@ public abstract class AbstractAnySearchDAO implements AnySearchDAO {
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
         PlainAttrValue attrValue = new PlainAttrValue();
+        
+        if (AttrSchemaType.Encrypted == schema.getType()) {
+            throw new IllegalArgumentException("Cannot search by encrypted schema " + cond.getSchema());
+        }
+        
         try {
             if (cond.getType() != AttrCond.Type.LIKE
                     && cond.getType() != AttrCond.Type.ILIKE

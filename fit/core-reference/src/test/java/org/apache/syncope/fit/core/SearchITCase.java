@@ -1163,4 +1163,23 @@ public class SearchITCase extends AbstractITCase {
             deleteUser("user test 182");
         }
     }
+
+    @Test
+    public void issueSYNCOPE1922() {
+        // 1. set encrypted value
+        updateUser(new UserUR.Builder(USER_SERVICE.read("bellini").getKey()).plainAttr(
+                attrAddReplacePatch("obscure", "myobscurevalue")).build());
+        // 2. search by encrypted value
+        try {
+            USER_SERVICE.search(new AnyQuery.Builder().fiql(SyncopeClient.getUserSearchConditionBuilder()
+                    .and(List.of(SyncopeClient.getUserSearchConditionBuilder().is("obscure").equalTo("myobscurevalue"),
+                            SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("bellini")))
+                    .query()).page(1).size(1).build());
+            fail("Search should have been blocked, since on encrypted schema");
+        } catch (SyncopeClientException sce) {
+            assertEquals(ClientExceptionType.InvalidSearchParameters, sce.getType());
+            assertTrue(
+                    sce.getMessage().contains("IllegalArgumentException: Cannot search by encrypted schema obscure"));
+        }
+    }
 }
