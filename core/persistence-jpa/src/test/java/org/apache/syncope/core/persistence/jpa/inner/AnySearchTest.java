@@ -1087,7 +1087,7 @@ public class AnySearchTest extends AbstractTest {
         assertThrows(IllegalArgumentException.class,
                 () -> searchDAO.search(SearchCond.getLeaf(obscureCond), AnyTypeKind.USER));
     }
-    
+
     private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
         user.getPlainAttr(plainSchema.getKey())
                 .ifPresentOrElse(ctype -> ctype.getValues().get(0).setStringValue(value), () -> {
