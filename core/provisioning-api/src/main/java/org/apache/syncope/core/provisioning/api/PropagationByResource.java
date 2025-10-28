@@ -87,21 +87,11 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      * @return whether the operation was successful or not
      */
     public final boolean add(final ResourceOperation type, final T key) {
-        Set<T> set;
-        switch (type) {
-            case CREATE:
-                set = toBeCreated;
-                break;
-
-            case UPDATE:
-                set = toBeUpdated;
-                break;
-
-            case DELETE:
-            default:
-                set = toBeDeleted;
-                break;
-        }
+        Set<T> set = switch (type) {
+            case CREATE -> toBeCreated;
+            case UPDATE -> toBeUpdated;
+            default -> toBeDeleted;
+        };
 
         return set.add(key);
     }
@@ -114,21 +104,11 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      * @return whether the operation was successful or not
      */
     public boolean addAll(final ResourceOperation type, final Collection<T> keys) {
-        Set<T> set;
-        switch (type) {
-            case CREATE:
-                set = toBeCreated;
-                break;
-
-            case UPDATE:
-                set = toBeUpdated;
-                break;
-
-            case DELETE:
-            default:
-                set = toBeDeleted;
-                break;
-        }
+        Set<T> set = switch (type) {
+            case CREATE -> toBeCreated;
+            case UPDATE -> toBeUpdated;
+            default -> toBeDeleted;
+        };
 
         return set.addAll(keys);
     }
@@ -141,25 +121,12 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      * @return whether the operation was successful or not
      */
     public final boolean remove(final ResourceOperation type, final T key) {
-        boolean result = false;
-
-        switch (type) {
-            case CREATE:
-                result = toBeCreated.remove(key);
-                break;
-
-            case UPDATE:
-                result = toBeUpdated.remove(key);
-                break;
-
-            case DELETE:
-                result = toBeDeleted.remove(key);
-                break;
-
-            default:
-        }
-
-        return result;
+        return switch (type) {
+            case CREATE -> toBeCreated.remove(key);
+            case UPDATE -> toBeUpdated.remove(key);
+            case DELETE -> toBeDeleted.remove(key);
+            default -> false;
+        };
     }
 
     /**
@@ -170,21 +137,11 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      * @return whether the operation was successful or not
      */
     public boolean removeAll(final ResourceOperation type, final Set<T> keys) {
-        Set<T> set;
-        switch (type) {
-            case CREATE:
-                set = toBeCreated;
-                break;
-
-            case UPDATE:
-                set = toBeUpdated;
-                break;
-
-            case DELETE:
-            default:
-                set = toBeDeleted;
-                break;
-        }
+        Set<T> set = switch (type) {
+            case CREATE -> toBeCreated;
+            case UPDATE -> toBeUpdated;
+            default -> toBeDeleted;
+        };
 
         return set.removeAll(keys);
     }
@@ -198,8 +155,8 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      */
     public boolean removeAll(final Collection<T> keys) {
         return toBeCreated.removeAll(keys)
-                || toBeUpdated.removeAll(keys)
-                || toBeDeleted.removeAll(keys);
+                | toBeUpdated.removeAll(keys)
+                | toBeDeleted.removeAll(keys);
     }
 
     /**
@@ -211,8 +168,8 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      */
     public boolean removeIf(final Predicate<? super T> filter) {
         return toBeCreated.removeIf(filter)
-                || toBeUpdated.removeIf(filter)
-                || toBeDeleted.removeIf(filter);
+                | toBeUpdated.removeIf(filter)
+                | toBeDeleted.removeIf(filter);
     }
 
     /**
@@ -225,30 +182,17 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      */
     public boolean retainAll(final Collection<T> keys) {
         return toBeCreated.retainAll(keys)
-                || toBeUpdated.retainAll(keys)
-                || toBeDeleted.retainAll(keys);
+                | toBeUpdated.retainAll(keys)
+                | toBeDeleted.retainAll(keys);
     }
 
     public boolean contains(final ResourceOperation type, final T key) {
-        boolean result = false;
-
-        switch (type) {
-            case CREATE:
-                result = toBeCreated.contains(key);
-                break;
-
-            case UPDATE:
-                result = toBeUpdated.contains(key);
-                break;
-
-            case DELETE:
-                result = toBeDeleted.contains(key);
-                break;
-
-            default:
-        }
-
-        return result;
+        return switch (type) {
+            case CREATE -> toBeCreated.contains(key);
+            case UPDATE -> toBeUpdated.contains(key);
+            case DELETE -> toBeDeleted.contains(key);
+            default -> false;
+        };
     }
 
     public boolean contains(final T key) {
@@ -264,25 +208,12 @@ public class PropagationByResource<T extends Serializable> implements Serializab
      * @return resource matching the given type
      */
     public final Set<T> get(final ResourceOperation type) {
-        Set<T> result = Set.of();
-
-        switch (type) {
-            case CREATE:
-                result = toBeCreated;
-                break;
-
-            case UPDATE:
-                result = toBeUpdated;
-                break;
-
-            case DELETE:
-                result = toBeDeleted;
-                break;
-
-            default:
-        }
-
-        return result;
+        return switch (type) {
+            case CREATE -> toBeCreated;
+            case UPDATE -> toBeUpdated;
+            case DELETE -> toBeDeleted;
+            default -> Set.of();
+        };
     }
 
     public Map<T, ResourceOperation> asMap() {

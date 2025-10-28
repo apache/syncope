@@ -116,13 +116,38 @@ public class PropagationByResourceTest extends AbstractTest {
     @Test
     public void removeAll() {
         Set<String> keys = new HashSet<>();
-        keys.add("testKey1");
-        keys.add("testKey2");
+        String key1 = "key1";
+        String key2 = "key2";
+        keys.add(key1);
+        keys.add(key2);
 
         assertFalse(propagationByResource.removeAll(ResourceOperation.CREATE, keys));
         assertFalse(propagationByResource.removeAll(ResourceOperation.UPDATE, keys));
         assertFalse(propagationByResource.removeAll(ResourceOperation.DELETE, keys));
         assertFalse(propagationByResource.removeAll(ResourceOperation.NONE, keys));
+
+        propagationByResource.add(ResourceOperation.CREATE, key1);
+        propagationByResource.add(ResourceOperation.UPDATE, key2);
+        assertTrue(propagationByResource.removeAll(keys));
+        assertFalse(propagationByResource.contains(key1));
+        assertFalse(propagationByResource.contains(key2));
+    }
+
+    @Test
+    public void retainAll() {
+        Set<String> keys = new HashSet<>();
+        String key1 = "key1";
+        String key2 = "key2";
+        String key3 = "key3";
+        keys.add(key1);
+
+        propagationByResource.add(ResourceOperation.CREATE, key1);
+        propagationByResource.add(ResourceOperation.UPDATE, key2);
+        propagationByResource.add(ResourceOperation.DELETE, key3);
+        assertTrue(propagationByResource.retainAll(keys));
+        assertTrue(propagationByResource.contains(key1));
+        assertFalse(propagationByResource.contains(key2));
+        assertFalse(propagationByResource.contains(key3));
     }
 
     @Test
