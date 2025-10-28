@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.ParseException;
@@ -1065,6 +1066,26 @@ public class AnySearchTest extends AbstractTest {
         assertEquals("rossini", users.get(2).getUsername());
         assertEquals("verdi", users.get(1).getUsername());
         assertEquals("bellini", users.get(0).getUsername());
+    }
+
+    @Test
+    public void issueSYNCOPE1922() {
+        User bellini = userDAO.findByUsername("bellini");
+        assertNotNull(bellini);
+
+        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
+        assertNotNull(obscureSchema);
+
+        userDAO.save(addPlainAttr(bellini, obscureSchema, "myobscurevalue"));
+
+        entityManager().flush();
+
+        AttrCond obscureCond = new AttrCond(AttrCond.Type.EQ);
+        obscureCond.setSchema("obscure");
+        obscureCond.setExpression("myobscurevalue");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> searchDAO.search(SearchCond.getLeaf(obscureCond), AnyTypeKind.USER));
     }
 
     private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {

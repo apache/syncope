@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.SchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -123,7 +124,8 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             protected Map<String, PlainSchemaTO> load() {
                 return schemaRestClient.<PlainSchemaTO>getSchemas(
                         SchemaType.PLAIN, null, anyTypeRestClient.read(anyType).getClasses().toArray(String[]::new)).
-                        stream().collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
+                        stream().filter(schema -> AttrSchemaType.Encrypted != schema.getType()).
+                        collect(Collectors.toMap(SchemaTO::getKey, Function.identity()));
             }
         };
     }

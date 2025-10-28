@@ -202,6 +202,10 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         PlainSchema schema = Optional.ofNullable(plainSchemaDAO.find(cond.getSchema())).
                 orElseThrow(() -> new IllegalArgumentException("Invalid schema " + cond.getSchema()));
 
+        if (AttrSchemaType.Encrypted == schema.getType()) {
+            throw new IllegalArgumentException("Cannot search by encrypted schema " + cond.getSchema());
+        }
+
         PlainAttrValue attrValue = schema.isUniqueConstraint()
                 ? anyUtils.newPlainAttrUniqueValue()
                 : anyUtils.newPlainAttrValue();
