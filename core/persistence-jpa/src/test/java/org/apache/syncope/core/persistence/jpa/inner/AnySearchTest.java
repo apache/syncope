@@ -1030,22 +1030,22 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE1922() {
-        User bellini = userDAO.findByUsername("bellini");
+        User bellini = userDAO.findByUsername("bellini").orElseThrow();
         assertNotNull(bellini);
 
-        PlainSchema obscureSchema = plainSchemaDAO.find("obscure");
+        PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
         assertNotNull(obscureSchema);
 
         userDAO.save(addPlainAttr(bellini, obscureSchema, "myobscurevalue"));
 
-        entityManager().flush();
+        entityManager.flush();
 
         AttrCond obscureCond = new AttrCond(AttrCond.Type.EQ);
         obscureCond.setSchema("obscure");
         obscureCond.setExpression("myobscurevalue");
 
         assertThrows(IllegalArgumentException.class,
-                () -> searchDAO.search(SearchCond.getLeaf(obscureCond), AnyTypeKind.USER));
+                () -> searchDAO.search(SearchCond.of(obscureCond), AnyTypeKind.USER));
     }
 
     private User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
