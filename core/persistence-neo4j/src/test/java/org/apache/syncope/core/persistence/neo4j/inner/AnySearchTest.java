@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.neo4j.inner;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.text.ParseException;
@@ -36,10 +37,12 @@ import java.util.stream.Stream;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.IdRepoEntitlement;
+import org.apache.syncope.core.persistence.api.attrvalue.PlainAttrValidationManager;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmSearchDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -56,6 +59,7 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -104,6 +108,12 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private PlainAttrValidationManager validator;
 
     @BeforeEach
     public void adjustLoginDateForLocalSystem() throws ParseException {
@@ -973,5 +983,33 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(4, users.size());
+    }
+
+    @Test
+    public void issueSYNCOPE1922() {
+        User bellini = userDAO.findByUsername("bellini").orElseThrow();
+
+        PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
+
+        userDAO.save(addPlainAttr(bellini, obscureSchema, "myobscurevalue"));
+
+        AttrCond obscureCond = new AttrCond(AttrCond.Type.EQ);
+        obscureCond.setSchema("obscure");
+        obscureCond.setExpression("myobscurevalue");
+
+        assertThrows(IllegalArgumentException.class,
+                () -> searchDAO.search(SearchCond.of(obscureCond), AnyTypeKind.USER));
+    }
+
+    protected User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
+        user.getPlainAttr(plainSchema.getKey())
+                .ifPresentOrElse(ctype -> ctype.getValues().get(0).setStringValue(value), () -> {
+                    PlainAttr attr = new PlainAttr();
+                    attr.setPlainSchema(plainSchema);
+                    attr.add(validator, value);
+
+                    user.add(attr);
+                });
+        return user;
     }
 }
