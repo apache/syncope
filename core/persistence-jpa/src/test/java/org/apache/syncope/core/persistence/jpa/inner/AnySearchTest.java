@@ -1031,10 +1031,8 @@ public class AnySearchTest extends AbstractTest {
     @Test
     public void issueSYNCOPE1922() {
         User bellini = userDAO.findByUsername("bellini").orElseThrow();
-        assertNotNull(bellini);
 
         PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
-        assertNotNull(obscureSchema);
 
         userDAO.save(addPlainAttr(bellini, obscureSchema, "myobscurevalue"));
 
