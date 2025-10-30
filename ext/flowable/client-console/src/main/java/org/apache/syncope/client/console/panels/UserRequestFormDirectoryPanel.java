@@ -113,6 +113,10 @@ public class UserRequestFormDirectoryPanel
                 components.refreshLatestAlerts(target);
             }
 
+            if (actionTogglePanel.isVisibleInHierarchy()) {
+                actionTogglePanel.toggle(target, false);
+            }
+
             manageFormModal.show(false);
         });
 

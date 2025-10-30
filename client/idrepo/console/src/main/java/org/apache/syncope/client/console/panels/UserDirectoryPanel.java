@@ -74,10 +74,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     protected UserDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
 
-        altDefaultModal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(altDefaultModal, true);
     }
 
     @Override
@@ -224,7 +221,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             SyncopeWebApplication.get().getAnyDirectoryPanelAdditionalActionLinksProvider().get(
                     model,
                     realm,
-                    altDefaultModal,
+                    modal,
                     getString("any.edit", new Model<>(new UserWrapper(model.getObject()))),
                     this,
                     pageRef).forEach(panel::add);

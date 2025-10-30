@@ -33,6 +33,7 @@ import org.apache.syncope.client.ui.commons.status.StatusBean;
 import org.apache.syncope.client.ui.commons.wizards.any.EntityWrapper;
 import org.apache.syncope.client.ui.commons.wizards.any.UserWrapper;
 import org.apache.syncope.common.keymaster.client.api.model.Domain;
+import org.apache.syncope.common.keymaster.client.api.model.NetworkService;
 import org.apache.syncope.common.lib.Attr;
 import org.apache.syncope.common.lib.command.CommandTO;
 import org.apache.syncope.common.lib.policy.PolicyTO;
@@ -71,7 +72,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         container.add(getEmptyFragment());
     }
 
-    public void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
+    protected void updateHeader(final AjaxRequestTarget target, final Serializable modelObject) {
         final String header;
         if (modelObject instanceof final UserTO userTO) {
             header = userTO.getUsername();
@@ -104,19 +105,20 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof final CommandWrapper commandWrapper) {
             header = commandWrapper.getCommand().getKey();
         } else if (modelObject instanceof final JobTO jobTO) {
-            header = jobTO.getRefKey() == null
-                    ? jobTO.getRefDesc() : jobTO.getRefKey();
+            header = jobTO.getRefKey() == null ? jobTO.getRefDesc() : jobTO.getRefKey();
         } else if (modelObject instanceof final ToggleableTarget toggleableTarget) {
             header = toggleableTarget.getAnyType();
         } else if (modelObject instanceof final Domain domain) {
             header = domain.getKey();
         } else if (modelObject instanceof final CommandTO commandTO) {
             header = commandTO.getKey();
+        } else if (modelObject instanceof final NetworkService networkService) {
+            header = networkService.getAddress();
         } else if (modelObject instanceof final NamedEntityTO entity) {
             header = entity.getName();
         } else if (modelObject instanceof final EntityTO entityTO) {
             header = entityTO.getKey();
-        } else if (modelObject instanceof final EntityWrapper entityWrapper) {
+        } else if (modelObject instanceof final EntityWrapper<?> entityWrapper) {
             EntityTO inner = entityWrapper.getInnerObject();
             header = inner instanceof final NamedEntityTO namedEntityTO ? namedEntityTO.getName() : inner.getKey();
         } else {
@@ -133,7 +135,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
         updateHeader(target, modelObject);
 
-        modal.setWindowClosedCallback(t -> modal.show(false));
+        setWindowClosedReloadCallback(modal);
 
         Fragment frag = new Fragment("actions", "actionsFragment", this);
         frag.setOutputMarkupId(true);

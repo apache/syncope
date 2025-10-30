@@ -73,10 +73,7 @@ public class MailTemplateDirectoryPanel
 
         modal.size(Modal.Size.Small);
         modal.addSubmitButton();
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
         setFooterVisibility(true);
 
         addOuterObject(utilityModal);

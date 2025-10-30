@@ -61,13 +61,10 @@ public class SRARouteDirectoryPanel
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
 
         addNewItemPanelBuilder(new SRARouteWizardBuilder(new SRARouteTO(), restClient, pageRef), true);
+
         initResultTable();
     }
 

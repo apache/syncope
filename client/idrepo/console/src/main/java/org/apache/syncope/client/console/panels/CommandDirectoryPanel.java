@@ -66,11 +66,7 @@ public class CommandDirectoryPanel
         disableCheckBoxes();
 
         modal.size(Modal.Size.Large);
-
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
 
         addNewItemPanelBuilder(new CommandWizardBuilder(new CommandTO(), restClient, pageRef), false);
 

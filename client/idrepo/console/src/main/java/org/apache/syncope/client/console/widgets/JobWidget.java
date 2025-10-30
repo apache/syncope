@@ -273,11 +273,11 @@ public class JobWidget extends BaseWidget {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
+        if (event.getPayload() instanceof JobActionPanel.JobActionPayload payload) {
             available.clear();
             available.addAll(getUpdatedAvailable());
             availableJobsPanel.modelChanged();
-            JobActionPanel.JobActionPayload.class.cast(event.getPayload()).getTarget().add(availableJobsPanel);
+            payload.getTarget().add(availableJobsPanel);
         }
     }
 

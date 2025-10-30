@@ -117,7 +117,7 @@ public class OIDCProvidersDirectoryPanel extends DirectoryPanel<
                 setFooterVisible(false);
             }
         };
-        templateModal.setWindowClosedCallback(target -> templateModal.show(false));
+        setWindowClosedReloadCallback(templateModal);
         templateModal.size(Modal.Size.Large);
         addOuterObject(templateModal);
 
