@@ -129,9 +129,6 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     public abstract void onClick(AjaxRequestTarget target, T modelObject);
 
-    public void postClick() {
-    }
-
     public boolean feedbackPanelAutomaticReload() {
         return reloadFeedbackPanel;
     }

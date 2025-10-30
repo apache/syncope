@@ -169,24 +169,16 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
         Optional.ofNullable(action.getIcon()).ifPresent(i -> actionIcon.add(new AttributeModifier("class", i)));
 
-        this.disableIndicator = !action.hasIndicator();
+        disableIndicator = !action.hasIndicator();
         // ---------------------------
     }
 
     protected void beforeOnClick(final AjaxRequestTarget target) {
-        switch (this.action.getType()) {
-            case DELETE:
-            case CREATE:
-            case MEMBERS:
-            case MAPPING:
-            case SET_LATEST_SYNC_TOKEN:
-            case REMOVE_SYNC_TOKEN:
-            case EDIT_APPROVAL:
-            case CLAIM:
+        switch (action.getType()) {
+            case DELETE, CREATE, MEMBERS, MAPPING, SET_LATEST_SYNC_TOKEN, REMOVE_SYNC_TOKEN, EDIT_APPROVAL, CLAIM ->
                 send(this, Broadcast.BUBBLE, new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
-                break;
-            default:
-                break;
+            default -> {
+            }
         }
     }
 }

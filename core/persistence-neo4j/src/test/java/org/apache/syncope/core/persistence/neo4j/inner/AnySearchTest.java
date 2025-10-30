@@ -58,6 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
@@ -986,30 +987,75 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
-    public void issueSYNCOPE1922() {
-        User bellini = userDAO.findByUsername("bellini").orElseThrow();
+    void issueSYNCOPE1906() {
+        PlainSchema ctypeSchema = plainSchemaDAO.findById("ctype").orElseThrow();
 
-        PlainSchema obscureSchema = plainSchemaDAO.findById("obscure").orElseThrow();
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
 
-        userDAO.save(addPlainAttr(bellini, obscureSchema, "myobscurevalue"));
+        anyUtils.addAttr(validator, userDAO.findKey("bellini").orElseThrow(), ctypeSchema, "aa1");
+        assertEquals("aa1", userDAO.findByUsername("bellini").orElseThrow().
+                getPlainAttr("ctype").orElseThrow().getValues().getFirst().getValueAsString());
 
-        AttrCond obscureCond = new AttrCond(AttrCond.Type.EQ);
-        obscureCond.setSchema("obscure");
-        obscureCond.setExpression("myobscurevalue");
+        anyUtils.addAttr(validator, userDAO.findKey("puccini").orElseThrow(), ctypeSchema, "aa2");
+        assertEquals("aa2", userDAO.findByUsername("puccini").orElseThrow().
+                getPlainAttr("ctype").orElseThrow().getValues().getFirst().getValueAsString());
 
-        assertThrows(IllegalArgumentException.class,
-                () -> searchDAO.search(SearchCond.of(obscureCond), AnyTypeKind.USER));
+        anyUtils.addAttr(validator, userDAO.findKey("verdi").orElseThrow(), ctypeSchema, "aa3");
+        assertEquals("aa3", userDAO.findByUsername("verdi").orElseThrow().
+                getPlainAttr("ctype").orElseThrow().getValues().getFirst().getValueAsString());
+
+        anyUtils.removeAttr(userDAO.findKey("vivaldi").orElseThrow(), ctypeSchema);
+        anyUtils.addAttr(validator, userDAO.findKey("vivaldi").orElseThrow(), ctypeSchema, "aa4");
+        assertEquals("aa4", userDAO.findByUsername("vivaldi").orElseThrow().
+                getPlainAttr("ctype").orElseThrow().getValues().getFirst().getValueAsString());
+
+        anyUtils.removeAttr(userDAO.findKey("rossini").orElseThrow(), ctypeSchema);
+        anyUtils.addAttr(validator, userDAO.findKey("rossini").orElseThrow(), ctypeSchema, "aa5");
+        assertEquals("aa5", userDAO.findByUsername("rossini").orElseThrow().
+                getPlainAttr("ctype").orElseThrow().getValues().getFirst().getValueAsString());
+
+        AnyCond keyCond = new AnyCond(AttrCond.Type.ISNOTNULL);
+        keyCond.setSchema("key");
+
+        List<User> users = searchDAO.search(
+                SearchCond.of(keyCond), List.of(new Sort.Order(Sort.Direction.DESC, "ctype")), AnyTypeKind.USER);
+        assertEquals(
+                List.of("rossini", "vivaldi", "verdi", "puccini", "bellini"),
+                users.stream().map(User::getUsername).toList());
+
+        AttrCond surnameCond = new AttrCond(AttrCond.Type.ILIKE);
+        surnameCond.setSchema("surname");
+        surnameCond.setExpression("%ini");
+
+        AttrCond coolCond = new AttrCond(AttrCond.Type.ISNULL);
+        coolCond.setSchema("cool");
+
+        // order by ctype even not searching by it
+        users = searchDAO.search(
+                SearchCond.and(SearchCond.of(surnameCond), SearchCond.of(coolCond)),
+                List.of(new Sort.Order(Sort.Direction.DESC, "ctype")), AnyTypeKind.USER);
+        assertEquals(2, users.size());
+
+        // order by unique attribute
+        users = searchDAO.search(
+                SearchCond.of(keyCond), List.of(new Sort.Order(Sort.Direction.DESC, "fullname")), AnyTypeKind.USER);
+        assertEquals(
+                List.of("bellini", "verdi", "rossini", "puccini", "vivaldi"),
+                users.stream().map(User::getUsername).toList());
     }
 
-    protected User addPlainAttr(final User user, final PlainSchema plainSchema, final String value) {
-        user.getPlainAttr(plainSchema.getKey())
-                .ifPresentOrElse(ctype -> ctype.getValues().get(0).setStringValue(value), () -> {
-                    PlainAttr attr = new PlainAttr();
-                    attr.setPlainSchema(plainSchema);
-                    attr.add(validator, value);
+    @Test
+    void issueSYNCOPE1922() {
+        anyUtilsFactory.getInstance(AnyTypeKind.USER).addAttr(
+                validator,
+                userDAO.findKey("bellini").orElseThrow(),
+                plainSchemaDAO.findById("obscure").orElseThrow(),
+                "myobscurevalue");
 
-                    user.add(attr);
-                });
-        return user;
+        AttrCond cond = new AttrCond(AttrCond.Type.EQ);
+        cond.setSchema("obscure");
+        cond.setExpression("myobscurevalue");
+
+        assertThrows(IllegalArgumentException.class, () -> searchDAO.search(SearchCond.of(cond), AnyTypeKind.USER));
     }
 }

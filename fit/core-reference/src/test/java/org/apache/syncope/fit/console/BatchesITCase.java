@@ -83,31 +83,31 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:4:"
                 + "action:action");
 
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
         component = findComponentByProp("resource",
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "resource-csv");
         assertNotNull(component);
 
         FormTester formTester = TESTER.newFormTester(
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", 0);
 
-        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:0:outer:"
                 + "form:content:status:secondLevelContainer:second:container", "resource-csv"));
     }
 
@@ -137,12 +137,12 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:"
                 + "action:action");
 
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
         component = findComponentByProp("resource",
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath()
@@ -151,37 +151,37 @@ public class BatchesITCase extends AbstractConsoleITCase {
         assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         FormTester formTester = TESTER.newFormTester(
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", index);
 
-        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         // suspend link
         TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:"
+                + "outerObjectsRepeater:0:outer:form:content:status:secondLevelContainer:"
                 + "second:container:actions:actionRepeater:0:action:action",
                 Constants.ON_CLICK);
 
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
         TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
+                + "outerObjectsRepeater:0:outer:form:content:status:secondLevelContainer:back",
                 Constants.ON_CLICK);
 
         component = findComponentByProp("resource",
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath()
@@ -204,42 +204,42 @@ public class BatchesITCase extends AbstractConsoleITCase {
                 + ":outer:container:content:togglePanelContainer:container:actions:actions:actionRepeater:3:"
                 + "action:action");
 
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
         formTester = TESTER.newFormTester(
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
         formTester.select("checkgroup", index);
 
-        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:batchLink",
                 Constants.ON_CLICK);
 
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
         // suspend link
         TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:"
+                + "outerObjectsRepeater:0:outer:form:content:status:secondLevelContainer:"
                 + "second:container:actions:actionRepeater:1:action:action",
                 Constants.ON_CLICK);
 
         assertSuccessMessage();
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
         TESTER.executeAjaxEvent(TAB_PANEL
-                + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
+                + "outerObjectsRepeater:0:outer:form:content:status:secondLevelContainer:back",
                 Constants.ON_CLICK);
 
         component = findComponentByProp("resource",
-                TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
+                TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:status:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath()

@@ -110,10 +110,7 @@ public abstract class PolicyDirectoryPanel<T extends PolicyTO>
 
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
         setFooterVisibility(true);
 
         disableCheckBoxes();

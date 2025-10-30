@@ -1165,7 +1165,7 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE1922() {
+    void issueSYNCOPE1922() {
         // 1. set encrypted value
         updateUser(new UserUR.Builder(USER_SERVICE.read("bellini").getKey()).plainAttr(
                 attrAddReplacePatch("obscure", "myobscurevalue")).build());

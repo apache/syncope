@@ -68,10 +68,7 @@ public class NetworkServiceDirectoryPanel extends DirectoryPanel<
 
         modal.size(Modal.Size.Large);
         modal.addSubmitButton();
-        modal.setWindowClosedCallback(target -> {
-            updateResultTable(target);
-            modal.show(false);
-        });
+        setWindowClosedReloadCallback(modal, true);
         setFooterVisibility(true);
 
         initResultTable();

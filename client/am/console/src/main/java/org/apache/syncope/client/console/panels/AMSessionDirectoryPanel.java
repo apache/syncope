@@ -92,7 +92,7 @@ public class AMSessionDirectoryPanel
             }
         };
         viewModal.size(Modal.Size.Extra_large);
-        viewModal.setWindowClosedCallback(target -> viewModal.show(false));
+        setWindowClosedReloadCallback(viewModal);
         addOuterObject(viewModal);
 
         initResultTable();
